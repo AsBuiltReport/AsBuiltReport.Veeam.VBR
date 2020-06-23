@@ -1,0 +1,17 @@
+{
+    "Report": {
+        "Name": "Veeam VBR As Built Report",
+        "Version": "1.0",
+        "Status": "Released"
+    },
+    "Options": {
+
+    },
+    "InfoLevel": {
+        "_comment_": "0 = Disabled, 1 = Summary, 2 = Advanced Summary, 3 = Detailed, 4 = Advanced Detailed, 5 = Comprehensive"
+        
+    },
+    "HealthCheck": {
+
+    }
+}
