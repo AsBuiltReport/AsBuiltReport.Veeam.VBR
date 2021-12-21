@@ -7,14 +7,14 @@ function Invoke-AsBuiltReport.Veeam.VBR {
     .NOTES
         Version:        0.1.0
         Author:         Tim Carman
-        Twitter:        
-        Github:         
+        Twitter:
+        Github:
         Credits:        Iain Brighton (@iainbrighton) - PScribo module
 
     .LINK
         https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR
     #>
-	
+
 	# Do not remove or add to these parameters
     param (
         [String[]] $Target,
@@ -30,12 +30,19 @@ function Invoke-AsBuiltReport.Veeam.VBR {
     $TextInfo = (Get-Culture).TextInfo
 
 	# Update/rename the $System variable and build out your code within the ForEach loop. The ForEach loop enables AsBuiltReport to generate an as built configuration against multiple defined targets.
-	
+
     #region foreach loop
     foreach ($System in $Target) {
-		
-		
-		
+        Get-AbrVbrRequiredModule -Name 'Veeam.Backup.PowerShell' -Version '1.0'
+        Get-AbrVbrServerConnection
+        Section -Style Heading2 'VEEAM Backup Infrastructure Report' {
+            Paragraph "The following section provides a summary of the components implemented on the Veeam Backup Infrastructure"
+            BlankLine
+            Get-AbrVbrServerInfo
+            Get-AbrVbrInstalledLicense
+            Get-AbrVbrBackupRepository
+            Get-AbrVbrScaleOutRepository
+        }
 	}
 	#endregion foreach loop
 }
