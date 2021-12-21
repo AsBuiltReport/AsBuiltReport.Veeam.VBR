@@ -58,9 +58,9 @@ This report is compatible with the following PowerShell versions;
 
 ## :wrench: System Requirements
 
-PowerShell 5.1 or PowerShell 7, and the following PowerShell modules are required for generating a Veeam VBR As Built report.
+PowerShell 5.1 or PowerShell 7, and the following PowerShell module is required for generating a Veeam VBR As Built report.
 
-- [AsBuiltReport.Microsoft.AD Module](https://www.powershellgallery.com/packages/AsBuiltReport.Microsoft.AD/)
+- [Veeam.Backup.PowerShell Module](https://helpcenter.veeam.com/docs/backup/powershell/getting_started.html?ver=110)
 
 ### Linux & macOS
 
@@ -68,7 +68,7 @@ This report does not support Linux or Mac due to the fact that the 'Veeam.Backup
 
 ### :closed_lock_with_key: Required Privileges
 
-Only users with Veeam Backup Administrator role assigned can be generate a Veeam VBR As Built Report . [Reference](https://docs.microsoft.com/en-us/windows/win32/winrm/installation-and-configuration-for-windows-remote-management)
+Only users with Veeam Backup Administrator role assigned can generate a Veeam VBR As Built Report.
 
 ## :package: Module Installation
 
@@ -79,6 +79,7 @@ install-module AsBuiltReport.Veeam.VBR
 ```
 
 ### GitHub
+
 If you are unable to use the PowerShell Gallery, you can still install the module manually. Ensure you repeat the following steps for the [system requirements](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR#wrench-system-requirements) also.
 
 1. Download the code package / [latest release](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/releases/latest) zip from GitHub
@@ -132,16 +133,12 @@ The **Options** schema allows certain options within the report to be toggled on
 
 The **InfoLevel** schema allows configuration of each section of the report at a granular level. The following sections can be set.
 
-There are 6 levels (0-5) of detail granularity for each section as follows;
+There are 2 levels (0-1) of detail granularity for each section as follows;
 
 | Setting | InfoLevel         | Description                                                                                                                                |
 |:-------:|-------------------|--------------------------------------------------------------------------------------------------------------------------------------------|
 |    0    | Disabled          | Does not collect or display any information                                                                                                |
 |    1    | Enabled / Summary | Provides summarised information for a collection of objects                                                                                |
-|    2    | Adv Summary       | Provides condensed, detailed information for a collection of objects                                                                       |
-|    3    | Detailed          | Provides detailed information for individual objects                                                                                       |
-|    4    | Adv Detailed      | Provides detailed information for individual objects, as well as information for associated objects                                        |
-|    5    | Comprehensive     | Provides comprehensive information for individual objects, such as advanced configuration settings                                         |
 
 ### Healthcheck
 
