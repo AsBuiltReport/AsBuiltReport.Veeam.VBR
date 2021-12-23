@@ -40,6 +40,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
             BlankLine
             Get-AbrVbrServerInfo
             Get-AbrVbrInstalledLicense
+            Get-AbrVbrBackupProxy
             Get-AbrVbrBackupRepository
             Get-AbrVbrScaleOutRepository
         }
