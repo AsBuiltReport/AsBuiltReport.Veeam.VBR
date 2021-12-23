@@ -64,7 +64,7 @@ PowerShell 5.1 or PowerShell 7, and the following PowerShell module is required 
 
 ### Linux & macOS
 
-This report does not support Linux or Mac due to the fact that the 'Veeam.Backup.PowerShell' modules are dependent on the .NET Framework. Until Veeam migrates these modules to native PowerShell Core, only PowerShell >= (5.x, v7.2 co-living) will be supported on Windows.
+This report does not support Linux or Mac due to the fact that the 'Veeam.Backup.PowerShell' module is dependent on the .NET Framework. Until Veeam migrates these modules to native PowerShell Core, only PowerShell >= (5.x, v7.2 co-living) will be supported on Windows.
 
 ### :closed_lock_with_key: Required Privileges
 

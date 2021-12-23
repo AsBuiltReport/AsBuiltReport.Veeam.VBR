@@ -35,7 +35,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
     foreach ($System in $Target) {
         Get-AbrVbrRequiredModule -Name 'Veeam.Backup.PowerShell' -Version '1.0'
         Get-AbrVbrServerConnection
-        Section -Style Heading2 'VEEAM Backup Infrastructure Report' {
+        Section -Style Heading1 'VEEAM Backup Infrastructure Report' {
             Paragraph "The following section provides a summary of the components implemented on the Veeam Backup Infrastructure"
             BlankLine
             Get-AbrVbrServerInfo
