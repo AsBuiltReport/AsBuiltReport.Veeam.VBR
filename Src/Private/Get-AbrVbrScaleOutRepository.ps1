@@ -33,10 +33,10 @@ function Get-AbrVbrScaleOutRepository {
                     $inObj = [ordered] @{
                         'Name' = $BackupRepo.Name
                         'Extent' = $BackupRepo.Extent
-                        'Extent Status' = ($BackupRepo.Extent).Status
+                        'Extent Status' = ($BackupRepo.Extent).Status | Sort-Object -Unique
                         'Enabled Capacity Tier' = ConvertTo-TextYN $BackupRepo.EnableCapacityTier
                         'Capacity Extent' = $BackupRepo.CapacityExtent
-                        'Capacity Extent Status' = ($BackupRepo.CapacityExtent).Status
+                        'Capacity Extent Status' = ($BackupRepo.CapacityExtent).Status | Sort-Object -Unique
                     }
                     $OutObj += [pscustomobject]$inobj
                 }
