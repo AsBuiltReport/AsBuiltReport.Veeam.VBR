@@ -19,10 +19,10 @@ Style -Name 'Footer' -Size 10 -Color '565656' -Align Center
 Style -Name 'TOC' -Size 16 -Color '005f4b'
 Style -Name 'TableDefaultHeading' -Size 10 -Color 'FAFAFA' -BackgroundColor '005f4b'
 Style -Name 'TableDefaultRow' -Size 10 -Color '565656'
-Style -Name 'Critical' -Size 10 -Color '565656' -BackgroundColor 'F5DBD9'
-Style -Name 'Warning' -Size 10 -Color '565656' -BackgroundColor 'FEF3B5'
-Style -Name 'Info' -Size 10 -Color '565656' -BackgroundColor 'E1F1F6'
-Style -Name 'OK' -Size 10 -Color '565656' -BackgroundColor 'DFF0D0'
+Style -Name 'Critical' -Size 10 -BackgroundColor 'F1655C'
+Style -Name 'Warning' -Size 10 -BackgroundColor 'F4A71C'
+Style -Name 'Info' -Size 10 -BackgroundColor '5AC0ED'
+Style -Name 'OK' -Size 10 -BackgroundColor '81BC50'
 
 # Configure Table Styles
 $TableDefaultProperties = @{
