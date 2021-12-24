@@ -23,7 +23,7 @@ function Get-AbrVbrBackupRepository {
 
     process {
         Section -Style Heading2 'Backup Repository' {
-            Paragraph "The following section provides a summary of the Veeam Backup Server"
+            Paragraph "The following section provides a summary of the Veeam Backup Server."
             BlankLine
             $OutObj = @()
             if ((Get-VBRServerSession).Server) {
@@ -46,6 +46,10 @@ function Get-AbrVbrBackupRepository {
                 }
                 catch {
                     Write-PscriboMessage $_.Exception.Message
+                }
+
+                if ($HealthCheck.Infrastructure.BR) {
+                    $OutObj | Where-Object { $_.'Status' -eq 'Unavailable'} | Set-Style -Style Warning -Property 'Status'
                 }
 
                 $TableParams = @{

@@ -49,6 +49,10 @@ function Get-AbrVbrServerInfo {
                     Write-PscriboMessage $_.Exception.Message
                 }
 
+                if ($HealthCheck.Infrastructure.Server) {
+                    $OutObj | Where-Object { $_.'Status' -eq 'Unavailable'} | Set-Style -Style Warning -Property 'Status'
+                }
+
                 $TableParams = @{
                     Name = "Backup Server Information - $($BackupServer.Name.Split(".")[0])"
                     List = $true
