@@ -35,14 +35,28 @@ function Invoke-AsBuiltReport.Veeam.VBR {
     foreach ($System in $Target) {
         Get-AbrVbrRequiredModule -Name 'Veeam.Backup.PowerShell' -Version '1.0'
         Get-AbrVbrServerConnection
-        Section -Style Heading1 'VEEAM Backup Infrastructure Report' {
-            Paragraph "The following section provides a summary of the components implemented on the Veeam Backup Infrastructure"
+        Section -Style Heading1 'VEEAM Implementation Report' {
+            Paragraph "The following section provides a summary of the components implemented on the Veeam Backup & Replication Service"
             BlankLine
-            Get-AbrVbrServerInfo
-            Get-AbrVbrInstalledLicense
-            Get-AbrVbrBackupProxy
-            Get-AbrVbrBackupRepository
-            Get-AbrVbrScaleOutRepository
+            Section -Style Heading2 'Backup Infrastructure' {
+                Paragraph "The following section provides a summary of the components implemented on the Veeam Backup Infrastructure"
+                BlankLine
+                Get-AbrVbrServerInfo
+                if ($InfoLevel.Infrastructure.WANAccel -ge 1) {
+                    Get-AbrVbrInstalledLicense
+                }
+                if ($InfoLevel.Infrastructure.Proxy -ge 1) {
+                    Get-AbrVbrBackupProxy
+                }
+                if ($InfoLevel.Infrastructure.WANAccel -ge 1) {
+                    Get-AbrVbrWANAccelerator
+                }
+                if ($InfoLevel.Infrastructure.SureBackup -ge 1) {
+                    Get-AbrVbrSureBackup
+                }
+                Get-AbrVbrBackupRepository
+                Get-AbrVbrScaleOutRepository
+            }
         }
 	}
 	#endregion foreach loop
