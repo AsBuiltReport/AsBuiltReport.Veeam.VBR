@@ -22,7 +22,7 @@ function Get-AbrVbrBackupRepository {
     }
 
     process {
-        Section -Style Heading2 'Backup Repository' {
+        Section -Style Heading3 'Backup Repository' {
             Paragraph "The following section provides a summary of the Veeam Backup Server."
             BlankLine
             $OutObj = @()
@@ -61,6 +61,54 @@ function Get-AbrVbrBackupRepository {
                     $TableParams['Caption'] = "- $($TableParams.Name)"
                 }
                 $OutObj | Table @TableParams
+                try {
+                    $BackupRepos = Get-VBRBackupRepository
+                    foreach ($BackupRepo in $BackupRepos) {
+                        try {
+                            Section -Style Heading4 "$($BackupRepo.Name) Backup Repository" {
+                                Paragraph "The following section provides a detailed information of the $($BackupRepo.Name) Backup Repository"
+                                BlankLine
+                                $OutObj = @()
+                                Write-PscriboMessage "Discovered $($BackupRepo.Name) Backup Repository."
+                                $inObj = [ordered] @{
+                                    'Backup Proxy' = ($BackupRepo.Host).Name
+                                    'Integration Type' = $BackupRepo.TypeDisplay
+                                    'Path' = $BackupRepo.Path
+                                    'Connection Type' = $BackupRepo.Type
+                                    'Max Task Count' = $BackupRepo.Options.MaxTaskCount
+                                    'Use Nfs On Mount Host' = ConvertTo-TextYN $BackupRepo.UseNfsOnMountHost
+                                    'San Snapshot Only' = ConvertTo-TextYN $BackupRepo.IsSanSnapshotOnly
+                                    'Dedup Storage' = ConvertTo-TextYN $BackupRepo.IsDedupStorage
+                                    'Split Storages Per Vm' = ConvertTo-TextYN $BackupRepo.SplitStoragesPerVm
+                                    'Immutability Supported' = ConvertTo-TextYN $BackupRepo.IsImmutabilitySupported
+                                    'Version Of Creation' = $BackupRepo.VersionOfCreation
+                                    'Has Backup Chain Length Limitation' = ConvertTo-TextYN $BackupRepo.HasBackupChainLengthLimitation
+                                }
+                                $OutObj += [pscustomobject]$inobj
+
+                                if ($HealthCheck.Infrastructure.BR) {
+                                    $OutObj | Where-Object { $_.'Status' -eq 'Unavailable'} | Set-Style -Style Warning -Property 'Status'
+                                }
+
+                                $TableParams = @{
+                                    Name = "Backup Repository Information - $($BackupRepo.Name)"
+                                    List = $true
+                                    ColumnWidths = 40, 60
+                                }
+                                if ($Report.ShowTableCaptions) {
+                                    $TableParams['Caption'] = "- $($TableParams.Name)"
+                                }
+                                $OutObj | Table @TableParams
+                            }
+                        }
+                        catch {
+                            Write-PscriboMessage $_.Exception.Message
+                        }
+                    }
+                }
+                catch {
+                    Write-PscriboMessage $_.Exception.Message
+                }
             }
         }
     }
