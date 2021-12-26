@@ -22,7 +22,7 @@ function Get-AbrVbrScaleOutRepository {
     }
 
     process {
-        Section -Style Heading2 'ScaleOut Backup Repository' {
+        Section -Style Heading3 'ScaleOut Backup Repository' {
             Paragraph "The following section provides a summary of the ScaleOut Backup Repository"
             BlankLine
             $OutObj = @()
@@ -57,12 +57,12 @@ function Get-AbrVbrScaleOutRepository {
             try {
                 $BackupRepos = Get-VBRBackupRepository -ScaleOut
                 foreach ($BackupRepo in $BackupRepos) {
-                    Section -Style Heading3 "$($BackupRepo.Name) SOBR Repository" {
+                    Section -Style Heading4 "$($BackupRepo.Name) SOBR Repository" {
                         Paragraph "The following section provides a detailed information of the ScaleOut Backup Repository"
                         BlankLine
                         foreach ($Extent in $BackupRepo.Extent) {
                             try {
-                                Section -Style Heading4 "$($Extent.Name) Performance Tier" {
+                                Section -Style Heading5 "$($Extent.Name) Performance Tier" {
                                     Paragraph "The following section provides a detailed information of the Performance Tier"
                                     BlankLine
                                     $OutObj = @()
@@ -92,7 +92,7 @@ function Get-AbrVbrScaleOutRepository {
                         }
                         foreach ($CapacityExtent in $BackupRepo.CapacityExtent) {
                             try {
-                                Section -Style Heading4 "$(($CapacityExtent.Repository).Name) Capacity Tier" {
+                                Section -Style Heading5 "$(($CapacityExtent.Repository).Name) Capacity Tier" {
                                     Paragraph "The following section provides a detailed information of the Capacity Tier"
                                     BlankLine
                                     $OutObj = @()

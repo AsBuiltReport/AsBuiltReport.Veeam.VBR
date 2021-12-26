@@ -23,11 +23,11 @@ function Get-AbrVbrInstalledLicense {
 
     process {
         try {
-            Section -Style Heading2 'License Information' {
+            Section -Style Heading3 'License Information' {
                 Paragraph "The following section provides a summary of the Veeam License Information"
                 BlankLine
                 try {
-                    Section -Style Heading3 'Installed License Information' {
+                    Section -Style Heading4 'Installed License Information' {
                         Paragraph "The following section provides a summary of the Installed Veeam Licenses Information"
                         BlankLine
                         $OutObj = @()
@@ -72,7 +72,7 @@ function Get-AbrVbrInstalledLicense {
                         }
                         $OutObj | Table @TableParams
                         try {
-                            Section -Style Heading4 'Instance License Usage' {
+                            Section -Style Heading5 'Instance License Usage' {
                                 Paragraph "The following section provides a summary of the Veeam License Instance Capacity Information"
                                 BlankLine
                                 $OutObj = @()
@@ -144,7 +144,7 @@ function Get-AbrVbrInstalledLicense {
                             Write-PscriboMessage $_.Exception.Message
                         }
                         try {
-                            Section -Style Heading4 'CPU Socket License Usage' {
+                            Section -Style Heading5 'CPU Socket License Usage' {
                                 Paragraph "The following section provides a summary of the Veeam CPU Sockets License Usage Information"
                                 BlankLine
                                 $OutObj = @()
@@ -179,7 +179,7 @@ function Get-AbrVbrInstalledLicense {
                             Write-PscriboMessage $_.Exception.Message
                         }
                         try {
-                            Section -Style Heading4 'Capacity License Usage' {
+                            Section -Style Heading5 'Capacity License Usage' {
                                 Paragraph "The following section provides a summary of the Veeam Capacity License Usage Information"
                                 BlankLine
                                 $OutObj = @()

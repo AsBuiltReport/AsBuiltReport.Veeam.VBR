@@ -22,7 +22,7 @@ function Get-AbrVbrServerInfo {
     }
 
     process {
-        Section -Style Heading2 'Backup Server Information' {
+        Section -Style Heading3 'Backup Server Information' {
             Paragraph "The following section provides a summary of the Veeam Backup Server"
             BlankLine
             $OutObj = @()
