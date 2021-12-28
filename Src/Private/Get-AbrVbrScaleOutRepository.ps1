@@ -42,7 +42,7 @@ function Get-AbrVbrScaleOutRepository {
                 }
             }
             catch {
-                Write-PscriboMessage $_.Exception.Message
+                Write-PscriboMessage -IsWarning $_.Exception.Message
             }
 
             $TableParams = @{
@@ -87,7 +87,7 @@ function Get-AbrVbrScaleOutRepository {
                                 }
                             }
                             catch {
-                                Write-PscriboMessage $_.Exception.Message
+                                Write-PscriboMessage -IsWarning $_.Exception.Message
                             }
                         }
                         foreach ($CapacityExtent in $BackupRepo.CapacityExtent) {
@@ -133,7 +133,7 @@ function Get-AbrVbrScaleOutRepository {
                                 }
                             }
                             catch {
-                                Write-PscriboMessage $_.Exception.Message
+                                Write-PscriboMessage -IsWarning $_.Exception.Message
                             }
                         }
 
@@ -141,7 +141,7 @@ function Get-AbrVbrScaleOutRepository {
                 }
             }
             catch {
-                Write-PscriboMessage $_.Exception.Message
+                Write-PscriboMessage -IsWarning $_.Exception.Message
             }
         }
     }

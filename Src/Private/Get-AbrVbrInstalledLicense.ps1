@@ -59,7 +59,7 @@ function Get-AbrVbrInstalledLicense {
                             }
                         }
                         catch {
-                            Write-PscriboMessage $_.Exception.Message
+                            Write-PscriboMessage -IsWarning $_.Exception.Message
                         }
 
                         $TableParams = @{
@@ -90,7 +90,7 @@ function Get-AbrVbrInstalledLicense {
                                     }
                                 }
                                 catch {
-                                    Write-PscriboMessage $_.Exception.Message
+                                    Write-PscriboMessage -IsWarning $_.Exception.Message
                                 }
 
                                 $TableParams = @{
@@ -121,7 +121,7 @@ function Get-AbrVbrInstalledLicense {
                                             }
                                         }
                                         catch {
-                                            Write-PscriboMessage $_.Exception.Message
+                                            Write-PscriboMessage -IsWarning $_.Exception.Message
                                         }
 
                                         $TableParams = @{
@@ -136,12 +136,12 @@ function Get-AbrVbrInstalledLicense {
                                     }
                                 }
                                 catch {
-                                    Write-PscriboMessage $_.Exception.Message
+                                    Write-PscriboMessage -IsWarning $_.Exception.Message
                                 }
                             }
                         }
                         catch {
-                            Write-PscriboMessage $_.Exception.Message
+                            Write-PscriboMessage -IsWarning $_.Exception.Message
                         }
                         try {
                             Section -Style Heading5 'CPU Socket License Usage' {
@@ -161,7 +161,7 @@ function Get-AbrVbrInstalledLicense {
                                     }
                                 }
                                 catch {
-                                    Write-PscriboMessage $_.Exception.Message
+                                    Write-PscriboMessage -IsWarning $_.Exception.Message
                                 }
 
                                 $TableParams = @{
@@ -176,7 +176,7 @@ function Get-AbrVbrInstalledLicense {
                             }
                         }
                         catch {
-                            Write-PscriboMessage $_.Exception.Message
+                            Write-PscriboMessage -IsWarning $_.Exception.Message
                         }
                         try {
                             Section -Style Heading5 'Capacity License Usage' {
@@ -196,7 +196,7 @@ function Get-AbrVbrInstalledLicense {
                                         }
                                     }
                                     catch {
-                                        Write-PscriboMessage $_.Exception.Message
+                                        Write-PscriboMessage -IsWarning $_.Exception.Message
                                     }
 
                                     $TableParams = @{
@@ -212,17 +212,17 @@ function Get-AbrVbrInstalledLicense {
                             }
                         }
                         catch {
-                            Write-PscriboMessage $_.Exception.Message
+                            Write-PscriboMessage -IsWarning $_.Exception.Message
                         }
                     }
                 }
                 catch {
-                    Write-PscriboMessage $_.Exception.Message
+                    Write-PscriboMessage -IsWarning $_.Exception.Message
                 }
             }
         }
         catch {
-            Write-PscriboMessage $_.Exception.Message
+            Write-PscriboMessage -IsWarning $_.Exception.Message
         }
     }
 

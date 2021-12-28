@@ -62,15 +62,12 @@ function ConvertTo-EmptyToFiller {
             Position = 0,
             Mandatory)]
             [AllowEmptyString()]
-            [string]
-            $TEXT
+            [string]$TEXT
         )
 
     switch ($TEXT) {
             "" {"-"; break}
             $Null {"-"; break}
-            "True" {"Yes"; break}
-            "False" {"No"; break}
             default {$TEXT}
         }
     } # end

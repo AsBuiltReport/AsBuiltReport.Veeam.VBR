@@ -49,7 +49,7 @@ function Get-AbrVbrWANAccelerator {
                     }
                 }
                 catch {
-                    Write-PscriboMessage $_.Exception.Message
+                    Write-PscriboMessage -IsWarning $_.Exception.Message
                 }
 
                 if ($HealthCheck.Infrastructure.Proxy) {

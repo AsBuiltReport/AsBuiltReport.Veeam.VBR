@@ -45,7 +45,7 @@ function Get-AbrVbrBackupRepository {
                     }
                 }
                 catch {
-                    Write-PscriboMessage $_.Exception.Message
+                    Write-PscriboMessage -IsWarning $_.Exception.Message
                 }
 
                 if ($HealthCheck.Infrastructure.BR) {
@@ -102,12 +102,12 @@ function Get-AbrVbrBackupRepository {
                             }
                         }
                         catch {
-                            Write-PscriboMessage $_.Exception.Message
+                            Write-PscriboMessage -IsWarning $_.Exception.Message
                         }
                     }
                 }
                 catch {
-                    Write-PscriboMessage $_.Exception.Message
+                    Write-PscriboMessage -IsWarning $_.Exception.Message
                 }
             }
         }
