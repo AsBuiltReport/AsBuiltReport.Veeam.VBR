@@ -42,22 +42,37 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                 Paragraph "The following section provides a summary of the components implemented on the Veeam Backup Infrastructure"
                 BlankLine
                 Get-AbrVbrServerInfo
-                if ($InfoLevel.Infrastructure.WANAccel -ge 1) {
+                Get-AbrVbrUserRoleAssignment
+                Get-AbrVbrCredential
+                Get-AbrVbrLocation
+                Write-PScriboMessage "Infrastructure Licenses InfoLevel set at $($InfoLevel.Infrastructure.Licenses)."
+                if ($InfoLevel.Infrastructure.Licenses -ge 1) {
                     Get-AbrVbrInstalledLicense
                 }
+                Write-PScriboMessage "Infrastructure Backup Proxy InfoLevel set at $($InfoLevel.Infrastructure.Proxy)."
                 if ($InfoLevel.Infrastructure.Proxy -ge 1) {
                     Get-AbrVbrBackupProxy
                 }
+                Write-PScriboMessage "Infrastructure WAN Accelerator InfoLevel set at $($InfoLevel.Infrastructure.WANAccel)."
                 if ($InfoLevel.Infrastructure.WANAccel -ge 1) {
                     Get-AbrVbrWANAccelerator
                 }
+                Write-PScriboMessage "Infrastructure SureBackup InfoLevel set at $($InfoLevel.Infrastructure.SureBackup)."
                 if ($InfoLevel.Infrastructure.SureBackup -ge 1) {
                     Get-AbrVbrSureBackup
                 }
-                Get-AbrVbrBackupRepository
-                Get-AbrVbrScaleOutRepository
+                Write-PScriboMessage "Infrastructure Backup Repository InfoLevel set at $($InfoLevel.Infrastructure.BR)."
+                if ($InfoLevel.Infrastructure.BR -ge 1) {
+                    Get-AbrVbrBackupRepository
+                    Get-AbrVbrObjectRepository
+                }
+                Write-PScriboMessage "Infrastructure ScaleOut Backup Repository InfoLevel set at $($InfoLevel.Infrastructure.SOBR)."
+                if ($InfoLevel.Infrastructure.SOBR -ge 1) {
+                    Get-AbrVbrScaleOutRepository
+                }
             }
         }
+        #Disconnect-VBRServer
 	}
 	#endregion foreach loop
 }
