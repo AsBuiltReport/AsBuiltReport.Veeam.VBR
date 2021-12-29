@@ -37,7 +37,7 @@ function Get-AbrVbrServerConnection {
             }
         }
         else {
-            Write-PScriboMessage "Actual veem server connection not equal to $($System). Disconecting connection."
+            Write-PScriboMessage "Actual veeam server connection not equal to $($System). Disconecting connection."
             Disconnect-VBRServer
             try {
                 Write-PScriboMessage "Tring to open a new connection to $($System)"
