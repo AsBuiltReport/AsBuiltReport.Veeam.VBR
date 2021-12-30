@@ -42,9 +42,17 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                 Paragraph "The following section provides a summary of the components implemented on the Veeam Backup Infrastructure"
                 BlankLine
                 Get-AbrVbrServerInfo
+                Get-AbrVbrLocation
+                Get-AbrVbrNetworkTrafficRule
+                Section -Style Heading3 'General Options' {
+                    Paragraph "The following section provides a summary of the components implemented on the Veeam Backup Infrastructure"
+                    BlankLine
+                    Get-AbrVbrEmailNotificationSetting
+                    Get-AbrVbrIOControlSetting
+                    Get-AbrVbrBackupServerCertificate
+                }
                 Get-AbrVbrUserRoleAssignment
                 Get-AbrVbrCredential
-                Get-AbrVbrLocation
                 Write-PScriboMessage "Infrastructure Licenses InfoLevel set at $($InfoLevel.Infrastructure.Licenses)."
                 if ($InfoLevel.Infrastructure.Licenses -ge 1) {
                     Get-AbrVbrInstalledLicense
@@ -70,6 +78,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                 if ($InfoLevel.Infrastructure.SOBR -ge 1) {
                     Get-AbrVbrScaleOutRepository
                 }
+                Get-AbrVbrManagedServer
             }
         }
         #Disconnect-VBRServer
