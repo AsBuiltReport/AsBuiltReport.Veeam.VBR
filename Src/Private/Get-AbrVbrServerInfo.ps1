@@ -30,6 +30,7 @@ function Get-AbrVbrServerInfo {
                 try {
                     $BackupServers = Get-VBRServer -Type Local
                     foreach ($BackupServer in $BackupServers) {
+                        $SecurityOptions = Get-VBRSecurityOptions
                         Write-PscriboMessage "Discovered $BackupServer Server."
                         $inObj = [ordered] @{
                             'Server Name' = $BackupServer.Name
@@ -41,6 +42,13 @@ function Get-AbrVbrServerInfo {
                                 default {$BackupServer.IsUnavailable}
                             }
                             'Api Version' = $BackupServer.ApiVersion
+                            'Audit Logs Path' = $SecurityOptions.AuditLogsPath
+                            'Compress Old Audit Logs' = ConvertTo-TextYN $SecurityOptions.CompressOldAuditLogs
+                            'Fips Compliant Mode' = Switch ($SecurityOptions.FipsCompliantModeEnabled) {
+                                'True' {"Enabled"}
+                                'False' {"Disabled"}
+                            }
+
                         }
                         $OutObj += [pscustomobject]$inobj
                     }
