@@ -27,6 +27,7 @@ function Get-AbrVbrRequiredModule {
         #region: Start Load VEEAM Snapin / Module
         # Loading Module or PSSnapin
         # Make sure PSModulePath includes Veeam Console
+        #Code taken from @vMarkus_K
         $MyModulePath = "C:\Program Files\Veeam\Backup and Replication\Console\"
         $env:PSModulePath = $env:PSModulePath + "$([System.IO.Path]::PathSeparator)$MyModulePath"
         if ($Modules = Get-Module -ListAvailable -Name Veeam.Backup.PowerShell) {
