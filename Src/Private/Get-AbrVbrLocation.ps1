@@ -32,7 +32,7 @@ function Get-AbrVbrLocation {
                 try {
                     $Locations = Get-VBRLocation
                     foreach ($Location in $Locations) {
-                        Write-PscriboMessage "Discovered $($Location.Name) Server."
+                        Write-PscriboMessage "Discovered $($Location.Name) location."
                         $inObj = [ordered] @{
                             'Name' = $Location.Name
                             'id' = $Location.id

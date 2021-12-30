@@ -24,7 +24,7 @@ function Get-AbrVbrUserRoleAssignment {
     }
 
     process {
-        Section -Style Heading3 'Roles and Users' {
+        Section -Style Heading4 'Roles and Users' {
             Paragraph "The following section provides a summary of the role that is assigned to a user or a user group"
             BlankLine
             $OutObj = @()

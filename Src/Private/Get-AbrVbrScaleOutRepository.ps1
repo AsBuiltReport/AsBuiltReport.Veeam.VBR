@@ -64,7 +64,7 @@ function Get-AbrVbrScaleOutRepository {
                                 BlankLine
                                 foreach ($Extent in $BackupRepo.Extent) {
                                     try {
-                                        Section -Style Heading6 "$($Extent.Name) Performance Tier" {
+                                        Section -Style Heading6 "Performance Tier" {
                                             Paragraph "The following section provides a detailed information of the Performance Tier"
                                             BlankLine
                                             $OutObj = @()
@@ -94,7 +94,7 @@ function Get-AbrVbrScaleOutRepository {
                                 }
                                 foreach ($CapacityExtent in $BackupRepo.CapacityExtent) {
                                     try {
-                                        Section -Style Heading6 "$(($CapacityExtent.Repository).Name) Capacity Tier" {
+                                        Section -Style Heading6 "Capacity Tier" {
                                             Paragraph "The following section provides a detailed information of the Capacity Tier"
                                             BlankLine
                                             $OutObj = @()
@@ -105,7 +105,10 @@ function Get-AbrVbrScaleOutRepository {
                                                 'Type' =  ($CapacityExtent.Repository).Type
                                                 'Amazon S3 Folder' =  ($CapacityExtent.Repository).AmazonS3Folder
                                                 'Use Gateway Server' = ConvertTo-TextYN ($CapacityExtent.Repository).UseGatewayServer
-                                                'Gateway Server' = ($CapacityExtent.Repository).GatewayServer.Name
+                                                'Gateway Server' = Switch ((($CapacityExtent.Repository).GatewayServer.Name).length) {
+                                                    0 {"Auto"}
+                                                    default {($CapacityExtent.Repository).GatewayServer.Name}
+                                                }
                                                 'Immutability Period' = $CapacityExtent.Repository.ImmutabilityPeriod
                                                 'Size Limit Enabled' = ConvertTo-TextYN ($CapacityExtent.Repository).SizeLimitEnabled
                                                 'Size Limit' = ($CapacityExtent.Repository).SizeLimit

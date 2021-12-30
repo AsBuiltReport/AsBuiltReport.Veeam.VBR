@@ -24,7 +24,7 @@ function Get-AbrVbrCredential {
     }
 
     process {
-        Section -Style Heading3 'Security Credentials' {
+        Section -Style Heading4 'Security Credentials' {
             Paragraph "The following section provides credentials managed by Veeam Backup & Replication."
             BlankLine
             $OutObj = @()
