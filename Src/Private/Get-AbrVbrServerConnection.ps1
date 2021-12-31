@@ -22,6 +22,7 @@ function Get-AbrVbrServerConnection {
 
     process {
         Write-PScriboMessage "Looking for veeam existing server connection."
+        #Code taken from @vMarkus_K
         $OpenConnection = (Get-VBRServerSession).Server
         if($OpenConnection -eq $System) {
             Write-PScriboMessage "Existing veeam server connection found"
