@@ -41,7 +41,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
             Section -Style Heading2 'Backup Infrastructure' {
                 Paragraph "The following section provides a summary of the components implemented on the Veeam Backup Infrastructure"
                 BlankLine
-                Get-AbrVbrServerInfo
+                Get-AbrVbrBackupServerInfo
                 Get-AbrVbrLocation
                 Get-AbrVbrNetworkTrafficRule
                 Section -Style Heading3 'General Options' {
