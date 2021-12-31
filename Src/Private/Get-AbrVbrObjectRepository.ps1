@@ -88,7 +88,7 @@ function Get-AbrVbrObjectRepository {
                                     $inObj.add('AWS Backup Immutability', (ConvertTo-TextYN ($ObjectRepoArchive.BackupImmutabilityEnabled)))
                                     $inObj.add('AWS Proxy Instance Type', $ObjectRepoArchive.AmazonProxySpec.InstanceType)
                                     $inObj.add('AWS Proxy Instance vCPU', $ObjectRepoArchive.AmazonProxySpec.InstanceType.vCPUs)
-                                    $inObj.add('AWS Proxy Instance Memory', $ObjectRepoArchive.AmazonProxySpec.InstanceType.Memory)
+                                    $inObj.add('AWS Proxy Instance Memory', ([Math]::Round($ObjectRepoArchive.AmazonProxySpec.InstanceType.Memory*1MB/1GB)))
                                     $inObj.add('AWS Proxy Subnet', $ObjectRepoArchive.AmazonProxySpec.Subnet)
                                     $inObj.add('AWS Proxy Security Group', $ObjectRepoArchive.AmazonProxySpec.SecurityGroup)
                                     $inObj.add('AWS Proxy Availability Zone', $ObjectRepoArchive.AmazonProxySpec.Subnet.AvailabilityZone)
@@ -102,7 +102,7 @@ function Get-AbrVbrObjectRepository {
                                     $inObj.add('Azure Proxy Network', $ObjectRepoArchive.AzureProxySpec.Network)
                                     $inObj.add('Azure Proxy VM Size', $ObjectRepoArchive.AzureProxySpec.VMSize)
                                     $inObj.add('Azure Proxy VM vCPU', $ObjectRepoArchive.AzureProxySpec.VMSize.Cores)
-                                    $inObj.add('Azure Proxy VM Memory', $ObjectRepoArchive.AzureProxySpec.VMSize.Memory)
+                                    $inObj.add('Azure Proxy VM Memory', ([Math]::Round($ObjectRepoArchive.AzureProxySpec.VMSize.Memory*1MB/1GB)))
                                     $inObj.add('Azure Proxy VM Max Disks', $ObjectRepoArchive.AzureProxySpec.VMSize.MaxDisks)
                                     $inObj.add('Azure Proxy VM Location', $ObjectRepoArchive.AzureProxySpec.VMSize.Location)
                                 }

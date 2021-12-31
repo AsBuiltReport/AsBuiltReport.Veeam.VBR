@@ -142,7 +142,8 @@ function Get-AbrVbrBackupProxy {
 
                                             if ($HealthCheck.Infrastructure.Server) {
                                                 $OutObj | Where-Object { $_.'Number of CPU Cores' -lt 4} | Set-Style -Style Warning -Property 'Number of CPU Cores'
-                                                $OutObj | Where-Object { $_.'Physical Memory (GB)' -lt 8} | Set-Style -Style Warning -Property 'Physical Memory (GB)'
+                                                $OutObj | if ($_.'Number of CPU Cores' -lt 4) {$_.'Number of CPU Cores' = $_.'Number of CPU Cores' + "More CPUs might be added"}
+                                                $OutObj | Where-Object { $_.'Physical Memory (GB)' -lt 16} | Set-Style -Style Warning -Property 'Physical Memory (GB)'
                                             }
 
                                             $TableParams = @{
