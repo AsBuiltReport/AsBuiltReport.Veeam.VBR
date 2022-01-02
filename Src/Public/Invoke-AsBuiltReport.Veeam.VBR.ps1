@@ -35,28 +35,31 @@ function Invoke-AsBuiltReport.Veeam.VBR {
     foreach ($System in $Target) {
         Get-AbrVbrRequiredModule -Name 'Veeam.Backup.PowerShell' -Version '1.0'
         Get-AbrVbrServerConnection
-        Section -Style Heading1 'VEEAM Implementation Report' {
-            Paragraph "The following section provides a summary of the components implemented on the Veeam Backup & Replication Service"
+        Section -Style Heading1 'Implementation Report' {
+            Paragraph "The following section provides a summary of the implemented components on the Veeam Backup & Replication Infrastructure"
             BlankLine
-            Section -Style Heading2 'Backup Infrastructure' {
-                Paragraph "The following section provides a summary of the components implemented on the Veeam Backup Infrastructure"
-                BlankLine
+            Section -Style Heading2 'Infrastructure Summary' {
+                Get-AbrVbrInfrastructureSummary
                 Get-AbrVbrBackupServerInfo
-                Get-AbrVbrLocation
-                Get-AbrVbrNetworkTrafficRule
-                Section -Style Heading3 'General Options' {
-                    Paragraph "The following section provides a summary of the components implemented on the Veeam Backup Infrastructure"
-                    BlankLine
-                    Get-AbrVbrEmailNotificationSetting
-                    Get-AbrVbrIOControlSetting
-                    Get-AbrVbrBackupServerCertificate
-                }
-                Get-AbrVbrUserRoleAssignment
-                Get-AbrVbrCredential
                 Write-PScriboMessage "Infrastructure Licenses InfoLevel set at $($InfoLevel.Infrastructure.Licenses)."
                 if ($InfoLevel.Infrastructure.Licenses -ge 1) {
                     Get-AbrVbrInstalledLicense
                 }
+                Write-PScriboMessage "Infrastructure Licenses InfoLevel set at $($InfoLevel.Infrastructure.Licenses)."
+                if ($InfoLevel.Infrastructure.Settings -ge 1) {
+                    Section -Style Heading3 'General Options' {
+                        Paragraph "The following section details the Veeam Veaam B&R general setting. General settings are applied to all jobs, backup infrastructure components and other objects managed by the backup server."
+                        BlankLine
+                        Get-AbrVbrEmailNotificationSetting
+                        Get-AbrVbrIOControlSetting
+                        Get-AbrVbrBackupServerCertificate
+                        Get-AbrVbrNetworkTrafficRule
+                    }
+                }
+                Get-AbrVbrUserRoleAssignment
+                Get-AbrVbrCredential
+                Get-AbrVbrLocation
+                Get-AbrVbrManagedServer
                 Write-PScriboMessage "Infrastructure Backup Proxy InfoLevel set at $($InfoLevel.Infrastructure.Proxy)."
                 if ($InfoLevel.Infrastructure.Proxy -ge 1) {
                     Get-AbrVbrBackupProxy
@@ -64,10 +67,6 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                 Write-PScriboMessage "Infrastructure WAN Accelerator InfoLevel set at $($InfoLevel.Infrastructure.WANAccel)."
                 if ($InfoLevel.Infrastructure.WANAccel -ge 1) {
                     Get-AbrVbrWANAccelerator
-                }
-                Write-PScriboMessage "Infrastructure SureBackup InfoLevel set at $($InfoLevel.Infrastructure.SureBackup)."
-                if ($InfoLevel.Infrastructure.SureBackup -ge 1) {
-                    Get-AbrVbrSureBackup
                 }
                 Write-PScriboMessage "Infrastructure Backup Repository InfoLevel set at $($InfoLevel.Infrastructure.BR)."
                 if ($InfoLevel.Infrastructure.BR -ge 1) {
@@ -78,7 +77,10 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                 if ($InfoLevel.Infrastructure.SOBR -ge 1) {
                     Get-AbrVbrScaleOutRepository
                 }
-                Get-AbrVbrManagedServer
+                Write-PScriboMessage "Infrastructure SureBackup InfoLevel set at $($InfoLevel.Infrastructure.SureBackup)."
+                if ($InfoLevel.Infrastructure.SureBackup -ge 1) {
+                    Get-AbrVbrSureBackup
+                }
             }
         }
         #Disconnect-VBRServer
