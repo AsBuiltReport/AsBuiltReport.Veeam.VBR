@@ -38,7 +38,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
         Section -Style Heading1 'Implementation Report' {
             Paragraph "The following section provides a summary of the implemented components on the Veeam Backup & Replication Infrastructure"
             BlankLine
-            Section -Style Heading2 'Infrastructure Summary' {
+            Section -Style Heading2 'Backup Infrastructure Summary' {
                 Get-AbrVbrInfrastructureSummary
                 Get-AbrVbrBackupServerInfo
                 Write-PScriboMessage "Infrastructure Licenses InfoLevel set at $($InfoLevel.Infrastructure.Licenses)."
