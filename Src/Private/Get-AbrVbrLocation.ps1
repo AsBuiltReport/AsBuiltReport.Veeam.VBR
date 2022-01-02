@@ -25,7 +25,7 @@ function Get-AbrVbrLocation {
 
     process {
         Section -Style Heading3 'Geographical Locations' {
-            Paragraph "The following section returns geographical locations created in Veeam Backup & Replication."
+            Paragraph "The following section list geographical locations created in Veeam Backup & Replication."
             BlankLine
             $OutObj = @()
             if ((Get-VBRServerSession).Server) {

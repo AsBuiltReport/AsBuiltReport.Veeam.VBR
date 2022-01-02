@@ -25,7 +25,7 @@ function Get-AbrVbrUserRoleAssignment {
 
     process {
         Section -Style Heading4 'Roles and Users' {
-            Paragraph "The following section provides a summary of the role that is assigned to a user or a user group"
+            Paragraph "The following section provides information on the role that are assigned to a user or a user group."
             BlankLine
             $OutObj = @()
             if ((Get-VBRServerSession).Server) {

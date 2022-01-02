@@ -23,7 +23,7 @@ function Get-AbrVbrWANAccelerator {
 
     process {
         Section -Style Heading3 'WAN Accelerators' {
-            Paragraph "The following section provides a summary of the VEEAM WAN Accelerator"
+            Paragraph "The following section provides informaion on WAN Accelerator. WAN accelerators are responsible for global data caching and data deduplication"
             BlankLine
             $OutObj = @()
             if ((Get-VBRServerSession).Server) {

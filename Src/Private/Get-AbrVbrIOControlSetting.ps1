@@ -25,8 +25,6 @@ function Get-AbrVbrIOControlSetting {
 
     process {
         Section -Style Heading4 'Storage Latency Control Options' {
-            Paragraph "The following section returns storage latency control settings on the production datastores."
-            BlankLine
             $OutObj = @()
             if ((Get-VBRServerSession).Server) {
                 try {
@@ -60,8 +58,6 @@ function Get-AbrVbrIOControlSetting {
                 try {
                     if (Get-VBRAdvancedLatencyOptions) {
                         Section -Style Heading5 'Per Datastore Latency Control Options' {
-                            Paragraph "The following section returns per storage latency control settings on the production datastores."
-                            BlankLine
                             $OutObj = @()
                             if ((Get-VBRServerSession).Server) {
                                 try {

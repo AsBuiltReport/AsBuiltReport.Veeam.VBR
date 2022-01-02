@@ -26,8 +26,6 @@ function Get-AbrVbrBackupProxy {
             Paragraph "The following section provides a summary of the Veeam Backup Proxies"
             BlankLine
             Section -Style Heading4 'VMware Backup Proxies' {
-                Paragraph "The following section provides a summary of the VMware Backup Proxies"
-                BlankLine
                 $OutObj = @()
                 if ((Get-VBRServerSession).Server) {
                     try {
@@ -113,8 +111,6 @@ function Get-AbrVbrBackupProxy {
                                         Remove-PSSession -Session $PssSession
                                         Remove-CimSession $CimSession
                                         Section -Style Heading4 "$($BackupProxy.Host.Name.Split(".")[0]) Hardware Information" {
-                                            Paragraph "The following section provides hardware information of the Veeam Backup Proxy"
-                                            BlankLine
                                             $OutObj = @()
                                             $inObj = [ordered] @{
                                                 'Name' = $HW.CsDNSHostName
@@ -180,8 +176,6 @@ function Get-AbrVbrBackupProxy {
                                     Remove-PSSession -Session $PssSession
                                     if ($Available) {
                                         Section -Style Heading4 "$($BackupProxy.Host.Name.Split(".")[0]) Veeam Services Status" {
-                                            Paragraph "The following section provides a summary of the Backup Server Infrastructure services status."
-                                            BlankLine
                                             $OutObj = @()
                                             foreach ($Service in $Services) {
                                                 Write-PscriboMessage "Collecting '$($Service.DisplayName)' status on $($BackupServer.Namr)."
@@ -220,9 +214,7 @@ function Get-AbrVbrBackupProxy {
                     }
                 }
             }
-            Section -Style Heading4 'HyperV Backup Proxies' {
-                Paragraph "The following section provides a summary of the VMware Backup Proxies"
-                BlankLine
+            Section -Style Heading4 'Hyper-V Backup Proxies' {
                 $OutObj = @()
                 if ((Get-VBRServerSession).Server) {
                     try {
@@ -305,8 +297,6 @@ function Get-AbrVbrBackupProxy {
                                         Remove-PSSession -Session $PssSession
                                         Remove-CimSession $CimSession
                                         Section -Style Heading4 "$($BackupProxy.Host.Name.Split(".")[0]) Hardware Information" {
-                                            Paragraph "The following section provides hardware information of the Veeam Backup Proxy"
-                                            BlankLine
                                             $OutObj = @()
                                             $inObj = [ordered] @{
                                                 'Name' = $HW.CsDNSHostName
@@ -371,8 +361,6 @@ function Get-AbrVbrBackupProxy {
                                     Remove-PSSession -Session $PssSession
                                     if ($Available) {
                                         Section -Style Heading4 "$($BackupProxy.Host.Name.Split(".")[0]) Veeam Services Status" {
-                                            Paragraph "The following section provides a summary of the Backup Server Infrastructure services status."
-                                            BlankLine
                                             $OutObj = @()
                                             foreach ($Service in $Services) {
                                                 Write-PscriboMessage "Collecting '$($Service.DisplayName)' status on $($BackupServer.Namr)."

@@ -28,8 +28,6 @@ function Get-AbrVbrInstalledLicense {
                 BlankLine
                 try {
                     Section -Style Heading4 'Installed License Information' {
-                        Paragraph "The following section provides a summary of the Installed Veeam Licenses Information"
-                        BlankLine
                         $OutObj = @()
                         try {
                             $Licenses = Get-VBRInstalledLicense
@@ -73,8 +71,6 @@ function Get-AbrVbrInstalledLicense {
                         $OutObj | Table @TableParams
                         try {
                             Section -Style Heading5 'Instance License Usage' {
-                                Paragraph "The following section provides a summary of the Veeam License Instance Capacity Information"
-                                BlankLine
                                 $OutObj = @()
                                 try {
                                     $Licenses = Get-VBRInstalledLicense | Select-Object -ExpandProperty InstanceLicenseSummary
@@ -104,8 +100,6 @@ function Get-AbrVbrInstalledLicense {
                                 $OutObj | Table @TableParams
                                 try {
                                     Section -Style Heading5 'Per Instance Type License Usage' {
-                                        Paragraph "The following section provides a summary of the Veeam License Instance Capacity Information"
-                                        BlankLine
                                         $OutObj = @()
                                         try {
                                             $Licenses = (Get-VBRInstalledLicense | Select-Object -ExpandProperty InstanceLicenseSummary).Object
@@ -145,8 +139,6 @@ function Get-AbrVbrInstalledLicense {
                         }
                         try {
                             Section -Style Heading5 'CPU Socket License Usage' {
-                                Paragraph "The following section provides a summary of the Veeam CPU Sockets License Usage Information"
-                                BlankLine
                                 $OutObj = @()
                                 try {
                                     $Licenses = Get-VBRInstalledLicense | Select-Object -ExpandProperty SocketLicenseSummary
@@ -180,8 +172,6 @@ function Get-AbrVbrInstalledLicense {
                         }
                         try {
                             Section -Style Heading5 'Capacity License Usage' {
-                                Paragraph "The following section provides a summary of the Veeam Capacity License Usage Information"
-                                BlankLine
                                 $OutObj = @()
                                 if ((Get-VBRServerSession).Server) {
                                     try {

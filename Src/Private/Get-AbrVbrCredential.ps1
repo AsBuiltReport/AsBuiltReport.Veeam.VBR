@@ -25,7 +25,7 @@ function Get-AbrVbrCredential {
 
     process {
         Section -Style Heading4 'Security Credentials' {
-            Paragraph "The following section provides credentials managed by Veeam Backup & Replication."
+            Paragraph "The following section provide information on the credentials managed by Veeam Backup & Replication."
             BlankLine
             $OutObj = @()
             if ((Get-VBRServerSession).Server) {

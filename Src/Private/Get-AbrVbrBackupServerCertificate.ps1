@@ -25,7 +25,6 @@ function Get-AbrVbrBackupServerCertificate {
 
     process {
         Section -Style Heading4 'Backup Server TLS Certificate' {
-            Paragraph "The following section provides information of the configured TLS certificates on Veeam Backup & Replication."
             BlankLine
             $OutObj = @()
             if ((Get-VBRServerSession).Server) {

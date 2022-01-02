@@ -23,7 +23,7 @@ function Get-AbrVbrSureBackup {
 
     process {
         Section -Style Heading3 'SureBackup Configuration' {
-            Paragraph "The following section provides a summary of the Veeam SureBackup."
+            Paragraph "The following section provides a summary of SureBackup."
             BlankLine
             try {
                 Section -Style Heading4 'Application Groups' {
@@ -65,8 +65,6 @@ function Get-AbrVbrSureBackup {
                     $SureBackupAGs = Get-VBRApplicationGroup
                     foreach ($SureBackupAG in $SureBackupAGs) {
                         Section -Style Heading5 "$($SureBackupAG.Name) VM Settings" {
-                            Paragraph "The following section provides a detailed information of the VM Application Group Settings"
-                            BlankLine
                             try {
                                 foreach ($VMSetting in $SureBackupAG.VM) {
                                     Section -Style Heading5 "$($VMSetting.Name)" {
@@ -149,14 +147,10 @@ function Get-AbrVbrSureBackup {
             if ($InfoLevel.Infrastructure.SureBackup -ge 2) {
                 try {
                     Section -Style Heading5 "Virtual Labs Configuration" {
-                        Paragraph "The following section provides a detailed information of the Virtual Lab Configuration"
-                        BlankLine
                         $SureBackupVLs = Get-VBRViVirtualLabConfiguration
                         foreach ($SureBackupVL in $SureBackupVLs) {
                             try {
                                 Section -Style Heading6 "$($SureBackupVL.Name) Settings" {
-                                    Paragraph "The following section provides a detailed information of the Virtual Lab Configuration"
-                                    BlankLine
                                     $OutObj = @()
                                     Write-PscriboMessage "Discovered $($SureBackupVL.Name)  Virtual Lab."
                                     $inObj = [ordered] @{
@@ -188,8 +182,6 @@ function Get-AbrVbrSureBackup {
                                     $OutObj | Table @TableParams
                                     try {
                                         Section -Style Heading6 "vNIC Settings" {
-                                            Paragraph "The following section provides a detailed information of the Virtual Lab Configuration"
-                                            BlankLine
                                             $OutObj = @()
                                             foreach ($NetworkOption in $SureBackupVL.NetworkOptions) {
                                                 $inObj = [ordered] @{
@@ -218,8 +210,6 @@ function Get-AbrVbrSureBackup {
                                     }
                                     try {
                                         Section -Style Heading6 "IP Address Mapping" {
-                                            Paragraph "The following section provides a detailed information of the Virtual Lab Configuration"
-                                            BlankLine
                                             $OutObj = @()
                                             foreach ($NetworkOption in $SureBackupVL.IpMappingRule) {
                                                 $inObj = [ordered] @{

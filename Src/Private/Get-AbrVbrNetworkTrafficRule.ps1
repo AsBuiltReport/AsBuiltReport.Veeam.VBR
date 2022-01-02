@@ -25,7 +25,7 @@ function Get-AbrVbrNetworkTrafficRule {
 
     process {
         Section -Style Heading4 'Network Traffic Rules' {
-            Paragraph "The following section returns network traffic rules settings configured on Veeam Backup & Replication."
+            Paragraph "The following section details network traffic rules settings configured on Veeam Backup & Replication."
             BlankLine
             $OutObj = @()
             if ((Get-VBRServerSession).Server) {
@@ -64,7 +64,6 @@ function Get-AbrVbrNetworkTrafficRule {
                 try {
                     if (Get-VBRPreferredNetwork) {
                         Section -Style Heading5 'Preferred Networks' {
-                            Paragraph "The following section returns configured preferred networks on Backup Server"
                             BlankLine
                             $OutObj = @()
                             if ((Get-VBRServerSession).Server) {

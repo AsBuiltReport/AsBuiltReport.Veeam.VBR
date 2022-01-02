@@ -25,7 +25,6 @@ function Get-AbrVbrEmailNotificationSetting {
 
     process {
         Section -Style Heading4 'Email Notification Settings' {
-            Paragraph "The following section provides global email notification settings."
             BlankLine
             $OutObj = @()
             if ((Get-VBRServerSession).Server) {

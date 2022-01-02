@@ -23,7 +23,7 @@ function Get-AbrVbrBackupServerInfo {
 
     process {
         Section -Style Heading3 'Backup Server Information' {
-            Paragraph "The following section provides a summary of the Veeam Backup Server"
+            Paragraph "The following section provides a summary of the local Veeam Backup Server"
             BlankLine
             $OutObj = @()
             if ((Get-VBRServerSession).Server) {
@@ -85,8 +85,6 @@ function Get-AbrVbrBackupServerInfo {
                         Remove-CimSession $CimSession
                         if ($HW) {
                             Section -Style Heading4 'Hardware Information' {
-                                Paragraph "The following section provides hardware information of the Veeam Backup Server"
-                                BlankLine
                                 $OutObj = @()
                                 $inObj = [ordered] @{
                                     'Name' = $HW.CsDNSHostName
@@ -144,8 +142,6 @@ function Get-AbrVbrBackupServerInfo {
                         Remove-PSSession -Session $PssSession
                         if ($Available) {
                             Section -Style Heading4 "Veeam Services Status" {
-                                Paragraph "The following section provides a summary of the Backup Server Infrastructure services status."
-                                BlankLine
                                 $OutObj = @()
                                 foreach ($Service in $Services) {
                                     Write-PscriboMessage "Collecting '$($Service.DisplayName)' status on $($BackupServer.Namr)."
