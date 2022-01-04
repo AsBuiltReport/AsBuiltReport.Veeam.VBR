@@ -131,47 +131,49 @@ function Get-AbrVbrBackupServerInfo {
                 catch {
                     Write-PscriboMessage -IsWarning $_.Exception.Message
                 }
-                try {
-                    Write-PScriboMessage "Infrastructure Backup Server InfoLevel set at $($InfoLevel.Infrastructure.BackupServer)."
-                    if ($InfoLevel.Infrastructure.BackupServer -ge 2) {
-                        $BackupServer = Get-VBRServer -Type Local
-                        $PssSession = New-PSSession $BackupServer.Name -Credential $Credential -Authentication Default
-                        $Available = Invoke-Command -Session $PssSession -ScriptBlock {Get-Service "W32Time" | Select-Object DisplayName, Name, Status}
-                        Write-PscriboMessage "Collecting Backup Server Hardware information from $($BackupServer.Name)."
-                        $Services = Invoke-Command -Session $PssSession -ScriptBlock {Get-Service Veeam*}
-                        Remove-PSSession -Session $PssSession
-                        if ($Available) {
-                            Section -Style Heading4 "Veeam Services Status" {
-                                $OutObj = @()
-                                foreach ($Service in $Services) {
-                                    Write-PscriboMessage "Collecting '$($Service.DisplayName)' status on $($BackupServer.Namr)."
-                                    $inObj = [ordered] @{
-                                        'Display Name' = $Service.DisplayName
-                                        'Short Name' = $Service.Name
-                                        'Status' = $Service.Status
+                if ($HealthCheck.Infrastructure.Server) {
+                    try {
+                        Write-PScriboMessage "Infrastructure Backup Server InfoLevel set at $($InfoLevel.Infrastructure.BackupServer)."
+                        if ($InfoLevel.Infrastructure.BackupServer -ge 2) {
+                            $BackupServer = Get-VBRServer -Type Local
+                            $PssSession = New-PSSession $BackupServer.Name -Credential $Credential -Authentication Default
+                            $Available = Invoke-Command -Session $PssSession -ScriptBlock {Get-Service "W32Time" | Select-Object DisplayName, Name, Status}
+                            Write-PscriboMessage "Collecting Backup Server Hardware information from $($BackupServer.Name)."
+                            $Services = Invoke-Command -Session $PssSession -ScriptBlock {Get-Service Veeam*}
+                            Remove-PSSession -Session $PssSession
+                            if ($Available) {
+                                Section -Style Heading4 "HealthCheck - Services Status" {
+                                    $OutObj = @()
+                                    foreach ($Service in $Services) {
+                                        Write-PscriboMessage "Collecting '$($Service.DisplayName)' status on $($BackupServer.Namr)."
+                                        $inObj = [ordered] @{
+                                            'Display Name' = $Service.DisplayName
+                                            'Short Name' = $Service.Name
+                                            'Status' = $Service.Status
+                                        }
+                                        $OutObj += [pscustomobject]$inobj
                                     }
-                                    $OutObj += [pscustomobject]$inobj
-                                }
 
-                                if ($HealthCheck.Infrastructure.Server) {
-                                    $OutObj | Where-Object { $_.'Status' -notlike 'Running'} | Set-Style -Style Warning -Property 'Status'
-                                }
+                                    if ($HealthCheck.Infrastructure.Server) {
+                                        $OutObj | Where-Object { $_.'Status' -notlike 'Running'} | Set-Style -Style Warning -Property 'Status'
+                                    }
 
-                                $TableParams = @{
-                                    Name = "Veeam Services Status - $($BackupServer.Name.Split(".")[0])"
-                                    List = $false
-                                    ColumnWidths = 45, 35, 20
+                                    $TableParams = @{
+                                        Name = "HealthCheck - Services Status - $($BackupServer.Name.Split(".")[0])"
+                                        List = $false
+                                        ColumnWidths = 45, 35, 20
+                                    }
+                                    if ($Report.ShowTableCaptions) {
+                                        $TableParams['Caption'] = "- $($TableParams.Name)"
+                                    }
+                                    $OutObj | Table @TableParams
                                 }
-                                if ($Report.ShowTableCaptions) {
-                                    $TableParams['Caption'] = "- $($TableParams.Name)"
-                                }
-                                $OutObj | Table @TableParams
                             }
                         }
                     }
-                }
-                catch {
-                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                    catch {
+                        Write-PscriboMessage -IsWarning $_.Exception.Message
+                    }
                 }
             }
         }
