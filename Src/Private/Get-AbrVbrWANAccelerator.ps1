@@ -23,7 +23,7 @@ function Get-AbrVbrWANAccelerator {
 
     process {
         Section -Style Heading3 'WAN Accelerators' {
-            Paragraph "The following section provides informaion on WAN Accelerator. WAN accelerators are responsible for global data caching and data deduplication"
+            Paragraph "The following section provides information on WAN Accelerator. WAN accelerators are responsible for global data caching and data deduplication"
             BlankLine
             $OutObj = @()
             if ((Get-VBRServerSession).Server) {
@@ -45,27 +45,27 @@ function Get-AbrVbrWANAccelerator {
                             'Cache Path' = $WANAccel.FindWaHostComp().Options.CachePath
                             'Max Cache Size' = "$($WANAccel.FindWaHostComp().Options.MaxCacheSize) $($WANAccel.FindWaHostComp().Options.SizeUnit)"
                         }
-                        $OutObj += [pscustomobject]$inobj
+                        $OutObj = [pscustomobject]$inobj
+
+                        if ($HealthCheck.Infrastructure.Proxy) {
+                            $OutObj | Where-Object { $_.'Status' -eq 'Unavailable'} | Set-Style -Style Warning -Property 'Status'
+                        }
+
+                        $TableParams = @{
+                            Name = "Wan Accelerator Information - $($WANAccel.GetHost().Name)"
+                            List = $true
+                            ColumnWidths = 40, 60
+                        }
+
+                        if ($Report.ShowTableCaptions) {
+                            $TableParams['Caption'] = "- $($TableParams.Name)"
+                        }
+                        $OutObj | Table @TableParams
                     }
                 }
                 catch {
                     Write-PscriboMessage -IsWarning $_.Exception.Message
                 }
-
-                if ($HealthCheck.Infrastructure.Proxy) {
-                    $OutObj | Where-Object { $_.'Status' -eq 'Unavailable'} | Set-Style -Style Warning -Property 'Status'
-                }
-
-                $TableParams = @{
-                    Name = "Wan Accelerator Information - $(((Get-VBRServerSession).Server).ToString().ToUpper().Split(".")[0])"
-                    List = $true
-                    ColumnWidths = 40, 60
-                }
-
-                if ($Report.ShowTableCaptions) {
-                    $TableParams['Caption'] = "- $($TableParams.Name)"
-                }
-                $OutObj | Table @TableParams
             }
         }
     }

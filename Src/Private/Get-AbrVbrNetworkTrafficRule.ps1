@@ -41,26 +41,26 @@ function Get-AbrVbrNetworkTrafficRule {
                             'Encryption Enabled' = ConvertTo-TextYN $TrafficRule.EncryptionEnabled
                             'Throttling' = "Throttling Enabled: $(ConvertTo-TextYN $TrafficRule.ThrottlingEnabled)`r`nThrottling Unit: $($TrafficRule.ThrottlingUnit)`r`nThrottling Value: $($TrafficRule.ThrottlingValue)`r`nThrottling Windows: $(ConvertTo-TextYN $TrafficRule.ThrottlingWindowEnabled)"
                         }
-                        $OutObj += [pscustomobject]$inobj
+                        $OutObj = [pscustomobject]$inobj
+
+                        if ($HealthCheck.Infrastructure.Settings) {
+                            $OutObj | Where-Object { $_.'Enabled' -like 'No'} | Set-Style -Style Warning -Property 'Enabled'
+                        }
+
+                        $TableParams = @{
+                            Name = "Network Traffic Rules - $($TrafficRule.Name)"
+                            List = $true
+                            ColumnWidths = 40, 60
+                        }
+                        if ($Report.ShowTableCaptions) {
+                            $TableParams['Caption'] = "- $($TableParams.Name)"
+                        }
+                        $OutObj | Table @TableParams
                     }
                 }
                 catch {
                     Write-PscriboMessage -IsWarning $_.Exception.Message
                 }
-
-                if ($HealthCheck.Infrastructure.Settings) {
-                    $OutObj | Where-Object { $_.'Enabled' -like 'No'} | Set-Style -Style Warning -Property 'Enabled'
-                }
-
-                $TableParams = @{
-                    Name = "Network Traffic Rules Information - $(((Get-VBRServerSession).Server).ToString().ToUpper().Split(".")[0])"
-                    List = $true
-                    ColumnWidths = 40, 60
-                }
-                if ($Report.ShowTableCaptions) {
-                    $TableParams['Caption'] = "- $($TableParams.Name)"
-                }
-                $OutObj | Table @TableParams
                 try {
                     if (Get-VBRPreferredNetwork) {
                         Section -Style Heading5 'Preferred Networks' {
