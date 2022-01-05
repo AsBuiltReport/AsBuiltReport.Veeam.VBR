@@ -87,11 +87,14 @@ function Invoke-AsBuiltReport.Veeam.VBR {
             }
             Write-PScriboMessage "Tape Infrastructure InfoLevel set at $($InfoLevel.Tape.Section)."
             if ($InfoLevel.Tape.Section -ge 1) {
-                Section -Style Heading2 'Tape Infrastructure Summary' {
-                    Write-PScriboMessage "Tape Server InfoLevel set at $($InfoLevel.Tape.Server)."
-                    if ($InfoLevel.Tape.Server -ge 1) {
-                        Get-AbrVbrTapeServer
-                        Get-AbrVbrTapeLibrary
+                if ((Get-VBRTapeServer).count -gt 0) {
+                    Section -Style Heading2 'Tape Infrastructure Summary' {
+                        Write-PScriboMessage "Tape Server InfoLevel set at $($InfoLevel.Tape.Server)."
+                        if ($InfoLevel.Tape.Server -ge 1) {
+                            Get-AbrVbrTapeServer
+                            Get-AbrVbrTapeLibrary
+                            Get-AbrVbrTapeVault
+                        }
                     }
                 }
             }

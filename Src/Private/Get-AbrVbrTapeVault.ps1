@@ -1,0 +1,69 @@
+
+function Get-AbrVbrTapeVault {
+    <#
+    .SYNOPSIS
+    Used by As Built Report to retrieve Veeam Tape Vault Information
+    .DESCRIPTION
+    .NOTES
+        Version:        0.1.0
+        Author:         Jonathan Colon
+        Twitter:        @jcolonfzenpr
+        Github:         rebelinux
+    .EXAMPLE
+    .LINK
+    #>
+    [CmdletBinding()]
+    param (
+
+    )
+
+    begin {
+        Write-PscriboMessage "Discovering Veeam VBR Tape Vault information from $System."
+    }
+
+    process {
+        if ((Get-VBRTapeVault).count -gt 0) {
+            Section -Style Heading3 'Tape Vault Summary' {
+                Paragraph "The following section provides summary information on Veeam Tape Vault protected Medium."
+                BlankLine
+                $OutObj = @()
+                if ((Get-VBRServerSession).Server) {
+                    try {
+                        $TapeObjs = Get-VBRTapeVault
+                        foreach ($TapeObj in $TapeObjs) {
+                            try {
+                                Write-PscriboMessage "Discovered $($TapeObj.Name) Type Vault."
+                                $inObj = [ordered] @{
+                                    'Vault Name' = $TapeObj.Name
+                                    'Description' = $TapeObj.Description
+                                    'Automatic Protect' = $TapeObj.Protect
+                                    'Location' = Get-VBRLocation -Object $TapeObj
+                                }
+                                $OutObj += [pscustomobject]$inobj
+                            }
+                            catch {
+                                Write-PscriboMessage -IsWarning $_.Exception.Message
+                            }
+                        }
+
+                        $TableParams = @{
+                            Name = "Tape Vault - $(((Get-VBRServerSession).Server).ToString().ToUpper().Split(".")[0])"
+                            List = $false
+                            ColumnWidths = 25, 25, 25, 25
+                        }
+
+                        if ($Report.ShowTableCaptions) {
+                            $TableParams['Caption'] = "- $($TableParams.Name)"
+                        }
+                        $OutObj | Table @TableParams
+                    }
+                    catch {
+                        Write-PscriboMessage -IsWarning $_.Exception.Message
+                    }
+                }
+            }
+        }
+    }
+    end {}
+
+}
