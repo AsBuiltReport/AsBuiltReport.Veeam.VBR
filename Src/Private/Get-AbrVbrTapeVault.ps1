@@ -37,7 +37,7 @@ function Get-AbrVbrTapeVault {
                                     'Vault Name' = $TapeObj.Name
                                     'Description' = $TapeObj.Description
                                     'Automatic Protect' = ConvertTo-TextYN $TapeObj.Protect
-                                    'Location' = ConvertTo-EmptyToFiller (Get-VBRLocation -Object $TapeObj)
+                                    'Location' = ConvertTo-EmptyToFiller (Get-VBRLocation -Object $TapeObj -ErrorAction SilentlyContinue)
                                 }
                                 $OutObj += [pscustomobject]$inobj
                             }
