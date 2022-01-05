@@ -58,9 +58,10 @@ This report is compatible with the following PowerShell versions;
 
 ## :wrench: System Requirements
 
-PowerShell 5.1 or PowerShell 7, and the following PowerShell module is required for generating a Veeam VBR As Built report.
+PowerShell 5.1 or PowerShell 7, and the following PowerShell modules are required for generating a Veeam VBR As Built report.
 
 - [Veeam.Backup.PowerShell Module](https://helpcenter.veeam.com/docs/backup/powershell/getting_started.html?ver=110)
+- [AsBuiltReport.Core Module](https://github.com/AsBuiltReport/AsBuiltReport.Core)
 
 ### Linux & macOS
 
