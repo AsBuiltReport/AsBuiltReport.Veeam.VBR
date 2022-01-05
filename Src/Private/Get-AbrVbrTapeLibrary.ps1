@@ -22,14 +22,14 @@ function Get-AbrVbrTapeLibrary {
     }
 
     process {
-        $TapeObjs = Get-VBRTapeLibrary
-        if ($TapeObjs) {
+        if ((Get-VBRTapeLibrary).count -gt 0) {
             Section -Style Heading3 'Tape Libraries Summary' {
                 Paragraph "The following section provides summary information on Veeam Tape Server connected Tape Library."
                 BlankLine
                 $OutObj = @()
                 if ((Get-VBRServerSession).Server) {
                     try {
+                        $TapeObjs = Get-VBRTapeLibrary
                         foreach ($TapeObj in $TapeObjs) {
                             try {
                                 Write-PscriboMessage "Discovered $($TapeObj.Name) Type Library."

@@ -22,13 +22,13 @@ function Get-AbrVbrTapeServer {
     }
 
     process {
-        $TapeObjs = Get-VBRTapeServer
-        if ($TapeObjs) {
+        if ((Get-VBRTapeServer).count -gt 0) {
             Section -Style Heading3 'Tape Servers' {
                 Paragraph "The following section provides summary information on Tape Servers."
                 BlankLine
                 $OutObj = @()
                 if ((Get-VBRServerSession).Server) {
+                    $TapeObjs = Get-VBRTapeServer
                     try {
                         foreach ($TapeObj in $TapeObjs) {
                             Write-PscriboMessage "Discovered $($TapeObj.Name) Type Server."
