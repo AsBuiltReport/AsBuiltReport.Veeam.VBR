@@ -36,8 +36,8 @@ function Get-AbrVbrTapeVault {
                                 $inObj = [ordered] @{
                                     'Vault Name' = $TapeObj.Name
                                     'Description' = $TapeObj.Description
-                                    'Automatic Protect' = $TapeObj.Protect
-                                    'Location' = Get-VBRLocation -Object $TapeObj
+                                    'Automatic Protect' = ConvertTo-TextYN $TapeObj.Protect
+                                    'Location' = ConvertTo-EmptyToFiller (Get-VBRLocation -Object $TapeObj)
                                 }
                                 $OutObj += [pscustomobject]$inobj
                             }
@@ -49,7 +49,7 @@ function Get-AbrVbrTapeVault {
                         $TableParams = @{
                             Name = "Tape Vault - $(((Get-VBRServerSession).Server).ToString().ToUpper().Split(".")[0])"
                             List = $false
-                            ColumnWidths = 25, 25, 25, 25
+                            ColumnWidths = 32, 32, 16, 20
                         }
 
                         if ($Report.ShowTableCaptions) {
