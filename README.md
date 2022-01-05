@@ -134,12 +134,36 @@ The **Options** schema allows certain options within the report to be toggled on
 
 The **InfoLevel** schema allows configuration of each section of the report at a granular level. The following sections can be set.
 
-There are 2 levels (0-1) of detail granularity for each section as follows;
+There are 4 levels (0-3) of detail granularity for each section as follows;
 
 | Setting | InfoLevel         | Description                                                                                                                                |
 |:-------:|-------------------|--------------------------------------------------------------------------------------------------------------------------------------------|
 |    0    | Disabled          | Does not collect or display any information                                                                                                |
 |    1    | Enabled / Summary | Provides summarised information for a collection of objects                                                                                |
+|    2    | Adv Summary       | Provides condensed, detailed information for a collection of objects                                                                       |
+|    3    | Detailed          | Provides detailed information for individual objects                                                                                       |
+
+The table below outlines the default and maximum **InfoLevel** settings for each Backup Infrastructure section.
+
+| Sub-Schema   | Default Setting | Maximum Setting |
+|--------------|:---------------:|:---------------:|
+| Section      |        1        |        1        |
+| BackupServer       |        1        |        2        |
+| Proxy          |        1        |        3        |
+| Settings         |        1        |        2        |
+| BR           |        1        |        2        |
+| Licenses           |        1        |        2        |
+| SOBR           |        1        |        2        |
+| WANAccel           |        1        |        2        |
+| SureBackup           |        1        |        2        |
+
+The table below outlines the default and maximum **InfoLevel** settings for each Tape Infrastructure section.
+
+| Sub-Schema   | Default Setting | Maximum Setting |
+|--------------|:---------------:|:---------------:|
+| Section       |        1        |        1        |
+| Server       |        1        |        1        |
+| Library          |        1        |        1        |
 
 ### Healthcheck
 
