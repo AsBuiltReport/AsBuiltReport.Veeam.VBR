@@ -48,3 +48,4 @@
   - Added Tape Library Information.
     - Added Per Library Tape Drive Information.
   - Added Tape Vault Information.
+- Added Veeam Logo to Cover Page.
