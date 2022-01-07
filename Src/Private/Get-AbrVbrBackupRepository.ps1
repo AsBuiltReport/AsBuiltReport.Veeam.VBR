@@ -41,10 +41,18 @@ function Get-AbrVbrBackupRepository {
                         }
                         foreach ($BackupRepo in $BackupRepos) {
                             Write-PscriboMessage "Discovered $($BackupRepo.Name) Repository."
+                            $PercentFree = 0
+                            if (@($($BackupRepo.GetContainer().CachedTotalSpace.InGigabytes),$($BackupRepo.GetContainer().CachedFreeSpace.InGigabytes)) -ne 0) {
+                                $UsedSpace = ($($BackupRepo.GetContainer().CachedTotalSpace.InGigabytes-$($BackupRepo.GetContainer().CachedFreeSpace.InGigabytes)))
+                                if ($UsedSpace -ne 0) {
+                                    $PercentFree = ($UsedSpace/$($BackupRepo.GetContainer().CachedTotalSpace.InGigabytes)).tostring("P")
+                                }
+                            }
                             $inObj = [ordered] @{
                                 'Name' = $BackupRepo.Name
                                 'Total Space' = "$($BackupRepo.GetContainer().CachedTotalSpace.InGigabytes) Gb"
                                 'Free Space' = "$($BackupRepo.GetContainer().CachedFreeSpace.InGigabytes) Gb"
+                                'Space Used %' = $PercentFree
                                 'Status' = Switch ($BackupRepo.IsUnavailable) {
                                     'False' {'Available'}
                                     'True' {'Unavailable'}
@@ -60,12 +68,14 @@ function Get-AbrVbrBackupRepository {
 
                     if ($HealthCheck.Infrastructure.BR) {
                         $OutObj | Where-Object { $_.'Status' -eq 'Unavailable'} | Set-Style -Style Warning -Property 'Status'
+                        $OutObj | Where-Object { $_.'Space Used %' -ge 75} | Set-Style -Style Warning -Property 'Space Used %'
+                        $OutObj | Where-Object { $_.'Space Used %' -ge 90} | Set-Style -Style Critical -Property 'Space Used %'
                     }
 
                     $TableParams = @{
                         Name = "Backup Repository Information - $(((Get-VBRServerSession).Server).ToString().ToUpper().Split(".")[0])"
                         List = $false
-                        ColumnWidths = 30, 25, 30, 15
+                        ColumnWidths = 30, 18, 18, 19, 15
                     }
                     if ($Report.ShowTableCaptions) {
                         $TableParams['Caption'] = "- $($TableParams.Name)"
