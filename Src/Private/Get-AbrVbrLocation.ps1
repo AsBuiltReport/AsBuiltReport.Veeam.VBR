@@ -24,10 +24,10 @@ function Get-AbrVbrLocation {
     }
 
     process {
-        if ((Get-VBRLocation).count -gt 0) {
-            Section -Style Heading3 'Geographical Locations' {
-                Paragraph "The following section list geographical locations created in Veeam Backup & Replication."
-                BlankLine
+        Section -Style Heading3 'Geographical Locations' {
+            Paragraph "The following section list geographical locations created in Veeam Backup & Replication."
+            BlankLine
+            try {
                 $OutObj = @()
                 if ((Get-VBRServerSession).Server) {
                     try {
@@ -44,7 +44,7 @@ function Get-AbrVbrLocation {
                     catch {
                         Write-PscriboMessage -IsWarning $_.Exception.Message
                     }
-
+    
                     $TableParams = @{
                         Name = "Location Information - $(((Get-VBRServerSession).Server).ToString().ToUpper().Split(".")[0])"
                         List = $false
@@ -55,6 +55,9 @@ function Get-AbrVbrLocation {
                     }
                     $OutObj | Table @TableParams
                 }
+            }
+            catch {
+                Write-PscriboMessage -IsWarning $_.Exception.Message
             }
         }
     }
