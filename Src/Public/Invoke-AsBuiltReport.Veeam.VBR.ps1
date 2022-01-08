@@ -92,7 +92,9 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                         Write-PScriboMessage "Tape Server InfoLevel set at $($InfoLevel.Tape.Server)."
                         if ($InfoLevel.Tape.Server -ge 1) {
                             Get-AbrVbrTapeServer
-                            Get-AbrVbrTapeLibrary
+                            if ($InfoLevel.Tape.Library -ge 1) {
+                                Get-AbrVbrTapeLibrary
+                            }
                             Get-AbrVbrTapeVault
                         }
                     }

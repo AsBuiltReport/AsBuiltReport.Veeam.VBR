@@ -113,43 +113,45 @@ function Get-AbrVbrTapeLibrary {
                                     #---------------------------------------------------------------------------------------------#
                                     #                                  Tape Medium Section                                        #
                                     #---------------------------------------------------------------------------------------------#
-                                    $MediumObjs = Get-VBRTapeMedium -Library $TapeObj.Id
-                                    if ($MediumObjs) {
-                                        Write-PscriboMessage "Collecting $($TapeObj.Name) Tape Medium"
-                                        Section -Style Heading4 "Tape Mediums" {
-                                            $OutObj = @()
-                                            if ((Get-VBRServerSession).Server) {
-                                                try {
-                                                    foreach ($MediumObj in $MediumObjs) {
-                                                        Write-PscriboMessage "Discovered $($MediumObj.Name) Type Medium."
-                                                        $inObj = [ordered] @{
-                                                            'Name' = $MediumObj.Name
-                                                            'Expiration Date' = Switch (($MediumObj.ExpirationDate).count) {
-                                                                0 {"-"}
-                                                                default {$MediumObj.ExpirationDate.ToShortDateString()}
+                                    if ($InfoLevel.Tape.Library -ge 2) {
+                                        $MediumObjs = Get-VBRTapeMedium -Library $TapeObj.Id
+                                        if ($MediumObjs) {
+                                            Write-PscriboMessage "Collecting $($TapeObj.Name) Tape Medium"
+                                            Section -Style Heading4 "Tape Mediums" {
+                                                $OutObj = @()
+                                                if ((Get-VBRServerSession).Server) {
+                                                    try {
+                                                        foreach ($MediumObj in $MediumObjs) {
+                                                            Write-PscriboMessage "Discovered $($MediumObj.Name) Type Medium."
+                                                            $inObj = [ordered] @{
+                                                                'Name' = $MediumObj.Name
+                                                                'Expiration Date' = Switch (($MediumObj.ExpirationDate).count) {
+                                                                    0 {"-"}
+                                                                    default {$MediumObj.ExpirationDate.ToShortDateString()}
+                                                                }
+                                                                'Total Space' = ConvertTo-FileSizeString $MediumObj.Capacity
+                                                                'Free Space' = ConvertTo-FileSizeString $MediumObj.Free
+                                                                'Locked' = ConvertTo-TextYN $MediumObj.IsLocked
+                                                                'Retired' = ConvertTo-TextYN $MediumObj.IsRetired
+                                                                'Worm' = ConvertTo-TextYN $MediumObj.IsWorm
                                                             }
-                                                            'Total Space' = ConvertTo-FileSizeString $MediumObj.Capacity
-                                                            'Free Space' = ConvertTo-FileSizeString $MediumObj.Free
-                                                            'Locked' = ConvertTo-TextYN $MediumObj.IsLocked
-                                                            'Retired' = ConvertTo-TextYN $MediumObj.IsRetired
-                                                            'Worm' = ConvertTo-TextYN $MediumObj.IsWorm
+                                                            $OutObj += [pscustomobject]$inobj
                                                         }
-                                                        $OutObj += [pscustomobject]$inobj
-                                                    }
 
-                                                    $TableParams = @{
-                                                        Name = "Tape Mediums - $($TapeObj.Name)"
-                                                        List = $false
-                                                        ColumnWidths = 30, 16, 12, 12, 10, 10, 10
-                                                    }
+                                                        $TableParams = @{
+                                                            Name = "Tape Mediums - $($TapeObj.Name)"
+                                                            List = $false
+                                                            ColumnWidths = 30, 16, 12, 12, 10, 10, 10
+                                                        }
 
-                                                    if ($Report.ShowTableCaptions) {
-                                                        $TableParams['Caption'] = "- $($TableParams.Name)"
+                                                        if ($Report.ShowTableCaptions) {
+                                                            $TableParams['Caption'] = "- $($TableParams.Name)"
+                                                        }
+                                                        $OutObj | Table @TableParams
                                                     }
-                                                    $OutObj | Table @TableParams
-                                                }
-                                                catch {
-                                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                    catch {
+                                                        Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                    }
                                                 }
                                             }
                                         }
