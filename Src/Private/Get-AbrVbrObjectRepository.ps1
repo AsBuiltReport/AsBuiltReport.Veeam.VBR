@@ -63,6 +63,9 @@ function Get-AbrVbrObjectRepository {
                     }
                     $OutObj | Table @TableParams
                 }
+                #---------------------------------------------------------------------------------------------#
+                #                            Archive Object Storage RepositorySection                         #
+                #---------------------------------------------------------------------------------------------#
                 try {
                     Section -Style Heading4 "Archive Object Storage Repository" {
                         Paragraph "The following section provides a detailed information of the Archive Object Storage Backup Repository"

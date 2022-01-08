@@ -62,6 +62,9 @@ function Get-AbrVbrNetworkTrafficRule {
                     catch {
                         Write-PscriboMessage -IsWarning $_.Exception.Message
                     }
+                    #---------------------------------------------------------------------------------------------#
+                    #                                Preferred Networks                                           #
+                    #---------------------------------------------------------------------------------------------#
                     try {
                         if (Get-VBRPreferredNetwork) {
                             Section -Style Heading5 'Preferred Networks' {

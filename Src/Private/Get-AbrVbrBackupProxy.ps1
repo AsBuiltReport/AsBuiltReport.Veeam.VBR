@@ -109,7 +109,9 @@ function Get-AbrVbrBackupProxy {
                             catch {
                                 Write-PscriboMessage -IsWarning $_.Exception.Message
                             }
-
+                            #---------------------------------------------------------------------------------------------#
+                            #                    VMware Backup Prxy Hardware information Section                          #
+                            #---------------------------------------------------------------------------------------------#
                             try {
                                 if ($InfoLevel.Infrastructure.Proxy -ge 3) {
                                     Write-PScriboMessage "Backup Proxy InfoLevel set at $($InfoLevel.Infrastructure.Proxy)."
@@ -181,6 +183,9 @@ function Get-AbrVbrBackupProxy {
                             catch {
                                 Write-PscriboMessage -IsWarning $_.Exception.Message
                             }
+                            #---------------------------------------------------------------------------------------------#
+                            #                    VMware Backup Prxy Service information Section                           #
+                            #---------------------------------------------------------------------------------------------#
                             if ($HealthCheck.Infrastructure.Server) {
                                 try {
                                     if ($InfoLevel.Infrastructure.Proxy -ge 1) {
@@ -240,6 +245,9 @@ function Get-AbrVbrBackupProxy {
                         }
                     }
                 }
+                #---------------------------------------------------------------------------------------------#
+                #                       Hyper-V Backup Prxy information Section                               #
+                #---------------------------------------------------------------------------------------------#
                 if ((Get-VBRServerSession).Server) {
                     try {
                         $BackupProxies = Get-VBRHvProxy
@@ -327,6 +335,9 @@ function Get-AbrVbrBackupProxy {
                                         }
                                     }
                                 }
+                                #---------------------------------------------------------------------------------------------#
+                                #                    Hyper-V Backup Prxy Hardware information Section                         #
+                                #---------------------------------------------------------------------------------------------#
                                 try {
                                     if ($InfoLevel.Infrastructure.Proxy -ge 3) {
                                         Write-PScriboMessage "Backup Proxy InfoLevel set at $($InfoLevel.Infrastructure.Proxy)."
@@ -398,6 +409,9 @@ function Get-AbrVbrBackupProxy {
                                 catch {
                                     Write-PscriboMessage -IsWarning $_.Exception.Message
                                 }
+                                #---------------------------------------------------------------------------------------------#
+                                #                    VMware Backup Prxy Service information Section                           #
+                                #---------------------------------------------------------------------------------------------#
                                 if ($HealthCheck.Infrastructure.Server) {
                                     try {
                                         if ($InfoLevel.Infrastructure.Proxy -ge 1) {

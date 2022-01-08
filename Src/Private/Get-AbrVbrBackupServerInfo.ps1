@@ -71,6 +71,9 @@ function Get-AbrVbrBackupServerInfo {
                         $TableParams['Caption'] = "- $($TableParams.Name)"
                     }
                     $OutObj | Table @TableParams
+                    #---------------------------------------------------------------------------------------------#
+                    #                       Backup Server Hardware Information Section                            #
+                    #---------------------------------------------------------------------------------------------#
                     try {
                         Write-PScriboMessage "Infrastructure Backup Server InfoLevel set at $($InfoLevel.Infrastructure.BackupServer)."
                         if ($InfoLevel.Infrastructure.BackupServer -ge 2) {
@@ -132,6 +135,9 @@ function Get-AbrVbrBackupServerInfo {
                     catch {
                         Write-PscriboMessage -IsWarning $_.Exception.Message
                     }
+                    #---------------------------------------------------------------------------------------------#
+                    #                             Backup Server Services Information Section                      #
+                    #---------------------------------------------------------------------------------------------#
                     if ($HealthCheck.Infrastructure.Server) {
                         try {
                             Write-PScriboMessage "Infrastructure Backup Server InfoLevel set at $($InfoLevel.Infrastructure.BackupServer)."

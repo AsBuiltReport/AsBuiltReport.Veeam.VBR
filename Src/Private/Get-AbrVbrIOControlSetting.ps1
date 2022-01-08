@@ -56,6 +56,9 @@ function Get-AbrVbrIOControlSetting {
                         $TableParams['Caption'] = "- $($TableParams.Name)"
                     }
                     $OutObj | Table @TableParams
+                    #---------------------------------------------------------------------------------------------#
+                    #                          Per Datastore Latency Control Options                              #
+                    #---------------------------------------------------------------------------------------------#
                     try {
                         if (Get-VBRAdvancedLatencyOptions) {
                             Section -Style Heading5 'Per Datastore Latency Control Options' {

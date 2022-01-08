@@ -81,6 +81,9 @@ function Get-AbrVbrBackupRepository {
                         $TableParams['Caption'] = "- $($TableParams.Name)"
                     }
                     $OutObj | Table @TableParams
+                    #---------------------------------------------------------------------------------------------#
+                    #                        Backup Repository Configuration Section                              #
+                    #---------------------------------------------------------------------------------------------#
                     if ($InfoLevel.Infrastructure.BR -ge 2) {
                         try {
                             Section -Style Heading4 "Backup Repository Configuration" {

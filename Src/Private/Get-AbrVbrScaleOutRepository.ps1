@@ -53,18 +53,27 @@ function Get-AbrVbrScaleOutRepository {
                     $TableParams['Caption'] = "- $($TableParams.Name)"
                 }
                 $OutObj | Table @TableParams
+                #---------------------------------------------------------------------------------------------#
+                #                               SOBR Configuration Section                                    #
+                #---------------------------------------------------------------------------------------------#
                 if ($InfoLevel.Infrastructure.SOBR -ge 2) {
                     try {
                         Section -Style Heading4 "ScaleOut Backup Repository Configuration" {
                             Paragraph "The following section provides a detailed information of the ScaleOut Backup Repository"
                             BlankLine
                             $BackupRepos = Get-VBRBackupRepository -ScaleOut
+                            #---------------------------------------------------------------------------------------------#
+                            #                                   Per SOBR Section                                          #
+                            #---------------------------------------------------------------------------------------------#
                             foreach ($BackupRepo in $BackupRepos) {
                                 Section -Style Heading5 "$($BackupRepo.Name)" {
                                     Paragraph "The following section provides a detailed information of the $($BackupRepo.Name) ScaleOut Backup Repository"
                                     BlankLine
                                     foreach ($Extent in $BackupRepo.Extent) {
                                         try {
+                                            #---------------------------------------------------------------------------------------------#
+                                            #                               Performace Tier Section                                       #
+                                            #---------------------------------------------------------------------------------------------#
                                             Section -Style Heading6 "Performance Tier" {
                                                 Paragraph "The following section provides a detailed information of the Performance Tier"
                                                 BlankLine
@@ -93,6 +102,9 @@ function Get-AbrVbrScaleOutRepository {
                                             Write-PscriboMessage -IsWarning $_.Exception.Message
                                         }
                                     }
+                                    #---------------------------------------------------------------------------------------------#
+                                    #                               Capacity Tier Section                                         #
+                                    #---------------------------------------------------------------------------------------------#
                                     foreach ($CapacityExtent in $BackupRepo.CapacityExtent) {
                                         try {
                                             Section -Style Heading6 "Capacity Tier" {
