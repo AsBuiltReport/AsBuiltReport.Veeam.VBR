@@ -44,7 +44,7 @@ function Get-AbrVbrLocation {
                     catch {
                         Write-PscriboMessage -IsWarning $_.Exception.Message
                     }
-    
+
                     $TableParams = @{
                         Name = "Location Information - $(((Get-VBRServerSession).Server).ToString().ToUpper().Split(".")[0])"
                         List = $false
