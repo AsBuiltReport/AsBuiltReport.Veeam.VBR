@@ -23,7 +23,7 @@ function Get-AbrVbrTapeLibrary {
 
     process {
         if ((Get-VBRTapeLibrary).count -gt 0) {
-            Section -Style Heading3 'Tape Libraries Summary' {
+            Section -Style Heading3 'Tape Libraries' {
                 Paragraph "The following section provides summary information on Veeam Tape Server connected Tape Library."
                 BlankLine
                 $OutObj = @()

@@ -23,9 +23,7 @@ function Get-AbrVbrTapeVault {
 
     process {
         if ((Get-VBRTapeVault).count -gt 0) {
-            Section -Style Heading3 'Tape Vault Summary' {
-                Paragraph "The following section provides summary information on Veeam Tape Vault protected Medium."
-                BlankLine
+            Section -Style Heading3 'Tape Vaults' {
                 $OutObj = @()
                 if ((Get-VBRServerSession).Server) {
                     try {
@@ -34,7 +32,7 @@ function Get-AbrVbrTapeVault {
                             try {
                                 Write-PscriboMessage "Discovered $($TapeObj.Name) Type Vault."
                                 $inObj = [ordered] @{
-                                    'Vault Name' = $TapeObj.Name
+                                    'Name' = $TapeObj.Name
                                     'Description' = $TapeObj.Description
                                     'Automatic Protect' = ConvertTo-TextYN $TapeObj.Protect
                                     'Location' = ConvertTo-EmptyToFiller (Get-VBRLocation -Object $TapeObj -ErrorAction SilentlyContinue)
