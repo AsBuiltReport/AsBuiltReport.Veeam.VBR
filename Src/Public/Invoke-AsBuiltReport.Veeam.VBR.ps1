@@ -38,6 +38,9 @@ function Invoke-AsBuiltReport.Veeam.VBR {
         Section -Style Heading1 'Implementation Report' {
             Paragraph "The following section provides a summary of the implemented components on the Veeam Backup & Replication Infrastructure"
             BlankLine
+            #---------------------------------------------------------------------------------------------#
+            #                            Backup Infrastructure Section                                    #
+            #---------------------------------------------------------------------------------------------#
             Write-PScriboMessage "Backup Infrastructure InfoLevel set at $($InfoLevel.Infrastructure.Section)."
             if ($InfoLevel.Infrastructure.Section -ge 1) {
                 Section -Style Heading2 'Backup Infrastructure Summary' {
@@ -85,6 +88,9 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                     }
                 }
             }
+            #---------------------------------------------------------------------------------------------#
+            #                            Tape Infrastructure Section                                      #
+            #---------------------------------------------------------------------------------------------#
             Write-PScriboMessage "Tape Infrastructure InfoLevel set at $($InfoLevel.Tape.Section)."
             if ($InfoLevel.Tape.Section -ge 1) {
                 if ((Get-VBRTapeServer).count -gt 0) {
@@ -95,7 +101,15 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                             if ($InfoLevel.Tape.Library -ge 1) {
                                 Get-AbrVbrTapeLibrary
                             }
-                            Get-AbrVbrTapeVault
+                            if ($InfoLevel.Tape.MediaPool -ge 1) {
+                                Get-AbrVbrTapeMediaPool
+                            }
+                            if ($InfoLevel.Tape.Vault -ge 1) {
+                                Get-AbrVbrTapeVault
+                            }
+                            if ($InfoLevel.Tape.NDMP -ge 1) {
+                                Get-AbrVbrNDMPInfo
+                            }
                         }
                     }
                 }
