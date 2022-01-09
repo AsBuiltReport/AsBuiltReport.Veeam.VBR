@@ -29,7 +29,10 @@
         "Tape": {
             "Section": 1,
             "Server": 1,
-            "Library": 1
+            "Library": 1,
+            "MediaPool": 1,
+            "Vault": 1,
+            "NDMP": 1
         }
     },
     "HealthCheck": {
