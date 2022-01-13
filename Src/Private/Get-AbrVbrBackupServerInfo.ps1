@@ -5,7 +5,7 @@ function Get-AbrVbrBackupServerInfo {
     Used by As Built Report to retrieve Veeam VBR Backup Server Information
     .DESCRIPTION
     .NOTES
-        Version:        0.1.0
+        Version:        0.2.0
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux

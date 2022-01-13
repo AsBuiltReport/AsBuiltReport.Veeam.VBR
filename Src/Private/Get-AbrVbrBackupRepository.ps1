@@ -5,7 +5,7 @@ function Get-AbrVbrBackupRepository {
     Used by As Built Report to retrieve Veeam VBR Backup Repository Information
     .DESCRIPTION
     .NOTES
-        Version:        0.1.0
+        Version:        0.2.0
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
