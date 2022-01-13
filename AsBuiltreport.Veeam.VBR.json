@@ -33,6 +33,11 @@
             "MediaPool": 1,
             "Vault": 1,
             "NDMP": 1
+        },
+        "Inventory": {
+            "Section": 1,
+            "VI": 1,
+            "PHY": 1
         }
     },
     "HealthCheck": {

@@ -114,7 +114,25 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                     }
                 }
             }
+            #---------------------------------------------------------------------------------------------#
+            #                                  Inventory Section                                          #
+            #---------------------------------------------------------------------------------------------#
+            Write-PScriboMessage "Inventory InfoLevel set at $($InfoLevel.Inventory.Section)."
+            if ($InfoLevel.Inventory.Section -ge 1) {
+                if ((Get-VBRServer).count -gt 0) {
+                    Section -Style Heading2 'Inventory Summary' {
+                        Write-PScriboMessage "Virtual Inventory InfoLevel set at $($InfoLevel.Inventory.VI)."
+                        if ($InfoLevel.Inventory.VI -ge 1) {
+                            Get-AbrVbrVirtualInfrastructure
+                        }
+                        Write-PScriboMessage "Physical Inventory InfoLevel set at $($InfoLevel.Inventory.PHY)."
+                        if ($InfoLevel.Inventory.PHY -ge 1) {
+                            Get-AbrVbrPhysicalInfrastructure
 
+                        }
+                    }
+                }
+            }
         }
         #Disconnect-VBRServer
 	}
