@@ -199,4 +199,4 @@ PS C:\> New-AsBuiltReport -Report Veeam.VBR -Target 192.168.7.60 -Username 'Doma
 
 ## :x: Known Issues
 
-- Since many of Veeam's features depend on the Standard+ license, the Community version will not be supported.
+- Since many of Veeam's features depend on the Standard+ license, the Community edition will not be supported.
