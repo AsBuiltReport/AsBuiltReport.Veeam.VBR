@@ -1,8 +1,8 @@
 
-function Get-AbrVbrTapeVault {
+function Get-AbrVbrTapeMediaPool {
     <#
     .SYNOPSIS
-    Used by As Built Report to retrieve Veeam Tape Vault Information
+    Used by As Built Report to retrieve Veeam Tape Media Pools Information
     .DESCRIPTION
     .NOTES
         Version:        0.2.0
@@ -18,26 +18,29 @@ function Get-AbrVbrTapeVault {
     )
 
     begin {
-        Write-PscriboMessage "Discovering Veeam VBR Tape Vault information from $System."
+        Write-PscriboMessage "Discovering Veeam VBR Tape Media Pools information from $System."
     }
 
     process {
         try {
-            if ((Get-VBRInstalledLicense | Where-Object {$_.Edition -in @("EnterprisePlus","Enterprise")}) -and (Get-VBRTapeVault).count -gt 0) {
-                Section -Style Heading3 'Tape Vaults' {
+            if ((Get-VBRTapeMediaPool).count -gt 0) {
+                Section -Style Heading3 'Tape Media Pools' {
                     $OutObj = @()
                     if ((Get-VBRServerSession).Server) {
                         try {
-                            $TapeObjs = Get-VBRTapeVault
-                            foreach ($TapeObj in $TapeObjs) {
+                            $PoolObjs = Get-VBRTapeMediaPool
+                            foreach ($PoolObj in $PoolObjs) {
                                 try {
-                                    Write-PscriboMessage "Discovered $($TapeObj.Name) Type Vault."
+                                    Write-PscriboMessage "Discovered $($PoolObj.Name) Media Pool."
                                     $inObj = [ordered] @{
-                                        'Name' = $TapeObj.Name
-                                        'Description' = $TapeObj.Description
-                                        'Automatic Protect' = ConvertTo-TextYN $TapeObj.Protect
-                                        'Location' = ConvertTo-EmptyToFiller (Get-VBRLocation -Object $TapeObj -ErrorAction SilentlyContinue)
+                                        'Name' = $PoolObj.Name
+                                        'Type' = $PoolObj.Type
+                                        'Tape Count' = ((Get-VBRTapeMediaPool -Id $PoolObj.Id ).Medium).count
+                                        'Total Space' = ConvertTo-FileSizeString $PoolObj.Capacity
+                                        'Free Space' = ConvertTo-FileSizeString $PoolObj.FreeSpace
+                                        'Tape Library' = $PoolObj.LibraryId | ForEach-Object {Get-VBRTapeLibrary -Id $_}
                                     }
+
                                     $OutObj += [pscustomobject]$inobj
                                 }
                                 catch {
@@ -46,9 +49,9 @@ function Get-AbrVbrTapeVault {
                             }
 
                             $TableParams = @{
-                                Name = "Tape Vault - $(((Get-VBRServerSession).Server).ToString().ToUpper().Split(".")[0])"
+                                Name = "Tape Media Pools - $(((Get-VBRServerSession).Server).ToString().ToUpper().Split(".")[0])"
                                 List = $false
-                                ColumnWidths = 32, 32, 16, 20
+                                ColumnWidths = 24, 15, 12, 12, 12, 25
                             }
 
                             if ($Report.ShowTableCaptions) {

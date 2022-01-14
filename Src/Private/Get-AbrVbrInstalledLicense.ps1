@@ -5,7 +5,7 @@ function Get-AbrVbrInstalledLicense {
     Used by As Built Report to retrieve Veeam VBR Infrastructure Installed Licenses
     .DESCRIPTION
     .NOTES
-        Version:        0.1.0
+        Version:        0.2.0
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -70,6 +70,9 @@ function Get-AbrVbrInstalledLicense {
                                 $TableParams['Caption'] = "- $($TableParams.Name)"
                             }
                             $OutObj | Table @TableParams
+                            #---------------------------------------------------------------------------------------------#
+                            #                                  Instance Section                                           #
+                            #---------------------------------------------------------------------------------------------#
                             try {
                                 Section -Style Heading5 'Instance License Usage' {
                                     $OutObj = @()
@@ -99,6 +102,9 @@ function Get-AbrVbrInstalledLicense {
                                         $TableParams['Caption'] = "- $($TableParams.Name)"
                                     }
                                     $OutObj | Table @TableParams
+                                    #---------------------------------------------------------------------------------------------#
+                                    #                                  Per Instance Section                                       #
+                                    #---------------------------------------------------------------------------------------------#
                                     try {
                                         Section -Style Heading5 'Per Instance Type License Usage' {
                                             $OutObj = @()
@@ -138,6 +144,9 @@ function Get-AbrVbrInstalledLicense {
                             catch {
                                 Write-PscriboMessage -IsWarning $_.Exception.Message
                             }
+                            #---------------------------------------------------------------------------------------------#
+                            #                                  CPU Socket License Section                                 #
+                            #---------------------------------------------------------------------------------------------#
                             try {
                                 Section -Style Heading5 'CPU Socket License Usage' {
                                     $OutObj = @()
@@ -171,6 +180,9 @@ function Get-AbrVbrInstalledLicense {
                             catch {
                                 Write-PscriboMessage -IsWarning $_.Exception.Message
                             }
+                            #---------------------------------------------------------------------------------------------#
+                            #                                  Capacity License Section                                   #
+                            #---------------------------------------------------------------------------------------------#
                             try {
                                 Section -Style Heading5 'Capacity License Usage' {
                                     $OutObj = @()

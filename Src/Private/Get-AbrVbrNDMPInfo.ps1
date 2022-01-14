@@ -1,8 +1,8 @@
 
-function Get-AbrVbrTapeVault {
+function Get-AbrVbrNDMPInfo {
     <#
     .SYNOPSIS
-    Used by As Built Report to retrieve Veeam Tape Vault Information
+    Used by As Built Report to retrieve Veeam NDMP Servers Information
     .DESCRIPTION
     .NOTES
         Version:        0.2.0
@@ -18,26 +18,30 @@ function Get-AbrVbrTapeVault {
     )
 
     begin {
-        Write-PscriboMessage "Discovering Veeam VBR Tape Vault information from $System."
+        Write-PscriboMessage "Discovering Veeam VBR NDMP Servers information from $System."
     }
 
     process {
         try {
-            if ((Get-VBRInstalledLicense | Where-Object {$_.Edition -in @("EnterprisePlus","Enterprise")}) -and (Get-VBRTapeVault).count -gt 0) {
-                Section -Style Heading3 'Tape Vaults' {
+            if ((Get-VBRInstalledLicense | Where-Object {$_.Edition -in @("EnterprisePlus","Enterprise")}) -and (Get-VBRNDMPServer).count -gt 0) {
+                Section -Style Heading3 'NDMP Servers' {
                     $OutObj = @()
                     if ((Get-VBRServerSession).Server) {
                         try {
-                            $TapeObjs = Get-VBRTapeVault
-                            foreach ($TapeObj in $TapeObjs) {
+                            $NDMPObjs = Get-VBRNDMPServer | Where-Object {$_.Port -ne 0}
+                            foreach ($NDMPObj in $NDMPObjs) {
                                 try {
-                                    Write-PscriboMessage "Discovered $($TapeObj.Name) Type Vault."
+                                    Write-PscriboMessage "Discovered $($NDMPObj.Name) NDMP Server."
                                     $inObj = [ordered] @{
-                                        'Name' = $TapeObj.Name
-                                        'Description' = $TapeObj.Description
-                                        'Automatic Protect' = ConvertTo-TextYN $TapeObj.Protect
-                                        'Location' = ConvertTo-EmptyToFiller (Get-VBRLocation -Object $TapeObj -ErrorAction SilentlyContinue)
+                                        'Name' = $NDMPObj.Name
+                                        'Credentials' = $NDMPObj.Credentials
+                                        'Port' = $NDMPObj.Port
+                                        'Gateway' = switch ($NDMPObj.SelectedGatewayId) {
+                                            "00000000-0000-0000-0000-000000000000" {"Automatic"}
+                                            Default {(Get-VBRServer | Where-Object {$_.Id -eq $NDMPObj.SelectedGatewayId}).Name}
+                                        }
                                     }
+
                                     $OutObj += [pscustomobject]$inobj
                                 }
                                 catch {
@@ -46,9 +50,9 @@ function Get-AbrVbrTapeVault {
                             }
 
                             $TableParams = @{
-                                Name = "Tape Vault - $(((Get-VBRServerSession).Server).ToString().ToUpper().Split(".")[0])"
+                                Name = "NDMP Servers - $(((Get-VBRServerSession).Server).ToString().ToUpper().Split(".")[0])"
                                 List = $false
-                                ColumnWidths = 32, 32, 16, 20
+                                ColumnWidths = 35, 20, 10, 35
                             }
 
                             if ($Report.ShowTableCaptions) {
