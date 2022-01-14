@@ -1,5 +1,31 @@
 # :arrows_counterclockwise: Veeam VBR As Built Report Changelog
 
+## [0.2.0] - 2022-01-14
+
+### Added
+
+- Added if Condition to better validate License Edition.
+- Added more try/case statements.
+- Added Aditional Tape Infrastructure Sections.
+  - Added Tape MediaPools Information.
+  - Added NDMP Server Information.
+- Added Initial Inventory Section Information.
+  - Added Virtual Infrastructure Section.
+    - Added VMware vSpere Section.
+    - Added Microsoft Hyper-V Section.
+  - Added Physical Infrastructure Section.
+    - Added Protection Group Summary Section.
+      - Added Protection Group Detailed Configuration.
+
+### Changed
+
+- Removed unneeded paragraph section.
+- Changed ReadMe to include Supported Licenses Edtion.
+
+### Fixed
+
+- Fix many try/case statements
+
 ## [0.1.0] - 2022-01-05
 
 ### Added
