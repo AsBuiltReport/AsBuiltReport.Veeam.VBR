@@ -5,7 +5,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.1.0
+        Version:        0.2.0
         Author:         Tim Carman
         Twitter:
         Github:
@@ -38,6 +38,9 @@ function Invoke-AsBuiltReport.Veeam.VBR {
         Section -Style Heading1 'Implementation Report' {
             Paragraph "The following section provides a summary of the implemented components on the Veeam Backup & Replication Infrastructure"
             BlankLine
+            #---------------------------------------------------------------------------------------------#
+            #                            Backup Infrastructure Section                                    #
+            #---------------------------------------------------------------------------------------------#
             Write-PScriboMessage "Backup Infrastructure InfoLevel set at $($InfoLevel.Infrastructure.Section)."
             if ($InfoLevel.Infrastructure.Section -ge 1) {
                 Section -Style Heading2 'Backup Infrastructure Summary' {
@@ -85,6 +88,9 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                     }
                 }
             }
+            #---------------------------------------------------------------------------------------------#
+            #                            Tape Infrastructure Section                                      #
+            #---------------------------------------------------------------------------------------------#
             Write-PScriboMessage "Tape Infrastructure InfoLevel set at $($InfoLevel.Tape.Section)."
             if ($InfoLevel.Tape.Section -ge 1) {
                 if ((Get-VBRTapeServer).count -gt 0) {
@@ -92,13 +98,41 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                         Write-PScriboMessage "Tape Server InfoLevel set at $($InfoLevel.Tape.Server)."
                         if ($InfoLevel.Tape.Server -ge 1) {
                             Get-AbrVbrTapeServer
-                            Get-AbrVbrTapeLibrary
-                            Get-AbrVbrTapeVault
+                            if ($InfoLevel.Tape.Library -ge 1) {
+                                Get-AbrVbrTapeLibrary
+                            }
+                            if ($InfoLevel.Tape.MediaPool -ge 1) {
+                                Get-AbrVbrTapeMediaPool
+                            }
+                            if ($InfoLevel.Tape.Vault -ge 1) {
+                                Get-AbrVbrTapeVault
+                            }
+                            if ($InfoLevel.Tape.NDMP -ge 1) {
+                                Get-AbrVbrNDMPInfo
+                            }
                         }
                     }
                 }
             }
+            #---------------------------------------------------------------------------------------------#
+            #                                  Inventory Section                                          #
+            #---------------------------------------------------------------------------------------------#
+            Write-PScriboMessage "Inventory InfoLevel set at $($InfoLevel.Inventory.Section)."
+            if ($InfoLevel.Inventory.Section -ge 1) {
+                if ((Get-VBRServer).count -gt 0) {
+                    Section -Style Heading2 'Inventory Summary' {
+                        Write-PScriboMessage "Virtual Inventory InfoLevel set at $($InfoLevel.Inventory.VI)."
+                        if ($InfoLevel.Inventory.VI -ge 1) {
+                            Get-AbrVbrVirtualInfrastructure
+                        }
+                        Write-PScriboMessage "Physical Inventory InfoLevel set at $($InfoLevel.Inventory.PHY)."
+                        if ($InfoLevel.Inventory.PHY -ge 1) {
+                            Get-AbrVbrPhysicalInfrastructure
 
+                        }
+                    }
+                }
+            }
         }
         #Disconnect-VBRServer
 	}
