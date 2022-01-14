@@ -25,7 +25,6 @@ function Get-AbrVbrVirtualInfrastructure {
         if ((Get-VBRServer).count -gt 0) {
             Section -Style Heading3 'Virtual Infrastructure' {
                 Paragraph "The following section provides inventory information of the Veeam VirtualInfrastructure"
-                BlankLine
                 if ((Get-VBRServerSession).Server) {
                     try {
                         Section -Style Heading4 'VMware vSphere' {
