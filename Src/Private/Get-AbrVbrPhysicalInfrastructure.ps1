@@ -23,7 +23,7 @@ function Get-AbrVbrPhysicalInfrastructure {
 
     process {
         try {
-            if ((Get-VBRServer).count -gt 0) {
+            if ((Get-VBRProtectionGroup).count -gt 0) {
                 Section -Style Heading3 'Physical Infrastructure' {
                     if ((Get-VBRServerSession).Server) {
                         try {
@@ -58,6 +58,9 @@ function Get-AbrVbrPhysicalInfrastructure {
                                     $TableParams['Caption'] = "- $($TableParams.Name)"
                                 }
                                 $OutObj | Table @TableParams
+                                #---------------------------------------------------------------------------------------------#
+                                #                            Protection Groups Detailed Section                               #
+                                #---------------------------------------------------------------------------------------------#
                                 if ($InfoLevel.Inventory.PHY -ge 2) {
                                     try {
                                         $OutObj = @()

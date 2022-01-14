@@ -7,7 +7,7 @@ function Get-AbrVbrBackupServerCertificate {
 
     .DESCRIPTION
     .NOTES
-        Version:        0.1.0
+        Version:        0.2.0
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -24,45 +24,50 @@ function Get-AbrVbrBackupServerCertificate {
     }
 
     process {
-        if ((Get-VBRBackupServerCertificate).count -gt 0) {
-            Section -Style Heading4 'Backup Server TLS Certificate' {
-                BlankLine
-                $OutObj = @()
-                if ((Get-VBRServerSession).Server) {
-                    try {
-                        $TLSSettings = Get-VBRBackupServerCertificate
-                        foreach ($EmailSetting in $TLSSettings) {
-                            $inObj = [ordered] @{
-                                'Friendly Name' = $TLSSettings.FriendlyName
-                                'Subject Name' = $TLSSettings.SubjectName
-                                'Issuer Name' = $TLSSettings.IssuerName
-                                'Expiration Date' = $TLSSettings.NotAfter.ToShortDateString()
-                                'Issued Date' = $TLSSettings.NotBefore.ToShortDateString()
-                                'Thumbprint' = $TLSSettings.Thumbprint
-                                'SerialNumber' = $TLSSettings.SerialNumber
+        try {
+            if ((Get-VBRBackupServerCertificate).count -gt 0) {
+                Section -Style Heading4 'Backup Server TLS Certificate' {
+                    BlankLine
+                    $OutObj = @()
+                    if ((Get-VBRServerSession).Server) {
+                        try {
+                            $TLSSettings = Get-VBRBackupServerCertificate
+                            foreach ($EmailSetting in $TLSSettings) {
+                                $inObj = [ordered] @{
+                                    'Friendly Name' = $TLSSettings.FriendlyName
+                                    'Subject Name' = $TLSSettings.SubjectName
+                                    'Issuer Name' = $TLSSettings.IssuerName
+                                    'Expiration Date' = $TLSSettings.NotAfter.ToShortDateString()
+                                    'Issued Date' = $TLSSettings.NotBefore.ToShortDateString()
+                                    'Thumbprint' = $TLSSettings.Thumbprint
+                                    'SerialNumber' = $TLSSettings.SerialNumber
+                                }
+                                $OutObj += [pscustomobject]$inobj
                             }
-                            $OutObj += [pscustomobject]$inobj
                         }
-                    }
-                    catch {
-                        Write-PscriboMessage -IsWarning $_.Exception.Message
-                    }
+                        catch {
+                            Write-PscriboMessage -IsWarning $_.Exception.Message
+                        }
 
-                    if ($HealthCheck.Infrastructure.Settings) {
-                        $OutObj | Where-Object { $_.'Enabled' -like 'No'} | Set-Style -Style Warning -Property 'Enabled'
-                    }
+                        if ($HealthCheck.Infrastructure.Settings) {
+                            $OutObj | Where-Object { $_.'Enabled' -like 'No'} | Set-Style -Style Warning -Property 'Enabled'
+                        }
 
-                    $TableParams = @{
-                        Name = "TLS Certificate information - $(((Get-VBRServerSession).Server).ToString().ToUpper().Split(".")[0])"
-                        List = $true
-                        ColumnWidths = 40, 60
+                        $TableParams = @{
+                            Name = "TLS Certificate information - $(((Get-VBRServerSession).Server).ToString().ToUpper().Split(".")[0])"
+                            List = $true
+                            ColumnWidths = 40, 60
+                        }
+                        if ($Report.ShowTableCaptions) {
+                            $TableParams['Caption'] = "- $($TableParams.Name)"
+                        }
+                        $OutObj | Table @TableParams
                     }
-                    if ($Report.ShowTableCaptions) {
-                        $TableParams['Caption'] = "- $($TableParams.Name)"
-                    }
-                    $OutObj | Table @TableParams
                 }
             }
+        }
+        catch {
+            Write-PscriboMessage -IsWarning $_.Exception.Message
         }
     }
     end {}
