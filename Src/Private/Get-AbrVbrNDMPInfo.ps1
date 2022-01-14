@@ -23,7 +23,7 @@ function Get-AbrVbrNDMPInfo {
 
     process {
         try {
-            if ((Get-VBRInstalledLicense | Where-Object {$_.Edition -in @("EnterprisePlus","Enterprise")} -and (Get-VBRNDMPServer).count -gt 0)) {
+            if ((Get-VBRInstalledLicense | Where-Object {$_.Edition -in @("EnterprisePlus","Enterprise")}) -and (Get-VBRNDMPServer).count -gt 0) {
                 Section -Style Heading3 'NDMP Servers' {
                     $OutObj = @()
                     if ((Get-VBRServerSession).Server) {
