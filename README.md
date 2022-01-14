@@ -45,7 +45,7 @@ Below are the instructions on how to install, configure and generate a Veeam VBR
 <!-- ********** Update supported Veeam versions ********** -->
 The Veeam VBR As Built Report supports the following Veeam Backup & Replication version;
 
-- Veeam Backup & Replication V11
+- Veeam Backup & Replication V11 (Standard, Enterrprise & Eterprise Plus Edition)
 
 ### PowerShell
 
@@ -196,3 +196,7 @@ PS C:\> New-AsBuiltReport -Report Veeam.VBR -Target 192.168.7.60 -Credential $Cr
 PS C:\> New-AsBuiltReport -Report Veeam.VBR -Target 192.168.7.60 -Username 'Domain\veeam_admin' -Password 'P@ssw0rd' -Format Html,Word -OutputFolderPath 'C:\Users\Jon\Documents' -SendEmail
 
 ```
+
+## :x: Known Issues
+
+- Since many of Veeam's features depend on the Standard+ license, the Community version will not be supported.
