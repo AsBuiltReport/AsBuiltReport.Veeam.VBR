@@ -37,7 +37,8 @@
         "Inventory": {
             "Section": 1,
             "VI": 1,
-            "PHY": 1
+            "PHY": 1,
+            "FileShare": 1
         }
     },
     "HealthCheck": {
