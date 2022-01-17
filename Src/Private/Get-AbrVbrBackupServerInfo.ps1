@@ -35,7 +35,7 @@ function Get-AbrVbrBackupServerInfo {
                                 $SecurityOptions = Get-VBRSecurityOptions
                                 Write-PscriboMessage "Collecting Backup Server information from $($BackupServer.Name)."
                                 $PssSession = New-PSSession $BackupServer.Name -Credential $Credential -Authentication Default
-                                $VeeamVersion = Invoke-Command -Session $PssSession -ScriptBlock { get-childitem -recurse HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall | get-itemproperty | Where-Object { $_.DisplayName  -match 'Veeam Backup & Replication Server' } | Select-Object -Property DisplayVersion }
+                                $VeeamVersion = Invoke-Command -Session $PssSession -ErrorAction SilentlyContinue -ScriptBlock { get-childitem -recurse HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall | get-itemproperty | Where-Object { $_.DisplayName  -match 'Veeam Backup & Replication Server' } | Select-Object -Property DisplayVersion }
                                 Write-PscriboMessage "Discovered $BackupServer Server."
                                 Remove-PSSession -Session $PssSession
                                 $inObj = [ordered] @{
