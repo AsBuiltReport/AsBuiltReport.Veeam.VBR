@@ -25,9 +25,13 @@ function Get-AbrVbrPhysicalInfrastructure {
         try {
             if ((Get-VBRProtectionGroup).count -gt 0) {
                 Section -Style Heading3 'Physical Infrastructure' {
+                    Paragraph "The following sections detail configuration information of the managed physical infrastructure backed-up by Veeam Server $(((Get-VBRServerSession).Server))."
+                    BlankLine
                     if ((Get-VBRServerSession).Server) {
                         try {
                             Section -Style Heading4 'Protection Groups Summary' {
+                                Paragraph "The following table summarizes the physical backup protections managed by Veeam Server $(((Get-VBRServerSession).Server))."
+                                BlankLine
                                 $OutObj = @()
                                 $InventObjs = Get-VBRProtectionGroup
                                 foreach ($InventObj in $InventObjs) {
@@ -65,78 +69,82 @@ function Get-AbrVbrPhysicalInfrastructure {
                                     try {
                                         $OutObj = @()
                                         $InventObjs = Get-VBRProtectionGroup
-                                        foreach ($InventObj in $InventObjs) {
-                                            try {
-                                                if ($InventObj.Type -eq 'Custom' -and $InventObj.Container.Type -eq 'ActiveDirectory') {
+                                        if (($InventObjs).count -gt 0) {
+                                            Section -Style Heading4 "Per Protection Group Configuration" {
+                                                foreach ($InventObj in $InventObjs) {
                                                     try {
-                                                        Section -Style Heading4 "$($InventObj.Name) Configuration" {
-                                                            Write-PscriboMessage "Discovered $($InventObj.Name) Protection Group Setting."
-                                                            $inObj = [ordered] @{
-                                                                'Name' = $InventObj.Name
-                                                                'Domain' = ($InventObj).Container.Domain
-                                                                'Backup Objects' =  $InventObj.Container.Entity | ForEach-Object {"Name: $(($_).Name)`r`nType: $(($_).Type)`r`nDistinguished Name: $(($_).DistinguishedName)`r`n"}
-                                                                'Exclude VM' = ConvertTo-TextYN ($InventObj).Container.ExcludeVMs
-                                                                'Exclude Computers' = ConvertTo-TextYN ($InventObj).Container.ExcludeComputers
-                                                                'Exclude Offline Computers' = ConvertTo-TextYN ($InventObj).Container.ExcludeOfflineComputers
-                                                                'Excluded Entity' = ($InventObj).Container.ExcludedEntity -join ", "
-                                                                'Master Credentials' = ($InventObj).Container.MasterCredentials
-                                                                'Deployment Options' = "Install Agent: $(ConvertTo-TextYN $InventObj.DeploymentOptions.InstallAgent)`r`nUpgrade Automatically: $(ConvertTo-TextYN $InventObj.DeploymentOptions.UpgradeAutomatically)`r`nInstall Driver: $(ConvertTo-TextYN $InventObj.DeploymentOptions.InstallDriver)`r`nReboot If Required: $(ConvertTo-TextYN $InventObj.DeploymentOptions.RebootIfRequired)"
-                                                            }
-                                                            if (($InventObj.NotificationOptions.EnableAdditionalNotification) -like 'True') {
-                                                                $inObj.add('Notification Options', ("Send Time: $($InventObj.NotificationOptions.SendTime)`r`nAdditional Address: [$($InventObj.NotificationOptions.AdditionalAddress)]`r`nUse Notification Options: $(ConvertTo-TextYN $InventObj.NotificationOptions.UseNotificationOptions)`r`nSubject: $($InventObj.NotificationOptions.NotificationSubject)"))
-                                                            }
+                                                        if ($InventObj.Type -eq 'Custom' -and $InventObj.Container.Type -eq 'ActiveDirectory') {
+                                                            try {
+                                                                Section -Style Heading5 "$($InventObj.Name)" {
+                                                                    Write-PscriboMessage "Discovered $($InventObj.Name) Protection Group Setting."
+                                                                    $inObj = [ordered] @{
+                                                                        'Name' = $InventObj.Name
+                                                                        'Domain' = ($InventObj).Container.Domain
+                                                                        'Backup Objects' =  $InventObj.Container.Entity | ForEach-Object {"Name: $(($_).Name)`r`nType: $(($_).Type)`r`nDistinguished Name: $(($_).DistinguishedName)`r`n"}
+                                                                        'Exclude VM' = ConvertTo-TextYN ($InventObj).Container.ExcludeVMs
+                                                                        'Exclude Computers' = ConvertTo-TextYN ($InventObj).Container.ExcludeComputers
+                                                                        'Exclude Offline Computers' = ConvertTo-TextYN ($InventObj).Container.ExcludeOfflineComputers
+                                                                        'Excluded Entity' = ($InventObj).Container.ExcludedEntity -join ", "
+                                                                        'Master Credentials' = ($InventObj).Container.MasterCredentials
+                                                                        'Deployment Options' = "Install Agent: $(ConvertTo-TextYN $InventObj.DeploymentOptions.InstallAgent)`r`nUpgrade Automatically: $(ConvertTo-TextYN $InventObj.DeploymentOptions.UpgradeAutomatically)`r`nInstall Driver: $(ConvertTo-TextYN $InventObj.DeploymentOptions.InstallDriver)`r`nReboot If Required: $(ConvertTo-TextYN $InventObj.DeploymentOptions.RebootIfRequired)"
+                                                                    }
+                                                                    if (($InventObj.NotificationOptions.EnableAdditionalNotification) -like 'True') {
+                                                                        $inObj.add('Notification Options', ("Send Time: $($InventObj.NotificationOptions.SendTime)`r`nAdditional Address: [$($InventObj.NotificationOptions.AdditionalAddress)]`r`nUse Notification Options: $(ConvertTo-TextYN $InventObj.NotificationOptions.UseNotificationOptions)`r`nSubject: $($InventObj.NotificationOptions.NotificationSubject)"))
+                                                                    }
 
-                                                            $OutObj += [pscustomobject]$inobj
+                                                                    $OutObj += [pscustomobject]$inobj
 
-                                                            $TableParams = @{
-                                                                Name = "Protection Group Configuration - $($InventObj.Name)"
-                                                                List = $true
-                                                                ColumnWidths = 40, 60
-                                                            }
+                                                                    $TableParams = @{
+                                                                        Name = "Protection Group Configuration - $($InventObj.Name)"
+                                                                        List = $true
+                                                                        ColumnWidths = 40, 60
+                                                                    }
 
-                                                            if ($Report.ShowTableCaptions) {
-                                                                $TableParams['Caption'] = "- $($TableParams.Name)"
+                                                                    if ($Report.ShowTableCaptions) {
+                                                                        $TableParams['Caption'] = "- $($TableParams.Name)"
+                                                                    }
+                                                                    $OutObj | Table @TableParams
+                                                                }
                                                             }
-                                                            $OutObj | Table @TableParams
+                                                            catch {
+                                                                Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                            }
+                                                        }
+                                                        elseif ($InventObj.Type -eq 'ManuallyAdded' -and $InventObj.Container.Type -eq 'IndividualComputers') {
+                                                            try {
+                                                                Section -Style Heading5 "$($InventObj.Name)" {
+                                                                    Write-PscriboMessage "Discovered $($InventObj.Name) Protection Group Setting."
+                                                                    $inObj = [ordered] @{
+                                                                        'Name' = $InventObj.Name
+                                                                        'Deployment Options' = "Install Agent: $(ConvertTo-TextYN $InventObj.DeploymentOptions.InstallAgent)`r`nUpgrade Automatically: $(ConvertTo-TextYN $InventObj.DeploymentOptions.UpgradeAutomatically)`r`nInstall Driver: $(ConvertTo-TextYN $InventObj.DeploymentOptions.InstallDriver)`r`nReboot If Required: $(ConvertTo-TextYN $InventObj.DeploymentOptions.RebootIfRequired)"
+                                                                    }
+                                                                    if (($InventObj.NotificationOptions.EnableAdditionalNotification) -like 'True') {
+                                                                        $inObj.add('Notification Options', ("Send Time: $($InventObj.NotificationOptions.SendTime)`r`nAdditional Address: [$($InventObj.NotificationOptions.AdditionalAddress)]`r`nUse Notification Options: $(ConvertTo-TextYN $InventObj.NotificationOptions.UseNotificationOptions)`r`nSubject: $($InventObj.NotificationOptions.NotificationSubject)"))
+                                                                    }
+
+                                                                    $OutObj += [pscustomobject]$inobj
+
+                                                                    $TableParams = @{
+                                                                        Name = "Protection Group Configuration - $($InventObj.Name)"
+                                                                        List = $true
+                                                                        ColumnWidths = 40, 60
+                                                                    }
+
+                                                                    if ($Report.ShowTableCaptions) {
+                                                                        $TableParams['Caption'] = "- $($TableParams.Name)"
+                                                                    }
+                                                                    $OutObj | Table @TableParams
+                                                                }
+                                                            }
+                                                            catch {
+                                                                Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                            }
                                                         }
                                                     }
                                                     catch {
                                                         Write-PscriboMessage -IsWarning $_.Exception.Message
                                                     }
                                                 }
-                                                elseif ($InventObj.Type -eq 'ManuallyAdded' -and $InventObj.Container.Type -eq 'IndividualComputers') {
-                                                    try {
-                                                        Section -Style Heading4 "$($InventObj.Name) Configuration" {
-                                                            Write-PscriboMessage "Discovered $($InventObj.Name) Protection Group Setting."
-                                                            $inObj = [ordered] @{
-                                                                'Name' = $InventObj.Name
-                                                                'Deployment Options' = "Install Agent: $(ConvertTo-TextYN $InventObj.DeploymentOptions.InstallAgent)`r`nUpgrade Automatically: $(ConvertTo-TextYN $InventObj.DeploymentOptions.UpgradeAutomatically)`r`nInstall Driver: $(ConvertTo-TextYN $InventObj.DeploymentOptions.InstallDriver)`r`nReboot If Required: $(ConvertTo-TextYN $InventObj.DeploymentOptions.RebootIfRequired)"
-                                                            }
-                                                            if (($InventObj.NotificationOptions.EnableAdditionalNotification) -like 'True') {
-                                                                $inObj.add('Notification Options', ("Send Time: $($InventObj.NotificationOptions.SendTime)`r`nAdditional Address: [$($InventObj.NotificationOptions.AdditionalAddress)]`r`nUse Notification Options: $(ConvertTo-TextYN $InventObj.NotificationOptions.UseNotificationOptions)`r`nSubject: $($InventObj.NotificationOptions.NotificationSubject)"))
-                                                            }
-
-                                                            $OutObj += [pscustomobject]$inobj
-
-                                                            $TableParams = @{
-                                                                Name = "Protection Group Configuration - $($InventObj.Name)"
-                                                                List = $true
-                                                                ColumnWidths = 40, 60
-                                                            }
-
-                                                            if ($Report.ShowTableCaptions) {
-                                                                $TableParams['Caption'] = "- $($TableParams.Name)"
-                                                            }
-                                                            $OutObj | Table @TableParams
-                                                        }
-                                                    }
-                                                    catch {
-                                                        Write-PscriboMessage -IsWarning $_.Exception.Message
-                                                    }
-                                                }
-                                            }
-                                            catch {
-                                                Write-PscriboMessage -IsWarning $_.Exception.Message
                                             }
                                         }
                                     }

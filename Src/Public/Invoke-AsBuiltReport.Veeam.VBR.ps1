@@ -6,9 +6,9 @@ function Invoke-AsBuiltReport.Veeam.VBR {
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
         Version:        0.2.0
-        Author:         Tim Carman
-        Twitter:
-        Github:
+        Author:         Jonathan Colon
+        Twitter:        @jcolonfzenpr
+        Github:         rebelinux
         Credits:        Iain Brighton (@iainbrighton) - PScribo module
 
     .LINK
@@ -44,6 +44,8 @@ function Invoke-AsBuiltReport.Veeam.VBR {
             Write-PScriboMessage "Backup Infrastructure InfoLevel set at $($InfoLevel.Infrastructure.Section)."
             if ($InfoLevel.Infrastructure.Section -ge 1) {
                 Section -Style Heading2 'Backup Infrastructure Summary' {
+                    Paragraph "The following sections detail the configuration of Veeam Backup Server $(((Get-VBRServerSession).Server))."
+                    BlankLine
                     Get-AbrVbrInfrastructureSummary
                     Get-AbrVbrBackupServerInfo
                     Write-PScriboMessage "Infrastructure Licenses InfoLevel set at $($InfoLevel.Infrastructure.Licenses)."
@@ -95,6 +97,8 @@ function Invoke-AsBuiltReport.Veeam.VBR {
             if ($InfoLevel.Tape.Section -ge 1) {
                 if ((Get-VBRTapeServer).count -gt 0) {
                     Section -Style Heading2 'Tape Infrastructure Summary' {
+                        Paragraph "The following section provides inventory information of the Tape Infrastructure managed by Veeam Server $(((Get-VBRServerSession).Server))."
+                        BlankLine
                         Write-PScriboMessage "Tape Server InfoLevel set at $($InfoLevel.Tape.Server)."
                         if ($InfoLevel.Tape.Server -ge 1) {
                             Get-AbrVbrTapeServer
@@ -121,6 +125,8 @@ function Invoke-AsBuiltReport.Veeam.VBR {
             if ($InfoLevel.Inventory.Section -ge 1) {
                 if ((Get-VBRServer).count -gt 0) {
                     Section -Style Heading2 'Inventory Summary' {
+                        Paragraph "The following section provides inventory information of the Virtual Infrastructure managed by Veeam Server $(((Get-VBRServerSession).Server))."
+                        BlankLine
                         Write-PScriboMessage "Virtual Inventory InfoLevel set at $($InfoLevel.Inventory.VI)."
                         if ($InfoLevel.Inventory.VI -ge 1) {
                             Get-AbrVbrVirtualInfrastructure
@@ -128,6 +134,11 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                         Write-PScriboMessage "Physical Inventory InfoLevel set at $($InfoLevel.Inventory.PHY)."
                         if ($InfoLevel.Inventory.PHY -ge 1) {
                             Get-AbrVbrPhysicalInfrastructure
+
+                        }
+                        Write-PScriboMessage "File Shares Inventory InfoLevel set at $($InfoLevel.Inventory.FileShare)."
+                        if ($InfoLevel.Inventory.FileShare -ge 1) {
+                            Get-AbrVbrFileSharesInfo
 
                         }
                     }
