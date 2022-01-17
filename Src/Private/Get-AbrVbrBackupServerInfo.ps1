@@ -25,7 +25,7 @@ function Get-AbrVbrBackupServerInfo {
         try {
             if ((Get-VBRServer -Type Local).count -gt 0) {
                 Section -Style Heading3 'Backup Server Information' {
-                    Paragraph "The following section provides a summary of the local Veeam Backup Server"
+                    Paragraph "The following table details a summary of the local Veeam Backup Server"
                     BlankLine
                     $OutObj = @()
                     if ((Get-VBRServerSession).Server) {
@@ -33,17 +33,24 @@ function Get-AbrVbrBackupServerInfo {
                             $BackupServers = Get-VBRServer -Type Local
                             foreach ($BackupServer in $BackupServers) {
                                 $SecurityOptions = Get-VBRSecurityOptions
+                                Write-PscriboMessage "Collecting Backup Server information from $($BackupServer.Name)."
+                                $PssSession = New-PSSession $BackupServer.Name -Credential $Credential -Authentication Default
+                                $VeeamVersion = Invoke-Command -Session $PssSession -ScriptBlock { get-childitem -recurse HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall | get-itemproperty | Where-Object { $_.DisplayName  -match 'Veeam Backup & Replication Server' } | Select-Object -Property DisplayVersion }
                                 Write-PscriboMessage "Discovered $BackupServer Server."
+                                Remove-PSSession -Session $PssSession
                                 $inObj = [ordered] @{
                                     'Server Name' = $BackupServer.Name
                                     'Description' = $BackupServer.Description
+                                    'Version' = Switch (($VeeamVersion).count) {
+                                        0 {"Undetected"}
+                                        default {$VeeamVersion.DisplayVersion}
+                                    }
                                     'Type' = $BackupServer.Type
                                     'Status' = Switch ($BackupServer.IsUnavailable) {
                                         'False' {'Available'}
                                         'True' {'Unavailable'}
                                         default {$BackupServer.IsUnavailable}
                                     }
-                                    'Api Version' = $BackupServer.ApiVersion
                                     'Audit Logs Path' = $SecurityOptions.AuditLogsPath
                                     'Compress Old Audit Logs' = ConvertTo-TextYN $SecurityOptions.CompressOldAuditLogs
                                     'Fips Compliant Mode' = Switch ($SecurityOptions.FipsCompliantModeEnabled) {
