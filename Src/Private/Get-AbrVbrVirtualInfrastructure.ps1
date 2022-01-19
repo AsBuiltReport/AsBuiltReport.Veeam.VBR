@@ -63,7 +63,7 @@ function Get-AbrVbrVirtualInfrastructure {
                                     if ($Report.ShowTableCaptions) {
                                         $TableParams['Caption'] = "- $($TableParams.Name)"
                                     }
-                                    $OutObj | Table @TableParams
+                                    $OutObj | Sort-Object -Property 'Name' | Table @TableParams
                                 }
                                 #---------------------------------------------------------------------------------------------#
                                 #                            VMware Esxi information Section                                  #
@@ -97,7 +97,7 @@ function Get-AbrVbrVirtualInfrastructure {
                                         if ($Report.ShowTableCaptions) {
                                             $TableParams['Caption'] = "- $($TableParams.Name)"
                                         }
-                                        $OutObj | Table @TableParams
+                                        $OutObj | Sort-Object -Property 'Name' | Table @TableParams
                                     }
                                 }
                                 catch {
@@ -141,7 +141,7 @@ function Get-AbrVbrVirtualInfrastructure {
                                     if ($Report.ShowTableCaptions) {
                                         $TableParams['Caption'] = "- $($TableParams.Name)"
                                     }
-                                    $OutObj | Table @TableParams
+                                    $OutObj | Sort-Object -Property 'Name' |  Table @TableParams
                                 }
                                 #---------------------------------------------------------------------------------------------#
                                 #                         Microsoft Hyper-V Host information Section                          #
@@ -175,7 +175,7 @@ function Get-AbrVbrVirtualInfrastructure {
                                         if ($Report.ShowTableCaptions) {
                                             $TableParams['Caption'] = "- $($TableParams.Name)"
                                         }
-                                        $OutObj | Table @TableParams
+                                        $OutObj | Sort-Object -Property 'Name' | Table @TableParams
                                     }
                                 }
                                 catch {

@@ -208,7 +208,7 @@ function Get-AbrVbrBackupProxy {
                                                         Section -Style Heading4 "HealthCheck - $($BackupProxy.Host.Name.Split(".")[0]) Services Status" {
                                                             $OutObj = @()
                                                             foreach ($Service in $Services) {
-                                                                Write-PscriboMessage "Collecting '$($Service.DisplayName)' status on $($BackupServer.Namr)."
+                                                                Write-PscriboMessage "Collecting '$($Service.DisplayName)' status on $($BackupServer.Name)."
                                                                 $inObj = [ordered] @{
                                                                     'Display Name' = $Service.DisplayName
                                                                     'Short Name' = $Service.Name
@@ -229,7 +229,7 @@ function Get-AbrVbrBackupProxy {
                                                             if ($Report.ShowTableCaptions) {
                                                                 $TableParams['Caption'] = "- $($TableParams.Name)"
                                                             }
-                                                            $OutObj | Table @TableParams
+                                                            $OutObj | Sort-Object -Property 'Display Name' | Table @TableParams
                                                         }
                                                     }
                                                 }
@@ -411,7 +411,7 @@ function Get-AbrVbrBackupProxy {
                                         Write-PscriboMessage -IsWarning $_.Exception.Message
                                     }
                                     #---------------------------------------------------------------------------------------------#
-                                    #                    VMware Backup Prxy Service information Section                           #
+                                    #                    Hyper-V Backup Proxy Service information Section                          #
                                     #---------------------------------------------------------------------------------------------#
                                     if ($HealthCheck.Infrastructure.Server) {
                                         try {
@@ -434,7 +434,7 @@ function Get-AbrVbrBackupProxy {
                                                             Section -Style Heading4 "HealthCheck - $($BackupProxy.Host.Name.Split(".")[0]) Services Status" {
                                                                 $OutObj = @()
                                                                 foreach ($Service in $Services) {
-                                                                    Write-PscriboMessage "Collecting '$($Service.DisplayName)' status on $($BackupServer.Namr)."
+                                                                    Write-PscriboMessage "Collecting '$($Service.DisplayName)' status on $($BackupServer.Name)."
                                                                     $inObj = [ordered] @{
                                                                         'Display Name' = $Service.DisplayName
                                                                         'Short Name' = $Service.Name
@@ -455,7 +455,7 @@ function Get-AbrVbrBackupProxy {
                                                                 if ($Report.ShowTableCaptions) {
                                                                     $TableParams['Caption'] = "- $($TableParams.Name)"
                                                                 }
-                                                                $OutObj | Table @TableParams
+                                                                $OutObj | Sort-Object -Property 'Display Name' | Table @TableParams
                                                             }
                                                         }
                                                     }

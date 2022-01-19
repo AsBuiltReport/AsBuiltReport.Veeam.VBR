@@ -57,7 +57,7 @@ function Get-AbrVbrSureBackup {
                                 if ($Report.ShowTableCaptions) {
                                     $TableParams['Caption'] = "- $($TableParams.Name)"
                                 }
-                                $OutObj | Table @TableParams
+                                $OutObj | Sort-Object -Property 'Name' | Table @TableParams
                             }
                         }
                     }
@@ -145,7 +145,7 @@ function Get-AbrVbrSureBackup {
                                 if ($Report.ShowTableCaptions) {
                                     $TableParams['Caption'] = "- $($TableParams.Name)"
                                 }
-                                $OutObj | Table @TableParams
+                                $OutObj | Sort-Object -Property 'Name' | Table @TableParams
                             }
                         }
                         catch {
@@ -211,7 +211,7 @@ function Get-AbrVbrSureBackup {
                                                         if ($Report.ShowTableCaptions) {
                                                             $TableParams['Caption'] = "- $($TableParams.Name)"
                                                         }
-                                                        $OutObj | Table @TableParams
+                                                        $OutObj | Sort-Object -Property 'VLAN ID' | Table @TableParams
                                                     }
                                                 }
                                                 catch {
@@ -239,7 +239,7 @@ function Get-AbrVbrSureBackup {
                                                         if ($Report.ShowTableCaptions) {
                                                             $TableParams['Caption'] = "- $($TableParams.Name)"
                                                         }
-                                                        $OutObj | Table @TableParams
+                                                        $OutObj | Sort-Object -Property 'Production Network' | Table @TableParams
                                                     }
                                                 }
                                                 catch {

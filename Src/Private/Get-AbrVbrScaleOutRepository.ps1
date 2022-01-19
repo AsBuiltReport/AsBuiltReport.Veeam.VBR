@@ -53,7 +53,7 @@ function Get-AbrVbrScaleOutRepository {
                     if ($Report.ShowTableCaptions) {
                         $TableParams['Caption'] = "- $($TableParams.Name)"
                     }
-                    $OutObj | Table @TableParams
+                    $OutObj | Sort-Object -Property 'Name' | Table @TableParams
                     #---------------------------------------------------------------------------------------------#
                     #                               SOBR Configuration Section                                    #
                     #---------------------------------------------------------------------------------------------#

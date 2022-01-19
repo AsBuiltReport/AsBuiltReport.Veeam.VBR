@@ -61,6 +61,11 @@ function Get-AbrVbrInstalledLicense {
                                 Write-PscriboMessage -IsWarning $_.Exception.Message
                             }
 
+                            if ($HealthCheck.Infrastructure.Status) {
+                                $OutObj | Where-Object { $_.'Status' -eq 'Expired'} | Set-Style -Style Critical -Property 'Status'
+                                $OutObj | Where-Object { $_.'Type' -eq 'Evaluation'} | Set-Style -Style Warning -Property 'Type'
+                            }
+
                             $TableParams = @{
                                 Name = "License Information - $(((Get-VBRServerSession).Server).ToString().ToUpper().Split(".")[0])"
                                 List = $true

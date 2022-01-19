@@ -76,7 +76,7 @@ function Get-AbrVbrFileSharesInfo {
                             if ($Report.ShowTableCaptions) {
                                 $TableParams['Caption'] = "- $($TableParams.Name)"
                             }
-                            $OutObj | Table @TableParams
+                            $OutObj | Sort-object -Property 'Path' | Table @TableParams
                         }
                         catch {
                             Write-PscriboMessage -IsWarning $_.Exception.Message
