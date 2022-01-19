@@ -41,8 +41,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
             #---------------------------------------------------------------------------------------------#
             #                            Backup Infrastructure Section                                    #
             #---------------------------------------------------------------------------------------------#
-            Write-PScriboMessage "Backup Infrastructure InfoLevel set at $($InfoLevel.Infrastructure.Section)."
-            if ($InfoLevel.Infrastructure.Section -ge 1) {
+            if ($InfoLevel.Infrastructure.PSObject.Properties.Value -ne 0) {
                 Section -Style Heading2 'Backup Infrastructure Summary' {
                     Paragraph "The following sections detail the configuration of Veeam Backup Server $(((Get-VBRServerSession).Server))."
                     BlankLine
@@ -93,8 +92,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
             #---------------------------------------------------------------------------------------------#
             #                            Tape Infrastructure Section                                      #
             #---------------------------------------------------------------------------------------------#
-            Write-PScriboMessage "Tape Infrastructure InfoLevel set at $($InfoLevel.Tape.Section)."
-            if ($InfoLevel.Tape.Section -ge 1) {
+            if ($InfoLevel.Tape.PSObject.Properties.Value -ne 0) {
                 if ((Get-VBRTapeServer).count -gt 0) {
                     Section -Style Heading2 'Tape Infrastructure Summary' {
                         Paragraph "The following section provides inventory information of the Tape Infrastructure managed by Veeam Server $(((Get-VBRServerSession).Server))."
@@ -121,8 +119,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
             #---------------------------------------------------------------------------------------------#
             #                                  Inventory Section                                          #
             #---------------------------------------------------------------------------------------------#
-            Write-PScriboMessage "Inventory InfoLevel set at $($InfoLevel.Inventory.Section)."
-            if ($InfoLevel.Inventory.Section -ge 1) {
+            if ($InfoLevel.Inventory.PSObject.Properties.Value -ne 0) {
                 if ((Get-VBRServer).count -gt 0) {
                     Section -Style Heading2 'Inventory Summary' {
                         Paragraph "The following section provides inventory information of the Virtual Infrastructure managed by Veeam Server $(((Get-VBRServerSession).Server))."
