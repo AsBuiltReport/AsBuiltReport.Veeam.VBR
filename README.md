@@ -147,7 +147,6 @@ The table below outlines the default and maximum **InfoLevel** settings for each
 
 | Sub-Schema   | Default Setting | Maximum Setting |
 |--------------|:---------------:|:---------------:|
-| Section      |        1        |        1        |
 | BackupServer       |        1        |        2        |
 | Proxy          |        1        |        3        |
 | Settings         |        1        |        2        |
@@ -161,7 +160,6 @@ The table below outlines the default and maximum **InfoLevel** settings for each
 
 | Sub-Schema   | Default Setting | Maximum Setting |
 |--------------|:---------------:|:---------------:|
-| Section       |        1        |        1        |
 | Server       |        1        |        1        |
 | Library          |        1        |        1        |
 
@@ -169,9 +167,9 @@ The table below outlines the default and maximum **InfoLevel** settings for each
 
 | Sub-Schema   | Default Setting | Maximum Setting |
 |--------------|:---------------:|:---------------:|
-| Section       |        1        |        1        |
 | VI       |        1        |        1        |
 | PHY          |        1        |        2        |
+| FileShare          |        1        |        1        |
 
 ### Healthcheck
 
