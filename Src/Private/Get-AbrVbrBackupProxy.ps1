@@ -5,7 +5,7 @@ function Get-AbrVbrBackupProxy {
     Used by As Built Report to retrieve Veeam VBR Backup Proxies Information
     .DESCRIPTION
     .NOTES
-        Version:        0.2.0
+        Version:        0.3.0
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux

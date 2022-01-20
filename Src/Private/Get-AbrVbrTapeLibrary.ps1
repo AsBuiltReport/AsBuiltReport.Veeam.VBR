@@ -5,7 +5,7 @@ function Get-AbrVbrTapeLibrary {
     Used by As Built Report to retrieve Veeam Tape Library Information
     .DESCRIPTION
     .NOTES
-        Version:        0.2.0
+        Version:        0.3.0
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux

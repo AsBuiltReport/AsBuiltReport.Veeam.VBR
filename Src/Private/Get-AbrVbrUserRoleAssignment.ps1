@@ -7,7 +7,7 @@ function Get-AbrVbrUserRoleAssignment {
 
     .DESCRIPTION
     .NOTES
-        Version:        0.2.0
+        Version:        0.3.0
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux

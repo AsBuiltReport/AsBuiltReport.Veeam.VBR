@@ -5,7 +5,7 @@ function Get-AbrVbrObjectRepository {
     Used by As Built Report to retrieve Veeam VBR Object Storage Repository Information
     .DESCRIPTION
     .NOTES
-        Version:        0.2.0
+        Version:        0.3.0
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
