@@ -65,7 +65,7 @@ function Get-AbrVbrObjectRepository {
                         $OutObj | Sort-Object -Property 'Name' | Table @TableParams
                     }
                     #---------------------------------------------------------------------------------------------#
-                    #                            Archive Object Storage RepositorySection                         #
+                    #                            Archive Object Storage Repository Section                        #
                     #---------------------------------------------------------------------------------------------#
                     try {
                         if ((Get-VBRArchiveObjectStorageRepository).count -gt 0) {
