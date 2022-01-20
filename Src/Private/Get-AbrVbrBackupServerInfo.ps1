@@ -35,21 +35,39 @@ function Get-AbrVbrBackupServerInfo {
                                 $SecurityOptions = Get-VBRSecurityOptions
                                 Write-PscriboMessage "Collecting Backup Server information from $($BackupServer.Name)."
                                 $PssSession = New-PSSession $BackupServer.Name -Credential $Credential -Authentication Default
-                                $VeeamVersion = Invoke-Command -Session $PssSession -ErrorAction SilentlyContinue -ScriptBlock { get-childitem -recurse HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall | get-itemproperty | Where-Object { $_.DisplayName  -match 'Veeam Backup & Replication Server' } | Select-Object -Property DisplayVersion }
+                                try {
+                                    $VeeamVersion = Invoke-Command -Session $PssSession -ErrorAction SilentlyContinue -ScriptBlock { get-childitem -recurse HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall | get-itemproperty | Where-Object { $_.DisplayName  -match 'Veeam Backup & Replication Server' } | Select-Object -Property DisplayVersion }
+                                } catch {Write-PscriboMessage -IsWarning $_.Exception.Message}
+                                try {
+                                    $VeeamInfo = Invoke-Command -Session $PssSession -ErrorAction SilentlyContinue -ScriptBlock { Get-ItemProperty -Path 'HKLM:\SOFTWARE\Veeam\Veeam Backup and Replication' }
+                                } catch {Write-PscriboMessage -IsWarning $_.Exception.Message}
                                 Write-PscriboMessage "Discovered $BackupServer Server."
                                 Remove-PSSession -Session $PssSession
                                 $inObj = [ordered] @{
                                     'Server Name' = $BackupServer.Name
-                                    'Description' = $BackupServer.Description
                                     'Version' = Switch (($VeeamVersion).count) {
-                                        0 {"Undetected"}
+                                        0 {"-"}
                                         default {$VeeamVersion.DisplayVersion}
                                     }
-                                    'Type' = $BackupServer.Type
-                                    'Status' = Switch ($BackupServer.IsUnavailable) {
-                                        'False' {'Available'}
-                                        'True' {'Unavailable'}
-                                        default {$BackupServer.IsUnavailable}
+                                    'Database Server' = Switch (($VeeamInfo.SqlServerName).count) {
+                                        0 {"-"}
+                                        default {$VeeamInfo.SqlServerName}
+                                    }
+                                    'Database Instance' = Switch (($VeeamInfo.SqlInstanceName).count) {
+                                        0 {"None"}
+                                        default {$VeeamInfo.SqlInstanceName}
+                                    }
+                                    'Database Name' = Switch (($VeeamInfo.SqlDatabaseName).count) {
+                                        0 {"-"}
+                                        default {$VeeamInfo.SqlDatabaseName}
+                                    }
+                                    'Connection Ports' = Switch (($VeeamInfo.BackupServerPort).count) {
+                                        0 {"-"}
+                                        default {"Backup Server Port: $($VeeamInfo.BackupServerPort)`r`nSecure Connections Port: $($VeeamInfo.SecureConnectionsPort)`r`nCloud Server Port: $($VeeamInfo.CloudServerPort)`r`nCloud Service Port: $($VeeamInfo.CloudSvcPort)"}
+                                    }
+                                    'Install Path' = Switch (($VeeamInfo.CorePath).count) {
+                                        0 {"-"}
+                                        default {$VeeamInfo.CorePath}
                                     }
                                     'Audit Logs Path' = $SecurityOptions.AuditLogsPath
                                     'Compress Old Audit Logs' = ConvertTo-TextYN $SecurityOptions.CompressOldAuditLogs
@@ -57,8 +75,14 @@ function Get-AbrVbrBackupServerInfo {
                                         'True' {"Enabled"}
                                         'False' {"Disabled"}
                                     }
+                                    'Logging Level' = $VeeamInfo.LoggingLevel
 
                                 }
+
+                                if ($Null -notlike $VeeamInfo.LogDirectory) {
+                                    $inObj.add('Log Directory', ($VeeamInfo.LogDirectory))
+                                }
+
                                 $OutObj += [pscustomobject]$inobj
                             }
                         }
@@ -66,8 +90,8 @@ function Get-AbrVbrBackupServerInfo {
                             Write-PscriboMessage -IsWarning $_.Exception.Message
                         }
 
-                        if ($HealthCheck.Infrastructure.Server) {
-                            $OutObj | Where-Object { $_.'Status' -eq 'Unavailable'} | Set-Style -Style Warning -Property 'Status'
+                        if ($HealthCheck.Infrastructure.BackupServer) {
+                            $OutObj | Where-Object { $_.'Logging Level' -gt 4} | Set-Style -Style Warning -Property 'Logging Level'
                         }
 
                         $TableParams = @{

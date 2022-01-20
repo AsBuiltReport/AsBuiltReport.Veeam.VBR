@@ -40,6 +40,7 @@
     },
     "HealthCheck": {
         "Infrastructure": {
+            "BackupServer": true,
             "Proxy": true,
             "Settings": true,
             "BR": true,
