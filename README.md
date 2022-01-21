@@ -151,9 +151,9 @@ The table below outlines the default and maximum **InfoLevel** settings for each
 | Proxy          |        1        |        3        |
 | Settings         |        1        |        2        |
 | BR           |        1        |        2        |
-| Licenses           |        1        |        2        |
+| Licenses           |        1        |        1        |
 | SOBR           |        1        |        2        |
-| WANAccel           |        1        |        2        |
+| WANAccel           |        1        |        1        |
 | SureBackup           |        1        |        2        |
 
 The table below outlines the default and maximum **InfoLevel** settings for each Tape Infrastructure section.
