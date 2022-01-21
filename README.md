@@ -161,8 +161,12 @@ The table below outlines the default and maximum **InfoLevel** settings for each
 | Sub-Schema   | Default Setting | Maximum Setting |
 |--------------|:---------------:|:---------------:|
 | Server       |        1        |        1        |
-| Library          |        1        |        1        |
+| Library          |        1        |        2        |
+| MediaPool          |        1        |        1        |
+| Vault          |        1        |        1        |
+| NDMP          |        1        |        1        |
 
+MediaPool
 The table below outlines the default and maximum **InfoLevel** settings for each Inventory section.
 
 | Sub-Schema   | Default Setting | Maximum Setting |
