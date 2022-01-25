@@ -47,6 +47,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                     BlankLine
                     Get-AbrVbrInfrastructureSummary
                     Get-AbrVbrBackupServerInfo
+                    Get-AbrVbrEnterpriseManagerInfo
                     Write-PScriboMessage "Infrastructure Licenses InfoLevel set at $($InfoLevel.Infrastructure.Licenses)."
                     if ($InfoLevel.Infrastructure.Licenses -ge 1) {
                         Get-AbrVbrInstalledLicense
