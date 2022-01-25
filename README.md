@@ -62,6 +62,7 @@ PowerShell 5.1 or PowerShell 7, and the following PowerShell modules are require
 
 - [Veeam.Backup.PowerShell Module](https://helpcenter.veeam.com/docs/backup/powershell/getting_started.html?ver=110)
 - [AsBuiltReport.Core Module](https://github.com/AsBuiltReport/AsBuiltReport.Core)
+- [SqlServer Module](https://www.powershellgallery.com/packages/SqlServer)
 
 ### Linux & macOS
 
