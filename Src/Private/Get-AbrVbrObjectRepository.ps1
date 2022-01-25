@@ -55,7 +55,7 @@ function Get-AbrVbrObjectRepository {
                         }
 
                         $TableParams = @{
-                            Name = "Object Storage Repository Information - $(((Get-VBRServerSession).Server).ToString().ToUpper().Split(".")[0])"
+                            Name = "Object Storage Repository - $(((Get-VBRServerSession).Server).ToString().ToUpper().Split(".")[0])"
                             List = $false
                             ColumnWidths = 30, 25, 15, 30
                         }
@@ -115,7 +115,7 @@ function Get-AbrVbrObjectRepository {
                                             $OutObj += [pscustomobject]$inobj
 
                                             $TableParams = @{
-                                                Name = "Archive Object Storage Repository Information - $($ObjectRepoArchive.Name)"
+                                                Name = "Archive Object Storage Repository - $($ObjectRepoArchive.Name)"
                                                 List = $true
                                                 ColumnWidths = 40, 60
                                             }

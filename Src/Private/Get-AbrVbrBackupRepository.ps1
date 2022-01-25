@@ -74,7 +74,7 @@ function Get-AbrVbrBackupRepository {
                         }
 
                         $TableParams = @{
-                            Name = "Backup Repository Information - $(((Get-VBRServerSession).Server).ToString().ToUpper().Split(".")[0])"
+                            Name = "Backup Repository - $(((Get-VBRServerSession).Server).ToString().ToUpper().Split(".")[0])"
                             List = $false
                             ColumnWidths = 30, 18, 18, 19, 15
                         }
@@ -119,7 +119,7 @@ function Get-AbrVbrBackupRepository {
                                                 }
 
                                                 $TableParams = @{
-                                                    Name = "Backup Repository Information - $($BackupRepo.Name)"
+                                                    Name = "Backup Repository - $($BackupRepo.Name)"
                                                     List = $true
                                                     ColumnWidths = 40, 60
                                                 }

@@ -57,7 +57,7 @@ function Get-AbrVbrBackupProxy {
                                         }
 
                                         $TableParams = @{
-                                            Name = "Backup Proxy Information - $($BackupProxy.Name)"
+                                            Name = "Backup Proxy - $($BackupProxy.Name)"
                                             List = $false
                                             ColumnWidths = 35, 15, 15, 15, 20
                                         }
@@ -95,7 +95,7 @@ function Get-AbrVbrBackupProxy {
                                             }
 
                                             $TableParams = @{
-                                                Name = "Backup Proxy Information - $($BackupProxy.Name)"
+                                                Name = "Backup Proxy - $($BackupProxy.Name)"
                                                 List = $true
                                                 ColumnWidths = 40, 60
                                             }
@@ -164,7 +164,7 @@ function Get-AbrVbrBackupProxy {
                                                         }
 
                                                         $TableParams = @{
-                                                            Name = "Backup Proxy Hardware Information - $($BackupProxy.Host.Name.Split(".")[0])"
+                                                            Name = "Backup Proxy Hardware - $($BackupProxy.Host.Name.Split(".")[0])"
                                                             List = $true
                                                             ColumnWidths = 40, 60
                                                         }
@@ -284,7 +284,7 @@ function Get-AbrVbrBackupProxy {
                                         }
 
                                         $TableParams = @{
-                                            Name = "Backup Proxy Information - $($BackupProxy.Name)"
+                                            Name = "Backup Proxy - $($BackupProxy.Name)"
                                             List = $false
                                             ColumnWidths = 35, 15, 15, 15, 20
                                         }
@@ -322,7 +322,7 @@ function Get-AbrVbrBackupProxy {
                                                 }
 
                                                 $TableParams = @{
-                                                    Name = "Backup Proxy Information - $($BackupProxy.Name)"
+                                                    Name = "Backup Proxy - $($BackupProxy.Name)"
                                                     List = $true
                                                     ColumnWidths = 40, 60
                                                 }
@@ -390,7 +390,7 @@ function Get-AbrVbrBackupProxy {
                                                             }
 
                                                             $TableParams = @{
-                                                                Name = "Backup Proxy Hardware Information - $($BackupProxy.Host.Name.Split(".")[0])"
+                                                                Name = "Backup Proxy Hardware - $($BackupProxy.Host.Name.Split(".")[0])"
                                                                 List = $true
                                                                 ColumnWidths = 40, 60
                                                             }

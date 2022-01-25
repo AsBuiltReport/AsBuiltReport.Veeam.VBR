@@ -67,7 +67,7 @@ function Get-AbrVbrInstalledLicense {
                             }
 
                             $TableParams = @{
-                                Name = "License Information - $(((Get-VBRServerSession).Server).ToString().ToUpper().Split(".")[0])"
+                                Name = "Licenses - $(((Get-VBRServerSession).Server).ToString().ToUpper().Split(".")[0])"
                                 List = $true
                                 ColumnWidths = 40, 60
                             }
@@ -99,7 +99,7 @@ function Get-AbrVbrInstalledLicense {
                                     }
 
                                     $TableParams = @{
-                                        Name = "Instance Information - $(((Get-VBRServerSession).Server).ToString().ToUpper().Split(".")[0])"
+                                        Name = "Instances - $(((Get-VBRServerSession).Server).ToString().ToUpper().Split(".")[0])"
                                         List = $false
                                         ColumnWidths = 25, 25, 25, 25
                                     }
@@ -131,7 +131,7 @@ function Get-AbrVbrInstalledLicense {
                                             }
 
                                             $TableParams = @{
-                                                Name = "Per Instance Type Information - $(((Get-VBRServerSession).Server).ToString().ToUpper().Split(".")[0])"
+                                                Name = "Per Instance Type - $(((Get-VBRServerSession).Server).ToString().ToUpper().Split(".")[0])"
                                                 List = $false
                                                 ColumnWidths = 25, 25, 25, 25
                                             }
@@ -172,7 +172,7 @@ function Get-AbrVbrInstalledLicense {
                                     }
 
                                     $TableParams = @{
-                                        Name = "CPU Socket Usage Information - $(((Get-VBRServerSession).Server).ToString().ToUpper().Split(".")[0])"
+                                        Name = "CPU Socket Usage - $(((Get-VBRServerSession).Server).ToString().ToUpper().Split(".")[0])"
                                         List = $false
                                         ColumnWidths = 33, 33, 34
                                     }
@@ -208,7 +208,7 @@ function Get-AbrVbrInstalledLicense {
                                         }
 
                                         $TableParams = @{
-                                            Name = "Capacity License Usage Information - $(((Get-VBRServerSession).Server).ToString().ToUpper().Split(".")[0])"
+                                            Name = "Capacity License Usage - $(((Get-VBRServerSession).Server).ToString().ToUpper().Split(".")[0])"
                                             List = $false
                                             ColumnWidths = 50, 50
                                         }

@@ -62,7 +62,7 @@ function Get-AbrVbrWANAccelerator {
                                     }
 
                                     $TableParams = @{
-                                        Name = "Wan Accelerator Information - $($WANAccel.GetHost().Name)"
+                                        Name = "Wan Accelerator - $($WANAccel.GetHost().Name)"
                                         List = $true
                                         ColumnWidths = 40, 60
                                     }

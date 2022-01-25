@@ -46,7 +46,7 @@ function Get-AbrVbrScaleOutRepository {
                     }
 
                     $TableParams = @{
-                        Name = "Scale Backup Repository Information - $(((Get-VBRServerSession).Server).ToString().ToUpper().Split(".")[0])"
+                        Name = "Scale Backup Repository - $(((Get-VBRServerSession).Server).ToString().ToUpper().Split(".")[0])"
                         List = $false
                         ColumnWidths = 30, 25, 15, 30
                     }

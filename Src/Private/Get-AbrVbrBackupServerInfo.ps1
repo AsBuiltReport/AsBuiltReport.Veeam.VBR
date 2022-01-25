@@ -95,7 +95,7 @@ function Get-AbrVbrBackupServerInfo {
                         }
 
                         $TableParams = @{
-                            Name = "Backup Server Information - $($BackupServer.Name.Split(".")[0])"
+                            Name = "Backup Server - $($BackupServer.Name.Split(".")[0])"
                             List = $true
                             ColumnWidths = 40, 60
                         }
@@ -152,7 +152,7 @@ function Get-AbrVbrBackupServerInfo {
                                         }
 
                                         $TableParams = @{
-                                            Name = "Backup Server Hardware Information - $($BackupServer.Name.Split(".")[0])"
+                                            Name = "Backup Server Hardware - $($BackupServer.Name.Split(".")[0])"
                                             List = $true
                                             ColumnWidths = 40, 60
                                         }

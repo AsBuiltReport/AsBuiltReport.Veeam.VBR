@@ -47,7 +47,7 @@ function Get-AbrVbrUserRoleAssignment {
                     }
 
                     $TableParams = @{
-                        Name = "Roles and Users Information - $(((Get-VBRServerSession).Server).ToString().ToUpper().Split(".")[0])"
+                        Name = "Roles and Users - $(((Get-VBRServerSession).Server).ToString().ToUpper().Split(".")[0])"
                         List = $false
                         ColumnWidths = 45, 15, 40
                     }
