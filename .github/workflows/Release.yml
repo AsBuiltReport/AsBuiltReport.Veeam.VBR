@@ -17,6 +17,10 @@ jobs:
         shell: pwsh
         run: |
           Install-Module -Name AsBuiltReport.Core -Repository PSGallery -Force
+      - name: Install SqlServer module
+        shell: pwsh
+        run: |
+          Install-Module -Name SqlServer -Repository PSGallery -Force
       - name: Test Module Manifest
         shell: pwsh
         run: |
