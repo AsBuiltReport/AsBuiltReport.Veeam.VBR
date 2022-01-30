@@ -1,0 +1,57 @@
+{
+    "Report": {
+        "Name": "Veeam VBR As Built Report",
+        "Version": "1.0",
+        "Status": "Released",
+        "ShowCoverPageImage": true,
+        "ShowTableOfContents": true,
+        "ShowHeaderFooter": true,
+        "ShowTableCaptions": true
+    },
+    "Options": {
+
+    },
+    "InfoLevel": {
+		"_comment_": "Please refer to the AsBuiltReport project contributing guide for information about how to define InfoLevels.",
+        "_comment_": "0 = Disabled, 1 = Enabled, 2 = Adv Summary, 3 = Detailed",
+        "Infrastructure": {
+            "BackupServer": 1,
+            "Proxy": 1,
+            "Settings": 1,
+            "BR": 1,
+            "Licenses": 1,
+            "SOBR": 1,
+            "WANAccel": 1,
+            "SureBackup": 1
+
+        },
+        "Tape": {
+            "Server": 1,
+            "Library": 1,
+            "MediaPool": 1,
+            "Vault": 1,
+            "NDMP": 1
+        },
+        "Inventory": {
+            "VI": 1,
+            "PHY": 1,
+            "FileShare": 1
+        }
+    },
+    "HealthCheck": {
+        "Infrastructure": {
+            "BackupServer": true,
+            "Proxy": true,
+            "Settings": true,
+            "BR": true,
+            "SOBR": true,
+            "Server": true,
+            "Status": true
+
+        },
+        "Tape": {
+            "Status": true
+        }
+
+    }
+}
