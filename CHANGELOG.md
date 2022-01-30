@@ -17,7 +17,6 @@
 - Changed ReadMe to include Supported Licenses Edtion.
 - Added SQLServer module to manifest file
 
-
 ### Fixed
 
 - Fix missing Infolevel sections.
