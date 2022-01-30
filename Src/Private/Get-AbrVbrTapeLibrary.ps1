@@ -5,7 +5,7 @@ function Get-AbrVbrTapeLibrary {
     Used by As Built Report to retrieve Veeam Tape Library Information
     .DESCRIPTION
     .NOTES
-        Version:        0.2.0
+        Version:        0.3.0
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -104,7 +104,7 @@ function Get-AbrVbrTapeLibrary {
                                                             if ($Report.ShowTableCaptions) {
                                                                 $TableParams['Caption'] = "- $($TableParams.Name)"
                                                             }
-                                                            $OutObj | Table @TableParams
+                                                            $OutObj | Sort-Object -Property 'Name' | Table @TableParams
                                                         }
                                                         catch {
                                                             Write-PscriboMessage -IsWarning $_.Exception.Message

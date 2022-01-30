@@ -5,7 +5,7 @@ function Get-AbrVbrBackupRepository {
     Used by As Built Report to retrieve Veeam VBR Backup Repository Information
     .DESCRIPTION
     .NOTES
-        Version:        0.2.0
+        Version:        0.3.0
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -74,14 +74,14 @@ function Get-AbrVbrBackupRepository {
                         }
 
                         $TableParams = @{
-                            Name = "Backup Repository Information - $(((Get-VBRServerSession).Server).ToString().ToUpper().Split(".")[0])"
+                            Name = "Backup Repository - $(((Get-VBRServerSession).Server).ToString().ToUpper().Split(".")[0])"
                             List = $false
                             ColumnWidths = 30, 18, 18, 19, 15
                         }
                         if ($Report.ShowTableCaptions) {
                             $TableParams['Caption'] = "- $($TableParams.Name)"
                         }
-                        $OutObj | Table @TableParams
+                        $OutObj | Sort-Object -Property 'Name' | Table @TableParams
                         #---------------------------------------------------------------------------------------------#
                         #                        Backup Repository Configuration Section                              #
                         #---------------------------------------------------------------------------------------------#
@@ -119,7 +119,7 @@ function Get-AbrVbrBackupRepository {
                                                 }
 
                                                 $TableParams = @{
-                                                    Name = "Backup Repository Information - $($BackupRepo.Name)"
+                                                    Name = "Backup Repository - $($BackupRepo.Name)"
                                                     List = $true
                                                     ColumnWidths = 40, 60
                                                 }

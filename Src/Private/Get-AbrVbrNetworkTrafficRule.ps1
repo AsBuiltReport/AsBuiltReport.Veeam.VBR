@@ -89,7 +89,7 @@ function Get-AbrVbrNetworkTrafficRule {
                                         }
 
                                         $TableParams = @{
-                                            Name = "Preferred Networks Information - $(((Get-VBRServerSession).Server).ToString().ToUpper().Split(".")[0])"
+                                            Name = "Preferred Networks - $(((Get-VBRServerSession).Server).ToString().ToUpper().Split(".")[0])"
                                             List = $false
                                             ColumnWidths = 30, 30, 40
                                         }

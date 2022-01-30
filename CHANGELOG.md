@@ -1,5 +1,26 @@
 # :arrows_counterclockwise: Veeam VBR As Built Report Changelog
 
+## [0.3.0] - 2022-01-30
+
+### Added
+
+- Added File Share section.
+- Added Veeam version information.
+- Implemented table sorting on primary key.
+- Added aditional backup server health checks
+- Added Enterprise Manager Information
+- Added Service Provider credential information
+
+### Changed
+
+- Improved table caption content.
+- Changed ReadMe to include Supported Licenses Edtion.
+- Added SQLServer module to manifest file
+
+### Fixed
+
+- Fix missing Infolevel sections.
+
 ## [0.2.0] - 2022-01-14
 
 ### Added

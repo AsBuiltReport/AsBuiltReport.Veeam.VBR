@@ -5,7 +5,7 @@ function Get-AbrVbrBackupProxy {
     Used by As Built Report to retrieve Veeam VBR Backup Proxies Information
     .DESCRIPTION
     .NOTES
-        Version:        0.2.0
+        Version:        0.3.0
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -57,7 +57,7 @@ function Get-AbrVbrBackupProxy {
                                         }
 
                                         $TableParams = @{
-                                            Name = "Backup Proxy Information - $($BackupProxy.Name)"
+                                            Name = "Backup Proxy - $($BackupProxy.Name)"
                                             List = $false
                                             ColumnWidths = 35, 15, 15, 15, 20
                                         }
@@ -95,7 +95,7 @@ function Get-AbrVbrBackupProxy {
                                             }
 
                                             $TableParams = @{
-                                                Name = "Backup Proxy Information - $($BackupProxy.Name)"
+                                                Name = "Backup Proxy - $($BackupProxy.Name)"
                                                 List = $true
                                                 ColumnWidths = 40, 60
                                             }
@@ -164,7 +164,7 @@ function Get-AbrVbrBackupProxy {
                                                         }
 
                                                         $TableParams = @{
-                                                            Name = "Backup Proxy Hardware Information - $($BackupProxy.Host.Name.Split(".")[0])"
+                                                            Name = "Backup Proxy Hardware - $($BackupProxy.Host.Name.Split(".")[0])"
                                                             List = $true
                                                             ColumnWidths = 40, 60
                                                         }
@@ -208,7 +208,7 @@ function Get-AbrVbrBackupProxy {
                                                         Section -Style Heading4 "HealthCheck - $($BackupProxy.Host.Name.Split(".")[0]) Services Status" {
                                                             $OutObj = @()
                                                             foreach ($Service in $Services) {
-                                                                Write-PscriboMessage "Collecting '$($Service.DisplayName)' status on $($BackupServer.Namr)."
+                                                                Write-PscriboMessage "Collecting '$($Service.DisplayName)' status on $($BackupServer.Name)."
                                                                 $inObj = [ordered] @{
                                                                     'Display Name' = $Service.DisplayName
                                                                     'Short Name' = $Service.Name
@@ -229,7 +229,7 @@ function Get-AbrVbrBackupProxy {
                                                             if ($Report.ShowTableCaptions) {
                                                                 $TableParams['Caption'] = "- $($TableParams.Name)"
                                                             }
-                                                            $OutObj | Table @TableParams
+                                                            $OutObj | Sort-Object -Property 'Display Name' | Table @TableParams
                                                         }
                                                     }
                                                 }
@@ -284,7 +284,7 @@ function Get-AbrVbrBackupProxy {
                                         }
 
                                         $TableParams = @{
-                                            Name = "Backup Proxy Information - $($BackupProxy.Name)"
+                                            Name = "Backup Proxy - $($BackupProxy.Name)"
                                             List = $false
                                             ColumnWidths = 35, 15, 15, 15, 20
                                         }
@@ -322,7 +322,7 @@ function Get-AbrVbrBackupProxy {
                                                 }
 
                                                 $TableParams = @{
-                                                    Name = "Backup Proxy Information - $($BackupProxy.Name)"
+                                                    Name = "Backup Proxy - $($BackupProxy.Name)"
                                                     List = $true
                                                     ColumnWidths = 40, 60
                                                 }
@@ -390,7 +390,7 @@ function Get-AbrVbrBackupProxy {
                                                             }
 
                                                             $TableParams = @{
-                                                                Name = "Backup Proxy Hardware Information - $($BackupProxy.Host.Name.Split(".")[0])"
+                                                                Name = "Backup Proxy Hardware - $($BackupProxy.Host.Name.Split(".")[0])"
                                                                 List = $true
                                                                 ColumnWidths = 40, 60
                                                             }
@@ -411,7 +411,7 @@ function Get-AbrVbrBackupProxy {
                                         Write-PscriboMessage -IsWarning $_.Exception.Message
                                     }
                                     #---------------------------------------------------------------------------------------------#
-                                    #                    VMware Backup Prxy Service information Section                           #
+                                    #                    Hyper-V Backup Proxy Service information Section                          #
                                     #---------------------------------------------------------------------------------------------#
                                     if ($HealthCheck.Infrastructure.Server) {
                                         try {
@@ -434,7 +434,7 @@ function Get-AbrVbrBackupProxy {
                                                             Section -Style Heading4 "HealthCheck - $($BackupProxy.Host.Name.Split(".")[0]) Services Status" {
                                                                 $OutObj = @()
                                                                 foreach ($Service in $Services) {
-                                                                    Write-PscriboMessage "Collecting '$($Service.DisplayName)' status on $($BackupServer.Namr)."
+                                                                    Write-PscriboMessage "Collecting '$($Service.DisplayName)' status on $($BackupServer.Name)."
                                                                     $inObj = [ordered] @{
                                                                         'Display Name' = $Service.DisplayName
                                                                         'Short Name' = $Service.Name
@@ -455,7 +455,7 @@ function Get-AbrVbrBackupProxy {
                                                                 if ($Report.ShowTableCaptions) {
                                                                     $TableParams['Caption'] = "- $($TableParams.Name)"
                                                                 }
-                                                                $OutObj | Table @TableParams
+                                                                $OutObj | Sort-Object -Property 'Display Name' | Table @TableParams
                                                             }
                                                         }
                                                     }

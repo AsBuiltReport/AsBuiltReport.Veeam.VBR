@@ -5,7 +5,7 @@ function Get-AbrVbrVirtualInfrastructure {
     Used by As Built Report to retrieve Veeam Virtual Infrastructure inventory
     .DESCRIPTION
     .NOTES
-        Version:        0.2.0
+        Version:        0.3.0
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -25,14 +25,17 @@ function Get-AbrVbrVirtualInfrastructure {
         try {
             if ((Get-VBRServer).count -gt 0) {
                 Section -Style Heading3 'Virtual Infrastructure' {
-                    Paragraph "The following section provides inventory information of the Veeam VirtualInfrastructure"
+                    Paragraph "The following sections detail the configuration of the managed virtual servers backed-up by Veeam Server $(((Get-VBRServerSession).Server))."
+                    BlankLine
                     if ((Get-VBRServerSession).Server) {
                         #---------------------------------------------------------------------------------------------#
                         #                            VMware vSphere information Section                               #
                         #---------------------------------------------------------------------------------------------#
                         try {
                             Section -Style Heading4 'VMware vSphere' {
-                                Section -Style Heading4 'VMware vCenter' {
+                                Paragraph "The following section details information of the VMware Virtual Infrastructure backed-up by Veeam Server $(((Get-VBRServerSession).Server))."
+                                BlankLine
+                                Section -Style Heading5 'VMware vCenter' {
                                     $OutObj = @()
                                     $InventObjs = Get-VBRServer | Where-Object {$_.Type -eq 'VC'}
                                     foreach ($InventObj in $InventObjs) {
@@ -60,13 +63,13 @@ function Get-AbrVbrVirtualInfrastructure {
                                     if ($Report.ShowTableCaptions) {
                                         $TableParams['Caption'] = "- $($TableParams.Name)"
                                     }
-                                    $OutObj | Table @TableParams
+                                    $OutObj | Sort-Object -Property 'Name' | Table @TableParams
                                 }
                                 #---------------------------------------------------------------------------------------------#
                                 #                            VMware Esxi information Section                                  #
                                 #---------------------------------------------------------------------------------------------#
                                 try {
-                                    Section -Style Heading4 'Esxi Host' {
+                                    Section -Style Heading6 'Esxi Host' {
                                         $OutObj = @()
                                         $InventObjs = Get-VBRServer | Where-Object {$_.Type -eq 'ESXi'}
                                         foreach ($InventObj in $InventObjs) {
@@ -94,7 +97,7 @@ function Get-AbrVbrVirtualInfrastructure {
                                         if ($Report.ShowTableCaptions) {
                                             $TableParams['Caption'] = "- $($TableParams.Name)"
                                         }
-                                        $OutObj | Table @TableParams
+                                        $OutObj | Sort-Object -Property 'Name' | Table @TableParams
                                     }
                                 }
                                 catch {
@@ -110,7 +113,7 @@ function Get-AbrVbrVirtualInfrastructure {
                         #---------------------------------------------------------------------------------------------#
                         try {
                             Section -Style Heading4 'Microsoft Hyper-V' {
-                                Section -Style Heading4 'Hyper-V Clusters' {
+                                Section -Style Heading5 'Hyper-V Clusters' {
                                     $OutObj = @()
                                     $InventObjs = Get-VBRServer | Where-Object {$_.Type -eq 'HvCluster'}
                                     foreach ($InventObj in $InventObjs) {
@@ -138,13 +141,13 @@ function Get-AbrVbrVirtualInfrastructure {
                                     if ($Report.ShowTableCaptions) {
                                         $TableParams['Caption'] = "- $($TableParams.Name)"
                                     }
-                                    $OutObj | Table @TableParams
+                                    $OutObj | Sort-Object -Property 'Name' |  Table @TableParams
                                 }
                                 #---------------------------------------------------------------------------------------------#
                                 #                         Microsoft Hyper-V Host information Section                          #
                                 #---------------------------------------------------------------------------------------------#
                                 try {
-                                    Section -Style Heading4 'Hyper-V Host' {
+                                    Section -Style Heading6 'Hyper-V Host' {
                                         $OutObj = @()
                                         $InventObjs = Get-VBRServer | Where-Object {$_.Type -eq 'HvServer'}
                                         foreach ($InventObj in $InventObjs) {
@@ -172,7 +175,7 @@ function Get-AbrVbrVirtualInfrastructure {
                                         if ($Report.ShowTableCaptions) {
                                             $TableParams['Caption'] = "- $($TableParams.Name)"
                                         }
-                                        $OutObj | Table @TableParams
+                                        $OutObj | Sort-Object -Property 'Name' | Table @TableParams
                                     }
                                 }
                                 catch {

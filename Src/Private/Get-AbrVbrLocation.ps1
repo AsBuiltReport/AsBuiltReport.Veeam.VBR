@@ -48,7 +48,7 @@ function Get-AbrVbrLocation {
                             }
 
                             $TableParams = @{
-                                Name = "Location Information - $(((Get-VBRServerSession).Server).ToString().ToUpper().Split(".")[0])"
+                                Name = "Location - $(((Get-VBRServerSession).Server).ToString().ToUpper().Split(".")[0])"
                                 List = $false
                                 ColumnWidths = 50, 50
                             }

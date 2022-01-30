@@ -54,7 +54,7 @@ function Get-AbrVbrBackupServerCertificate {
                         }
 
                         $TableParams = @{
-                            Name = "TLS Certificate information - $(((Get-VBRServerSession).Server).ToString().ToUpper().Split(".")[0])"
+                            Name = "TLS Certificate - $(((Get-VBRServerSession).Server).ToString().ToUpper().Split(".")[0])"
                             List = $true
                             ColumnWidths = 40, 60
                         }

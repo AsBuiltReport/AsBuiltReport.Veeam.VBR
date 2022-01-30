@@ -5,7 +5,7 @@ function Get-AbrVbrObjectRepository {
     Used by As Built Report to retrieve Veeam VBR Object Storage Repository Information
     .DESCRIPTION
     .NOTES
-        Version:        0.2.0
+        Version:        0.3.0
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -55,17 +55,17 @@ function Get-AbrVbrObjectRepository {
                         }
 
                         $TableParams = @{
-                            Name = "Object Storage Repository Information - $(((Get-VBRServerSession).Server).ToString().ToUpper().Split(".")[0])"
+                            Name = "Object Storage Repository - $(((Get-VBRServerSession).Server).ToString().ToUpper().Split(".")[0])"
                             List = $false
                             ColumnWidths = 30, 25, 15, 30
                         }
                         if ($Report.ShowTableCaptions) {
                             $TableParams['Caption'] = "- $($TableParams.Name)"
                         }
-                        $OutObj | Table @TableParams
+                        $OutObj | Sort-Object -Property 'Name' | Table @TableParams
                     }
                     #---------------------------------------------------------------------------------------------#
-                    #                            Archive Object Storage RepositorySection                         #
+                    #                            Archive Object Storage Repository Section                        #
                     #---------------------------------------------------------------------------------------------#
                     try {
                         if ((Get-VBRArchiveObjectStorageRepository).count -gt 0) {
@@ -115,7 +115,7 @@ function Get-AbrVbrObjectRepository {
                                             $OutObj += [pscustomobject]$inobj
 
                                             $TableParams = @{
-                                                Name = "Archive Object Storage Repository Information - $($ObjectRepoArchive.Name)"
+                                                Name = "Archive Object Storage Repository - $($ObjectRepoArchive.Name)"
                                                 List = $true
                                                 ColumnWidths = 40, 60
                                             }

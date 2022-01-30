@@ -7,7 +7,7 @@ function Get-AbrVbrUserRoleAssignment {
 
     .DESCRIPTION
     .NOTES
-        Version:        0.2.0
+        Version:        0.3.0
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -47,14 +47,14 @@ function Get-AbrVbrUserRoleAssignment {
                     }
 
                     $TableParams = @{
-                        Name = "Roles and Users Information - $(((Get-VBRServerSession).Server).ToString().ToUpper().Split(".")[0])"
+                        Name = "Roles and Users - $(((Get-VBRServerSession).Server).ToString().ToUpper().Split(".")[0])"
                         List = $false
                         ColumnWidths = 45, 15, 40
                     }
                     if ($Report.ShowTableCaptions) {
                         $TableParams['Caption'] = "- $($TableParams.Name)"
                     }
-                    $OutObj | Table @TableParams
+                    $OutObj | Sort-Object -Property 'Name' | Table @TableParams
                 }
             }
         }

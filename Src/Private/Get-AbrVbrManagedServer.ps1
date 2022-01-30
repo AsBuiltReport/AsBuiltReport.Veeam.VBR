@@ -56,7 +56,7 @@ function Get-AbrVbrManagedServer {
                         }
 
                         $TableParams = @{
-                            Name = "Managed Servers Information - $(((Get-VBRServerSession).Server).ToString().ToUpper().Split(".")[0])"
+                            Name = "Managed Servers - $(((Get-VBRServerSession).Server).ToString().ToUpper().Split(".")[0])"
                             List = $false
                             ColumnWidths = 50, 35, 15
                         }

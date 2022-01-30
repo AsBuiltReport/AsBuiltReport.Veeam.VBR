@@ -5,7 +5,7 @@ function Get-AbrVbrInstalledLicense {
     Used by As Built Report to retrieve Veeam VBR Infrastructure Installed Licenses
     .DESCRIPTION
     .NOTES
-        Version:        0.2.0
+        Version:        0.3.0
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -61,8 +61,13 @@ function Get-AbrVbrInstalledLicense {
                                 Write-PscriboMessage -IsWarning $_.Exception.Message
                             }
 
+                            if ($HealthCheck.Infrastructure.Status) {
+                                $OutObj | Where-Object { $_.'Status' -eq 'Expired'} | Set-Style -Style Critical -Property 'Status'
+                                $OutObj | Where-Object { $_.'Type' -eq 'Evaluation'} | Set-Style -Style Warning -Property 'Type'
+                            }
+
                             $TableParams = @{
-                                Name = "License Information - $(((Get-VBRServerSession).Server).ToString().ToUpper().Split(".")[0])"
+                                Name = "Licenses - $(((Get-VBRServerSession).Server).ToString().ToUpper().Split(".")[0])"
                                 List = $true
                                 ColumnWidths = 40, 60
                             }
@@ -94,7 +99,7 @@ function Get-AbrVbrInstalledLicense {
                                     }
 
                                     $TableParams = @{
-                                        Name = "Instance Information - $(((Get-VBRServerSession).Server).ToString().ToUpper().Split(".")[0])"
+                                        Name = "Instances - $(((Get-VBRServerSession).Server).ToString().ToUpper().Split(".")[0])"
                                         List = $false
                                         ColumnWidths = 25, 25, 25, 25
                                     }
@@ -126,7 +131,7 @@ function Get-AbrVbrInstalledLicense {
                                             }
 
                                             $TableParams = @{
-                                                Name = "Per Instance Type Information - $(((Get-VBRServerSession).Server).ToString().ToUpper().Split(".")[0])"
+                                                Name = "Per Instance Type - $(((Get-VBRServerSession).Server).ToString().ToUpper().Split(".")[0])"
                                                 List = $false
                                                 ColumnWidths = 25, 25, 25, 25
                                             }
@@ -167,7 +172,7 @@ function Get-AbrVbrInstalledLicense {
                                     }
 
                                     $TableParams = @{
-                                        Name = "CPU Socket Usage Information - $(((Get-VBRServerSession).Server).ToString().ToUpper().Split(".")[0])"
+                                        Name = "CPU Socket Usage - $(((Get-VBRServerSession).Server).ToString().ToUpper().Split(".")[0])"
                                         List = $false
                                         ColumnWidths = 33, 33, 34
                                     }
@@ -203,7 +208,7 @@ function Get-AbrVbrInstalledLicense {
                                         }
 
                                         $TableParams = @{
-                                            Name = "Capacity License Usage Information - $(((Get-VBRServerSession).Server).ToString().ToUpper().Split(".")[0])"
+                                            Name = "Capacity License Usage - $(((Get-VBRServerSession).Server).ToString().ToUpper().Split(".")[0])"
                                             List = $false
                                             ColumnWidths = 50, 50
                                         }

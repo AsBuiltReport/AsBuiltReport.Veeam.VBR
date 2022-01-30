@@ -30,27 +30,30 @@ function Get-AbrVbrServerConnection {
         elseif ($null -eq $OpenConnection) {
             Write-PScriboMessage "No existing veeam server connection found"
             try {
-                Write-PScriboMessage "Connecting to $($System) with privided credentials"
+                Write-PScriboMessage "Connecting to $($System) with provided credentials"
                 Connect-VBRServer -Server $System -Credential $Credential
             }
             catch {
-                Throw "Failed to connect to Veeam BR Host '$System' with user '$env:USERNAME'"
+                Write-PscriboMessage -IsWarning $_.Exception.Message
+                Throw "Failed to connect to Veeam B&R Host '$System' with user '$env:USERNAME'"
             }
         }
         else {
             Write-PScriboMessage "Actual veeam server connection not equal to $($System). Disconecting connection."
             Disconnect-VBRServer
             try {
-                Write-PScriboMessage "Tring to open a new connection to $($System)"
+                Write-PScriboMessage "Trying to open a new connection to $($System)"
                 Connect-VBRServer -Server $System -Credential $Credential
             }
             catch {
-                Throw "Failed to connect to Veeam BR Host '$System' with user '$env:USERNAME'"
+                Write-PscriboMessage -IsWarning $_.Exception.Message
+                Throw "Failed to connect to Veeam B&R Host '$System' with user '$env:USERNAME'"
             }
         }
         Write-PScriboMessage "Validating connection to $($System)"
         $NewConnection = (Get-VBRServerSession).Server
         if ($null -eq $NewConnection) {
+            Write-PscriboMessage -IsWarning $_.Exception.Message
             Throw "Failed to connect to Veeam BR Host '$System' with user '$env:USERNAME'"
         }
         elseif ($NewConnection) {

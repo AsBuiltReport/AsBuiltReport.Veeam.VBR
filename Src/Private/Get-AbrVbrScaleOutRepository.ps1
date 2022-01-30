@@ -5,7 +5,7 @@ function Get-AbrVbrScaleOutRepository {
     Used by As Built Report to retrieve Veeam VBR ScaleOut Backup Repository Information
     .DESCRIPTION
     .NOTES
-        Version:        0.2.0
+        Version:        0.3.0
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -46,14 +46,14 @@ function Get-AbrVbrScaleOutRepository {
                     }
 
                     $TableParams = @{
-                        Name = "Scale Backup Repository Information - $(((Get-VBRServerSession).Server).ToString().ToUpper().Split(".")[0])"
+                        Name = "Scale Backup Repository - $(((Get-VBRServerSession).Server).ToString().ToUpper().Split(".")[0])"
                         List = $false
                         ColumnWidths = 30, 25, 15, 30
                     }
                     if ($Report.ShowTableCaptions) {
                         $TableParams['Caption'] = "- $($TableParams.Name)"
                     }
-                    $OutObj | Table @TableParams
+                    $OutObj | Sort-Object -Property 'Name' | Table @TableParams
                     #---------------------------------------------------------------------------------------------#
                     #                               SOBR Configuration Section                                    #
                     #---------------------------------------------------------------------------------------------#

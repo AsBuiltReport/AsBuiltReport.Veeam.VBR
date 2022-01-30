@@ -15,7 +15,6 @@
 		"_comment_": "Please refer to the AsBuiltReport project contributing guide for information about how to define InfoLevels.",
         "_comment_": "0 = Disabled, 1 = Enabled, 2 = Adv Summary, 3 = Detailed",
         "Infrastructure": {
-            "Section": 1,
             "BackupServer": 1,
             "Proxy": 1,
             "Settings": 1,
@@ -27,7 +26,6 @@
 
         },
         "Tape": {
-            "Section": 1,
             "Server": 1,
             "Library": 1,
             "MediaPool": 1,
@@ -35,13 +33,14 @@
             "NDMP": 1
         },
         "Inventory": {
-            "Section": 1,
             "VI": 1,
-            "PHY": 1
+            "PHY": 1,
+            "FileShare": 1
         }
     },
     "HealthCheck": {
         "Infrastructure": {
+            "BackupServer": true,
             "Proxy": true,
             "Settings": true,
             "BR": true,
