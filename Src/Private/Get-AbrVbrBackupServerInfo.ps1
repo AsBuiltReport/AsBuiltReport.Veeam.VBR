@@ -184,7 +184,7 @@ function Get-AbrVbrBackupServerInfo {
                                         Section -Style Heading4 "HealthCheck - Services Status" {
                                             $OutObj = @()
                                             foreach ($Service in $Services) {
-                                                Write-PscriboMessage "Collecting '$($Service.DisplayName)' status on $($BackupServer.Namr)."
+                                                Write-PscriboMessage "Collecting '$($Service.DisplayName)' status on $($BackupServer.Name)."
                                                 $inObj = [ordered] @{
                                                     'Display Name' = $Service.DisplayName
                                                     'Short Name' = $Service.Name
