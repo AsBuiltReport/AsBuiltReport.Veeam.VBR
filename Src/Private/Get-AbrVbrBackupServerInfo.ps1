@@ -135,9 +135,9 @@ function Get-AbrVbrBackupServerInfo {
                                             'Partial Product Key' = $License.PartialProductKey
                                             'Manufacturer' = $HW.CsManufacturer
                                             'Model' = $HW.CsModel
-                                            'Serial Number' = $HostBIOS.SerialNumber
+                                            'Serial Number' = $HWBIOS.SerialNumber
                                             'Bios Type' = $HW.BiosFirmwareType
-                                            'BIOS Version' = $HostBIOS.Version
+                                            'BIOS Version' = $HWBIOS.Version
                                             'Processor Manufacturer' = $HWCPU[0].Manufacturer
                                             'Processor Model' = $HWCPU[0].Name
                                             'Number of CPU Cores' = $HWCPU[0].NumberOfCores
