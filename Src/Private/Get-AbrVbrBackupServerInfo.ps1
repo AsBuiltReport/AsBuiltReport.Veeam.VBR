@@ -5,7 +5,7 @@ function Get-AbrVbrBackupServerInfo {
     Used by As Built Report to retrieve Veeam VBR Backup Server Information
     .DESCRIPTION
     .NOTES
-        Version:        0.3.0
+        Version:        0.3.1
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -32,9 +32,10 @@ function Get-AbrVbrBackupServerInfo {
                         try {
                             $BackupServers = Get-VBRServer -Type Local
                             foreach ($BackupServer in $BackupServers) {
+                                $CimSession = New-CimSession $BackupServer.Name -Credential $Credential -Authentication Default
+                                $PssSession = New-PSSession $BackupServer.Name -Credential $Credential -Authentication Default
                                 $SecurityOptions = Get-VBRSecurityOptions
                                 Write-PscriboMessage "Collecting Backup Server information from $($BackupServer.Name)."
-                                $PssSession = New-PSSession $BackupServer.Name -Credential $Credential -Authentication Default
                                 try {
                                     $VeeamVersion = Invoke-Command -Session $PssSession -ErrorAction SilentlyContinue -ScriptBlock { get-childitem -recurse HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall | get-itemproperty | Where-Object { $_.DisplayName  -match 'Veeam Backup & Replication Server' } | Select-Object -Property DisplayVersion }
                                 } catch {Write-PscriboMessage -IsWarning $_.Exception.Message}
@@ -42,7 +43,6 @@ function Get-AbrVbrBackupServerInfo {
                                     $VeeamInfo = Invoke-Command -Session $PssSession -ErrorAction SilentlyContinue -ScriptBlock { Get-ItemProperty -Path 'HKLM:\SOFTWARE\Veeam\Veeam Backup and Replication' }
                                 } catch {Write-PscriboMessage -IsWarning $_.Exception.Message}
                                 Write-PscriboMessage "Discovered $BackupServer Server."
-                                Remove-PSSession -Session $PssSession
                                 $inObj = [ordered] @{
                                     'Server Name' = $BackupServer.Name
                                     'Version' = Switch (($VeeamVersion).count) {
@@ -104,23 +104,19 @@ function Get-AbrVbrBackupServerInfo {
                         }
                         $OutObj | Table @TableParams
                         #---------------------------------------------------------------------------------------------#
-                        #                       Backup Server Hardware Information Section                            #
+                        #                       Backup Server Inventory Summary Section                               #
                         #---------------------------------------------------------------------------------------------#
                         try {
                             Write-PScriboMessage "Infrastructure Backup Server InfoLevel set at $($InfoLevel.Infrastructure.BackupServer)."
                             if ($InfoLevel.Infrastructure.BackupServer -ge 2) {
                                 $BackupServer = Get-VBRServer -Type Local
-                                Write-PscriboMessage "Collecting Backup Server Hardware information from $($BackupServer.Name)."
-                                $CimSession = New-CimSession $BackupServer.Name -Credential $Credential -Authentication Default
-                                $PssSession = New-PSSession $BackupServer.Name -Credential $Credential -Authentication Default
+                                Write-PscriboMessage "Collecting Backup Server Inventory Summary from $($BackupServer.Name)."
                                 $HW = Invoke-Command -Session $PssSession -ScriptBlock { Get-ComputerInfo }
                                 $License =  Get-CimInstance -Query 'Select * from SoftwareLicensingProduct' -CimSession $CimSession | Where-Object { $_.LicenseStatus -eq 1 }
                                 $HWCPU = Get-CimInstance -Class Win32_Processor -CimSession $CimSession
                                 $HWBIOS = Get-CimInstance -Class Win32_Bios -CimSession $CimSession
-                                Remove-PSSession -Session $PssSession
-                                Remove-CimSession $CimSession
                                 if ($HW) {
-                                    Section -Style Heading4 'Hardware Information' {
+                                    Section -Style Heading4 'Inventory Summary' {
                                         $OutObj = @()
                                         $inObj = [ordered] @{
                                             'Name' = $HW.CsDNSHostName
@@ -128,7 +124,7 @@ function Get-AbrVbrBackupServerInfo {
                                             'Windows Current Version' = $HW.WindowsCurrentVersion
                                             'Windows Build Number' = $HW.OsVersion
                                             'Windows Install Type' = $HW.WindowsInstallationType
-                                            'AD Domain' = $HW.CsDomain
+                                            'Active Directory Domain' = $HW.CsDomain
                                             'Windows Installation Date' = $HW.OsInstallDate
                                             'Time Zone' = $HW.TimeZone
                                             'License Type' = $License.ProductKeyChannel
@@ -152,7 +148,7 @@ function Get-AbrVbrBackupServerInfo {
                                         }
 
                                         $TableParams = @{
-                                            Name = "Backup Server Hardware - $($BackupServer.Name.Split(".")[0])"
+                                            Name = "Backup Server Inventory - $($BackupServer.Name.Split(".")[0])"
                                             List = $true
                                             ColumnWidths = 40, 60
                                         }
@@ -160,6 +156,129 @@ function Get-AbrVbrBackupServerInfo {
                                             $TableParams['Caption'] = "- $($TableParams.Name)"
                                         }
                                         $OutObj | Table @TableParams
+                                        #---------------------------------------------------------------------------------------------#
+                                        #                       Backup Server Local Disk Inventory Section                            #
+                                        #---------------------------------------------------------------------------------------------#
+                                        if ($InfoLevel.Infrastructure.BackupServer -ge 3) {
+                                            try {
+                                                $HostDisks = Invoke-Command -Session $PssSession -ScriptBlock { Get-Disk | Where-Object { $_.BusType -ne "iSCSI" -and $_.BusType -ne "Fibre Channel" } }
+                                                if ($HostDisks) {
+                                                    Section -Style Heading5 'Local Disks' {
+                                                        Paragraph 'The following table details physical disks installed in the host'
+                                                        Blankline
+                                                        $LocalDiskReport = @()
+                                                        ForEach ($Disk in $HostDisks) {
+                                                            try {
+                                                                $TempLocalDiskReport = [PSCustomObject]@{
+                                                                    'Disk Number' = $Disk.Number
+                                                                    'Model' = $Disk.Model
+                                                                    'Serial Number' = $Disk.SerialNumber
+                                                                    'Partition Style' = $Disk.PartitionStyle
+                                                                    'Disk Size' = "$([Math]::Round($Disk.Size / 1Gb)) GB"
+                                                                }
+                                                                $LocalDiskReport += $TempLocalDiskReport
+                                                            }
+                                                            catch {
+                                                                Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                            }
+                                                        }
+                                                        $TableParams = @{
+                                                            Name = "Backup Server - Local Disks"
+                                                            List = $false
+                                                            ColumnWidths = 20, 20, 20, 20, 20
+                                                        }
+                                                        if ($Report.ShowTableCaptions) {
+                                                            $TableParams['Caption'] = "- $($TableParams.Name)"
+                                                        }
+                                                        $LocalDiskReport | Sort-Object -Property 'Disk Number' | Table @TableParams
+                                                    }
+                                                }
+                                            }
+                                            catch {
+                                                Write-PscriboMessage -IsWarning $_.Exception.Message
+                                            }
+                                            #---------------------------------------------------------------------------------------------#
+                                            #                       Backup Server SAN Disk Inventory Section                              #
+                                            #---------------------------------------------------------------------------------------------#
+                                            try {
+                                                $SanDisks = Invoke-Command -Session $PssSession -ScriptBlock { Get-Disk | Where-Object { $_.BusType -Eq "iSCSI" -or $_.BusType -Eq "Fibre Channel" } }
+                                                if ($SanDisks) {
+                                                    Section -Style Heading5 'SAN Disks' {
+                                                        Paragraph 'The following section details SAN disks connected to the host'
+                                                        Blankline
+                                                        $SanDiskReport = @()
+                                                        ForEach ($Disk in $SanDisks) {
+                                                            try {
+                                                                $TempSanDiskReport = [PSCustomObject]@{
+                                                                    'Disk Number' = $Disk.Number
+                                                                    'Model' = $Disk.Model
+                                                                    'Serial Number' = $Disk.SerialNumber
+                                                                    'Partition Style' = $Disk.PartitionStyle
+                                                                    'Disk Size' = "$([Math]::Round($Disk.Size / 1Gb)) GB"
+                                                                }
+                                                                $SanDiskReport += $TempSanDiskReport
+                                                            }
+                                                            catch {
+                                                                Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                            }
+                                                        }
+                                                        $TableParams = @{
+                                                            Name = "Backup Server - SAN Disks"
+                                                            List = $false
+                                                            ColumnWidths = 20, 20, 20, 20, 20
+                                                        }
+                                                        if ($Report.ShowTableCaptions) {
+                                                            $TableParams['Caption'] = "- $($TableParams.Name)"
+                                                        }
+                                                        $SanDiskReport | Sort-Object -Property 'Disk Number' | Table @TableParams
+                                                    }
+                                                }
+                                            }
+                                            catch {
+                                                Write-PscriboMessage -IsWarning $_.Exception.Message
+                                            }
+                                        }
+                                        #---------------------------------------------------------------------------------------------#
+                                        #                       Backup Server Volume Inventory Section                                #
+                                        #---------------------------------------------------------------------------------------------#
+                                        try {
+                                            $HostVolumes = Invoke-Command -Session $PssSession -ScriptBlock {  Get-Volume | Where-Object {$_.DriveType -ne "CD-ROM" -and $NUll -ne $_.DriveLetter} }
+                                            if ($HostVolumes) {
+                                                Section -Style Heading5 'Host Volumes' {
+                                                    Paragraph 'The following section details local volumes on the host'
+                                                    Blankline
+                                                    $HostVolumeReport = @()
+                                                    ForEach ($HostVolume in $HostVolumes) {
+                                                        try {
+                                                            $TempHostVolumeReport = [PSCustomObject]@{
+                                                                'Drive Letter' = $HostVolume.DriveLetter
+                                                                'File System Label' = $HostVolume.FileSystemLabel
+                                                                'File System' = $HostVolume.FileSystem
+                                                                'Size' = "$([Math]::Round($HostVolume.Size / 1gb)) GB"
+                                                                'Free Space' = "$([Math]::Round($HostVolume.SizeRemaining / 1gb)) GB"
+                                                                'Health Status' = $HostVolume.HealthStatus
+                                                            }
+                                                            $HostVolumeReport += $TempHostVolumeReport
+                                                        }
+                                                        catch {
+                                                            Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                        }
+                                                    }
+                                                    $TableParams = @{
+                                                        Name = "Backup Server - Volumes"
+                                                        List = $false
+                                                        ColumnWidths = 15, 15, 15, 20, 20, 15
+                                                    }
+                                                    if ($Report.ShowTableCaptions) {
+                                                        $TableParams['Caption'] = "- $($TableParams.Name)"
+                                                    }
+                                                    $HostVolumeReport | Sort-Object -Property 'Drive Letter' | Table @TableParams
+                                                }
+                                            }
+                                        }
+                                        catch {
+                                            Write-PscriboMessage -IsWarning $_.Exception.Message
+                                        }
                                     }
                                 }
                             }
@@ -175,11 +294,9 @@ function Get-AbrVbrBackupServerInfo {
                                 Write-PScriboMessage "Infrastructure Backup Server InfoLevel set at $($InfoLevel.Infrastructure.BackupServer)."
                                 if ($InfoLevel.Infrastructure.BackupServer -ge 2) {
                                     $BackupServer = Get-VBRServer -Type Local
-                                    $PssSession = New-PSSession $BackupServer.Name -Credential $Credential -Authentication Default
                                     $Available = Invoke-Command -Session $PssSession -ScriptBlock {Get-Service "W32Time" | Select-Object DisplayName, Name, Status}
-                                    Write-PscriboMessage "Collecting Backup Server Hardware information from $($BackupServer.Name)."
+                                    Write-PscriboMessage "Collecting Backup Server Service Summary from $($BackupServer.Name)."
                                     $Services = Invoke-Command -Session $PssSession -ScriptBlock {Get-Service Veeam*}
-                                    Remove-PSSession -Session $PssSession
                                     if ($Available) {
                                         Section -Style Heading4 "HealthCheck - Services Status" {
                                             $OutObj = @()
@@ -222,6 +339,9 @@ function Get-AbrVbrBackupServerInfo {
             Write-PscriboMessage -IsWarning $_.Exception.Message
         }
     }
-    end {}
+    end {
+        if ($PssSession) {Remove-PSSession -Session $PssSession}
+        if ($CimSession) {Remove-CimSession $CimSession}
+    }
 
 }

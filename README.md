@@ -152,7 +152,7 @@ The table below outlines the default and maximum **InfoLevel** settings for each
 
 | Sub-Schema   | Default Setting | Maximum Setting |
 |--------------|:---------------:|:---------------:|
-| BackupServer       |        1        |        2        |
+| BackupServer       |        1        |        3        |
 | Proxy          |        1        |        3        |
 | Settings         |        1        |        2        |
 | BR           |        1        |        2        |
