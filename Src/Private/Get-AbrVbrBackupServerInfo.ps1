@@ -164,7 +164,6 @@ function Get-AbrVbrBackupServerInfo {
                                                 $HostDisks = Invoke-Command -Session $PssSession -ScriptBlock { Get-Disk | Where-Object { $_.BusType -ne "iSCSI" -and $_.BusType -ne "Fibre Channel" } }
                                                 if ($HostDisks) {
                                                     Section -Style Heading5 'Local Disks' {
-                                                        Paragraph 'The following table details physical disks installed in the host'
                                                         Blankline
                                                         $LocalDiskReport = @()
                                                         ForEach ($Disk in $HostDisks) {
@@ -204,7 +203,6 @@ function Get-AbrVbrBackupServerInfo {
                                                 $SanDisks = Invoke-Command -Session $PssSession -ScriptBlock { Get-Disk | Where-Object { $_.BusType -Eq "iSCSI" -or $_.BusType -Eq "Fibre Channel" } }
                                                 if ($SanDisks) {
                                                     Section -Style Heading5 'SAN Disks' {
-                                                        Paragraph 'The following section details SAN disks connected to the host'
                                                         Blankline
                                                         $SanDiskReport = @()
                                                         ForEach ($Disk in $SanDisks) {
@@ -245,7 +243,6 @@ function Get-AbrVbrBackupServerInfo {
                                             $HostVolumes = Invoke-Command -Session $PssSession -ScriptBlock {  Get-Volume | Where-Object {$_.DriveType -ne "CD-ROM" -and $NUll -ne $_.DriveLetter} }
                                             if ($HostVolumes) {
                                                 Section -Style Heading5 'Host Volumes' {
-                                                    Paragraph 'The following section details local volumes on the host'
                                                     Blankline
                                                     $HostVolumeReport = @()
                                                     ForEach ($HostVolume in $HostVolumes) {
@@ -278,6 +275,82 @@ function Get-AbrVbrBackupServerInfo {
                                         }
                                         catch {
                                             Write-PscriboMessage -IsWarning $_.Exception.Message
+                                        }
+                                        #---------------------------------------------------------------------------------------------#
+                                        #                       Backup Server Network Inventory Section                               #
+                                        #---------------------------------------------------------------------------------------------#
+                                        if ($InfoLevel.Infrastructure.BackupServer -ge 2) {
+                                            try {
+                                                $HostAdapters = Invoke-Command -Session $PssSession { Get-NetAdapter }
+                                                if ($HostAdapters) {
+                                                    Section -Style Heading3 'Network Adapters' {
+                                                        Blankline
+                                                        $HostAdaptersReport = @()
+                                                        ForEach ($HostAdapter in $HostAdapters) {
+                                                            try {
+                                                                $TempHostAdaptersReport = [PSCustomObject]@{
+                                                                    'Adapter Name' = $HostAdapter.Name
+                                                                    'Adapter Description' = $HostAdapter.InterfaceDescription
+                                                                    'Mac Address' = $HostAdapter.MacAddress
+                                                                    'Link Speed' = $HostAdapter.LinkSpeed
+                                                                }
+                                                                $HostAdaptersReport += $TempHostAdaptersReport
+                                                            }
+                                                            catch {
+                                                                Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                            }
+                                                        }
+                                                        $TableParams = @{
+                                                            Name = "Backup Server - Network Adapters"
+                                                            List = $false
+                                                            ColumnWidths = 30, 35, 20, 15
+                                                        }
+                                                        if ($Report.ShowTableCaptions) {
+                                                            $TableParams['Caption'] = "- $($TableParams.Name)"
+                                                        }
+                                                        $HostAdaptersReport | Sort-Object -Property 'Adapter Name' | Table @TableParams
+                                                    }
+                                                }
+                                            }
+                                            catch {
+                                                Write-PscriboMessage -IsWarning $_.Exception.Message
+                                            }
+                                            try {
+                                                $NetIPs = Invoke-Command -Session $PssSession { Get-NetIPConfiguration | Where-Object -FilterScript { ($_.NetAdapter.Status -Eq "Up") } }
+                                                if ($NetIPs) {
+                                                    Section -Style Heading3 'IP Address' {
+                                                        Blankline
+                                                        $NetIpsReport = @()
+                                                        ForEach ($NetIp in $NetIps) {
+                                                            try {
+                                                                $TempNetIpsReport = [PSCustomObject]@{
+                                                                    'Interface Name' = $NetIp.InterfaceAlias
+                                                                    'Interface Description' = $NetIp.InterfaceDescription
+                                                                    'IPv4 Addresses' = $NetIp.IPv4Address.IPAddress -Join ","
+                                                                    'Subnet Mask' = $NetIp.IPv4Address[0].PrefixLength
+                                                                    'IPv4 Gateway' = $NetIp.IPv4DefaultGateway.NextHop
+                                                                }
+                                                                $NetIpsReport += $TempNetIpsReport
+                                                            }
+                                                            catch {
+                                                                Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                            }
+                                                        }
+                                                        $TableParams = @{
+                                                            Name = "Backup Server - IP Address"
+                                                            List = $false
+                                                            ColumnWidths = 25, 25, 20, 10, 20
+                                                        }
+                                                        if ($Report.ShowTableCaptions) {
+                                                            $TableParams['Caption'] = "- $($TableParams.Name)"
+                                                        }
+                                                        $NetIpsReport | Sort-Object -Property 'Interface Name' | Table @TableParams
+                                                    }
+                                                }
+                                            }
+                                            catch {
+                                                Write-PscriboMessage -IsWarning $_.Exception.Message
+                                            }
                                         }
                                     }
                                 }
