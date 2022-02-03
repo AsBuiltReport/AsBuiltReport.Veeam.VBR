@@ -148,7 +148,7 @@ function Get-AbrVbrBackupServerInfo {
 
                                         if ($HealthCheck.Infrastructure.Server) {
                                             $OutObj | Where-Object { $_.'Number of CPU Cores' -lt 4} | Set-Style -Style Warning -Property 'Number of CPU Cores'
-                                            $OutObj | Where-Object { $_.'Physical Memory (GB)' -lt 8} | Set-Style -Style Warning -Property 'Physical Memory (GB)'
+                                            if ([int]([regex]::Matches($OutObj.'Physical Memory (GB)', "\d+(?!.*\d+)").value) -lt 8) { $OutObj | Set-Style -Style Warning -Property 'Physical Memory (GB)' }
                                         }
 
                                         $TableParams = @{
