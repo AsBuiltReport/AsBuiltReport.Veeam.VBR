@@ -35,7 +35,7 @@ Please refer to the AsBuiltReport [website](https://www.asbuiltreport.com) for m
 
 ## Sample Report - Custom Style
 
-Sample Veeam VBR As Built report HTML file: [Sample Veeam VBR As-Built Report.html](https://technomyth.zenprsolutions.net/wp-content/uploads/2022/01/Veeam-VBR-As-Built-Report.html)
+Sample Veeam VBR As Built report HTML file: [Sample Veeam VBR As-Built Report.html](https://htmlpreview.github.io/?https://raw.githubusercontent.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/dev/Samples/Sample%20Veeam%20VBR%20As%20Built%20Report.html)
 
 # :beginner: Getting Started
 
