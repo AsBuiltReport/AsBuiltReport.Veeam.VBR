@@ -147,9 +147,9 @@ function Get-AbrVbrBackupProxy {
                                                             'Partial Product Key' = $License.PartialProductKey
                                                             'Manufacturer' = $HW.CsManufacturer
                                                             'Model' = $HW.CsModel
-                                                            'Serial Number' = $HostBIOS.SerialNumber
+                                                            'Serial Number' = $HWBIOS.SerialNumber
                                                             'Bios Type' = $HW.BiosFirmwareType
-                                                            'BIOS Version' = $HostBIOS.Version
+                                                            'BIOS Version' = $HWBIOS.Version
                                                             'Processor Manufacturer' = $HWCPU[0].Manufacturer
                                                             'Processor Model' = $HWCPU[0].Name
                                                             'Number of CPU Cores' = $HWCPU[0].NumberOfCores
@@ -160,7 +160,7 @@ function Get-AbrVbrBackupProxy {
 
                                                         if ($HealthCheck.Infrastructure.Server) {
                                                             $OutObj | Where-Object { $_.'Number of CPU Cores' -lt 4} | Set-Style -Style Warning -Property 'Number of CPU Cores'
-                                                            $OutObj | Where-Object { $_.'Physical Memory (GB)' -lt 8} | Set-Style -Style Warning -Property 'Physical Memory (GB)'
+                                                            if ([int]([regex]::Matches($OutObj.'Physical Memory (GB)', "\d+(?!.*\d+)").value) -lt 8) { $OutObj | Set-Style -Style Warning -Property 'Physical Memory (GB)' }
                                                         }
 
                                                         $TableParams = @{
@@ -373,9 +373,9 @@ function Get-AbrVbrBackupProxy {
                                                                 'Partial Product Key' = $License.PartialProductKey
                                                                 'Manufacturer' = $HW.CsManufacturer
                                                                 'Model' = $HW.CsModel
-                                                                'Serial Number' = $HostBIOS.SerialNumber
+                                                                'Serial Number' = $HWBIOS.SerialNumber
                                                                 'Bios Type' = $HW.BiosFirmwareType
-                                                                'BIOS Version' = $HostBIOS.Version
+                                                                'BIOS Version' = $HWBIOS.Version
                                                                 'Processor Manufacturer' = $HWCPU[0].Manufacturer
                                                                 'Processor Model' = $HWCPU[0].Name
                                                                 'Number of CPU Cores' = $HWCPU[0].NumberOfCores
@@ -386,7 +386,7 @@ function Get-AbrVbrBackupProxy {
 
                                                             if ($HealthCheck.Infrastructure.Server) {
                                                                 $OutObj | Where-Object { $_.'Number of CPU Cores' -lt 4} | Set-Style -Style Warning -Property 'Number of CPU Cores'
-                                                                $OutObj | Where-Object { $_.'Physical Memory (GB)' -lt 8} | Set-Style -Style Warning -Property 'Physical Memory (GB)'
+                                                                if ([int]([regex]::Matches($OutObj.'Physical Memory (GB)', "\d+(?!.*\d+)").value) -lt 8) { $OutObj | Set-Style -Style Warning -Property 'Physical Memory (GB)' }
                                                             }
 
                                                             $TableParams = @{
