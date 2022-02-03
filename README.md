@@ -131,6 +131,10 @@ The **Report** schema provides configuration of the Veeam VBR report information
 
 The **Options** schema allows certain options within the report to be toggled on or off.
 
+| Sub-Schema      | Setting      | Default | Description                                                                                                                                                                                 |
+|-----------------|--------------|---------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| BackupServerPort | TCP Port  | 9392    | Used to specify the backup service's custom port
+
 ### InfoLevel
 
 The **InfoLevel** schema allows configuration of each section of the report at a granular level. The following sections can be set.
