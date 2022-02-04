@@ -140,3 +140,66 @@ function ConvertTo-FileSizeString {
             {"0 KB"}
         }
     } # end >> function Format-FileSize
+
+function Get-VeeamNetStat {
+    <#
+    .SYNOPSIS
+        Used by As Built Report to gather veeam network statistics information.
+    .DESCRIPTION
+        Function used to gathers information about any running processes.
+    .NOTES
+        Version:        0.1.0
+        Author:         CEvans
+        Github:         cevans3505
+    .EXAMPLE
+        Get-VeeamNetStats | Where-Object { $_.ProcessName -Like "*veeam*" } | Sort-Object -Property State,LocalPort | Format-Table -Autosize
+    .LINK
+        https://gist.github.com/cevans3505/e5b95021d3e744878e018b6b5638eea2
+    #>
+
+    param(
+        [Parameter(Mandatory)]
+        [ValidateNotNullOrEmpty()]
+        $Session
+    )
+
+    $properties = 'Protocol','LocalAddress','LocalPort'
+    $properties += 'RemoteAddress','RemotePort','State','ProcessName','PID'
+
+    invoke-command -Session $Session -ScriptBlock { netstat -ano } | Select-String -Pattern '\s+(TCP|UDP)' | ForEach-Object {
+
+        $item = $_.Line.Split(  " ",[System.StringSplitOptions]::RemoveEmptyEntries )
+
+        if ( $item[1] -NotMatch '^\[::' ) {
+
+            if ( ( $la -eq $item[1] -As [ipaddress] ).AddressFamily -Eq 'InterNetworkV6' ) {
+                $localAddress = $la.IPAddressToString
+                $localPort = $item[1].Split( '\]:' )[-1]
+            }
+            else {
+                $localAddress = $item[1].Split( ':' )[0]
+                $localPort = $item[1].Split( ':' )[-1]
+            }
+
+            if ( ( $ra -eq $item[2] -As [ipaddress] ).AddressFamily -Eq 'InterNetworkV6' ) {
+                $remoteAddress = $ra.IPAddressToString
+                $remotePort = $item[2].Split( '\]:' )[-1]
+            }
+            else {
+                $remoteAddress = $item[2].Split( ':' )[0]
+                $remotePort = $item[2].Split( ':' )[-1]
+            }
+
+            New-Object PSObject -Property @{
+                PID = $item[-1]
+                ProcessName = ( invoke-command  -Session $Session -ScriptBlock { Get-Process -Id ($using:item)[-1] -ErrorAction SilentlyContinue }).Name
+                Protocol = $item[0]
+                LocalAddress = $localAddress
+                LocalPort = $localPort
+                RemoteAddress = $remoteAddress
+                RemotePort = $remotePort
+                State = if ( $item[0] -Eq 'tcp' ) { $item[3] } else { $Null }
+            } | Select-Object -Property $properties
+        }
+    }
+}

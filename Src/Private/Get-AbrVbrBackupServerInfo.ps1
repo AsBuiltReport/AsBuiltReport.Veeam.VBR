@@ -363,10 +363,10 @@ function Get-AbrVbrBackupServerInfo {
                         #                             Backup Server Services Information Section                      #
                         #---------------------------------------------------------------------------------------------#
                         if ($HealthCheck.Infrastructure.Server) {
+                            $BackupServer = Get-VBRServer -Type Local
                             try {
                                 Write-PScriboMessage "Infrastructure Backup Server InfoLevel set at $($InfoLevel.Infrastructure.BackupServer)."
                                 if ($InfoLevel.Infrastructure.BackupServer -ge 2) {
-                                    $BackupServer = Get-VBRServer -Type Local
                                     $Available = Invoke-Command -Session $PssSession -ScriptBlock {Get-Service "W32Time" | Select-Object DisplayName, Name, Status}
                                     Write-PscriboMessage "Collecting Backup Server Service Summary from $($BackupServer.Name)."
                                     $Services = Invoke-Command -Session $PssSession -ScriptBlock {Get-Service Veeam*}
@@ -391,6 +391,49 @@ function Get-AbrVbrBackupServerInfo {
                                                 Name = "HealthCheck - Services Status - $($BackupServer.Name.Split(".")[0])"
                                                 List = $false
                                                 ColumnWidths = 45, 35, 20
+                                            }
+                                            if ($Report.ShowTableCaptions) {
+                                                $TableParams['Caption'] = "- $($TableParams.Name)"
+                                            }
+                                            $OutObj | Table @TableParams
+                                        }
+                                    }
+                                }
+                            }
+                            catch {
+                                Write-PscriboMessage -IsWarning $_.Exception.Message
+                            }
+                            try {
+                                Write-PScriboMessage "Infrastructure Backup Server InfoLevel set at $($InfoLevel.Infrastructure.BackupServer)."
+                                if ($InfoLevel.Infrastructure.BackupServer -ge 3) {
+                                    $NetStats = Get-VeeamNetStat -Session $PssSession | Where-Object { $_.ProcessName -Like "*veeam*" } | Sort-Object -Property State,LocalPort
+                                    Write-PscriboMessage "Collecting Backup Server Network Statistics from $($BackupServer.Name)."
+                                    if ($NetStats) {
+                                        Section -Style Heading4 "HealthCheck - Network Statistics" {
+                                            $OutObj = @()
+                                            foreach ($NetStat in $NetStats) {
+                                                try {
+                                                    $inObj = [ordered] @{
+                                                        'Proto' = $NetStat.Protocol
+                                                        'Local IP' = $NetStat.LocalAddress
+                                                        'Local Port' = $NetStat.LocalPort
+                                                        'Remote IP' = $NetStat.RemoteAddress
+                                                        'Remote Port' = $NetStat.RemotePort
+                                                        'State' = $NetStat.State
+                                                        'Process Name' = $NetStat.ProcessName
+                                                        'PID' = $NetStat.PID
+                                                    }
+                                                    $OutObj += [pscustomobject]$inobj
+                                                }
+                                                catch {
+                                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                }
+                                            }
+
+                                            $TableParams = @{
+                                                Name = "HealthCheck - Network Statistics - $($BackupServer.Name.Split(".")[0])"
+                                                List = $false
+                                                ColumnWidths = 8, 16, 8, 16, 9, 16, 19, 8
                                             }
                                             if ($Report.ShowTableCaptions) {
                                                 $TableParams['Caption'] = "- $($TableParams.Name)"
