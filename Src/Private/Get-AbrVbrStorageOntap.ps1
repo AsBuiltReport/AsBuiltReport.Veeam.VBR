@@ -25,32 +25,38 @@ function Get-AbrVbrStorageOntap {
         try {
             if ((Get-NetAppHost).count -gt 0) {
                 Section -Style Heading3 'NetApp Ontap Storage' {
-                    Paragraph "Returns NetApp storage volumes added to the backup infrastructure."
+                    Paragraph "The following section details NetApp arrays added to the storage infrastructure."
                     BlankLine
                     $OutObj = @()
                     if ((Get-VBRServerSession).Server) {
                         try {
-                            $OntapObjs = Get-NetAppHost
-                            foreach ($OntapObj in $OntapObjs) {
-                                Section -Style Heading4 "$($OntapObj.Name)" {
+                            $OntapHosts = Get-NetAppHost
+                            foreach ($OntapHost in $OntapHosts) {
+                                Section -Style Heading4 "$($OntapHost.Name)" {
                                     try {
-                                        Write-PscriboMessage "Discovered $($OntapObj.Name) NetApp Host."
+                                        Write-PscriboMessage "Discovered $($OntapHost.Name) NetApp Host."
+                                        $UsedCred = Get-VBRCredentials | Where-Object { $_.Id -eq $OntapHost.Info.CredsId}
+                                        $OntapOptions = [xml]$OntapHost.info.Options
                                         $inObj = [ordered] @{
-                                            'DnsName' = Switch (($OntapObj.Info.HostInstanceId).count) {
-                                                0 {$OntapObj.Info.DnsName}
-                                                default {$OntapObj.Info.HostInstanceId}
+                                            'DNS Name' = Switch (($OntapHost.Info.HostInstanceId).count) {
+                                                0 {$OntapHost.Info.DnsName}
+                                                default {$OntapHost.Info.HostInstanceId}
                                             }
-                                            'Type' = $OntapObj.NaOptions.HostType
-                                            'ConnPoints' = $OntapObj.ConnPoints
-                                            'Credential' = (Get-VBRCredentials | Where-Object { $_.Id -eq $OntapObj.Info.CredsId }).Description
-                                            'License' = $OntapObj.NaOptions.License
-                                            'Description' = $OntapObj.Description
+                                            'Description' = $OntapHost.Description
+                                            'Storage Type' = $OntapHost.NaOptions.HostType
+                                            'Used Credential' = Switch (($UsedCred).count) {
+                                                0 {"-"}
+                                                default {"$($UsedCred.Name) - ($($UsedCred.Description))"}
+                                            }
+                                            'Connnection Address' = $OntapHost.ConnPoints -join ", "
+                                            'Connnection Port' =  "$($OntapOptions.NaHostOptions.NaHostOptions.NaHostConnectionOptions.Port)\TCP"
+                                            'Installed Licenses' = $OntapHost.NaOptions.License
                                         }
 
                                         $OutObj = [pscustomobject]$inobj
 
                                         $TableParams = @{
-                                            Name = "NetApp Host - $($OntapObj.Name)"
+                                            Name = "NetApp Host - $($OntapHost.Name)"
                                             List = $true
                                             ColumnWidths = 40, 60
                                         }
@@ -59,6 +65,46 @@ function Get-AbrVbrStorageOntap {
                                             $TableParams['Caption'] = "- $($TableParams.Name)"
                                         }
                                         $OutObj | Table @TableParams
+                                        if ($InfoLevel.Storage.Ontap -ge 2) {
+                                            try {
+                                                $OntapVols = Get-NetAppVolume -Host $OntapHost
+                                                if ($OntapVols) {
+                                                    Section -Style Heading5 'Volumes' {
+                                                        $OutObj = @()
+                                                        foreach ($OntapVol in $OntapVols) {
+                                                            try {
+                                                                Write-PscriboMessage "Discovered $($OntapVol.Name) NetApp Volume."
+                                                                $inObj = [ordered] @{
+                                                                    'Name' = $OntapVol.Name
+                                                                    'Total Space' = ConvertTo-FileSizeString $OntapVol.Size
+                                                                    'Used Space' = ConvertTo-FileSizeString $OntapVol.ConsumedSpace
+                                                                    'Thin Provision' = ConvertTo-TextYN $OntapVol.IsThinProvision
+                                                                }
+
+                                                                $OutObj += [pscustomobject]$inobj
+                                                            }
+                                                            catch {
+                                                                Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                            }
+                                                        }
+
+                                                        $TableParams = @{
+                                                            Name = "NetApp Volumes - $($OntapHost.Name)"
+                                                            List = $false
+                                                            ColumnWidths = 52, 15, 15, 18
+                                                        }
+
+                                                        if ($Report.ShowTableCaptions) {
+                                                            $TableParams['Caption'] = "- $($TableParams.Name)"
+                                                        }
+                                                        $OutObj | Table @TableParams
+                                                    }
+                                                }
+                                            }
+                                            catch {
+                                                Write-PscriboMessage -IsWarning $_.Exception.Message
+                                            }
+                                        }
                                     }
                                     catch {
                                         Write-PscriboMessage -IsWarning $_.Exception.Message
