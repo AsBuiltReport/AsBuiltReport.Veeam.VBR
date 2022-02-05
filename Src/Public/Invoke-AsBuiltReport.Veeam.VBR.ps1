@@ -154,6 +154,10 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                         if ($InfoLevel.Storage.Ontap -ge 1) {
                             Get-AbrVbrStorageOntap
                         }
+                        Write-PScriboMessage "Dell Isilon InfoLevel set at $($InfoLevel.Storage.Isilon)."
+                        if ($InfoLevel.Storage.Isilon -ge 1) {
+                            Get-AbrVbrStorageIsilon
+                        }
                     }
                 }
             }
