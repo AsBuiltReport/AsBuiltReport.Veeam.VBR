@@ -171,7 +171,6 @@ The table below outlines the default and maximum **InfoLevel** settings for each
 | Vault          |        1        |        1        |
 | NDMP          |        1        |        1        |
 
-MediaPool
 The table below outlines the default and maximum **InfoLevel** settings for each Inventory section.
 
 | Sub-Schema   | Default Setting | Maximum Setting |
@@ -179,6 +178,13 @@ The table below outlines the default and maximum **InfoLevel** settings for each
 | VI       |        1        |        1        |
 | PHY          |        1        |        2        |
 | FileShare          |        1        |        1        |
+
+The table below outlines the default and maximum **InfoLevel** settings for each Storage Infrastructure section.
+
+| Sub-Schema   | Default Setting | Maximum Setting |
+|--------------|:---------------:|:---------------:|
+| ONTAP       |        1        |        2        |
+| ISILON          |        1        |        2        |
 
 ### Healthcheck
 
