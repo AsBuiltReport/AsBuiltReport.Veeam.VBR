@@ -36,6 +36,10 @@
             "VI": 1,
             "PHY": 1,
             "FileShare": 1
+        },
+        "Storage": {
+            "ONTAP": 1,
+            "ISILON": 1
         }
     },
     "HealthCheck": {

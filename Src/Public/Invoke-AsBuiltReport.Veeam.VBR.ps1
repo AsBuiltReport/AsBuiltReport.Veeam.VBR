@@ -142,6 +142,21 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                     }
                 }
             }
+            #---------------------------------------------------------------------------------------------#
+            #                                  Storage Infrastructure Section                                          #
+            #---------------------------------------------------------------------------------------------#
+            if ($InfoLevel.Storage.PSObject.Properties.Value -ne 0) {
+                if ((Get-NetAppHost).count -gt 0) {
+                    Section -Style Heading2 'Storage Infrastructure Summary' {
+                        Paragraph "The following section provides storage infrastructure managed by Veeam Server $(((Get-VBRServerSession).Server))."
+                        BlankLine
+                        Write-PScriboMessage "NetApp Ontap InfoLevel set at $($InfoLevel.Storage.Ontap)."
+                        if ($InfoLevel.Storage.Ontap -ge 1) {
+                            Get-AbrVbrStorageOntap
+                        }
+                    }
+                }
+            }
         }
         #Disconnect-VBRServer
 	}
