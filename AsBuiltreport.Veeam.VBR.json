@@ -45,7 +45,8 @@
             "Backup": 1,
             "Tape": 1,
             "Surebackup": 1,
-            "computer": 1        }
+            "Agent": 1
+        }
     },
     "HealthCheck": {
         "Infrastructure": {

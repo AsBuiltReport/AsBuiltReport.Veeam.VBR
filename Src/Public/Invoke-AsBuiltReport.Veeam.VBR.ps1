@@ -181,6 +181,10 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                         if ($InfoLevel.Jobs.SureBackup -ge 1) {
                             Get-AbrVbrSureBackupjob
                         }
+                        Write-PScriboMessage "Agent Jobs InfoLevel set at $($InfoLevel.Jobs.Agent)."
+                        if ($InfoLevel.Jobs.Agent -ge 1) {
+                            Get-AbrVbrAgentBackupjob
+                        }
                     }
                 }
             }
