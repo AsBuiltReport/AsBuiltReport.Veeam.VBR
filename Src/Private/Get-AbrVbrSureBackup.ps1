@@ -177,7 +177,7 @@ function Get-AbrVbrSureBackup {
                                                     'Isolated Network' = $SureBackupVL.NetworkMapping.IsolatedNetworkName
                                                     'Routing Between vNics' = ConvertTo-TextYN $SureBackupVL.RoutingBetweenvNicsEnabled
                                                     'Multi Host' = ConvertTo-TextYN $SureBackupVL.IsMultiHost
-                                                    'Ip Mapping Rule' = $SureBackupVL.IpMappingRule
+                                                    'Ip Mapping Rule' = "Isolated IP Address: $($SureBackupVL.IpMappingRule.IsolatedIPAddress)`r`nAccess IP Address: $($SureBackupVL.IpMappingRule.AccessIPAddress)"
                                                     'Static IP Mapping' = ConvertTo-TextYN $SureBackupVL.StaticIPMappingEnabled
                                                 }
 

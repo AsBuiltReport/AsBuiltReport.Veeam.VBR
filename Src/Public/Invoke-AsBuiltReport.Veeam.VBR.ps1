@@ -143,7 +143,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                 }
             }
             #---------------------------------------------------------------------------------------------#
-            #                                  Storage Infrastructure Section                                          #
+            #                                  Storage Infrastructure Section                             #
             #---------------------------------------------------------------------------------------------#
             if ($InfoLevel.Storage.PSObject.Properties.Value -ne 0) {
                 if ((Get-NetAppHost).count -gt 0) {
@@ -157,6 +157,29 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                         Write-PScriboMessage "Dell Isilon InfoLevel set at $($InfoLevel.Storage.Isilon)."
                         if ($InfoLevel.Storage.Isilon -ge 1) {
                             Get-AbrVbrStorageIsilon
+                        }
+                    }
+                }
+            }
+            #---------------------------------------------------------------------------------------------#
+            #                                  Backup Jobs Section                                        #
+            #---------------------------------------------------------------------------------------------#
+            if ($InfoLevel.Jobs.PSObject.Properties.Value -ne 0) {
+                if ((Get-VBRJob).count -gt 0) {
+                    Section -Style Heading2 'Backup Jobs Summary' {
+                        Paragraph "The following section provides information about backup jobs on Veeam Server: $(((Get-VBRServerSession).Server))."
+                        BlankLine
+                        Write-PScriboMessage "Backup Jobs InfoLevel set at $($InfoLevel.Jobs.Backup)."
+                        if ($InfoLevel.Jobs.Backup -ge 1) {
+                            Get-AbrVbrBackupjob
+                        }
+                        Write-PScriboMessage "Tape Jobs InfoLevel set at $($InfoLevel.Jobs.Tape)."
+                        if ($InfoLevel.Jobs.Tape -ge 1) {
+                            Get-AbrVbrTapejob
+                        }
+                        Write-PScriboMessage "SureBackup Jobs InfoLevel set at $($InfoLevel.Jobs.SureBackup)."
+                        if ($InfoLevel.Jobs.SureBackup -ge 1) {
+                            Get-AbrVbrSureBackupjob
                         }
                     }
                 }

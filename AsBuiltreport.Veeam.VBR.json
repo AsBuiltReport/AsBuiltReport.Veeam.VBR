@@ -40,7 +40,12 @@
         "Storage": {
             "ONTAP": 1,
             "ISILON": 1
-        }
+        },
+        "Jobs": {
+            "Backup": 1,
+            "Tape": 1,
+            "Surebackup": 1,
+            "computer": 1        }
     },
     "HealthCheck": {
         "Infrastructure": {

@@ -34,13 +34,21 @@ function Get-AbrVbrTapeMediaPool {
                             $PoolObjs = Get-VBRTapeMediaPool
                             foreach ($PoolObj in $PoolObjs) {
                                 try {
+                                    if ($PoolObj.Type -ne "Custom") {
+                                        $Capacity = ((Get-VBRTapeMedium -MediaPool $PoolObj.Name).Capacity | Measure-Object -Sum).Sum
+                                        $FreeSpace = ((Get-VBRTapeMedium -MediaPool $PoolObj.Name).Free | Measure-Object -Sum).Sum
+                                    }
+                                    else {
+                                        $Capacity = $PoolObj.Capacity
+                                        $FreeSpace = $PoolObj.FreeSpace
+                                    }
                                     Write-PscriboMessage "Discovered $($PoolObj.Name) Media Pool."
                                     $inObj = [ordered] @{
                                         'Name' = $PoolObj.Name
                                         'Type' = $PoolObj.Type
                                         'Tape Count' = ((Get-VBRTapeMediaPool -Id $PoolObj.Id ).Medium).count
-                                        'Total Space' = ConvertTo-FileSizeString $PoolObj.Capacity
-                                        'Free Space' = ConvertTo-FileSizeString $PoolObj.FreeSpace
+                                        'Total Space' = ConvertTo-FileSizeString $Capacity
+                                        'Free Space' = ConvertTo-FileSizeString $FreeSpace
                                         'Tape Library' = $PoolObj.LibraryId | ForEach-Object {Get-VBRTapeLibrary -Id $_}
                                     }
 
