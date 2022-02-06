@@ -40,7 +40,7 @@ function Get-AbrVbrAgentBackupjob {
                                     'Name' = $ABkjob.Name
                                     'Type' = $ABkjob.Type
                                     'OS Platform' = $ABkjob.OSPlatform
-                                    'BackupObject' = $ABkjob.BackupObject
+                                    'Backup Object' = $ABkjob.BackupObject
                                 }
                                 $OutObj += [pscustomobject]$inobj
                             }
