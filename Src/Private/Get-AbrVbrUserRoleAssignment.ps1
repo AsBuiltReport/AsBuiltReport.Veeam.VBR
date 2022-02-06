@@ -2,17 +2,18 @@
 function Get-AbrVbrUserRoleAssignment {
     <#
     .SYNOPSIS
-    Used by As Built Report to returns Veeam VBR roles assigned to a user or a user group.
-
-
+        Used by As Built Report to returns Veeam VBR roles assigned to a user or a user group.
     .DESCRIPTION
+        Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.3.0
+        Version:        0.3.1
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
-    .EXAMPLE
+        Credits:        Iain Brighton (@iainbrighton) - PScribo module
+
     .LINK
+        https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR
     #>
     [CmdletBinding()]
     param (
