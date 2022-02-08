@@ -246,7 +246,6 @@ function Get-AbrVbrBackupServerInfo {
                                             $HostVolumes = Invoke-Command -Session $PssSession -ScriptBlock {  Get-Volume | Where-Object {$_.DriveType -ne "CD-ROM" -and $NUll -ne $_.DriveLetter} }
                                             if ($HostVolumes) {
                                                 Section -Style Heading5 'Host Volumes' {
-                                                    Blankline
                                                     $HostVolumeReport = @()
                                                     ForEach ($HostVolume in $HostVolumes) {
                                                         try {
@@ -287,7 +286,6 @@ function Get-AbrVbrBackupServerInfo {
                                                 $HostAdapters = Invoke-Command -Session $PssSession { Get-NetAdapter }
                                                 if ($HostAdapters) {
                                                     Section -Style Heading3 'Network Adapters' {
-                                                        Blankline
                                                         $HostAdaptersReport = @()
                                                         ForEach ($HostAdapter in $HostAdapters) {
                                                             try {
@@ -322,7 +320,6 @@ function Get-AbrVbrBackupServerInfo {
                                                 $NetIPs = Invoke-Command -Session $PssSession { Get-NetIPConfiguration | Where-Object -FilterScript { ($_.NetAdapter.Status -Eq "Up") } }
                                                 if ($NetIPs) {
                                                     Section -Style Heading3 'IP Address' {
-                                                        Blankline
                                                         $NetIpsReport = @()
                                                         ForEach ($NetIp in $NetIps) {
                                                             try {

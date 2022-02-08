@@ -181,7 +181,6 @@ function Get-AbrVbrBackupProxy {
                                                                 $HostDisks = Invoke-Command -Session $PssSession -ScriptBlock { Get-Disk | Where-Object { $_.BusType -ne "iSCSI" -and $_.BusType -ne "Fibre Channel" } }
                                                                 if ($HostDisks) {
                                                                     Section -Style Heading5 'Local Disks' {
-                                                                        Blankline
                                                                         $LocalDiskReport = @()
                                                                         ForEach ($Disk in $HostDisks) {
                                                                             try {
@@ -220,7 +219,6 @@ function Get-AbrVbrBackupProxy {
                                                                 $SanDisks = Invoke-Command -Session $PssSession -ScriptBlock { Get-Disk | Where-Object { $_.BusType -Eq "iSCSI" -or $_.BusType -Eq "Fibre Channel" } }
                                                                 if ($SanDisks) {
                                                                     Section -Style Heading5 'SAN Disks' {
-                                                                        Blankline
                                                                         $SanDiskReport = @()
                                                                         ForEach ($Disk in $SanDisks) {
                                                                             try {
@@ -257,7 +255,6 @@ function Get-AbrVbrBackupProxy {
                                                             $HostVolumes = Invoke-Command -Session $PssSession -ScriptBlock {  Get-Volume | Where-Object {$_.DriveType -ne "CD-ROM" -and $NUll -ne $_.DriveLetter} }
                                                             if ($HostVolumes) {
                                                                 Section -Style Heading5 'Host Volumes' {
-                                                                    Blankline
                                                                     $HostVolumeReport = @()
                                                                     ForEach ($HostVolume in $HostVolumes) {
                                                                         try {
@@ -524,7 +521,6 @@ function Get-AbrVbrBackupProxy {
                                                                     $HostDisks = Invoke-Command -Session $PssSession -ScriptBlock { Get-Disk | Where-Object { $_.BusType -ne "iSCSI" -and $_.BusType -ne "Fibre Channel" } }
                                                                     if ($HostDisks) {
                                                                         Section -Style Heading5 'Local Disks' {
-                                                                            Blankline
                                                                             $LocalDiskReport = @()
                                                                             ForEach ($Disk in $HostDisks) {
                                                                                 try {
@@ -603,7 +599,6 @@ function Get-AbrVbrBackupProxy {
                                                                 $HostVolumes = Invoke-Command -Session $PssSession -ScriptBlock {  Get-Volume | Where-Object {$_.DriveType -ne "CD-ROM" -and $NUll -ne $_.DriveLetter} }
                                                                 if ($HostVolumes) {
                                                                     Section -Style Heading5 'Host Volumes' {
-                                                                        Blankline
                                                                         $HostVolumeReport = @()
                                                                         ForEach ($HostVolume in $HostVolumes) {
                                                                             try {
@@ -644,7 +639,6 @@ function Get-AbrVbrBackupProxy {
                                                                     $HostAdapters = Invoke-Command -Session $PssSession { Get-NetAdapter }
                                                                     if ($HostAdapters) {
                                                                         Section -Style Heading3 'Network Adapters' {
-                                                                            Blankline
                                                                             $HostAdaptersReport = @()
                                                                             ForEach ($HostAdapter in $HostAdapters) {
                                                                                 try {
@@ -679,7 +673,6 @@ function Get-AbrVbrBackupProxy {
                                                                     $NetIPs = Invoke-Command -Session $PssSession { Get-NetIPConfiguration | Where-Object -FilterScript { ($_.NetAdapter.Status -Eq "Up") } }
                                                                     if ($NetIPs) {
                                                                         Section -Style Heading3 'IP Address' {
-                                                                            Blankline
                                                                             $NetIpsReport = @()
                                                                             ForEach ($NetIp in $NetIps) {
                                                                                 try {
