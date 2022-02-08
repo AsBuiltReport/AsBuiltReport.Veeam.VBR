@@ -1,5 +1,33 @@
 # :arrows_counterclockwise: Veeam VBR As Built Report Changelog
 
+## [0.3.1] - 2022-02-8
+
+### Added
+
+- Added option to set veeam custom tcp port (BackupServerPort)
+- Added Volume Format to the BackupServer/Proxy section
+- Added BackupServer/Proxy Network Interface Information
+- Added process network Statistics ($InfoLevel.Infrastructure.BackupServer -ge 3)
+- Added Storage Infrastructure section
+  - Added NetApp Ontap support
+  - Added Dell Isilon support
+- Added initial Backup Job section
+  - Added Tape Backup Job information
+  - Added SureBackup Job information
+  - Added Agent Backup Job information
+
+### Changed
+
+- Migrated Sample URL to htmlpreview.github.io
+
+### Fixed
+
+- Fixes Include Veeam Network Statistics in report #13
+- Fixes Backup Server physical memory (GB) < 8 always returns true #14
+- Fixes Add Veeam Backup\Repo Network Interface Information #15
+- Fixes Add Backup Server\Repo Volume Format #16
+- Fixes Add option to set veeam custom tcp port #17
+
 ## [0.3.0] - 2022-01-30
 
 ### Added

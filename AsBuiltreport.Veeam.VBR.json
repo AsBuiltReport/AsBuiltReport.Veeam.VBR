@@ -9,7 +9,7 @@
         "ShowTableCaptions": true
     },
     "Options": {
-
+        "BackupServerPort": 9392
     },
     "InfoLevel": {
 		"_comment_": "Please refer to the AsBuiltReport project contributing guide for information about how to define InfoLevels.",
@@ -36,6 +36,16 @@
             "VI": 1,
             "PHY": 1,
             "FileShare": 1
+        },
+        "Storage": {
+            "ONTAP": 1,
+            "ISILON": 1
+        },
+        "Jobs": {
+            "Backup": 1,
+            "Tape": 1,
+            "Surebackup": 1,
+            "Agent": 1
         }
     },
     "HealthCheck": {
