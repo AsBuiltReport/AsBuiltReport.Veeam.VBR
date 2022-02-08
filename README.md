@@ -186,6 +186,15 @@ The table below outlines the default and maximum **InfoLevel** settings for each
 | ONTAP       |        1        |        2        |
 | ISILON          |        1        |        2        |
 
+The table below outlines the default and maximum **InfoLevel** settings for each Backup Jobs section.
+
+| Sub-Schema   | Default Setting | Maximum Setting |
+|--------------|:---------------:|:---------------:|
+| Backup       |        1        |        1        |
+| Tape          |        1        |        1        |
+| Surebackup          |        1        |        1        |
+| Agent          |        1        |        1        |
+
 ### Healthcheck
 
 The **Healthcheck** schema is used to toggle health checks on or off.
