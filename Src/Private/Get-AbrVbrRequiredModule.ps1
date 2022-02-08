@@ -3,11 +3,16 @@ function Get-AbrVbrRequiredModule {
     .SYNOPSIS
     Function to check if the required version of Veeam.Backup.PowerShell is installed
     .DESCRIPTION
-    Function to check if the required version of Veeam.Backup.PowerShell is installed
-    .PARAMETER Name
-    The name of the required PowerShell module
-    .PARAMETER Version
-    The version of the required PowerShell module
+        Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
+    .NOTES
+        Version:        0.3.1
+        Author:         Jonathan Colon
+        Twitter:        @jcolonfzenpr
+        Github:         rebelinux
+        Credits:        Iain Brighton (@iainbrighton) - PScribo module
+
+    .LINK
+        https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR
     #>
     [CmdletBinding()]
 

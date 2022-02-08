@@ -2,15 +2,18 @@
 function Get-AbrVbrSureBackup {
     <#
     .SYNOPSIS
-    Used by As Built Report to retrieve Veeam VBR SureBackup Information
+        Used by As Built Report to retrieve Veeam VBR SureBackup Information
     .DESCRIPTION
+        Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.3.0
+        Version:        0.3.1
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
-    .EXAMPLE
+        Credits:        Iain Brighton (@iainbrighton) - PScribo module
+
     .LINK
+        https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR
     #>
     [CmdletBinding()]
     param (
@@ -174,7 +177,7 @@ function Get-AbrVbrSureBackup {
                                                     'Isolated Network' = $SureBackupVL.NetworkMapping.IsolatedNetworkName
                                                     'Routing Between vNics' = ConvertTo-TextYN $SureBackupVL.RoutingBetweenvNicsEnabled
                                                     'Multi Host' = ConvertTo-TextYN $SureBackupVL.IsMultiHost
-                                                    'Ip Mapping Rule' = $SureBackupVL.IpMappingRule
+                                                    'Ip Mapping Rule' = "Isolated IP Address: $($SureBackupVL.IpMappingRule.IsolatedIPAddress)`r`nAccess IP Address: $($SureBackupVL.IpMappingRule.AccessIPAddress)"
                                                     'Static IP Mapping' = ConvertTo-TextYN $SureBackupVL.StaticIPMappingEnabled
                                                 }
 

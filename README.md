@@ -35,7 +35,7 @@ Please refer to the AsBuiltReport [website](https://www.asbuiltreport.com) for m
 
 ## Sample Report - Custom Style
 
-Sample Veeam VBR As Built report HTML file: [Sample Veeam VBR As-Built Report.html](https://technomyth.zenprsolutions.net/wp-content/uploads/2022/01/Veeam-VBR-As-Built-Report.html)
+Sample Veeam VBR As Built report HTML file: [Sample Veeam VBR As-Built Report.html](https://htmlpreview.github.io/?https://raw.githubusercontent.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/dev/Samples/Sample%20Veeam%20VBR%20As%20Built%20Report.html)
 
 # :beginner: Getting Started
 
@@ -131,6 +131,10 @@ The **Report** schema provides configuration of the Veeam VBR report information
 
 The **Options** schema allows certain options within the report to be toggled on or off.
 
+| Sub-Schema      | Setting      | Default | Description                                                                                                                                                                                 |
+|-----------------|--------------|---------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| BackupServerPort | TCP Port  | 9392    | Used to specify the backup service's custom port
+
 ### InfoLevel
 
 The **InfoLevel** schema allows configuration of each section of the report at a granular level. The following sections can be set.
@@ -148,7 +152,7 @@ The table below outlines the default and maximum **InfoLevel** settings for each
 
 | Sub-Schema   | Default Setting | Maximum Setting |
 |--------------|:---------------:|:---------------:|
-| BackupServer       |        1        |        2        |
+| BackupServer       |        1        |        3        |
 | Proxy          |        1        |        3        |
 | Settings         |        1        |        2        |
 | BR           |        1        |        2        |
@@ -167,7 +171,6 @@ The table below outlines the default and maximum **InfoLevel** settings for each
 | Vault          |        1        |        1        |
 | NDMP          |        1        |        1        |
 
-MediaPool
 The table below outlines the default and maximum **InfoLevel** settings for each Inventory section.
 
 | Sub-Schema   | Default Setting | Maximum Setting |
@@ -175,6 +178,22 @@ The table below outlines the default and maximum **InfoLevel** settings for each
 | VI       |        1        |        1        |
 | PHY          |        1        |        2        |
 | FileShare          |        1        |        1        |
+
+The table below outlines the default and maximum **InfoLevel** settings for each Storage Infrastructure section.
+
+| Sub-Schema   | Default Setting | Maximum Setting |
+|--------------|:---------------:|:---------------:|
+| ONTAP       |        1        |        2        |
+| ISILON          |        1        |        2        |
+
+The table below outlines the default and maximum **InfoLevel** settings for each Backup Jobs section.
+
+| Sub-Schema   | Default Setting | Maximum Setting |
+|--------------|:---------------:|:---------------:|
+| Backup       |        1        |        1        |
+| Tape          |        1        |        1        |
+| Surebackup          |        1        |        1        |
+| Agent          |        1        |        1        |
 
 ### Healthcheck
 

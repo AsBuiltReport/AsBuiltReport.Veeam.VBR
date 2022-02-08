@@ -2,15 +2,18 @@
 function Get-AbrVbrVirtualInfrastructure {
     <#
     .SYNOPSIS
-    Used by As Built Report to retrieve Veeam Virtual Infrastructure inventory
+        Used by As Built Report to retrieve Veeam Virtual Infrastructure inventory
     .DESCRIPTION
+        Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.3.0
+        Version:        0.3.1
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
-    .EXAMPLE
+        Credits:        Iain Brighton (@iainbrighton) - PScribo module
+
     .LINK
+        https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR
     #>
     [CmdletBinding()]
     param (

@@ -3,13 +3,16 @@ function Get-AbrVbrServerConnection {
     .SYNOPSIS
     Used by As Built Report to establish conection to Veeam B&R Server.
     .DESCRIPTION
+        Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.1.0
+        Version:        0.3.1
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
-    .EXAMPLE
+        Credits:        Iain Brighton (@iainbrighton) - PScribo module
+
     .LINK
+        https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR
     #>
     [CmdletBinding()]
     param (
@@ -17,7 +20,7 @@ function Get-AbrVbrServerConnection {
     )
 
     begin {
-        Write-PscriboMessage "Establishing the initial connection to the Backup Server: $($System)."
+        Write-PscriboMessage "Establishing initial connection to Backup Server: $($System)."
     }
 
     process {
@@ -30,12 +33,12 @@ function Get-AbrVbrServerConnection {
         elseif ($null -eq $OpenConnection) {
             Write-PScriboMessage "No existing veeam server connection found"
             try {
-                Write-PScriboMessage "Connecting to $($System) with provided credentials"
-                Connect-VBRServer -Server $System -Credential $Credential
+                Write-PScriboMessage "Connecting to $($System) with $($Credential.USERNAME) credentials"
+                Connect-VBRServer -Server $System -Credential $Credential -Port $Options.BackupServerPort
             }
             catch {
                 Write-PscriboMessage -IsWarning $_.Exception.Message
-                Throw "Failed to connect to Veeam B&R Host '$System' with user '$env:USERNAME'"
+                Throw "Failed to connect to Veeam Backup Server Host $($System):$($Options.BackupServerPort) with username $($Credential.USERNAME)"
             }
         }
         else {
@@ -43,21 +46,21 @@ function Get-AbrVbrServerConnection {
             Disconnect-VBRServer
             try {
                 Write-PScriboMessage "Trying to open a new connection to $($System)"
-                Connect-VBRServer -Server $System -Credential $Credential
+                Connect-VBRServer -Server $System -Credential $Credential -Port $Options.BackupServerPort
             }
             catch {
                 Write-PscriboMessage -IsWarning $_.Exception.Message
-                Throw "Failed to connect to Veeam B&R Host '$System' with user '$env:USERNAME'"
+                Throw "Failed to connect to Veeam Backup Server Host $($System):$($Options.BackupServerPort) with username $($Credential.USERNAME)"
             }
         }
         Write-PScriboMessage "Validating connection to $($System)"
         $NewConnection = (Get-VBRServerSession).Server
         if ($null -eq $NewConnection) {
             Write-PscriboMessage -IsWarning $_.Exception.Message
-            Throw "Failed to connect to Veeam BR Host '$System' with user '$env:USERNAME'"
+            Throw "Failed to connect to Veeam Backup Server Host $($System):$($Options.BackupServerPort) with username $($Credential.USERNAME)"
         }
         elseif ($NewConnection) {
-            Write-PScriboMessage "Successfully connected to $($System) VBR Server."
+            Write-PScriboMessage "Successfully connected to $($System):$($Options.BackupServerPort) Backup Server."
         }
     }
     end {}
