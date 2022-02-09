@@ -56,7 +56,7 @@ function Get-AbrVbrBackupRepository {
                                     'Name' = $BackupRepo.Name
                                     'Total Space' = "$($BackupRepo.GetContainer().CachedTotalSpace.InGigabytes) Gb"
                                     'Free Space' = "$($BackupRepo.GetContainer().CachedFreeSpace.InGigabytes) Gb"
-                                    'Space Used %' = $PercentFree
+                                    'Space Used' = $PercentFree
                                     'Status' = Switch ($BackupRepo.IsUnavailable) {
                                         'False' {'Available'}
                                         'True' {'Unavailable'}
@@ -72,8 +72,9 @@ function Get-AbrVbrBackupRepository {
 
                         if ($HealthCheck.Infrastructure.BR) {
                             $OutObj | Where-Object { $_.'Status' -eq 'Unavailable'} | Set-Style -Style Warning -Property 'Status'
-                            $OutObj | Where-Object { $_.'Space Used %' -ge 75} | Set-Style -Style Warning -Property 'Space Used %'
-                            $OutObj | Where-Object { $_.'Space Used %' -ge 90} | Set-Style -Style Critical -Property 'Space Used %'
+                            if ([int]([regex]::Matches($OutObj.'Space Used', "\d+(?!.*\d+)").value) -ge 75) { $OutObj | Set-Style -Style Warning -Property 'Space Used' }
+                            if ([int]([regex]::Matches($OutObj.'Space Used', "\d+(?!.*\d+)").value) -ge 90) { $OutObj | Set-Style -Style Critical -Property 'Space Used' }
+
                         }
 
                         $TableParams = @{

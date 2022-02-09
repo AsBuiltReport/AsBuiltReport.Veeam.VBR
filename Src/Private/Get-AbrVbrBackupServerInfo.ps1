@@ -167,7 +167,6 @@ function Get-AbrVbrBackupServerInfo {
                                                 $HostDisks = Invoke-Command -Session $PssSession -ScriptBlock { Get-Disk | Where-Object { $_.BusType -ne "iSCSI" -and $_.BusType -ne "Fibre Channel" } }
                                                 if ($HostDisks) {
                                                     Section -Style Heading5 'Local Disks' {
-                                                        Blankline
                                                         $LocalDiskReport = @()
                                                         ForEach ($Disk in $HostDisks) {
                                                             try {
@@ -206,7 +205,6 @@ function Get-AbrVbrBackupServerInfo {
                                                 $SanDisks = Invoke-Command -Session $PssSession -ScriptBlock { Get-Disk | Where-Object { $_.BusType -Eq "iSCSI" -or $_.BusType -Eq "Fibre Channel" } }
                                                 if ($SanDisks) {
                                                     Section -Style Heading5 'SAN Disks' {
-                                                        Blankline
                                                         $SanDiskReport = @()
                                                         ForEach ($Disk in $SanDisks) {
                                                             try {
