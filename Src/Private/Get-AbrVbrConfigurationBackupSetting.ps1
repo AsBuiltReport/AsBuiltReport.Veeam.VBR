@@ -34,10 +34,10 @@ function Get-AbrVbrConfigurationBackupSetting {
                         try {
                             $BackupSettings = Get-VBRConfigurationBackupJob
                             if ($BackupSettings.ScheduleOptions.Type -like "Daily") {
-                                $ScheduleOptions = "Type: $($BackupSettings.ScheduleOptions.Type)`r`nPeriod: $($BackupSettings.ScheduleOptions.DailyOptions.Period)`r`nDay Of Week: $($BackupSettings.ScheduleOptions.DailyOptions.DayOfWeek)"
+                                $ScheduleOptions = "Type: $($BackupSettings.ScheduleOptions.DailyOptions.Type)`r`nPeriod: $($BackupSettings.ScheduleOptions.DailyOptions.Period)`r`nDay Of Week: $($BackupSettings.ScheduleOptions.DailyOptions.DayOfWeek)"
                             }
                             elseif ($BackupSettings.ScheduleOptions.Type -like "Monthly") {
-                                $ScheduleOptions = "Period: $($BackupSettings.ScheduleOptions.MonthlyOptions.Period)`r`nDay Number In Month: $($BackupSettings.ScheduleOptions.MonthlyOptions.DayNumberInMonth)`r`nDay of Week $($BackupSettings.ScheduleOptions.MonthlyOptions.DayOfWeek)`r`nDay of Month $($BackupSettings.ScheduleOptions.MonthlyOptions.DayOfMonth)"
+                                $ScheduleOptions = "Period: $($BackupSettings.ScheduleOptions.MonthlyOptions.Period)`r`nDay Number In Month: $($BackupSettings.ScheduleOptions.MonthlyOptions.DayNumberInMonth)`r`nDay of Week: $($BackupSettings.ScheduleOptions.MonthlyOptions.DayOfWeek)`r`nDay of Month: $($BackupSettings.ScheduleOptions.MonthlyOptions.DayOfMonth)"
                             }
                             $inObj = [ordered] @{
                                 'Name' = $BackupSettings.Name
