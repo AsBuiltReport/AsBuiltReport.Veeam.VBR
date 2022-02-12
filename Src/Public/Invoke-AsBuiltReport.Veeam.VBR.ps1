@@ -57,6 +57,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                         Section -Style Heading3 'General Options' {
                             Paragraph "The following section details the Veeam Veaam B&R general setting. General settings are applied to all jobs, backup infrastructure components and other objects managed by the backup server."
                             BlankLine
+                            Get-AbrVbrConfigurationBackupSetting
                             Get-AbrVbrEmailNotificationSetting
                             Get-AbrVbrIOControlSetting
                             Get-AbrVbrBackupServerCertificate
