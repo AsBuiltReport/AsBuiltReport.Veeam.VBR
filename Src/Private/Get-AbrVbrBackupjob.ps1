@@ -66,6 +66,65 @@ function Get-AbrVbrBackupjob {
                             $TableParams['Caption'] = "- $($TableParams.Name)"
                         }
                         $OutObj | Table @TableParams
+                        try {
+                            if ((Get-VBRJob -WarningAction Ignore).count -gt 0) {
+                                Section -Style Heading3 'Backup Jobs Configuration' {
+                                    Paragraph "The following section details per backup jobs configuration."
+                                    BlankLine
+                                    $Bkjobs = Get-VBRJob -WarningAction Ignore | Where-Object {$_.TypeToString -eq "VMware Backup"}
+                                    foreach ($Bkjob in $Bkjobs) {
+                                        Section -Style Heading3 "$($Bkjob.Name) Configuration" {
+                                            $OutObj = @()
+                                            try {
+                                                Write-PscriboMessage "Discovered $($Bkjob.Name) location."
+                                                if ($Bkjob.ScheduleOptions.OptionsDaily.Enabled -eq "True") {
+                                                    $ScheduleType = "Daily"
+                                                    $Schedule = "Kind: $($Bkjob.ScheduleOptions.OptionsDaily.Kind),`r`nDays: $($Bkjob.ScheduleOptions.OptionsDaily.DaysSrv)"
+                                                }
+                                                elseif ($Bkjob.ScheduleOptions.OptionsMonthly.Enabled -eq "True") {
+                                                    $ScheduleType = "Monthly"
+                                                    $Schedule = "Day Of Month: $($Bkjob.ScheduleOptions.OptionsMonthly.DayOfMonth),`r`nDay Number In Month: $($Bkjob.ScheduleOptions.OptionsMonthly.DayNumberInMonth),`r`nDay Of Week: $($Bkjob.ScheduleOptions.OptionsMonthly.DayOfWeek)"
+                                                }
+                                                elseif ($Bkjob.ScheduleOptions.OptionsPeriodically.Enabled -eq "True") {
+                                                    $ScheduleType = "Hours"
+                                                    $Schedule = "Full Period: $($Bkjob.ScheduleOptions.OptionsPeriodically.FullPeriod),`r`nHourly Offset: $($Bkjob.ScheduleOptions.OptionsPeriodically.HourlyOffset),`r`nUnit: $($Bkjob.ScheduleOptions.OptionsPeriodically.Unit)"
+                                                }
+                                                $inObj = [ordered] @{
+                                                    'Name' = $Bkjob.Name
+                                                    'SourceType' = $Bkjob.SourceType
+                                                    'Description' = $Bkjob.Description
+                                                    'Backup Platform' = $Bkjob.BackupPlatform
+                                                    'Retry Failed item' = $Bkjob.ScheduleOptions.RetryTimes
+                                                    'Wait before each retry' = "$($Bkjob.ScheduleOptions.RetryTimeout)/min"
+                                                    'Linked Jobs' = $Bkjob.LinkedJobs
+                                                    'Backup Window' = ConvertTo-TextYN $Bkjob.ScheduleOptions.OptionsBackupWindow.IsEnabled
+                                                    'Shedule type' = $ScheduleType
+                                                    'Shedule Options' = $Schedule
+                                                    'Start Time' =  $Bkjob.ScheduleOptions.OptionsDaily.TimeLocal.ToShorttimeString()
+                                                }
+                                                $OutObj = [pscustomobject]$inobj
+
+                                                $TableParams = @{
+                                                    Name = "Backup Jobs Configuration - $($Bkjob.Name)"
+                                                    List = $true
+                                                    ColumnWidths = 40, 60
+                                                }
+                                                if ($Report.ShowTableCaptions) {
+                                                    $TableParams['Caption'] = "- $($TableParams.Name)"
+                                                }
+                                                $OutObj | Table @TableParams
+                                            }
+                                            catch {
+                                                Write-PscriboMessage -IsWarning $_.Exception.Message
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        catch {
+                            Write-PscriboMessage -IsWarning $_.Exception.Message
+                        }
                     }
                 }
             }
