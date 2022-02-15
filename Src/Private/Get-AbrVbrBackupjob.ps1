@@ -155,46 +155,82 @@ function Get-AbrVbrBackupjob {
                                                     Write-PscriboMessage -IsWarning $_.Exception.Message
                                                 }
                                             }
-                                                                                        Section -Style Heading6 "Schedule Options" {
+                                            Section -Style Heading6 "Guest Processing Options" {
                                                 $OutObj = @()
                                                 try {
-                                                    Write-PscriboMessage "Discovered $($Bkjob.Name) backup job."
-                                                    if ($Bkjob.ScheduleOptions.OptionsDaily.Enabled -eq "True") {
-                                                        $ScheduleType = "Daily"
-                                                        $Schedule = "Kind: $($Bkjob.ScheduleOptions.OptionsDaily.Kind),`r`nDays: $($Bkjob.ScheduleOptions.OptionsDaily.DaysSrv)"
-                                                    }
-                                                    elseif ($Bkjob.ScheduleOptions.OptionsMonthly.Enabled -eq "True") {
-                                                        $ScheduleType = "Monthly"
-                                                        $Schedule = "Day Of Month: $($Bkjob.ScheduleOptions.OptionsMonthly.DayOfMonth),`r`nDay Number In Month: $($Bkjob.ScheduleOptions.OptionsMonthly.DayNumberInMonth),`r`nDay Of Week: $($Bkjob.ScheduleOptions.OptionsMonthly.DayOfWeek)"
-                                                    }
-                                                    elseif ($Bkjob.ScheduleOptions.OptionsPeriodically.Enabled -eq "True") {
-                                                        $ScheduleType = "Hours"
-                                                        $Schedule = "Full Period: $($Bkjob.ScheduleOptions.OptionsPeriodically.FullPeriod),`r`nHourly Offset: $($Bkjob.ScheduleOptions.OptionsPeriodically.HourlyOffset),`r`nUnit: $($Bkjob.ScheduleOptions.OptionsPeriodically.Unit)"
-                                                    }
-                                                    $inObj = [ordered] @{
-                                                        'Name' = $Bkjob.Name
-                                                        'Retry Failed item' = $Bkjob.ScheduleOptions.RetryTimes
-                                                        'Wait before each retry' = "$($Bkjob.ScheduleOptions.RetryTimeout)/min"
-                                                        'Backup Window' = ConvertTo-TextYN $Bkjob.ScheduleOptions.OptionsBackupWindow.IsEnabled
-                                                        'Shedule type' = $ScheduleType
-                                                        'Shedule Options' = $Schedule
-                                                        'Start Time' =  $Bkjob.ScheduleOptions.OptionsDaily.TimeLocal.ToShorttimeString()
-                                                        'Latest Run' =  $Bkjob.LatestRunLocal
-                                                    }
-                                                    $OutObj = [pscustomobject]$inobj
+                                                    $VSSObjs = Get-VBRJobObject -Job $Bkjob.Name | Where-Object {$_.Type -eq "Include" -or $_.Type -eq "VssChild"}
+                                                    foreach ($VSSObj in $VSSObjs) {
+                                                        $inObj = [ordered] @{
+                                                            'Name' = $VSSObj.Name
+                                                            'Enabled' = ConvertTo-TextYN $Bkjob.VssOptions.Enabled
+                                                            'Ignore Errors' = ConvertTo-TextYN $VSSObj.VssOptions.IgnoreErrors
+                                                            'Guest Proxy Auto Detect' = ConvertTo-TextYN  $VSSObj.VssOptions.GuestProxyAutoDetect
+                                                            'Default Credential' = Get-VBRCredentials | Where-Object { $_.Id -eq $Bkjob.VssOptions.WinCredsId.Guid}
+                                                            'Object Credential' = Switch ($VSSObj.VssOptions.WinCredsId.Guid) {
+                                                                '00000000-0000-0000-0000-000000000000' {'Default Credential'}
+                                                                default {Get-VBRCredentials | Where-Object { $_.Id -eq $VSSObj.VssOptions.WinCredsId.Guid}}
+                                                            }
+                                                            'Application Processing' = ConvertTo-TextYN $VSSObj.VssOptions.VssSnapshotOptions.ApplicationProcessingEnabled
+                                                            'Use Persistent Guest Agent' = ConvertTo-TextYN $VSSObj.VssOptions.VssSnapshotOptions.UsePersistentGuestAgent
+                                                        }
+                                                        $OutObj = [pscustomobject]$inobj
 
-                                                    $TableParams = @{
-                                                        Name = "Backup Jobs Configuration - $($Bkjob.Name)"
-                                                        List = $true
-                                                        ColumnWidths = 40, 60
+                                                        $TableParams = @{
+                                                            Name = "Guest Processing Options - $($VSSObj.Name)"
+                                                            List = $true
+                                                            ColumnWidths = 40, 60
+                                                        }
+                                                        if ($Report.ShowTableCaptions) {
+                                                            $TableParams['Caption'] = "- $($TableParams.Name)"
+                                                        }
+                                                        $OutObj | Table @TableParams
                                                     }
-                                                    if ($Report.ShowTableCaptions) {
-                                                        $TableParams['Caption'] = "- $($TableParams.Name)"
-                                                    }
-                                                    $OutObj | Table @TableParams
                                                 }
                                                 catch {
                                                     Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                }
+                                            }
+                                            if ($Bkjob.GetScheduleOptions().NextRun) {
+                                                Section -Style Heading6 "Schedule Options" {
+                                                    $OutObj = @()
+                                                    try {
+                                                        Write-PscriboMessage "Discovered $($Bkjob.Name) Schedule Options."
+                                                        if ($Bkjob.ScheduleOptions.OptionsDaily.Enabled -eq "True") {
+                                                            $ScheduleType = "Daily"
+                                                            $Schedule = "Kind: $($Bkjob.ScheduleOptions.OptionsDaily.Kind),`r`nDays: $($Bkjob.ScheduleOptions.OptionsDaily.DaysSrv)"
+                                                        }
+                                                        elseif ($Bkjob.ScheduleOptions.OptionsMonthly.Enabled -eq "True") {
+                                                            $ScheduleType = "Monthly"
+                                                            $Schedule = "Day Of Month: $($Bkjob.ScheduleOptions.OptionsMonthly.DayOfMonth),`r`nDay Number In Month: $($Bkjob.ScheduleOptions.OptionsMonthly.DayNumberInMonth),`r`nDay Of Week: $($Bkjob.ScheduleOptions.OptionsMonthly.DayOfWeek)"
+                                                        }
+                                                        elseif ($Bkjob.ScheduleOptions.OptionsPeriodically.Enabled -eq "True") {
+                                                            $ScheduleType = "Hours"
+                                                            $Schedule = "Full Period: $($Bkjob.ScheduleOptions.OptionsPeriodically.FullPeriod),`r`nHourly Offset: $($Bkjob.ScheduleOptions.OptionsPeriodically.HourlyOffset),`r`nUnit: $($Bkjob.ScheduleOptions.OptionsPeriodically.Unit)"
+                                                        }
+                                                        $inObj = [ordered] @{
+                                                            'Retry Failed item' = $Bkjob.ScheduleOptions.RetryTimes
+                                                            'Wait before each retry' = "$($Bkjob.ScheduleOptions.RetryTimeout)/min"
+                                                            'Backup Window' = ConvertTo-TextYN $Bkjob.ScheduleOptions.OptionsBackupWindow.IsEnabled
+                                                            'Shedule type' = $ScheduleType
+                                                            'Shedule Options' = $Schedule
+                                                            'Start Time' =  $Bkjob.ScheduleOptions.OptionsDaily.TimeLocal.ToShorttimeString()
+                                                            'Latest Run' =  $Bkjob.LatestRunLocal
+                                                        }
+                                                        $OutObj = [pscustomobject]$inobj
+
+                                                        $TableParams = @{
+                                                            Name = "Schedule Options - $($Bkjob.Name)"
+                                                            List = $true
+                                                            ColumnWidths = 40, 60
+                                                        }
+                                                        if ($Report.ShowTableCaptions) {
+                                                            $TableParams['Caption'] = "- $($TableParams.Name)"
+                                                        }
+                                                        $OutObj | Table @TableParams
+                                                    }
+                                                    catch {
+                                                        Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                    }
                                                 }
                                             }
                                         }
