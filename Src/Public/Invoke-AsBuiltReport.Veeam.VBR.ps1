@@ -173,6 +173,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                         Write-PScriboMessage "Backup Jobs InfoLevel set at $($InfoLevel.Jobs.Backup)."
                         if ($InfoLevel.Jobs.Backup -ge 1) {
                             Get-AbrVbrBackupjob
+                            Get-AbrVbrBackupjobVMware
                         }
                         Write-PScriboMessage "Tape Jobs InfoLevel set at $($InfoLevel.Jobs.Tape)."
                         if ($InfoLevel.Jobs.Tape -ge 1) {
