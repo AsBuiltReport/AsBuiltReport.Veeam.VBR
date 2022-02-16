@@ -74,10 +74,10 @@ function Get-AbrVbrBackupjob {
                                     $Bkjobs = Get-VBRJob -WarningAction Ignore | Where-Object {$_.TypeToString -eq "VMware Backup"}
                                     foreach ($Bkjob in $Bkjobs) {
                                         Section -Style Heading5 "$($Bkjob.Name) Configuration" {
-                                            Section -Style Heading6 "Object to Backup" {
+                                            Section -Style Heading6 "Virtual Machines" {
                                                 $OutObj = @()
                                                 try {
-                                                    foreach ($OBJ in $Bkjob.GetViOijs()) {
+                                                    foreach ($OBJ in ($Bkjob.GetViOijs() | Where-Object {$_.Type -eq "Include" -or $_.Type -eq "Exclude"} )) {
                                                         Write-PscriboMessage "Discovered $($OBJ.Name) object to backup."
                                                         $inObj = [ordered] @{
                                                             'Name' = $OBJ.Name
@@ -85,7 +85,6 @@ function Get-AbrVbrBackupjob {
                                                             'Role' = $OBJ.Type
                                                             'Location' = $OBJ.Location
                                                             'Approx Size' = $OBJ.ApproxSizeString
-                                                            'Order' = $OBJ.OrderNo
                                                             'Disk Filter Mode' = $OBJ.DiskFilterInfo.Mode
                                                         }
                                                         $OutObj = [pscustomobject]$inobj
@@ -105,7 +104,7 @@ function Get-AbrVbrBackupjob {
                                                     Write-PscriboMessage -IsWarning $_.Exception.Message
                                                 }
                                             }
-                                            Section -Style Heading6 "Storage Options" {
+                                            Section -Style Heading6 "Storage" {
                                                 $OutObj = @()
                                                 try {
                                                     Write-PscriboMessage "Discovered $($Bkjob.Name) storage options."
@@ -155,7 +154,41 @@ function Get-AbrVbrBackupjob {
                                                     Write-PscriboMessage -IsWarning $_.Exception.Message
                                                 }
                                             }
-                                            Section -Style Heading6 "Guest Processing Options" {
+                                            $SecondaryTargets = [Veeam.Backup.Core.CBackupJob]::GetSecondDestinationJobs($Bkjob.Id) | Where-Object {$_.JobType -ne 'SimpleBackupCopyWorker'}
+                                            if ($SecondaryTargets) {
+                                                Section -Style Heading6 "Secondary Target" {
+                                                    $OutObj = @()
+                                                    try {
+                                                        foreach ($SecondaryTarget in $SecondaryTargets) {
+                                                            try {
+                                                                $inObj = [ordered] @{
+                                                                    'Job Name' = $SecondaryTarget.Name
+                                                                    'Type' = $SecondaryTarget.TypeToString
+                                                                    'State' = $SecondaryTarget.info.LatestStatus
+                                                                    'Description' = $SecondaryTarget.Description
+                                                                }
+                                                                $OutObj += [pscustomobject]$inobj
+                                                            }
+                                                            catch {
+                                                                Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                            }
+                                                        }
+                                                        $TableParams = @{
+                                                            Name = "Secondary Destination Jobs - $($Bkjob.Name)"
+                                                            List = $false
+                                                            ColumnWidths = 25, 25, 15, 35
+                                                        }
+                                                        if ($Report.ShowTableCaptions) {
+                                                            $TableParams['Caption'] = "- $($TableParams.Name)"
+                                                        }
+                                                        $OutObj | Table @TableParams
+                                                    }
+                                                    catch {
+                                                        Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                    }
+                                                }
+                                            }
+                                            Section -Style Heading6 "Guest Processing" {
                                                 $OutObj = @()
                                                 try {
                                                     $VSSObjs = Get-VBRJobObject -Job $Bkjob.Name | Where-Object {$_.Type -eq "Include" -or $_.Type -eq "VssChild"}
@@ -191,7 +224,7 @@ function Get-AbrVbrBackupjob {
                                                 }
                                             }
                                             if ($Bkjob.GetScheduleOptions().NextRun) {
-                                                Section -Style Heading6 "Schedule Options" {
+                                                Section -Style Heading6 "Schedule" {
                                                     $OutObj = @()
                                                     try {
                                                         Write-PscriboMessage "Discovered $($Bkjob.Name) Schedule Options."
