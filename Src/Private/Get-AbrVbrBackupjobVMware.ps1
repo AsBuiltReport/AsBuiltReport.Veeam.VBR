@@ -45,10 +45,10 @@ function Get-AbrVbrBackupjobVMware {
                                                 $inObj = [ordered] @{
                                                     'Name' = $Bkjob.Name
                                                     'Total Backup Size' = ConvertTo-FileSizeString $CommonInfo.IncludedSize
-                                                    'Description' = $CommonInfo.CommonInfo.Description
-                                                    'Modified By' = $CommonInfo.CommonInfo.ModifiedBy.FullName
                                                     'Target Address' = $CommonInfo.TargetDir
                                                     'Target File' = $CommonInfo.TargetFile
+                                                    'Description' = $CommonInfo.CommonInfo.Description
+                                                    'Modified By' = $CommonInfo.CommonInfo.ModifiedBy.FullName
                                                 }
                                                 $OutObj = [pscustomobject]$inobj
                                             }
@@ -100,7 +100,7 @@ function Get-AbrVbrBackupjobVMware {
                                             if ($Report.ShowTableCaptions) {
                                                 $TableParams['Caption'] = "- $($TableParams.Name)"
                                             }
-                                            $OutObj | Table @TableParams
+                                            $OutObj | Sort-Object -Property 'Name' | Table @TableParams
                                         }
                                         catch {
                                             Write-PscriboMessage -IsWarning $_.Exception.Message
@@ -227,6 +227,7 @@ function Get-AbrVbrBackupjobVMware {
                                         $OutObj = @()
                                         try {
                                             foreach ($SecondaryTarget in $SecondaryTargets) {
+                                                Write-PscriboMessage "Discovered $($Bkjob.Name) secondary target."
                                                 try {
                                                     $inObj = [ordered] @{
                                                         'Job Name' = $SecondaryTarget.Name
@@ -248,7 +249,7 @@ function Get-AbrVbrBackupjobVMware {
                                             if ($Report.ShowTableCaptions) {
                                                 $TableParams['Caption'] = "- $($TableParams.Name)"
                                             }
-                                            $OutObj | Table @TableParams
+                                            $OutObj | Sort-Object -Property 'Job Name' | Table @TableParams
                                         }
                                         catch {
                                             Write-PscriboMessage -IsWarning $_.Exception.Message
@@ -261,6 +262,7 @@ function Get-AbrVbrBackupjobVMware {
                                         try {
                                             $VSSObjs = Get-VBRJobObject -Job $Bkjob.Name | Where-Object {$_.Type -eq "Include" -or $_.Type -eq "VssChild"}
                                             foreach ($VSSObj in $VSSObjs) {
+                                                Write-PscriboMessage "Discovered $($Bkjob.Name) guest processing."
                                                 $inObj = [ordered] @{
                                                     'Name' = $VSSObj.Name
                                                     'Enabled' = ConvertTo-TextYN $Bkjob.VssOptions.Enabled
@@ -295,11 +297,11 @@ function Get-AbrVbrBackupjobVMware {
                                         }
                                     }
                                 }
-                                if ($Bkjob.GetScheduleOptions().NextRun) {
+                                if ($Bkjob.GetScheduleOptions().NextRun -and $Bkjob.ScheduleOptions.OptionsContinuous.Enabled -ne "True") {
                                     Section -Style Heading5 "Schedule" {
                                         $OutObj = @()
                                         try {
-                                            Write-PscriboMessage "Discovered $($Bkjob.Name) Schedule Options."
+                                            Write-PscriboMessage "Discovered $($Bkjob.Name) schedule options."
                                             if ($Bkjob.ScheduleOptions.OptionsDaily.Enabled -eq "True") {
                                                 $ScheduleType = "Daily"
                                                 $Schedule = "Kind: $($Bkjob.ScheduleOptions.OptionsDaily.Kind),`r`nDays: $($Bkjob.ScheduleOptions.OptionsDaily.DaysSrv)"
