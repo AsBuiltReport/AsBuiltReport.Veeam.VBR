@@ -196,9 +196,12 @@ function Get-AbrVbrBackupjobVMware {
                                             'Enable Full Backup' = ConvertTo-TextYN $Bkjob.BackupStorageOptions.EnableFullBackup
                                             'Integrity Checks' = ConvertTo-TextYN $Bkjob.BackupStorageOptions.EnableIntegrityChecks
                                             'Storage Encryption' = ConvertTo-TextYN $Bkjob.BackupStorageOptions.StorageEncryptionEnabled
-                                            'Backup Mode' = $Bkjob.Options.BackupTargetOptions.Algorithm
-                                            'Full Backup Schedule Kind' = $Bkjob.Options.BackupTargetOptions.FullBackupScheduleKind
-                                            'Full Backup Days' = $Bkjob.Options.BackupTargetOptions.FullBackupDays
+                                            'Backup Mode' = Switch ($Bkjob.Options.BackupTargetOptions.Algorithm) {
+                                                'Syntethic' {"Reverse Incremental"}
+                                                'Increment' {'Incremental'}
+                                            }
+                                            'Active Full Backup Schedule Kind' = $Bkjob.Options.BackupTargetOptions.FullBackupScheduleKind
+                                            'Active Full Backup Days' = $Bkjob.Options.BackupTargetOptions.FullBackupDays
                                             'Transform Full To Syntethic' = ConvertTo-TextYN $Bkjob.Options.BackupTargetOptions.TransformFullToSyntethic
                                             'Transform Increments To Syntethic' = ConvertTo-TextYN $Bkjob.Options.BackupTargetOptions.TransformIncrementsToSyntethic
                                             'Transform To Syntethic Days' = $Bkjob.Options.BackupTargetOptions.TransformToSyntethicDays
@@ -216,6 +219,39 @@ function Get-AbrVbrBackupjobVMware {
                                             $TableParams['Caption'] = "- $($TableParams.Name)"
                                         }
                                         $OutObj | Table @TableParams
+                                        if ($InfoLevel.Jobs.Backup -ge 2) {
+                                            Section -Style Heading6 "Advanced Settings (Maintenance)" {
+                                                $OutObj = @()
+                                                try {
+                                                    Write-PscriboMessage "Discovered $($Bkjob.Name) maintenance options."
+                                                    $inObj = [ordered] @{
+                                                        'Storage-Level Corruption Guard (SLCG)' = ConvertTo-TextYN $Bkjob.Options.GenerationPolicy.EnableRechek
+                                                        'SLCG Schedule Type' = $Bkjob.Options.GenerationPolicy.RecheckScheduleKind
+                                                        'SLCG Schedule Day' = $Bkjob.Options.GenerationPolicy.RecheckDays
+                                                        'SLCG Backup Monthly Schedule' = "Day Of Week: $($Bkjob.Options.GenerationPolicy.RecheckBackupMonthlyScheduleOptions.DayOfWeek)`r`nDay Number In Month: $($Bkjob.Options.GenerationPolicy.RecheckBackupMonthlyScheduleOptions.DayNumberInMonth)`r`nDay of Month: $($Bkjob.Options.GenerationPolicy.RecheckBackupMonthlyScheduleOptions.DayOfMonth)`r`nMonths: $($Bkjob.Options.GenerationPolicy.RecheckBackupMonthlyScheduleOptions.Months)"
+                                                        'Defragment and Compact Full Backup' = ConvertTo-TextYN $Bkjob.Options.GenerationPolicy.EnableCompactFull
+                                                        'Schedule Type' = $Bkjob.Options.GenerationPolicy.CompactFullBackupScheduleKind
+                                                        'Schedule Day' = $Bkjob.Options.GenerationPolicy.CompactFullBackupDays
+                                                        'Backup Monthly Schedule' = "Day Of Week: $($Bkjob.Options.GenerationPolicy.CompactFullBackupMonthlyScheduleOptions.DayOfWeek)`r`nDay Number In Month: $($Bkjob.Options.GenerationPolicy.CompactFullBackupMonthlyScheduleOptions.DayNumberInMonth)`r`nDay of Month: $($Bkjob.Options.GenerationPolicy.CompactFullBackupMonthlyScheduleOptions.DayOfMonth)`r`nMonths: $($Bkjob.Options.GenerationPolicy.CompactFullBackupMonthlyScheduleOptions.Months)"
+                                                        'Remove deleted item data after' = $Bkjob.Options.BackupStorageOptions.RetainDays
+                                                    }
+                                                    $OutObj = [pscustomobject]$inobj
+
+                                                    $TableParams = @{
+                                                        Name = "Advanced Settings (Maintenance) - $($Bkjob.Name)"
+                                                        List = $true
+                                                        ColumnWidths = 40, 60
+                                                    }
+                                                    if ($Report.ShowTableCaptions) {
+                                                        $TableParams['Caption'] = "- $($TableParams.Name)"
+                                                    }
+                                                    $OutObj | Table @TableParams
+                                                }
+                                                catch {
+                                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                }
+                                            }
+                                        }
                                     }
                                     catch {
                                         Write-PscriboMessage -IsWarning $_.Exception.Message
