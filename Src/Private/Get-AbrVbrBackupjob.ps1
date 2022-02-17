@@ -47,7 +47,11 @@ function Get-AbrVbrBackupjob {
                                 $inObj = [ordered] @{
                                     'Name' = $Bkjob.Name
                                     'Type' = $Bkjob.TypeToString
-                                    'Latest Status' = $Bkjob.info.LatestStatus
+                                    'Status' = Switch ($Bkjob.IsScheduleEnabled) {
+                                        $False {'Disabled'}
+                                        $True {'Enabled'}
+                                    }
+                                    'Latest Result' = $Bkjob.info.LatestStatus
                                     'Target Repository' = $Target
                                 }
                                 $OutObj += [pscustomobject]$inobj
@@ -60,7 +64,7 @@ function Get-AbrVbrBackupjob {
                         $TableParams = @{
                             Name = "Backup Jobs - $(((Get-VBRServerSession).Server).ToString().ToUpper().Split(".")[0])"
                             List = $false
-                            ColumnWidths = 30, 25, 15, 30
+                            ColumnWidths = 25, 20, 15, 15, 25
                         }
                         if ($Report.ShowTableCaptions) {
                             $TableParams['Caption'] = "- $($TableParams.Name)"
