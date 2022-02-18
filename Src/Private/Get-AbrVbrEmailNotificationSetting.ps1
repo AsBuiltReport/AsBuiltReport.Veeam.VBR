@@ -28,7 +28,6 @@ function Get-AbrVbrEmailNotificationSetting {
         try {
             if ((Get-VBRMailNotificationConfiguration).count -gt 0) {
                 Section -Style Heading4 'Email Notification Settings' {
-                    BlankLine
                     $OutObj = @()
                     if ((Get-VBRServerSession).Server) {
                         try {
