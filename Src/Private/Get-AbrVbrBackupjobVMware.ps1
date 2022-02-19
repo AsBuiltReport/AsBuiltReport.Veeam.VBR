@@ -219,7 +219,7 @@ function Get-AbrVbrBackupjobVMware {
                                             $TableParams['Caption'] = "- $($TableParams.Name)"
                                         }
                                         $OutObj | Table @TableParams
-                                        if ($InfoLevel.Jobs.Backup -ge 2) {
+                                        if ($InfoLevel.Jobs.Backup -ge 2 -and ($Bkjob.Options.GenerationPolicy.EnableRechek -or $Bkjob.Options.GenerationPolicy.EnableCompactFull)) {
                                             Section -Style Heading6 "Advanced Settings (Maintenance)" {
                                                 $OutObj = @()
                                                 try {
@@ -229,16 +229,63 @@ function Get-AbrVbrBackupjobVMware {
                                                         'SLCG Schedule Type' = $Bkjob.Options.GenerationPolicy.RecheckScheduleKind
                                                         'SLCG Schedule Day' = $Bkjob.Options.GenerationPolicy.RecheckDays
                                                         'SLCG Backup Monthly Schedule' = "Day Of Week: $($Bkjob.Options.GenerationPolicy.RecheckBackupMonthlyScheduleOptions.DayOfWeek)`r`nDay Number In Month: $($Bkjob.Options.GenerationPolicy.RecheckBackupMonthlyScheduleOptions.DayNumberInMonth)`r`nDay of Month: $($Bkjob.Options.GenerationPolicy.RecheckBackupMonthlyScheduleOptions.DayOfMonth)`r`nMonths: $($Bkjob.Options.GenerationPolicy.RecheckBackupMonthlyScheduleOptions.Months)"
-                                                        'Defragment and Compact Full Backup' = ConvertTo-TextYN $Bkjob.Options.GenerationPolicy.EnableCompactFull
-                                                        'Schedule Type' = $Bkjob.Options.GenerationPolicy.CompactFullBackupScheduleKind
-                                                        'Schedule Day' = $Bkjob.Options.GenerationPolicy.CompactFullBackupDays
-                                                        'Backup Monthly Schedule' = "Day Of Week: $($Bkjob.Options.GenerationPolicy.CompactFullBackupMonthlyScheduleOptions.DayOfWeek)`r`nDay Number In Month: $($Bkjob.Options.GenerationPolicy.CompactFullBackupMonthlyScheduleOptions.DayNumberInMonth)`r`nDay of Month: $($Bkjob.Options.GenerationPolicy.CompactFullBackupMonthlyScheduleOptions.DayOfMonth)`r`nMonths: $($Bkjob.Options.GenerationPolicy.CompactFullBackupMonthlyScheduleOptions.Months)"
+                                                        'Defragment and Compact Full Backup (DCFB)' = ConvertTo-TextYN $Bkjob.Options.GenerationPolicy.EnableCompactFull
+                                                        'DCFB Schedule Type' = $Bkjob.Options.GenerationPolicy.CompactFullBackupScheduleKind
+                                                        'DCFB Schedule Day' = $Bkjob.Options.GenerationPolicy.CompactFullBackupDays
+                                                        'DCFB Backup Monthly Schedule' = "Day Of Week: $($Bkjob.Options.GenerationPolicy.CompactFullBackupMonthlyScheduleOptions.DayOfWeek)`r`nDay Number In Month: $($Bkjob.Options.GenerationPolicy.CompactFullBackupMonthlyScheduleOptions.DayNumberInMonth)`r`nDay of Month: $($Bkjob.Options.GenerationPolicy.CompactFullBackupMonthlyScheduleOptions.DayOfMonth)`r`nMonths: $($Bkjob.Options.GenerationPolicy.CompactFullBackupMonthlyScheduleOptions.Months)"
                                                         'Remove deleted item data after' = $Bkjob.Options.BackupStorageOptions.RetainDays
                                                     }
                                                     $OutObj = [pscustomobject]$inobj
 
                                                     $TableParams = @{
                                                         Name = "Advanced Settings (Maintenance) - $($Bkjob.Name)"
+                                                        List = $true
+                                                        ColumnWidths = 40, 60
+                                                    }
+                                                    if ($Report.ShowTableCaptions) {
+                                                        $TableParams['Caption'] = "- $($TableParams.Name)"
+                                                    }
+                                                    $OutObj | Table @TableParams
+                                                }
+                                                catch {
+                                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                }
+                                            }
+                                        }
+                                        if ($InfoLevel.Jobs.Backup -ge 2) {
+                                            Section -Style Heading6 "Advanced Settings (Storage)" {
+                                                $OutObj = @()
+                                                try {
+                                                    Write-PscriboMessage "Discovered $($Bkjob.Name) storage options."
+                                                    $inObj = [ordered] @{
+                                                        'Inline Data Deduplication' = ConvertTo-TextYN $Bkjob.Options.BackupStorageOptions.EnableDeduplication
+                                                        'Exclude Swap Files Block' = ConvertTo-TextYN $Bkjob.ViSourceOptions.ExcludeSwapFile
+                                                        'Exclude Deleted Files Block' = ConvertTo-TextYN $Bkjob.ViSourceOptions.DirtyBlocksNullingEnabled
+                                                        'Compression Level' = Switch ($Bkjob.Options.BackupStorageOptions.CompressionLevel) {
+                                                            0 {'NONE'}
+                                                            -1 {'AUTO'}
+                                                            4 {'DEDUPE_friendly'}
+                                                            5 {'OPTIMAL (Default)'}
+                                                            6 {'High'}
+                                                            9 {'EXTREME'}
+                                                        }
+                                                        'Storage optimization' = Switch ($Bkjob.Options.BackupStorageOptions.StgBlockSize) {
+                                                            'KbBlockSize1024' {'Local target'}
+                                                            'KbBlockSize512' {'LAN target'}
+                                                            'KbBlockSize256' {'WAN target'}
+                                                            'KbBlockSize4096' {'Local target (large blocks)'}
+                                                            default {$Bkjob.Options.BackupStorageOptions.StgBlockSize}
+                                                        }
+                                                        'Enabled Backup File Encription' = ConvertTo-TextYN $Bkjob.Options.BackupStorageOptions.StorageEncryptionEnabled
+                                                        'Encription Key' = Switch ($Bkjob.Options.BackupStorageOptions.StorageEncryptionEnabled) {
+                                                            $false {'None'}
+                                                            default {(Get-VBREncryptionKey | Where-Object { $_.id -eq $Bkjob.Info.PwdKeyId }).Description}
+                                                        }
+                                                    }
+                                                    $OutObj = [pscustomobject]$inobj
+
+                                                    $TableParams = @{
+                                                        Name = "Advanced Settings (Storage) - $($Bkjob.Name)"
                                                         List = $true
                                                         ColumnWidths = 40, 60
                                                     }
