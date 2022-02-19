@@ -171,7 +171,10 @@ function Get-AbrVbrBackupjobVMware {
                                         }
                                     }
                                 }
-                                Section -Style Heading5 "Storage" {
+                                if ($Bkjob.TypeToString -eq "VMware Backup Copy") {
+                                    $Storage = 'Target'
+                                } else {$Storage = 'Storage'}
+                                Section -Style Heading5 $Storage {
                                     $OutObj = @()
                                     try {
                                         Write-PscriboMessage "Discovered $($Bkjob.Name) storage options."
@@ -276,8 +279,8 @@ function Get-AbrVbrBackupjobVMware {
                                                             'KbBlockSize4096' {'Local target (large blocks)'}
                                                             default {$Bkjob.Options.BackupStorageOptions.StgBlockSize}
                                                         }
-                                                        'Enabled Backup File Encription' = ConvertTo-TextYN $Bkjob.Options.BackupStorageOptions.StorageEncryptionEnabled
-                                                        'Encription Key' = Switch ($Bkjob.Options.BackupStorageOptions.StorageEncryptionEnabled) {
+                                                        'Enabled Backup File Encryption' = ConvertTo-TextYN $Bkjob.Options.BackupStorageOptions.StorageEncryptionEnabled
+                                                        'Encryption Key' = Switch ($Bkjob.Options.BackupStorageOptions.StorageEncryptionEnabled) {
                                                             $false {'None'}
                                                             default {(Get-VBREncryptionKey | Where-Object { $_.id -eq $Bkjob.Info.PwdKeyId }).Description}
                                                         }
@@ -286,6 +289,167 @@ function Get-AbrVbrBackupjobVMware {
 
                                                     $TableParams = @{
                                                         Name = "Advanced Settings (Storage) - $($Bkjob.Name)"
+                                                        List = $true
+                                                        ColumnWidths = 40, 60
+                                                    }
+                                                    if ($Report.ShowTableCaptions) {
+                                                        $TableParams['Caption'] = "- $($TableParams.Name)"
+                                                    }
+                                                    $OutObj | Table @TableParams
+                                                }
+                                                catch {
+                                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                }
+                                            }
+                                        }
+                                        if ($InfoLevel.Jobs.Backup -ge 2 -and ($Bkjob.Options.NotificationOptions.SnmpNotification -or $Bkjob.Options.NotificationOptions.SendEmailNotification2AdditionalAddresses)) {
+                                            Section -Style Heading6 "Advanced Settings (Notification)" {
+                                                $OutObj = @()
+                                                try {
+                                                    Write-PscriboMessage "Discovered $($Bkjob.Name) notification options."
+                                                    $inObj = [ordered] @{
+                                                        'Send Snmp Notification' = ConvertTo-TextYN $Bkjob.Options.NotificationOptions.SnmpNotification
+                                                        'Send Email Notification' = ConvertTo-TextYN $Bkjob.Options.NotificationOptions.SendEmailNotification2AdditionalAddresses
+                                                        'Email Notification Additional Addresses' = $Bkjob.Options.NotificationOptions.EmailNotificationAdditionalAddresses
+                                                        'Email Notify Time' = $Bkjob.Options.NotificationOptions.EmailNotifyTime.ToShortTimeString()
+                                                        'Use Custom Email Notification Options' = ConvertTo-TextYN $Bkjob.Options.NotificationOptions.UseCustomEmailNotificationOptions
+                                                        'Use Custom Notification Setting' = $Bkjob.Options.NotificationOptions.EmailNotificationSubject
+                                                        'Notify On Success' = ConvertTo-TextYN $Bkjob.Options.NotificationOptions.EmailNotifyOnSuccess
+                                                        'Notify On Warning' = ConvertTo-TextYN $Bkjob.Options.NotificationOptions.EmailNotifyOnWarning
+                                                        'Notify On Error' = ConvertTo-TextYN $Bkjob.Options.NotificationOptions.EmailNotifyOnError
+                                                        'Suppress Notification until Last Retry' = ConvertTo-TextYN $Bkjob.Options.NotificationOptions.EmailNotifyOnLastRetryOnly
+                                                        'Set Results To Vm Notes' = ConvertTo-TextYN $Bkjob.Options.ViSourceOptions.SetResultsToVmNotes
+                                                        'VM Attribute Note Value' = $Bkjob.Options.ViSourceOptions.VmAttributeName
+                                                        'Append to Existing Attribute' = ConvertTo-TextYN $Bkjob.Options.ViSourceOptions.VmNotesAppend
+                                                    }
+                                                    $OutObj = [pscustomobject]$inobj
+
+                                                    $TableParams = @{
+                                                        Name = "Advanced Settings (Notification) - $($Bkjob.Name)"
+                                                        List = $true
+                                                        ColumnWidths = 40, 60
+                                                    }
+                                                    if ($Report.ShowTableCaptions) {
+                                                        $TableParams['Caption'] = "- $($TableParams.Name)"
+                                                    }
+                                                    $OutObj | Table @TableParams
+                                                }
+                                                catch {
+                                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                }
+                                            }
+                                        }
+                                        if ($InfoLevel.Jobs.Backup -ge 2 -and ($Bkjob.Options.ViSourceOptions.VMToolsQuiesce -or $Bkjob.Options.ViSourceOptions.UseChangeTracking)) {
+                                            Section -Style Heading6 "Advanced Settings (vSphere)" {
+                                                $OutObj = @()
+                                                try {
+                                                    Write-PscriboMessage "Discovered $($Bkjob.Name) vSphere options."
+                                                    $inObj = [ordered] @{
+                                                        'Enable VMware Tools Quiescence' = ConvertTo-TextYN $Bkjob.Options.ViSourceOptions.VMToolsQuiesce
+                                                        'Use Change Block Tracking' = ConvertTo-TextYN $Bkjob.Options.ViSourceOptions.UseChangeTracking
+                                                        'Enable CBT for all protected VMs' = ConvertTo-TextYN $Bkjob.Options.ViSourceOptions.EnableChangeTracking
+                                                        'Reset CBT On each Active Full Backup' = ConvertTo-TextYN $Bkjob.Options.ViSourceOptions.ResetChangeTrackingOnActiveFull
+                                                    }
+                                                    $OutObj = [pscustomobject]$inobj
+
+                                                    $TableParams = @{
+                                                        Name = "Advanced Settings (vSphere) - $($Bkjob.Name)"
+                                                        List = $true
+                                                        ColumnWidths = 40, 60
+                                                    }
+                                                    if ($Report.ShowTableCaptions) {
+                                                        $TableParams['Caption'] = "- $($TableParams.Name)"
+                                                    }
+                                                    $OutObj | Table @TableParams
+                                                }
+                                                catch {
+                                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                }
+                                            }
+                                        }
+                                        if ($InfoLevel.Jobs.Backup -ge 2 -and $Bkjob.Options.SanIntegrationOptions.UseSanSnapshots) {
+                                            Section -Style Heading6 "Advanced Settings (Integration)" {
+                                                $OutObj = @()
+                                                try {
+                                                    Write-PscriboMessage "Discovered $($Bkjob.Name) Integration options."
+                                                    $inObj = [ordered] @{
+                                                        'Enable Backup from Storage Snapshots' = ConvertTo-TextYN $Bkjob.Options.SanIntegrationOptions.UseSanSnapshots
+                                                        'Limit processed VM count per Storage Snapshot' = ConvertTo-TextYN $Bkjob.Options.SanIntegrationOptions.MultipleStorageSnapshotEnabled
+                                                        'VM count per Storage Snapshot' = $Bkjob.Options.SanIntegrationOptions.MultipleStorageSnapshotVmsCount
+                                                        'Failover to Standard Backup' = ConvertTo-TextYN $Bkjob.Options.SanIntegrationOptions.FailoverFromSan
+                                                        'Failover to Primary Storage Snapshot' = ConvertTo-TextYN $Bkjob.Options.SanIntegrationOptions.Failover2StorageSnapshotBackup
+                                                    }
+                                                    $OutObj = [pscustomobject]$inobj
+
+                                                    $TableParams = @{
+                                                        Name = "Advanced Settings (Integration) - $($Bkjob.Name)"
+                                                        List = $true
+                                                        ColumnWidths = 40, 60
+                                                    }
+                                                    if ($Report.ShowTableCaptions) {
+                                                        $TableParams['Caption'] = "- $($TableParams.Name)"
+                                                    }
+                                                    $OutObj | Table @TableParams
+                                                }
+                                                catch {
+                                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                }
+                                            }
+                                        }
+                                        if ($InfoLevel.Jobs.Backup -ge 2 -and ($Bkjob.Options.JobScriptCommand.PreScriptEnabled -or $Bkjob.Options.JobScriptCommand.PostScriptEnabled)) {
+                                            Section -Style Heading6 "Advanced Settings (Script)" {
+                                                $OutObj = @()
+                                                try {
+                                                    if ($Bkjob.Options.JobScriptCommand.Periodicity -eq 'Days') {
+                                                        $FrequencyValue = $Bkjob.Options.JobScriptCommand.Days -join ","
+                                                        $FrequencyText = 'Run Script on the Selected Days'
+                                                    }
+                                                    elseif ($Bkjob.Options.JobScriptCommand.Periodicity -eq 'Cycles') {
+                                                        $FrequencyValue = $Bkjob.Options.JobScriptCommand.Frequency
+                                                        $FrequencyText = 'Run Script Every Backup Session'
+                                                    }
+                                                    Write-PscriboMessage "Discovered $($Bkjob.Name) script options."
+                                                    $inObj = [ordered] @{
+                                                        'Run the Following Script Before' = ConvertTo-TextYN $Bkjob.Options.JobScriptCommand.PreScriptEnabled
+                                                        'Run Script Before the Job' = $Bkjob.Options.JobScriptCommand.PreScriptCommandLine
+                                                        'Run the Following Script After' = ConvertTo-TextYN $Bkjob.Options.JobScriptCommand.PostScriptEnabled
+                                                        'Run Script After the Job' = $Bkjob.Options.JobScriptCommand.PostScriptCommandLine
+                                                        'Run Script Frequency' = $Bkjob.Options.JobScriptCommand.Periodicity
+                                                        $FrequencyText = $FrequencyValue
+
+                                                    }
+                                                    $OutObj = [pscustomobject]$inobj
+
+                                                    $TableParams = @{
+                                                        Name = "Advanced Settings (Script) - $($Bkjob.Name)"
+                                                        List = $true
+                                                        ColumnWidths = 40, 60
+                                                    }
+                                                    if ($Report.ShowTableCaptions) {
+                                                        $TableParams['Caption'] = "- $($TableParams.Name)"
+                                                    }
+                                                    $OutObj | Table @TableParams
+                                                }
+                                                catch {
+                                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                }
+                                            }
+                                        }
+                                        if ($InfoLevel.Jobs.Backup -ge 2 -and ($Bkjob.Options.RpoOptions.Enabled -or $Bkjob.Options.RpoOptions.LogBackupRpoEnabled)) {
+                                            Section -Style Heading6 "Advanced Settings (RPO Monitor)" {
+                                                $OutObj = @()
+                                                try {
+                                                    Write-PscriboMessage "Discovered $($Bkjob.Name) rpo monitor options."
+                                                    $inObj = [ordered] @{
+                                                        'RPO Monitor Enabled' = ConvertTo-TextYN $Bkjob.Options.RpoOptions.Enabled
+                                                        'If Backup is not Copied Within' = "$($Bkjob.Options.RpoOptions.Value) $($Bkjob.Options.RpoOptions.TimeUnit)"
+                                                        'Log Backup RPO Monitor Enabled' = ConvertTo-TextYN $Bkjob.Options.RpoOptions.LogBackupRpoEnabled
+                                                        'If Log Backup is not Copied Within' = "$($Bkjob.Options.RpoOptions.LogBackupRpoValue) $($Bkjob.Options.RpoOptions.LogBackupRpoTimeUnit)"
+                                                    }
+                                                    $OutObj = [pscustomobject]$inobj
+
+                                                    $TableParams = @{
+                                                        Name = "Advanced Settings (RPO Monitor) - $($Bkjob.Name)"
                                                         List = $true
                                                         ColumnWidths = 40, 60
                                                     }
