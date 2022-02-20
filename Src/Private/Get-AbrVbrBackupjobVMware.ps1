@@ -44,6 +44,7 @@ function Get-AbrVbrBackupjobVMware {
                                                 Write-PscriboMessage "Discovered $($Bkjob.Name) common information."
                                                 $inObj = [ordered] @{
                                                     'Name' = $Bkjob.Name
+                                                    'Type' = $Bkjob.TypeToString
                                                     'Total Backup Size' = ConvertTo-FileSizeString $CommonInfo.IncludedSize
                                                     'Target Address' = $CommonInfo.TargetDir
                                                     'Target File' = $CommonInfo.TargetFile
