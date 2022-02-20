@@ -26,7 +26,7 @@ function Get-AbrVbrBackupjobVMware {
 
     process {
         try {
-            $Bkjobs = Get-VBRJob -WarningAction SilentlyContinue | Where-Object {$_.TypeToString -eq "VMware Backup" -or $_.TypeToString -eq "VMware Backup Copy"}
+            $Bkjobs = Get-VBRJob -WarningAction SilentlyContinue | Where-Object {$_.TypeToString -eq "VMware Backup" -or $_.TypeToString -eq "VMware Backup Copy" -or $_.TypeToString -eq "VM Copy"}
             if (($Bkjobs).count -gt 0) {
                 Section -Style Heading3 'VMware Backup Configuration' {
                     Paragraph "The following section details VMware type per backup jobs configuration."
@@ -192,7 +192,11 @@ function Get-AbrVbrBackupjobVMware {
                                                 {$_ -gt 1} {"Automatic"}
                                                 default {$Bkjob.GetProxy().Name}
                                             }
-                                            'Backup Repository' = $Bkjob.GetTargetRepository().Name
+                                            'Backup Repository' = Switch ($Bkjob.info.TargetRepositoryId) {
+                                                '00000000-0000-0000-0000-000000000000' {$Bkjob.TargetDir}
+                                                {$Null -eq (Get-VBRBackupRepository | Where-Object {$_.Id -eq $Bkjob.info.TargetRepositoryId}).Name} {(Get-VBRBackupRepository -ScaleOut | Where-Object {$_.Id -eq $Bkjob.info.TargetRepositoryId}).Name}
+                                                default {(Get-VBRBackupRepository | Where-Object {$_.Id -eq $Bkjob.info.TargetRepositoryId}).Name}
+                                            }
                                             'Retention Type' = $Bkjob.BackupStorageOptions.RetentionType
                                             $RetainString = $Retains
                                             'Keep First Full Backup' = ConvertTo-TextYN $Bkjob.BackupStorageOptions.KeepFirstFullBackup
@@ -214,7 +218,7 @@ function Get-AbrVbrBackupjobVMware {
                                         $OutObj = [pscustomobject]$inobj
 
                                         $TableParams = @{
-                                            Name = "Storage Options - $($Bkjob.Name)"
+                                            Name = "$Storage Options - $($Bkjob.Name)"
                                             List = $true
                                             ColumnWidths = 40, 60
                                         }
@@ -524,8 +528,52 @@ function Get-AbrVbrBackupjobVMware {
                                                         default {Get-VBRCredentials | Where-Object { $_.Id -eq $VSSObj.VssOptions.WinCredsId.Guid}}
                                                     }
                                                     'Application Processing' = ConvertTo-TextYN $VSSObj.VssOptions.VssSnapshotOptions.ApplicationProcessingEnabled
+                                                    'Transaction Logs' = Switch ($VSSObj.VssOptions.VssSnapshotOptions.IsCopyOnly) {
+                                                        'False' {'Process Transaction Logs'}
+                                                        'True' {'Perform Copy Only'}
+                                                    }
                                                     'Use Persistent Guest Agent' = ConvertTo-TextYN $VSSObj.VssOptions.VssSnapshotOptions.UsePersistentGuestAgent
                                                 }
+                                                if ($InfoLevel.Jobs.Backup -ge 2) {
+                                                    if (!$VSSObj.VssOptions.VssSnapshotOptions.IsCopyOnly) {
+                                                        $TransactionLogsProcessing = Switch ($VSSObj.VssOptions.SqlBackupOptions.TransactionLogsProcessing) {
+                                                            'TruncateOnlyOnSuccessJob' {'Truncate logs'}
+                                                            'Backup' {'Backup logs periodically'}
+                                                            'NeverTruncate' {'Do not truncate logs'}
+                                                        }
+                                                        $RetainLogBackups = Switch ($VSSObj.VssOptions.SqlBackupOptions.UseDbBackupRetention) {
+                                                            'True' {'Until the corresponding image-level backup is deleted'}
+                                                            'False' {"Keep Only Last $($VSSObj.VssOptions.SqlBackupOptions.RetainDays) days of log backups"}
+                                                        }
+                                                        $inObj.add('SQL Transaction Logs Processing', ($TransactionLogsProcessing))
+                                                        $inObj.add('SQL Backup Log Every', ("$($VSSObj.VssOptions.SqlBackupOptions.BackupLogsFrequencyMin) min"))
+                                                        $inObj.add('SQL Retain Log Backups', $($RetainLogBackups))
+                                                    }
+                                                    if ($VSSObj.VssOptions.OracleBackupOptions.BackupLogsEnabled -or $VSSObj.VssOptions.OracleBackupOptions.ArchivedLogsTruncation) {
+                                                        $ArchivedLogsTruncation = Switch ($VSSObj.VssOptions.OracleBackupOptions.ArchivedLogsTruncation) {
+                                                            'ByAge' {"Delete Log Older Than $($VSSObj.VssOptions.OracleBackupOptions.ArchivedLogsMaxAgeHours) hours"}
+                                                            'BySize' {"Delete Log Over $([Math]::Round($VSSObj.VssOptions.OracleBackupOptions.ArchivedLogsMaxSizeMb / 1024, 0)) GB"}
+                                                            default {$VSSObj.VssOptions.OracleBackupOptions.ArchivedLogsTruncation}
+
+                                                        }
+                                                        $SysdbaCredsId = Switch ($VSSObj.VssOptions.OracleBackupOptions.SysdbaCredsId) {
+                                                            '00000000-0000-0000-0000-000000000000' {'Guest OS Credential'}
+                                                            default {(Get-VBRCredentials | Where-Object { $_.Id -eq $VSSObj.VssOptions.OracleBackupOptions.SysdbaCredsId}).Description}
+                                                        }
+                                                        $RetainLogBackups = Switch ($VSSObj.VssOptions.OracleBackupOptions.UseDbBackupRetention) {
+                                                            'True' {'Until the corresponding image-level backup is deleted'}
+                                                            'False' {"Keep Only Last $($VSSObj.VssOptions.OracleBackupOptions.RetainDays) days of log backups"}
+                                                        }
+                                                        $inObj.add('Oracle Account Type', $VSSObj.VssOptions.OracleBackupOptions.AccountType)
+                                                        $inObj.add('Oracle Sysdba Creds', $SysdbaCredsId)
+                                                        if ($VSSObj.VssOptions.OracleBackupOptions.BackupLogsEnabled) {
+                                                            $inObj.add('Oracle Backup Logs Every', ("$($VSSObj.VssOptions.OracleBackupOptions.BackupLogsFrequencyMin) min"))
+                                                        }
+                                                        $inObj.add('Oracle Archive Logs', ($ArchivedLogsTruncation))
+                                                        $inObj.add('Oracle Retain Log Backups', $($RetainLogBackups))
+                                                    }
+                                                }
+
                                                 $OutObj = [pscustomobject]$inobj
 
                                                 $TableParams = @{
