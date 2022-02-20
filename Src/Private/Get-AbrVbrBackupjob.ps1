@@ -35,14 +35,6 @@ function Get-AbrVbrBackupjob {
                         $Bkjobs = Get-VBRJob -WarningAction SilentlyContinue | Where-object {$_.TypeToString -ne 'Windows Agent Backup'}
                         foreach ($Bkjob in $Bkjobs) {
                             try {
-                                if ($Bkjob.GetTargetRepository().Name) {
-                                    $Target = $Bkjob.GetTargetRepository().Name
-                                } else {$Target = "-"}
-                            }
-                            catch {
-                                Write-PscriboMessage -IsWarning $_.Exception.Message
-                            }
-                            try {
                                 Write-PscriboMessage "Discovered $($Bkjob.Name) backup job."
                                 $inObj = [ordered] @{
                                     'Name' = $Bkjob.Name
@@ -52,7 +44,11 @@ function Get-AbrVbrBackupjob {
                                         $True {'Enabled'}
                                     }
                                     'Latest Result' = $Bkjob.info.LatestStatus
-                                    'Target Repository' = $Target
+                                    'Target Repository' = Switch ($Bkjob.info.TargetRepositoryId) {
+                                        '00000000-0000-0000-0000-000000000000' {$Bkjob.TargetDir}
+                                        {$Null -eq (Get-VBRBackupRepository | Where-Object {$_.Id -eq $Bkjob.info.TargetRepositoryId}).Name} {(Get-VBRBackupRepository -ScaleOut | Where-Object {$_.Id -eq $Bkjob.info.TargetRepositoryId}).Name}
+                                        default {(Get-VBRBackupRepository | Where-Object {$_.Id -eq $Bkjob.info.TargetRepositoryId}).Name}
+                                    }
                                 }
                                 $OutObj += [pscustomobject]$inobj
                             }
