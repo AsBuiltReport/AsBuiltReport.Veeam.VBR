@@ -71,9 +71,9 @@ function Get-AbrVbrBackupToTape {
                                     }
                                 }
                                 if ($TBkjob.Object) {
-                                    Section -Style Heading5 'Object to Process' {
-                                        $OutObj = @()
-                                        try {
+                                    try {
+                                        Section -Style Heading5 'Object to Process' {
+                                            $OutObj = @()
                                             foreach ($LinkedBkJob in $TBkjob.Object) {
                                                 try {
                                                     Write-PscriboMessage "Discovered $($LinkedBkJob.Name) object to process."
@@ -111,10 +111,179 @@ function Get-AbrVbrBackupToTape {
                                             }
                                             $OutObj | Sort-Object -Property 'Name' | Table @TableParams
                                         }
+                                    }
+                                    catch {
+                                        Write-PscriboMessage -IsWarning $_.Exception.Message
+                                    }
+                                }
+                                if ($TBkjob.FullBackupMediaPool) {
+                                    try {
+                                        Section -Style Heading5 'Tape Media Pool' {
+                                            $OutObj = @()
+                                            foreach ($BackupMediaPool in $TBkjob.FullBackupMediaPool) {
+                                                try {
+                                                    Write-PscriboMessage "Discovered $($TBkjob.Name) media pool."
+                                                    #Todo Fix this mess!
+                                                    if ($BackupMediaPool.DailyMediaSetOptions.MediaSetPolicy.MoveFromMediaPoolAutomatically) {
+                                                        $MoveFromMediaPoolAutomatically = 'Use any available media'
+                                                    } else {$MoveFromMediaPoolAutomatically = "Use $(($BackupMediaPool.DailyMediaSetOptions.MediaSetPolicy.Medium).count) selected"}
+                                                    if ($BackupMediaPool.DailyMediaSetOptions.MediaSetPolicy.AppendToCurrentTape) {
+                                                        $AppendToCurrentTape = 'append'
+                                                    } else {$AppendToCurrentTape = "do not append"}
+                                                    if ($BackupMediaPool.DailyMediaSetOptions.MediaSetPolicy.MoveOfflineToVault) {
+                                                        $MoveOfflineToVault = "export to vault $($BackupMediaPool.DailyMediaSetOptions.MediaSetPolicy.Vault.Name)"
+                                                    } else {$MoveOfflineToVault = "do not export"}
+
+                                                    if ($BackupMediaPool.WeeklyMediaSetOptions.MediaSetPolicy.MoveFromMediaPoolAutomatically) {
+                                                        $WeeklyMoveFromMediaPoolAutomatically = 'Use any available media'
+                                                    } else {$WeeklyMoveFromMediaPoolAutomatically = "Use $(($BackupMediaPool.WeeklyMediaSetOptions.MediaSetPolicy.Medium).count) selected"}
+                                                    if ($BackupMediaPool.WeeklyMediaSetOptions.MediaSetPolicy.AppendToCurrentTape) {
+                                                        $WeeklyAppendToCurrentTape = 'append'
+                                                    } else {$WeeklyAppendToCurrentTape = "do not append"}
+                                                    if ($BackupMediaPool.WeeklyMediaSetOptions.MediaSetPolicy.MoveOfflineToVault) {
+                                                        $WeeklyMoveOfflineToVault = "export to vault $($BackupMediaPool.WeeklyMediaSetOptions.MediaSetPolicy.Vault.Name)"
+                                                    } else {$WeeklyMoveOfflineToVault = "do not export"}
+
+                                                    if ($BackupMediaPool.MonthlyMediaSetOptions.MediaSetPolicy.MoveFromMediaPoolAutomatically) {
+                                                        $MonthlyMoveFromMediaPoolAutomatically = 'Use any available media'
+                                                    } else {$MonthlyMoveFromMediaPoolAutomatically = "Use $(($BackupMediaPool.MonthlyMediaSetOptions.MediaSetPolicy.Medium).count) selected"}
+                                                    if ($BackupMediaPool.MonthlyMediaSetOptions.MediaSetPolicy.AppendToCurrentTape) {
+                                                        $MonthlyAppendToCurrentTape = 'append'
+                                                    } else {$MonthlyAppendToCurrentTape = "do not append"}
+                                                    if ($BackupMediaPool.MonthlyMediaSetOptions.MediaSetPolicy.MoveOfflineToVault) {
+                                                        $MonthlyMoveOfflineToVault = "export to vault $($BackupMediaPool.MonthlyMediaSetOptions.MediaSetPolicy.Vault.Name)"
+                                                    } else {$MonthlyMoveOfflineToVault = "do not export"}
+
+                                                    if ($BackupMediaPool.QuarterlyMediaSetOptions.MediaSetPolicy.MoveFromMediaPoolAutomatically) {
+                                                        $QuarterlyMoveFromMediaPoolAutomatically = 'Use any available media'
+                                                    } else {$QuarterlyMoveFromMediaPoolAutomatically = "Use $(($BackupMediaPool.QuarterlyMediaSetOptions.MediaSetPolicy.Medium).count) selected"}
+                                                    if ($BackupMediaPool.QuarterlyMediaSetOptions.MediaSetPolicy.AppendToCurrentTape) {
+                                                        $QuarterlyAppendToCurrentTape = 'append'
+                                                    } else {$QuarterlyAppendToCurrentTape = "do not append"}
+                                                    if ($BackupMediaPool.QuarterlyMediaSetOptions.MediaSetPolicy.MoveOfflineToVault) {
+                                                        $QuarterlyMoveOfflineToVault = "export to vault $($BackupMediaPool.QuarterlyMediaSetOptions.MediaSetPolicy.Vault.Name)"
+                                                    } else {$QuarterlyMoveOfflineToVault = "do not export"}
+
+                                                    if ($BackupMediaPool.YearlyMediaSetOptions.MediaSetPolicy.MoveFromMediaPoolAutomatically) {
+                                                        $YearlyMoveFromMediaPoolAutomatically = 'Use any available media'
+                                                    } else {$YearlyMoveFromMediaPoolAutomatically = "Use $(($BackupMediaPool.YearlyMediaSetOptions.MediaSetPolicy.Medium).count) selected"}
+                                                    if ($BackupMediaPool.YearlyMediaSetOptions.MediaSetPolicy.AppendToCurrentTape) {
+                                                        $YearlyAppendToCurrentTape = 'append'
+                                                    } else {$YearlyAppendToCurrentTape = "do not append"}
+                                                    if ($BackupMediaPool.YearlyMediaSetOptions.MediaSetPolicy.MoveOfflineToVault) {
+                                                        $YearlyMoveOfflineToVault = "export to vault $($BackupMediaPool.YearlyMediaSetOptions.MediaSetPolicy.Vault.Name)"
+                                                    } else {$YearlyMoveOfflineToVault = "do not export"}
+
+                                                    $inObj = [ordered] @{
+                                                        'Name' = $BackupMediaPool.Name
+                                                        'Pool Type' = $BackupMediaPool.Type
+                                                        'Tape Count' = (Get-VBRTapeMedium -MediaPool $BackupMediaPool.Name).count
+                                                        'Free Space' = ConvertTo-FileSizeString ((Get-VBRTapeMedium -MediaPool $BackupMediaPool.Name).Free | Measure-Object -Sum).Sum
+                                                        'Daily' = "$($TBkjob.FullBackupMediaPool.DailyMediaSetOptions.OverwritePeriod) days; $MoveFromMediaPoolAutomatically; $AppendToCurrentTape; $MoveOfflineToVault"
+                                                        'Weekly' = "$($TBkjob.FullBackupMediaPool.WeeklyMediaSetOptions.OverwritePeriod) days; $WeeklyMoveFromMediaPoolAutomatically; $WeeklyAppendToCurrentTape; $WeeklyMoveOfflineToVault"
+                                                        'Monthly' = "$($TBkjob.FullBackupMediaPool.MonthlyMediaSetOptions.OverwritePeriod) days; $MonthlyMoveFromMediaPoolAutomatically; $MonthlyAppendToCurrentTape; $MonthlyMoveOfflineToVault"
+                                                        'Quarterly' = "$($TBkjob.FullBackupMediaPool.QuarterlyMediaSetOptions.OverwritePeriod) days; $QuarterlyMoveFromMediaPoolAutomatically; $QuarterlyAppendToCurrentTape; $QuarterlyMoveOfflineToVault"
+                                                        'Yearly' = "$($TBkjob.FullBackupMediaPool.YearlyMediaSetOptions.OverwritePeriod) days; $YearlyMoveFromMediaPoolAutomatically; $YearlyAppendToCurrentTape; $YearlyMoveOfflineToVault"
+                                                        'Encryption Enabled' = ConvertTo-TextYN $BackupMediaPool.EncryptionOptions.Enabled
+                                                        'Encryption Key' = (Get-VBREncryptionKey | Where-Object {$_.Id -eq $BackupMediaPool.EncryptionOptions.Key.Id}).Description
+                                                        'Parallel Processing' = "$(ConvertTo-TextYN $BackupMediaPool.MultiStreamingOptions.NumberOfStreams) drives; Multiple Backup Chains: $(ConvertTo-TextYN $BackupMediaPool.MultiStreamingOptions.SplitJobFilesBetweenDrives)"
+                                                        'Is WORM' = ConvertTo-TextYN $BackupMediaPool.Worm
+                                                    }
+                                                    $OutObj += [pscustomobject]$inobj
+                                                }
+                                                catch {
+                                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                }
+                                            }
+
+                                            $TableParams = @{
+                                                Name = "Media Pool - $($TBkjob.Name)"
+                                                List = $True
+                                                ColumnWidths = 40, 60
+                                            }
+                                            if ($Report.ShowTableCaptions) {
+                                                $TableParams['Caption'] = "- $($TableParams.Name)"
+                                            }
+                                            $OutObj | Sort-Object -Property 'Name' | Table @TableParams
+                                        }
+                                    }
+                                    catch {
+                                        Write-PscriboMessage -IsWarning $_.Exception.Message
+                                    }
+                                }
+                                try {
+                                    Section -Style Heading5 'Options' {
+                                        $OutObj = @()
+                                        try {
+                                            Write-PscriboMessage "Discovered $($TBkjob.Name) options."
+                                            $inObj = [ordered] @{
+                                                'Eject Tape Media Upon Job Completion' = ConvertTo-TextYN $TBkjob.EjectCurrentMedium
+                                                'Export the following MediaSet Upon Job Completion' = ConvertTo-TextYN $TBkjob.ExportCurrentMediaSet
+                                                'Limit the number of drives this job can use' = "Enabled: $(ConvertTo-TextYN $TBkjob.ParallelDriveOptions.IsEnabled); Tape Drives Limit: $($TBkjob.ParallelDriveOptions.DrivesLimit)"
+
+                                            }
+                                            $OutObj += [pscustomobject]$inobj
+                                        }
                                         catch {
                                             Write-PscriboMessage -IsWarning $_.Exception.Message
                                         }
+
+                                        $TableParams = @{
+                                            Name = "Media Pool - $($TBkjob.Name)"
+                                            List = $True
+                                            ColumnWidths = 40, 60
+                                        }
+                                        if ($Report.ShowTableCaptions) {
+                                            $TableParams['Caption'] = "- $($TableParams.Name)"
+                                        }
+                                        $OutObj | Sort-Object -Property 'Name' | Table @TableParams
+                                        if ($InfoLevel.Jobs.Tape -ge 2 -and $TBkjob.NotificationOptions.EnableAdditionalNotification) {
+                                            try {
+                                                Section -Style Heading5 'Advanced Settings (Notifications)' {
+                                                    $OutObj = @()
+                                                    try {
+                                                        Write-PscriboMessage "Discovered $($TBkjob.Name) notification options."
+                                                        $inObj = [ordered] @{
+                                                            'Send Email Notification' = ConvertTo-TextYN $TBkjob.NotificationOptions.EnableAdditionalNotification
+                                                            'Email Notification Additional Recipients' = $TBkjob.NotificationOptions.AdditionalAddress -join ","
+                                                        }
+                                                        if (!$TBkjob.NotificationOptions.UseNotificationOptions) {
+                                                            $inObj.add('Use Global Notification Settings', (ConvertTo-TextYN $TBkjob.NotificationOptions.UseNotificationOptions))
+                                                        }
+                                                        elseif ($TBkjob.NotificationOptions.UseNotificationOptions) {
+                                                            $inObj.add('Use Custom Notification Settings', ('Yes'))
+                                                            $inObj.add('Subject', ($TBkjob.NotificationOptions.NotificationSubject))
+                                                            $inObj.add('Notify On Success', (ConvertTo-TextYN $TBkjob.NotificationOptions.NotifyOnSuccess))
+                                                            $inObj.add('Notify On Warning', (ConvertTo-TextYN $TBkjob.NotificationOptions.NotifyOnWarning))
+                                                            $inObj.add('Notify On Error', (ConvertTo-TextYN $TBkjob.NotificationOptions.NotifyOnError))
+                                                            $inObj.add('Notify On Last Retry Only', (ConvertTo-TextYN $TBkjob.NotificationOptions.NotifyOnLastRetryOnly))
+                                                            $inObj.add('Notify When Waiting For Tape', (ConvertTo-TextYN $TBkjob.NotificationOptions.NotifyWhenWaitingForTape))
+                                                        }
+                                                        $OutObj += [pscustomobject]$inobj
+                                                    }
+                                                    catch {
+                                                        Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                    }
+
+                                                    $TableParams = @{
+                                                        Name = "Media Pool - $($TBkjob.Name)"
+                                                        List = $True
+                                                        ColumnWidths = 40, 60
+                                                    }
+                                                    if ($Report.ShowTableCaptions) {
+                                                        $TableParams['Caption'] = "- $($TableParams.Name)"
+                                                    }
+                                                    $OutObj | Sort-Object -Property 'Name' | Table @TableParams
+                                                }
+                                            }
+                                            catch {
+                                                Write-PscriboMessage -IsWarning $_.Exception.Message
+                                            }
+                                        }
                                     }
+                                }
+                                catch {
+                                    Write-PscriboMessage -IsWarning $_.Exception.Message
                                 }
                             }
                         }
