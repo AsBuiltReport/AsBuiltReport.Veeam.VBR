@@ -6,7 +6,7 @@ function Get-AbrVbrBackupRepository {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.3.1
+        Version:        0.4.0
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -92,13 +92,13 @@ function Get-AbrVbrBackupRepository {
                         if ($InfoLevel.Infrastructure.BR -ge 2) {
                             try {
                                 Section -Style Heading4 "Backup Repository Configuration" {
-                                    Paragraph "The following section provides a detailed information of the Veeam Backup Repository Configuration"
+                                    Paragraph "The following section provides a detailed information of the Veeam Backup Repository Configuration."
                                     BlankLine
                                     $BackupRepos = Get-VBRBackupRepository
                                     foreach ($BackupRepo in $BackupRepos) {
                                         try {
                                             Section -Style Heading5 "$($BackupRepo.Name)" {
-                                                Paragraph "The following section provides a detailed information of the $($BackupRepo.Name) Backup Repository"
+                                                Paragraph "The following section provides a detailed information of the $($BackupRepo.Name) Backup Repository."
                                                 BlankLine
                                                 $OutObj = @()
                                                 Write-PscriboMessage "Discovered $($BackupRepo.Name) Backup Repository."
