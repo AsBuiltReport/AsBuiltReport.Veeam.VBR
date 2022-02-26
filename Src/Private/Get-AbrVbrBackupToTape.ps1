@@ -515,6 +515,70 @@ function Get-AbrVbrBackupToTape {
                                 catch {
                                     Write-PscriboMessage -IsWarning $_.Exception.Message
                                 }
+                                try {
+                                    Section -Style Heading5 'Schedule' {
+                                        $OutObj = @()
+                                        try {
+                                            Write-PscriboMessage "Discovered $($TBkjob.Name) schedule options."
+                                            $inObj = [ordered] @{
+                                                'Prevent this job from being interrupted by source backup job' = ConvertTo-TextYN $TBkjob.WaitForBackupJobs
+                                            }
+
+                                            if ($TBkjob.GFSScheduleOptions) {
+                                                $inObj.add('Perform GFS scan daily at', ($TBkjob.GFSScheduleOptions.DailyOptions))
+                                                $inObj.add('Daily backup', ($TBkjob.ScheduleOptions.DailyOptions.Type))
+                                                $inObj.add('Weekly backup', ($TBkjob.GFSScheduleOptions.WeeklyOptions.ToString()))
+                                                $inObj.add('Monthly backup', ($TBkjob.GFSScheduleOptions.MonthlyOptions.ToString()))
+                                                $inObj.add('Quarterly backup', ($TBkjob.GFSScheduleOptions.QuarterlyOptions.ToString()))
+                                                $inObj.add('Yearly backup', ($TBkjob.GFSScheduleOptions.YearlyOptions.ToString()))
+                                            }
+                                            if ($TBkjob.ScheduleOptions.Enabled -and !$TBkjob.GFSScheduleOptions) {
+                                                if ($TBkjob.ScheduleOptions.Type -eq "Daily") {
+                                                    $Schedule = "Daily at this time: $($TBkjob.ScheduleOptions.DailyOptions.Period),`r`nDays: $($TBkjob.ScheduleOptions.DailyOptions.Type),`r`nDay Of Week: $($TBkjob.ScheduleOptions.DailyOptions.DayOfWeek)"
+                                                }
+                                                elseif ($TBkjob.ScheduleOptions.Type -eq "Monthly") {
+                                                    if ($TBkjob.ScheduleOptions.MonthlyOptions.DayNumberInMonth -eq 'OnDay') {
+                                                        $Schedule = "Monthly at this time: $($TBkjob.ScheduleOptions.MonthlyOptions.Period),`r`nThis Day: $($TBkjob.ScheduleOptions.MonthlyOptions.DayOfMonth),`r`nMonths: $($TBkjob.ScheduleOptions.MonthlyOptions.Months)"
+                                                    } else {
+                                                        $Schedule = "Monthly at this time: $($TBkjob.ScheduleOptions.MonthlyOptions.Period),`r`nDays Number of Month: $($TBkjob.ScheduleOptions.MonthlyOptions.DayNumberInMonth),`r`nDay Of Week: $($TBkjob.ScheduleOptions.MonthlyOptions.DayOfWeek),`r`nMonth: $($TBkjob.ScheduleOptions.MonthlyOptions.Months)"
+                                                    }
+                                                }
+                                                elseif ($TBkjob.ScheduleOptions.Type -eq "AfterJob") {
+                                                    $Schedule = Switch ($TBkjob.ScheduleOptions.JobId) {
+                                                        $Null {'Unknown'}
+                                                        default {" After Job: $((Get-VBRJob -WarningAction SilentlyContinue | Where-Object {$_.Id -eq $TBkjob.ScheduleOptions.JobId}).Name)"}
+                                                    }
+                                                }
+                                                elseif ($TBkjob.ScheduleOptions.Type -eq "AfterNewBackup") {
+                                                    $Schedule = 'After New Backup File Appears'
+                                                }
+                                                $inObj.add("Run Automatically", ($Schedule))
+                                            }
+
+                                            if ($TBkjob.WaitForBackupJobs -and !$TBkjob.GFSScheduleOptions) {
+                                                $inObj.add('Wait for Backup Job', ("$($TBkjob.WaitPeriod.ToString()) hours"))
+                                            }
+
+                                            $OutObj += [pscustomobject]$inobj
+                                        }
+                                        catch {
+                                            Write-PscriboMessage -IsWarning $_.Exception.Message
+                                        }
+
+                                        $TableParams = @{
+                                            Name = "Schedule - $($TBkjob.Name)"
+                                            List = $True
+                                            ColumnWidths = 40, 60
+                                        }
+                                        if ($Report.ShowTableCaptions) {
+                                            $TableParams['Caption'] = "- $($TableParams.Name)"
+                                        }
+                                        $OutObj | Sort-Object -Property 'Name' | Table @TableParams
+                                    }
+                                }
+                                catch {
+                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                }
                             }
                         }
                     }
