@@ -29,7 +29,7 @@ function Get-AbrVbrBackupjobHyperV {
             $Bkjobs = Get-VBRJob -WarningAction SilentlyContinue | Where-Object {$_.TypeToString -eq "Hyper-V Backup" -or $_.TypeToString -eq "Hyper-V Backup Copy"}
             if (($Bkjobs).count -gt 0) {
                 Section -Style Heading3 'Hyper-V Backup Configuration' {
-                    Paragraph "The following section details Hyper-V type per backup jobs configuration."
+                    Paragraph "The following section details Hyper-V backup jobs configuration."
                     BlankLine
                     $OutObj = @()
                     foreach ($Bkjob in $Bkjobs) {

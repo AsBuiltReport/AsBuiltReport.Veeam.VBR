@@ -40,8 +40,8 @@ function Get-AbrVbrBackupjob {
                                     'Name' = $Bkjob.Name
                                     'Type' = $Bkjob.TypeToString
                                     'Status' = Switch ($Bkjob.IsScheduleEnabled) {
-                                        $False {'Disabled'}
-                                        $True {'Enabled'}
+                                        'False' {'Disabled'}
+                                        'True' {'Enabled'}
                                     }
                                     'Latest Result' = $Bkjob.info.LatestStatus
                                     'Target Repository' = Switch ($Bkjob.info.TargetRepositoryId) {

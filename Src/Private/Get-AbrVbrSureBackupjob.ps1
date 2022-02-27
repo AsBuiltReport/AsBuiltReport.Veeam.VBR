@@ -42,8 +42,12 @@ function Get-AbrVbrSureBackupjob {
                                         "EVmware" {"VMware"}
                                         "EHyperV" {"Hyper-V"}
                                     }
-                                    'Latest Status' = $SBkjob.GetLastResult()
-                                    'Target Repository' = Get-VBRVirtualLab -Id $SBkjob.info.VirtualLabId
+                                    'Status' = Switch ($SBkjob.IsScheduleEnabled) {
+                                        'False' {'Disabled'}
+                                        'True' {'Enabled'}
+                                    }
+                                    'Latest Result' = $SBkjob.GetLastResult()
+                                    'Virtual Lab' = Get-VBRVirtualLab -Id $SBkjob.info.VirtualLabId
                                 }
                                 $OutObj += [pscustomobject]$inobj
                             }
@@ -55,7 +59,7 @@ function Get-AbrVbrSureBackupjob {
                         $TableParams = @{
                             Name = "SureBackup Jobs - $(((Get-VBRServerSession).Server).ToString().ToUpper().Split(".")[0])"
                             List = $false
-                            ColumnWidths = 30, 25, 15, 30
+                            ColumnWidths = 30, 15, 15, 15, 25
                         }
                         if ($Report.ShowTableCaptions) {
                             $TableParams['Caption'] = "- $($TableParams.Name)"
