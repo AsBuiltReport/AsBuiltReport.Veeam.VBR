@@ -72,11 +72,11 @@ function Get-AbrVbrBackupToTape {
                                 }
                                 if ($TBkjob.Object) {
                                     try {
-                                        Section -Style Heading5 'Object to Process' {
+                                        Section -Style Heading5 'Backups Objects' {
                                             $OutObj = @()
                                             foreach ($LinkedBkJob in $TBkjob.Object) {
                                                 try {
-                                                    Write-PscriboMessage "Discovered $($LinkedBkJob.Name) object to process."
+                                                    Write-PscriboMessage "Discovered $($LinkedBkJob.Name) backup objects."
                                                     if ($LinkedBkJob.Type) {
                                                         $Repository = $LinkedBkJob.Name
                                                         $Type = 'Repository'
@@ -102,7 +102,7 @@ function Get-AbrVbrBackupToTape {
                                             }
 
                                             $TableParams = @{
-                                                Name = "Objects - $($TBkjob.Name)"
+                                                Name = "Backups Objects - $($TBkjob.Name)"
                                                 List = $false
                                                 ColumnWidths = 35, 25, 15, 25
                                             }
