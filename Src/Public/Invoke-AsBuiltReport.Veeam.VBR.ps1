@@ -166,7 +166,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
             #                                  Backup Jobs Section                                        #
             #---------------------------------------------------------------------------------------------#
             if ($InfoLevel.Jobs.PSObject.Properties.Value -ne 0) {
-                if ((Get-VBRJob).count -gt 0) {
+                if (((Get-VBRJob -WarningAction SilentlyContinue).count -gt 0) -or ((Get-VBRTapeJob).count -gt 0) -or ((Get-VBRSureBackupJob).count -gt 0)) {
                     Section -Style Heading2 'Backup Jobs Summary' {
                         Paragraph "The following section provides information about backup jobs on Veeam Server: $(((Get-VBRServerSession).Server))."
                         BlankLine
@@ -185,6 +185,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                         Write-PScriboMessage "SureBackup Jobs InfoLevel set at $($InfoLevel.Jobs.SureBackup)."
                         if ($InfoLevel.Jobs.SureBackup -ge 1) {
                             Get-AbrVbrSureBackupjob
+                            Get-AbrVbrSureBackupjobVMware
                         }
                         Write-PScriboMessage "Agent Jobs InfoLevel set at $($InfoLevel.Jobs.Agent)."
                         if ($InfoLevel.Jobs.Agent -ge 1) {
