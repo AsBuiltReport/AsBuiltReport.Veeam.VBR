@@ -108,6 +108,51 @@ function Get-AbrVbrBackupjobVMware {
                                         }
                                     }
                                 }
+                                if ($Bkjob.LinkedRepositories) {
+                                    Section -Style Heading5 'Linked Repositories' {
+                                        $OutObj = @()
+                                        try {
+                                            foreach ($LinkedRepository in $Bkjob.LinkedRepositories.LinkedRepositoryId) {
+                                                try {
+                                                    Write-PscriboMessage "Discovered $($Bkjob.Name) linked repository."
+                                                    $Repo = Get-VBRBackupRepository | Where-Object {$_.Id -eq $LinkedRepository}
+                                                    $ScaleRepo = Get-VBRBackupRepository -ScaleOut | Where-Object {$_.Id -eq $LinkedRepository}
+                                                    if ($Repo) {
+                                                        $inObj = [ordered] @{
+                                                            'Name' = $Repo.Name
+                                                            'Type' = "Standard"
+                                                            'Size' = "$($Repo.GetContainer().CachedTotalSpace.InGigabytes) Gb"
+                                                        }
+                                                    }
+                                                    if ($ScaleRepo) {
+                                                        $inObj = [ordered] @{
+                                                            'Name' = $ScaleRepo.Name
+                                                            'Type' = "ScaleOut"
+                                                            'Size' = "$((($ScaleRepo.Extent).Repository).GetContainer().CachedTotalSpace.InGigabytes) GB"
+                                                        }
+                                                    }
+                                                    $OutObj += [pscustomobject]$inobj
+                                                }
+                                                catch {
+                                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                }
+                                            }
+
+                                            $TableParams = @{
+                                                Name = "Linked Repositories - $($Bkjob.Name)"
+                                                List = $false
+                                                ColumnWidths = 35, 35, 30
+                                            }
+                                            if ($Report.ShowTableCaptions) {
+                                                $TableParams['Caption'] = "- $($TableParams.Name)"
+                                            }
+                                            $OutObj | Sort-Object -Property 'Name' | Table @TableParams
+                                        }
+                                        catch {
+                                            Write-PscriboMessage -IsWarning $_.Exception.Message
+                                        }
+                                    }
+                                }
                                 if ($Bkjob.LinkedJobs) {
                                     Section -Style Heading5 'Data Transfer' {
                                         $OutObj = @()
