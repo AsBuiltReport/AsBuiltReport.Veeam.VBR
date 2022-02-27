@@ -180,6 +180,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                         if ($InfoLevel.Jobs.Tape -ge 1) {
                             Get-AbrVbrTapejob
                             Get-AbrVbrBackupToTape
+                            Get-AbrVbrFileToTape
                         }
                         Write-PScriboMessage "SureBackup Jobs InfoLevel set at $($InfoLevel.Jobs.SureBackup)."
                         if ($InfoLevel.Jobs.SureBackup -ge 1) {
