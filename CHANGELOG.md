@@ -16,6 +16,10 @@
     - VMware SureBackup Jobs
 - Added Configuration Backup Section
 
+### Changed
+
+- Updated GitHub Action release workflow to send automated tweets on each release
+
 ## [0.3.1] - 2022-02-8
 
 ### Added
