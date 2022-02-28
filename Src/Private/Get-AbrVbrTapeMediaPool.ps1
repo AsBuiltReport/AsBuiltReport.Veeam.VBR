@@ -6,7 +6,7 @@ function Get-AbrVbrTapeMediaPool {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.3.1
+        Version:        0.4.0
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -46,7 +46,7 @@ function Get-AbrVbrTapeMediaPool {
                                     $inObj = [ordered] @{
                                         'Name' = $PoolObj.Name
                                         'Type' = $PoolObj.Type
-                                        'Tape Count' = ((Get-VBRTapeMediaPool -Id $PoolObj.Id ).Medium).count
+                                        'Tape Count' = ((Get-VBRTapeMediaPool -Id $PoolObj.Id).Medium).count
                                         'Total Space' = ConvertTo-FileSizeString $Capacity
                                         'Free Space' = ConvertTo-FileSizeString $FreeSpace
                                         'Tape Library' = $PoolObj.LibraryId | ForEach-Object {Get-VBRTapeLibrary -Id $_}

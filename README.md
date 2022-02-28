@@ -190,9 +190,9 @@ The table below outlines the default and maximum **InfoLevel** settings for each
 
 | Sub-Schema   | Default Setting | Maximum Setting |
 |--------------|:---------------:|:---------------:|
-| Backup       |        1        |        1        |
-| Tape          |        1        |        1        |
-| Surebackup          |        1        |        1        |
+| Backup       |        1        |        2        |
+| Tape          |        1        |        2        |
+| Surebackup          |        1        |        2        |
 | Agent          |        1        |        1        |
 
 ### Healthcheck

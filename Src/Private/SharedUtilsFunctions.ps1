@@ -21,15 +21,14 @@ function ConvertTo-TextYN {
             $TEXT
         )
 
-    switch ($TEXT)
-        {
-            "" {"-"}
-            $Null {"-"}
-            "True" {"Yes"; break}
-            "False" {"No"; break}
-            default {$TEXT}
-        }
-    } # end
+    switch ($TEXT) {
+        "" {"-"}
+        $Null {"-"}
+        "True" {"Yes"; break}
+        "False" {"No"; break}
+        default {$TEXT}
+    }
+} # end
 function Get-UnixDate ($UnixDate) {
         <#
     .SYNOPSIS
@@ -66,11 +65,11 @@ function ConvertTo-EmptyToFiller {
         )
 
     switch ($TEXT) {
-            "" {"-"; break}
-            $Null {"-"; break}
-            default {$TEXT}
-        }
-    } # end
+        "" {"-"; break}
+        $Null {"-"; break}
+        default {$TEXT}
+    }
+} # end
 
 function ConvertTo-VIobject {
     <#

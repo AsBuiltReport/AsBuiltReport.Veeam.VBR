@@ -6,7 +6,7 @@ function Get-AbrVbrInfrastructureSummary {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.3.1
+        Version:        0.4.0
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -39,8 +39,13 @@ function Get-AbrVbrInfrastructureSummary {
                     $SocketLicenses = (Get-VBRInstalledLicense).SocketLicenseSummary
                     $CapacityLicenses = (Get-VBRInstalledLicense).CapacityLicenseSummary
                     $WANAccels = (Get-VBRWANAccelerator).count
-                    $SureBackupAGs = (Get-VBRApplicationGroup).count
-                    $SureBackupVLs = (Get-VBRVirtualLab).count
+                    try {
+                        $SureBackupAGs = (Get-VBRApplicationGroup).count
+                        $SureBackupVLs = (Get-VBRVirtualLab).count
+                    }
+                    Catch {
+                        Write-PscriboMessage -IsWarning $_.Exception.Message
+                    }
                     $inObj = [ordered] @{
                         'Number of Backup Proxies' = $BackupProxies
                         'Number of Managed Servers' = $BackupServers
