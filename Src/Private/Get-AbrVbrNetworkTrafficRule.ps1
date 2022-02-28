@@ -70,7 +70,6 @@ function Get-AbrVbrNetworkTrafficRule {
                         try {
                             if ((Get-VBRPreferredNetwork).count -gt 0) {
                                 Section -Style Heading5 'Preferred Networks' {
-                                    BlankLine
                                     $OutObj = @()
                                     if ((Get-VBRServerSession).Server) {
                                         try {

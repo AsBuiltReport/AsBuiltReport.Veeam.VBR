@@ -1,5 +1,25 @@
 # :arrows_counterclockwise: Veeam VBR As Built Report Changelog
 
+## [0.4.0] - 2022-02-27
+
+### Added
+
+- Added Backup Job Configuration information
+  - VMware type Backup Jobs
+    - VMware Backup Copy Jobs
+  - Hyper-V Backup Jobs
+    - Hyper-V Backup Copy Jobs
+  - Tape Backup Job Configuration
+    - Backup to Tape Jobs
+    - File to Tape Jobs
+  - SureBackup Job Configuration
+    - VMware SureBackup Jobs
+- Added Configuration Backup Section
+
+### Changed
+
+- Updated GitHub Action release workflow to send automated tweets on each release
+
 ## [0.3.1] - 2022-02-8
 
 ### Added

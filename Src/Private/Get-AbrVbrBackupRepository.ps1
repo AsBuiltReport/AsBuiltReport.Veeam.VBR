@@ -6,7 +6,7 @@ function Get-AbrVbrBackupRepository {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.3.1
+        Version:        0.4.0
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -56,7 +56,7 @@ function Get-AbrVbrBackupRepository {
                                     'Name' = $BackupRepo.Name
                                     'Total Space' = "$($BackupRepo.GetContainer().CachedTotalSpace.InGigabytes) Gb"
                                     'Free Space' = "$($BackupRepo.GetContainer().CachedFreeSpace.InGigabytes) Gb"
-                                    'Space Used %' = $PercentFree
+                                    'Space Used' = $PercentFree
                                     'Status' = Switch ($BackupRepo.IsUnavailable) {
                                         'False' {'Available'}
                                         'True' {'Unavailable'}
@@ -72,8 +72,9 @@ function Get-AbrVbrBackupRepository {
 
                         if ($HealthCheck.Infrastructure.BR) {
                             $OutObj | Where-Object { $_.'Status' -eq 'Unavailable'} | Set-Style -Style Warning -Property 'Status'
-                            $OutObj | Where-Object { $_.'Space Used %' -ge 75} | Set-Style -Style Warning -Property 'Space Used %'
-                            $OutObj | Where-Object { $_.'Space Used %' -ge 90} | Set-Style -Style Critical -Property 'Space Used %'
+                            if ([int]([regex]::Matches($OutObj.'Space Used', "\d+(?!.*\d+)").value) -ge 75) { $OutObj | Set-Style -Style Warning -Property 'Space Used' }
+                            if ([int]([regex]::Matches($OutObj.'Space Used', "\d+(?!.*\d+)").value) -ge 90) { $OutObj | Set-Style -Style Critical -Property 'Space Used' }
+
                         }
 
                         $TableParams = @{
@@ -91,13 +92,13 @@ function Get-AbrVbrBackupRepository {
                         if ($InfoLevel.Infrastructure.BR -ge 2) {
                             try {
                                 Section -Style Heading4 "Backup Repository Configuration" {
-                                    Paragraph "The following section provides a detailed information of the Veeam Backup Repository Configuration"
+                                    Paragraph "The following section provides a detailed information of the Veeam Backup Repository Configuration."
                                     BlankLine
                                     $BackupRepos = Get-VBRBackupRepository
                                     foreach ($BackupRepo in $BackupRepos) {
                                         try {
                                             Section -Style Heading5 "$($BackupRepo.Name)" {
-                                                Paragraph "The following section provides a detailed information of the $($BackupRepo.Name) Backup Repository"
+                                                Paragraph "The following section provides a detailed information of the $($BackupRepo.Name) Backup Repository."
                                                 BlankLine
                                                 $OutObj = @()
                                                 Write-PscriboMessage "Discovered $($BackupRepo.Name) Backup Repository."
