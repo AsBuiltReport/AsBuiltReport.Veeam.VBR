@@ -5,7 +5,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.3.1
+        Version:        0.4.0
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -57,6 +57,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                         Section -Style Heading3 'General Options' {
                             Paragraph "The following section details the Veeam Veaam B&R general setting. General settings are applied to all jobs, backup infrastructure components and other objects managed by the backup server."
                             BlankLine
+                            Get-AbrVbrConfigurationBackupSetting
                             Get-AbrVbrEmailNotificationSetting
                             Get-AbrVbrIOControlSetting
                             Get-AbrVbrBackupServerCertificate
@@ -165,21 +166,26 @@ function Invoke-AsBuiltReport.Veeam.VBR {
             #                                  Backup Jobs Section                                        #
             #---------------------------------------------------------------------------------------------#
             if ($InfoLevel.Jobs.PSObject.Properties.Value -ne 0) {
-                if ((Get-VBRJob).count -gt 0) {
+                if (((Get-VBRJob -WarningAction SilentlyContinue).count -gt 0) -or ((Get-VBRTapeJob).count -gt 0) -or ((Get-VBRSureBackupJob).count -gt 0)) {
                     Section -Style Heading2 'Backup Jobs Summary' {
                         Paragraph "The following section provides information about backup jobs on Veeam Server: $(((Get-VBRServerSession).Server))."
                         BlankLine
                         Write-PScriboMessage "Backup Jobs InfoLevel set at $($InfoLevel.Jobs.Backup)."
                         if ($InfoLevel.Jobs.Backup -ge 1) {
                             Get-AbrVbrBackupjob
+                            Get-AbrVbrBackupjobVMware
+                            Get-AbrVbrBackupjobHyperV
                         }
                         Write-PScriboMessage "Tape Jobs InfoLevel set at $($InfoLevel.Jobs.Tape)."
                         if ($InfoLevel.Jobs.Tape -ge 1) {
                             Get-AbrVbrTapejob
+                            Get-AbrVbrBackupToTape
+                            Get-AbrVbrFileToTape
                         }
                         Write-PScriboMessage "SureBackup Jobs InfoLevel set at $($InfoLevel.Jobs.SureBackup)."
                         if ($InfoLevel.Jobs.SureBackup -ge 1) {
                             Get-AbrVbrSureBackupjob
+                            Get-AbrVbrSureBackupjobVMware
                         }
                         Write-PScriboMessage "Agent Jobs InfoLevel set at $($InfoLevel.Jobs.Agent)."
                         if ($InfoLevel.Jobs.Agent -ge 1) {
