@@ -56,10 +56,6 @@ RequiredModules = @(
     @{
         ModuleName = 'AsBuiltReport.Core';
         ModuleVersion = '1.1.0'
-    },
-    @{
-        ModuleName = 'SqlServer';
-        ModuleVersion = '21.1.18256'
     }
 )
 
