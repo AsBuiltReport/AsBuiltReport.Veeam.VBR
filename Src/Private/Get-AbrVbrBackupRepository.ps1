@@ -113,6 +113,8 @@ function Get-AbrVbrBackupRepository {
                                                     'Dedup Storage' = ConvertTo-TextYN $BackupRepo.IsDedupStorage
                                                     'Split Storages Per Vm' = ConvertTo-TextYN $BackupRepo.SplitStoragesPerVm
                                                     'Immutability Supported' = ConvertTo-TextYN $BackupRepo.IsImmutabilitySupported
+                                                    'Immutability Enabled' = ConvertTo-TextYN $BackupRepo.GetImmutabilitySettings().IsEnabled
+                                                    'Immutability Interval' = $BackupRepo.GetImmutabilitySettings().IntervalDays
                                                     'Version Of Creation' = $BackupRepo.VersionOfCreation
                                                     'Has Backup Chain Length Limitation' = ConvertTo-TextYN $BackupRepo.HasBackupChainLengthLimitation
                                                 }
@@ -120,6 +122,10 @@ function Get-AbrVbrBackupRepository {
 
                                                 if ($HealthCheck.Infrastructure.BR) {
                                                     $OutObj | Where-Object { $_.'Status' -eq 'Unavailable'} | Set-Style -Style Warning -Property 'Status'
+                                                }
+
+                                                if ($HealthCheck.Infrastructure.BR) {
+                                                    $OutObj | Where-Object { $_.'Immutability Supported' -eq 'Yes' -and $_.'Immutability Enabled' -eq 'No' } | Set-Style -Style Warning -Property 'Immutability Enabled'
                                                 }
 
                                                 $TableParams = @{
