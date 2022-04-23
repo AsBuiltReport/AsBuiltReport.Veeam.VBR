@@ -54,7 +54,7 @@ function Get-AbrVbrWANAccelerator {
                                         'Max Tasks Count' = $WANAccel.FindWaHostComp().Options.MaxTasksCount
                                         'Download Stream Count' = $WANAccel.FindWaHostComp().Options.DownloadStreamCount
                                         'Enable Performance Mode' = ConvertTo-TextYN $WANAccel.FindWaHostComp().Options.EnablePerformanceMode
-                                        'Configured Cache' = $IsWaHasAnyCaches
+                                        'Configured Cache' = ConvertTo-TextYN $IsWaHasAnyCaches
                                         'Cache Path' = $WANAccel.FindWaHostComp().Options.CachePath
                                         'Max Cache Size' = "$($WANAccel.FindWaHostComp().Options.MaxCacheSize) $($WANAccel.FindWaHostComp().Options.SizeUnit)"
                                     }

@@ -39,7 +39,7 @@ function Get-AbrVbrObjectRepository {
                                 $inObj = [ordered] @{
                                     'Name' = $ObjectRepo.Name
                                     'Type' = $ObjectRepo.Type
-                                    'Use Gateway Server' = $ObjectRepo.UseGatewayServer
+                                    'Use Gateway Server' = ConvertTo-TextYN $ObjectRepo.UseGatewayServer
                                     'Gateway Server' = Switch ($ObjectRepo.GatewayServer.Name) {
                                         "" {"-"; break}
                                         $Null {"-"; break}
