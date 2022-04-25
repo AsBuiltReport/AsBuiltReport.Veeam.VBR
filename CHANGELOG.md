@@ -1,14 +1,17 @@
 # :arrows_clockwise: Veeam VBR As Built Report Changelog
 
-## [0.4.1] - 2022-04-22
+## [0.4.1] - 2022-04-24
 
 ### Added
 
 - Added Backup Repository information about Immutability
-    - Immutability Enabled: yes/no
-    - Immutability Interval
+  - Immutability Enabled: yes/no
+  - Immutability Interval
 - New Health Check about Immutability
-    - If Repo supports Immutability and Immutability is disabled: Warning
+  - If Repo supports Immutability and Immutability is disabled: Warning
+- Added per section summary information
+- Removed SQLServer module dependency
+- Added VMware/HyperV job VM count
 
 
 ## [0.4.0] - 2022-02-27
