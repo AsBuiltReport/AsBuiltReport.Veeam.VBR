@@ -51,7 +51,7 @@ function Get-AbrVbrBackupjobHyperV {
                             }
 
                             $TableParams = @{
-                                Name = "VMware Backup Summary - $($VMcount.Name)"
+                                Name = "Hyper-V Backup Summary - $(((Get-VBRServerSession).Server).ToString().ToUpper().Split(".")[0])"
                                 List = $false
                                 ColumnWidths = 35, 35, 30
                             }
