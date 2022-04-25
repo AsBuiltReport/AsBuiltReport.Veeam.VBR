@@ -6,7 +6,7 @@ function Get-AbrVbrBackupRepository {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.4.0
+        Version:        0.4.1
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -119,10 +119,6 @@ function Get-AbrVbrBackupRepository {
                                                     'Has Backup Chain Length Limitation' = ConvertTo-TextYN $BackupRepo.HasBackupChainLengthLimitation
                                                 }
                                                 $OutObj += [pscustomobject]$inobj
-
-                                                if ($HealthCheck.Infrastructure.BR) {
-                                                    $OutObj | Where-Object { $_.'Status' -eq 'Unavailable'} | Set-Style -Style Warning -Property 'Status'
-                                                }
 
                                                 if ($HealthCheck.Infrastructure.BR) {
                                                     $OutObj | Where-Object { $_.'Immutability Supported' -eq 'Yes' -and $_.'Immutability Enabled' -eq 'No' } | Set-Style -Style Warning -Property 'Immutability Enabled'

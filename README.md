@@ -62,7 +62,6 @@ PowerShell 5.1 or PowerShell 7, and the following PowerShell modules are require
 
 - [Veeam.Backup.PowerShell Module](https://helpcenter.veeam.com/docs/backup/powershell/getting_started.html?ver=110)
 - [AsBuiltReport.Core Module](https://github.com/AsBuiltReport/AsBuiltReport.Core)
-- [SqlServer Module](https://www.powershellgallery.com/packages/SqlServer)
 
 ### Linux & macOS
 
@@ -222,4 +221,3 @@ PS C:\> New-AsBuiltReport -Report Veeam.VBR -Target veeam-vbr.pharmax.local -Use
 ## :x: Known Issues
 
 - Since many of Veeam's features depend on the Standard+ license, the Community edition will not be supported.
-- In order to extract the information about Enterprise Manager, it is required that the account used to connect to the target has privileges on the sql server service.

@@ -6,7 +6,7 @@ function Get-AbrVbrWANAccelerator {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.4.0
+        Version:        0.4.1
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -54,7 +54,7 @@ function Get-AbrVbrWANAccelerator {
                                         'Max Tasks Count' = $WANAccel.FindWaHostComp().Options.MaxTasksCount
                                         'Download Stream Count' = $WANAccel.FindWaHostComp().Options.DownloadStreamCount
                                         'Enable Performance Mode' = ConvertTo-TextYN $WANAccel.FindWaHostComp().Options.EnablePerformanceMode
-                                        'Configured Cache' = $IsWaHasAnyCaches
+                                        'Configured Cache' = ConvertTo-TextYN $IsWaHasAnyCaches
                                         'Cache Path' = $WANAccel.FindWaHostComp().Options.CachePath
                                         'Max Cache Size' = "$($WANAccel.FindWaHostComp().Options.MaxCacheSize) $($WANAccel.FindWaHostComp().Options.SizeUnit)"
                                     }
