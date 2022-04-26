@@ -36,8 +36,12 @@ function Get-AbrVbrBackupRepository {
                             [Array]$BackupRepos = Get-VBRBackupRepository | Where-Object {$_.Type -ne "SanSnapshotOnly"}
                             [Array]$ScaleOuts = Get-VBRBackupRepository -ScaleOut
                             if ($ScaleOuts) {
-                                {$Extents = Get-VBRRepositoryExtent -Repository $ScaleOuts}
-                                $BackupRepos = $BackupRepos + $Extents.Repository
+                                foreach ($ScaleOut in $ScaleOuts) {
+                                    $Extents = Get-VBRRepositoryExtent -Repository $ScaleOut
+                                    foreach ($Extent in $Extents) {
+                                        $BackupRepos = $BackupRepos + $Extent.repository
+                                    }
+                                }
                             }
                             foreach ($BackupRepo in $BackupRepos) {
                                 Write-PscriboMessage "Discovered $($BackupRepo.Name) Repository."
@@ -90,7 +94,6 @@ function Get-AbrVbrBackupRepository {
                                 Section -Style Heading4 "Backup Repository Configuration" {
                                     Paragraph "The following section provides a detailed information of the Veeam Backup Repository Configuration."
                                     BlankLine
-  #                                  $BackupRepos = Get-VBRBackupRepository
                                     foreach ($BackupRepo in $BackupRepos) {
                                         try {
                                             Section -Style Heading5 "$($BackupRepo.Name)" {
