@@ -1,5 +1,10 @@
 # :arrows_clockwise: Veeam VBR As Built Report Changelog
 
+## [0.4.2] - 2022-04-26
+
+- Added detailed repository information of ScaleOut Backup Repository extents
+     - Information of parent SOBR is also included
+
 ## [0.4.1] - 2022-04-24
 
 ### Added
