@@ -36,12 +36,8 @@ function Get-AbrVbrBackupRepository {
                             [Array]$BackupRepos = Get-VBRBackupRepository | Where-Object {$_.Type -ne "SanSnapshotOnly"}
                             [Array]$ScaleOuts = Get-VBRBackupRepository -ScaleOut
                             if ($ScaleOuts) {
-                                foreach ($ScaleOut in $ScaleOuts) {
-                                    $Extents = Get-VBRRepositoryExtent -Repository $ScaleOut
-                                    foreach ($Extent in $Extents) {
-                                        $BackupRepos = $BackupRepos + $Extent.repository
-                                    }
-                                }
+                                {$Extents = Get-VBRRepositoryExtent -Repository $ScaleOuts}
+                                $BackupRepos = $BackupRepos + $Extents.Repository
                             }
                             foreach ($BackupRepo in $BackupRepos) {
                                 Write-PscriboMessage "Discovered $($BackupRepo.Name) Repository."
@@ -94,7 +90,7 @@ function Get-AbrVbrBackupRepository {
                                 Section -Style Heading4 "Backup Repository Configuration" {
                                     Paragraph "The following section provides a detailed information of the Veeam Backup Repository Configuration."
                                     BlankLine
-                                    $BackupRepos = Get-VBRBackupRepository
+  #                                  $BackupRepos = Get-VBRBackupRepository
                                     foreach ($BackupRepo in $BackupRepos) {
                                         try {
                                             Section -Style Heading5 "$($BackupRepo.Name)" {
@@ -103,6 +99,7 @@ function Get-AbrVbrBackupRepository {
                                                 $OutObj = @()
                                                 Write-PscriboMessage "Discovered $($BackupRepo.Name) Backup Repository."
                                                 $inObj = [ordered] @{
+                                                    'Extent of ScaleOut Backup Repository' = (($ScaleOuts | Where-Object {($Extents | Where-Object {$_.name -eq $BackupRepo.Name}).ParentId -eq $_.Id}).Name)
                                                     'Backup Proxy' = ($BackupRepo.Host).Name
                                                     'Integration Type' = $BackupRepo.TypeDisplay
                                                     'Path' = $BackupRepo.Path
@@ -117,6 +114,9 @@ function Get-AbrVbrBackupRepository {
                                                     'Immutability Interval' = $BackupRepo.GetImmutabilitySettings().IntervalDays
                                                     'Version Of Creation' = $BackupRepo.VersionOfCreation
                                                     'Has Backup Chain Length Limitation' = ConvertTo-TextYN $BackupRepo.HasBackupChainLengthLimitation
+                                                }
+                                                if ($null -eq $inObj.'Extent of ScaleOut Backup Repository') {
+                                                    $inObj.Remove('Extent of ScaleOut Backup Repository')
                                                 }
                                                 $OutObj += [pscustomobject]$inobj
 
