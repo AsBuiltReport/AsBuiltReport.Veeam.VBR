@@ -36,12 +36,8 @@ function Get-AbrVbrBackupRepository {
                             [Array]$BackupRepos = Get-VBRBackupRepository | Where-Object {$_.Type -ne "SanSnapshotOnly"}
                             [Array]$ScaleOuts = Get-VBRBackupRepository -ScaleOut
                             if ($ScaleOuts) {
-                                foreach ($ScaleOut in $ScaleOuts) {
-                                    $Extents = Get-VBRRepositoryExtent -Repository $ScaleOut
-                                    foreach ($Extent in $Extents) {
-                                        $BackupRepos = $BackupRepos + $Extent.repository
-                                    }
-                                }
+                                $Extents = Get-VBRRepositoryExtent -Repository $ScaleOuts
+                                $BackupRepos += $Extents.Repository
                             }
                             foreach ($BackupRepo in $BackupRepos) {
                                 Write-PscriboMessage "Discovered $($BackupRepo.Name) Repository."
