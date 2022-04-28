@@ -1,22 +1,19 @@
 # :arrows_clockwise: Veeam VBR As Built Report Changelog
 
-## [0.4.2] - 2022-04-26
-
-- Added detailed repository information of ScaleOut Backup Repository extents
-     - Information of parent SOBR is also included
-
 ## [0.4.1] - 2022-04-24
 
 ### Added
 
-- Added Backup Repository information about Immutability
+- Added Backup Repository information about Immutability. @vNote42
   - Immutability Enabled: yes/no
   - Immutability Interval
-- New Health Check about Immutability
+- New Health Check about Immutability. @vNote42
   - If Repo supports Immutability and Immutability is disabled: Warning
-- Added per section summary information
-- Removed SQLServer module dependency
-- Added VMware/HyperV job VM count
+- Added per section summary information. @rebelinux
+- Removed SQLServer module dependency. @rebelinux
+- Added VMware/Hyper-V job VM count. @rebelinux
+- Added detailed repository information of ScaleOut Backup Repository extents. @vNote42
+  - Information of parent SOBR is also included.
 
 
 ## [0.4.0] - 2022-02-27
