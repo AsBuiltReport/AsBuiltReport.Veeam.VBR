@@ -12,8 +12,11 @@
 - Added per section summary information. @rebelinux
 - Removed SQLServer module dependency. @rebelinux
 - Added VMware/Hyper-V job VM count. @rebelinux
-- Added detailed repository information of ScaleOut Backup Repository extents. @vNote42
-  - Information of parent SOBR is also included.
+- Added detailed repository information of ScaleOut Backup Repository extents @vNote42
+  - Information of parent SOBR is also included
+- Added the Option PSDefaultAuthentication used to set the PSRemoting authentication method over WinRM @rebelinux
+  - Kerberos for Domain joined devices (Kerberos authentication)
+  - Negotiate for Workgroup devices (NTLM authentication)
 
 
 ## [0.4.0] - 2022-02-27

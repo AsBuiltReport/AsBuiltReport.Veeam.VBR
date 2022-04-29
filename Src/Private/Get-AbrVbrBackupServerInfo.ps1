@@ -35,8 +35,8 @@ function Get-AbrVbrBackupServerInfo {
                         try {
                             $BackupServers = Get-VBRServer -Type Local
                             foreach ($BackupServer in $BackupServers) {
-                                $CimSession = New-CimSession $BackupServer.Name -Credential $Credential -Authentication Default
-                                $PssSession = New-PSSession $BackupServer.Name -Credential $Credential -Authentication Default
+                                $CimSession = New-CimSession $BackupServer.Name -Credential $Credential -Authentication $Options.PSDefaultAuthentication
+                                $PssSession = New-PSSession $BackupServer.Name -Credential $Credential -Authentication $Options.PSDefaultAuthentication
                                 $SecurityOptions = Get-VBRSecurityOptions
                                 Write-PscriboMessage "Collecting Backup Server information from $($BackupServer.Name)."
                                 try {
