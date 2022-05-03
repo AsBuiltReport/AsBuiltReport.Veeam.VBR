@@ -6,7 +6,7 @@ function Get-AbrVbrObjectRepository {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.4.0
+        Version:        0.4.1
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -39,7 +39,7 @@ function Get-AbrVbrObjectRepository {
                                 $inObj = [ordered] @{
                                     'Name' = $ObjectRepo.Name
                                     'Type' = $ObjectRepo.Type
-                                    'Use Gateway Server' = $ObjectRepo.UseGatewayServer
+                                    'Use Gateway Server' = ConvertTo-TextYN $ObjectRepo.UseGatewayServer
                                     'Gateway Server' = Switch ($ObjectRepo.GatewayServer.Name) {
                                         "" {"-"; break}
                                         $Null {"-"; break}

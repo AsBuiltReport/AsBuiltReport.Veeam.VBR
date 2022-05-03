@@ -5,7 +5,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.4.0
+        Version:        0.4.1
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -99,6 +99,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                     Section -Style Heading2 'Tape Infrastructure Summary' {
                         Paragraph "The following section provides inventory information of the Tape Infrastructure managed by Veeam Server $(((Get-VBRServerSession).Server))."
                         BlankLine
+                        Get-AbrVbrTapeInfraSummary
                         Write-PScriboMessage "Tape Server InfoLevel set at $($InfoLevel.Tape.Server)."
                         if ($InfoLevel.Tape.Server -ge 1) {
                             Get-AbrVbrTapeServer
@@ -126,6 +127,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                     Section -Style Heading2 'Inventory Summary' {
                         Paragraph "The following section provides inventory information of the Virtual Infrastructure managed by Veeam Server $(((Get-VBRServerSession).Server))."
                         BlankLine
+                        Get-AbrVbrInventorySummary
                         Write-PScriboMessage "Virtual Inventory InfoLevel set at $($InfoLevel.Inventory.VI)."
                         if ($InfoLevel.Inventory.VI -ge 1) {
                             Get-AbrVbrVirtualInfrastructure
@@ -151,6 +153,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                     Section -Style Heading2 'Storage Infrastructure Summary' {
                         Paragraph "The following section provides storage infrastructure managed by Veeam Server $(((Get-VBRServerSession).Server))."
                         BlankLine
+                        Get-AbrVbrStorageInfraSummary
                         Write-PScriboMessage "NetApp Ontap InfoLevel set at $($InfoLevel.Storage.Ontap)."
                         if ($InfoLevel.Storage.Ontap -ge 1) {
                             Get-AbrVbrStorageOntap
@@ -190,6 +193,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                         Write-PScriboMessage "Agent Jobs InfoLevel set at $($InfoLevel.Jobs.Agent)."
                         if ($InfoLevel.Jobs.Agent -ge 1) {
                             Get-AbrVbrAgentBackupjob
+                            Get-AbrVbrAgentBackupjobConf
                         }
                     }
                 }

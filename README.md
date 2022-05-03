@@ -62,7 +62,6 @@ PowerShell 5.1 or PowerShell 7, and the following PowerShell modules are require
 
 - [Veeam.Backup.PowerShell Module](https://helpcenter.veeam.com/docs/backup/powershell/getting_started.html?ver=110)
 - [AsBuiltReport.Core Module](https://github.com/AsBuiltReport/AsBuiltReport.Core)
-- [SqlServer Module](https://www.powershellgallery.com/packages/SqlServer)
 
 ### Linux & macOS
 
@@ -134,6 +133,7 @@ The **Options** schema allows certain options within the report to be toggled on
 | Sub-Schema      | Setting      | Default | Description                                                                                                                                                                                 |
 |-----------------|--------------|---------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | BackupServerPort | TCP Port  | 9392    | Used to specify the backup service's custom port
+| PSDefaultAuthentication | Negotiate/Kerberos  | Default    | Allow to set the value of the PSRemoting authentication method. For Workgroup authentication Negotiate value is required.
 
 ### InfoLevel
 
@@ -193,7 +193,7 @@ The table below outlines the default and maximum **InfoLevel** settings for each
 | Backup       |        1        |        2        |
 | Tape          |        1        |        2        |
 | Surebackup          |        1        |        2        |
-| Agent          |        1        |        1        |
+| Agent          |        1        |        2        |
 
 ### Healthcheck
 
@@ -222,4 +222,3 @@ PS C:\> New-AsBuiltReport -Report Veeam.VBR -Target veeam-vbr.pharmax.local -Use
 ## :x: Known Issues
 
 - Since many of Veeam's features depend on the Standard+ license, the Community edition will not be supported.
-- In order to extract the information about Enterprise Manager, it is required that the account used to connect to the target has privileges on the sql server service.

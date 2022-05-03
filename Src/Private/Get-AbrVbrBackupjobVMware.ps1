@@ -6,7 +6,7 @@ function Get-AbrVbrBackupjobVMware {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.4.0
+        Version:        0.4.1
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -31,6 +31,39 @@ function Get-AbrVbrBackupjobVMware {
                 Section -Style Heading3 'VMware Backup Configuration' {
                     Paragraph "The following section details VMware type per backup jobs configuration."
                     BlankLine
+                    $OutObj = @()
+                    try {
+                        $VMcounts = Get-VBRBackup | Where-Object {$_.TypeToString -eq "VMware Backup" -or $_.TypeToString -eq "VMware Backup Copy" -or $_.TypeToString -eq "VM Copy"}
+                        if ($VMcounts) {
+                            foreach ($VMcount in $VMcounts) {
+                                try {
+                                    Write-PscriboMessage "Discovered $($VMcount.Name) ."
+                                    $inObj = [ordered] @{
+                                        'Name' = $VMcount.Name
+                                        'Creation Time' = $VMcount.CreationTime
+                                        'VM Count' = $VMcount.VmCount
+                                    }
+                                    $OutObj += [pscustomobject]$inobj
+                                }
+                                catch {
+                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                }
+                            }
+
+                            $TableParams = @{
+                                Name = "VMware Backup Summary - $(((Get-VBRServerSession).Server).ToString().ToUpper().Split(".")[0])"
+                                List = $false
+                                ColumnWidths = 35, 35, 30
+                            }
+                            if ($Report.ShowTableCaptions) {
+                                $TableParams['Caption'] = "- $($TableParams.Name)"
+                            }
+                            $OutObj | Sort-Object -Property 'Name' | Table @TableParams
+                        }
+                    }
+                    catch {
+                        Write-PscriboMessage -IsWarning $_.Exception.Message
+                    }
                     $OutObj = @()
                     foreach ($Bkjob in $Bkjobs) {
                         try {

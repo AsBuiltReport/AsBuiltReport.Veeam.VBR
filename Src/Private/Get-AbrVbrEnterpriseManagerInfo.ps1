@@ -2,11 +2,11 @@
 function Get-AbrVbrEnterpriseManagerInfo {
     <#
     .SYNOPSIS
-    Used by As Built Report to retrieve Veeam VBR Enterprise Manager Information
+        Used by As Built Report to retrieve Veeam VBR Enterprise Manager Information
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.3.1
+        Version:        0.4.1
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -35,44 +35,30 @@ function Get-AbrVbrEnterpriseManagerInfo {
                         try {
                             $BackupServers = Get-VBRServer -Type Local
                             foreach ($BackupServer in $BackupServers) {
-                                Write-PscriboMessage "Collecting Enterprise Manager information from $($BackupServer.Name)."
-                                $PssSession = New-PSSession $BackupServer.Name -Credential $Credential -Authentication Default
-                                try {
-                                    $VeeamInfo = Invoke-Command -Session $PssSession -ErrorAction SilentlyContinue -ScriptBlock { Get-ItemProperty -Path 'HKLM:\SOFTWARE\Veeam\Veeam Backup and Replication' }
-                                } catch {Write-PscriboMessage -IsWarning $_.Exception.Message}
-                                Remove-PSSession -Session $PssSession
-                                if ($VeeamInfo) {
-                                    if ($VeeamInfo.SqlInstanceName) {
-                                        $EMInfo = Invoke-Sqlcmd -ServerInstance "$($VeeamInfo.SqlServerName)\$($VeeamInfo.SqlInstanceName)" -query "select value from [$($VeeamInfo.SqlDatabaseName)].[dbo].[Options] where name = 'EnterpriseServerInfo'"
+                            Write-PscriboMessage "Collecting Enterprise Manager information from $($BackupServer.Name)."
+                            $EMInfo = [Veeam.Backup.Core.SBackupOptions]::GetEnterpriseServerInfo()
+                                if ($EMInfo) {
+                                    $inObj = [ordered] @{
+                                        'Server Name' = $EMInfo.ServerName
+                                        'Server URL' = $EMInfo.URL
+                                        'Skip License Push' = ConvertTo-TextYN $EMInfo.SkipLicensePush
+                                        'Is Connected' = ConvertTo-TextYN $EMInfo.IsConnected
                                     }
-                                    else {
-                                        $EMInfo = Invoke-Sqlcmd -ServerInstance $VeeamInfo.SqlServerName -query "select value from [$($VeeamInfo.SqlDatabaseName)].[dbo].[Options] where name = 'EnterpriseServerInfo'"
+                                }
+
+                                $OutObj = [pscustomobject]$inobj
+
+                                if ($OutObj) {
+
+                                    $TableParams = @{
+                                        Name = "Enterprise Manager - $($BackupServer.Name.Split(".")[0])"
+                                        List = $true
+                                        ColumnWidths = 40, 60
                                     }
-
-                                    if ($EMInfo) {
-                                        $EnterpriseManager = $([xml]$EMInfo.value).EnterpriseServerInfo
-                                        $inObj = [ordered] @{
-                                            'Server Name' = $EnterpriseManager.ServerName
-                                            'Server URL' = $EnterpriseManager.URL
-                                            'Skip License Push' = ConvertTo-TextYN $EnterpriseManager.SkipLicensePush
-                                            'Is Connected' = ConvertTo-TextYN $EnterpriseManager.IsConnected
-                                        }
+                                    if ($Report.ShowTableCaptions) {
+                                        $TableParams['Caption'] = "- $($TableParams.Name)"
                                     }
-
-                                    $OutObj = [pscustomobject]$inobj
-
-                                    if ($OutObj) {
-
-                                        $TableParams = @{
-                                            Name = "Enterprise Manager - $($BackupServer.Name.Split(".")[0])"
-                                            List = $true
-                                            ColumnWidths = 40, 60
-                                        }
-                                        if ($Report.ShowTableCaptions) {
-                                            $TableParams['Caption'] = "- $($TableParams.Name)"
-                                        }
-                                        $OutObj | Table @TableParams
-                                    }
+                                    $OutObj | Table @TableParams
                                 }
                             }
                         }

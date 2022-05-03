@@ -6,7 +6,7 @@ function Get-AbrVbrBackupRepository {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.4.0
+        Version:        0.4.1
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -36,12 +36,8 @@ function Get-AbrVbrBackupRepository {
                             [Array]$BackupRepos = Get-VBRBackupRepository | Where-Object {$_.Type -ne "SanSnapshotOnly"}
                             [Array]$ScaleOuts = Get-VBRBackupRepository -ScaleOut
                             if ($ScaleOuts) {
-                                foreach ($ScaleOut in $ScaleOuts) {
-                                    $Extents = Get-VBRRepositoryExtent -Repository $ScaleOut
-                                    foreach ($Extent in $Extents) {
-                                        $BackupRepos = $BackupRepos + $Extent.repository
-                                    }
-                                }
+                                $Extents = Get-VBRRepositoryExtent -Repository $ScaleOuts
+                                $BackupRepos += $Extents.Repository
                             }
                             foreach ($BackupRepo in $BackupRepos) {
                                 Write-PscriboMessage "Discovered $($BackupRepo.Name) Repository."
@@ -94,7 +90,6 @@ function Get-AbrVbrBackupRepository {
                                 Section -Style Heading4 "Backup Repository Configuration" {
                                     Paragraph "The following section provides a detailed information of the Veeam Backup Repository Configuration."
                                     BlankLine
-                                    $BackupRepos = Get-VBRBackupRepository
                                     foreach ($BackupRepo in $BackupRepos) {
                                         try {
                                             Section -Style Heading5 "$($BackupRepo.Name)" {
@@ -103,6 +98,7 @@ function Get-AbrVbrBackupRepository {
                                                 $OutObj = @()
                                                 Write-PscriboMessage "Discovered $($BackupRepo.Name) Backup Repository."
                                                 $inObj = [ordered] @{
+                                                    'Extent of ScaleOut Backup Repository' = (($ScaleOuts | Where-Object {($Extents | Where-Object {$_.name -eq $BackupRepo.Name}).ParentId -eq $_.Id}).Name)
                                                     'Backup Proxy' = ($BackupRepo.Host).Name
                                                     'Integration Type' = $BackupRepo.TypeDisplay
                                                     'Path' = $BackupRepo.Path
@@ -113,13 +109,18 @@ function Get-AbrVbrBackupRepository {
                                                     'Dedup Storage' = ConvertTo-TextYN $BackupRepo.IsDedupStorage
                                                     'Split Storages Per Vm' = ConvertTo-TextYN $BackupRepo.SplitStoragesPerVm
                                                     'Immutability Supported' = ConvertTo-TextYN $BackupRepo.IsImmutabilitySupported
+                                                    'Immutability Enabled' = ConvertTo-TextYN $BackupRepo.GetImmutabilitySettings().IsEnabled
+                                                    'Immutability Interval' = $BackupRepo.GetImmutabilitySettings().IntervalDays
                                                     'Version Of Creation' = $BackupRepo.VersionOfCreation
                                                     'Has Backup Chain Length Limitation' = ConvertTo-TextYN $BackupRepo.HasBackupChainLengthLimitation
+                                                }
+                                                if ($null -eq $inObj.'Extent of ScaleOut Backup Repository') {
+                                                    $inObj.Remove('Extent of ScaleOut Backup Repository')
                                                 }
                                                 $OutObj += [pscustomobject]$inobj
 
                                                 if ($HealthCheck.Infrastructure.BR) {
-                                                    $OutObj | Where-Object { $_.'Status' -eq 'Unavailable'} | Set-Style -Style Warning -Property 'Status'
+                                                    $OutObj | Where-Object { $_.'Immutability Supported' -eq 'Yes' -and $_.'Immutability Enabled' -eq 'No' } | Set-Style -Style Warning -Property 'Immutability Enabled'
                                                 }
 
                                                 $TableParams = @{

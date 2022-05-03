@@ -1,4 +1,45 @@
-# :arrows_counterclockwise: Veeam VBR As Built Report Changelog
+# :arrows_clockwise: Veeam VBR As Built Report Changelog
+
+## [0.4.1] - 2022-05-02
+
+### Added
+
+- Added Backup Repository information about Immutability. @vNote42
+  - Immutability Enabled: yes/no
+  - Immutability Interval
+- New Health Check about Immutability. @vNote42
+  - If Repo supports Immutability and Immutability is disabled: Warning
+- Added per section summary information. @rebelinux
+- Removed SQLServer module dependency. @rebelinux
+- Added VMware/Hyper-V job VM count. @rebelinux
+- Added detailed repository information of ScaleOut Backup Repository extents @vNote42
+  - Information of parent SOBR is also included
+- Added the Option PSDefaultAuthentication used to set the PSRemoting authentication method over WinRM @rebelinux
+  - Kerberos for Domain joined devices (Kerberos authentication)
+  - Negotiate for Workgroup devices (NTLM authentication)
+- Added Agent Backup Job Configuration information @rebelinux
+  - Job Mode information
+    - Worstation
+    - Server
+    - No Failover Support in this release (Don't have the resources to develop this feature)
+  - Protected Computer Objects information
+  - Backup Mode information
+    - Entire Computer
+    - Volume Level Backup
+    - File Level Backup
+  - Destination information (Jobs Managed by Agent)
+    - Local Storage
+    - Shared Folder
+    - Veeam Backup Repository
+    - Sadly no Veeam Cloud Connect Repository Support (Don't have the resources to develop this feature)
+  - Storage information (Jobs Managed by Server)
+    - Secondary Target Job information
+  - Backup Cache information
+  - Job Scheduling information
+
+### Fixed
+
+- Fix authentication error in Workgroup enviroments #31
 
 ## [0.4.0] - 2022-02-27
 
