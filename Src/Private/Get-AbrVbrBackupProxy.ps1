@@ -124,8 +124,8 @@ function Get-AbrVbrBackupProxy {
                                         foreach ($BackupProxy in $BackupProxies) {
                                             try {
                                                 Write-PscriboMessage "Collecting Backup Proxy Inventory Summary from $($BackupProxy.Host.Name)."
-                                                $CimSession = New-CimSession $BackupProxy.Host.Name -Credential $Credential -Authentication Default
-                                                $PssSession = New-PSSession $BackupProxy.Host.Name -Credential $Credential -Authentication Default
+                                                $CimSession = New-CimSession $BackupProxy.Host.Name -Credential $Credential -Authentication $Options.PSDefaultAuthentication
+                                                $PssSession = New-PSSession $BackupProxy.Host.Name -Credential $Credential -Authentication $Options.PSDefaultAuthentication
                                                 if ($PssSession) {
                                                     $HW = Invoke-Command -Session $PssSession -ScriptBlock { Get-ComputerInfo }
                                                 }
@@ -386,7 +386,7 @@ function Get-AbrVbrBackupProxy {
                                             $BackupProxies = Get-VBRViProxy | Where-Object {$_.Host.Type -eq "Windows"}
                                             foreach ($BackupProxy in $BackupProxies) {
                                                 try {
-                                                    $PssSession = New-PSSession $BackupProxy.Host.Name -Credential $Credential -Authentication Default
+                                                    $PssSession = New-PSSession $BackupProxy.Host.Name -Credential $Credential -Authentication $Options.PSDefaultAuthentication
                                                     $Available = Invoke-Command -Session $PssSession -ScriptBlock {Get-Service "W32Time" | Select-Object DisplayName, Name, Status}
                                                     Write-PscriboMessage "Collecting Backup Proxy Service information from $($BackupProxy.Name)."
                                                     if ($PssSession) {
@@ -538,8 +538,8 @@ function Get-AbrVbrBackupProxy {
                                             foreach ($BackupProxy in $BackupProxies) {
                                                 try {
                                                     Write-PscriboMessage "Collecting Backup Proxy Inventory Summary from $($BackupProxy.Host.Name)."
-                                                    $CimSession = New-CimSession $BackupProxy.Host.Name -Credential $Credential -Authentication Default
-                                                    $PssSession = New-PSSession $BackupProxy.Host.Name -Credential $Credential -Authentication Default
+                                                    $CimSession = New-CimSession $BackupProxy.Host.Name -Credential $Credential -Authentication $Options.PSDefaultAuthentication
+                                                    $PssSession = New-PSSession $BackupProxy.Host.Name -Credential $Credential -Authentication $Options.PSDefaultAuthentication
                                                     if ($PssSession) {
                                                         $HW = Invoke-Command -Session $PssSession -ScriptBlock { Get-ComputerInfo }
                                                     }
@@ -803,7 +803,7 @@ function Get-AbrVbrBackupProxy {
                                                 $BackupProxies = Get-VBRHvProxy
                                                 foreach ($BackupProxy in $BackupProxies) {
                                                     try {
-                                                        $PssSession = New-PSSession $BackupProxy.Host.Name -Credential $Credential -Authentication Default
+                                                        $PssSession = New-PSSession $BackupProxy.Host.Name -Credential $Credential -Authentication $Options.PSDefaultAuthentication
                                                         $Available = Invoke-Command -Session $PssSession -ScriptBlock {Get-Service "W32Time" | Select-Object DisplayName, Name, Status}
                                                         Write-PscriboMessage "Collecting Backup Proxy Service information from $($BackupProxy.Name)."
                                                         if ($PssSession) {

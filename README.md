@@ -133,6 +133,7 @@ The **Options** schema allows certain options within the report to be toggled on
 | Sub-Schema      | Setting      | Default | Description                                                                                                                                                                                 |
 |-----------------|--------------|---------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | BackupServerPort | TCP Port  | 9392    | Used to specify the backup service's custom port
+| PSDefaultAuthentication | Negotiate/Kerberos  | Default    | Allow to set the value of the PSRemoting authentication method. For Workgroup authentication Negotiate value is required.
 
 ### InfoLevel
 
@@ -192,7 +193,7 @@ The table below outlines the default and maximum **InfoLevel** settings for each
 | Backup       |        1        |        2        |
 | Tape          |        1        |        2        |
 | Surebackup          |        1        |        2        |
-| Agent          |        1        |        1        |
+| Agent          |        1        |        2        |
 
 ### Healthcheck
 

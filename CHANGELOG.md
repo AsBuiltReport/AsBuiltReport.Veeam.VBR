@@ -1,23 +1,41 @@
 # :arrows_clockwise: Veeam VBR As Built Report Changelog
 
-## [0.4.2] - 2022-04-26
-
-- Added detailed repository information of ScaleOut Backup Repository extents
-     - Information of parent SOBR is also included
-
 ## [0.4.1] - 2022-04-24
 
 ### Added
 
-- Added Backup Repository information about Immutability
+- Added Backup Repository information about Immutability. @vNote42
   - Immutability Enabled: yes/no
   - Immutability Interval
-- New Health Check about Immutability
+- New Health Check about Immutability. @vNote42
   - If Repo supports Immutability and Immutability is disabled: Warning
-- Added per section summary information
-- Removed SQLServer module dependency
-- Added VMware/HyperV job VM count
-
+- Added per section summary information. @rebelinux
+- Removed SQLServer module dependency. @rebelinux
+- Added VMware/Hyper-V job VM count. @rebelinux
+- Added detailed repository information of ScaleOut Backup Repository extents @vNote42
+  - Information of parent SOBR is also included
+- Added the Option PSDefaultAuthentication used to set the PSRemoting authentication method over WinRM @rebelinux
+  - Kerberos for Domain joined devices (Kerberos authentication)
+  - Negotiate for Workgroup devices (NTLM authentication)
+- Added Agent Backup Job Configuration information @rebelinux
+  - Job Mode information
+    - Worstation
+    - Server
+    - No Failover Support in this release (Don't have the resources to develop this feature)
+  - Protected Computer Objects information
+  - Backup Mode information
+    - Entire Computer
+    - Volume Level Backup
+    - File Level Backup
+  - Destination information (Jobs Managed by Agent)
+    - Local Storage
+    - Shared Folder
+    - Veeam Backup Repository
+    - Sadly no Veeam Cloud Connect Repository Support (Don't have the resources to develop this feature)
+  - Storage information (Jobs Managed by Server)
+    - Secondary Target Job information
+  - Backup Cache information
+  - Job Scheduling information
 
 ## [0.4.0] - 2022-02-27
 
