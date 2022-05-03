@@ -17,7 +17,25 @@
 - Added the Option PSDefaultAuthentication used to set the PSRemoting authentication method over WinRM @rebelinux
   - Kerberos for Domain joined devices (Kerberos authentication)
   - Negotiate for Workgroup devices (NTLM authentication)
-
+- Added Agent Backup Job Configuration information @rebelinux
+  - Job Mode information
+    - Worstation
+    - Server
+    - No Failover Support in this release (Don't have the resources to develop this feature)
+  - Protected Computer Objects information
+  - Backup Mode information
+    - Entire Computer
+    - Volume Level Backup
+    - File Level Backup
+  - Destination information (Jobs Managed by Agent)
+    - Local Storage
+    - Shared Folder
+    - Veeam Backup Repository
+    - Sadly no Veeam Cloud Connect Repository Support (Don't have the resources to develop this feature)
+  - Storage information (Jobs Managed by Server)
+    - Secondary Target Job information
+  - Backup Cache information
+  - Job Scheduling information
 
 ## [0.4.0] - 2022-02-27
 

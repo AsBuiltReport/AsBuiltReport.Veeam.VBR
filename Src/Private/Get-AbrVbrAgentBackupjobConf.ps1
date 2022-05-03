@@ -178,70 +178,223 @@ function Get-AbrVbrAgentBackupjobConf {
                                         Write-PscriboMessage -IsWarning $_.Exception.Message
                                     }
                                     try {
-                                        Section -Style Heading5 'Destination' {
+                                        if ($ABkjob.Mode -eq 'ManagedByAgent') {
+                                            $StorageTXT = 'Destination'
+                                        }
+                                        elseif ($ABkjob.Mode -eq 'ManagedByBackupServer') {
+                                            $StorageTXT = 'Storage'
+                                        }
+                                        Section -Style Heading5 $StorageTXT {
                                             $OutObj = @()
-                                            try {
-                                                Write-PscriboMessage "Discovered $($ABkjob.Name) destination information."
-                                                if ($ABkjob.RetentionType -eq "RestoreDays") {
-                                                    $RetainString = 'Retain Days To Keep'
-                                                    $Retains = $ABkjob.RetentionPolicy
-                                                }
-                                                elseif ($ABkjob.RetentionType -eq "RestorePoints") {
-                                                    $RetainString = 'Retain Points'
-                                                    $Retains = $ABkjob.RetentionPolicy
-                                                }
-                                                if ($ABkjob.Mode -eq 'ManagedByBackupServer') {
-                                                    $DestinationType = 'Veeam Backup Repository'
-                                                }
-                                                if ($ABkjob.Mode -eq 'ManagedByAgent') {
-                                                    $DestinationType = SWitch ($ABkjob.DestinationOptions.DestinationType) {
-                                                        'BackupRepository' {'Veeam Backup Repository'}
-                                                        'LocalStorage' {'Local Storage'}
-                                                        'NetworkFolder' {'Shared Folder'}
-                                                        default {$ABkjob.DestinationOptions.DestinationType}
+                                            if ($ABkjob.Mode -eq 'ManagedByAgent') {
+                                                try {
+                                                    Write-PscriboMessage "Discovered $($ABkjob.Name) destination information."
+                                                    if ($ABkjob.RetentionType -eq "RestoreDays") {
+                                                        $RetainString = 'Retain Days To Keep'
+                                                        $Retains = $ABkjob.RetentionPolicy
                                                     }
-                                                }
-                                                $inObj = [ordered] @{
-                                                    'Destination Type' = $DestinationType
-                                                    'Retention Type' = $ABkjob.RetentionType
-                                                    $RetainString = $Retains
-                                                }
-                                                if ($ABkjob.DestinationOptions.DestinationType -eq 'BackupRepository') {
-                                                    $inObj.add('Backup Server',($ABkjob.DestinationOptions.BackupServerName))
-                                                    $inObj.add('Storage',($ABkjob.DestinationOptions.BackupRepository.Name))
-                                                }
-                                                elseif ($ABkjob.DestinationOptions.DestinationType -eq 'LocalStorage') {
-                                                    $inObj.add('Local Path',($ABkjob.DestinationOptions.LocalPath))
-                                                }
-                                                elseif ($ABkjob.DestinationOptions.DestinationType -eq 'NetworkFolder') {
-                                                    $inObj.add('Shared Folder',($ABkjob.DestinationOptions.NetworkFolderPath))
-                                                    $inObj.add('Target Share Type',($ABkjob.DestinationOptions.TargetShareType))
-                                                    $inObj.add('Use Network Credentials',(ConvertTo-TextYN $ABkjob.DestinationOptions.UseNetworkCredentials))
-                                                    if ($ABkjob.DestinationOptions.UseNetworkCredentials) {
-                                                        $inObj.add('Credentials',($ABkjob.DestinationOptions.NetworkCredentials.Name))
+                                                    elseif ($ABkjob.RetentionType -eq "RestorePoints") {
+                                                        $RetainString = 'Retain Points'
+                                                        $Retains = $ABkjob.RetentionPolicy
                                                     }
+                                                    if ($ABkjob.Mode -eq 'ManagedByBackupServer') {
+                                                        $DestinationType = 'Veeam Backup Repository'
+                                                    }
+                                                    if ($ABkjob.Mode -eq 'ManagedByAgent') {
+                                                        $DestinationType = SWitch ($ABkjob.DestinationOptions.DestinationType) {
+                                                            'BackupRepository' {'Veeam Backup Repository'}
+                                                            'LocalStorage' {'Local Storage'}
+                                                            'NetworkFolder' {'Shared Folder'}
+                                                            default {$ABkjob.DestinationOptions.DestinationType}
+                                                        }
+                                                    }
+                                                    if ([Veeam.Backup.Core.CBackupJob]::GetSecondDestinationJobs($ABkjob.id)) {
+                                                        $SecondaryJobRepo = 'Yes'
+                                                    }
+                                                    else {$SecondaryJobRepo = 'No'}
+                                                    $inObj = [ordered] @{
+                                                        'Destination Type' = $DestinationType
+                                                        'Retention Policy' = Switch ($ABkjob.RetentionType) {
+                                                            'RestorePoints' {'Restore Points'}
+                                                            'RestoreDays' {'Restore Days'}
+                                                            default {$ABkjob.RetentionType}
+                                                        }
+                                                        $RetainString = $Retains
+                                                        'Configure Secondary Destination for this Job' = $SecondaryJobRepo
+                                                    }
+                                                    if ($ABkjob.DestinationOptions.DestinationType -eq 'BackupRepository') {
+                                                        $inObj.add('Backup Server',($ABkjob.DestinationOptions.BackupServerName))
+                                                        $inObj.add('Backup Repository',($ABkjob.DestinationOptions.BackupRepository.Name))
+                                                    }
+                                                    elseif ($ABkjob.DestinationOptions.DestinationType -eq 'LocalStorage') {
+                                                        $inObj.add('Local Path',($ABkjob.DestinationOptions.LocalPath))
+                                                    }
+                                                    elseif ($ABkjob.DestinationOptions.DestinationType -eq 'NetworkFolder') {
+                                                        $inObj.add('Shared Folder',($ABkjob.DestinationOptions.NetworkFolderPath))
+                                                        $inObj.add('Target Share Type',($ABkjob.DestinationOptions.TargetShareType))
+                                                        $inObj.add('Use Network Credentials',(ConvertTo-TextYN $ABkjob.DestinationOptions.UseNetworkCredentials))
+                                                        if ($ABkjob.DestinationOptions.UseNetworkCredentials) {
+                                                            $inObj.add('Credentials',($ABkjob.DestinationOptions.NetworkCredentials.Name))
+                                                        }
+                                                    }
+                                                    if ($ABkjob.GFSRetentionEnabled) {
+                                                        $inObj.add('Keep certain full backup longer for archival purposes (GFS)',(ConvertTo-TextYN $ABkjob.GFSRetentionEnabled))
+                                                        $inObj.add('Keep Weekly full backup for', ("$($ABkjob.GFSOptions.WeeklyOptions.RetentionPeriod) weeks,`r`nIf multiple backup exist use the one from: $($ABkjob.GFSOptions.WeeklyOptions.SelectedDay)"))
+                                                        $inObj.add('Keep Monthly full backup for', ("$($ABkjob.GFSOptions.MonthlyOptions.RetentionPeriod) months,`r`nUse weekly full backup from the following week of the month: $($ABkjob.GFSOptions.MonthlyOptions.SelectedWeek)"))
+                                                        $inObj.add('Keep Yearly full backup for', ("$($ABkjob.GFSOptions.YearlyOptions.RetentionPeriod) years,`r`nUse monthly full backup from the following month: $($ABkjob.GFSOptions.YearlyOptions.SelectedMonth)"))
+                                                    }
+                                                    $OutObj += [pscustomobject]$inobj
                                                 }
-                                                if ($ABkjob.GFSRetentionEnabled) {
-                                                    $inObj.add('Keep certain full backup longer for archival purposes (GFS)',(ConvertTo-TextYN $ABkjob.GFSRetentionEnabled))
-                                                    $inObj.add('Keep Weekly full backup for', ("$($ABkjob.GFSOptions.WeeklyOptions.RetentionPeriod) weeks,`r`nIf multiple backup exist use the one from: $($ABkjob.GFSOptions.WeeklyOptions.SelectedDay)"))
-                                                    $inObj.add('Keep Monthly full backup for', ("$($ABkjob.GFSOptions.MonthlyOptions.RetentionPeriod) months,`r`nUse weekly full backup from the following week of the month: $($ABkjob.GFSOptions.MonthlyOptions.SelectedWeek)"))
-                                                    $inObj.add('Keep Yearly full backup for', ("$($ABkjob.GFSOptions.YearlyOptions.RetentionPeriod) years,`r`nUse monthly full backup from the following month: $($ABkjob.GFSOptions.YearlyOptions.SelectedMonth)"))
+                                                catch {
+                                                    Write-PscriboMessage -IsWarning $_.Exception.Message
                                                 }
-                                                $OutObj += [pscustomobject]$inobj
-                                            }
-                                            catch {
-                                                Write-PscriboMessage -IsWarning $_.Exception.Message
-                                            }
 
-                                            $TableParams = @{
-                                                Name = "Destination - $($ABkjob.Name)"
-                                                List = $true
-                                                ColumnWidths = 40, 60
+                                                $TableParams = @{
+                                                    Name = "Destination - $($ABkjob.Name)"
+                                                    List = $true
+                                                    ColumnWidths = 40, 60
+                                                }
+                                                if ($Report.ShowTableCaptions) {
+                                                    $TableParams['Caption'] = "- $($TableParams.Name)"
+                                                }
+                                                $OutObj | Table @TableParams
+                                                if ([Veeam.Backup.Core.CBackupJob]::GetSecondDestinationJobs($ABkjob.id)) {
+                                                    try {
+                                                        Section -Style Heading6 "Secondary Target" {
+                                                            $OutObj = @()
+                                                            $SecondaryTargets = [Veeam.Backup.Core.CBackupJob]::GetSecondDestinationJobs($ABkjob.id)
+                                                            foreach ($SecondaryTarget in $SecondaryTargets) {
+                                                                Write-PscriboMessage "Discovered $($ABkjob.Name) job secondary destination $($SecondaryTarget.Name)."
+                                                                $inObj = [ordered] @{
+                                                                    'Job Name' = $SecondaryTarget.Name
+                                                                    'Type' = $SecondaryTarget.TypeToString
+                                                                    'State' = $SecondaryTarget.info.LatestStatus
+                                                                    'Description' = $SecondaryTarget.Description
+                                                                }
+                                                                $OutObj += [pscustomobject]$inobj
+                                                            }
+
+                                                            $TableParams = @{
+                                                                Name = "Secondary Destination Job - $($ABkjob.Name)"
+                                                                List = $false
+                                                                ColumnWidths = 25, 25, 15, 35
+                                                            }
+                                                            if ($Report.ShowTableCaptions) {
+                                                                $TableParams['Caption'] = "- $($TableParams.Name)"
+                                                            }
+                                                            $OutObj | Table @TableParams
+                                                        }
+                                                    }
+                                                    catch {
+                                                        Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                    }
+                                                }
                                             }
-                                            if ($Report.ShowTableCaptions) {
-                                                $TableParams['Caption'] = "- $($TableParams.Name)"
+                                            if ($ABkjob.Mode -eq 'ManagedByBackupServer') {
+                                                try {
+                                                    Write-PscriboMessage "Discovered $($ABkjob.Name) destination information."
+                                                    if ($ABkjob.RetentionType -eq "RestoreDays") {
+                                                        $RetainString = 'Retain Days To Keep'
+                                                        $Retains = $ABkjob.RetentionPolicy
+                                                    }
+                                                    elseif ($ABkjob.RetentionType -eq "RestorePoints") {
+                                                        $RetainString = 'Restore Points'
+                                                        $Retains = $ABkjob.RetentionPolicy
+                                                    }
+                                                    if ($ABkjob.Mode -eq 'ManagedByBackupServer') {
+                                                        $DestinationType = 'Veeam Backup Repository'
+                                                    }
+                                                    if ($ABkjob.Mode -eq 'ManagedByAgent') {
+                                                        $DestinationType = SWitch ($ABkjob.DestinationOptions.DestinationType) {
+                                                            'BackupRepository' {'Veeam Backup Repository'}
+                                                            'LocalStorage' {'Local Storage'}
+                                                            'NetworkFolder' {'Shared Folder'}
+                                                            default {$ABkjob.DestinationOptions.DestinationType}
+                                                        }
+                                                    }
+                                                    if ([Veeam.Backup.Core.CBackupJob]::GetSecondDestinationJobs($ABkjob.id)) {
+                                                        $SecondaryJobRepo = 'Yes'
+                                                    }
+                                                    else {$SecondaryJobRepo = 'No'}
+                                                    $inObj = [ordered] @{
+                                                        'Backup Repository' = $ABkjob.BackupRepository.Name
+                                                        'Repository Type' = $ABkjob.BackupRepository.Type
+                                                        'Retention Policy' = Switch ($ABkjob.RetentionType) {
+                                                            'RestorePoints' {'Restore Points'}
+                                                            'RestoreDays' {'Restore Days'}
+                                                            default {$ABkjob.RetentionType}
+                                                        }
+                                                        $RetainString = $Retains
+                                                        'Configure Secondary Destination for this Job' = $SecondaryJobRepo
+                                                    }
+                                                    if ($ABkjob.DestinationOptions.DestinationType -eq 'BackupRepository') {
+                                                        $inObj.add('Backup Server',($ABkjob.DestinationOptions.BackupServerName))
+                                                        $inObj.add('Backup Repository',($ABkjob.DestinationOptions.BackupRepository.Name))
+                                                    }
+                                                    elseif ($ABkjob.DestinationOptions.DestinationType -eq 'LocalStorage') {
+                                                        $inObj.add('Local Path',($ABkjob.DestinationOptions.LocalPath))
+                                                    }
+                                                    elseif ($ABkjob.DestinationOptions.DestinationType -eq 'NetworkFolder') {
+                                                        $inObj.add('Shared Folder',($ABkjob.DestinationOptions.NetworkFolderPath))
+                                                        $inObj.add('Target Share Type',($ABkjob.DestinationOptions.TargetShareType))
+                                                        $inObj.add('Use Network Credentials',(ConvertTo-TextYN $ABkjob.DestinationOptions.UseNetworkCredentials))
+                                                        if ($ABkjob.DestinationOptions.UseNetworkCredentials) {
+                                                            $inObj.add('Credentials',($ABkjob.DestinationOptions.NetworkCredentials.Name))
+                                                        }
+                                                    }
+                                                    if ($ABkjob.GFSRetentionEnabled) {
+                                                        $inObj.add('Keep certain full backup longer for archival purposes (GFS)',(ConvertTo-TextYN $ABkjob.GFSRetentionEnabled))
+                                                        $inObj.add('Keep Weekly full backup for', ("$($ABkjob.GFSOptions.WeeklyOptions.RetentionPeriod) weeks,`r`nIf multiple backup exist use the one from: $($ABkjob.GFSOptions.WeeklyOptions.SelectedDay)"))
+                                                        $inObj.add('Keep Monthly full backup for', ("$($ABkjob.GFSOptions.MonthlyOptions.RetentionPeriod) months,`r`nUse weekly full backup from the following week of the month: $($ABkjob.GFSOptions.MonthlyOptions.SelectedWeek)"))
+                                                        $inObj.add('Keep Yearly full backup for', ("$($ABkjob.GFSOptions.YearlyOptions.RetentionPeriod) years,`r`nUse monthly full backup from the following month: $($ABkjob.GFSOptions.YearlyOptions.SelectedMonth)"))
+                                                    }
+                                                    $OutObj += [pscustomobject]$inobj
+                                                }
+                                                catch {
+                                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                }
+
+                                                $TableParams = @{
+                                                    Name = "Destination - $($ABkjob.Name)"
+                                                    List = $true
+                                                    ColumnWidths = 40, 60
+                                                }
+                                                if ($Report.ShowTableCaptions) {
+                                                    $TableParams['Caption'] = "- $($TableParams.Name)"
+                                                }
+                                                $OutObj | Table @TableParams
+                                                if ([Veeam.Backup.Core.CBackupJob]::GetSecondDestinationJobs($ABkjob.id)) {
+                                                    try {
+                                                        Section -Style Heading6 "Secondary Target" {
+                                                            $OutObj = @()
+                                                            $SecondaryTargets = [Veeam.Backup.Core.CBackupJob]::GetSecondDestinationJobs($ABkjob.id)
+                                                            foreach ($SecondaryTarget in $SecondaryTargets) {
+                                                                Write-PscriboMessage "Discovered $($ABkjob.Name) job secondary destination $($SecondaryTarget.Name)."
+                                                                $inObj = [ordered] @{
+                                                                    'Job Name' = $SecondaryTarget.Name
+                                                                    'Type' = $SecondaryTarget.TypeToString
+                                                                    'State' = $SecondaryTarget.info.LatestStatus
+                                                                    'Description' = $SecondaryTarget.Description
+                                                                }
+                                                                $OutObj += [pscustomobject]$inobj
+                                                            }
+
+                                                            $TableParams = @{
+                                                                Name = "Secondary Destination Job - $($ABkjob.Name)"
+                                                                List = $false
+                                                                ColumnWidths = 25, 25, 15, 35
+                                                            }
+                                                            if ($Report.ShowTableCaptions) {
+                                                                $TableParams['Caption'] = "- $($TableParams.Name)"
+                                                            }
+                                                            $OutObj | Table @TableParams
+                                                        }
+                                                    }
+                                                    catch {
+                                                        Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                    }
+                                                }
                                             }
-                                            $OutObj | Table @TableParams
                                             if ($InfoLevel.Jobs.Agent -ge 2) {
                                                 try {
                                                     Section -Style Heading6 "Advanced Settings (Backup)" {
@@ -423,6 +576,201 @@ function Get-AbrVbrAgentBackupjobConf {
                                                             }
                                                             $OutObj | Table @TableParams
                                                         }
+                                                    }
+                                                    catch {
+                                                        Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                    }
+                                                }
+                                                if ($ABkjob.Mode -eq 'ManagedByBackupServer') {
+                                                    try {
+                                                        Section -Style Heading6 "Advanced Settings (Script)" {
+                                                            $OutObj = @()
+                                                            if ($ABkjob.ScriptOptions.Periodicity -eq 'Days') {
+                                                                $FrequencyValue = $ABkjob.ScriptOptions.Day -join ","
+                                                                $FrequencyText = 'Run Script on the Selected Days'
+                                                            }
+                                                            elseif ($ABkjob.ScriptOptions.Periodicity -eq 'Cycles') {
+                                                                $FrequencyValue = $ABkjob.ScriptOptions.Frequency
+                                                                $FrequencyText = 'Run Script Every Backup Session'
+                                                            }
+                                                            Write-PscriboMessage "Discovered $($ABkjob.Name) script options."
+                                                            $inObj = [ordered] @{
+                                                                'Run the Following Script Before' = ConvertTo-TextYN $ABkjob.ScriptOptions.PreScriptEnabled
+                                                            }
+                                                            $inObj += [ordered] @{
+                                                                'Run the Following Script After' = ConvertTo-TextYN $ABkjob.ScriptOptions.PostScriptEnabled
+                                                            }
+                                                            if ($ABkjob.ScriptOptions.PreScriptEnabled) {
+                                                                $inObj.add('Run Script Before the Job', $ABkjob.ScriptOptions.PreCommand)
+                                                            }
+                                                            if ($ABkjob.ScriptOptions.PostScriptEnabled) {
+                                                                $inObj.add('Run Script After the Job', $ABkjob.ScriptOptions.PostCommand)
+                                                            }
+                                                            if ($ABkjob.ScriptOptions.PreScriptEnabled -or $ABkjob.ScriptOptions.PostScriptEnabled) {
+                                                                $inObj.add('Run Script Frequency', $ABkjob.ScriptOptions.Periodicity)
+                                                                $inObj.add($FrequencyText, $FrequencyValue)
+                                                            }
+                                                            $OutObj = [pscustomobject]$inobj
+
+                                                            $TableParams = @{
+                                                                Name = "Advanced Settings (Script) - $($ABkjob.Name)"
+                                                                List = $true
+                                                                ColumnWidths = 40, 60
+                                                            }
+                                                            if ($Report.ShowTableCaptions) {
+                                                                $TableParams['Caption'] = "- $($TableParams.Name)"
+                                                            }
+                                                            $OutObj | Table @TableParams
+                                                        }
+                                                    }
+                                                    catch {
+                                                        Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        if ($ABkjob.ApplicationProcessingEnabled -or $ABkjob.IndexingEnabled) {
+                                            Section -Style Heading5 "Guest Processing" {
+                                                $OutObj = @()
+                                                try {
+                                                    Write-PscriboMessage "Discovered $($ABkjob.Name) guest processing."
+                                                    $inObj = [ordered] @{
+                                                        'Enabled Application Process Processing' = ConvertTo-TextYN $ABkjob.ApplicationProcessingEnabled
+                                                        'Enabled Guest File System Indexing' = ConvertTo-TextYN $ABkjob.IndexingEnabled
+                                                    }
+
+                                                    $OutObj = [pscustomobject]$inobj
+
+                                                    $TableParams = @{
+                                                        Name = "Guest Processing Options - $($ABkjob.Name)"
+                                                        List = $true
+                                                        ColumnWidths = 40, 60
+                                                    }
+                                                    if ($Report.ShowTableCaptions) {
+                                                        $TableParams['Caption'] = "- $($TableParams.Name)"
+                                                    }
+                                                    $OutObj | Table @TableParams
+                                                }
+                                                catch {
+                                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                }
+                                            }
+                                        }
+                                        if ($ABkjob.ScheduleEnabled) {
+                                            if ($ABkjob.Mode -eq 'ManagedByBackupServer') {
+                                                Section -Style Heading5 "Schedule" {
+                                                    $OutObj = @()
+                                                    try {
+                                                        Write-PscriboMessage "Discovered $($ABkjob.Name) schedule options."
+                                                        if ($ABkjob.ScheduleOptions.Type -eq "Daily") {
+                                                            $ScheduleType = "Daily"
+                                                            $Schedule = "Recurrence: $($ABkjob.ScheduleOptions.DailyOptions.Type),`r`nDays: $($ABkjob.ScheduleOptions.DailyOptions.DayOfWeek)`r`nAt: $($ABkjob.ScheduleOptions.DailyOptions.Period)"
+                                                        }
+                                                        elseif ($ABkjob.ScheduleOptions.Type -eq "Monthly") {
+                                                            $ScheduleType = "Monthly"
+                                                            $Schedule = "Day Of Month: $($ABkjob.ScheduleOptions.MonthlyOptions.DayOfMonth),`r`nDay Number In Month: $($ABkjob.ScheduleOptions.MonthlyOptions.DayNumberInMonth),`r`nDay Of Week: $($ABkjob.ScheduleOptions.MonthlyOptions.DayOfWeek)`r`nAt: $($ABkjob.ScheduleOptions.DailyOptions.Period)"
+                                                        }
+                                                        elseif ($ABkjob.ScheduleOptions.Type -eq "Periodically") {
+                                                            $ScheduleType = $ABkjob.ScheduleOptions.PeriodicallyOptions.PeriodicallyKind
+                                                            $Schedule = "Full Period: $($ABkjob.ScheduleOptions.PeriodicallyOptions.FullPeriod),`r`nHourly Offset: $($ABkjob.ScheduleOptions.PeriodicallyOptions.HourlyOffset)"
+                                                        }
+                                                        elseif ($ABkjob.ScheduleOptions.Type -eq "AfterJob") {
+                                                            $ScheduleType = 'After Job'
+                                                            $Schedule = $ABkjob.ScheduleOptions.Job.Name
+                                                        }
+                                                        $inObj = [ordered] @{
+                                                            'Retry Failed item' = $ABkjob.ScheduleOptions.RetryCount
+                                                            'Wait before each retry' = "$($ABkjob.ScheduleOptions.RetryTimeout)/min"
+                                                            'Backup Window' = ConvertTo-TextYN $ABkjob.ScheduleOptions.BackupTerminationWindowEnabled
+                                                            'Schedule type' = $ScheduleType
+                                                            'Schedule Options' = $Schedule
+                                                        }
+                                                        $OutObj = [pscustomobject]$inobj
+
+                                                        $TableParams = @{
+                                                            Name = "Schedule Options - $($ABkjob.Name)"
+                                                            List = $true
+                                                            ColumnWidths = 40, 60
+                                                        }
+                                                        if ($Report.ShowTableCaptions) {
+                                                            $TableParams['Caption'] = "- $($TableParams.Name)"
+                                                        }
+                                                        $OutObj | Table @TableParams
+                                                    }
+                                                    catch {
+                                                        Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                    }
+                                                }
+                                            }
+                                            if ($ABkjob.BackupCacheOptions.Enabled) {
+                                                try {
+                                                    Section -Style Heading6 "Backup Cache" {
+                                                        $OutObj = @()
+                                                        Write-PscriboMessage "Discovered $($ABkjob.Name) backup cache information."
+                                                        $inObj = [ordered] @{
+                                                            'Maximun Size' = "$($ABkjob.BackupCacheOptions.SizeLimit) $($ABkjob.BackupCacheOptions.SizeUnit)"
+                                                            'Type' = $ABkjob.BackupCacheOptions.Type
+                                                            'Path' = Switch ($ABkjob.BackupCacheOptions.Type) {
+                                                                'Automatic' {'Auto Selected'}
+                                                                default {$ABkjob.BackupCacheOptions.LocalPath}
+                                                            }
+                                                        }
+                                                        $OutObj += [pscustomobject]$inobj
+
+                                                        $TableParams = @{
+                                                            Name = "Backup Cache - $($ABkjob.Name)"
+                                                            List = $false
+                                                            ColumnWidths = 33, 33, 34
+                                                        }
+                                                        if ($Report.ShowTableCaptions) {
+                                                            $TableParams['Caption'] = "- $($TableParams.Name)"
+                                                        }
+                                                        $OutObj | Table @TableParams
+                                                    }
+                                                }
+                                                catch {
+                                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                }
+                                            }
+                                            if ($ABkjob.Mode -eq 'ManagedByAgent') {
+                                                Section -Style Heading5 "Schedule" {
+                                                    $OutObj = @()
+                                                    try {
+                                                        Write-PscriboMessage "Discovered $($ABkjob.Name) schedule options."
+                                                        if ($ABkjob.ScheduleOptions.DailyScheduleEnabled) {
+                                                            $ScheduleType = 'Daily'
+                                                            $Schedule = "Recurrence: $($ABkjob.ScheduleOptions.DailyOptions.Type),`r`nDays: $($ABkjob.ScheduleOptions.DailyOptions.DayOfWeek)r`nAt: $($ABkjob.ScheduleOptions.DailyOptions.Period)"
+                                                        }
+
+                                                        $inObj = [ordered] @{
+                                                            'Schedule type' = $ScheduleType
+                                                            'Schedule Options' = $Schedule
+                                                            'If Computer is Power Off Action' = SWitch ($ABkjob.ScheduleOptions.PowerOffAction) {
+                                                                'SkipBackup' {'Skip Backup'}
+                                                                'BackupAtPowerOn' {'Backup At Power On'}
+                                                                default {$ABkjob.ScheduleOptions.PowerOffAction}
+                                                            }
+                                                            'Once Backup is Taken' = Switch ($ABkjob.ScheduleOptions.PostBackupAction) {
+                                                                'KeepRunning' {'Keep Running'}
+                                                                default {$ABkjob.ScheduleOptions.PostBackupAction}
+                                                            }
+                                                            'Backup At LogOff' = ConvertTo-TextYN $ABkjob.ScheduleOptions.BackupAtLogOff
+                                                            'Backup At Lock' =  ConvertTo-TextYN $ABkjob.ScheduleOptions.BackupAtLock
+                                                            'Backup At Target Connection' = ConvertTo-TextYN $ABkjob.ScheduleOptions.BackupAtTargetConnection
+                                                            'Eject Storage After Backup' = ConvertTo-TextYN $ABkjob.ScheduleOptions.EjectStorageAfterBackup
+                                                            'Backup Timeout' = "$($ABkjob.ScheduleOptions.BackupTimeout) $($ABkjob.ScheduleOptions.BackupTimeoutType)"
+                                                        }
+                                                        $OutObj = [pscustomobject]$inobj
+
+                                                        $TableParams = @{
+                                                            Name = "Schedule Options - $($ABkjob.Name)"
+                                                            List = $true
+                                                            ColumnWidths = 40, 60
+                                                        }
+                                                        if ($Report.ShowTableCaptions) {
+                                                            $TableParams['Caption'] = "- $($TableParams.Name)"
+                                                        }
+                                                        $OutObj | Table @TableParams
                                                     }
                                                     catch {
                                                         Write-PscriboMessage -IsWarning $_.Exception.Message

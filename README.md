@@ -193,7 +193,7 @@ The table below outlines the default and maximum **InfoLevel** settings for each
 | Backup       |        1        |        2        |
 | Tape          |        1        |        2        |
 | Surebackup          |        1        |        2        |
-| Agent          |        1        |        1        |
+| Agent          |        1        |        2        |
 
 ### Healthcheck
 
