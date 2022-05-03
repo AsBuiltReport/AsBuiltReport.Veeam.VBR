@@ -37,6 +37,10 @@
   - Backup Cache information
   - Job Scheduling information
 
+### Fixed
+
+- Fix authentication error in Workgroup enviroments #31
+
 ## [0.4.0] - 2022-02-27
 
 ### Added
