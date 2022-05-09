@@ -1,5 +1,19 @@
 # :arrows_clockwise: Veeam VBR As Built Report Changelog
 
+## [0.5.0] - 2022-05-xx
+
+### Added
+
+- Added Replication Section @rebelinux
+  - Replica Information
+    - Added Optional InfoLevel 2 information (Adv Summary)
+  - Failover Plan Information
+    - Added Virtual Machine Boot Order reporting
+
+### Fixed
+
+- Fix for not connected Enterprise Manager.
+
 ## [0.4.1] - 2022-05-02
 
 ### Added

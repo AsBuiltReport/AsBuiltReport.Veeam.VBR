@@ -42,6 +42,10 @@
             "ONTAP": 1,
             "ISILON": 1
         },
+        "Replication": {
+            "FailoverPlan": 1,
+            "Replica": 1
+        },
         "Jobs": {
             "Backup": 1,
             "Tape": 1,

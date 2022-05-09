@@ -195,6 +195,13 @@ The table below outlines the default and maximum **InfoLevel** settings for each
 | Surebackup          |        1        |        2        |
 | Agent          |        1        |        2        |
 
+The table below outlines the default and maximum **InfoLevel** settings for each Replication section.
+
+| Sub-Schema   | Default Setting | Maximum Setting |
+|--------------|:---------------:|:---------------:|
+| Replica       |        1        |        2        |
+| Failover Plan          |        1        |        1        |
+
 ### Healthcheck
 
 The **Healthcheck** schema is used to toggle health checks on or off.

@@ -5,7 +5,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.4.1
+        Version:        0.5.0
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -161,6 +161,26 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                         Write-PScriboMessage "Dell Isilon InfoLevel set at $($InfoLevel.Storage.Isilon)."
                         if ($InfoLevel.Storage.Isilon -ge 1) {
                             Get-AbrVbrStorageIsilon
+                        }
+                    }
+                }
+            }
+            #---------------------------------------------------------------------------------------------#
+            #                                   Replication Section                                       #
+            #---------------------------------------------------------------------------------------------#
+            if ($InfoLevel.Replication.PSObject.Properties.Value -ne 0) {
+                if ((Get-VBRReplica).count -gt 0 -or ((Get-VBRFailoverPlan).count -gt 0))  {
+                    Section -Style Heading2 'Replication Summary' {
+                        Paragraph "The following section provides replication managed by Veeam Server $(((Get-VBRServerSession).Server))."
+                        BlankLine
+                        Get-AbrVbrReplInfraSummary
+                        Write-PScriboMessage "Replica InfoLevel set at $($InfoLevel.Replication.Replica)."
+                        if ($InfoLevel.Replication.Replica -ge 1) {
+                            Get-AbrVbrReplReplica
+                        }
+                        Write-PScriboMessage "Failover Plan InfoLevel set at $($InfoLevel.Replication.FailoverPlan)."
+                        if ($InfoLevel.Replication.FailoverPlan -ge 1) {
+                            Get-AbrVbrReplFailoverPlan
                         }
                     }
                 }
