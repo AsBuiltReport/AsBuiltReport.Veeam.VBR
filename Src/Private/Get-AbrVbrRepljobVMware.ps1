@@ -1,12 +1,12 @@
 
-function Get-AbrVbrBackupjobVMware {
+function Get-AbrVbrRepljobVMware {
     <#
     .SYNOPSIS
-        Used by As Built Report to returns vmware backup jobs created in Veeam Backup & Replication.
+        Used by As Built Report to returns vmware replication jobs created in Veeam Backup & Replication.
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.4.1
+        Version:        0.5.0
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -21,19 +21,19 @@ function Get-AbrVbrBackupjobVMware {
     )
 
     begin {
-        Write-PscriboMessage "Discovering Veeam VBR VMware Backup jobs information from $System."
+        Write-PscriboMessage "Discovering Veeam VBR VMware replication jobs information from $System."
     }
 
     process {
         try {
-            $Bkjobs = Get-VBRJob -WarningAction SilentlyContinue | Where-Object {$_.TypeToString -eq "VMware Backup" -or $_.TypeToString -eq "VMware Backup Copy" -or $_.TypeToString -eq "VM Copy"}
+            $Bkjobs = Get-VBRJob -WarningAction SilentlyContinue | Where-object {$_.TypeToString -eq 'VMware Replication'}
             if (($Bkjobs).count -gt 0) {
-                Section -Style Heading3 'VMware Backup Jobs Configuration' {
+                Section -Style Heading3 'VMware Replication Jobs Configuration' {
                     Paragraph "The following section details VMware type per backup jobs configuration."
                     BlankLine
                     $OutObj = @()
                     try {
-                        $VMcounts = Get-VBRBackup | Where-Object {$_.TypeToString -eq "VMware Backup" -or $_.TypeToString -eq "VMware Backup Copy" -or $_.TypeToString -eq "VM Copy"}
+                        $VMcounts = Get-VBRJob -WarningAction SilentlyContinue | Where-object {$_.TypeToString -eq 'VMware Replication' -or $_.TypeToString -eq 'Hyper-V Replication'}
                         if ($VMcounts) {
                             foreach ($VMcount in $VMcounts) {
                                 try {
@@ -41,7 +41,7 @@ function Get-AbrVbrBackupjobVMware {
                                     $inObj = [ordered] @{
                                         'Name' = $VMcount.Name
                                         'Creation Time' = $VMcount.CreationTime
-                                        'VM Count' = $VMcount.VmCount
+                                        'VM Count' = (Get-VBRReplica | Where-Object {$_.JobName -eq $VMcount.Name}).VMcount
                                     }
                                     $OutObj += [pscustomobject]$inobj
                                 }
@@ -51,7 +51,7 @@ function Get-AbrVbrBackupjobVMware {
                             }
 
                             $TableParams = @{
-                                Name = "VMware Backup Summary - $(((Get-VBRServerSession).Server).ToString().ToUpper().Split(".")[0])"
+                                Name = "VMware Replication Summary - $(((Get-VBRServerSession).Server).ToString().ToUpper().Split(".")[0])"
                                 List = $false
                                 ColumnWidths = 35, 35, 30
                             }
@@ -71,7 +71,7 @@ function Get-AbrVbrBackupjobVMware {
                                 Section -Style Heading5 'Common Information' {
                                     $OutObj = @()
                                     try {
-                                        $CommonInfos = (Get-VBRJob -WarningAction SilentlyContinue -Name $Bkjob.Name | Where-object {$_.TypeToString -ne 'Windows Agent Backup'}).Info
+                                        $CommonInfos = (Get-VBRJob -WarningAction SilentlyContinue | Where-object {$_.TypeToString -eq 'VMware Replication'}).Info
                                         foreach ($CommonInfo in $CommonInfos) {
                                             try {
                                                 Write-PscriboMessage "Discovered $($Bkjob.Name) common information."
@@ -186,38 +186,6 @@ function Get-AbrVbrBackupjobVMware {
                                         }
                                     }
                                 }
-                                if ($Bkjob.LinkedJobs) {
-                                    Section -Style Heading5 'Data Transfer' {
-                                        $OutObj = @()
-                                        try {
-                                            try {
-                                                Write-PscriboMessage "Discovered $($Bkjob.Name) data transfer."
-                                                $inObj = [ordered] @{
-                                                    'Use Wan accelerator' = ConvertTo-TextYN $Bkjob.IsWanAcceleratorEnabled()
-                                                    'Source Wan accelerator' = $Bkjob.GetSourceWanAccelerator().Name
-                                                    'Target Wan accelerator' = $Bkjob.GetTargetWanAccelerator().Name
-                                                }
-                                                $OutObj += [pscustomobject]$inobj
-                                            }
-                                            catch {
-                                                Write-PscriboMessage -IsWarning $_.Exception.Message
-                                            }
-
-                                            $TableParams = @{
-                                                Name = "Data Transfer - $($Bkjob.Name)"
-                                                List = $True
-                                                ColumnWidths = 40, 60
-                                            }
-                                            if ($Report.ShowTableCaptions) {
-                                                $TableParams['Caption'] = "- $($TableParams.Name)"
-                                            }
-                                            $OutObj | Table @TableParams
-                                        }
-                                        catch {
-                                            Write-PscriboMessage -IsWarning $_.Exception.Message
-                                        }
-                                    }
-                                }
                                 if ($Bkjob.GetViOijs()) {
                                     Section -Style Heading5 "Virtual Machines" {
                                         $OutObj = @()
@@ -250,10 +218,7 @@ function Get-AbrVbrBackupjobVMware {
                                         }
                                     }
                                 }
-                                if ($Bkjob.TypeToString -eq "VMware Backup Copy") {
-                                    $Storage = 'Target'
-                                } else {$Storage = 'Storage'}
-                                Section -Style Heading5 $Storage {
+                                Section -Style Heading5 'Job Settings' {
                                     $OutObj = @()
                                     try {
                                         Write-PscriboMessage "Discovered $($Bkjob.Name) storage options."
@@ -271,7 +236,7 @@ function Get-AbrVbrBackupjobVMware {
                                                 {$_ -gt 1} {"Automatic"}
                                                 default {$Bkjob.GetProxy().Name}
                                             }
-                                            'Backup Repository' = Switch ($Bkjob.info.TargetRepositoryId) {
+                                            'Repository for replica metadata' = Switch ($Bkjob.info.TargetRepositoryId) {
                                                 '00000000-0000-0000-0000-000000000000' {$Bkjob.TargetDir}
                                                 {$Null -eq (Get-VBRBackupRepository | Where-Object {$_.Id -eq $Bkjob.info.TargetRepositoryId}).Name} {(Get-VBRBackupRepository -ScaleOut | Where-Object {$_.Id -eq $Bkjob.info.TargetRepositoryId}).Name}
                                                 default {(Get-VBRBackupRepository | Where-Object {$_.Id -eq $Bkjob.info.TargetRepositoryId}).Name}
@@ -305,7 +270,7 @@ function Get-AbrVbrBackupjobVMware {
                                             $TableParams['Caption'] = "- $($TableParams.Name)"
                                         }
                                         $OutObj | Table @TableParams
-                                        if ($InfoLevel.Jobs.Backup -ge 2 -and ($Bkjob.Options.GenerationPolicy.EnableRechek -or $Bkjob.Options.GenerationPolicy.EnableCompactFull)) {
+                                        if ($InfoLevel.Jobs.Replication -ge 2 -and ($Bkjob.Options.GenerationPolicy.EnableRechek -or $Bkjob.Options.GenerationPolicy.EnableCompactFull)) {
                                             Section -Style Heading6 "Advanced Settings (Maintenance)" {
                                                 $OutObj = @()
                                                 try {
@@ -338,7 +303,7 @@ function Get-AbrVbrBackupjobVMware {
                                                 }
                                             }
                                         }
-                                        if ($InfoLevel.Jobs.Backup -ge 2) {
+                                        if ($InfoLevel.Jobs.Replication -ge 2) {
                                             Section -Style Heading6 "Advanced Settings (Storage)" {
                                                 $OutObj = @()
                                                 try {
@@ -385,7 +350,7 @@ function Get-AbrVbrBackupjobVMware {
                                                 }
                                             }
                                         }
-                                        if ($InfoLevel.Jobs.Backup -ge 2 -and ($Bkjob.Options.NotificationOptions.SnmpNotification -or $Bkjob.Options.NotificationOptions.SendEmailNotification2AdditionalAddresses)) {
+                                        if ($InfoLevel.Jobs.Replication -ge 2 -and ($Bkjob.Options.NotificationOptions.SnmpNotification -or $Bkjob.Options.NotificationOptions.SendEmailNotification2AdditionalAddresses)) {
                                             Section -Style Heading6 "Advanced Settings (Notification)" {
                                                 $OutObj = @()
                                                 try {
@@ -422,7 +387,7 @@ function Get-AbrVbrBackupjobVMware {
                                                 }
                                             }
                                         }
-                                        if ($InfoLevel.Jobs.Backup -ge 2 -and ($Bkjob.Options.ViSourceOptions.VMToolsQuiesce -or $Bkjob.Options.ViSourceOptions.UseChangeTracking)) {
+                                        if ($InfoLevel.Jobs.Replication -ge 2 -and ($Bkjob.Options.ViSourceOptions.VMToolsQuiesce -or $Bkjob.Options.ViSourceOptions.UseChangeTracking)) {
                                             Section -Style Heading6 "Advanced Settings (vSphere)" {
                                                 $OutObj = @()
                                                 try {
@@ -450,7 +415,7 @@ function Get-AbrVbrBackupjobVMware {
                                                 }
                                             }
                                         }
-                                        if ($InfoLevel.Jobs.Backup -ge 2 -and $Bkjob.Options.SanIntegrationOptions.UseSanSnapshots) {
+                                        if ($InfoLevel.Jobs.Replication -ge 2 -and $Bkjob.Options.SanIntegrationOptions.UseSanSnapshots) {
                                             Section -Style Heading6 "Advanced Settings (Integration)" {
                                                 $OutObj = @()
                                                 try {
@@ -479,7 +444,7 @@ function Get-AbrVbrBackupjobVMware {
                                                 }
                                             }
                                         }
-                                        if ($InfoLevel.Jobs.Backup -ge 2 -and ($Bkjob.Options.JobScriptCommand.PreScriptEnabled -or $Bkjob.Options.JobScriptCommand.PostScriptEnabled)) {
+                                        if ($InfoLevel.Jobs.Replication -ge 2 -and ($Bkjob.Options.JobScriptCommand.PreScriptEnabled -or $Bkjob.Options.JobScriptCommand.PostScriptEnabled)) {
                                             Section -Style Heading6 "Advanced Settings (Script)" {
                                                 $OutObj = @()
                                                 try {
@@ -518,7 +483,7 @@ function Get-AbrVbrBackupjobVMware {
                                                 }
                                             }
                                         }
-                                        if ($InfoLevel.Jobs.Backup -ge 2 -and ($Bkjob.Options.RpoOptions.Enabled -or $Bkjob.Options.RpoOptions.LogBackupRpoEnabled)) {
+                                        if ($InfoLevel.Jobs.Replication -ge 2 -and ($Bkjob.Options.RpoOptions.Enabled -or $Bkjob.Options.RpoOptions.LogBackupRpoEnabled)) {
                                             Section -Style Heading6 "Advanced Settings (RPO Monitor)" {
                                                 $OutObj = @()
                                                 try {
@@ -551,40 +516,42 @@ function Get-AbrVbrBackupjobVMware {
                                         Write-PscriboMessage -IsWarning $_.Exception.Message
                                     }
                                 }
-                                $SecondaryTargets = [Veeam.Backup.Core.CBackupJob]::GetSecondDestinationJobs($Bkjob.Id) | Where-Object {$_.JobType -ne 'SimpleBackupCopyWorker'}
-                                if ($SecondaryTargets) {
-                                    Section -Style Heading5 "Secondary Target" {
+                                try {
+                                    Section -Style Heading5 'Data Transfer' {
                                         $OutObj = @()
-                                        try {
-                                            foreach ($SecondaryTarget in $SecondaryTargets) {
-                                                Write-PscriboMessage "Discovered $($Bkjob.Name) secondary target."
-                                                try {
-                                                    $inObj = [ordered] @{
-                                                        'Job Name' = $SecondaryTarget.Name
-                                                        'Type' = $SecondaryTarget.TypeToString
-                                                        'State' = $SecondaryTarget.info.LatestStatus
-                                                        'Description' = $SecondaryTarget.Description
-                                                    }
-                                                    $OutObj += [pscustomobject]$inobj
-                                                }
-                                                catch {
-                                                    Write-PscriboMessage -IsWarning $_.Exception.Message
-                                                }
+                                        Write-PscriboMessage "Discovered $($Bkjob.Name) data transfer."
+                                        $inObj = [ordered] @{
+                                            'Source Proxy' = Switch (($Bkjob.GetProxy().Name).count) {
+                                                0 {"Unknown"}
+                                                {$_ -gt 1} {"Automatic"}
+                                                default {$Bkjob.GetProxy().Name}
                                             }
-                                            $TableParams = @{
-                                                Name = "Secondary Destination Jobs - $($Bkjob.Name)"
-                                                List = $false
-                                                ColumnWidths = 25, 25, 15, 35
+                                            'Target Proxy' = Switch (($Bkjob.GetTargetProxies().Name).count) {
+                                                0 {"Unknown"}
+                                                {$_ -gt 1} {"Automatic"}
+                                                default {$Bkjob.GetTargetProxies().Name}
                                             }
-                                            if ($Report.ShowTableCaptions) {
-                                                $TableParams['Caption'] = "- $($TableParams.Name)"
-                                            }
-                                            $OutObj | Sort-Object -Property 'Job Name' | Table @TableParams
+                                            'Use Wan accelerator' = ConvertTo-TextYN $Bkjob.IsWanAcceleratorEnabled()
                                         }
-                                        catch {
-                                            Write-PscriboMessage -IsWarning $_.Exception.Message
+                                        if ($Bkjob.IsWanAcceleratorEnabled()) {
+                                            $inObj.add('Source Wan accelerator', $Bkjob.GetSourceWanAccelerator().Name)
+                                            $inObj.add('Target Wan accelerator',$Bkjob.GetTargetWanAccelerator().Name)
                                         }
+                                        $OutObj += [pscustomobject]$inobj
+
+                                        $TableParams = @{
+                                            Name = "Data Transfer - $($Bkjob.Name)"
+                                            List = $True
+                                            ColumnWidths = 40, 60
+                                        }
+                                        if ($Report.ShowTableCaptions) {
+                                            $TableParams['Caption'] = "- $($TableParams.Name)"
+                                        }
+                                        $OutObj | Table @TableParams
                                     }
+                                }
+                                catch {
+                                    Write-PscriboMessage -IsWarning $_.Exception.Message
                                 }
                                 if ($Bkjob.VssOptions.Enabled) {
                                     Section -Style Heading5 "Guest Processing" {
@@ -614,7 +581,7 @@ function Get-AbrVbrBackupjobVMware {
                                                     }
                                                     'Use Persistent Guest Agent' = ConvertTo-TextYN $VSSObj.VssOptions.VssSnapshotOptions.UsePersistentGuestAgent
                                                 }
-                                                if ($InfoLevel.Jobs.Backup -ge 2) {
+                                                if ($InfoLevel.Jobs.Replication -ge 2) {
                                                     if (!$VSSObj.VssOptions.VssSnapshotOptions.IsCopyOnly) {
                                                         $TransactionLogsProcessing = Switch ($VSSObj.VssOptions.SqlBackupOptions.TransactionLogsProcessing) {
                                                             'TruncateOnlyOnSuccessJob' {'Truncate logs'}
