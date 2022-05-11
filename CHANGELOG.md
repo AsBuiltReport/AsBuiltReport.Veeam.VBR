@@ -9,6 +9,13 @@
     - Added Optional InfoLevel 2 information (Adv Summary)
   - Failover Plan Information
     - Added Virtual Machine Boot Order reporting
+- Added Replication Job Configuration information @rebelinux
+  - Added Optional InfoLevel 2 information (Adv Summary)
+    - Advanced Settings (Traffic)
+    - Advanced Settings (Notification)
+    - Advanced Settings (vSphere)
+    - Advanced Settings (Integration)
+    - Advanced Settings (Script)
 
 ### Fixed
 
