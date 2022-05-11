@@ -6,7 +6,7 @@ function Get-AbrVbrEnterpriseManagerInfo {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.4.1
+        Version:        0.5.0
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -39,8 +39,14 @@ function Get-AbrVbrEnterpriseManagerInfo {
                             $EMInfo = [Veeam.Backup.Core.SBackupOptions]::GetEnterpriseServerInfo()
                                 if ($EMInfo) {
                                     $inObj = [ordered] @{
-                                        'Server Name' = $EMInfo.ServerName
-                                        'Server URL' = $EMInfo.URL
+                                        'Server Name' = Switch ($EMInfo.ServerName) {
+                                            $Null {'Not Connected'}
+                                            default {$EMInfo.ServerName}
+                                        }
+                                        'Server URL' = Switch ($EMInfo.URL) {
+                                            $Null {'Not Connected'}
+                                            default {$EMInfo.URL}
+                                        }
                                         'Skip License Push' = ConvertTo-TextYN $EMInfo.SkipLicensePush
                                         'Is Connected' = ConvertTo-TextYN $EMInfo.IsConnected
                                     }

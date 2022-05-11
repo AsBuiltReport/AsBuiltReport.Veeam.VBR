@@ -5,7 +5,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.4.1
+        Version:        0.5.0
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -166,18 +166,44 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                 }
             }
             #---------------------------------------------------------------------------------------------#
+            #                                   Replication Section                                       #
+            #---------------------------------------------------------------------------------------------#
+            if ($InfoLevel.Replication.PSObject.Properties.Value -ne 0) {
+                if ((Get-VBRReplica).count -gt 0 -or ((Get-VBRFailoverPlan).count -gt 0))  {
+                    Section -Style Heading2 'Replication Summary' {
+                        Paragraph "The following section provides replication managed by Veeam Server $(((Get-VBRServerSession).Server))."
+                        BlankLine
+                        Get-AbrVbrReplInfraSummary
+                        Write-PScriboMessage "Replica InfoLevel set at $($InfoLevel.Replication.Replica)."
+                        if ($InfoLevel.Replication.Replica -ge 1) {
+                            Get-AbrVbrReplReplica
+                        }
+                        Write-PScriboMessage "Failover Plan InfoLevel set at $($InfoLevel.Replication.FailoverPlan)."
+                        if ($InfoLevel.Replication.FailoverPlan -ge 1) {
+                            Get-AbrVbrReplFailoverPlan
+                        }
+                    }
+                }
+            }
+            #---------------------------------------------------------------------------------------------#
             #                                  Backup Jobs Section                                        #
             #---------------------------------------------------------------------------------------------#
             if ($InfoLevel.Jobs.PSObject.Properties.Value -ne 0) {
                 if (((Get-VBRJob -WarningAction SilentlyContinue).count -gt 0) -or ((Get-VBRTapeJob).count -gt 0) -or ((Get-VBRSureBackupJob).count -gt 0)) {
-                    Section -Style Heading2 'Backup Jobs Summary' {
-                        Paragraph "The following section provides information about backup jobs on Veeam Server: $(((Get-VBRServerSession).Server))."
+                    Section -Style Heading2 'Jobs Summary' {
+                        Paragraph "The following section provides information about configured jobs in Veeam Server: $(((Get-VBRServerSession).Server))."
                         BlankLine
                         Write-PScriboMessage "Backup Jobs InfoLevel set at $($InfoLevel.Jobs.Backup)."
                         if ($InfoLevel.Jobs.Backup -ge 1) {
                             Get-AbrVbrBackupjob
                             Get-AbrVbrBackupjobVMware
                             Get-AbrVbrBackupjobHyperV
+                        }
+                        Write-PScriboMessage "Replication Jobs InfoLevel set at $($InfoLevel.Jobs.Replication)."
+                        if ($InfoLevel.Jobs.Replication -ge 1) {
+                            Get-AbrVbrRepljob
+                            Get-AbrVbrRepljobVMware
+                            Get-AbrVbrRepljobHyperV
                         }
                         Write-PScriboMessage "Tape Jobs InfoLevel set at $($InfoLevel.Jobs.Tape)."
                         if ($InfoLevel.Jobs.Tape -ge 1) {
