@@ -32,7 +32,7 @@ function Get-AbrVbrBackupjob {
                     BlankLine
                     $OutObj = @()
                     if ((Get-VBRServerSession).Server) {
-                        $Bkjobs = Get-VBRJob -WarningAction SilentlyContinue | Where-object {$_.TypeToString -ne 'Windows Agent Backup'}
+                        $Bkjobs = Get-VBRJob -WarningAction SilentlyContinue | Where-object {$_.TypeToString -ne 'Windows Agent Backup' -and $_.TypeToString -ne 'Hyper-V Replication' -and $_.TypeToString -ne 'VMware Replication'}
                         foreach ($Bkjob in $Bkjobs) {
                             try {
                                 Write-PscriboMessage "Discovered $($Bkjob.Name) backup job."
