@@ -33,7 +33,7 @@ function Get-AbrVbrRepljobVMware {
                     BlankLine
                     $OutObj = @()
                     try {
-                        $VMcounts = Get-VBRJob -WarningAction SilentlyContinue | Where-object {$_.TypeToString -eq 'VMware Replication' -or $_.TypeToString -eq 'Hyper-V Replication'}
+                        $VMcounts = Get-VBRJob -WarningAction SilentlyContinue | Where-object {$_.TypeToString -eq 'VMware Replication'}
                         if ($VMcounts) {
                             foreach ($VMcount in $VMcounts) {
                                 try {
@@ -105,19 +105,55 @@ function Get-AbrVbrRepljobVMware {
                                         Write-PscriboMessage -IsWarning $_.Exception.Message
                                     }
                                 }
-                                if ($Bkjob.LinkedJobs) {
-                                    Section -Style Heading5 'Linked Backup Jobs' {
+                                Section -Style Heading5 'Destination' {
+                                    $OutObj = @()
+                                    try {
+                                        foreach ($Destination in $Bkjob.ViReplicaTargetOptions) {
+                                            try {
+                                                Write-PscriboMessage "Discovered $($Bkjob.Name) destination information."
+                                                if (!$Destination.ClusterName) {
+                                                    $HostorCluster = (Find-VBRViEntity -ErrorAction SilentlyContinue | Where-Object { $_.Reference -eq $Destination.HostReference}).Name
+                                                } else {$HostorCluster = $Destination.ClusterName}
+                                                $inObj = [ordered]  @{
+                                                    'Host or Cluster' = Switch ($HostorCluster) {
+                                                        $Null {'Unknown'}
+                                                        default {$HostorCluster}
+                                                    }
+                                                    'Resources Pool' = $Destination.ReplicaTargetResourcePoolName
+                                                    'VM Folder' = $Destination.ReplicaTargetVmFolderName
+                                                    'Datastore' = $Destination.DatastoreName
+                                                }
+                                                $OutObj += [pscustomobject]$inobj
+                                            }
+                                            catch {
+                                                Write-PscriboMessage -IsWarning $_.Exception.Message
+                                            }
+                                        }
+
+                                        $TableParams = @{
+                                            Name = "Destination - $($Bkjob.Name)"
+                                            List = $true
+                                            ColumnWidths = 40, 60
+                                        }
+                                        if ($Report.ShowTableCaptions) {
+                                            $TableParams['Caption'] = "- $($TableParams.Name)"
+                                        }
+                                        $OutObj | Table @TableParams
+                                    }
+                                    catch {
+                                        Write-PscriboMessage -IsWarning $_.Exception.Message
+                                    }
+                                }
+                                if ($Bkjob.ViReplicaTargetOptions.UseNetworkMapping) {
+                                    Section -Style Heading5 'Network' {
                                         $OutObj = @()
                                         try {
-                                            foreach ($LinkedBkJob in $Bkjob.LinkedJobs) {
+                                            foreach ($NetMapping in $Bkjob.Options.ViNetworkMappingOptions.NetworkMapping) {
                                                 try {
-                                                    Write-PscriboMessage "Discovered $($Bkjob.Name) linked backup job."
-                                                    $Job = Get-VBRJob -WarningAction SilentlyContinue| Where-Object {$_.Id -eq  $LinkedBkJob.info.LinkedObjectId}
+                                                    Write-PscriboMessage "Discovered $($Bkjob.Name) network mapping information."
                                                     $inObj = [ordered] @{
-                                                        'Name' = $Job.Name
-                                                        'Type' = $Job.TypeToString
-                                                        'Size' = ConvertTo-FileSizeString $Job.Info.IncludedSize
-                                                        'Repository' = $Job.GetTargetRepository().Name
+                                                        'Source Network' = $NetMapping.SourceNetwork
+                                                        'Target Network' = $NetMapping.TargetNetwork
                                                     }
                                                     $OutObj += [pscustomobject]$inobj
                                                 }
@@ -127,42 +163,34 @@ function Get-AbrVbrRepljobVMware {
                                             }
 
                                             $TableParams = @{
-                                                Name = "Linked Backup Jobs - $($Bkjob.Name)"
+                                                Name = "Network Mappings - $($Bkjob.Name)"
                                                 List = $false
-                                                ColumnWidths = 35, 25, 15, 25
+                                                ColumnWidths = 50, 50
                                             }
                                             if ($Report.ShowTableCaptions) {
                                                 $TableParams['Caption'] = "- $($TableParams.Name)"
                                             }
-                                            $OutObj | Sort-Object -Property 'Name' | Table @TableParams
+                                            $OutObj | Sort-Object -Property 'Source Network' | Table @TableParams
                                         }
                                         catch {
                                             Write-PscriboMessage -IsWarning $_.Exception.Message
                                         }
                                     }
                                 }
-                                if ($Bkjob.LinkedRepositories) {
-                                    Section -Style Heading5 'Linked Repositories' {
+                                if ($Bkjob.Options.ViReplicaTargetOptions.UseReIP) {
+                                    Section -Style Heading5 'Re-IP Rules' {
                                         $OutObj = @()
                                         try {
-                                            foreach ($LinkedRepository in $Bkjob.LinkedRepositories.LinkedRepositoryId) {
+                                            foreach ($ReIpRule in $Bkjob.Options.ReIPRulesOptions.Rules) {
                                                 try {
-                                                    Write-PscriboMessage "Discovered $($Bkjob.Name) linked repository."
-                                                    $Repo = Get-VBRBackupRepository | Where-Object {$_.Id -eq $LinkedRepository}
-                                                    $ScaleRepo = Get-VBRBackupRepository -ScaleOut | Where-Object {$_.Id -eq $LinkedRepository}
-                                                    if ($Repo) {
-                                                        $inObj = [ordered] @{
-                                                            'Name' = $Repo.Name
-                                                            'Type' = "Standard"
-                                                            'Size' = "$($Repo.GetContainer().CachedTotalSpace.InGigabytes) Gb"
-                                                        }
-                                                    }
-                                                    if ($ScaleRepo) {
-                                                        $inObj = [ordered] @{
-                                                            'Name' = $ScaleRepo.Name
-                                                            'Type' = "ScaleOut"
-                                                            'Size' = "$((($ScaleRepo.Extent).Repository).GetContainer().CachedTotalSpace.InGigabytes) GB"
-                                                        }
+                                                    Write-PscriboMessage "Discovered $($Bkjob.Name) re-ip rules $($ReIpRule.Source.IPAddress) information."
+                                                    $inObj = [ordered] @{
+                                                        'Source IP Address' = $ReIpRule.Source.IPAddress
+                                                        'Source Subnet Mask' = $ReIpRule.Source.SubnetMask
+                                                        'Target P Address' = $ReIpRule.Target.IPAddress
+                                                        'Target Subnet Mask' = $ReIpRule.Target.SubnetMask
+                                                        'Target Default Gateway' = $ReIpRule.Target.DefaultGateway
+                                                        'Target DNS Addresses' = $ReIpRule.Target.DNSAddresses
                                                     }
                                                     $OutObj += [pscustomobject]$inobj
                                                 }
@@ -172,14 +200,14 @@ function Get-AbrVbrRepljobVMware {
                                             }
 
                                             $TableParams = @{
-                                                Name = "Linked Repositories - $($Bkjob.Name)"
+                                                Name = "Re-IP Rules - $($Bkjob.Name)"
                                                 List = $false
-                                                ColumnWidths = 35, 35, 30
+                                                ColumnWidths = 17, 17, 17, 17, 16, 16
                                             }
                                             if ($Report.ShowTableCaptions) {
                                                 $TableParams['Caption'] = "- $($TableParams.Name)"
                                             }
-                                            $OutObj | Sort-Object -Property 'Name' | Table @TableParams
+                                            $OutObj | Sort-Object -Property 'Source IP Address' | Table @TableParams
                                         }
                                         catch {
                                             Write-PscriboMessage -IsWarning $_.Exception.Message
@@ -191,7 +219,7 @@ function Get-AbrVbrRepljobVMware {
                                         $OutObj = @()
                                         try {
                                             foreach ($OBJ in ($Bkjob.GetViOijs() | Where-Object {$_.Type -eq "Include" -or $_.Type -eq "Exclude"} )) {
-                                                Write-PscriboMessage "Discovered $($OBJ.Name) object to backup."
+                                                Write-PscriboMessage "Discovered $($OBJ.Name) object to replicate."
                                                 $inObj = [ordered] @{
                                                     'Name' = $OBJ.Name
                                                     'Resource Type' = $OBJ.TypeDisplayName
@@ -223,7 +251,7 @@ function Get-AbrVbrRepljobVMware {
                                     try {
                                         Write-PscriboMessage "Discovered $($Bkjob.Name) storage options."
                                         if ($Bkjob.BackupStorageOptions.RetentionType -eq "Days") {
-                                            $RetainString = 'Retain Days To Keep'
+                                            $RetainString = 'Restore Point To Keep'
                                             $Retains = $Bkjob.BackupStorageOptions.RetainDaysToKeep
                                         }
                                         elseif ($Bkjob.BackupStorageOptions.RetentionType -eq "Cycles") {
@@ -231,33 +259,13 @@ function Get-AbrVbrRepljobVMware {
                                             $Retains = $Bkjob.BackupStorageOptions.RetainCycles
                                         }
                                         $inObj = [ordered] @{
-                                            'Backup Proxy' = Switch (($Bkjob.GetProxy().Name).count) {
-                                                0 {"Unknown"}
-                                                {$_ -gt 1} {"Automatic"}
-                                                default {$Bkjob.GetProxy().Name}
-                                            }
                                             'Repository for replica metadata' = Switch ($Bkjob.info.TargetRepositoryId) {
                                                 '00000000-0000-0000-0000-000000000000' {$Bkjob.TargetDir}
                                                 {$Null -eq (Get-VBRBackupRepository | Where-Object {$_.Id -eq $Bkjob.info.TargetRepositoryId}).Name} {(Get-VBRBackupRepository -ScaleOut | Where-Object {$_.Id -eq $Bkjob.info.TargetRepositoryId}).Name}
                                                 default {(Get-VBRBackupRepository | Where-Object {$_.Id -eq $Bkjob.info.TargetRepositoryId}).Name}
                                             }
-                                            'Retention Type' = $Bkjob.BackupStorageOptions.RetentionType
+                                            'Replica Name Suffix' = $Bkjob.Options.ViReplicaTargetOptions.ReplicaNameSuffix
                                             $RetainString = $Retains
-                                            'Keep First Full Backup' = ConvertTo-TextYN $Bkjob.BackupStorageOptions.KeepFirstFullBackup
-                                            'Enable Full Backup' = ConvertTo-TextYN $Bkjob.BackupStorageOptions.EnableFullBackup
-                                            'Integrity Checks' = ConvertTo-TextYN $Bkjob.BackupStorageOptions.EnableIntegrityChecks
-                                            'Storage Encryption' = ConvertTo-TextYN $Bkjob.BackupStorageOptions.StorageEncryptionEnabled
-                                            'Backup Mode' = Switch ($Bkjob.Options.BackupTargetOptions.Algorithm) {
-                                                'Syntethic' {"Reverse Incremental"}
-                                                'Increment' {'Incremental'}
-                                            }
-                                            'Active Full Backup Schedule Kind' = $Bkjob.Options.BackupTargetOptions.FullBackupScheduleKind
-                                            'Active Full Backup Days' = $Bkjob.Options.BackupTargetOptions.FullBackupDays
-                                            'Transform Full To Syntethic' = ConvertTo-TextYN $Bkjob.Options.BackupTargetOptions.TransformFullToSyntethic
-                                            'Transform Increments To Syntethic' = ConvertTo-TextYN $Bkjob.Options.BackupTargetOptions.TransformIncrementsToSyntethic
-                                            'Transform To Syntethic Days' = $Bkjob.Options.BackupTargetOptions.TransformToSyntethicDays
-
-
                                         }
                                         $OutObj = [pscustomobject]$inobj
 
@@ -304,10 +312,10 @@ function Get-AbrVbrRepljobVMware {
                                             }
                                         }
                                         if ($InfoLevel.Jobs.Replication -ge 2) {
-                                            Section -Style Heading6 "Advanced Settings (Storage)" {
+                                            Section -Style Heading6 "Advanced Settings (Traffic)" {
                                                 $OutObj = @()
                                                 try {
-                                                    Write-PscriboMessage "Discovered $($Bkjob.Name) storage options."
+                                                    Write-PscriboMessage "Discovered $($Bkjob.Name) traffic options."
                                                     $inObj = [ordered] @{
                                                         'Inline Data Deduplication' = ConvertTo-TextYN $Bkjob.Options.BackupStorageOptions.EnableDeduplication
                                                         'Exclude Swap Files Block' = ConvertTo-TextYN $Bkjob.ViSourceOptions.ExcludeSwapFile
@@ -336,7 +344,7 @@ function Get-AbrVbrRepljobVMware {
                                                     $OutObj = [pscustomobject]$inobj
 
                                                     $TableParams = @{
-                                                        Name = "Advanced Settings (Storage) - $($Bkjob.Name)"
+                                                        Name = "Advanced Settings (Traffic) - $($Bkjob.Name)"
                                                         List = $true
                                                         ColumnWidths = 40, 60
                                                     }
@@ -552,6 +560,36 @@ function Get-AbrVbrRepljobVMware {
                                 }
                                 catch {
                                     Write-PscriboMessage -IsWarning $_.Exception.Message
+                                }
+                                if ($Bkjob.Options.ViReplicaTargetOptions.InitialSeeding) {
+                                    try {
+                                        Section -Style Heading5 'Seeding' {
+                                            $OutObj = @()
+                                            Write-PscriboMessage "Discovered $($Bkjob.Name) seeding information."
+                                            if ($Bkjob.Options.ViReplicaTargetOptions.EnableInitialPass) {
+                                                $SeedRepo = $Bkjob.GetInitialRepository().Name
+                                            } else {$SeedRepo = 'Disabled'}
+                                            $inObj = [ordered] @{
+                                                'Seed from Backup Repository' = $SeedRepo
+                                                'Map Replica to Existing VM' = ConvertTo-TextYN $Bkjob.Options.ViReplicaTargetOptions.UseVmMapping
+                                            }
+
+                                            $OutObj += [pscustomobject]$inobj
+
+                                            $TableParams = @{
+                                                Name = "Seeding - $($Bkjob.Name)"
+                                                List = $true
+                                                ColumnWidths = 40, 60
+                                            }
+                                            if ($Report.ShowTableCaptions) {
+                                                $TableParams['Caption'] = "- $($TableParams.Name)"
+                                            }
+                                            $OutObj | Table @TableParams
+                                        }
+                                    }
+                                    catch {
+                                        Write-PscriboMessage -IsWarning $_.Exception.Message
+                                    }
                                 }
                                 if ($Bkjob.VssOptions.Enabled) {
                                     Section -Style Heading5 "Guest Processing" {

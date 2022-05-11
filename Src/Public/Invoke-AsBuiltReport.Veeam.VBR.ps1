@@ -203,7 +203,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                         if ($InfoLevel.Jobs.Replication -ge 1) {
                             Get-AbrVbrRepljob
                             Get-AbrVbrRepljobVMware
-                            #Get-AbrVbrRepljobHyperV
+                            Get-AbrVbrRepljobHyperV
                         }
                         Write-PScriboMessage "Tape Jobs InfoLevel set at $($InfoLevel.Jobs.Tape)."
                         if ($InfoLevel.Jobs.Tape -ge 1) {
