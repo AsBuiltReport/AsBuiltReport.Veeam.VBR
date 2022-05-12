@@ -1,8 +1,8 @@
 
-function Get-AbrVbrBackupjob {
+function Get-AbrVbrRepljob {
     <#
     .SYNOPSIS
-        Used by As Built Report to returns backup jobs created in Veeam Backup & Replication.
+        Used by As Built Report to returns replication jobs created in Veeam Backup & Replication.
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
@@ -21,21 +21,21 @@ function Get-AbrVbrBackupjob {
     )
 
     begin {
-        Write-PscriboMessage "Discovering Veeam VBR Backup jobs information from $System."
+        Write-PscriboMessage "Discovering Veeam VBR Replication jobs information from $System."
     }
 
     process {
         try {
-            if ((Get-VBRJob -WarningAction SilentlyContinue).count -gt 0) {
-                Section -Style Heading3 'Backup Jobs' {
-                    Paragraph "The following section list backup jobs created in Veeam Backup & Replication."
+            $Bkjobs = Get-VBRJob -WarningAction SilentlyContinue | Where-object {$_.TypeToString -eq 'VMware Replication' -or $_.TypeToString -eq 'Hyper-V Replication'}
+            if (($Bkjobs).count -gt 0) {
+                Section -Style Heading3 'Replication Jobs' {
+                    Paragraph "The following section list replication jobs created in Veeam Backup & Replication."
                     BlankLine
                     $OutObj = @()
                     if ((Get-VBRServerSession).Server) {
-                        $Bkjobs = Get-VBRJob -WarningAction SilentlyContinue | Where-object {$_.TypeToString -ne 'Windows Agent Backup' -and $_.TypeToString -ne 'Hyper-V Replication' -and $_.TypeToString -ne 'VMware Replication'}
                         foreach ($Bkjob in $Bkjobs) {
                             try {
-                                Write-PscriboMessage "Discovered $($Bkjob.Name) backup job."
+                                Write-PscriboMessage "Discovered $($Bkjob.Name) replication job."
                                 $inObj = [ordered] @{
                                     'Name' = $Bkjob.Name
                                     'Type' = $Bkjob.TypeToString
@@ -44,11 +44,7 @@ function Get-AbrVbrBackupjob {
                                         'True' {'Enabled'}
                                     }
                                     'Latest Result' = $Bkjob.info.LatestStatus
-                                    'Target Repository' = Switch ($Bkjob.info.TargetRepositoryId) {
-                                        '00000000-0000-0000-0000-000000000000' {$Bkjob.TargetDir}
-                                        {$Null -eq (Get-VBRBackupRepository | Where-Object {$_.Id -eq $Bkjob.info.TargetRepositoryId}).Name} {(Get-VBRBackupRepository -ScaleOut | Where-Object {$_.Id -eq $Bkjob.info.TargetRepositoryId}).Name}
-                                        default {(Get-VBRBackupRepository | Where-Object {$_.Id -eq $Bkjob.info.TargetRepositoryId}).Name}
-                                    }
+                                    'Last Run' = $Bkjob.FindLastSession().EndTimeUTC
                                 }
                                 $OutObj += [pscustomobject]$inobj
                             }
@@ -58,7 +54,7 @@ function Get-AbrVbrBackupjob {
                         }
 
                         $TableParams = @{
-                            Name = "Backup Jobs - $(((Get-VBRServerSession).Server).ToString().ToUpper().Split(".")[0])"
+                            Name = "Replication Jobs - $(((Get-VBRServerSession).Server).ToString().ToUpper().Split(".")[0])"
                             List = $false
                             ColumnWidths = 25, 20, 15, 15, 25
                         }

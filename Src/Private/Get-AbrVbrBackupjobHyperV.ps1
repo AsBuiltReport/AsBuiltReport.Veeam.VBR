@@ -6,7 +6,7 @@ function Get-AbrVbrBackupjobHyperV {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.4.1
+        Version:        0.5.0
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -28,7 +28,7 @@ function Get-AbrVbrBackupjobHyperV {
         try {
             $Bkjobs = Get-VBRJob -WarningAction SilentlyContinue | Where-Object {$_.TypeToString -eq "Hyper-V Backup" -or $_.TypeToString -eq "Hyper-V Backup Copy"}
             if (($Bkjobs).count -gt 0) {
-                Section -Style Heading3 'Hyper-V Backup Configuration' {
+                Section -Style Heading3 'Hyper-V Backup Jobs Configuration' {
                     Paragraph "The following section details Hyper-V backup jobs configuration."
                     BlankLine
                     $OutObj = @()
@@ -300,8 +300,8 @@ function Get-AbrVbrBackupjobHyperV {
                                                     Write-PscriboMessage "Discovered $($Bkjob.Name) storage options."
                                                     $inObj = [ordered] @{
                                                         'Inline Data Deduplication' = ConvertTo-TextYN $Bkjob.Options.BackupStorageOptions.EnableDeduplication
-                                                        'Exclude Swap Files Block' = ConvertTo-TextYN $Bkjob.ViSourceOptions.ExcludeSwapFile
-                                                        'Exclude Deleted Files Block' = ConvertTo-TextYN $Bkjob.ViSourceOptions.DirtyBlocksNullingEnabled
+                                                        'Exclude Swap Files Block' = ConvertTo-TextYN $Bkjob.HvSourceOptions.ExcludeSwapFile
+                                                        'Exclude Deleted Files Block' = ConvertTo-TextYN $Bkjob.HvSourceOptions.DirtyBlocksNullingEnabled
                                                         'Compression Level' = Switch ($Bkjob.Options.BackupStorageOptions.CompressionLevel) {
                                                             0 {'NONE'}
                                                             -1 {'AUTO'}
@@ -356,9 +356,9 @@ function Get-AbrVbrBackupjobHyperV {
                                                         'Notify On Warning' = ConvertTo-TextYN $Bkjob.Options.NotificationOptions.EmailNotifyOnWarning
                                                         'Notify On Error' = ConvertTo-TextYN $Bkjob.Options.NotificationOptions.EmailNotifyOnError
                                                         'Suppress Notification until Last Retry' = ConvertTo-TextYN $Bkjob.Options.NotificationOptions.EmailNotifyOnLastRetryOnly
-                                                        'Set Results To Vm Notes' = ConvertTo-TextYN $Bkjob.Options.ViSourceOptions.SetResultsToVmNotes
-                                                        'VM Attribute Note Value' = $Bkjob.Options.ViSourceOptions.VmAttributeName
-                                                        'Append to Existing Attribute' = ConvertTo-TextYN $Bkjob.Options.ViSourceOptions.VmNotesAppend
+                                                        'Set Results To Vm Notes' = ConvertTo-TextYN $Bkjob.Options.HvSourceOptions.SetResultsToVmNotes
+                                                        'VM Attribute Note Value' = $Bkjob.Options.HvSourceOptions.VmAttributeName
+                                                        'Append to Existing Attribute' = ConvertTo-TextYN $Bkjob.Options.HvSourceOptions.VmNotesAppend
                                                     }
                                                     $OutObj = [pscustomobject]$inobj
 
@@ -377,21 +377,21 @@ function Get-AbrVbrBackupjobHyperV {
                                                 }
                                             }
                                         }
-                                        if ($InfoLevel.Jobs.Backup -ge 2 -and ($Bkjob.Options.ViSourceOptions.VMToolsQuiesce -or $Bkjob.Options.ViSourceOptions.UseChangeTracking)) {
-                                            Section -Style Heading6 "Advanced Settings (vSphere)" {
+                                        if ($InfoLevel.Jobs.Backup -ge 2 -and ($Bkjob.Options.HvSourceOptions.EnableHvQuiescence -or $Bkjob.Options.HvSourceOptions.UseChangeTracking)) {
+                                            Section -Style Heading6 "Advanced Settings (Hyper-V)" {
                                                 $OutObj = @()
                                                 try {
-                                                    Write-PscriboMessage "Discovered $($Bkjob.Name) vSphere options."
+                                                    Write-PscriboMessage "Discovered $($Bkjob.Name) Hyper-V options."
                                                     $inObj = [ordered] @{
-                                                        'Enable Hyper-V Guest Quiescence' = ConvertTo-TextYN $Bkjob.Options.ViSourceOptions.VMToolsQuiesce
-                                                        'Use Change Block Tracking' = ConvertTo-TextYN $Bkjob.Options.ViSourceOptions.UseChangeTracking
-                                                        'Enable CBT for all protected VMs' = ConvertTo-TextYN $Bkjob.Options.ViSourceOptions.EnableChangeTracking
-                                                        'Reset CBT On each Active Full Backup' = ConvertTo-TextYN $Bkjob.Options.ViSourceOptions.ResetChangeTrackingOnActiveFull
+                                                        'Enable Hyper-V Guest Quiescence' = ConvertTo-TextYN $Bkjob.Options.HvSourceOptions.EnableHvQuiescence
+                                                        'Crash Consistent Backup' = ConvertTo-TextYN $Bkjob.Options.HvSourceOptions.CanDoCrashConsistent
+                                                        'Use Change Block Tracking' = ConvertTo-TextYN $Bkjob.Options.HvSourceOptions.UseChangeTracking
+                                                        'Volume Snapshot' = ConvertTo-TextYN $Bkjob.Options.HvSourceOptions.GroupSnapshotProcessing
                                                     }
                                                     $OutObj = [pscustomobject]$inobj
 
                                                     $TableParams = @{
-                                                        Name = "Advanced Settings (vSphere) - $($Bkjob.Name)"
+                                                        Name = "Advanced Settings (Hyper-V) - $($Bkjob.Name)"
                                                         List = $true
                                                         ColumnWidths = 40, 60
                                                     }

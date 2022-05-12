@@ -42,11 +42,16 @@
             "ONTAP": 1,
             "ISILON": 1
         },
+        "Replication": {
+            "FailoverPlan": 1,
+            "Replica": 1
+        },
         "Jobs": {
             "Backup": 1,
             "Tape": 1,
             "Surebackup": 1,
-            "Agent": 1
+            "Agent": 1,
+            "Replication": 1
         }
     },
     "HealthCheck": {
