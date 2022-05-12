@@ -20,6 +20,10 @@ function Invoke-AsBuiltReport.Veeam.VBR {
         [String[]] $Target,
         [PSCredential] $Credential
     )
+    
+    Write-PScriboMessage -IsWarning "Please refer to the AsBuiltReport.Veeam.VBR github website for more detailed information about this project."
+    Write-PScriboMessage -IsWarning "Documentation: https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR"
+    Write-PScriboMessage -IsWarning "Issues or bug reporting: https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues"
 
     # Import Report Configuration
     $Report = $ReportConfig.Report
