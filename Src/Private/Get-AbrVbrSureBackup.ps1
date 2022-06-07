@@ -6,7 +6,7 @@ function Get-AbrVbrSureBackup {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.4.0
+        Version:        0.5.1
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -221,28 +221,30 @@ function Get-AbrVbrSureBackup {
                                                     Write-PscriboMessage -IsWarning $_.Exception.Message
                                                 }
                                                 try {
-                                                    Section -Style Heading6 "IP Address Mapping" {
-                                                        $OutObj = @()
-                                                        foreach ($NetworkOption in $SureBackupVL.IpMappingRule) {
-                                                            $inObj = [ordered] @{
-                                                                'Production Network' = $NetworkOption.ProductionNetwork.Name
-                                                                'Isolated IP Address' = $NetworkOption.IsolatedIPAddress
-                                                                'Access IP Address' = $NetworkOption.AccessIPAddress
-                                                                'Notes' = $NetworkOption.Note
+                                                    if ($SureBackupVL.IpMappingRule) {
+                                                        Section -Style Heading6 "IP Address Mapping" {
+                                                            $OutObj = @()
+                                                            foreach ($NetworkOption in $SureBackupVL.IpMappingRule) {
+                                                                $inObj = [ordered] @{
+                                                                    'Production Network' = $NetworkOption.ProductionNetwork.Name
+                                                                    'Isolated IP Address' = $NetworkOption.IsolatedIPAddress
+                                                                    'Access IP Address' = $NetworkOption.AccessIPAddress
+                                                                    'Notes' = $NetworkOption.Note
+                                                                }
+
+                                                                $OutObj += [pscustomobject]$inobj
                                                             }
 
-                                                            $OutObj += [pscustomobject]$inobj
+                                                            $TableParams = @{
+                                                                Name = "IP Address Mapping - $($SureBackupVL.Name)"
+                                                                List = $false
+                                                                ColumnWidths = 30, 15, 15, 40
+                                                            }
+                                                            if ($Report.ShowTableCaptions) {
+                                                                $TableParams['Caption'] = "- $($TableParams.Name)"
+                                                            }
+                                                            $OutObj | Sort-Object -Property 'Production Network' | Table @TableParams
                                                         }
-
-                                                        $TableParams = @{
-                                                            Name = " IP Address Mapping - $($SureBackupVL.Name)"
-                                                            List = $false
-                                                            ColumnWidths = 30, 15, 15, 40
-                                                        }
-                                                        if ($Report.ShowTableCaptions) {
-                                                            $TableParams['Caption'] = "- $($TableParams.Name)"
-                                                        }
-                                                        $OutObj | Sort-Object -Property 'Production Network' | Table @TableParams
                                                     }
                                                 }
                                                 catch {
