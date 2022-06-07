@@ -26,7 +26,7 @@ function Get-AbrVbrFileToTape {
 
     process {
         try {
-            if ((Get-VBRTapeJob).count -gt 0) {
+            if ((Get-VBRTapeJob | Where-Object {$_.Type -eq 'FileToTape'}).count -gt 0) {
                 Section -Style Heading3 'File To Tape Job Configuration' {
                     Paragraph "The following section details file to tape jobs configuration."
                     BlankLine
