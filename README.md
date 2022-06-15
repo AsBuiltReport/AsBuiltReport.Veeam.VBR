@@ -202,7 +202,7 @@ The table below outlines the default and maximum **InfoLevel** settings for each
 | Sub-Schema   | Default Setting | Maximum Setting |
 |--------------|:---------------:|:---------------:|
 | Replica       |        1        |        2        |
-| Failover Plan          |        1        |        1        |
+| FailoverPlan          |        1        |        1        |
 
 ### Healthcheck
 
