@@ -6,7 +6,7 @@ function Get-AbrVbrSureBackup {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.4.0
+        Version:        0.5.1
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -72,42 +72,44 @@ function Get-AbrVbrSureBackup {
                             try {
                                 $SureBackupAGs = Get-VBRApplicationGroup
                                 foreach ($SureBackupAG in $SureBackupAGs) {
-                                    Section -Style Heading5 "$($SureBackupAG.Name) VM Settings" {
-                                        try {
-                                            foreach ($VMSetting in $SureBackupAG.VM) {
-                                                Section -Style Heading5 "$($VMSetting.Name)" {
-                                                    Paragraph "The following section provides a detailed information of the VM Application Group Settings"
-                                                    BlankLine
-                                                    $OutObj = @()
-                                                    Write-PscriboMessage "Discovered $($VMSetting.Name) Application Group VM Setting."
-                                                    $inObj = [ordered] @{
-                                                        'VM Name' = $VMSetting.Name
-                                                        'Credentials' = ConvertTo-EmptyToFiller $VMSetting.Credentials
-                                                        'Role' = ConvertTo-EmptyToFiller ($VMSetting.Role -join ", ")
-                                                        'Test Script' = ConvertTo-EmptyToFiller ($VMSetting.TestScript.PredefinedApplication -join ", ")
-                                                        'Startup Options' = SWitch ($VMSetting.StartupOptions) {
-                                                            "" {"-"; break}
-                                                            $Null {"-"; break}
-                                                            default {$VMSetting.StartupOptions | ForEach-Object {"Allocated Memory: $($_.AllocatedMemory)`r`nHeartbeat Check: $(ConvertTo-TextYN $_.VMHeartBeatCheckEnabled)`r`nMaximum Boot Time: $($_.MaximumBootTime)`r`nApp Init Timeout: $($_.ApplicationInitializationTimeout)`r`nPing Check: $(ConvertTo-TextYN $_.VMPingCheckEnabled)"}}
+                                    if ($SureBackupAG.VM) {
+                                        Section -Style Heading5 "$($SureBackupAG.Name) VM Settings" {
+                                            try {
+                                                foreach ($VMSetting in $SureBackupAG.VM) {
+                                                    Section -Style Heading5 "$($VMSetting.Name)" {
+                                                        Paragraph "The following section provides a detailed information of the VM Application Group Settings"
+                                                        BlankLine
+                                                        $OutObj = @()
+                                                        Write-PscriboMessage "Discovered $($VMSetting.Name) Application Group VM Setting."
+                                                        $inObj = [ordered] @{
+                                                            'VM Name' = $VMSetting.Name
+                                                            'Credentials' = ConvertTo-EmptyToFiller $VMSetting.Credentials
+                                                            'Role' = ConvertTo-EmptyToFiller ($VMSetting.Role -join ", ")
+                                                            'Test Script' = ConvertTo-EmptyToFiller ($VMSetting.TestScript.PredefinedApplication -join ", ")
+                                                            'Startup Options' = SWitch ($VMSetting.StartupOptions) {
+                                                                "" {"-"; break}
+                                                                $Null {"-"; break}
+                                                                default {$VMSetting.StartupOptions | ForEach-Object {"Allocated Memory: $($_.AllocatedMemory)`r`nHeartbeat Check: $(ConvertTo-TextYN $_.VMHeartBeatCheckEnabled)`r`nMaximum Boot Time: $($_.MaximumBootTime)`r`nApp Init Timeout: $($_.ApplicationInitializationTimeout)`r`nPing Check: $(ConvertTo-TextYN $_.VMPingCheckEnabled)"}}
+                                                            }
                                                         }
-                                                    }
 
-                                                    $OutObj += [pscustomobject]$inobj
+                                                        $OutObj += [pscustomobject]$inobj
 
-                                                    $TableParams = @{
-                                                        Name = "Application Group VM Settings - $($VMSetting.Name)"
-                                                        List = $true
-                                                        ColumnWidths = 40, 60
+                                                        $TableParams = @{
+                                                            Name = "Application Group VM Settings - $($VMSetting.Name)"
+                                                            List = $true
+                                                            ColumnWidths = 40, 60
+                                                        }
+                                                        if ($Report.ShowTableCaptions) {
+                                                            $TableParams['Caption'] = "- $($TableParams.Name)"
+                                                        }
+                                                        $OutObj | Table @TableParams
                                                     }
-                                                    if ($Report.ShowTableCaptions) {
-                                                        $TableParams['Caption'] = "- $($TableParams.Name)"
-                                                    }
-                                                    $OutObj | Table @TableParams
                                                 }
                                             }
-                                        }
-                                        catch {
-                                            Write-PscriboMessage -IsWarning $_.Exception.Message
+                                            catch {
+                                                Write-PscriboMessage -IsWarning $_.Exception.Message
+                                            }
                                         }
                                     }
                                 }
@@ -221,28 +223,30 @@ function Get-AbrVbrSureBackup {
                                                     Write-PscriboMessage -IsWarning $_.Exception.Message
                                                 }
                                                 try {
-                                                    Section -Style Heading6 "IP Address Mapping" {
-                                                        $OutObj = @()
-                                                        foreach ($NetworkOption in $SureBackupVL.IpMappingRule) {
-                                                            $inObj = [ordered] @{
-                                                                'Production Network' = $NetworkOption.ProductionNetwork.Name
-                                                                'Isolated IP Address' = $NetworkOption.IsolatedIPAddress
-                                                                'Access IP Address' = $NetworkOption.AccessIPAddress
-                                                                'Notes' = $NetworkOption.Note
+                                                    if ($SureBackupVL.IpMappingRule) {
+                                                        Section -Style Heading6 "IP Address Mapping" {
+                                                            $OutObj = @()
+                                                            foreach ($NetworkOption in $SureBackupVL.IpMappingRule) {
+                                                                $inObj = [ordered] @{
+                                                                    'Production Network' = $NetworkOption.ProductionNetwork.Name
+                                                                    'Isolated IP Address' = $NetworkOption.IsolatedIPAddress
+                                                                    'Access IP Address' = $NetworkOption.AccessIPAddress
+                                                                    'Notes' = $NetworkOption.Note
+                                                                }
+
+                                                                $OutObj += [pscustomobject]$inobj
                                                             }
 
-                                                            $OutObj += [pscustomobject]$inobj
+                                                            $TableParams = @{
+                                                                Name = "IP Address Mapping - $($SureBackupVL.Name)"
+                                                                List = $false
+                                                                ColumnWidths = 30, 15, 15, 40
+                                                            }
+                                                            if ($Report.ShowTableCaptions) {
+                                                                $TableParams['Caption'] = "- $($TableParams.Name)"
+                                                            }
+                                                            $OutObj | Sort-Object -Property 'Production Network' | Table @TableParams
                                                         }
-
-                                                        $TableParams = @{
-                                                            Name = " IP Address Mapping - $($SureBackupVL.Name)"
-                                                            List = $false
-                                                            ColumnWidths = 30, 15, 15, 40
-                                                        }
-                                                        if ($Report.ShowTableCaptions) {
-                                                            $TableParams['Caption'] = "- $($TableParams.Name)"
-                                                        }
-                                                        $OutObj | Sort-Object -Property 'Production Network' | Table @TableParams
                                                     }
                                                 }
                                                 catch {

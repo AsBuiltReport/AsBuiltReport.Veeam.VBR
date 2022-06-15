@@ -6,7 +6,7 @@ function Get-AbrVbrFileToTape {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.4.0
+        Version:        0.5.1
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -26,7 +26,7 @@ function Get-AbrVbrFileToTape {
 
     process {
         try {
-            if ((Get-VBRTapeJob).count -gt 0) {
+            if ((Get-VBRTapeJob | Where-Object {$_.Type -eq 'FileToTape'}).count -gt 0) {
                 Section -Style Heading3 'File To Tape Job Configuration' {
                     Paragraph "The following section details file to tape jobs configuration."
                     BlankLine
