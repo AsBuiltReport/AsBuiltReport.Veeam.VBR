@@ -39,6 +39,7 @@ function Get-AbrVbrInfrastructureSummary {
                     $SocketLicenses = (Get-VBRInstalledLicense).SocketLicenseSummary
                     $CapacityLicenses = (Get-VBRInstalledLicense).CapacityLicenseSummary
                     $WANAccels = (Get-VBRWANAccelerator).count
+                    $ServiceProviders = (Get-VBRCloudProvider).count
                     try {
                         $SureBackupAGs = (Get-VBRApplicationGroup).count
                         $SureBackupVLs = (Get-VBRVirtualLab).count
@@ -53,6 +54,7 @@ function Get-AbrVbrInfrastructureSummary {
                         'Number of SOBR Repositories' = $SOBRRepo
                         'Number of Object Repository' = $ObjectStorageRepo
                         'Number of WAN Accelerator' = $WANAccels
+                        'Number of Cloud Service Providers' = $ServiceProviders
                         'Number of SureBackup Application Group' = $SureBackupAGs
                         'Number of SureBackup Virtual Lab' = $SureBackupVLs
                         'Number of Locations' = $Locations
