@@ -22,7 +22,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
     )
 
     Write-PScriboMessage -IsWarning "Please refer to the AsBuiltReport.Veeam.VBR github website for more detailed information about this project."
-    Write-PScriboMessage -IsWarning "With each new version release, do not forget to update your report configuration file."
+    Write-PScriboMessage -IsWarning "Do not forget to update your report configuration file after each new version release."
     Write-PScriboMessage -IsWarning "Documentation: https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR"
     Write-PScriboMessage -IsWarning "Issues or bug reporting: https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues"
 
@@ -41,7 +41,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
         Get-AbrVbrRequiredModule -Name 'Veeam.Backup.PowerShell' -Version '1.0'
         Get-AbrVbrServerConnection
         $VeeamBackupServer = ((Get-VBRServerSession).Server).ToString().ToUpper().Split(".")[0]
-        Section -Style Heading1 'Implementation Report' {
+        Section -Style Heading1 "Implementation Report - $($VeeamBackupServer)" {
             Paragraph "The following section provides a summary about Veeam Backup & Replication implemented components."
             BlankLine
             #---------------------------------------------------------------------------------------------#
@@ -49,7 +49,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
             #---------------------------------------------------------------------------------------------#
             if ($InfoLevel.Infrastructure.PSObject.Properties.Value -ne 0) {
                 Section -Style Heading2 'Backup Infrastructure Summary' {
-                    Paragraph "The following sections detail configuration information about Veeam Backup Server $(((Get-VBRServerSession).Server))."
+                    Paragraph "The following sections detail configuration information about Veeam Backup Server $($VeeamBackupServer)."
                     BlankLine
                     Get-AbrVbrInfrastructureSummary
                     Get-AbrVbrBackupServerInfo

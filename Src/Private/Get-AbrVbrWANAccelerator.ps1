@@ -43,12 +43,18 @@ function Get-AbrVbrWANAccelerator {
                                 catch {
                                     Write-PscriboMessage -IsWarning $_.Exception.Message
                                 }
+                                try {
+                                    $ServiceIPAddress = $WANAccel.GetWaConnSpec().Endpoints.IP -join ", "
+                                }
+                                catch {
+                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                }
                                 $inObj = [ordered] @{
                                     'Name' = $WANAccel.Name
                                     'Host Name' = $WANAccel.GetHost().Name
                                     'Is Public' = ConvertTo-TextYN $WANAccel.GetType().IsPublic
                                     'Management Port' = "$($WANAccel.GetWaMgmtPort())\TCP"
-                                    'Service IP Address' = $WANAccel.GetWaConnSpec().Endpoints.IP -join ", "
+                                    'Service IP Address' = $ServiceIPAddress
                                     'Traffic Port' = "$($WANAccel.GetWaTrafficPort())\TCP"
                                     'Max Tasks Count' = $WANAccel.FindWaHostComp().Options.MaxTasksCount
                                     'Download Stream Count' = $WANAccel.FindWaHostComp().Options.DownloadStreamCount

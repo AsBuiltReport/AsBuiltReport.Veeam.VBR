@@ -26,13 +26,13 @@ function Get-AbrVbrBackupServerInfo {
 
     process {
         try {
-            if ((Get-VBRServer -Type Local).count -gt 0) {
+            $BackupServers = Get-VBRServer -Type Local
+            if (($BackupServers).count -gt 0) {
                 Section -Style Heading3 'Backup Server Information' {
-                    Paragraph "The following section details the configuration about $($BackupServer.Name.Split(".")[0])"
+                    Paragraph "The following section details configuration information about Backup Server: $($VeeamBackupServer)"
                     BlankLine
                     $OutObj = @()
                     try {
-                        $BackupServers = Get-VBRServer -Type Local
                         foreach ($BackupServer in $BackupServers) {
                             $CimSession = New-CimSession $BackupServer.Name -Credential $Credential -Authentication $Options.PSDefaultAuthentication
                             $PssSession = New-PSSession $BackupServer.Name -Credential $Credential -Authentication $Options.PSDefaultAuthentication
