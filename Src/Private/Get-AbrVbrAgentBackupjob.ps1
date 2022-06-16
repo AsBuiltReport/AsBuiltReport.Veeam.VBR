@@ -6,7 +6,7 @@ function Get-AbrVbrAgentBackupjob {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.3.1
+        Version:        0.5.1
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -31,34 +31,32 @@ function Get-AbrVbrAgentBackupjob {
                     Paragraph "The following section list agent backup jobs created in Veeam Backup & Replication."
                     BlankLine
                     $OutObj = @()
-                    if ((Get-VBRServerSession).Server) {
-                        $ABkjobs = Get-VBRComputerBackupJob
-                        foreach ($ABkjob in $ABkjobs) {
-                            try {
-                                Write-PscriboMessage "Discovered $($ABkjob.Name) location."
-                                $inObj = [ordered] @{
-                                    'Name' = $ABkjob.Name
-                                    'Type' = $ABkjob.Type
-                                    'OS Platform' = $ABkjob.OSPlatform
-                                    'Backup Object' = $ABkjob.BackupObject
-                                }
-                                $OutObj += [pscustomobject]$inobj
+                    $ABkjobs = Get-VBRComputerBackupJob
+                    foreach ($ABkjob in $ABkjobs) {
+                        try {
+                            Write-PscriboMessage "Discovered $($ABkjob.Name) location."
+                            $inObj = [ordered] @{
+                                'Name' = $ABkjob.Name
+                                'Type' = $ABkjob.Type
+                                'OS Platform' = $ABkjob.OSPlatform
+                                'Backup Object' = $ABkjob.BackupObject
                             }
-                            catch {
-                                Write-PscriboMessage -IsWarning $_.Exception.Message
-                            }
+                            $OutObj += [pscustomobject]$inobj
                         }
-
-                        $TableParams = @{
-                            Name = "Agent Backup Jobs - $(((Get-VBRServerSession).Server).ToString().ToUpper().Split(".")[0])"
-                            List = $false
-                            ColumnWidths = 30, 25, 15, 30
+                        catch {
+                            Write-PscriboMessage -IsWarning $_.Exception.Message
                         }
-                        if ($Report.ShowTableCaptions) {
-                            $TableParams['Caption'] = "- $($TableParams.Name)"
-                        }
-                        $OutObj | Sort-Object -Property 'Name' |Table @TableParams
                     }
+
+                    $TableParams = @{
+                        Name = "Agent Backup Jobs - $VeeamBackupServer"
+                        List = $false
+                        ColumnWidths = 30, 25, 15, 30
+                    }
+                    if ($Report.ShowTableCaptions) {
+                        $TableParams['Caption'] = "- $($TableParams.Name)"
+                    }
+                    $OutObj | Sort-Object -Property 'Name' |Table @TableParams
                 }
             }
         }

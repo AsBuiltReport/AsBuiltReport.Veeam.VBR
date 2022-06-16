@@ -28,28 +28,63 @@ function Get-AbrVbrVirtualInfrastructure {
         try {
             if ((Get-VBRServer).count -gt 0) {
                 Section -Style Heading3 'Virtual Infrastructure' {
-                    Paragraph "The following sections detail the configuration of the managed virtual servers backed-up by Veeam Server $(((Get-VBRServerSession).Server))."
+                    Paragraph "The following sections detail the configuration about managed virtual servers backed-up by Veeam Server $(((Get-VBRServerSession).Server))."
                     BlankLine
-                    if ((Get-VBRServerSession).Server) {
-                        #---------------------------------------------------------------------------------------------#
-                        #                            VMware vSphere information Section                               #
-                        #---------------------------------------------------------------------------------------------#
-                        try {
-                            if (Get-VBRServer | Where-Object {$_.Type -eq 'VC' -or $_.Type -eq 'ESXi'}) {
-                                Section -Style Heading4 'VMware vSphere' {
-                                    Paragraph "The following section details information of the VMware Virtual Infrastructure backed-up by Veeam Server $(((Get-VBRServerSession).Server))."
-                                    BlankLine
-                                    $InventObjs = Get-VBRServer | Where-Object {$_.Type -eq 'VC'}
+                    #---------------------------------------------------------------------------------------------#
+                    #                            VMware vSphere information Section                               #
+                    #---------------------------------------------------------------------------------------------#
+                    try {
+                        if (Get-VBRServer | Where-Object {$_.Type -eq 'VC' -or $_.Type -eq 'ESXi'}) {
+                            Section -Style Heading4 'VMware vSphere' {
+                                Paragraph "The following section details information about VMware Virtual Infrastructure backed-up by Veeam Server $(((Get-VBRServerSession).Server))."
+                                BlankLine
+                                $InventObjs = Get-VBRServer | Where-Object {$_.Type -eq 'VC'}
+                                if ($InventObjs) {
+                                    Section -Style Heading5 'VMware vCenter' {
+                                        $OutObj = @()
+                                        foreach ($InventObj in $InventObjs) {
+                                            try {
+                                                Write-PscriboMessage "Discovered $($InventObj.Name) vCenter Server."
+                                                $inObj = [ordered] @{
+                                                    'Name' = $InventObj.Name
+                                                    'Version' = ($InventObj).Info.Info
+                                                    'Child Host' = $InventObj.GetChilds().Name -join ", "
+                                                }
+
+                                                $OutObj += [pscustomobject]$inobj
+                                            }
+                                            catch {
+                                                Write-PscriboMessage -IsWarning $_.Exception.Message
+                                            }
+                                        }
+
+                                        $TableParams = @{
+                                            Name = "vCenter Servers - $VeeamBackupServer"
+                                            List = $false
+                                            ColumnWidths = 33, 33, 34
+                                        }
+
+                                        if ($Report.ShowTableCaptions) {
+                                            $TableParams['Caption'] = "- $($TableParams.Name)"
+                                        }
+                                        $OutObj | Sort-Object -Property 'Name' | Table @TableParams
+                                    }
+                                }
+                                #---------------------------------------------------------------------------------------------#
+                                #                            VMware Esxi information Section                                  #
+                                #---------------------------------------------------------------------------------------------#
+                                try {
+                                    $InventObjs = Get-VBRServer | Where-Object {$_.Type -eq 'ESXi'}
                                     if ($InventObjs) {
-                                        Section -Style Heading5 'VMware vCenter' {
+                                        Section -Style Heading6 'Esxi Host' {
                                             $OutObj = @()
                                             foreach ($InventObj in $InventObjs) {
                                                 try {
-                                                    Write-PscriboMessage "Discovered $($InventObj.Name) vCenter Server."
+                                                    Write-PscriboMessage "Discovered $($InventObj.Name) ESXi Host."
                                                     $inObj = [ordered] @{
                                                         'Name' = $InventObj.Name
                                                         'Version' = ($InventObj).Info.Info
-                                                        'Child Host' = $InventObj.GetChilds().Name -join ", "
+                                                        #'Connected Vcenter' = (Find-VBRViEntity -Name $InventObj.Name).Path.split("\")[0]
                                                     }
 
                                                     $OutObj += [pscustomobject]$inobj
@@ -60,9 +95,9 @@ function Get-AbrVbrVirtualInfrastructure {
                                             }
 
                                             $TableParams = @{
-                                                Name = "vCenter Servers - $(((Get-VBRServerSession).Server).ToString().ToUpper().Split(".")[0])"
+                                                Name = "Esxi Hosts - $VeeamBackupServer"
                                                 List = $false
-                                                ColumnWidths = 33, 33, 34
+                                                ColumnWidths = 40, 60
                                             }
 
                                             if ($Report.ShowTableCaptions) {
@@ -71,69 +106,69 @@ function Get-AbrVbrVirtualInfrastructure {
                                             $OutObj | Sort-Object -Property 'Name' | Table @TableParams
                                         }
                                     }
-                                    #---------------------------------------------------------------------------------------------#
-                                    #                            VMware Esxi information Section                                  #
-                                    #---------------------------------------------------------------------------------------------#
-                                    try {
-                                        $InventObjs = Get-VBRServer | Where-Object {$_.Type -eq 'ESXi'}
-                                        if ($InventObjs) {
-                                            Section -Style Heading6 'Esxi Host' {
-                                                $OutObj = @()
-                                                foreach ($InventObj in $InventObjs) {
-                                                    try {
-                                                        Write-PscriboMessage "Discovered $($InventObj.Name) ESXi Host."
-                                                        $inObj = [ordered] @{
-                                                            'Name' = $InventObj.Name
-                                                            'Version' = ($InventObj).Info.Info
-                                                            #'Connected Vcenter' = (Find-VBRViEntity -Name $InventObj.Name).Path.split("\")[0]
-                                                        }
-
-                                                        $OutObj += [pscustomobject]$inobj
-                                                    }
-                                                    catch {
-                                                        Write-PscriboMessage -IsWarning $_.Exception.Message
-                                                    }
-                                                }
-
-                                                $TableParams = @{
-                                                    Name = "Esxi Hosts - $(((Get-VBRServerSession).Server).ToString().ToUpper().Split(".")[0])"
-                                                    List = $false
-                                                    ColumnWidths = 40, 60
-                                                }
-
-                                                if ($Report.ShowTableCaptions) {
-                                                    $TableParams['Caption'] = "- $($TableParams.Name)"
-                                                }
-                                                $OutObj | Sort-Object -Property 'Name' | Table @TableParams
-                                            }
-                                        }
-                                    }
-                                    catch {
-                                        Write-PscriboMessage -IsWarning $_.Exception.Message
-                                    }
+                                }
+                                catch {
+                                    Write-PscriboMessage -IsWarning $_.Exception.Message
                                 }
                             }
                         }
-                        catch {
-                            Write-PscriboMessage -IsWarning $_.Exception.Message
-                        }
-                        #---------------------------------------------------------------------------------------------#
-                        #                         Microsoft Hyper-V Cluster information Section                       #
-                        #---------------------------------------------------------------------------------------------#
-                        try {
-                            if (Get-VBRServer | Where-Object {$_.Type -eq 'HvCluster' -or $_.Type -eq 'HvServer'}) {
-                                Section -Style Heading4 'Microsoft Hyper-V' {
-                                    $InventObjs = Get-VBRServer | Where-Object {$_.Type -eq 'HvCluster'}
+                    }
+                    catch {
+                        Write-PscriboMessage -IsWarning $_.Exception.Message
+                    }
+                    #---------------------------------------------------------------------------------------------#
+                    #                         Microsoft Hyper-V Cluster information Section                       #
+                    #---------------------------------------------------------------------------------------------#
+                    try {
+                        if (Get-VBRServer | Where-Object {$_.Type -eq 'HvCluster' -or $_.Type -eq 'HvServer'}) {
+                            Section -Style Heading4 'Microsoft Hyper-V' {
+                                $InventObjs = Get-VBRServer | Where-Object {$_.Type -eq 'HvCluster'}
+                                if ($InventObjs) {
+                                    Section -Style Heading5 'Hyper-V Clusters' {
+                                        $OutObj = @()
+                                        foreach ($InventObj in $InventObjs) {
+                                            try {
+                                                Write-PscriboMessage "Discovered $($InventObj.Name) Hyper-V Cluster."
+                                                $inObj = [ordered] @{
+                                                    'Name' = $InventObj.Name
+                                                    'Credentials' = ($InventObj).ProxyServicesCreds.Name
+                                                    'Child Host' = $InventObj.GetChilds().Name -join ", "
+                                                }
+
+                                                $OutObj += [pscustomobject]$inobj
+                                            }
+                                            catch {
+                                                Write-PscriboMessage -IsWarning $_.Exception.Message
+                                            }
+                                        }
+
+                                        $TableParams = @{
+                                            Name = "Hyper-V Clusters - $VeeamBackupServer"
+                                            List = $false
+                                            ColumnWidths = 34, 33, 33
+                                        }
+
+                                        if ($Report.ShowTableCaptions) {
+                                            $TableParams['Caption'] = "- $($TableParams.Name)"
+                                        }
+                                        $OutObj | Sort-Object -Property 'Name' |  Table @TableParams
+                                    }
+                                }
+                                #---------------------------------------------------------------------------------------------#
+                                #                         Microsoft Hyper-V Host information Section                          #
+                                #---------------------------------------------------------------------------------------------#
+                                try {
+                                    $InventObjs = Get-VBRServer | Where-Object {$_.Type -eq 'HvServer'}
                                     if ($InventObjs) {
-                                        Section -Style Heading5 'Hyper-V Clusters' {
+                                        Section -Style Heading6 'Hyper-V Host' {
                                             $OutObj = @()
                                             foreach ($InventObj in $InventObjs) {
                                                 try {
-                                                    Write-PscriboMessage "Discovered $($InventObj.Name) Hyper-V Cluster."
+                                                    Write-PscriboMessage "Discovered $($InventObj.Name) Hyper-V Host."
                                                     $inObj = [ordered] @{
                                                         'Name' = $InventObj.Name
-                                                        'Credentials' = ($InventObj).ProxyServicesCreds.Name
-                                                        'Child Host' = $InventObj.GetChilds().Name -join ", "
+                                                        'Version' = ($InventObj).Info.Info
+                                                        #'Hyper-V CLuster' = (Find-VBRHvEntity -Name $InventObj.Name).Path.split("\")[0]
                                                     }
 
                                                     $OutObj += [pscustomobject]$inobj
@@ -144,63 +179,26 @@ function Get-AbrVbrVirtualInfrastructure {
                                             }
 
                                             $TableParams = @{
-                                                Name = "Hyper-V Clusters - $(((Get-VBRServerSession).Server).ToString().ToUpper().Split(".")[0])"
+                                                Name = "Hyper-V Hosts - $VeeamBackupServer"
                                                 List = $false
-                                                ColumnWidths = 34, 33, 33
+                                                ColumnWidths = 40, 60
                                             }
 
                                             if ($Report.ShowTableCaptions) {
                                                 $TableParams['Caption'] = "- $($TableParams.Name)"
                                             }
-                                            $OutObj | Sort-Object -Property 'Name' |  Table @TableParams
+                                            $OutObj | Sort-Object -Property 'Name' | Table @TableParams
                                         }
                                     }
-                                    #---------------------------------------------------------------------------------------------#
-                                    #                         Microsoft Hyper-V Host information Section                          #
-                                    #---------------------------------------------------------------------------------------------#
-                                    try {
-                                        $InventObjs = Get-VBRServer | Where-Object {$_.Type -eq 'HvServer'}
-                                        if ($InventObjs) {
-                                            Section -Style Heading6 'Hyper-V Host' {
-                                                $OutObj = @()
-                                                foreach ($InventObj in $InventObjs) {
-                                                    try {
-                                                        Write-PscriboMessage "Discovered $($InventObj.Name) Hyper-V Host."
-                                                        $inObj = [ordered] @{
-                                                            'Name' = $InventObj.Name
-                                                            'Version' = ($InventObj).Info.Info
-                                                            #'Hyper-V CLuster' = (Find-VBRHvEntity -Name $InventObj.Name).Path.split("\")[0]
-                                                        }
-
-                                                        $OutObj += [pscustomobject]$inobj
-                                                    }
-                                                    catch {
-                                                        Write-PscriboMessage -IsWarning $_.Exception.Message
-                                                    }
-                                                }
-
-                                                $TableParams = @{
-                                                    Name = "Hyper-V Hosts - $(((Get-VBRServerSession).Server).ToString().ToUpper().Split(".")[0])"
-                                                    List = $false
-                                                    ColumnWidths = 40, 60
-                                                }
-
-                                                if ($Report.ShowTableCaptions) {
-                                                    $TableParams['Caption'] = "- $($TableParams.Name)"
-                                                }
-                                                $OutObj | Sort-Object -Property 'Name' | Table @TableParams
-                                            }
-                                        }
-                                    }
-                                    catch {
-                                        Write-PscriboMessage -IsWarning $_.Exception.Message
-                                    }
+                                }
+                                catch {
+                                    Write-PscriboMessage -IsWarning $_.Exception.Message
                                 }
                             }
                         }
-                        catch {
-                            Write-PscriboMessage -IsWarning $_.Exception.Message
-                        }
+                    }
+                    catch {
+                        Write-PscriboMessage -IsWarning $_.Exception.Message
                     }
                 }
             }

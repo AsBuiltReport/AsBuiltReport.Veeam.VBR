@@ -6,7 +6,7 @@ function Get-AbrVbrBackupjobVMware {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.5.0
+        Version:        0.5.1
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -29,7 +29,7 @@ function Get-AbrVbrBackupjobVMware {
             $Bkjobs = Get-VBRJob -WarningAction SilentlyContinue | Where-Object {$_.TypeToString -eq "VMware Backup" -or $_.TypeToString -eq "VMware Backup Copy" -or $_.TypeToString -eq "VM Copy"}
             if (($Bkjobs).count -gt 0) {
                 Section -Style Heading3 'VMware Backup Jobs Configuration' {
-                    Paragraph "The following section details VMware type per backup jobs configuration."
+                    Paragraph "The following section details the configuration of VMware type backup jobs."
                     BlankLine
                     $OutObj = @()
                     try {
@@ -51,7 +51,7 @@ function Get-AbrVbrBackupjobVMware {
                             }
 
                             $TableParams = @{
-                                Name = "VMware Backup Summary - $(((Get-VBRServerSession).Server).ToString().ToUpper().Split(".")[0])"
+                                Name = "VMware Backup Summary - $VeeamBackupServer"
                                 List = $false
                                 ColumnWidths = 35, 35, 30
                             }

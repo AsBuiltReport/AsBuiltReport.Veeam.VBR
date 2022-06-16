@@ -28,7 +28,7 @@ function Get-AbrVbrFileToTape {
         try {
             if ((Get-VBRTapeJob | Where-Object {$_.Type -eq 'FileToTape'}).count -gt 0) {
                 Section -Style Heading3 'File To Tape Job Configuration' {
-                    Paragraph "The following section details file to tape jobs configuration."
+                    Paragraph "The following section details the configuration about file to tape jobs."
                     BlankLine
                     $OutObj = @()
                     $TBkjobs = Get-VBRTapeJob | Where-Object {$_.Type -eq 'FileToTape'}

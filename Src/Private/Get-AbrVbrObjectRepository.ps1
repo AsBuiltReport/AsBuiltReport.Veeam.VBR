@@ -6,7 +6,7 @@ function Get-AbrVbrObjectRepository {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.4.1
+        Version:        0.5.1
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -28,59 +28,55 @@ function Get-AbrVbrObjectRepository {
         try {
             if ((Get-VBRObjectStorageRepository).count -gt 0) {
                 Section -Style Heading3 'Object Storage Repository' {
-                    Paragraph "The following section provides a summary of the Veeam Object Storage Repository."
+                    Paragraph "The following section provides a summary about the Veeam Object Storage Repository."
                     BlankLine
                     $OutObj = @()
-                    if ((Get-VBRServerSession).Server) {
-                        try {
-                            $ObjectRepos = Get-VBRObjectStorageRepository
-                            foreach ($ObjectRepo in $ObjectRepos) {
-                                Write-PscriboMessage "Discovered $($ObjectRepo.Name) Repository."
-                                $inObj = [ordered] @{
-                                    'Name' = $ObjectRepo.Name
-                                    'Type' = $ObjectRepo.Type
-                                    'Use Gateway Server' = ConvertTo-TextYN $ObjectRepo.UseGatewayServer
-                                    'Gateway Server' = Switch ($ObjectRepo.GatewayServer.Name) {
-                                        "" {"-"; break}
-                                        $Null {"-"; break}
-                                        default {$ObjectRepo.GatewayServer.Name.split(".")[0]}
-                                    }
+                    try {
+                        $ObjectRepos = Get-VBRObjectStorageRepository
+                        foreach ($ObjectRepo in $ObjectRepos) {
+                            Write-PscriboMessage "Discovered $($ObjectRepo.Name) Repository."
+                            $inObj = [ordered] @{
+                                'Name' = $ObjectRepo.Name
+                                'Type' = $ObjectRepo.Type
+                                'Use Gateway Server' = ConvertTo-TextYN $ObjectRepo.UseGatewayServer
+                                'Gateway Server' = Switch ($ObjectRepo.GatewayServer.Name) {
+                                    "" {"-"; break}
+                                    $Null {"-"; break}
+                                    default {$ObjectRepo.GatewayServer.Name.split(".")[0]}
                                 }
-                                $OutObj += [pscustomobject]$inobj
                             }
+                            $OutObj += [pscustomobject]$inobj
                         }
-                        catch {
-                            Write-PscriboMessage -IsWarning $_.Exception.Message
-                        }
-
-                        if ($HealthCheck.Infrastructure.BR) {
-                            $OutObj | Where-Object { $_.'Status' -eq 'Unavailable'} | Set-Style -Style Warning -Property 'Status'
-                        }
-
-                        $TableParams = @{
-                            Name = "Object Storage Repository - $(((Get-VBRServerSession).Server).ToString().ToUpper().Split(".")[0])"
-                            List = $false
-                            ColumnWidths = 30, 25, 15, 30
-                        }
-                        if ($Report.ShowTableCaptions) {
-                            $TableParams['Caption'] = "- $($TableParams.Name)"
-                        }
-                        $OutObj | Sort-Object -Property 'Name' | Table @TableParams
                     }
+                    catch {
+                        Write-PscriboMessage -IsWarning $_.Exception.Message
+                    }
+
+                    if ($HealthCheck.Infrastructure.BR) {
+                        $OutObj | Where-Object { $_.'Status' -eq 'Unavailable'} | Set-Style -Style Warning -Property 'Status'
+                    }
+
+                    $TableParams = @{
+                        Name = "Object Storage Repository - $VeeamBackupServer"
+                        List = $false
+                        ColumnWidths = 30, 25, 15, 30
+                    }
+                    if ($Report.ShowTableCaptions) {
+                        $TableParams['Caption'] = "- $($TableParams.Name)"
+                    }
+                    $OutObj | Sort-Object -Property 'Name' | Table @TableParams
                     #---------------------------------------------------------------------------------------------#
                     #                            Archive Object Storage Repository Section                        #
                     #---------------------------------------------------------------------------------------------#
                     try {
                         if ((Get-VBRArchiveObjectStorageRepository).count -gt 0) {
                             Section -Style Heading4 "Archive Object Storage Repository" {
-                                Paragraph "The following section provides a detailed information of the Archive Object Storage Backup Repository"
+                                Paragraph "The following section provides detailed information about Archive Object Storage Backup Repository"
                                 BlankLine
                                 $ObjectRepoArchives = Get-VBRArchiveObjectStorageRepository
                                 foreach ($ObjectRepoArchive in $ObjectRepoArchives) {
                                     try {
                                         Section -Style Heading5 "$($ObjectRepoArchive.Name)" {
-                                            Paragraph "The following section provides a detailed information of the $($ObjectRepoArchive.Name) Backup Repository."
-                                            BlankLine
                                             $OutObj = @()
                                             Write-PscriboMessage "Discovered $($ObjectRepoArchive.Name) Backup Repository."
                                             $inObj = [ordered] @{

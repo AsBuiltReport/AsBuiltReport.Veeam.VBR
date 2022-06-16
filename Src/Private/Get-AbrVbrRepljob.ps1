@@ -6,7 +6,7 @@ function Get-AbrVbrRepljob {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.5.0
+        Version:        0.5.1
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -29,40 +29,38 @@ function Get-AbrVbrRepljob {
             $Bkjobs = Get-VBRJob -WarningAction SilentlyContinue | Where-object {$_.TypeToString -eq 'VMware Replication' -or $_.TypeToString -eq 'Hyper-V Replication'}
             if (($Bkjobs).count -gt 0) {
                 Section -Style Heading3 'Replication Jobs' {
-                    Paragraph "The following section list replication jobs created in Veeam Backup & Replication."
+                    Paragraph "The following section provide a summary about replication jobs"
                     BlankLine
                     $OutObj = @()
-                    if ((Get-VBRServerSession).Server) {
-                        foreach ($Bkjob in $Bkjobs) {
-                            try {
-                                Write-PscriboMessage "Discovered $($Bkjob.Name) replication job."
-                                $inObj = [ordered] @{
-                                    'Name' = $Bkjob.Name
-                                    'Type' = $Bkjob.TypeToString
-                                    'Status' = Switch ($Bkjob.IsScheduleEnabled) {
-                                        'False' {'Disabled'}
-                                        'True' {'Enabled'}
-                                    }
-                                    'Latest Result' = $Bkjob.info.LatestStatus
-                                    'Last Run' = $Bkjob.FindLastSession().EndTimeUTC
+                    foreach ($Bkjob in $Bkjobs) {
+                        try {
+                            Write-PscriboMessage "Discovered $($Bkjob.Name) replication job."
+                            $inObj = [ordered] @{
+                                'Name' = $Bkjob.Name
+                                'Type' = $Bkjob.TypeToString
+                                'Status' = Switch ($Bkjob.IsScheduleEnabled) {
+                                    'False' {'Disabled'}
+                                    'True' {'Enabled'}
                                 }
-                                $OutObj += [pscustomobject]$inobj
+                                'Latest Result' = $Bkjob.info.LatestStatus
+                                'Last Run' = $Bkjob.FindLastSession().EndTimeUTC
                             }
-                            catch {
-                                Write-PscriboMessage -IsWarning $_.Exception.Message
-                            }
+                            $OutObj += [pscustomobject]$inobj
                         }
-
-                        $TableParams = @{
-                            Name = "Replication Jobs - $(((Get-VBRServerSession).Server).ToString().ToUpper().Split(".")[0])"
-                            List = $false
-                            ColumnWidths = 25, 20, 15, 15, 25
+                        catch {
+                            Write-PscriboMessage -IsWarning $_.Exception.Message
                         }
-                        if ($Report.ShowTableCaptions) {
-                            $TableParams['Caption'] = "- $($TableParams.Name)"
-                        }
-                        $OutObj | Sort-Object -Property Name |Table @TableParams
                     }
+
+                    $TableParams = @{
+                        Name = "Replication Jobs - $VeeamBackupServer"
+                        List = $false
+                        ColumnWidths = 25, 20, 15, 15, 25
+                    }
+                    if ($Report.ShowTableCaptions) {
+                        $TableParams['Caption'] = "- $($TableParams.Name)"
+                    }
+                    $OutObj | Sort-Object -Property Name |Table @TableParams
                 }
             }
         }

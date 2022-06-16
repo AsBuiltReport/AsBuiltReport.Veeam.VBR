@@ -6,7 +6,7 @@ function Get-AbrVbrSureBackupjob {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.4.0
+        Version:        0.5.1
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -31,41 +31,39 @@ function Get-AbrVbrSureBackupjob {
                     Paragraph "The following section list surebackup jobs created in Veeam Backup & Replication."
                     BlankLine
                     $OutObj = @()
-                    if ((Get-VBRServerSession).Server) {
-                        $SBkjobs = Get-VSBJob
-                        foreach ($SBkjob in $SBkjobs) {
-                            try {
-                                Write-PscriboMessage "Discovered $($SBkjob.Name) location."
-                                $inObj = [ordered] @{
-                                    'Name' = $SBkjob.Name
-                                    'Platform' = Switch ($SBkjob.info.Platform) {
-                                        "EVmware" {"VMware"}
-                                        "EHyperV" {"Hyper-V"}
-                                    }
-                                    'Status' = Switch ($SBkjob.IsScheduleEnabled) {
-                                        'False' {'Disabled'}
-                                        'True' {'Enabled'}
-                                    }
-                                    'Latest Result' = $SBkjob.GetLastResult()
-                                    'Virtual Lab' = Get-VBRVirtualLab -Id $SBkjob.info.VirtualLabId
+                    $SBkjobs = Get-VSBJob
+                    foreach ($SBkjob in $SBkjobs) {
+                        try {
+                            Write-PscriboMessage "Discovered $($SBkjob.Name) location."
+                            $inObj = [ordered] @{
+                                'Name' = $SBkjob.Name
+                                'Platform' = Switch ($SBkjob.info.Platform) {
+                                    "EVmware" {"VMware"}
+                                    "EHyperV" {"Hyper-V"}
                                 }
-                                $OutObj += [pscustomobject]$inobj
+                                'Status' = Switch ($SBkjob.IsScheduleEnabled) {
+                                    'False' {'Disabled'}
+                                    'True' {'Enabled'}
+                                }
+                                'Latest Result' = $SBkjob.GetLastResult()
+                                'Virtual Lab' = Get-VBRVirtualLab -Id $SBkjob.info.VirtualLabId
                             }
-                            catch {
-                                Write-PscriboMessage -IsWarning $_.Exception.Message
-                            }
+                            $OutObj += [pscustomobject]$inobj
                         }
-
-                        $TableParams = @{
-                            Name = "SureBackup Jobs - $(((Get-VBRServerSession).Server).ToString().ToUpper().Split(".")[0])"
-                            List = $false
-                            ColumnWidths = 30, 15, 15, 15, 25
+                        catch {
+                            Write-PscriboMessage -IsWarning $_.Exception.Message
                         }
-                        if ($Report.ShowTableCaptions) {
-                            $TableParams['Caption'] = "- $($TableParams.Name)"
-                        }
-                        $OutObj | Table @TableParams
                     }
+
+                    $TableParams = @{
+                        Name = "SureBackup Jobs - $VeeamBackupServer"
+                        List = $false
+                        ColumnWidths = 30, 15, 15, 15, 25
+                    }
+                    if ($Report.ShowTableCaptions) {
+                        $TableParams['Caption'] = "- $($TableParams.Name)"
+                    }
+                    $OutObj | Table @TableParams
                 }
             }
         }
