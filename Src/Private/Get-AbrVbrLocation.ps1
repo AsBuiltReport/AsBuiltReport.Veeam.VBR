@@ -6,7 +6,7 @@ function Get-AbrVbrLocation {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.3.1
+        Version:        0.5.1
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -28,36 +28,34 @@ function Get-AbrVbrLocation {
         try {
             if ((Get-VBRLocation).count -gt 0) {
                 Section -Style Heading3 'Geographical Locations' {
-                    Paragraph "The following section list geographical locations created in Veeam Backup & Replication."
+                    Paragraph "The following section provide a summary about geographical locations."
                     BlankLine
                     try {
                         $OutObj = @()
-                        if ((Get-VBRServerSession).Server) {
-                            try {
-                                $Locations = Get-VBRLocation
-                                foreach ($Location in $Locations) {
-                                    Write-PscriboMessage "Discovered $($Location.Name) location."
-                                    $inObj = [ordered] @{
-                                        'Name' = $Location.Name
-                                        'id' = $Location.id
-                                    }
-                                    $OutObj += [pscustomobject]$inobj
+                        try {
+                            $Locations = Get-VBRLocation
+                            foreach ($Location in $Locations) {
+                                Write-PscriboMessage "Discovered $($Location.Name) location."
+                                $inObj = [ordered] @{
+                                    'Name' = $Location.Name
+                                    'id' = $Location.id
                                 }
+                                $OutObj += [pscustomobject]$inobj
                             }
-                            catch {
-                                Write-PscriboMessage -IsWarning $_.Exception.Message
-                            }
-
-                            $TableParams = @{
-                                Name = "Location - $(((Get-VBRServerSession).Server).ToString().ToUpper().Split(".")[0])"
-                                List = $false
-                                ColumnWidths = 50, 50
-                            }
-                            if ($Report.ShowTableCaptions) {
-                                $TableParams['Caption'] = "- $($TableParams.Name)"
-                            }
-                            $OutObj | Table @TableParams
                         }
+                        catch {
+                            Write-PscriboMessage -IsWarning $_.Exception.Message
+                        }
+
+                        $TableParams = @{
+                            Name = "Location - $VeeamBackupServer"
+                            List = $false
+                            ColumnWidths = 50, 50
+                        }
+                        if ($Report.ShowTableCaptions) {
+                            $TableParams['Caption'] = "- $($TableParams.Name)"
+                        }
+                        $OutObj | Table @TableParams
                     }
                     catch {
                         Write-PscriboMessage -IsWarning $_.Exception.Message

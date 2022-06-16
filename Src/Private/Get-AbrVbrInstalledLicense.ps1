@@ -6,7 +6,7 @@ function Get-AbrVbrInstalledLicense {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.3.1
+        Version:        0.5.1
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -28,7 +28,7 @@ function Get-AbrVbrInstalledLicense {
         try {
             if ((Get-VBRInstalledLicense).count -gt 0) {
                 Section -Style Heading3 'License Information' {
-                    Paragraph "The following section provides a summary of the Veeam License Information"
+                    Paragraph "The following section provides a summary about the installed licenses"
                     BlankLine
                     try {
                         $Licenses = Get-VBRInstalledLicense
@@ -72,7 +72,7 @@ function Get-AbrVbrInstalledLicense {
                                 }
 
                                 $TableParams = @{
-                                    Name = "Licenses - $(((Get-VBRServerSession).Server).ToString().ToUpper().Split(".")[0])"
+                                    Name = "Licenses - $VeeamBackupServer"
                                     List = $true
                                     ColumnWidths = 40, 60
                                 }
@@ -105,7 +105,7 @@ function Get-AbrVbrInstalledLicense {
                                             }
 
                                             $TableParams = @{
-                                                Name = "Instances - $(((Get-VBRServerSession).Server).ToString().ToUpper().Split(".")[0])"
+                                                Name = "Instances - $VeeamBackupServer"
                                                 List = $false
                                                 ColumnWidths = 25, 25, 25, 25
                                             }
@@ -138,7 +138,7 @@ function Get-AbrVbrInstalledLicense {
                                                         }
 
                                                         $TableParams = @{
-                                                            Name = "Per Instance Type - $(((Get-VBRServerSession).Server).ToString().ToUpper().Split(".")[0])"
+                                                            Name = "Per Instance Type - $VeeamBackupServer"
                                                             List = $false
                                                             ColumnWidths = 25, 25, 25, 25
                                                         }
@@ -182,7 +182,7 @@ function Get-AbrVbrInstalledLicense {
                                             }
 
                                             $TableParams = @{
-                                                Name = "CPU Socket Usage - $(((Get-VBRServerSession).Server).ToString().ToUpper().Split(".")[0])"
+                                                Name = "CPU Socket Usage - $VeeamBackupServer"
                                                 List = $false
                                                 ColumnWidths = 33, 33, 34
                                             }
@@ -204,31 +204,29 @@ function Get-AbrVbrInstalledLicense {
                                     if ($Licenses) {
                                         Section -Style Heading5 'Capacity License Usage' {
                                             $OutObj = @()
-                                            if ((Get-VBRServerSession).Server) {
-                                                try {
-                                                    foreach ($License in $Licenses) {
-                                                        Write-PscriboMessage "Discovered $($Licenses.LicensedCapacityTb) Capacity licenses."
-                                                        $inObj = [ordered] @{
-                                                            'Licensed Capacity in Tb' = $License.LicensedCapacityTb
-                                                            'Used Capacity in Tb' = $License.UsedCapacityTb
-                                                        }
-                                                        $OutObj += [pscustomobject]$inobj
+                                            try {
+                                                foreach ($License in $Licenses) {
+                                                    Write-PscriboMessage "Discovered $($Licenses.LicensedCapacityTb) Capacity licenses."
+                                                    $inObj = [ordered] @{
+                                                        'Licensed Capacity in Tb' = $License.LicensedCapacityTb
+                                                        'Used Capacity in Tb' = $License.UsedCapacityTb
                                                     }
+                                                    $OutObj += [pscustomobject]$inobj
                                                 }
-                                                catch {
-                                                    Write-PscriboMessage -IsWarning $_.Exception.Message
-                                                }
-
-                                                $TableParams = @{
-                                                    Name = "Capacity License Usage - $(((Get-VBRServerSession).Server).ToString().ToUpper().Split(".")[0])"
-                                                    List = $false
-                                                    ColumnWidths = 50, 50
-                                                }
-                                                if ($Report.ShowTableCaptions) {
-                                                    $TableParams['Caption'] = "- $($TableParams.Name)"
-                                                }
-                                                $OutObj | Table @TableParams
                                             }
+                                            catch {
+                                                Write-PscriboMessage -IsWarning $_.Exception.Message
+                                            }
+
+                                            $TableParams = @{
+                                                Name = "Capacity License Usage - $VeeamBackupServer"
+                                                List = $false
+                                                ColumnWidths = 50, 50
+                                            }
+                                            if ($Report.ShowTableCaptions) {
+                                                $TableParams['Caption'] = "- $($TableParams.Name)"
+                                            }
+                                            $OutObj | Table @TableParams
                                         }
                                     }
                                 }

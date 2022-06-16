@@ -6,7 +6,7 @@ function Get-AbrVbrBackupjobHyperV {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.5.0
+        Version:        0.5.1
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -29,7 +29,7 @@ function Get-AbrVbrBackupjobHyperV {
             $Bkjobs = Get-VBRJob -WarningAction SilentlyContinue | Where-Object {$_.TypeToString -eq "Hyper-V Backup" -or $_.TypeToString -eq "Hyper-V Backup Copy"}
             if (($Bkjobs).count -gt 0) {
                 Section -Style Heading3 'Hyper-V Backup Jobs Configuration' {
-                    Paragraph "The following section details Hyper-V backup jobs configuration."
+                    Paragraph "The following section details the configuration of the Hyper-V type backup jobs."
                     BlankLine
                     $OutObj = @()
                     try {
@@ -51,7 +51,7 @@ function Get-AbrVbrBackupjobHyperV {
                             }
 
                             $TableParams = @{
-                                Name = "Hyper-V Backup Summary - $(((Get-VBRServerSession).Server).ToString().ToUpper().Split(".")[0])"
+                                Name = "Hyper-V Backup Summary - $VeeamBackupServer"
                                 List = $false
                                 ColumnWidths = 35, 35, 30
                             }

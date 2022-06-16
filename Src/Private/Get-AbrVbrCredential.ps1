@@ -6,7 +6,7 @@ function Get-AbrVbrCredential {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.3.1
+        Version:        0.5.1
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -28,7 +28,7 @@ function Get-AbrVbrCredential {
         try {
             if ((Get-VBRCredentials).count -gt 0) {
                 Section -Style Heading4 'Security Credentials' {
-                    Paragraph "The following table provide information on the credentials managed by Veeam Backup & Replication."
+                    Paragraph "The following table provide information about the credentials managed by Veeam Backup & Replication."
                     BlankLine
                     $OutObj = @()
                     $Credentials = Get-VBRCredentials
@@ -52,7 +52,7 @@ function Get-AbrVbrCredential {
                     }
 
                     $TableParams = @{
-                        Name = "Security Credentials - $(((Get-VBRServerSession).Server).ToString().ToUpper().Split(".")[0])"
+                        Name = "Security Credentials - $VeeamBackupServer"
                         List = $false
                         ColumnWidths = 35, 20, 45
                     }
@@ -64,7 +64,7 @@ function Get-AbrVbrCredential {
                         $CloudCredentials = Get-VBRCloudProviderCredentials
                         if (($CloudCredentials).count -gt 0) {
                             Section -Style Heading4 'Service Provider Credentials' {
-                                Paragraph "The following table provide information about service provider credentials managed by Veeam Backup & Replication."
+                                Paragraph "The following table provide information about the service provider credentials managed by Veeam Backup & Replication."
                                 BlankLine
                                 $OutObj = @()
                                 foreach ($CloudCredential in $CloudCredentials) {
@@ -82,7 +82,7 @@ function Get-AbrVbrCredential {
                                 }
 
                                 $TableParams = @{
-                                    Name = "Service Provider Credentials - $(((Get-VBRServerSession).Server).ToString().ToUpper().Split(".")[0])"
+                                    Name = "Service Provider Credentials - $VeeamBackupServer"
                                     List = $false
                                     ColumnWidths = 50, 50
                                 }

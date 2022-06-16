@@ -6,7 +6,7 @@ function Get-AbrVbrScaleOutRepository {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.4.0
+        Version:        0.5.1
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -28,7 +28,7 @@ function Get-AbrVbrScaleOutRepository {
         try {
             if ((Get-VBRBackupRepository -ScaleOut).count -gt 0) {
                 Section -Style Heading3 'ScaleOut Backup Repository' {
-                    Paragraph "The following section provides a summary of the ScaleOut Backup Repository"
+                    Paragraph "The following section provides a summary about ScaleOut Backup Repository"
                     BlankLine
                     $OutObj = @()
                     try {
@@ -49,7 +49,7 @@ function Get-AbrVbrScaleOutRepository {
                     }
 
                     $TableParams = @{
-                        Name = "Scale Backup Repository - $(((Get-VBRServerSession).Server).ToString().ToUpper().Split(".")[0])"
+                        Name = "Scale Backup Repository - $VeeamBackupServer"
                         List = $false
                         ColumnWidths = 30, 25, 15, 30
                     }
@@ -63,7 +63,7 @@ function Get-AbrVbrScaleOutRepository {
                     if ($InfoLevel.Infrastructure.SOBR -ge 2) {
                         try {
                             Section -Style Heading4 "ScaleOut Backup Repository Configuration" {
-                                Paragraph "The following section provides a detailed information of the ScaleOut Backup Repository"
+                                Paragraph "The following section provides a detailed information about the ScaleOut Backup Repository"
                                 BlankLine
                                 $BackupRepos = Get-VBRBackupRepository -ScaleOut
                                 #---------------------------------------------------------------------------------------------#
@@ -71,16 +71,12 @@ function Get-AbrVbrScaleOutRepository {
                                 #---------------------------------------------------------------------------------------------#
                                 foreach ($BackupRepo in $BackupRepos) {
                                     Section -Style Heading5 "$($BackupRepo.Name)" {
-                                        Paragraph "The following section provides a detailed information of the $($BackupRepo.Name) ScaleOut Backup Repository."
-                                        BlankLine
                                         foreach ($Extent in $BackupRepo.Extent) {
                                             try {
                                                 #---------------------------------------------------------------------------------------------#
                                                 #                               Performace Tier Section                                       #
                                                 #---------------------------------------------------------------------------------------------#
                                                 Section -Style Heading6 "Performance Tier" {
-                                                    Paragraph "The following section provides a detailed information of the Performance Tier"
-                                                    BlankLine
                                                     $OutObj = @()
                                                     Write-PscriboMessage "Discovered $($Extent.Name) Performance Tier."
                                                     $inObj = [ordered] @{
@@ -92,7 +88,7 @@ function Get-AbrVbrScaleOutRepository {
                                                     }
                                                     $OutObj += [pscustomobject]$inobj
                                                     $TableParams = @{
-                                                        Name = "$($Extent.Name) Information - $(((Get-VBRServerSession).Server).ToString().ToUpper().Split(".")[0])"
+                                                        Name = "$($Extent.Name) Information - $VeeamBackupServer"
                                                         List = $true
                                                         ColumnWidths = 40, 60
                                                     }
@@ -112,8 +108,6 @@ function Get-AbrVbrScaleOutRepository {
                                         foreach ($CapacityExtent in $BackupRepo.CapacityExtent) {
                                             try {
                                                 Section -Style Heading6 "Capacity Tier" {
-                                                    Paragraph "The following section provides a detailed information of the Capacity Tier"
-                                                    BlankLine
                                                     $OutObj = @()
                                                     Write-PscriboMessage "Discovered $(($CapacityExtent.Repository).Name) Capacity Tier."
                                                     $inObj = [ordered] @{
@@ -144,7 +138,7 @@ function Get-AbrVbrScaleOutRepository {
 
                                                     $OutObj += [pscustomobject]$inobj
                                                     $TableParams = @{
-                                                        Name = "$($CapacityExtent.Repository) Information - $(((Get-VBRServerSession).Server).ToString().ToUpper().Split(".")[0])"
+                                                        Name = "$($CapacityExtent.Repository) Information - $VeeamBackupServer"
                                                         List = $true
                                                         ColumnWidths = 40, 60
                                                     }

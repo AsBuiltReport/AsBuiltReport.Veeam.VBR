@@ -22,7 +22,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
     )
 
     Write-PScriboMessage -IsWarning "Please refer to the AsBuiltReport.Veeam.VBR github website for more detailed information about this project."
-    Write-PScriboMessage -IsWarning "With each new version release, do not forget to update your report configuration file."
+    Write-PScriboMessage -IsWarning "Do not forget to update your report configuration file after each new version release."
     Write-PScriboMessage -IsWarning "Documentation: https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR"
     Write-PScriboMessage -IsWarning "Issues or bug reporting: https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues"
 
@@ -40,15 +40,16 @@ function Invoke-AsBuiltReport.Veeam.VBR {
     foreach ($System in $Target) {
         Get-AbrVbrRequiredModule -Name 'Veeam.Backup.PowerShell' -Version '1.0'
         Get-AbrVbrServerConnection
-        Section -Style Heading1 'Implementation Report' {
-            Paragraph "The following section provides a summary of the implemented components on the Veeam Backup & Replication Infrastructure"
+        $VeeamBackupServer = ((Get-VBRServerSession).Server).ToString().ToUpper().Split(".")[0]
+        Section -Style Heading1 "Implementation Report - $($VeeamBackupServer)" {
+            Paragraph "The following section provides a summary about Veeam Backup & Replication implemented components."
             BlankLine
             #---------------------------------------------------------------------------------------------#
             #                            Backup Infrastructure Section                                    #
             #---------------------------------------------------------------------------------------------#
             if ($InfoLevel.Infrastructure.PSObject.Properties.Value -ne 0) {
                 Section -Style Heading2 'Backup Infrastructure Summary' {
-                    Paragraph "The following sections detail the configuration of Veeam Backup Server $(((Get-VBRServerSession).Server))."
+                    Paragraph "The following sections detail configuration information about Veeam Backup Server $($VeeamBackupServer)."
                     BlankLine
                     Get-AbrVbrInfrastructureSummary
                     Get-AbrVbrBackupServerInfo
@@ -60,7 +61,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                     Write-PScriboMessage "Infrastructure Settings InfoLevel set at $($InfoLevel.Infrastructure.Settings)."
                     if ($InfoLevel.Infrastructure.Settings -ge 1) {
                         Section -Style Heading3 'General Options' {
-                            Paragraph "The following section details the Veeam Veaam B&R general setting. General settings are applied to all jobs, backup infrastructure components and other objects managed by the backup server."
+                            Paragraph "The following section details Veaam Backup & Replication general setting. General settings are applied to all jobs, backup infrastructure components and other objects managed by the backup server."
                             BlankLine
                             Get-AbrVbrConfigurationBackupSetting
                             Get-AbrVbrEmailNotificationSetting
@@ -106,7 +107,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
             if ($InfoLevel.Tape.PSObject.Properties.Value -ne 0) {
                 if ((Get-VBRTapeServer).count -gt 0) {
                     Section -Style Heading2 'Tape Infrastructure Summary' {
-                        Paragraph "The following section provides inventory information of the Tape Infrastructure managed by Veeam Server $(((Get-VBRServerSession).Server))."
+                        Paragraph "The following section provides inventory information about Tape Infrastructure managed by Veeam Server $(((Get-VBRServerSession).Server))."
                         BlankLine
                         Get-AbrVbrTapeInfraSummary
                         Write-PScriboMessage "Tape Server InfoLevel set at $($InfoLevel.Tape.Server)."
@@ -134,7 +135,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
             if ($InfoLevel.Inventory.PSObject.Properties.Value -ne 0) {
                 if ((Get-VBRServer).count -gt 0) {
                     Section -Style Heading2 'Inventory Summary' {
-                        Paragraph "The following section provides inventory information of the Virtual Infrastructure managed by Veeam Server $(((Get-VBRServerSession).Server))."
+                        Paragraph "The following section provides inventory information about the Virtual Infrastructure managed by Veeam Server $(((Get-VBRServerSession).Server))."
                         BlankLine
                         Get-AbrVbrInventorySummary
                         Write-PScriboMessage "Virtual Inventory InfoLevel set at $($InfoLevel.Inventory.VI)."
@@ -160,7 +161,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
             if ($InfoLevel.Storage.PSObject.Properties.Value -ne 0) {
                 if ((Get-NetAppHost).count -gt 0) {
                     Section -Style Heading2 'Storage Infrastructure Summary' {
-                        Paragraph "The following section provides storage infrastructure managed by Veeam Server $(((Get-VBRServerSession).Server))."
+                        Paragraph "The following section provides information about storage infrastructure managed by Veeam Server $(((Get-VBRServerSession).Server))."
                         BlankLine
                         Get-AbrVbrStorageInfraSummary
                         Write-PScriboMessage "NetApp Ontap InfoLevel set at $($InfoLevel.Storage.Ontap)."
@@ -180,7 +181,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
             if ($InfoLevel.Replication.PSObject.Properties.Value -ne 0) {
                 if ((Get-VBRReplica).count -gt 0 -or ((Get-VBRFailoverPlan).count -gt 0))  {
                     Section -Style Heading2 'Replication Summary' {
-                        Paragraph "The following section provides replication managed by Veeam Server $(((Get-VBRServerSession).Server))."
+                        Paragraph "The following section provides information about replications managed by Veeam Server $(((Get-VBRServerSession).Server))."
                         BlankLine
                         Get-AbrVbrReplInfraSummary
                         Write-PScriboMessage "Replica InfoLevel set at $($InfoLevel.Replication.Replica)."

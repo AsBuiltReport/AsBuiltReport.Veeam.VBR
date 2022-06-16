@@ -28,12 +28,12 @@ function Get-AbrVbrSureBackup {
         try {
             if (((Get-VBRApplicationGroup).count -gt 0) -or ((Get-VBRVirtualLab).count -gt 0)) {
                 Section -Style Heading3 'SureBackup Configuration' {
-                    Paragraph "The following section provides a summary of SureBackup."
+                    Paragraph "The following section provides configuration information about SureBackup."
                     BlankLine
                     try {
                         if ((Get-VBRApplicationGroup).count -gt 0) {
                             Section -Style Heading4 'Application Groups' {
-                                Paragraph "The following section provides a summary of the Veeam SureBackup Application Groups."
+                                Paragraph "The following section provides a summary about Application Groups."
                                 BlankLine
                                 $OutObj = @()
                                 try {
@@ -53,7 +53,7 @@ function Get-AbrVbrSureBackup {
                                 }
 
                                 $TableParams = @{
-                                    Name = "Application Group - $(((Get-VBRServerSession).Server).ToString().ToUpper().Split(".")[0])"
+                                    Name = "Application Group - $VeeamBackupServer"
                                     List = $false
                                     ColumnWidths = 30, 20, 50
                                 }
@@ -77,7 +77,7 @@ function Get-AbrVbrSureBackup {
                                             try {
                                                 foreach ($VMSetting in $SureBackupAG.VM) {
                                                     Section -Style Heading5 "$($VMSetting.Name)" {
-                                                        Paragraph "The following section provides a detailed information of the VM Application Group Settings"
+                                                        Paragraph "The following section provides VM Application Group detailed information."
                                                         BlankLine
                                                         $OutObj = @()
                                                         Write-PscriboMessage "Discovered $($VMSetting.Name) Application Group VM Setting."
@@ -122,7 +122,7 @@ function Get-AbrVbrSureBackup {
                     if ((Get-VBRVirtualLab).count -gt 0) {
                         try {
                             Section -Style Heading4 'Virtual Labs' {
-                                Paragraph "The following section provides a summary of the Veeam SureBackup Virtual Lab."
+                                Paragraph "The following section provides a summary about SureBackup Virtual Lab."
                                 BlankLine
                                 $OutObj = @()
                                 try {
@@ -143,7 +143,7 @@ function Get-AbrVbrSureBackup {
                                 }
 
                                 $TableParams = @{
-                                    Name = "Virtual Lab - $(((Get-VBRServerSession).Server).ToString().ToUpper().Split(".")[0])"
+                                    Name = "Virtual Lab - $VeeamBackupServer"
                                     List = $false
                                     ColumnWidths = 30, 15, 20, 35
                                 }

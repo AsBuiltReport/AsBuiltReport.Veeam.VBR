@@ -6,7 +6,7 @@ function Get-AbrVbrRepljobVMware {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.5.0
+        Version:        0.5.1
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -29,7 +29,7 @@ function Get-AbrVbrRepljobVMware {
             $Bkjobs = Get-VBRJob -WarningAction SilentlyContinue | Where-object {$_.TypeToString -eq 'VMware Replication'}
             if (($Bkjobs).count -gt 0) {
                 Section -Style Heading3 'VMware Replication Jobs Configuration' {
-                    Paragraph "The following section details VMware type per backup jobs configuration."
+                    Paragraph "The following section details the configuration abut VMware type backup jobs."
                     BlankLine
                     $OutObj = @()
                     try {
@@ -51,7 +51,7 @@ function Get-AbrVbrRepljobVMware {
                             }
 
                             $TableParams = @{
-                                Name = "VMware Replication Summary - $(((Get-VBRServerSession).Server).ToString().ToUpper().Split(".")[0])"
+                                Name = "VMware Replication Summary - $VeeamBackupServer"
                                 List = $false
                                 ColumnWidths = 35, 35, 30
                             }

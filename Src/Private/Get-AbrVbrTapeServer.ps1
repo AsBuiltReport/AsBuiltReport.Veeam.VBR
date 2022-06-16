@@ -6,7 +6,7 @@ function Get-AbrVbrTapeServer {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.3.1
+        Version:        0.5.1
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -28,44 +28,42 @@ function Get-AbrVbrTapeServer {
         try {
             if ((Get-VBRTapeServer).count -gt 0) {
                 Section -Style Heading3 'Tape Servers' {
-                    Paragraph "The following section provides summary information on Tape Servers."
+                    Paragraph "The following section provides summary information about Tape Servers."
                     BlankLine
                     $OutObj = @()
-                    if ((Get-VBRServerSession).Server) {
-                        $TapeObjs = Get-VBRTapeServer
-                        try {
-                            foreach ($TapeObj in $TapeObjs) {
-                                Write-PscriboMessage "Discovered $($TapeObj.Name) Type Server."
-                                $inObj = [ordered] @{
-                                    'Name' = $TapeObj.Name
-                                    'Description' = $TapeObj.Description
-                                    'Status' = Switch ($TapeObj.IsAvailable) {
-                                        'True' {'Available'}
-                                        'False' {'Unavailable'}
-                                        default {$TapeObj.IsUnavailable}
-                                    }
+                    $TapeObjs = Get-VBRTapeServer
+                    try {
+                        foreach ($TapeObj in $TapeObjs) {
+                            Write-PscriboMessage "Discovered $($TapeObj.Name) Type Server."
+                            $inObj = [ordered] @{
+                                'Name' = $TapeObj.Name
+                                'Description' = $TapeObj.Description
+                                'Status' = Switch ($TapeObj.IsAvailable) {
+                                    'True' {'Available'}
+                                    'False' {'Unavailable'}
+                                    default {$TapeObj.IsUnavailable}
                                 }
-                                $OutObj += [pscustomobject]$inobj
                             }
-
-                            if ($HealthCheck.Tape.Status) {
-                                $OutObj | Where-Object { $_.'Status' -eq 'Unavailable'} | Set-Style -Style Warning -Property 'Status'
-                            }
-
-                            $TableParams = @{
-                                Name = "Tape Server - $(((Get-VBRServerSession).Server).ToString().ToUpper().Split(".")[0])"
-                                List = $false
-                                ColumnWidths = 25, 50, 25
-                            }
-
-                            if ($Report.ShowTableCaptions) {
-                                $TableParams['Caption'] = "- $($TableParams.Name)"
-                            }
-                            $OutObj | Sort-Object -Property 'Name' | Table @TableParams
+                            $OutObj += [pscustomobject]$inobj
                         }
-                        catch {
-                            Write-PscriboMessage -IsWarning $_.Exception.Message
+
+                        if ($HealthCheck.Tape.Status) {
+                            $OutObj | Where-Object { $_.'Status' -eq 'Unavailable'} | Set-Style -Style Warning -Property 'Status'
                         }
+
+                        $TableParams = @{
+                            Name = "Tape Server - $VeeamBackupServer"
+                            List = $false
+                            ColumnWidths = 25, 50, 25
+                        }
+
+                        if ($Report.ShowTableCaptions) {
+                            $TableParams['Caption'] = "- $($TableParams.Name)"
+                        }
+                        $OutObj | Sort-Object -Property 'Name' | Table @TableParams
+                    }
+                    catch {
+                        Write-PscriboMessage -IsWarning $_.Exception.Message
                     }
                 }
             }

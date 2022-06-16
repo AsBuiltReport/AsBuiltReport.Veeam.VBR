@@ -6,7 +6,7 @@ function Get-AbrVbrManagedServer {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.3.1
+        Version:        0.5.1
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -28,44 +28,40 @@ function Get-AbrVbrManagedServer {
         try {
             if ((Get-VBRServer).count -gt 0) {
                 Section -Style Heading3 'Virtualization Servers and Hosts' {
-                    Paragraph "The following section display managed servers."
-                    BlankLine
                     $OutObj = @()
-                    if ((Get-VBRServerSession).Server) {
-                        try {
-                            $ManagedServers = Get-VBRServer
-                            foreach ($ManagedServer in $ManagedServers) {
-                                Write-PscriboMessage "Discovered $($ManagedServer.Name) managed server."
-                                $inObj = [ordered] @{
-                                    'Name' = $ManagedServer.Name
-                                    'Description' = $ManagedServer.Info.TypeDescription
-                                    'Status' = Switch ($ManagedServer.IsUnavailable) {
-                                        'False' {'Available'}
-                                        'True' {'Unavailable'}
-                                        default {$ManagedServer.IsUnavailable}
-                                    }
+                    try {
+                        $ManagedServers = Get-VBRServer
+                        foreach ($ManagedServer in $ManagedServers) {
+                            Write-PscriboMessage "Discovered $($ManagedServer.Name) managed server."
+                            $inObj = [ordered] @{
+                                'Name' = $ManagedServer.Name
+                                'Description' = $ManagedServer.Info.TypeDescription
+                                'Status' = Switch ($ManagedServer.IsUnavailable) {
+                                    'False' {'Available'}
+                                    'True' {'Unavailable'}
+                                    default {$ManagedServer.IsUnavailable}
                                 }
-                                $OutObj += [pscustomobject]$inobj
                             }
+                            $OutObj += [pscustomobject]$inobj
                         }
-                        catch {
-                            Write-PscriboMessage -IsWarning $_.Exception.Message
-                        }
-
-                        if ($HealthCheck.Infrastructure.Status) {
-                            $OutObj | Where-Object { $_.'Status' -eq 'Unavailable'} | Set-Style -Style Warning -Property 'Status'
-                        }
-
-                        $TableParams = @{
-                            Name = "Managed Servers - $(((Get-VBRServerSession).Server).ToString().ToUpper().Split(".")[0])"
-                            List = $false
-                            ColumnWidths = 50, 35, 15
-                        }
-                        if ($Report.ShowTableCaptions) {
-                            $TableParams['Caption'] = "- $($TableParams.Name)"
-                        }
-                        $OutObj | Sort-Object -Property 'Description' | Table @TableParams
                     }
+                    catch {
+                        Write-PscriboMessage -IsWarning $_.Exception.Message
+                    }
+
+                    if ($HealthCheck.Infrastructure.Status) {
+                        $OutObj | Where-Object { $_.'Status' -eq 'Unavailable'} | Set-Style -Style Warning -Property 'Status'
+                    }
+
+                    $TableParams = @{
+                        Name = "Managed Servers - $VeeamBackupServer"
+                        List = $false
+                        ColumnWidths = 50, 35, 15
+                    }
+                    if ($Report.ShowTableCaptions) {
+                        $TableParams['Caption'] = "- $($TableParams.Name)"
+                    }
+                    $OutObj | Sort-Object -Property 'Description' | Table @TableParams
                 }
             }
         }
