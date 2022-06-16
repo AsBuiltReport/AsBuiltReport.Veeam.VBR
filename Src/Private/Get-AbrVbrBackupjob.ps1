@@ -6,7 +6,7 @@ function Get-AbrVbrBackupjob {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.5.0
+        Version:        0.5.1
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -31,42 +31,40 @@ function Get-AbrVbrBackupjob {
                     Paragraph "The following section list backup jobs created in Veeam Backup & Replication."
                     BlankLine
                     $OutObj = @()
-                    if ((Get-VBRServerSession).Server) {
-                        $Bkjobs = Get-VBRJob -WarningAction SilentlyContinue | Where-object {$_.TypeToString -ne 'Windows Agent Backup' -and $_.TypeToString -ne 'Hyper-V Replication' -and $_.TypeToString -ne 'VMware Replication'}
-                        foreach ($Bkjob in $Bkjobs) {
-                            try {
-                                Write-PscriboMessage "Discovered $($Bkjob.Name) backup job."
-                                $inObj = [ordered] @{
-                                    'Name' = $Bkjob.Name
-                                    'Type' = $Bkjob.TypeToString
-                                    'Status' = Switch ($Bkjob.IsScheduleEnabled) {
-                                        'False' {'Disabled'}
-                                        'True' {'Enabled'}
-                                    }
-                                    'Latest Result' = $Bkjob.info.LatestStatus
-                                    'Target Repository' = Switch ($Bkjob.info.TargetRepositoryId) {
-                                        '00000000-0000-0000-0000-000000000000' {$Bkjob.TargetDir}
-                                        {$Null -eq (Get-VBRBackupRepository | Where-Object {$_.Id -eq $Bkjob.info.TargetRepositoryId}).Name} {(Get-VBRBackupRepository -ScaleOut | Where-Object {$_.Id -eq $Bkjob.info.TargetRepositoryId}).Name}
-                                        default {(Get-VBRBackupRepository | Where-Object {$_.Id -eq $Bkjob.info.TargetRepositoryId}).Name}
-                                    }
+                    $Bkjobs = Get-VBRJob -WarningAction SilentlyContinue | Where-object {$_.TypeToString -ne 'Windows Agent Backup' -and $_.TypeToString -ne 'Hyper-V Replication' -and $_.TypeToString -ne 'VMware Replication'}
+                    foreach ($Bkjob in $Bkjobs) {
+                        try {
+                            Write-PscriboMessage "Discovered $($Bkjob.Name) backup job."
+                            $inObj = [ordered] @{
+                                'Name' = $Bkjob.Name
+                                'Type' = $Bkjob.TypeToString
+                                'Status' = Switch ($Bkjob.IsScheduleEnabled) {
+                                    'False' {'Disabled'}
+                                    'True' {'Enabled'}
                                 }
-                                $OutObj += [pscustomobject]$inobj
+                                'Latest Result' = $Bkjob.info.LatestStatus
+                                'Target Repository' = Switch ($Bkjob.info.TargetRepositoryId) {
+                                    '00000000-0000-0000-0000-000000000000' {$Bkjob.TargetDir}
+                                    {$Null -eq (Get-VBRBackupRepository | Where-Object {$_.Id -eq $Bkjob.info.TargetRepositoryId}).Name} {(Get-VBRBackupRepository -ScaleOut | Where-Object {$_.Id -eq $Bkjob.info.TargetRepositoryId}).Name}
+                                    default {(Get-VBRBackupRepository | Where-Object {$_.Id -eq $Bkjob.info.TargetRepositoryId}).Name}
+                                }
                             }
-                            catch {
-                                Write-PscriboMessage -IsWarning $_.Exception.Message
-                            }
+                            $OutObj += [pscustomobject]$inobj
                         }
-
-                        $TableParams = @{
-                            Name = "Backup Jobs - $(((Get-VBRServerSession).Server).ToString().ToUpper().Split(".")[0])"
-                            List = $false
-                            ColumnWidths = 25, 20, 15, 15, 25
+                        catch {
+                            Write-PscriboMessage -IsWarning $_.Exception.Message
                         }
-                        if ($Report.ShowTableCaptions) {
-                            $TableParams['Caption'] = "- $($TableParams.Name)"
-                        }
-                        $OutObj | Sort-Object -Property Name |Table @TableParams
                     }
+
+                    $TableParams = @{
+                        Name = "Backup Jobs - $VeeamBackupServer"
+                        List = $false
+                        ColumnWidths = 25, 20, 15, 15, 25
+                    }
+                    if ($Report.ShowTableCaptions) {
+                        $TableParams['Caption'] = "- $($TableParams.Name)"
+                    }
+                    $OutObj | Sort-Object -Property Name |Table @TableParams
                 }
             }
         }

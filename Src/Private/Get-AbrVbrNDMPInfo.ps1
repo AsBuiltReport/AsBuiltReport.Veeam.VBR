@@ -6,7 +6,7 @@ function Get-AbrVbrNDMPInfo {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.3.1
+        Version:        0.5.1
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -30,43 +30,41 @@ function Get-AbrVbrNDMPInfo {
                 if ((Get-VBRNDMPServer).count -gt 0) {
                     Section -Style Heading3 'NDMP Servers' {
                         $OutObj = @()
-                        if ((Get-VBRServerSession).Server) {
-                            try {
-                                $NDMPObjs = Get-VBRNDMPServer | Where-Object {$_.Port -ne 0}
-                                foreach ($NDMPObj in $NDMPObjs) {
-                                    try {
-                                        Write-PscriboMessage "Discovered $($NDMPObj.Name) NDMP Server."
-                                        $inObj = [ordered] @{
-                                            'Name' = $NDMPObj.Name
-                                            'Credentials' = $NDMPObj.Credentials
-                                            'Port' = $NDMPObj.Port
-                                            'Gateway' = switch ($NDMPObj.SelectedGatewayId) {
-                                                "00000000-0000-0000-0000-000000000000" {"Automatic"}
-                                                Default {(Get-VBRServer | Where-Object {$_.Id -eq $NDMPObj.SelectedGatewayId}).Name}
-                                            }
+                        try {
+                            $NDMPObjs = Get-VBRNDMPServer | Where-Object {$_.Port -ne 0}
+                            foreach ($NDMPObj in $NDMPObjs) {
+                                try {
+                                    Write-PscriboMessage "Discovered $($NDMPObj.Name) NDMP Server."
+                                    $inObj = [ordered] @{
+                                        'Name' = $NDMPObj.Name
+                                        'Credentials' = $NDMPObj.Credentials
+                                        'Port' = $NDMPObj.Port
+                                        'Gateway' = switch ($NDMPObj.SelectedGatewayId) {
+                                            "00000000-0000-0000-0000-000000000000" {"Automatic"}
+                                            Default {(Get-VBRServer | Where-Object {$_.Id -eq $NDMPObj.SelectedGatewayId}).Name}
                                         }
-
-                                        $OutObj += [pscustomobject]$inobj
                                     }
-                                    catch {
-                                        Write-PscriboMessage -IsWarning $_.Exception.Message
-                                    }
-                                }
 
-                                $TableParams = @{
-                                    Name = "NDMP Servers - $(((Get-VBRServerSession).Server).ToString().ToUpper().Split(".")[0])"
-                                    List = $false
-                                    ColumnWidths = 35, 20, 10, 35
+                                    $OutObj += [pscustomobject]$inobj
                                 }
+                                catch {
+                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                }
+                            }
 
-                                if ($Report.ShowTableCaptions) {
-                                    $TableParams['Caption'] = "- $($TableParams.Name)"
-                                }
-                                $OutObj | Table @TableParams
+                            $TableParams = @{
+                                Name = "NDMP Servers - $VeeamBackupServer"
+                                List = $false
+                                ColumnWidths = 35, 20, 10, 35
                             }
-                            catch {
-                                Write-PscriboMessage -IsWarning $_.Exception.Message
+
+                            if ($Report.ShowTableCaptions) {
+                                $TableParams['Caption'] = "- $($TableParams.Name)"
                             }
+                            $OutObj | Table @TableParams
+                        }
+                        catch {
+                            Write-PscriboMessage -IsWarning $_.Exception.Message
                         }
                     }
                 }

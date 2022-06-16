@@ -1,5 +1,18 @@
 # :arrows_clockwise: Veeam VBR As Built Report Changelog
 
+## [0.5.1] - 2022-06-15
+
+### Added
+
+- Added Cloud Service Provider Summary
+  - Added per Service Provider Configuration subsection
+- Added Initial v12 support :)
+
+### Fixed
+
+- Code refactoring
+- Reviewed Paragraph Section
+
 ## [0.5.0] - 2022-05-12
 
 ### Added

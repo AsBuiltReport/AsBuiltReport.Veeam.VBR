@@ -6,7 +6,7 @@ function Get-AbrVbrReplInfraSummary {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.5.0
+        Version:        0.5.1
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -27,25 +27,23 @@ function Get-AbrVbrReplInfraSummary {
     process {
         try {
             $OutObj = @()
-            if ((Get-VBRServerSession).Server) {
-                $Replicas = Get-VBRReplica
-                $FailOverPlans = Get-VBRFailoverPlan
-                $inObj = [ordered] @{
-                    'Number of Replicas' = $Replicas.Count
-                    'Number of Failover Plans' = $FailOverPlans.Count
-                }
-                $OutObj += [pscustomobject]$inobj
-
-                $TableParams = @{
-                    Name = "Executive Summary - $(((Get-VBRServerSession).Server).ToString().ToUpper().Split(".")[0])"
-                    List = $true
-                    ColumnWidths = 40, 60
-                }
-                if ($Report.ShowTableCaptions) {
-                    $TableParams['Caption'] = "- $($TableParams.Name)"
-                }
-                $OutObj | Table @TableParams
+            $Replicas = Get-VBRReplica
+            $FailOverPlans = Get-VBRFailoverPlan
+            $inObj = [ordered] @{
+                'Number of Replicas' = $Replicas.Count
+                'Number of Failover Plans' = $FailOverPlans.Count
             }
+            $OutObj += [pscustomobject]$inobj
+
+            $TableParams = @{
+                Name = "Executive Summary - $VeeamBackupServer"
+                List = $true
+                ColumnWidths = 40, 60
+            }
+            if ($Report.ShowTableCaptions) {
+                $TableParams['Caption'] = "- $($TableParams.Name)"
+            }
+            $OutObj | Table @TableParams
         }
         catch {
             Write-PscriboMessage -IsWarning $_.Exception.Message

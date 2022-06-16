@@ -6,7 +6,7 @@ function Get-AbrVbrTapejob {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.3.1
+        Version:        0.5.1
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -31,34 +31,32 @@ function Get-AbrVbrTapejob {
                     Paragraph "The following section list tape backup jobs created in Veeam Backup & Replication."
                     BlankLine
                     $OutObj = @()
-                    if ((Get-VBRServerSession).Server) {
-                        $TBkjobs = Get-VBRTapeJob
-                        foreach ($TBkjob in $TBkjobs) {
-                            try {
-                                Write-PscriboMessage "Discovered $($TBkjob.Name) location."
-                                $inObj = [ordered] @{
-                                    'Name' = $TBkjob.Name
-                                    'Type' = ($TBkjob.Type -creplace  '([A-Z\W_]|\d+)(?<![a-z])',' $&').trim()
-                                    'Latest Status' = $TBkjob.LastResult
-                                    'Target Repository' = $TBkjob.Target
-                                }
-                                $OutObj += [pscustomobject]$inobj
+                    $TBkjobs = Get-VBRTapeJob
+                    foreach ($TBkjob in $TBkjobs) {
+                        try {
+                            Write-PscriboMessage "Discovered $($TBkjob.Name) location."
+                            $inObj = [ordered] @{
+                                'Name' = $TBkjob.Name
+                                'Type' = ($TBkjob.Type -creplace  '([A-Z\W_]|\d+)(?<![a-z])',' $&').trim()
+                                'Latest Status' = $TBkjob.LastResult
+                                'Target Repository' = $TBkjob.Target
                             }
-                            catch {
-                                Write-PscriboMessage -IsWarning $_.Exception.Message
-                            }
+                            $OutObj += [pscustomobject]$inobj
                         }
-
-                        $TableParams = @{
-                            Name = "Backup Jobs - $(((Get-VBRServerSession).Server).ToString().ToUpper().Split(".")[0])"
-                            List = $false
-                            ColumnWidths = 30, 25, 15, 30
+                        catch {
+                            Write-PscriboMessage -IsWarning $_.Exception.Message
                         }
-                        if ($Report.ShowTableCaptions) {
-                            $TableParams['Caption'] = "- $($TableParams.Name)"
-                        }
-                        $OutObj | Table @TableParams
                     }
+
+                    $TableParams = @{
+                        Name = "Backup Jobs - $VeeamBackupServer"
+                        List = $false
+                        ColumnWidths = 30, 25, 15, 30
+                    }
+                    if ($Report.ShowTableCaptions) {
+                        $TableParams['Caption'] = "- $($TableParams.Name)"
+                    }
+                    $OutObj | Table @TableParams
                 }
             }
         }
