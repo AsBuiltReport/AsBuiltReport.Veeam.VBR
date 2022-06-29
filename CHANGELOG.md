@@ -1,5 +1,15 @@
 # :arrows_clockwise: Veeam VBR As Built Report Changelog
 
+## [0.5.2] - 2022-06-28
+
+### Added
+
+- Added Replication Resource to the Cloud Service Provider section
+
+### Fixed
+
+- Fixed Cloud Service Provider section only displaying last object element.
+
 ## [0.5.1] - 2022-06-15
 
 ### Added
