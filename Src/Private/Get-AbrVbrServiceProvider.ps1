@@ -35,7 +35,7 @@ function Get-AbrVbrServiceProvider {
                         $OutObj = @()
                         foreach ($CloudProvider in $CloudProviders) {
                             try {
-                                Write-PscriboMessage "Discovered $($CloudProvider.DNSName) Service Provider."
+                                Write-PscriboMessage "Discovered $($CloudProvider.DNSName) Service Provider summary information."
                                 if ($CloudProvider.ResourcesEnabled) {
                                     $WanAcceleration = $CloudProvider.Resources.WanAccelerationEnabled
                                 }
@@ -71,13 +71,13 @@ function Get-AbrVbrServiceProvider {
                         if ($Report.ShowTableCaptions) {
                             $TableParams['Caption'] = "- $($TableParams.Name)"
                         }
-                        $OutObj | Table @TableParams
+                        $OutObj | Sort-Object -Property 'DNS Name' | Table @TableParams
                         if ($InfoLevel.Infrastructure.ServiceProvider -ge 2) {
                             try {
                                 foreach ($CloudProvider in $CloudProviders) {
                                     Section -Style Heading3 $CloudProvider.DNSName {
                                         $OutObj = @()
-                                        Write-PscriboMessage "Discovered $($CloudProvider.DNSName) Service Provider."
+                                        Write-PscriboMessage "Discovered $($CloudProvider.DNSName) Service Provider configuration information."
                                         $inObj = [ordered] @{
                                             'DNS Name' = $CloudProvider.DNSName
                                             'Ip Address' = $CloudProvider.IpAddress

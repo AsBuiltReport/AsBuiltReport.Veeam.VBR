@@ -5,6 +5,11 @@
 ### Added
 
 - Added Replication Resource to the Cloud Service Provider section
+- Improvements to the Object Storage Repository section
+  - Added InfoLevel 2 support (Per Object Storage Repo Configuration)
+- Improvements to Scale-Out Backup Repository section
+  - Added FriendlyPath to the Performance Tier sub-section
+  - Added Archive Tier sub-section
 
 ### Fixed
 
