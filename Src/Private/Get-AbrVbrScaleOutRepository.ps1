@@ -38,8 +38,14 @@ function Get-AbrVbrScaleOutRepository {
                             $inObj = [ordered] @{
                                 'Name' = $BackupRepo.Name
                                 'Performance Tier' = $BackupRepo.Extent.Name
-                                'Capacity Tier' = $BackupRepo.CapacityExtent.Name
-                                'Archive Tier' = $BackupRepo.ArchiveExtent.Name
+                                'Capacity Tier' = Switch ($BackupRepo.CapacityExtent.Repository.Name) {
+                                    $null {'Not configured'}
+                                    default {$BackupRepo.CapacityExtent.Repository.Name}
+                                }
+                                'Archive Tier' = Switch ($BackupRepo.ArchiveExtent.Repository.Name) {
+                                    $null {'Not configured'}
+                                    default {$BackupRepo.ArchiveExtent.Repository.Name}
+                                }
                             }
                             $OutObj += [pscustomobject]$inobj
                         }
@@ -51,7 +57,7 @@ function Get-AbrVbrScaleOutRepository {
                     $TableParams = @{
                         Name = "Scale Backup Repository - $VeeamBackupServer"
                         List = $false
-                        ColumnWidths = 30, 25, 15, 30
+                        ColumnWidths = 25, 25, 25, 25
                     }
                     if ($Report.ShowTableCaptions) {
                         $TableParams['Caption'] = "- $($TableParams.Name)"
