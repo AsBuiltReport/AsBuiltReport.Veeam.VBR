@@ -6,7 +6,7 @@ function Get-AbrVbrBackupjobHyperV {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.5.1
+        Version:        0.5.2
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -147,10 +147,28 @@ function Get-AbrVbrBackupjobHyperV {
                                         try {
                                             try {
                                                 Write-PscriboMessage "Discovered $($Bkjob.Name) data transfer."
+                                                try {
+                                                    $TargetWanAccelerator = $Bkjob.GetTargetWanAccelerator().Name
+                                                }
+                                                catch {
+                                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                }
+                                                try {
+                                                    $SourceWanAccelerator = $Bkjob.GetSourceWanAccelerator().Name
+                                                }
+                                                catch {
+                                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                }
                                                 $inObj = [ordered] @{
                                                     'Use Wan accelerator' = ConvertTo-TextYN $Bkjob.IsWanAcceleratorEnabled()
-                                                    'Source Wan accelerator' = $Bkjob.GetSourceWanAccelerator().Name
-                                                    'Target Wan accelerator' = $Bkjob.GetTargetWanAccelerator().Name
+                                                    'Source Wan accelerator' = Switch ($SourceWanAccelerator) {
+                                                        $null {'Unknown'}
+                                                        default {$SourceWanAccelerator}
+                                                    }
+                                                    'Target Wan accelerator' = Switch ($TargetWanAccelerator) {
+                                                        $null {'Unknown'}
+                                                        default {$TargetWanAccelerator}
+                                                    }
                                                 }
                                                 $OutObj += [pscustomobject]$inobj
                                             }
