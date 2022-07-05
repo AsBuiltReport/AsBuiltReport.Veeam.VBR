@@ -88,9 +88,12 @@ function Get-AbrVbrScaleOutRepository {
                                                     'Placement Policy' = ($BackupRepo.PolicyType -creplace  '([A-Z\W_]|\d+)(?<![a-z])',' $&').trim()
                                                     'Use Per VM Backup Files' = ConvertTo-TextYN $BackupRepo.UsePerVMBackupFiles
                                                     'Perform Full When Extent Offline' = ConvertTo-TextYN $BackupRepo.PerformFullWhenExtentOffline
-                                                    'USe Capacity Tier' = ConvertTo-TextYN $BackupRepo.EnableCapacityTier
+                                                    'Use Capacity Tier' = ConvertTo-TextYN $BackupRepo.EnableCapacityTier
                                                     'Encryption Enabled' = ConvertTo-TextYN $BackupRepo.EncryptionEnabled
-                                                    'EncryptionKey' = $BackupRepo.EncryptionKey.Description
+                                                    'Encryption Key' = Switch ($BackupRepo.EncryptionKey.Description) {
+                                                        $null {'Disabled'}
+                                                        default {$BackupRepo.EncryptionKey.Description}
+                                                    }
                                                     'Move backup file older than' = $BackupRepo.OperationalRestorePeriod
                                                     'Override Policy Enabled' = ConvertTo-TextYN $BackupRepo.OverridePolicyEnabled
                                                     'Override Space Threshold' = $BackupRepo.OverrideSpaceThreshold
