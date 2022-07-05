@@ -77,6 +77,48 @@ function Get-AbrVbrScaleOutRepository {
                                 #---------------------------------------------------------------------------------------------#
                                 foreach ($BackupRepo in $BackupRepos) {
                                     Section -Style Heading5 "$($BackupRepo.Name)" {
+                                        try {
+                                            #---------------------------------------------------------------------------------------------#
+                                            #                               General Configuration Section                                 #
+                                            #---------------------------------------------------------------------------------------------#
+                                            Section -Style Heading6 "General Settings" {
+                                                $OutObj = @()
+                                                Write-PscriboMessage "Discovered $($BackupRepo.Name) General Settings."
+                                                $inObj = [ordered] @{
+                                                    'Placement Policy' = ($BackupRepo.PolicyType -creplace  '([A-Z\W_]|\d+)(?<![a-z])',' $&').trim()
+                                                    'Use Per VM Backup Files' = ConvertTo-TextYN $BackupRepo.UsePerVMBackupFiles
+                                                    'Perform Full When Extent Offline' = ConvertTo-TextYN $BackupRepo.PerformFullWhenExtentOffline
+                                                    'USe Capacity Tier' = ConvertTo-TextYN $BackupRepo.EnableCapacityTier
+                                                    'Encryption Enabled' = ConvertTo-TextYN $BackupRepo.EncryptionEnabled
+                                                    'EncryptionKey' = $BackupRepo.EncryptionKey.Description
+                                                    'Move backup file older than' = $BackupRepo.OperationalRestorePeriod
+                                                    'Override Policy Enabled' = ConvertTo-TextYN $BackupRepo.OverridePolicyEnabled
+                                                    'Override Space Threshold' = $BackupRepo.OverrideSpaceThreshold
+                                                    'Use Archive GFS Tier' = ConvertTo-TextYN $BackupRepo.ArchiveTierEnabled
+                                                    'Archive GFS Backup older than' = $BackupRepo.ArchivePeriod
+                                                    'Store archived backup as standalone fulls' = ConvertTo-TextYN $BackupRepo.ArchiveFullBackupModeEnabled
+                                                    'Cost Optimized Archive Enabled' = ConvertTo-TextYN $BackupRepo.CostOptimizedArchiveEnabled
+                                                    'Description' = $BackupRepo.Description
+                                                }
+
+                                                $OutObj = [pscustomobject]$inobj
+
+                                                $TableParams = @{
+                                                    Name = "General Settings - $($BackupRepo.Name)"
+                                                    List = $true
+                                                    ColumnWidths = 40, 60
+                                                }
+
+                                                if ($Report.ShowTableCaptions) {
+                                                    $TableParams['Caption'] = "- $($TableParams.Name)"
+                                                }
+
+                                                $OutObj | Table @TableParams
+                                            }
+                                        }
+                                        catch {
+                                            Write-PscriboMessage -IsWarning $_.Exception.Message
+                                        }
                                         foreach ($Extent in $BackupRepo.Extent) {
                                             try {
                                                 #---------------------------------------------------------------------------------------------#
