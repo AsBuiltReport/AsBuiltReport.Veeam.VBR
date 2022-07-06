@@ -5,7 +5,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.5.1
+        Version:        0.5.2
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -33,8 +33,6 @@ function Invoke-AsBuiltReport.Veeam.VBR {
 
     # Used to set values to TitleCase where required
     $TextInfo = (Get-Culture).TextInfo
-
-	# Update/rename the $System variable and build out your code within the ForEach loop. The ForEach loop enables AsBuiltReport to generate an as built configuration against multiple defined targets.
 
     #region foreach loop
     foreach ($System in $Target) {

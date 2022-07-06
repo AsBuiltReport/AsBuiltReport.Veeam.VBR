@@ -6,7 +6,7 @@ function Get-AbrVbrScaleOutRepository {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.5.1
+        Version:        0.5.2
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -37,9 +37,15 @@ function Get-AbrVbrScaleOutRepository {
                             Write-PscriboMessage "Discovered $($BackupRepo.Name) Repository."
                             $inObj = [ordered] @{
                                 'Name' = $BackupRepo.Name
-                                'Performance Tier' = $BackupRepo.Extent
-                                'Capacity Tier Enabled' = ConvertTo-TextYN $BackupRepo.EnableCapacityTier
-                                'Capacity Tier' = $BackupRepo.CapacityExtent
+                                'Performance Tier' = $BackupRepo.Extent.Name
+                                'Capacity Tier' = Switch ($BackupRepo.CapacityExtent.Repository.Name) {
+                                    $null {'Not configured'}
+                                    default {$BackupRepo.CapacityExtent.Repository.Name}
+                                }
+                                'Archive Tier' = Switch ($BackupRepo.ArchiveExtent.Repository.Name) {
+                                    $null {'Not configured'}
+                                    default {$BackupRepo.ArchiveExtent.Repository.Name}
+                                }
                             }
                             $OutObj += [pscustomobject]$inobj
                         }
@@ -51,7 +57,7 @@ function Get-AbrVbrScaleOutRepository {
                     $TableParams = @{
                         Name = "Scale Backup Repository - $VeeamBackupServer"
                         List = $false
-                        ColumnWidths = 30, 25, 15, 30
+                        ColumnWidths = 25, 25, 25, 25
                     }
                     if ($Report.ShowTableCaptions) {
                         $TableParams['Caption'] = "- $($TableParams.Name)"
@@ -71,6 +77,51 @@ function Get-AbrVbrScaleOutRepository {
                                 #---------------------------------------------------------------------------------------------#
                                 foreach ($BackupRepo in $BackupRepos) {
                                     Section -Style Heading5 "$($BackupRepo.Name)" {
+                                        try {
+                                            #---------------------------------------------------------------------------------------------#
+                                            #                               General Configuration Section                                 #
+                                            #---------------------------------------------------------------------------------------------#
+                                            Section -Style Heading6 "General Settings" {
+                                                $OutObj = @()
+                                                Write-PscriboMessage "Discovered $($BackupRepo.Name) General Settings."
+                                                $inObj = [ordered] @{
+                                                    'Placement Policy' = ($BackupRepo.PolicyType -creplace  '([A-Z\W_]|\d+)(?<![a-z])',' $&').trim()
+                                                    'Use Per VM Backup Files' = ConvertTo-TextYN $BackupRepo.UsePerVMBackupFiles
+                                                    'Perform Full When Extent Offline' = ConvertTo-TextYN $BackupRepo.PerformFullWhenExtentOffline
+                                                    'Use Capacity Tier' = ConvertTo-TextYN $BackupRepo.EnableCapacityTier
+                                                    'Encryption Enabled' = ConvertTo-TextYN $BackupRepo.EncryptionEnabled
+                                                    'Encryption Key' = Switch ($BackupRepo.EncryptionKey.Description) {
+                                                        $null {'Disabled'}
+                                                        default {$BackupRepo.EncryptionKey.Description}
+                                                    }
+                                                    'Move backup file older than' = $BackupRepo.OperationalRestorePeriod
+                                                    'Override Policy Enabled' = ConvertTo-TextYN $BackupRepo.OverridePolicyEnabled
+                                                    'Override Space Threshold' = $BackupRepo.OverrideSpaceThreshold
+                                                    'Use Archive GFS Tier' = ConvertTo-TextYN $BackupRepo.ArchiveTierEnabled
+                                                    'Archive GFS Backup older than' = $BackupRepo.ArchivePeriod
+                                                    'Store archived backup as standalone fulls' = ConvertTo-TextYN $BackupRepo.ArchiveFullBackupModeEnabled
+                                                    'Cost Optimized Archive Enabled' = ConvertTo-TextYN $BackupRepo.CostOptimizedArchiveEnabled
+                                                    'Description' = $BackupRepo.Description
+                                                }
+
+                                                $OutObj = [pscustomobject]$inobj
+
+                                                $TableParams = @{
+                                                    Name = "General Settings - $($BackupRepo.Name)"
+                                                    List = $true
+                                                    ColumnWidths = 40, 60
+                                                }
+
+                                                if ($Report.ShowTableCaptions) {
+                                                    $TableParams['Caption'] = "- $($TableParams.Name)"
+                                                }
+
+                                                $OutObj | Table @TableParams
+                                            }
+                                        }
+                                        catch {
+                                            Write-PscriboMessage -IsWarning $_.Exception.Message
+                                        }
                                         foreach ($Extent in $BackupRepo.Extent) {
                                             try {
                                                 #---------------------------------------------------------------------------------------------#
@@ -81,14 +132,15 @@ function Get-AbrVbrScaleOutRepository {
                                                     Write-PscriboMessage "Discovered $($Extent.Name) Performance Tier."
                                                     $inObj = [ordered] @{
                                                         'Name' = $Extent.Name
-                                                        'Repository' = ($Extent.Repository).Name
-                                                        'Status' = $Extent.Status
+                                                        'Repository' = $Extent.Repository.Name
+                                                        'Path' = $Extent.Repository.FriendlyPath
                                                         'Total Space' = "$((($BackupRepo.Extent).Repository).GetContainer().CachedTotalSpace.InGigabytes) GB"
                                                         'Used Space' = "$((($BackupRepo.Extent).Repository).GetContainer().CachedFreeSpace.InGigabytes) GB"
+                                                        'Status' = $Extent.Status
                                                     }
                                                     $OutObj += [pscustomobject]$inobj
                                                     $TableParams = @{
-                                                        Name = "$($Extent.Name) Information - $VeeamBackupServer"
+                                                        Name = "Performance Tier - $($Extent.Name)"
                                                         List = $true
                                                         ColumnWidths = 40, 60
                                                     }
@@ -138,7 +190,48 @@ function Get-AbrVbrScaleOutRepository {
 
                                                     $OutObj += [pscustomobject]$inobj
                                                     $TableParams = @{
-                                                        Name = "$($CapacityExtent.Repository) Information - $VeeamBackupServer"
+                                                        Name = "Capacity Tier - $(($CapacityExtent.Repository).Name)"
+                                                        List = $true
+                                                        ColumnWidths = 40, 60
+                                                    }
+                                                    if ($Report.ShowTableCaptions) {
+                                                        $TableParams['Caption'] = "- $($TableParams.Name)"
+                                                    }
+                                                    $OutObj | Table @TableParams
+                                                }
+                                            }
+                                            catch {
+                                                Write-PscriboMessage -IsWarning $_.Exception.Message
+                                            }
+                                        }
+                                        #---------------------------------------------------------------------------------------------#
+                                        #                               Archive Tier Section                                         #
+                                        #---------------------------------------------------------------------------------------------#
+                                        foreach ($ArchiveExtent in $BackupRepo.ArchiveExtent) {
+                                            try {
+                                                Section -Style Heading6 "Archive Tier" {
+                                                    $OutObj = @()
+                                                    Write-PscriboMessage "Discovered $(($ArchiveExtent.Repository).Name) Archive Tier."
+                                                    $inObj = [ordered] @{
+                                                        'Name' = ($ArchiveExtent.Repository).Name
+                                                        'Type' =  ($ArchiveExtent.Repository).ArchiveType
+                                                        'Use Gateway Server' = ConvertTo-TextYN ($ArchiveExtent.Repository).UseGatewayServer
+                                                        'Gateway Server' = Switch ((($ArchiveExtent.Repository).GatewayServer.Name).length) {
+                                                            0 {"Auto"}
+                                                            default {($ArchiveExtent.Repository).GatewayServer.Name}
+                                                        }
+                                                    }
+                                                    if (($ArchiveExtent.Repository).ArchiveType -eq 'AmazonS3Glacier') {
+                                                        $inObj.add('Backup Immutability Enabled', (ConvertTo-TextYN ($ArchiveExtent.Repository).BackupImmutabilityEnabled))
+                                                    } elseif (($ArchiveExtent.Repository).ArchiveType -eq 'AzureArchive') {
+                                                        $inObj.add('Azure Service Type', ($ArchiveExtent.Repository.AzureBlobFolder).ServiceType)
+                                                        $inObj.add('Azure Blob Name', ($ArchiveExtent.Repository.AzureBlobFolder).Name)
+                                                        $inObj.add('Azure Blob Container', ($ArchiveExtent.Repository.AzureBlobFolder).Container)
+                                                    }
+
+                                                    $OutObj += [pscustomobject]$inobj
+                                                    $TableParams = @{
+                                                        Name = "Archive Tier - $(($ArchiveExtent.Repository).Name)"
                                                         List = $true
                                                         ColumnWidths = 40, 60
                                                     }

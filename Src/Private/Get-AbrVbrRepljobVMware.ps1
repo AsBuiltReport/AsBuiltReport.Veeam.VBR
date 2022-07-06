@@ -6,7 +6,7 @@ function Get-AbrVbrRepljobVMware {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.5.1
+        Version:        0.5.2
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -33,33 +33,30 @@ function Get-AbrVbrRepljobVMware {
                     BlankLine
                     $OutObj = @()
                     try {
-                        $VMcounts = Get-VBRJob -WarningAction SilentlyContinue | Where-object {$_.TypeToString -eq 'VMware Replication'}
-                        if ($VMcounts) {
-                            foreach ($VMcount in $VMcounts) {
-                                try {
-                                    Write-PscriboMessage "Discovered $($VMcount.Name) ."
-                                    $inObj = [ordered] @{
-                                        'Name' = $VMcount.Name
-                                        'Creation Time' = $VMcount.CreationTime
-                                        'VM Count' = (Get-VBRReplica | Where-Object {$_.JobName -eq $VMcount.Name}).VMcount
-                                    }
-                                    $OutObj += [pscustomobject]$inobj
+                        foreach ($VMcount in $Bkjobs) {
+                            try {
+                                Write-PscriboMessage "Discovered $($VMcount.Name) ."
+                                $inObj = [ordered] @{
+                                    'Name' = $VMcount.Name
+                                    'Creation Time' = $VMcount.CreationTime
+                                    'VM Count' = (Get-VBRReplica | Where-Object {$_.JobName -eq $VMcount.Name}).VMcount
                                 }
-                                catch {
-                                    Write-PscriboMessage -IsWarning $_.Exception.Message
-                                }
+                                $OutObj += [pscustomobject]$inobj
                             }
-
-                            $TableParams = @{
-                                Name = "VMware Replication Summary - $VeeamBackupServer"
-                                List = $false
-                                ColumnWidths = 35, 35, 30
+                            catch {
+                                Write-PscriboMessage -IsWarning $_.Exception.Message
                             }
-                            if ($Report.ShowTableCaptions) {
-                                $TableParams['Caption'] = "- $($TableParams.Name)"
-                            }
-                            $OutObj | Sort-Object -Property 'Name' | Table @TableParams
                         }
+
+                        $TableParams = @{
+                            Name = "VMware Replication Summary - $VeeamBackupServer"
+                            List = $false
+                            ColumnWidths = 35, 35, 30
+                        }
+                        if ($Report.ShowTableCaptions) {
+                            $TableParams['Caption'] = "- $($TableParams.Name)"
+                        }
+                        $OutObj | Sort-Object -Property 'Name' | Table @TableParams
                     }
                     catch {
                         Write-PscriboMessage -IsWarning $_.Exception.Message
@@ -541,10 +538,24 @@ function Get-AbrVbrRepljobVMware {
                                             }
                                             'Use Wan accelerator' = ConvertTo-TextYN $Bkjob.IsWanAcceleratorEnabled()
                                         }
+
                                         if ($Bkjob.IsWanAcceleratorEnabled()) {
-                                            $inObj.add('Source Wan accelerator', $Bkjob.GetSourceWanAccelerator().Name)
-                                            $inObj.add('Target Wan accelerator',$Bkjob.GetTargetWanAccelerator().Name)
+                                            try {
+                                                $TargetWanAccelerator = $Bkjob.GetTargetWanAccelerator().Name
+                                            }
+                                            catch {
+                                                Write-PscriboMessage -IsWarning $_.Exception.Message
+                                            }
+                                            try {
+                                                $SourceWanAccelerator = $Bkjob.GetSourceWanAccelerator().Name
+                                            }
+                                            catch {
+                                                Write-PscriboMessage -IsWarning $_.Exception.Message
+                                            }
+                                            $inObj.add('Source Wan accelerator', $SourceWanAccelerator)
+                                            $inObj.add('Target Wan accelerator', $TargetWanAccelerator)
                                         }
+
                                         $OutObj += [pscustomobject]$inobj
 
                                         $TableParams = @{

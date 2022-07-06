@@ -1,5 +1,21 @@
 # :arrows_clockwise: Veeam VBR As Built Report Changelog
 
+## [0.5.2] - 2022-07-05
+
+### Added
+
+- Added Replication Resource to the Cloud Service Provider section
+- Improvements to the Object Storage Repository section
+  - Added InfoLevel 2 support (Per Object Storage Repo Configuration)
+- Improvements to Scale-Out Backup Repository section
+  - Added SOBR General settings sub-section
+  - Added FriendlyPath to the Performance Tier sub-section
+  - Added Archive Tier sub-section
+
+### Fixed
+
+- Fixed Cloud Service Provider section only displaying last object element.
+
 ## [0.5.1] - 2022-06-15
 
 ### Added
