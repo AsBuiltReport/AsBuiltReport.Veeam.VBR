@@ -6,7 +6,7 @@ function Get-AbrVbrPhysicalInfrastructure {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.5.1
+        Version:        0.5.3
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -76,7 +76,7 @@ function Get-AbrVbrPhysicalInfrastructure {
                                                     try {
                                                         if ($InventObj.Type -eq 'Custom' -and $InventObj.Container.Type -eq 'ActiveDirectory') {
                                                             try {
-                                                                Section -Style Heading5 "$($InventObj.Name)" {
+                                                                Section -Style Heading5 -ExcludeFromTOC "$($InventObj.Name)" {
                                                                     Write-PscriboMessage "Discovered $($InventObj.Name) Protection Group Setting."
                                                                     $inObj = [ordered] @{
                                                                         'Name' = $InventObj.Name
@@ -113,7 +113,7 @@ function Get-AbrVbrPhysicalInfrastructure {
                                                         }
                                                         elseif ($InventObj.Type -eq 'ManuallyAdded' -and $InventObj.Container.Type -eq 'IndividualComputers') {
                                                             try {
-                                                                Section -Style Heading5 "$($InventObj.Name)" {
+                                                                Section -Style Heading5 -ExcludeFromTOC "$($InventObj.Name)" {
                                                                     Write-PscriboMessage "Discovered $($InventObj.Name) Protection Group Setting."
                                                                     $inObj = [ordered] @{
                                                                         'Name' = $InventObj.Name

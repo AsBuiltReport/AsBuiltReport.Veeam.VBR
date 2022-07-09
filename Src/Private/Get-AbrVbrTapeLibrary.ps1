@@ -6,7 +6,7 @@ function Get-AbrVbrTapeLibrary {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.5.1
+        Version:        0.5.3
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -35,7 +35,7 @@ function Get-AbrVbrTapeLibrary {
                         $TapeObjs = Get-VBRTapeLibrary
                         foreach ($TapeObj in $TapeObjs) {
                             try {
-                                Section -Style Heading3 "$($TapeObj.Name) Tape Library" {
+                                Section -Style Heading3 -ExcludeFromTOC "$($TapeObj.Name) Tape Library" {
                                     Write-PscriboMessage "Discovered $($TapeObj.Name) Type Library."
                                     $TapeServer = (Get-VBRTapeServer | Where-Object {$_.Id -eq $TapeObj.TapeServerId}).Name
                                     $inObj = [ordered] @{
@@ -75,7 +75,7 @@ function Get-AbrVbrTapeLibrary {
                                         $DriveObjs = Get-VBRTapeDrive -Library $TapeObj.Id
                                         if ($DriveObjs) {
                                             Write-PscriboMessage "Collecting $($TapeObj.Name) Tape Drives"
-                                            Section -Style Heading4 "Tape Drives" {
+                                            Section -Style Heading4 -ExcludeFromTOC "Tape Drives" {
                                                 $OutObj = @()
                                                 try {
                                                     foreach ($DriveObj in $DriveObjs) {
@@ -124,7 +124,7 @@ function Get-AbrVbrTapeLibrary {
                                             $MediumObjs = Get-VBRTapeMedium -Library $TapeObj.Id
                                             if ($MediumObjs) {
                                                 Write-PscriboMessage "Collecting $($TapeObj.Name) Tape Medium"
-                                                Section -Style Heading4 "Tape Mediums" {
+                                                Section -Style Heading4 -ExcludeFromTOC "Tape Mediums" {
                                                     $OutObj = @()
                                                     try {
                                                         foreach ($MediumObj in $MediumObjs) {

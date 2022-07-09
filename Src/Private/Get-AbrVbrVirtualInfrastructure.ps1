@@ -6,7 +6,7 @@ function Get-AbrVbrVirtualInfrastructure {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.5.1
+        Version:        0.5.3
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -40,7 +40,7 @@ function Get-AbrVbrVirtualInfrastructure {
                                 BlankLine
                                 $InventObjs = Get-VBRServer | Where-Object {$_.Type -eq 'VC'}
                                 if ($InventObjs) {
-                                    Section -Style Heading5 'VMware vCenter' {
+                                    Section -Style Heading5 -ExcludeFromTOC 'VMware vCenter' {
                                         $OutObj = @()
                                         foreach ($InventObj in $InventObjs) {
                                             try {
@@ -76,7 +76,7 @@ function Get-AbrVbrVirtualInfrastructure {
                                 try {
                                     $InventObjs = Get-VBRServer | Where-Object {$_.Type -eq 'ESXi'}
                                     if ($InventObjs) {
-                                        Section -Style Heading6 'Esxi Host' {
+                                        Section -Style Heading6 -ExcludeFromTOC 'Esxi Host' {
                                             $OutObj = @()
                                             foreach ($InventObj in $InventObjs) {
                                                 try {
@@ -124,7 +124,7 @@ function Get-AbrVbrVirtualInfrastructure {
                             Section -Style Heading4 'Microsoft Hyper-V' {
                                 $InventObjs = Get-VBRServer | Where-Object {$_.Type -eq 'HvCluster'}
                                 if ($InventObjs) {
-                                    Section -Style Heading5 'Hyper-V Clusters' {
+                                    Section -Style Heading5 -ExcludeFromTOC 'Hyper-V Clusters' {
                                         $OutObj = @()
                                         foreach ($InventObj in $InventObjs) {
                                             try {
@@ -160,7 +160,7 @@ function Get-AbrVbrVirtualInfrastructure {
                                 try {
                                     $InventObjs = Get-VBRServer | Where-Object {$_.Type -eq 'HvServer'}
                                     if ($InventObjs) {
-                                        Section -Style Heading6 'Hyper-V Host' {
+                                        Section -Style Heading6 -ExcludeFromTOC 'Hyper-V Host' {
                                             $OutObj = @()
                                             foreach ($InventObj in $InventObjs) {
                                                 try {

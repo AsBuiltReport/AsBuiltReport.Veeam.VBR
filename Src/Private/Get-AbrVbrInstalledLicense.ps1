@@ -6,7 +6,7 @@ function Get-AbrVbrInstalledLicense {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.5.1
+        Version:        0.5.3
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -86,7 +86,7 @@ function Get-AbrVbrInstalledLicense {
                                 try {
                                     $Licenses = Get-VBRInstalledLicense | Select-Object -ExpandProperty InstanceLicenseSummary
                                     if ($Licenses) {
-                                        Section -Style Heading5 'Instance License Usage' {
+                                        Section -Style Heading5 -ExcludeFromTOC 'Instance License Usage' {
                                             $OutObj = @()
                                             try {
                                                 foreach ($License in $Licenses) {
@@ -119,7 +119,7 @@ function Get-AbrVbrInstalledLicense {
                                             try {
                                                 $Licenses = (Get-VBRInstalledLicense | Select-Object -ExpandProperty InstanceLicenseSummary).Object
                                                 if ($Licenses) {
-                                                    Section -Style Heading5 'Per Instance Type License Usage' {
+                                                    Section -Style Heading5 -ExcludeFromTOC 'Per Instance Type License Usage' {
                                                         $OutObj = @()
                                                         try {
                                                             foreach ($License in $Licenses) {
@@ -164,7 +164,7 @@ function Get-AbrVbrInstalledLicense {
                                 try {
                                     $Licenses = Get-VBRInstalledLicense | Select-Object -ExpandProperty SocketLicenseSummary
                                     if ($Licenses) {
-                                        Section -Style Heading5 'CPU Socket License Usage' {
+                                        Section -Style Heading5 -ExcludeFromTOC 'CPU Socket License Usage' {
                                             $OutObj = @()
                                             try {
                                                 foreach ($License in $Licenses) {
@@ -202,7 +202,7 @@ function Get-AbrVbrInstalledLicense {
                                 try {
                                     $Licenses = Get-VBRInstalledLicense | Select-Object -ExpandProperty CapacityLicenseSummary
                                     if ($Licenses) {
-                                        Section -Style Heading5 'Capacity License Usage' {
+                                        Section -Style Heading5 -ExcludeFromTOC 'Capacity License Usage' {
                                             $OutObj = @()
                                             try {
                                                 foreach ($License in $Licenses) {

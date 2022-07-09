@@ -6,7 +6,7 @@ function Get-AbrVbrBackupServerInfo {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.5.1
+        Version:        0.5.3
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -165,7 +165,7 @@ function Get-AbrVbrBackupServerInfo {
                                         try {
                                             $HostDisks = Invoke-Command -Session $PssSession -ScriptBlock { Get-Disk | Where-Object { $_.BusType -ne "iSCSI" -and $_.BusType -ne "Fibre Channel" } }
                                             if ($HostDisks) {
-                                                Section -Style Heading5 'Local Disks' {
+                                                Section -Style Heading5 -ExcludeFromTOC 'Local Disks' {
                                                     $LocalDiskReport = @()
                                                     ForEach ($Disk in $HostDisks) {
                                                         try {
@@ -203,7 +203,7 @@ function Get-AbrVbrBackupServerInfo {
                                         try {
                                             $SanDisks = Invoke-Command -Session $PssSession -ScriptBlock { Get-Disk | Where-Object { $_.BusType -Eq "iSCSI" -or $_.BusType -Eq "Fibre Channel" } }
                                             if ($SanDisks) {
-                                                Section -Style Heading5 'SAN Disks' {
+                                                Section -Style Heading5 -ExcludeFromTOC 'SAN Disks' {
                                                     $SanDiskReport = @()
                                                     ForEach ($Disk in $SanDisks) {
                                                         try {
@@ -242,7 +242,7 @@ function Get-AbrVbrBackupServerInfo {
                                     try {
                                         $HostVolumes = Invoke-Command -Session $PssSession -ScriptBlock {  Get-Volume | Where-Object {$_.DriveType -ne "CD-ROM" -and $NUll -ne $_.DriveLetter} }
                                         if ($HostVolumes) {
-                                            Section -Style Heading5 'Host Volumes' {
+                                            Section -Style Heading5 -ExcludeFromTOC 'Host Volumes' {
                                                 $HostVolumeReport = @()
                                                 ForEach ($HostVolume in $HostVolumes) {
                                                     try {
