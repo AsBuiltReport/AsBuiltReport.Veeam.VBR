@@ -6,7 +6,7 @@ function Get-AbrVbrSureBackupjobVMware {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.5.1
+        Version:        0.5.3
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -36,7 +36,7 @@ function Get-AbrVbrSureBackupjobVMware {
                         try {
                             Section -Style Heading4 "$($SBkjob.Name) Configuration" {
                                 try {
-                                    Section -Style Heading5 'Common Information' {
+                                    Section -Style Heading5 -ExcludeFromTOC 'Common Information' {
                                         $OutObj = @()
                                         Write-PscriboMessage "Discovered $($SBkjob.Name) common information."
                                         $inObj = [ordered] @{
@@ -65,7 +65,7 @@ function Get-AbrVbrSureBackupjobVMware {
                                     Write-PscriboMessage -IsWarning $_.Exception.Message
                                 }
                                 try {
-                                    Section -Style Heading5 'Virtual Lab' {
+                                    Section -Style Heading5 -ExcludeFromTOC 'Virtual Lab' {
                                         $OutObj = @()
                                         Write-PscriboMessage "Discovered $($SBkjob.VirtualLab.Name) virtual lab."
                                         $inObj = [ordered] @{
@@ -93,7 +93,7 @@ function Get-AbrVbrSureBackupjobVMware {
                                 }
                                 if ($SBkjob.ApplicationGroup) {
                                     try {
-                                        Section -Style Heading5 'Application Group' {
+                                        Section -Style Heading5 -ExcludeFromTOC 'Application Group' {
                                             $OutObj = @()
                                             Write-PscriboMessage "Discovered $($SBkjob.ApplicationGroup.Name) application group."
                                             $inObj = [ordered] @{
@@ -123,7 +123,7 @@ function Get-AbrVbrSureBackupjobVMware {
                                 }
                                 if ($SBkjob.LinkToJobs) {
                                     try {
-                                        Section -Style Heading5 'Linked Jobs' {
+                                        Section -Style Heading5 -ExcludeFromTOC 'Linked Jobs' {
                                             $OutObj = @()
                                             foreach ($LinkedJob in $SBkjob.LinkedJob) {
                                                 Write-PscriboMessage "Discovered $($LinkedJob.Job.Name) linked job."
@@ -145,7 +145,7 @@ function Get-AbrVbrSureBackupjobVMware {
                                             $OutObj | Table @TableParams
                                             if (($InfoLevel.Jobs.Surebackup -ge 2) -and $SBkjob.LinkToJobs) {
                                                 try {
-                                                    Section -Style Heading6 'Verification Options' {
+                                                    Section -Style Heading6 -ExcludeFromTOC 'Verification Options' {
                                                         $OutObj = @()
                                                         foreach ($LinkedJob in $SBkjob.LinkedJob) {
                                                             Write-PscriboMessage "Discovered $($LinkedJob.Job.Name) verification options."
@@ -187,7 +187,7 @@ function Get-AbrVbrSureBackupjobVMware {
                                     }
                                 }
                                 try {
-                                    Section -Style Heading5 'Settings' {
+                                    Section -Style Heading5 -ExcludeFromTOC 'Settings' {
                                         $OutObj = @()
                                         Write-PscriboMessage "Discovered $($SBkjob.Name) job settings."
                                         $inObj = [ordered] @{
@@ -217,7 +217,7 @@ function Get-AbrVbrSureBackupjobVMware {
                                     Write-PscriboMessage -IsWarning $_.Exception.Message
                                 }
                                 if ($SBkjob.ScheduleEnabled) {
-                                    Section -Style Heading5 'Schedule' {
+                                    Section -Style Heading5 -ExcludeFromTOC 'Schedule' {
                                         $OutObj = @()
                                         try {
                                             Write-PscriboMessage "Discovered $($SBkjob.Name) schedule options."

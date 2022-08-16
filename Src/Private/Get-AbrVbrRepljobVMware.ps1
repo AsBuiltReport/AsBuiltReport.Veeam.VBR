@@ -6,7 +6,7 @@ function Get-AbrVbrRepljobVMware {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.5.2
+        Version:        0.5.3
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -65,7 +65,7 @@ function Get-AbrVbrRepljobVMware {
                     foreach ($Bkjob in $Bkjobs) {
                         try {
                             Section -Style Heading4 "$($Bkjob.Name) Configuration" {
-                                Section -Style Heading5 'Common Information' {
+                                Section -Style Heading5 -ExcludeFromTOC 'Common Information' {
                                     $OutObj = @()
                                     try {
                                         $CommonInfos = (Get-VBRJob -WarningAction SilentlyContinue | Where-object {$_.TypeToString -eq 'VMware Replication'}).Info
@@ -102,7 +102,7 @@ function Get-AbrVbrRepljobVMware {
                                         Write-PscriboMessage -IsWarning $_.Exception.Message
                                     }
                                 }
-                                Section -Style Heading5 'Destination' {
+                                Section -Style Heading5 -ExcludeFromTOC 'Destination' {
                                     $OutObj = @()
                                     try {
                                         foreach ($Destination in $Bkjob.ViReplicaTargetOptions) {
@@ -142,7 +142,7 @@ function Get-AbrVbrRepljobVMware {
                                     }
                                 }
                                 if ($Bkjob.ViReplicaTargetOptions.UseNetworkMapping) {
-                                    Section -Style Heading5 'Network' {
+                                    Section -Style Heading5 -ExcludeFromTOC 'Network' {
                                         $OutObj = @()
                                         try {
                                             foreach ($NetMapping in $Bkjob.Options.ViNetworkMappingOptions.NetworkMapping) {
@@ -175,7 +175,7 @@ function Get-AbrVbrRepljobVMware {
                                     }
                                 }
                                 if ($Bkjob.Options.ViReplicaTargetOptions.UseReIP) {
-                                    Section -Style Heading5 'Re-IP Rules' {
+                                    Section -Style Heading5 -ExcludeFromTOC 'Re-IP Rules' {
                                         $OutObj = @()
                                         try {
                                             foreach ($ReIpRule in $Bkjob.Options.ReIPRulesOptions.Rules) {
@@ -212,7 +212,7 @@ function Get-AbrVbrRepljobVMware {
                                     }
                                 }
                                 if ($Bkjob.GetViOijs()) {
-                                    Section -Style Heading5 "Virtual Machines" {
+                                    Section -Style Heading5 -ExcludeFromTOC "Virtual Machines" {
                                         $OutObj = @()
                                         try {
                                             foreach ($OBJ in ($Bkjob.GetViOijs() | Where-Object {$_.Type -eq "Include" -or $_.Type -eq "Exclude"} )) {
@@ -243,7 +243,7 @@ function Get-AbrVbrRepljobVMware {
                                         }
                                     }
                                 }
-                                Section -Style Heading5 'Job Settings' {
+                                Section -Style Heading5 -ExcludeFromTOC 'Job Settings' {
                                     $OutObj = @()
                                     try {
                                         Write-PscriboMessage "Discovered $($Bkjob.Name) storage options."
@@ -276,7 +276,7 @@ function Get-AbrVbrRepljobVMware {
                                         }
                                         $OutObj | Table @TableParams
                                         if ($InfoLevel.Jobs.Replication -ge 2 -and ($Bkjob.Options.GenerationPolicy.EnableRechek -or $Bkjob.Options.GenerationPolicy.EnableCompactFull)) {
-                                            Section -Style Heading6 "Advanced Settings (Maintenance)" {
+                                            Section -Style Heading6 -ExcludeFromTOC "Advanced Settings (Maintenance)" {
                                                 $OutObj = @()
                                                 try {
                                                     Write-PscriboMessage "Discovered $($Bkjob.Name) maintenance options."
@@ -309,7 +309,7 @@ function Get-AbrVbrRepljobVMware {
                                             }
                                         }
                                         if ($InfoLevel.Jobs.Replication -ge 2) {
-                                            Section -Style Heading6 "Advanced Settings (Traffic)" {
+                                            Section -Style Heading6 -ExcludeFromTOC "Advanced Settings (Traffic)" {
                                                 $OutObj = @()
                                                 try {
                                                     Write-PscriboMessage "Discovered $($Bkjob.Name) traffic options."
@@ -356,7 +356,7 @@ function Get-AbrVbrRepljobVMware {
                                             }
                                         }
                                         if ($InfoLevel.Jobs.Replication -ge 2 -and ($Bkjob.Options.NotificationOptions.SnmpNotification -or $Bkjob.Options.NotificationOptions.SendEmailNotification2AdditionalAddresses)) {
-                                            Section -Style Heading6 "Advanced Settings (Notification)" {
+                                            Section -Style Heading6 -ExcludeFromTOC "Advanced Settings (Notification)" {
                                                 $OutObj = @()
                                                 try {
                                                     Write-PscriboMessage "Discovered $($Bkjob.Name) notification options."
@@ -393,7 +393,7 @@ function Get-AbrVbrRepljobVMware {
                                             }
                                         }
                                         if ($InfoLevel.Jobs.Replication -ge 2 -and ($Bkjob.Options.ViSourceOptions.VMToolsQuiesce -or $Bkjob.Options.ViSourceOptions.UseChangeTracking)) {
-                                            Section -Style Heading6 "Advanced Settings (vSphere)" {
+                                            Section -Style Heading6 -ExcludeFromTOC "Advanced Settings (vSphere)" {
                                                 $OutObj = @()
                                                 try {
                                                     Write-PscriboMessage "Discovered $($Bkjob.Name) vSphere options."
@@ -421,7 +421,7 @@ function Get-AbrVbrRepljobVMware {
                                             }
                                         }
                                         if ($InfoLevel.Jobs.Replication -ge 2 -and $Bkjob.Options.SanIntegrationOptions.UseSanSnapshots) {
-                                            Section -Style Heading6 "Advanced Settings (Integration)" {
+                                            Section -Style Heading6 -ExcludeFromTOC "Advanced Settings (Integration)" {
                                                 $OutObj = @()
                                                 try {
                                                     Write-PscriboMessage "Discovered $($Bkjob.Name) Integration options."
@@ -450,7 +450,7 @@ function Get-AbrVbrRepljobVMware {
                                             }
                                         }
                                         if ($InfoLevel.Jobs.Replication -ge 2 -and ($Bkjob.Options.JobScriptCommand.PreScriptEnabled -or $Bkjob.Options.JobScriptCommand.PostScriptEnabled)) {
-                                            Section -Style Heading6 "Advanced Settings (Script)" {
+                                            Section -Style Heading6 -ExcludeFromTOC "Advanced Settings (Script)" {
                                                 $OutObj = @()
                                                 try {
                                                     if ($Bkjob.Options.JobScriptCommand.Periodicity -eq 'Days') {
@@ -489,7 +489,7 @@ function Get-AbrVbrRepljobVMware {
                                             }
                                         }
                                         if ($InfoLevel.Jobs.Replication -ge 2 -and ($Bkjob.Options.RpoOptions.Enabled -or $Bkjob.Options.RpoOptions.LogBackupRpoEnabled)) {
-                                            Section -Style Heading6 "Advanced Settings (RPO Monitor)" {
+                                            Section -Style Heading6 -ExcludeFromTOC "Advanced Settings (RPO Monitor)" {
                                                 $OutObj = @()
                                                 try {
                                                     Write-PscriboMessage "Discovered $($Bkjob.Name) rpo monitor options."
@@ -522,7 +522,7 @@ function Get-AbrVbrRepljobVMware {
                                     }
                                 }
                                 try {
-                                    Section -Style Heading5 'Data Transfer' {
+                                    Section -Style Heading5 -ExcludeFromTOC 'Data Transfer' {
                                         $OutObj = @()
                                         Write-PscriboMessage "Discovered $($Bkjob.Name) data transfer."
                                         $inObj = [ordered] @{
@@ -574,7 +574,7 @@ function Get-AbrVbrRepljobVMware {
                                 }
                                 if ($Bkjob.Options.ViReplicaTargetOptions.InitialSeeding) {
                                     try {
-                                        Section -Style Heading5 'Seeding' {
+                                        Section -Style Heading5 -ExcludeFromTOC 'Seeding' {
                                             $OutObj = @()
                                             Write-PscriboMessage "Discovered $($Bkjob.Name) seeding information."
                                             if ($Bkjob.Options.ViReplicaTargetOptions.EnableInitialPass) {
@@ -603,7 +603,7 @@ function Get-AbrVbrRepljobVMware {
                                     }
                                 }
                                 if ($Bkjob.VssOptions.Enabled) {
-                                    Section -Style Heading5 "Guest Processing" {
+                                    Section -Style Heading5 -ExcludeFromTOC "Guest Processing" {
                                         $OutObj = @()
                                         try {
                                             $VSSObjs = Get-VBRJobObject -Job $Bkjob.Name | Where-Object {$_.Type -eq "Include" -or $_.Type -eq "VssChild"}
@@ -715,7 +715,7 @@ function Get-AbrVbrRepljobVMware {
                                     }
                                 }
                                 if ($Bkjob.GetScheduleOptions().NextRun -and $Bkjob.ScheduleOptions.OptionsContinuous.Enabled -ne "True") {
-                                    Section -Style Heading5 "Schedule" {
+                                    Section -Style Heading5 -ExcludeFromTOC "Schedule" {
                                         $OutObj = @()
                                         try {
                                             Write-PscriboMessage "Discovered $($Bkjob.Name) schedule options."

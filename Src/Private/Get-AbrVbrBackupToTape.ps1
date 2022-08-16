@@ -6,7 +6,7 @@ function Get-AbrVbrBackupToTape {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.5.1
+        Version:        0.5.3
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -35,7 +35,7 @@ function Get-AbrVbrBackupToTape {
                     if ($TBkjobs) {
                         foreach ($TBkjob in $TBkjobs) {
                             Section -Style Heading4 "$($TBkjob.Name) Configuration" {
-                                Section -Style Heading5 'Backups Information' {
+                                Section -Style Heading5 -ExcludeFromTOC 'Backups Information' {
                                     $OutObj = @()
                                     try {
                                         Write-PscriboMessage "Discovered $($TBkjob.Name) common information."
@@ -72,7 +72,7 @@ function Get-AbrVbrBackupToTape {
                                 }
                                 if ($TBkjob.Object) {
                                     try {
-                                        Section -Style Heading5 'Backups Objects' {
+                                        Section -Style Heading5 -ExcludeFromTOC 'Backups Objects' {
                                             $OutObj = @()
                                             foreach ($LinkedBkJob in $TBkjob.Object) {
                                                 try {
@@ -118,7 +118,7 @@ function Get-AbrVbrBackupToTape {
                                 }
                                 if ($TBkjob.FullBackupMediaPool) {
                                     try {
-                                        Section -Style Heading5 'Media Pool' {
+                                        Section -Style Heading5 -ExcludeFromTOC 'Media Pool' {
                                             $OutObj = @()
                                             foreach ($BackupMediaPool in $TBkjob.FullBackupMediaPool) {
                                                 try {
@@ -260,7 +260,7 @@ function Get-AbrVbrBackupToTape {
                                 }
                                 if ($TBkjob.ProcessIncrementalBackup -and $TBkjob.FullBackupMediaPool.Type -eq 'Custom') {
                                     try {
-                                        Section -Style Heading5 'Incremental Backup' {
+                                        Section -Style Heading5 -ExcludeFromTOC 'Incremental Backup' {
                                             $OutObj = @()
                                             foreach ($BackupMediaPool in $TBkjob.IncrementalBackupMediaPool) {
                                                 try {
@@ -388,7 +388,7 @@ function Get-AbrVbrBackupToTape {
                                     }
                                 }
                                 try {
-                                    Section -Style Heading5 'Options' {
+                                    Section -Style Heading5 -ExcludeFromTOC 'Options' {
                                         $OutObj = @()
                                         try {
                                             Write-PscriboMessage "Discovered $($TBkjob.Name) options."
@@ -458,7 +458,7 @@ function Get-AbrVbrBackupToTape {
                                         }
                                         if ($InfoLevel.Jobs.Tape -ge 2 -and $TBkjob.NotificationOptions.EnableAdditionalNotification) {
                                             try {
-                                                Section -Style Heading5 'Advanced Settings (Advanced)' {
+                                                Section -Style Heading5 -ExcludeFromTOC 'Advanced Settings (Advanced)' {
                                                     $OutObj = @()
                                                     try {
                                                         Write-PscriboMessage "Discovered $($TBkjob.Name) advanced options."
@@ -516,7 +516,7 @@ function Get-AbrVbrBackupToTape {
                                     Write-PscriboMessage -IsWarning $_.Exception.Message
                                 }
                                 try {
-                                    Section -Style Heading5 'Schedule' {
+                                    Section -Style Heading5 -ExcludeFromTOC 'Schedule' {
                                         $OutObj = @()
                                         try {
                                             Write-PscriboMessage "Discovered $($TBkjob.Name) schedule options."

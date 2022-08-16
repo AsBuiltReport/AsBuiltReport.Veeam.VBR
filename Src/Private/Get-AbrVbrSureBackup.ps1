@@ -6,7 +6,7 @@ function Get-AbrVbrSureBackup {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.5.1
+        Version:        0.5.3
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -73,10 +73,10 @@ function Get-AbrVbrSureBackup {
                                 $SureBackupAGs = Get-VBRApplicationGroup
                                 foreach ($SureBackupAG in $SureBackupAGs) {
                                     if ($SureBackupAG.VM) {
-                                        Section -Style Heading5 "$($SureBackupAG.Name) VM Settings" {
+                                        Section -Style Heading5 -ExcludeFromTOC "$($SureBackupAG.Name) VM Settings" {
                                             try {
                                                 foreach ($VMSetting in $SureBackupAG.VM) {
-                                                    Section -Style Heading5 "$($VMSetting.Name)" {
+                                                    Section -Style Heading5 -ExcludeFromTOC "$($VMSetting.Name)" {
                                                         Paragraph "The following section provides VM Application Group detailed information."
                                                         BlankLine
                                                         $OutObj = @()
@@ -164,7 +164,7 @@ function Get-AbrVbrSureBackup {
                                     $SureBackupVLs = Get-VBRViVirtualLabConfiguration
                                     foreach ($SureBackupVL in $SureBackupVLs) {
                                         try {
-                                            Section -Style Heading6 "$($SureBackupVL.Name) Settings" {
+                                            Section -Style Heading6 -ExcludeFromTOC "$($SureBackupVL.Name) Settings" {
                                                 $OutObj = @()
                                                 Write-PscriboMessage "Discovered $($SureBackupVL.Name)  Virtual Lab."
                                                 $inObj = [ordered] @{
@@ -195,7 +195,7 @@ function Get-AbrVbrSureBackup {
                                                 }
                                                 $OutObj | Table @TableParams
                                                 try {
-                                                    Section -Style Heading6 "vNIC Settings" {
+                                                    Section -Style Heading6 -ExcludeFromTOC "vNIC Settings" {
                                                         $OutObj = @()
                                                         foreach ($NetworkOption in $SureBackupVL.NetworkOptions) {
                                                             $inObj = [ordered] @{
@@ -224,7 +224,7 @@ function Get-AbrVbrSureBackup {
                                                 }
                                                 try {
                                                     if ($SureBackupVL.IpMappingRule) {
-                                                        Section -Style Heading6 "IP Address Mapping" {
+                                                        Section -Style Heading6 -ExcludeFromTOC "IP Address Mapping" {
                                                             $OutObj = @()
                                                             foreach ($NetworkOption in $SureBackupVL.IpMappingRule) {
                                                                 $inObj = [ordered] @{

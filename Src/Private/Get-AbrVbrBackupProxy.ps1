@@ -6,7 +6,7 @@ function Get-AbrVbrBackupProxy {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.5.1
+        Version:        0.5.3
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -132,7 +132,7 @@ function Get-AbrVbrBackupProxy {
                                                 $License = Get-CimInstance -Query 'Select * from SoftwareLicensingProduct' -CimSession $CimSession | Where-Object { $_.LicenseStatus -eq 1 }
                                                 $HWCPU = Get-CimInstance -Class Win32_Processor -CimSession $CimSession
                                                 $HWBIOS = Get-CimInstance -Class Win32_Bios -CimSession $CimSession
-                                                Section -Style Heading4 "$($BackupProxy.Host.Name.Split(".")[0]) Inventory Summary" {
+                                                Section -Style Heading4 -ExcludeFromTOC "$($BackupProxy.Host.Name.Split(".")[0]) Inventory Summary" {
                                                     $OutObj = @()
                                                     $inObj = [ordered] @{
                                                         'Name' = $HW.CsDNSHostName
@@ -293,7 +293,7 @@ function Get-AbrVbrBackupProxy {
                                                         try {
                                                             $HostAdapters = Invoke-Command -Session $PssSession { Get-NetAdapter }
                                                             if ($HostAdapters) {
-                                                                Section -Style Heading3 'Network Adapters' {
+                                                                Section -Style Heading3 -ExcludeFromTOC 'Network Adapters' {
                                                                     $HostAdaptersReport = @()
                                                                     ForEach ($HostAdapter in $HostAdapters) {
                                                                         try {
@@ -327,7 +327,7 @@ function Get-AbrVbrBackupProxy {
                                                         try {
                                                             $NetIPs = Invoke-Command -Session $PssSession { Get-NetIPConfiguration | Where-Object -FilterScript { ($_.NetAdapter.Status -Eq "Up") } }
                                                             if ($NetIPs) {
-                                                                Section -Style Heading3 'IP Address' {
+                                                                Section -Style Heading3 -ExcludeFromTOC 'IP Address' {
                                                                     $NetIpsReport = @()
                                                                     ForEach ($NetIp in $NetIps) {
                                                                         try {
@@ -395,7 +395,7 @@ function Get-AbrVbrBackupProxy {
                                                     Remove-PSSession -Session $PssSession
                                                 }
                                                 if ($Available -and $Services) {
-                                                    Section -Style Heading4 "HealthCheck - $($BackupProxy.Host.Name.Split(".")[0]) Services Status" {
+                                                    Section -Style Heading4 -ExcludeFromTOC "HealthCheck - $($BackupProxy.Host.Name.Split(".")[0]) Services Status" {
                                                         $OutObj = @()
                                                         foreach ($Service in $Services) {
                                                             Write-PscriboMessage "Collecting '$($Service.DisplayName)' status on $($BackupProxy.Name)."
@@ -544,7 +544,7 @@ function Get-AbrVbrBackupProxy {
                                                     $License = Get-CimInstance -Query 'Select * from SoftwareLicensingProduct' -CimSession $CimSession | Where-Object { $_.LicenseStatus -eq 1 }
                                                     $HWCPU = Get-CimInstance -Class Win32_Processor -CimSession $CimSession
                                                     $HWBIOS = Get-CimInstance -Class Win32_Bios -CimSession $CimSession
-                                                    Section -Style Heading4 "$($BackupProxy.Host.Name.Split(".")[0]) Inventory Summary" {
+                                                    Section -Style Heading4 -ExcludeFromTOC "$($BackupProxy.Host.Name.Split(".")[0]) Inventory Summary" {
                                                         $OutObj = @()
                                                         $inObj = [ordered] @{
                                                             'Name' = $HW.CsDNSHostName
@@ -591,7 +591,7 @@ function Get-AbrVbrBackupProxy {
                                                             try {
                                                                 $HostDisks = Invoke-Command -Session $PssSession -ScriptBlock { Get-Disk | Where-Object { $_.BusType -ne "iSCSI" -and $_.BusType -ne "Fibre Channel" } }
                                                                 if ($HostDisks) {
-                                                                    Section -Style Heading5 'Local Disks' {
+                                                                    Section -Style Heading5 -ExcludeFromTOC 'Local Disks' {
                                                                         $LocalDiskReport = @()
                                                                         ForEach ($Disk in $HostDisks) {
                                                                             try {
@@ -629,7 +629,7 @@ function Get-AbrVbrBackupProxy {
                                                             try {
                                                                 $SanDisks = Invoke-Command -Session $PssSession -ScriptBlock { Get-Disk | Where-Object { $_.BusType -Eq "iSCSI" -or $_.BusType -Eq "Fibre Channel" } }
                                                                 if ($SanDisks) {
-                                                                    Section -Style Heading5 'SAN Disks' {
+                                                                    Section -Style Heading5 -ExcludeFromTOC 'SAN Disks' {
                                                                         $SanDiskReport = @()
                                                                         ForEach ($Disk in $SanDisks) {
                                                                             try {
@@ -668,7 +668,7 @@ function Get-AbrVbrBackupProxy {
                                                         try {
                                                             $HostVolumes = Invoke-Command -Session $PssSession -ScriptBlock {  Get-Volume | Where-Object {$_.DriveType -ne "CD-ROM" -and $NUll -ne $_.DriveLetter} }
                                                             if ($HostVolumes) {
-                                                                Section -Style Heading5 'Host Volumes' {
+                                                                Section -Style Heading5 -ExcludeFromTOC 'Host Volumes' {
                                                                     $HostVolumeReport = @()
                                                                     ForEach ($HostVolume in $HostVolumes) {
                                                                         try {
@@ -810,7 +810,7 @@ function Get-AbrVbrBackupProxy {
                                                         Remove-PSSession -Session $PssSession
                                                     }
                                                     if ($Available -and $Services) {
-                                                        Section -Style Heading4 "HealthCheck - $($BackupProxy.Host.Name.Split(".")[0]) Services Status" {
+                                                        Section -Style Heading4 -ExcludeFromTOC "HealthCheck - $($BackupProxy.Host.Name.Split(".")[0]) Services Status" {
                                                             $OutObj = @()
                                                             foreach ($Service in $Services) {
                                                                 Write-PscriboMessage "Collecting '$($Service.DisplayName)' status on $($BackupProxy.Name)."
