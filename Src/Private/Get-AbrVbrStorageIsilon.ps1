@@ -34,7 +34,7 @@ function Get-AbrVbrStorageIsilon {
                     try {
                         $IsilonHosts = Get-VBRIsilonHost
                         foreach ($IsilonHost in $IsilonHosts) {
-                            Section -Style Heading4 -ExcludeFromTOC "$($IsilonHost.Name)" {
+                            Section -Style Heading4 $($IsilonHost.Name) {
                                 try {
                                     Write-PscriboMessage "Discovered $($IsilonHost.Name) Isilon Host."
                                     $UsedCred = Get-VBRCredentials | Where-Object { $_.Id -eq $IsilonHost.Info.CredsId}
@@ -69,7 +69,7 @@ function Get-AbrVbrStorageIsilon {
                                         try {
                                             $IsilonVols = Get-VBRIsilonVolume -Host $IsilonHost
                                             if ($IsilonVols) {
-                                                Section -Style Heading5 -ExcludeFromTOC 'Volumes' {
+                                                Section -Style NOTOCHeading5 -ExcludeFromTOC 'Volumes' {
                                                     $OutObj = @()
                                                     foreach ($IsilonVol in $IsilonVols) {
                                                         try {

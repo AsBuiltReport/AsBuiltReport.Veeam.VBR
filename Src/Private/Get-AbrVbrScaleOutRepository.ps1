@@ -76,12 +76,12 @@ function Get-AbrVbrScaleOutRepository {
                                 #                                   Per SOBR Section                                          #
                                 #---------------------------------------------------------------------------------------------#
                                 foreach ($BackupRepo in $BackupRepos) {
-                                    Section -Style Heading5 -ExcludeFromTOC "$($BackupRepo.Name)" {
+                                    Section -Style Heading5 $($BackupRepo.Name) {
                                         try {
                                             #---------------------------------------------------------------------------------------------#
                                             #                               General Configuration Section                                 #
                                             #---------------------------------------------------------------------------------------------#
-                                            Section -Style Heading6 -ExcludeFromTOC "General Settings" {
+                                            Section -Style NOTOCHeading6 -ExcludeFromTOC "General Settings" {
                                                 $OutObj = @()
                                                 Write-PscriboMessage "Discovered $($BackupRepo.Name) General Settings."
                                                 $inObj = [ordered] @{
@@ -127,7 +127,7 @@ function Get-AbrVbrScaleOutRepository {
                                                 #---------------------------------------------------------------------------------------------#
                                                 #                               Performace Tier Section                                       #
                                                 #---------------------------------------------------------------------------------------------#
-                                                Section -Style Heading6 -ExcludeFromTOC "Performance Tier" {
+                                                Section -Style NOTOCHeading6 -ExcludeFromTOC "Performance Tier" {
                                                     $OutObj = @()
                                                     Write-PscriboMessage "Discovered $($Extent.Name) Performance Tier."
                                                     $inObj = [ordered] @{
@@ -159,7 +159,7 @@ function Get-AbrVbrScaleOutRepository {
                                         #---------------------------------------------------------------------------------------------#
                                         foreach ($CapacityExtent in $BackupRepo.CapacityExtent) {
                                             try {
-                                                Section -Style Heading6 -ExcludeFromTOC "Capacity Tier" {
+                                                Section -Style NOTOCHeading6 -ExcludeFromTOC "Capacity Tier" {
                                                     $OutObj = @()
                                                     Write-PscriboMessage "Discovered $(($CapacityExtent.Repository).Name) Capacity Tier."
                                                     $inObj = [ordered] @{
@@ -209,7 +209,7 @@ function Get-AbrVbrScaleOutRepository {
                                         #---------------------------------------------------------------------------------------------#
                                         foreach ($ArchiveExtent in $BackupRepo.ArchiveExtent) {
                                             try {
-                                                Section -Style Heading6 -ExcludeFromTOC "Archive Tier" {
+                                                Section -Style NOTOCHeading6 -ExcludeFromTOC "Archive Tier" {
                                                     $OutObj = @()
                                                     Write-PscriboMessage "Discovered $(($ArchiveExtent.Repository).Name) Archive Tier."
                                                     $inObj = [ordered] @{

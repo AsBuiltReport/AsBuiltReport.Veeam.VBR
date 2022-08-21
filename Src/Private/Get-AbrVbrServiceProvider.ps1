@@ -6,7 +6,7 @@ function Get-AbrVbrServiceProvider {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.5.2
+        Version:        0.5.3
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -75,7 +75,7 @@ function Get-AbrVbrServiceProvider {
                         if ($InfoLevel.Infrastructure.ServiceProvider -ge 2) {
                             try {
                                 foreach ($CloudProvider in $CloudProviders) {
-                                    Section -Style Heading3 $CloudProvider.DNSName {
+                                    Section -Style Heading4 $CloudProvider.DNSName {
                                         $OutObj = @()
                                         Write-PscriboMessage "Discovered $($CloudProvider.DNSName) Service Provider configuration information."
                                         $inObj = [ordered] @{

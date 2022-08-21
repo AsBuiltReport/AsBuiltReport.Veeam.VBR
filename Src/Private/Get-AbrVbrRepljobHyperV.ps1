@@ -64,8 +64,8 @@ function Get-AbrVbrRepljobHyperV {
                     $OutObj = @()
                     foreach ($Bkjob in $Bkjobs) {
                         try {
-                            Section -Style Heading4 "$($Bkjob.Name) Configuration" {
-                                Section -Style Heading5 -ExcludeFromTOC 'Common Information' {
+                            Section -Style Heading4 $($Bkjob.Name) {
+                                Section -Style NOTOCHeading4 -ExcludeFromTOC 'Common Information' {
                                     $OutObj = @()
                                     try {
                                         $CommonInfos = (Get-VBRJob -WarningAction SilentlyContinue | Where-object {$_.TypeToString -eq 'Hyper-V Replication'}).Info
@@ -102,7 +102,7 @@ function Get-AbrVbrRepljobHyperV {
                                         Write-PscriboMessage -IsWarning $_.Exception.Message
                                     }
                                 }
-                                Section -Style Heading5 -ExcludeFromTOC 'Destination' {
+                                Section -Style NOTOCHeading5 -ExcludeFromTOC 'Destination' {
                                     $OutObj = @()
                                     try {
                                         foreach ($Destination in $Bkjob.HvReplicaTargetOptions) {
@@ -141,7 +141,7 @@ function Get-AbrVbrRepljobHyperV {
                                     }
                                 }
                                 if ($Bkjob.HvReplicaTargetOptions.UseNetworkMapping) {
-                                    Section -Style Heading5 -ExcludeFromTOC 'Network' {
+                                    Section -Style NOTOCHeading5 -ExcludeFromTOC 'Network' {
                                         $OutObj = @()
                                         try {
                                             foreach ($NetMapping in $Bkjob.Options.HvNetworkMappingOptions.NetworkMapping) {
@@ -174,7 +174,7 @@ function Get-AbrVbrRepljobHyperV {
                                     }
                                 }
                                 if ($Bkjob.Options.HvReplicaTargetOptions.UseReIP) {
-                                    Section -Style Heading5 -ExcludeFromTOC 'Re-IP Rules' {
+                                    Section -Style NOTOCHeading5 -ExcludeFromTOC 'Re-IP Rules' {
                                         $OutObj = @()
                                         try {
                                             foreach ($ReIpRule in $Bkjob.Options.ReIPRulesOptions.Rules) {
@@ -211,7 +211,7 @@ function Get-AbrVbrRepljobHyperV {
                                     }
                                 }
                                 if ($Bkjob.GetHvOijs()) {
-                                    Section -Style Heading5 -ExcludeFromTOC "Virtual Machines" {
+                                    Section -Style NOTOCHeading5 -ExcludeFromTOC "Virtual Machines" {
                                         $OutObj = @()
                                         try {
                                             foreach ($OBJ in ($Bkjob.GetHvOijs() | Where-Object {$_.Type -eq "Include" -or $_.Type -eq "Exclude"} )) {
@@ -241,7 +241,7 @@ function Get-AbrVbrRepljobHyperV {
                                         }
                                     }
                                 }
-                                Section -Style Heading5 -ExcludeFromTOC 'Job Settings' {
+                                Section -Style NOTOCHeading5 -ExcludeFromTOC 'Job Settings' {
                                     $OutObj = @()
                                     try {
                                         Write-PscriboMessage "Discovered $($Bkjob.Name) storage options."
@@ -274,7 +274,7 @@ function Get-AbrVbrRepljobHyperV {
                                         }
                                         $OutObj | Table @TableParams
                                         if ($InfoLevel.Jobs.Replication -ge 2 -and ($Bkjob.Options.GenerationPolicy.EnableRechek -or $Bkjob.Options.GenerationPolicy.EnableCompactFull)) {
-                                            Section -Style Heading6 -ExcludeFromTOC "Advanced Settings (Maintenance)" {
+                                            Section -Style NOTOCHeading6 -ExcludeFromTOC "Advanced Settings (Maintenance)" {
                                                 $OutObj = @()
                                                 try {
                                                     Write-PscriboMessage "Discovered $($Bkjob.Name) maintenance options."
@@ -307,7 +307,7 @@ function Get-AbrVbrRepljobHyperV {
                                             }
                                         }
                                         if ($InfoLevel.Jobs.Replication -ge 2) {
-                                            Section -Style Heading6 -ExcludeFromTOC "Advanced Settings (Traffic)" {
+                                            Section -Style NOTOCHeading6 -ExcludeFromTOC "Advanced Settings (Traffic)" {
                                                 $OutObj = @()
                                                 try {
                                                     Write-PscriboMessage "Discovered $($Bkjob.Name) traffic options."
@@ -354,7 +354,7 @@ function Get-AbrVbrRepljobHyperV {
                                             }
                                         }
                                         if ($InfoLevel.Jobs.Replication -ge 2 -and ($Bkjob.Options.NotificationOptions.SnmpNotification -or $Bkjob.Options.NotificationOptions.SendEmailNotification2AdditionalAddresses)) {
-                                            Section -Style Heading6 -ExcludeFromTOC "Advanced Settings (Notification)" {
+                                            Section -Style NOTOCHeading6 -ExcludeFromTOC "Advanced Settings (Notification)" {
                                                 $OutObj = @()
                                                 try {
                                                     Write-PscriboMessage "Discovered $($Bkjob.Name) notification options."
@@ -391,7 +391,7 @@ function Get-AbrVbrRepljobHyperV {
                                             }
                                         }
                                         if ($InfoLevel.Jobs.Replication -ge 2 -and ($Bkjob.Options.HvSourceOptions.EnableHvQuiescence -or $Bkjob.Options.HvSourceOptions.UseChangeTracking)) {
-                                            Section -Style Heading6 -ExcludeFromTOC "Advanced Settings (Hyper-V)" {
+                                            Section -Style NOTOCHeading6 -ExcludeFromTOC "Advanced Settings (Hyper-V)" {
                                                 $OutObj = @()
                                                 try {
                                                     Write-PscriboMessage "Discovered $($Bkjob.Name) Hyper-V options."
@@ -419,7 +419,7 @@ function Get-AbrVbrRepljobHyperV {
                                             }
                                         }
                                         if ($InfoLevel.Jobs.Replication -ge 2 -and $Bkjob.Options.SanIntegrationOptions.UseSanSnapshots) {
-                                            Section -Style Heading6 -ExcludeFromTOC "Advanced Settings (Integration)" {
+                                            Section -Style NOTOCHeading6 -ExcludeFromTOC "Advanced Settings (Integration)" {
                                                 $OutObj = @()
                                                 try {
                                                     Write-PscriboMessage "Discovered $($Bkjob.Name) Integration options."
@@ -448,7 +448,7 @@ function Get-AbrVbrRepljobHyperV {
                                             }
                                         }
                                         if ($InfoLevel.Jobs.Replication -ge 2 -and ($Bkjob.Options.JobScriptCommand.PreScriptEnabled -or $Bkjob.Options.JobScriptCommand.PostScriptEnabled)) {
-                                            Section -Style Heading6 -ExcludeFromTOC "Advanced Settings (Script)" {
+                                            Section -Style NOTOCHeading6 -ExcludeFromTOC "Advanced Settings (Script)" {
                                                 $OutObj = @()
                                                 try {
                                                     if ($Bkjob.Options.JobScriptCommand.Periodicity -eq 'Days') {
@@ -487,7 +487,7 @@ function Get-AbrVbrRepljobHyperV {
                                             }
                                         }
                                         if ($InfoLevel.Jobs.Replication -ge 2 -and ($Bkjob.Options.RpoOptions.Enabled -or $Bkjob.Options.RpoOptions.LogBackupRpoEnabled)) {
-                                            Section -Style Heading6 -ExcludeFromTOC "Advanced Settings (RPO Monitor)" {
+                                            Section -Style NOTOCHeading6 -ExcludeFromTOC "Advanced Settings (RPO Monitor)" {
                                                 $OutObj = @()
                                                 try {
                                                     Write-PscriboMessage "Discovered $($Bkjob.Name) rpo monitor options."
@@ -520,7 +520,7 @@ function Get-AbrVbrRepljobHyperV {
                                     }
                                 }
                                 try {
-                                    Section -Style Heading5 -ExcludeFromTOC 'Data Transfer' {
+                                    Section -Style NOTOCHeading5 -ExcludeFromTOC 'Data Transfer' {
                                         $OutObj = @()
                                         Write-PscriboMessage "Discovered $($Bkjob.Name) data transfer."
                                         $inObj = [ordered] @{
@@ -570,7 +570,7 @@ function Get-AbrVbrRepljobHyperV {
                                 }
                                 if ($Bkjob.Options.HvReplicaTargetOptions.InitialSeeding) {
                                     try {
-                                        Section -Style Heading5 -ExcludeFromTOC 'Seeding' {
+                                        Section -Style NOTOCHeading5 -ExcludeFromTOC 'Seeding' {
                                             $OutObj = @()
                                             Write-PscriboMessage "Discovered $($Bkjob.Name) seeding information."
                                             if ($Bkjob.Options.HvReplicaTargetOptions.EnableInitialPass) {
@@ -599,7 +599,7 @@ function Get-AbrVbrRepljobHyperV {
                                     }
                                 }
                                 if ($Bkjob.VssOptions.Enabled) {
-                                    Section -Style Heading5 -ExcludeFromTOC "Guest Processing" {
+                                    Section -Style NOTOCHeading5 -ExcludeFromTOC "Guest Processing" {
                                         $OutObj = @()
                                         try {
                                             $VSSObjs = Get-VBRJobObject -Job $Bkjob.Name | Where-Object {$_.Type -eq "Include" -or $_.Type -eq "VssChild"}
@@ -711,7 +711,7 @@ function Get-AbrVbrRepljobHyperV {
                                     }
                                 }
                                 if ($Bkjob.GetScheduleOptions().NextRun -and $Bkjob.ScheduleOptions.OptionsContinuous.Enabled -ne "True") {
-                                    Section -Style Heading5 -ExcludeFromTOC "Schedule" {
+                                    Section -Style NOTOCHeading5 -ExcludeFromTOC "Schedule" {
                                         $OutObj = @()
                                         try {
                                             Write-PscriboMessage "Discovered $($Bkjob.Name) schedule options."

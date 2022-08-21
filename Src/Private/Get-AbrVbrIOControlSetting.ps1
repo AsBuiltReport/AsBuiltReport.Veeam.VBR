@@ -63,7 +63,7 @@ function Get-AbrVbrIOControlSetting {
                         #---------------------------------------------------------------------------------------------#
                         try {
                             if ((Get-VBRInstalledLicense | Where-Object {$_.Edition -eq "EnterprisePlus"}) -and ((Get-VBRAdvancedLatencyOptions).count -gt 0)) {
-                                Section -Style Heading5 -ExcludeFromTOC 'Per Datastore Latency Control Options' {
+                                Section -Style NOTOCHeading5 -ExcludeFromTOC 'Per Datastore Latency Control Options' {
                                     $OutObj = @()
                                     try {
                                         $StorageLatencyControls = Get-VBRAdvancedLatencyOptions

@@ -28,9 +28,7 @@ function Get-AbrVbrBackupServerInfo {
         try {
             $BackupServers = Get-VBRServer -Type Local
             if (($BackupServers).count -gt 0) {
-                Section -Style Heading3 'Backup Server Information' {
-                    Paragraph "The following section details configuration information about Backup Server: $($VeeamBackupServer)"
-                    BlankLine
+                Section -Style Heading3 'Backup Server' {
                     $OutObj = @()
                     try {
                         foreach ($BackupServer in $BackupServers) {
@@ -118,7 +116,7 @@ function Get-AbrVbrBackupServerInfo {
                             $HWCPU = Get-CimInstance -Class Win32_Processor -CimSession $CimSession
                             $HWBIOS = Get-CimInstance -Class Win32_Bios -CimSession $CimSession
                             if ($HW) {
-                                Section -Style Heading4 'Inventory Summary' {
+                                Section -Style Heading4 'Hardware & Software Inventory' {
                                     $OutObj = @()
                                     $inObj = [ordered] @{
                                         'Name' = $HW.CsDNSHostName
@@ -165,7 +163,7 @@ function Get-AbrVbrBackupServerInfo {
                                         try {
                                             $HostDisks = Invoke-Command -Session $PssSession -ScriptBlock { Get-Disk | Where-Object { $_.BusType -ne "iSCSI" -and $_.BusType -ne "Fibre Channel" } }
                                             if ($HostDisks) {
-                                                Section -Style Heading5 -ExcludeFromTOC 'Local Disks' {
+                                                Section -Style NOTOCHeading5 -ExcludeFromTOC 'Local Disks' {
                                                     $LocalDiskReport = @()
                                                     ForEach ($Disk in $HostDisks) {
                                                         try {
@@ -203,7 +201,7 @@ function Get-AbrVbrBackupServerInfo {
                                         try {
                                             $SanDisks = Invoke-Command -Session $PssSession -ScriptBlock { Get-Disk | Where-Object { $_.BusType -Eq "iSCSI" -or $_.BusType -Eq "Fibre Channel" } }
                                             if ($SanDisks) {
-                                                Section -Style Heading5 -ExcludeFromTOC 'SAN Disks' {
+                                                Section -Style NOTOCHeading5 -ExcludeFromTOC 'SAN Disks' {
                                                     $SanDiskReport = @()
                                                     ForEach ($Disk in $SanDisks) {
                                                         try {
@@ -242,7 +240,7 @@ function Get-AbrVbrBackupServerInfo {
                                     try {
                                         $HostVolumes = Invoke-Command -Session $PssSession -ScriptBlock {  Get-Volume | Where-Object {$_.DriveType -ne "CD-ROM" -and $NUll -ne $_.DriveLetter} }
                                         if ($HostVolumes) {
-                                            Section -Style Heading5 -ExcludeFromTOC 'Host Volumes' {
+                                            Section -Style NOTOCHeading5 -ExcludeFromTOC 'Host Volumes' {
                                                 $HostVolumeReport = @()
                                                 ForEach ($HostVolume in $HostVolumes) {
                                                     try {
@@ -282,7 +280,7 @@ function Get-AbrVbrBackupServerInfo {
                                         try {
                                             $HostAdapters = Invoke-Command -Session $PssSession { Get-NetAdapter }
                                             if ($HostAdapters) {
-                                                Section -Style Heading3 'Network Adapters' {
+                                                Section -Style NOTOCHeading5 -ExcludeFromTOC 'Network Adapters' {
                                                     $HostAdaptersReport = @()
                                                     ForEach ($HostAdapter in $HostAdapters) {
                                                         try {
@@ -316,7 +314,7 @@ function Get-AbrVbrBackupServerInfo {
                                         try {
                                             $NetIPs = Invoke-Command -Session $PssSession { Get-NetIPConfiguration | Where-Object -FilterScript { ($_.NetAdapter.Status -Eq "Up") } }
                                             if ($NetIPs) {
-                                                Section -Style Heading3 'IP Address' {
+                                                Section -Style NOTOCHeading5 -ExcludeFromTOC 'IP Address' {
                                                     $NetIpsReport = @()
                                                     ForEach ($NetIp in $NetIps) {
                                                         try {

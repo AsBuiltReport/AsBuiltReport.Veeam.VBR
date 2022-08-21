@@ -26,16 +26,16 @@ function Get-AbrVbrTapeLibrary {
 
     process {
         try {
-            if ((Get-VBRTapeLibrary).count -gt 0) {
+            $TapeObjs = Get-VBRTapeLibrary
+            if ($TapeObjs) {
                 Section -Style Heading3 'Tape Libraries' {
                     Paragraph "The following section provides summary information about Tape Server connected Tape Library."
                     BlankLine
                     $OutObj = @()
                     try {
-                        $TapeObjs = Get-VBRTapeLibrary
                         foreach ($TapeObj in $TapeObjs) {
                             try {
-                                Section -Style Heading3 -ExcludeFromTOC "$($TapeObj.Name) Tape Library" {
+                                Section -Style Heading4 $($TapeObj.Name) {
                                     Write-PscriboMessage "Discovered $($TapeObj.Name) Type Library."
                                     $TapeServer = (Get-VBRTapeServer | Where-Object {$_.Id -eq $TapeObj.TapeServerId}).Name
                                     $inObj = [ordered] @{
@@ -75,7 +75,7 @@ function Get-AbrVbrTapeLibrary {
                                         $DriveObjs = Get-VBRTapeDrive -Library $TapeObj.Id
                                         if ($DriveObjs) {
                                             Write-PscriboMessage "Collecting $($TapeObj.Name) Tape Drives"
-                                            Section -Style Heading4 -ExcludeFromTOC "Tape Drives" {
+                                            Section -Style NOTOCHeading5 -ExcludeFromTOC "Tape Drives" {
                                                 $OutObj = @()
                                                 try {
                                                     foreach ($DriveObj in $DriveObjs) {
@@ -124,7 +124,7 @@ function Get-AbrVbrTapeLibrary {
                                             $MediumObjs = Get-VBRTapeMedium -Library $TapeObj.Id
                                             if ($MediumObjs) {
                                                 Write-PscriboMessage "Collecting $($TapeObj.Name) Tape Medium"
-                                                Section -Style Heading4 -ExcludeFromTOC "Tape Mediums" {
+                                                Section -Style NOTOCHeading5 -ExcludeFromTOC "Tape Mediums" {
                                                     $OutObj = @()
                                                     try {
                                                         foreach ($MediumObj in $MediumObjs) {

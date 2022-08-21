@@ -120,253 +120,255 @@ function Get-AbrVbrBackupProxy {
                                     Write-PScriboMessage "Backup Proxy InfoLevel set at $($InfoLevel.Infrastructure.Proxy)."
                                     Write-PScriboMessage "Collecting Inventory Summary."
                                     $BackupProxies = Get-VBRViProxy | Where-Object {$_.Host.Type -eq "Windows"}
-                                    foreach ($BackupProxy in $BackupProxies) {
-                                        try {
-                                            Write-PscriboMessage "Collecting Backup Proxy Inventory Summary from $($BackupProxy.Host.Name)."
-                                            $CimSession = New-CimSession $BackupProxy.Host.Name -Credential $Credential -Authentication $Options.PSDefaultAuthentication
-                                            $PssSession = New-PSSession $BackupProxy.Host.Name -Credential $Credential -Authentication $Options.PSDefaultAuthentication
-                                            if ($PssSession) {
-                                                $HW = Invoke-Command -Session $PssSession -ScriptBlock { Get-ComputerInfo }
-                                            }
-                                            if ($HW) {
-                                                $License = Get-CimInstance -Query 'Select * from SoftwareLicensingProduct' -CimSession $CimSession | Where-Object { $_.LicenseStatus -eq 1 }
-                                                $HWCPU = Get-CimInstance -Class Win32_Processor -CimSession $CimSession
-                                                $HWBIOS = Get-CimInstance -Class Win32_Bios -CimSession $CimSession
-                                                Section -Style Heading4 -ExcludeFromTOC "$($BackupProxy.Host.Name.Split(".")[0]) Inventory Summary" {
-                                                    $OutObj = @()
-                                                    $inObj = [ordered] @{
-                                                        'Name' = $HW.CsDNSHostName
-                                                        'Windows Product Name' = $HW.WindowsProductName
-                                                        'Windows Current Version' = $HW.WindowsCurrentVersion
-                                                        'Windows Build Number' = $HW.OsVersion
-                                                        'Windows Install Type' = $HW.WindowsInstallationType
-                                                        'Active Directory Domain' = $HW.CsDomain
-                                                        'Windows Installation Date' = $HW.OsInstallDate
-                                                        'Time Zone' = $HW.TimeZone
-                                                        'License Type' = $License.ProductKeyChannel
-                                                        'Partial Product Key' = $License.PartialProductKey
-                                                        'Manufacturer' = $HW.CsManufacturer
-                                                        'Model' = $HW.CsModel
-                                                        'Serial Number' = $HWBIOS.SerialNumber
-                                                        'Bios Type' = $HW.BiosFirmwareType
-                                                        'BIOS Version' = $HWBIOS.Version
-                                                        'Processor Manufacturer' = $HWCPU[0].Manufacturer
-                                                        'Processor Model' = $HWCPU[0].Name
-                                                        'Number of CPU Cores' = $HWCPU[0].NumberOfCores
-                                                        'Number of Logical Cores' = $HWCPU[0].NumberOfLogicalProcessors
-                                                        'Physical Memory (GB)' = ConvertTo-FileSizeString $HW.CsTotalPhysicalMemory
-                                                    }
-                                                    $OutObj += [pscustomobject]$inobj
-
-                                                    if ($HealthCheck.Infrastructure.Server) {
-                                                        $OutObj | Where-Object { $_.'Number of CPU Cores' -lt 4} | Set-Style -Style Warning -Property 'Number of CPU Cores'
-                                                        if ([int]([regex]::Matches($OutObj.'Physical Memory (GB)', "\d+(?!.*\d+)").value) -lt 8) { $OutObj | Set-Style -Style Warning -Property 'Physical Memory (GB)' }
-                                                    }
-
-                                                    $TableParams = @{
-                                                        Name = "Backup Proxy Inventory - $($BackupProxy.Host.Name.Split(".")[0])"
-                                                        List = $true
-                                                        ColumnWidths = 40, 60
-                                                    }
-                                                    if ($Report.ShowTableCaptions) {
-                                                        $TableParams['Caption'] = "- $($TableParams.Name)"
-                                                    }
-                                                    $OutObj | Table @TableParams
-                                                    #---------------------------------------------------------------------------------------------#
-                                                    #                       Backup Proxy Local Disk Inventory Section                            #
-                                                    #---------------------------------------------------------------------------------------------#
-                                                    if ($InfoLevel.Infrastructure.Proxy -ge 3) {
-                                                        try {
-                                                            $HostDisks = Invoke-Command -Session $PssSession -ScriptBlock { Get-Disk | Where-Object { $_.BusType -ne "iSCSI" -and $_.BusType -ne "Fibre Channel" } }
-                                                            if ($HostDisks) {
-                                                                Section -Style Heading5 'Local Disks' {
-                                                                    $LocalDiskReport = @()
-                                                                    ForEach ($Disk in $HostDisks) {
-                                                                        try {
-                                                                            $TempLocalDiskReport = [PSCustomObject]@{
-                                                                                'Disk Number' = $Disk.Number
-                                                                                'Model' = $Disk.Model
-                                                                                'Serial Number' = $Disk.SerialNumber
-                                                                                'Partition Style' = $Disk.PartitionStyle
-                                                                                'Disk Size' = "$([Math]::Round($Disk.Size / 1Gb)) GB"
-                                                                            }
-                                                                            $LocalDiskReport += $TempLocalDiskReport
-                                                                        }
-                                                                        catch {
-                                                                            Write-PscriboMessage -IsWarning $_.Exception.Message
-                                                                        }
-                                                                    }
-                                                                    $TableParams = @{
-                                                                        Name = "Local Disks - $($BackupProxies.Host.Name.Split(".")[0])"
-                                                                        List = $false
-                                                                        ColumnWidths = 20, 20, 20, 20, 20
-                                                                    }
-                                                                    if ($Report.ShowTableCaptions) {
-                                                                        $TableParams['Caption'] = "- $($TableParams.Name)"
-                                                                    }
-                                                                    $LocalDiskReport | Sort-Object -Property 'Disk Number' | Table @TableParams
-                                                                }
-                                                            }
-                                                        }
-                                                        catch {
-                                                            Write-PscriboMessage -IsWarning $_.Exception.Message
-                                                        }
-                                                        #---------------------------------------------------------------------------------------------#
-                                                        #                       Backup Proxy SAN Disk Inventory Section                              #
-                                                        #---------------------------------------------------------------------------------------------#
-                                                        try {
-                                                            $SanDisks = Invoke-Command -Session $PssSession -ScriptBlock { Get-Disk | Where-Object { $_.BusType -Eq "iSCSI" -or $_.BusType -Eq "Fibre Channel" } }
-                                                            if ($SanDisks) {
-                                                                Section -Style Heading5 'SAN Disks' {
-                                                                    $SanDiskReport = @()
-                                                                    ForEach ($Disk in $SanDisks) {
-                                                                        try {
-                                                                            $TempSanDiskReport = [PSCustomObject]@{
-                                                                                'Disk Number' = $Disk.Number
-                                                                                'Model' = $Disk.Model
-                                                                                'Serial Number' = $Disk.SerialNumber
-                                                                                'Partition Style' = $Disk.PartitionStyle
-                                                                                'Disk Size' = "$([Math]::Round($Disk.Size / 1Gb)) GB"
-                                                                            }
-                                                                            $SanDiskReport += $TempSanDiskReport
-                                                                        }
-                                                                        catch {
-                                                                            Write-PscriboMessage -IsWarning $_.Exception.Message
-                                                                        }
-                                                                    }
-                                                                    $TableParams = @{
-                                                                        Name = "SAN Disks - $($BackupProxies.Host.Name.Split(".")[0])"
-                                                                        List = $false
-                                                                        ColumnWidths = 20, 20, 20, 20, 20
-                                                                    }
-                                                                    if ($Report.ShowTableCaptions) {
-                                                                        $TableParams['Caption'] = "- $($TableParams.Name)"
-                                                                    }
-                                                                    $SanDiskReport | Sort-Object -Property 'Disk Number' | Table @TableParams
-                                                                }
-                                                            }
-                                                        }
-                                                        catch {
-                                                            Write-PscriboMessage -IsWarning $_.Exception.Message
-                                                        }
-                                                    }
-                                                    try {
-                                                        $HostVolumes = Invoke-Command -Session $PssSession -ScriptBlock {  Get-Volume | Where-Object {$_.DriveType -ne "CD-ROM" -and $NUll -ne $_.DriveLetter} }
-                                                        if ($HostVolumes) {
-                                                            Section -Style Heading5 'Host Volumes' {
-                                                                $HostVolumeReport = @()
-                                                                ForEach ($HostVolume in $HostVolumes) {
-                                                                    try {
-                                                                        $TempHostVolumeReport = [PSCustomObject]@{
-                                                                            'Drive Letter' = $HostVolume.DriveLetter
-                                                                            'File System Label' = $HostVolume.FileSystemLabel
-                                                                            'File System' = $HostVolume.FileSystem
-                                                                            'Size' = "$([Math]::Round($HostVolume.Size / 1gb)) GB"
-                                                                            'Free Space' = "$([Math]::Round($HostVolume.SizeRemaining / 1gb)) GB"
-                                                                            'Health Status' = $HostVolume.HealthStatus
-                                                                        }
-                                                                        $HostVolumeReport += $TempHostVolumeReport
-                                                                    }
-                                                                    catch {
-                                                                        Write-PscriboMessage -IsWarning $_.Exception.Message
-                                                                    }
-                                                                }
-                                                                $TableParams = @{
-                                                                    Name = "Volumes - $($BackupProxies.Host.Name.Split(".")[0])"
-                                                                    List = $false
-                                                                    ColumnWidths = 15, 15, 15, 20, 20, 15
-                                                                }
-                                                                if ($Report.ShowTableCaptions) {
-                                                                    $TableParams['Caption'] = "- $($TableParams.Name)"
-                                                                }
-                                                                $HostVolumeReport | Sort-Object -Property 'Drive Letter' | Table @TableParams
-                                                            }
-                                                        }
-                                                    }
-                                                    catch {
-                                                        Write-PscriboMessage -IsWarning $_.Exception.Message
-                                                    }
-                                                    #---------------------------------------------------------------------------------------------#
-                                                    #                       Backup Proxy Network Inventory Section                               #
-                                                    #---------------------------------------------------------------------------------------------#
-                                                    if ($InfoLevel.Infrastructure.Proxy -ge 2) {
-                                                        try {
-                                                            $HostAdapters = Invoke-Command -Session $PssSession { Get-NetAdapter }
-                                                            if ($HostAdapters) {
-                                                                Section -Style Heading3 -ExcludeFromTOC 'Network Adapters' {
-                                                                    $HostAdaptersReport = @()
-                                                                    ForEach ($HostAdapter in $HostAdapters) {
-                                                                        try {
-                                                                            $TempHostAdaptersReport = [PSCustomObject]@{
-                                                                                'Adapter Name' = $HostAdapter.Name
-                                                                                'Adapter Description' = $HostAdapter.InterfaceDescription
-                                                                                'Mac Address' = $HostAdapter.MacAddress
-                                                                                'Link Speed' = $HostAdapter.LinkSpeed
-                                                                            }
-                                                                            $HostAdaptersReport += $TempHostAdaptersReport
-                                                                        }
-                                                                        catch {
-                                                                            Write-PscriboMessage -IsWarning $_.Exception.Message
-                                                                        }
-                                                                    }
-                                                                    $TableParams = @{
-                                                                        Name = "Network Adapters - $($BackupProxies.Host.Name.Split(".")[0])"
-                                                                        List = $false
-                                                                        ColumnWidths = 30, 35, 20, 15
-                                                                    }
-                                                                    if ($Report.ShowTableCaptions) {
-                                                                        $TableParams['Caption'] = "- $($TableParams.Name)"
-                                                                    }
-                                                                    $HostAdaptersReport | Sort-Object -Property 'Adapter Name' | Table @TableParams
-                                                                }
-                                                            }
-                                                        }
-                                                        catch {
-                                                            Write-PscriboMessage -IsWarning $_.Exception.Message
-                                                        }
-                                                        try {
-                                                            $NetIPs = Invoke-Command -Session $PssSession { Get-NetIPConfiguration | Where-Object -FilterScript { ($_.NetAdapter.Status -Eq "Up") } }
-                                                            if ($NetIPs) {
-                                                                Section -Style Heading3 -ExcludeFromTOC 'IP Address' {
-                                                                    $NetIpsReport = @()
-                                                                    ForEach ($NetIp in $NetIps) {
-                                                                        try {
-                                                                            $TempNetIpsReport = [PSCustomObject]@{
-                                                                                'Interface Name' = $NetIp.InterfaceAlias
-                                                                                'Interface Description' = $NetIp.InterfaceDescription
-                                                                                'IPv4 Addresses' = $NetIp.IPv4Address.IPAddress -Join ","
-                                                                                'Subnet Mask' = $NetIp.IPv4Address[0].PrefixLength
-                                                                                'IPv4 Gateway' = $NetIp.IPv4DefaultGateway.NextHop
-                                                                            }
-                                                                            $NetIpsReport += $TempNetIpsReport
-                                                                        }
-                                                                        catch {
-                                                                            Write-PscriboMessage -IsWarning $_.Exception.Message
-                                                                        }
-                                                                    }
-                                                                    $TableParams = @{
-                                                                        Name = "IP Address - $($BackupProxies.Host.Name.Split(".")[0])"
-                                                                        List = $false
-                                                                        ColumnWidths = 25, 25, 20, 10, 20
-                                                                    }
-                                                                    if ($Report.ShowTableCaptions) {
-                                                                        $TableParams['Caption'] = "- $($TableParams.Name)"
-                                                                    }
-                                                                    $NetIpsReport | Sort-Object -Property 'Interface Name' | Table @TableParams
-                                                                }
-                                                            }
-                                                        }
-                                                        catch {
-                                                            Write-PscriboMessage -IsWarning $_.Exception.Message
-                                                        }
-                                                    }
+                                    Section -Style Heading4 "Hardware Inventory" {
+                                        foreach ($BackupProxy in $BackupProxies) {
+                                            try {
+                                                Write-PscriboMessage "Collecting Backup Proxy Inventory Summary from $($BackupProxy.Host.Name)."
+                                                $CimSession = New-CimSession $BackupProxy.Host.Name -Credential $Credential -Authentication $Options.PSDefaultAuthentication
+                                                $PssSession = New-PSSession $BackupProxy.Host.Name -Credential $Credential -Authentication $Options.PSDefaultAuthentication
+                                                if ($PssSession) {
+                                                    $HW = Invoke-Command -Session $PssSession -ScriptBlock { Get-ComputerInfo }
                                                 }
-                                                Remove-PSSession -Session $PssSession
-                                                Remove-CimSession $CimSession
+                                                if ($HW) {
+                                                    $License = Get-CimInstance -Query 'Select * from SoftwareLicensingProduct' -CimSession $CimSession | Where-Object { $_.LicenseStatus -eq 1 }
+                                                    $HWCPU = Get-CimInstance -Class Win32_Processor -CimSession $CimSession
+                                                    $HWBIOS = Get-CimInstance -Class Win32_Bios -CimSession $CimSession
+                                                    Section -Style Heading5 $($BackupProxy.Host.Name.Split(".")[0]) {
+                                                        $OutObj = @()
+                                                        $inObj = [ordered] @{
+                                                            'Name' = $HW.CsDNSHostName
+                                                            'Windows Product Name' = $HW.WindowsProductName
+                                                            'Windows Current Version' = $HW.WindowsCurrentVersion
+                                                            'Windows Build Number' = $HW.OsVersion
+                                                            'Windows Install Type' = $HW.WindowsInstallationType
+                                                            'Active Directory Domain' = $HW.CsDomain
+                                                            'Windows Installation Date' = $HW.OsInstallDate
+                                                            'Time Zone' = $HW.TimeZone
+                                                            'License Type' = $License.ProductKeyChannel
+                                                            'Partial Product Key' = $License.PartialProductKey
+                                                            'Manufacturer' = $HW.CsManufacturer
+                                                            'Model' = $HW.CsModel
+                                                            'Serial Number' = $HWBIOS.SerialNumber
+                                                            'Bios Type' = $HW.BiosFirmwareType
+                                                            'BIOS Version' = $HWBIOS.Version
+                                                            'Processor Manufacturer' = $HWCPU[0].Manufacturer
+                                                            'Processor Model' = $HWCPU[0].Name
+                                                            'Number of CPU Cores' = $HWCPU[0].NumberOfCores
+                                                            'Number of Logical Cores' = $HWCPU[0].NumberOfLogicalProcessors
+                                                            'Physical Memory (GB)' = ConvertTo-FileSizeString $HW.CsTotalPhysicalMemory
+                                                        }
+                                                        $OutObj += [pscustomobject]$inobj
+
+                                                        if ($HealthCheck.Infrastructure.Server) {
+                                                            $OutObj | Where-Object { $_.'Number of CPU Cores' -lt 4} | Set-Style -Style Warning -Property 'Number of CPU Cores'
+                                                            if ([int]([regex]::Matches($OutObj.'Physical Memory (GB)', "\d+(?!.*\d+)").value) -lt 8) { $OutObj | Set-Style -Style Warning -Property 'Physical Memory (GB)' }
+                                                        }
+
+                                                        $TableParams = @{
+                                                            Name = "Backup Proxy Inventory - $($BackupProxy.Host.Name.Split(".")[0])"
+                                                            List = $true
+                                                            ColumnWidths = 40, 60
+                                                        }
+                                                        if ($Report.ShowTableCaptions) {
+                                                            $TableParams['Caption'] = "- $($TableParams.Name)"
+                                                        }
+                                                        $OutObj | Table @TableParams
+                                                        #---------------------------------------------------------------------------------------------#
+                                                        #                       Backup Proxy Local Disk Inventory Section                            #
+                                                        #---------------------------------------------------------------------------------------------#
+                                                        if ($InfoLevel.Infrastructure.Proxy -ge 3) {
+                                                            try {
+                                                                $HostDisks = Invoke-Command -Session $PssSession -ScriptBlock { Get-Disk | Where-Object { $_.BusType -ne "iSCSI" -and $_.BusType -ne "Fibre Channel" } }
+                                                                if ($HostDisks) {
+                                                                    Section -Style NOTOCHeading6 -ExcludeFromTOC 'Local Disks' {
+                                                                        $LocalDiskReport = @()
+                                                                        ForEach ($Disk in $HostDisks) {
+                                                                            try {
+                                                                                $TempLocalDiskReport = [PSCustomObject]@{
+                                                                                    'Disk Number' = $Disk.Number
+                                                                                    'Model' = $Disk.Model
+                                                                                    'Serial Number' = $Disk.SerialNumber
+                                                                                    'Partition Style' = $Disk.PartitionStyle
+                                                                                    'Disk Size' = "$([Math]::Round($Disk.Size / 1Gb)) GB"
+                                                                                }
+                                                                                $LocalDiskReport += $TempLocalDiskReport
+                                                                            }
+                                                                            catch {
+                                                                                Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                                            }
+                                                                        }
+                                                                        $TableParams = @{
+                                                                            Name = "Local Disks - $($BackupProxies.Host.Name.Split(".")[0])"
+                                                                            List = $false
+                                                                            ColumnWidths = 20, 20, 20, 20, 20
+                                                                        }
+                                                                        if ($Report.ShowTableCaptions) {
+                                                                            $TableParams['Caption'] = "- $($TableParams.Name)"
+                                                                        }
+                                                                        $LocalDiskReport | Sort-Object -Property 'Disk Number' | Table @TableParams
+                                                                    }
+                                                                }
+                                                            }
+                                                            catch {
+                                                                Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                            }
+                                                            #---------------------------------------------------------------------------------------------#
+                                                            #                       Backup Proxy SAN Disk Inventory Section                              #
+                                                            #---------------------------------------------------------------------------------------------#
+                                                            try {
+                                                                $SanDisks = Invoke-Command -Session $PssSession -ScriptBlock { Get-Disk | Where-Object { $_.BusType -Eq "iSCSI" -or $_.BusType -Eq "Fibre Channel" } }
+                                                                if ($SanDisks) {
+                                                                    Section -Style NOTOCHeading6 -ExcludeFromTOC 'SAN Disks' {
+                                                                        $SanDiskReport = @()
+                                                                        ForEach ($Disk in $SanDisks) {
+                                                                            try {
+                                                                                $TempSanDiskReport = [PSCustomObject]@{
+                                                                                    'Disk Number' = $Disk.Number
+                                                                                    'Model' = $Disk.Model
+                                                                                    'Serial Number' = $Disk.SerialNumber
+                                                                                    'Partition Style' = $Disk.PartitionStyle
+                                                                                    'Disk Size' = "$([Math]::Round($Disk.Size / 1Gb)) GB"
+                                                                                }
+                                                                                $SanDiskReport += $TempSanDiskReport
+                                                                            }
+                                                                            catch {
+                                                                                Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                                            }
+                                                                        }
+                                                                        $TableParams = @{
+                                                                            Name = "SAN Disks - $($BackupProxies.Host.Name.Split(".")[0])"
+                                                                            List = $false
+                                                                            ColumnWidths = 20, 20, 20, 20, 20
+                                                                        }
+                                                                        if ($Report.ShowTableCaptions) {
+                                                                            $TableParams['Caption'] = "- $($TableParams.Name)"
+                                                                        }
+                                                                        $SanDiskReport | Sort-Object -Property 'Disk Number' | Table @TableParams
+                                                                    }
+                                                                }
+                                                            }
+                                                            catch {
+                                                                Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                            }
+                                                        }
+                                                        try {
+                                                            $HostVolumes = Invoke-Command -Session $PssSession -ScriptBlock {  Get-Volume | Where-Object {$_.DriveType -ne "CD-ROM" -and $NUll -ne $_.DriveLetter} }
+                                                            if ($HostVolumes) {
+                                                                Section -Style NOTOCHeading6 -ExcludeFromTOC 'Host Volumes' {
+                                                                    $HostVolumeReport = @()
+                                                                    ForEach ($HostVolume in $HostVolumes) {
+                                                                        try {
+                                                                            $TempHostVolumeReport = [PSCustomObject]@{
+                                                                                'Drive Letter' = $HostVolume.DriveLetter
+                                                                                'File System Label' = $HostVolume.FileSystemLabel
+                                                                                'File System' = $HostVolume.FileSystem
+                                                                                'Size' = "$([Math]::Round($HostVolume.Size / 1gb)) GB"
+                                                                                'Free Space' = "$([Math]::Round($HostVolume.SizeRemaining / 1gb)) GB"
+                                                                                'Health Status' = $HostVolume.HealthStatus
+                                                                            }
+                                                                            $HostVolumeReport += $TempHostVolumeReport
+                                                                        }
+                                                                        catch {
+                                                                            Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                                        }
+                                                                    }
+                                                                    $TableParams = @{
+                                                                        Name = "Volumes - $($BackupProxies.Host.Name.Split(".")[0])"
+                                                                        List = $false
+                                                                        ColumnWidths = 15, 15, 15, 20, 20, 15
+                                                                    }
+                                                                    if ($Report.ShowTableCaptions) {
+                                                                        $TableParams['Caption'] = "- $($TableParams.Name)"
+                                                                    }
+                                                                    $HostVolumeReport | Sort-Object -Property 'Drive Letter' | Table @TableParams
+                                                                }
+                                                            }
+                                                        }
+                                                        catch {
+                                                            Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                        }
+                                                        #---------------------------------------------------------------------------------------------#
+                                                        #                       Backup Proxy Network Inventory Section                               #
+                                                        #---------------------------------------------------------------------------------------------#
+                                                        if ($InfoLevel.Infrastructure.Proxy -ge 2) {
+                                                            try {
+                                                                $HostAdapters = Invoke-Command -Session $PssSession { Get-NetAdapter }
+                                                                if ($HostAdapters) {
+                                                                    Section -Style NOTOCHeading3 -ExcludeFromTOC 'Network Adapters' {
+                                                                        $HostAdaptersReport = @()
+                                                                        ForEach ($HostAdapter in $HostAdapters) {
+                                                                            try {
+                                                                                $TempHostAdaptersReport = [PSCustomObject]@{
+                                                                                    'Adapter Name' = $HostAdapter.Name
+                                                                                    'Adapter Description' = $HostAdapter.InterfaceDescription
+                                                                                    'Mac Address' = $HostAdapter.MacAddress
+                                                                                    'Link Speed' = $HostAdapter.LinkSpeed
+                                                                                }
+                                                                                $HostAdaptersReport += $TempHostAdaptersReport
+                                                                            }
+                                                                            catch {
+                                                                                Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                                            }
+                                                                        }
+                                                                        $TableParams = @{
+                                                                            Name = "Network Adapters - $($BackupProxies.Host.Name.Split(".")[0])"
+                                                                            List = $false
+                                                                            ColumnWidths = 30, 35, 20, 15
+                                                                        }
+                                                                        if ($Report.ShowTableCaptions) {
+                                                                            $TableParams['Caption'] = "- $($TableParams.Name)"
+                                                                        }
+                                                                        $HostAdaptersReport | Sort-Object -Property 'Adapter Name' | Table @TableParams
+                                                                    }
+                                                                }
+                                                            }
+                                                            catch {
+                                                                Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                            }
+                                                            try {
+                                                                $NetIPs = Invoke-Command -Session $PssSession { Get-NetIPConfiguration | Where-Object -FilterScript { ($_.NetAdapter.Status -Eq "Up") } }
+                                                                if ($NetIPs) {
+                                                                    Section -Style NOTOCHeading3 -ExcludeFromTOC 'IP Address' {
+                                                                        $NetIpsReport = @()
+                                                                        ForEach ($NetIp in $NetIps) {
+                                                                            try {
+                                                                                $TempNetIpsReport = [PSCustomObject]@{
+                                                                                    'Interface Name' = $NetIp.InterfaceAlias
+                                                                                    'Interface Description' = $NetIp.InterfaceDescription
+                                                                                    'IPv4 Addresses' = $NetIp.IPv4Address.IPAddress -Join ","
+                                                                                    'Subnet Mask' = $NetIp.IPv4Address[0].PrefixLength
+                                                                                    'IPv4 Gateway' = $NetIp.IPv4DefaultGateway.NextHop
+                                                                                }
+                                                                                $NetIpsReport += $TempNetIpsReport
+                                                                            }
+                                                                            catch {
+                                                                                Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                                            }
+                                                                        }
+                                                                        $TableParams = @{
+                                                                            Name = "IP Address - $($BackupProxies.Host.Name.Split(".")[0])"
+                                                                            List = $false
+                                                                            ColumnWidths = 25, 25, 20, 10, 20
+                                                                        }
+                                                                        if ($Report.ShowTableCaptions) {
+                                                                            $TableParams['Caption'] = "- $($TableParams.Name)"
+                                                                        }
+                                                                        $NetIpsReport | Sort-Object -Property 'Interface Name' | Table @TableParams
+                                                                    }
+                                                                }
+                                                            }
+                                                            catch {
+                                                                Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                            }
+                                                        }
+                                                    }
+                                                    Remove-PSSession -Session $PssSession
+                                                    Remove-CimSession $CimSession
+                                                }
                                             }
-                                        }
-                                        catch {
-                                            Write-PscriboMessage -IsWarning $_.Exception.Message
+                                            catch {
+                                                Write-PscriboMessage -IsWarning $_.Exception.Message
+                                            }
                                         }
                                     }
                                 }
@@ -395,7 +397,7 @@ function Get-AbrVbrBackupProxy {
                                                     Remove-PSSession -Session $PssSession
                                                 }
                                                 if ($Available -and $Services) {
-                                                    Section -Style Heading4 -ExcludeFromTOC "HealthCheck - $($BackupProxy.Host.Name.Split(".")[0]) Services Status" {
+                                                    Section -Style NOTOCHeading4 -ExcludeFromTOC "HealthCheck - $($BackupProxy.Host.Name.Split(".")[0]) Services Status" {
                                                         $OutObj = @()
                                                         foreach ($Service in $Services) {
                                                             Write-PscriboMessage "Collecting '$($Service.DisplayName)' status on $($BackupProxy.Name)."
@@ -532,256 +534,260 @@ function Get-AbrVbrBackupProxy {
                                         Write-PScriboMessage "Backup Proxy InfoLevel set at $($InfoLevel.Infrastructure.Proxy)."
                                         Write-PScriboMessage "Collecting Inventory Summary."
                                         $BackupProxies = Get-VBRHvProxy
-                                        foreach ($BackupProxy in $BackupProxies) {
-                                            try {
-                                                Write-PscriboMessage "Collecting Backup Proxy Inventory Summary from $($BackupProxy.Host.Name)."
-                                                $CimSession = New-CimSession $BackupProxy.Host.Name -Credential $Credential -Authentication $Options.PSDefaultAuthentication
-                                                $PssSession = New-PSSession $BackupProxy.Host.Name -Credential $Credential -Authentication $Options.PSDefaultAuthentication
-                                                if ($PssSession) {
-                                                    $HW = Invoke-Command -Session $PssSession -ScriptBlock { Get-ComputerInfo }
-                                                }
-                                                if ($HW) {
-                                                    $License = Get-CimInstance -Query 'Select * from SoftwareLicensingProduct' -CimSession $CimSession | Where-Object { $_.LicenseStatus -eq 1 }
-                                                    $HWCPU = Get-CimInstance -Class Win32_Processor -CimSession $CimSession
-                                                    $HWBIOS = Get-CimInstance -Class Win32_Bios -CimSession $CimSession
-                                                    Section -Style Heading4 -ExcludeFromTOC "$($BackupProxy.Host.Name.Split(".")[0]) Inventory Summary" {
-                                                        $OutObj = @()
-                                                        $inObj = [ordered] @{
-                                                            'Name' = $HW.CsDNSHostName
-                                                            'Windows Product Name' = $HW.WindowsProductName
-                                                            'Windows Current Version' = $HW.WindowsCurrentVersion
-                                                            'Windows Build Number' = $HW.OsVersion
-                                                            'Windows Install Type' = $HW.WindowsInstallationType
-                                                            'Active Directory Domain' = $HW.CsDomain
-                                                            'Windows Installation Date' = $HW.OsInstallDate
-                                                            'Time Zone' = $HW.TimeZone
-                                                            'License Type' = $License.ProductKeyChannel
-                                                            'Partial Product Key' = $License.PartialProductKey
-                                                            'Manufacturer' = $HW.CsManufacturer
-                                                            'Model' = $HW.CsModel
-                                                            'Serial Number' = $HWBIOS.SerialNumber
-                                                            'Bios Type' = $HW.BiosFirmwareType
-                                                            'BIOS Version' = $HWBIOS.Version
-                                                            'Processor Manufacturer' = $HWCPU[0].Manufacturer
-                                                            'Processor Model' = $HWCPU[0].Name
-                                                            'Number of CPU Cores' = $HWCPU[0].NumberOfCores
-                                                            'Number of Logical Cores' = $HWCPU[0].NumberOfLogicalProcessors
-                                                            'Physical Memory (GB)' = ConvertTo-FileSizeString $HW.CsTotalPhysicalMemory
+                                        if ($BackupProxies) {
+                                            Section -Style Heading4 'Hardware Inventory' {
+                                                foreach ($BackupProxy in $BackupProxies) {
+                                                    try {
+                                                        Write-PscriboMessage "Collecting Backup Proxy Inventory Summary from $($BackupProxy.Host.Name)."
+                                                        $CimSession = New-CimSession $BackupProxy.Host.Name -Credential $Credential -Authentication $Options.PSDefaultAuthentication
+                                                        $PssSession = New-PSSession $BackupProxy.Host.Name -Credential $Credential -Authentication $Options.PSDefaultAuthentication
+                                                        if ($PssSession) {
+                                                            $HW = Invoke-Command -Session $PssSession -ScriptBlock { Get-ComputerInfo }
                                                         }
-                                                        $OutObj += [pscustomobject]$inobj
+                                                        if ($HW) {
+                                                            $License = Get-CimInstance -Query 'Select * from SoftwareLicensingProduct' -CimSession $CimSession | Where-Object { $_.LicenseStatus -eq 1 }
+                                                            $HWCPU = Get-CimInstance -Class Win32_Processor -CimSession $CimSession
+                                                            $HWBIOS = Get-CimInstance -Class Win32_Bios -CimSession $CimSession
+                                                            Section -Style Heading5 $($BackupProxy.Host.Name.Split(".")[0]) {
+                                                                $OutObj = @()
+                                                                $inObj = [ordered] @{
+                                                                    'Name' = $HW.CsDNSHostName
+                                                                    'Windows Product Name' = $HW.WindowsProductName
+                                                                    'Windows Current Version' = $HW.WindowsCurrentVersion
+                                                                    'Windows Build Number' = $HW.OsVersion
+                                                                    'Windows Install Type' = $HW.WindowsInstallationType
+                                                                    'Active Directory Domain' = $HW.CsDomain
+                                                                    'Windows Installation Date' = $HW.OsInstallDate
+                                                                    'Time Zone' = $HW.TimeZone
+                                                                    'License Type' = $License.ProductKeyChannel
+                                                                    'Partial Product Key' = $License.PartialProductKey
+                                                                    'Manufacturer' = $HW.CsManufacturer
+                                                                    'Model' = $HW.CsModel
+                                                                    'Serial Number' = $HWBIOS.SerialNumber
+                                                                    'Bios Type' = $HW.BiosFirmwareType
+                                                                    'BIOS Version' = $HWBIOS.Version
+                                                                    'Processor Manufacturer' = $HWCPU[0].Manufacturer
+                                                                    'Processor Model' = $HWCPU[0].Name
+                                                                    'Number of CPU Cores' = $HWCPU[0].NumberOfCores
+                                                                    'Number of Logical Cores' = $HWCPU[0].NumberOfLogicalProcessors
+                                                                    'Physical Memory (GB)' = ConvertTo-FileSizeString $HW.CsTotalPhysicalMemory
+                                                                }
+                                                                $OutObj += [pscustomobject]$inobj
 
-                                                        if ($HealthCheck.Infrastructure.Server) {
-                                                            $OutObj | Where-Object { $_.'Number of CPU Cores' -lt 4} | Set-Style -Style Warning -Property 'Number of CPU Cores'
-                                                            if ([int]([regex]::Matches($OutObj.'Physical Memory (GB)', "\d+(?!.*\d+)").value) -lt 8) { $OutObj | Set-Style -Style Warning -Property 'Physical Memory (GB)' }
-                                                        }
+                                                                if ($HealthCheck.Infrastructure.Server) {
+                                                                    $OutObj | Where-Object { $_.'Number of CPU Cores' -lt 4} | Set-Style -Style Warning -Property 'Number of CPU Cores'
+                                                                    if ([int]([regex]::Matches($OutObj.'Physical Memory (GB)', "\d+(?!.*\d+)").value) -lt 8) { $OutObj | Set-Style -Style Warning -Property 'Physical Memory (GB)' }
+                                                                }
 
-                                                        $TableParams = @{
-                                                            Name = "Backup Proxy Inventory - $($BackupProxy.Host.Name.Split(".")[0])"
-                                                            List = $true
-                                                            ColumnWidths = 40, 60
-                                                        }
-                                                        if ($Report.ShowTableCaptions) {
-                                                            $TableParams['Caption'] = "- $($TableParams.Name)"
-                                                        }
-                                                        $OutObj | Table @TableParams
-                                                        #---------------------------------------------------------------------------------------------#
-                                                        #                       Backup Proxy Local Disk Inventory Section                            #
-                                                        #---------------------------------------------------------------------------------------------#
-                                                        if ($InfoLevel.Infrastructure.Proxy -ge 3) {
-                                                            try {
-                                                                $HostDisks = Invoke-Command -Session $PssSession -ScriptBlock { Get-Disk | Where-Object { $_.BusType -ne "iSCSI" -and $_.BusType -ne "Fibre Channel" } }
-                                                                if ($HostDisks) {
-                                                                    Section -Style Heading5 -ExcludeFromTOC 'Local Disks' {
-                                                                        $LocalDiskReport = @()
-                                                                        ForEach ($Disk in $HostDisks) {
-                                                                            try {
-                                                                                $TempLocalDiskReport = [PSCustomObject]@{
-                                                                                    'Disk Number' = $Disk.Number
-                                                                                    'Model' = $Disk.Model
-                                                                                    'Serial Number' = $Disk.SerialNumber
-                                                                                    'Partition Style' = $Disk.PartitionStyle
-                                                                                    'Disk Size' = "$([Math]::Round($Disk.Size / 1Gb)) GB"
+                                                                $TableParams = @{
+                                                                    Name = "Backup Proxy Inventory - $($BackupProxy.Host.Name.Split(".")[0])"
+                                                                    List = $true
+                                                                    ColumnWidths = 40, 60
+                                                                }
+                                                                if ($Report.ShowTableCaptions) {
+                                                                    $TableParams['Caption'] = "- $($TableParams.Name)"
+                                                                }
+                                                                $OutObj | Table @TableParams
+                                                                #---------------------------------------------------------------------------------------------#
+                                                                #                       Backup Proxy Local Disk Inventory Section                            #
+                                                                #---------------------------------------------------------------------------------------------#
+                                                                if ($InfoLevel.Infrastructure.Proxy -ge 3) {
+                                                                    try {
+                                                                        $HostDisks = Invoke-Command -Session $PssSession -ScriptBlock { Get-Disk | Where-Object { $_.BusType -ne "iSCSI" -and $_.BusType -ne "Fibre Channel" } }
+                                                                        if ($HostDisks) {
+                                                                            Section -Style NOTOCHeading6 -ExcludeFromTOC 'Local Disks' {
+                                                                                $LocalDiskReport = @()
+                                                                                ForEach ($Disk in $HostDisks) {
+                                                                                    try {
+                                                                                        $TempLocalDiskReport = [PSCustomObject]@{
+                                                                                            'Disk Number' = $Disk.Number
+                                                                                            'Model' = $Disk.Model
+                                                                                            'Serial Number' = $Disk.SerialNumber
+                                                                                            'Partition Style' = $Disk.PartitionStyle
+                                                                                            'Disk Size' = "$([Math]::Round($Disk.Size / 1Gb)) GB"
+                                                                                        }
+                                                                                        $LocalDiskReport += $TempLocalDiskReport
+                                                                                    }
+                                                                                    catch {
+                                                                                        Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                                                    }
                                                                                 }
-                                                                                $LocalDiskReport += $TempLocalDiskReport
-                                                                            }
-                                                                            catch {
-                                                                                Write-PscriboMessage -IsWarning $_.Exception.Message
-                                                                            }
-                                                                        }
-                                                                        $TableParams = @{
-                                                                            Name = "Local Disks - $($BackupProxies.Host.Name.Split(".")[0])"
-                                                                            List = $false
-                                                                            ColumnWidths = 20, 20, 20, 20, 20
-                                                                        }
-                                                                        if ($Report.ShowTableCaptions) {
-                                                                            $TableParams['Caption'] = "- $($TableParams.Name)"
-                                                                        }
-                                                                        $LocalDiskReport | Sort-Object -Property 'Disk Number' | Table @TableParams
-                                                                    }
-                                                                }
-                                                            }
-                                                            catch {
-                                                                Write-PscriboMessage -IsWarning $_.Exception.Message
-                                                            }
-                                                            #---------------------------------------------------------------------------------------------#
-                                                            #                       Backup Proxy SAN Disk Inventory Section                              #
-                                                            #---------------------------------------------------------------------------------------------#
-                                                            try {
-                                                                $SanDisks = Invoke-Command -Session $PssSession -ScriptBlock { Get-Disk | Where-Object { $_.BusType -Eq "iSCSI" -or $_.BusType -Eq "Fibre Channel" } }
-                                                                if ($SanDisks) {
-                                                                    Section -Style Heading5 -ExcludeFromTOC 'SAN Disks' {
-                                                                        $SanDiskReport = @()
-                                                                        ForEach ($Disk in $SanDisks) {
-                                                                            try {
-                                                                                $TempSanDiskReport = [PSCustomObject]@{
-                                                                                    'Disk Number' = $Disk.Number
-                                                                                    'Model' = $Disk.Model
-                                                                                    'Serial Number' = $Disk.SerialNumber
-                                                                                    'Partition Style' = $Disk.PartitionStyle
-                                                                                    'Disk Size' = "$([Math]::Round($Disk.Size / 1Gb)) GB"
+                                                                                $TableParams = @{
+                                                                                    Name = "Local Disks - $($BackupProxies.Host.Name.Split(".")[0])"
+                                                                                    List = $false
+                                                                                    ColumnWidths = 20, 20, 20, 20, 20
                                                                                 }
-                                                                                $SanDiskReport += $TempSanDiskReport
-                                                                            }
-                                                                            catch {
-                                                                                Write-PscriboMessage -IsWarning $_.Exception.Message
-                                                                            }
-                                                                        }
-                                                                        $TableParams = @{
-                                                                            Name = "SAN Disks - $($BackupProxies.Host.Name.Split(".")[0])"
-                                                                            List = $false
-                                                                            ColumnWidths = 20, 20, 20, 20, 20
-                                                                        }
-                                                                        if ($Report.ShowTableCaptions) {
-                                                                            $TableParams['Caption'] = "- $($TableParams.Name)"
-                                                                        }
-                                                                        $SanDiskReport | Sort-Object -Property 'Disk Number' | Table @TableParams
-                                                                    }
-                                                                }
-                                                            }
-                                                            catch {
-                                                                Write-PscriboMessage -IsWarning $_.Exception.Message
-                                                            }
-                                                        }
-                                                        #---------------------------------------------------------------------------------------------#
-                                                        #                       Backup Proxy Volume Inventory Section                                #
-                                                        #---------------------------------------------------------------------------------------------#
-                                                        try {
-                                                            $HostVolumes = Invoke-Command -Session $PssSession -ScriptBlock {  Get-Volume | Where-Object {$_.DriveType -ne "CD-ROM" -and $NUll -ne $_.DriveLetter} }
-                                                            if ($HostVolumes) {
-                                                                Section -Style Heading5 -ExcludeFromTOC 'Host Volumes' {
-                                                                    $HostVolumeReport = @()
-                                                                    ForEach ($HostVolume in $HostVolumes) {
-                                                                        try {
-                                                                            $TempHostVolumeReport = [PSCustomObject]@{
-                                                                                'Drive Letter' = $HostVolume.DriveLetter
-                                                                                'File System Label' = $HostVolume.FileSystemLabel
-                                                                                'File System' = $HostVolume.FileSystem
-                                                                                'Size' = "$([Math]::Round($HostVolume.Size / 1gb)) GB"
-                                                                                'Free Space' = "$([Math]::Round($HostVolume.SizeRemaining / 1gb)) GB"
-                                                                                'Health Status' = $HostVolume.HealthStatus
-                                                                            }
-                                                                            $HostVolumeReport += $TempHostVolumeReport
-                                                                        }
-                                                                        catch {
-                                                                            Write-PscriboMessage -IsWarning $_.Exception.Message
-                                                                        }
-                                                                    }
-                                                                    $TableParams = @{
-                                                                        Name = "Volumes - $($BackupProxies.Host.Name.Split(".")[0])"
-                                                                        List = $false
-                                                                        ColumnWidths = 15, 15, 15, 20, 20, 15
-                                                                    }
-                                                                    if ($Report.ShowTableCaptions) {
-                                                                        $TableParams['Caption'] = "- $($TableParams.Name)"
-                                                                    }
-                                                                    $HostVolumeReport | Sort-Object -Property 'Drive Letter' | Table @TableParams
-                                                                }
-                                                            }
-                                                        }
-                                                        catch {
-                                                            Write-PscriboMessage -IsWarning $_.Exception.Message
-                                                        }
-                                                        #---------------------------------------------------------------------------------------------#
-                                                        #                       Backup Proxy Network Inventory Section                               #
-                                                        #---------------------------------------------------------------------------------------------#
-                                                        if ($InfoLevel.Infrastructure.Proxy -ge 2) {
-                                                            try {
-                                                                $HostAdapters = Invoke-Command -Session $PssSession { Get-NetAdapter }
-                                                                if ($HostAdapters) {
-                                                                    Section -Style Heading3 'Network Adapters' {
-                                                                        $HostAdaptersReport = @()
-                                                                        ForEach ($HostAdapter in $HostAdapters) {
-                                                                            try {
-                                                                                $TempHostAdaptersReport = [PSCustomObject]@{
-                                                                                    'Adapter Name' = $HostAdapter.Name
-                                                                                    'Adapter Description' = $HostAdapter.InterfaceDescription
-                                                                                    'Mac Address' = $HostAdapter.MacAddress
-                                                                                    'Link Speed' = $HostAdapter.LinkSpeed
+                                                                                if ($Report.ShowTableCaptions) {
+                                                                                    $TableParams['Caption'] = "- $($TableParams.Name)"
                                                                                 }
-                                                                                $HostAdaptersReport += $TempHostAdaptersReport
-                                                                            }
-                                                                            catch {
-                                                                                Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                                                $LocalDiskReport | Sort-Object -Property 'Disk Number' | Table @TableParams
                                                                             }
                                                                         }
-                                                                        $TableParams = @{
-                                                                            Name = "Network Adapters - $($BackupProxies.Host.Name.Split(".")[0])"
-                                                                            List = $false
-                                                                            ColumnWidths = 30, 35, 20, 15
-                                                                        }
-                                                                        if ($Report.ShowTableCaptions) {
-                                                                            $TableParams['Caption'] = "- $($TableParams.Name)"
-                                                                        }
-                                                                        $HostAdaptersReport | Sort-Object -Property 'Adapter Name' | Table @TableParams
                                                                     }
-                                                                }
-                                                            }
-                                                            catch {
-                                                                Write-PscriboMessage -IsWarning $_.Exception.Message
-                                                            }
-                                                            try {
-                                                                $NetIPs = Invoke-Command -Session $PssSession { Get-NetIPConfiguration | Where-Object -FilterScript { ($_.NetAdapter.Status -Eq "Up") } }
-                                                                if ($NetIPs) {
-                                                                    Section -Style Heading3 'IP Address' {
-                                                                        $NetIpsReport = @()
-                                                                        ForEach ($NetIp in $NetIps) {
-                                                                            try {
-                                                                                $TempNetIpsReport = [PSCustomObject]@{
-                                                                                    'Interface Name' = $NetIp.InterfaceAlias
-                                                                                    'Interface Description' = $NetIp.InterfaceDescription
-                                                                                    'IPv4 Addresses' = $NetIp.IPv4Address.IPAddress -Join ","
-                                                                                    'Subnet Mask' = $NetIp.IPv4Address[0].PrefixLength
-                                                                                    'IPv4 Gateway' = $NetIp.IPv4DefaultGateway.NextHop
+                                                                    catch {
+                                                                        Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                                    }
+                                                                    #---------------------------------------------------------------------------------------------#
+                                                                    #                       Backup Proxy SAN Disk Inventory Section                              #
+                                                                    #---------------------------------------------------------------------------------------------#
+                                                                    try {
+                                                                        $SanDisks = Invoke-Command -Session $PssSession -ScriptBlock { Get-Disk | Where-Object { $_.BusType -Eq "iSCSI" -or $_.BusType -Eq "Fibre Channel" } }
+                                                                        if ($SanDisks) {
+                                                                            Section -Style NOTOCHeading6 -ExcludeFromTOC 'SAN Disks' {
+                                                                                $SanDiskReport = @()
+                                                                                ForEach ($Disk in $SanDisks) {
+                                                                                    try {
+                                                                                        $TempSanDiskReport = [PSCustomObject]@{
+                                                                                            'Disk Number' = $Disk.Number
+                                                                                            'Model' = $Disk.Model
+                                                                                            'Serial Number' = $Disk.SerialNumber
+                                                                                            'Partition Style' = $Disk.PartitionStyle
+                                                                                            'Disk Size' = "$([Math]::Round($Disk.Size / 1Gb)) GB"
+                                                                                        }
+                                                                                        $SanDiskReport += $TempSanDiskReport
+                                                                                    }
+                                                                                    catch {
+                                                                                        Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                                                    }
                                                                                 }
-                                                                                $NetIpsReport += $TempNetIpsReport
+                                                                                $TableParams = @{
+                                                                                    Name = "SAN Disks - $($BackupProxies.Host.Name.Split(".")[0])"
+                                                                                    List = $false
+                                                                                    ColumnWidths = 20, 20, 20, 20, 20
+                                                                                }
+                                                                                if ($Report.ShowTableCaptions) {
+                                                                                    $TableParams['Caption'] = "- $($TableParams.Name)"
+                                                                                }
+                                                                                $SanDiskReport | Sort-Object -Property 'Disk Number' | Table @TableParams
                                                                             }
-                                                                            catch {
-                                                                                Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                                        }
+                                                                    }
+                                                                    catch {
+                                                                        Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                                    }
+                                                                }
+                                                                #---------------------------------------------------------------------------------------------#
+                                                                #                       Backup Proxy Volume Inventory Section                                #
+                                                                #---------------------------------------------------------------------------------------------#
+                                                                try {
+                                                                    $HostVolumes = Invoke-Command -Session $PssSession -ScriptBlock {  Get-Volume | Where-Object {$_.DriveType -ne "CD-ROM" -and $NUll -ne $_.DriveLetter} }
+                                                                    if ($HostVolumes) {
+                                                                        Section -Style NOTOCHeading6 -ExcludeFromTOC 'Host Volumes' {
+                                                                            $HostVolumeReport = @()
+                                                                            ForEach ($HostVolume in $HostVolumes) {
+                                                                                try {
+                                                                                    $TempHostVolumeReport = [PSCustomObject]@{
+                                                                                        'Drive Letter' = $HostVolume.DriveLetter
+                                                                                        'File System Label' = $HostVolume.FileSystemLabel
+                                                                                        'File System' = $HostVolume.FileSystem
+                                                                                        'Size' = "$([Math]::Round($HostVolume.Size / 1gb)) GB"
+                                                                                        'Free Space' = "$([Math]::Round($HostVolume.SizeRemaining / 1gb)) GB"
+                                                                                        'Health Status' = $HostVolume.HealthStatus
+                                                                                    }
+                                                                                    $HostVolumeReport += $TempHostVolumeReport
+                                                                                }
+                                                                                catch {
+                                                                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                                                }
+                                                                            }
+                                                                            $TableParams = @{
+                                                                                Name = "Volumes - $($BackupProxies.Host.Name.Split(".")[0])"
+                                                                                List = $false
+                                                                                ColumnWidths = 15, 15, 15, 20, 20, 15
+                                                                            }
+                                                                            if ($Report.ShowTableCaptions) {
+                                                                                $TableParams['Caption'] = "- $($TableParams.Name)"
+                                                                            }
+                                                                            $HostVolumeReport | Sort-Object -Property 'Drive Letter' | Table @TableParams
+                                                                        }
+                                                                    }
+                                                                }
+                                                                catch {
+                                                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                                }
+                                                                #---------------------------------------------------------------------------------------------#
+                                                                #                       Backup Proxy Network Inventory Section                               #
+                                                                #---------------------------------------------------------------------------------------------#
+                                                                if ($InfoLevel.Infrastructure.Proxy -ge 2) {
+                                                                    try {
+                                                                        $HostAdapters = Invoke-Command -Session $PssSession { Get-NetAdapter }
+                                                                        if ($HostAdapters) {
+                                                                            Section -Style NOTOCHeading6 -ExcludeFromTOC 'Network Adapters' {
+                                                                                $HostAdaptersReport = @()
+                                                                                ForEach ($HostAdapter in $HostAdapters) {
+                                                                                    try {
+                                                                                        $TempHostAdaptersReport = [PSCustomObject]@{
+                                                                                            'Adapter Name' = $HostAdapter.Name
+                                                                                            'Adapter Description' = $HostAdapter.InterfaceDescription
+                                                                                            'Mac Address' = $HostAdapter.MacAddress
+                                                                                            'Link Speed' = $HostAdapter.LinkSpeed
+                                                                                        }
+                                                                                        $HostAdaptersReport += $TempHostAdaptersReport
+                                                                                    }
+                                                                                    catch {
+                                                                                        Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                                                    }
+                                                                                }
+                                                                                $TableParams = @{
+                                                                                    Name = "Network Adapters - $($BackupProxies.Host.Name.Split(".")[0])"
+                                                                                    List = $false
+                                                                                    ColumnWidths = 30, 35, 20, 15
+                                                                                }
+                                                                                if ($Report.ShowTableCaptions) {
+                                                                                    $TableParams['Caption'] = "- $($TableParams.Name)"
+                                                                                }
+                                                                                $HostAdaptersReport | Sort-Object -Property 'Adapter Name' | Table @TableParams
                                                                             }
                                                                         }
-                                                                        $TableParams = @{
-                                                                            Name = "IP Address - $($BackupProxies.Host.Name.Split(".")[0])"
-                                                                            List = $false
-                                                                            ColumnWidths = 25, 25, 20, 10, 20
+                                                                    }
+                                                                    catch {
+                                                                        Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                                    }
+                                                                    try {
+                                                                        $NetIPs = Invoke-Command -Session $PssSession { Get-NetIPConfiguration | Where-Object -FilterScript { ($_.NetAdapter.Status -Eq "Up") } }
+                                                                        if ($NetIPs) {
+                                                                            Section -Style NOTOCHeading6 -ExcludeFromTOC 'IP Address' {
+                                                                                $NetIpsReport = @()
+                                                                                ForEach ($NetIp in $NetIps) {
+                                                                                    try {
+                                                                                        $TempNetIpsReport = [PSCustomObject]@{
+                                                                                            'Interface Name' = $NetIp.InterfaceAlias
+                                                                                            'Interface Description' = $NetIp.InterfaceDescription
+                                                                                            'IPv4 Addresses' = $NetIp.IPv4Address.IPAddress -Join ","
+                                                                                            'Subnet Mask' = $NetIp.IPv4Address[0].PrefixLength
+                                                                                            'IPv4 Gateway' = $NetIp.IPv4DefaultGateway.NextHop
+                                                                                        }
+                                                                                        $NetIpsReport += $TempNetIpsReport
+                                                                                    }
+                                                                                    catch {
+                                                                                        Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                                                    }
+                                                                                }
+                                                                                $TableParams = @{
+                                                                                    Name = "IP Address - $($BackupProxies.Host.Name.Split(".")[0])"
+                                                                                    List = $false
+                                                                                    ColumnWidths = 25, 25, 20, 10, 20
+                                                                                }
+                                                                                if ($Report.ShowTableCaptions) {
+                                                                                    $TableParams['Caption'] = "- $($TableParams.Name)"
+                                                                                }
+                                                                                $NetIpsReport | Sort-Object -Property 'Interface Name' | Table @TableParams
+                                                                            }
                                                                         }
-                                                                        if ($Report.ShowTableCaptions) {
-                                                                            $TableParams['Caption'] = "- $($TableParams.Name)"
-                                                                        }
-                                                                        $NetIpsReport | Sort-Object -Property 'Interface Name' | Table @TableParams
+                                                                    }
+                                                                    catch {
+                                                                        Write-PscriboMessage -IsWarning $_.Exception.Message
                                                                     }
                                                                 }
                                                             }
-                                                            catch {
-                                                                Write-PscriboMessage -IsWarning $_.Exception.Message
-                                                            }
+                                                            Remove-PSSession -Session $PssSession
+                                                            Remove-CimSession $CimSession
                                                         }
                                                     }
-                                                    Remove-PSSession -Session $PssSession
-                                                    Remove-CimSession $CimSession
+                                                    catch {
+                                                        Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                    }
                                                 }
-                                            }
-                                            catch {
-                                                Write-PscriboMessage -IsWarning $_.Exception.Message
                                             }
                                         }
                                     }
@@ -810,7 +816,7 @@ function Get-AbrVbrBackupProxy {
                                                         Remove-PSSession -Session $PssSession
                                                     }
                                                     if ($Available -and $Services) {
-                                                        Section -Style Heading4 -ExcludeFromTOC "HealthCheck - $($BackupProxy.Host.Name.Split(".")[0]) Services Status" {
+                                                        Section -Style NOTOCHeading4 -ExcludeFromTOC "HealthCheck - $($BackupProxy.Host.Name.Split(".")[0]) Services Status" {
                                                             $OutObj = @()
                                                             foreach ($Service in $Services) {
                                                                 Write-PscriboMessage "Collecting '$($Service.DisplayName)' status on $($BackupProxy.Name)."

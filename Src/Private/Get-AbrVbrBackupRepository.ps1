@@ -91,9 +91,7 @@ function Get-AbrVbrBackupRepository {
                                 BlankLine
                                 foreach ($BackupRepo in $BackupRepos) {
                                     try {
-                                        Section -Style Heading5 -ExcludeFromTOC "$($BackupRepo.Name)" {
-                                            Paragraph "The following section provides detailed information about $($BackupRepo.Name) Backup Repository."
-                                            BlankLine
+                                        Section -Style NOTOCHeading5 -ExcludeFromTOC $($BackupRepo.Name) {
                                             $OutObj = @()
                                             Write-PscriboMessage "Discovered $($BackupRepo.Name) Backup Repository."
                                             $inObj = [ordered] @{

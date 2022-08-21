@@ -67,8 +67,8 @@ function Get-AbrVbrBackupjobHyperV {
                     $OutObj = @()
                     foreach ($Bkjob in $Bkjobs) {
                         try {
-                            Section -Style Heading4 "$($Bkjob.Name) Configuration" {
-                                Section -Style Heading5 -ExcludeFromTOC 'Common Information' {
+                            Section -Style Heading4 $($Bkjob.Name) {
+                                Section -Style NOTOCHeading4 -ExcludeFromTOC 'Common Information' {
                                     $OutObj = @()
                                     try {
                                         $CommonInfos = (Get-VBRJob -WarningAction SilentlyContinue -Name $Bkjob.Name | Where-object {$_.TypeToString -ne 'Windows Agent Backup'}).Info
@@ -106,7 +106,7 @@ function Get-AbrVbrBackupjobHyperV {
                                     }
                                 }
                                 if ($Bkjob.LinkedJobs) {
-                                    Section -Style Heading5 -ExcludeFromTOC 'Linked Backup Jobs' {
+                                    Section -Style NOTOCHeading5 -ExcludeFromTOC 'Linked Backup Jobs' {
                                         $OutObj = @()
                                         try {
                                             foreach ($LinkedBkJob in $Bkjob.LinkedJobs) {
@@ -142,7 +142,7 @@ function Get-AbrVbrBackupjobHyperV {
                                     }
                                 }
                                 if ($Bkjob.LinkedJobs) {
-                                    Section -Style Heading5 -ExcludeFromTOC 'Data Transfer' {
+                                    Section -Style NOTOCHeading5 -ExcludeFromTOC 'Data Transfer' {
                                         $OutObj = @()
                                         try {
                                             try {
@@ -192,7 +192,7 @@ function Get-AbrVbrBackupjobHyperV {
                                     }
                                 }
                                 if ($Bkjob.GetHvOijs()) {
-                                    Section -Style Heading5 -ExcludeFromTOC "Virtual Machines" {
+                                    Section -Style NOTOCHeading5 -ExcludeFromTOC "Virtual Machines" {
                                         $OutObj = @()
                                         try {
                                             foreach ($OBJ in ($Bkjob.GetObjectsInJob() | Where-Object {$_.Type -eq "Include" -or $_.Type -eq "Exclude"} )) {
@@ -226,7 +226,7 @@ function Get-AbrVbrBackupjobHyperV {
                                 if ($Bkjob.TypeToString -eq "Hyper-V Backup Copy") {
                                     $Storage = 'Target'
                                 } else {$Storage = 'Storage'}
-                                Section -Style Heading5 -ExcludeFromTOC $Storage {
+                                Section -Style NOTOCHeading5 -ExcludeFromTOC $Storage {
                                     $OutObj = @()
                                     try {
                                         Write-PscriboMessage "Discovered $($Bkjob.Name) storage options."
@@ -279,7 +279,7 @@ function Get-AbrVbrBackupjobHyperV {
                                         }
                                         $OutObj | Table @TableParams
                                         if ($InfoLevel.Jobs.Backup -ge 2 -and ($Bkjob.Options.GenerationPolicy.EnableRechek -or $Bkjob.Options.GenerationPolicy.EnableCompactFull)) {
-                                            Section -Style Heading6 -ExcludeFromTOC "Advanced Settings (Maintenance)" {
+                                            Section -Style NOTOCHeading6 -ExcludeFromTOC "Advanced Settings (Maintenance)" {
                                                 $OutObj = @()
                                                 try {
                                                     Write-PscriboMessage "Discovered $($Bkjob.Name) maintenance options."
@@ -312,7 +312,7 @@ function Get-AbrVbrBackupjobHyperV {
                                             }
                                         }
                                         if ($InfoLevel.Jobs.Backup -ge 2) {
-                                            Section -Style Heading6 -ExcludeFromTOC "Advanced Settings (Storage)" {
+                                            Section -Style NOTOCHeading6 -ExcludeFromTOC "Advanced Settings (Storage)" {
                                                 $OutObj = @()
                                                 try {
                                                     Write-PscriboMessage "Discovered $($Bkjob.Name) storage options."
@@ -359,7 +359,7 @@ function Get-AbrVbrBackupjobHyperV {
                                             }
                                         }
                                         if ($InfoLevel.Jobs.Backup -ge 2 -and ($Bkjob.Options.NotificationOptions.SnmpNotification -or $Bkjob.Options.NotificationOptions.SendEmailNotification2AdditionalAddresses)) {
-                                            Section -Style Heading6 -ExcludeFromTOC "Advanced Settings (Notification)" {
+                                            Section -Style NOTOCHeading6 -ExcludeFromTOC "Advanced Settings (Notification)" {
                                                 $OutObj = @()
                                                 try {
                                                     Write-PscriboMessage "Discovered $($Bkjob.Name) notification options."
@@ -396,7 +396,7 @@ function Get-AbrVbrBackupjobHyperV {
                                             }
                                         }
                                         if ($InfoLevel.Jobs.Backup -ge 2 -and ($Bkjob.Options.HvSourceOptions.EnableHvQuiescence -or $Bkjob.Options.HvSourceOptions.UseChangeTracking)) {
-                                            Section -Style Heading6 -ExcludeFromTOC "Advanced Settings (Hyper-V)" {
+                                            Section -Style NOTOCHeading6 -ExcludeFromTOC "Advanced Settings (Hyper-V)" {
                                                 $OutObj = @()
                                                 try {
                                                     Write-PscriboMessage "Discovered $($Bkjob.Name) Hyper-V options."
@@ -424,7 +424,7 @@ function Get-AbrVbrBackupjobHyperV {
                                             }
                                         }
                                         if ($InfoLevel.Jobs.Backup -ge 2 -and $Bkjob.Options.SanIntegrationOptions.UseSanSnapshots) {
-                                            Section -Style Heading6 -ExcludeFromTOC "Advanced Settings (Integration)" {
+                                            Section -Style NOTOCHeading6 -ExcludeFromTOC "Advanced Settings (Integration)" {
                                                 $OutObj = @()
                                                 try {
                                                     Write-PscriboMessage "Discovered $($Bkjob.Name) Integration options."
@@ -453,7 +453,7 @@ function Get-AbrVbrBackupjobHyperV {
                                             }
                                         }
                                         if ($InfoLevel.Jobs.Backup -ge 2 -and ($Bkjob.Options.JobScriptCommand.PreScriptEnabled -or $Bkjob.Options.JobScriptCommand.PostScriptEnabled)) {
-                                            Section -Style Heading6 -ExcludeFromTOC "Advanced Settings (Script)" {
+                                            Section -Style NOTOCHeading6 -ExcludeFromTOC "Advanced Settings (Script)" {
                                                 $OutObj = @()
                                                 try {
                                                     if ($Bkjob.Options.JobScriptCommand.Periodicity -eq 'Days') {
@@ -492,7 +492,7 @@ function Get-AbrVbrBackupjobHyperV {
                                             }
                                         }
                                         if ($InfoLevel.Jobs.Backup -ge 2 -and ($Bkjob.Options.RpoOptions.Enabled -or $Bkjob.Options.RpoOptions.LogBackupRpoEnabled)) {
-                                            Section -Style Heading6 -ExcludeFromTOC "Advanced Settings (RPO Monitor)" {
+                                            Section -Style NOTOCHeading6 -ExcludeFromTOC "Advanced Settings (RPO Monitor)" {
                                                 $OutObj = @()
                                                 try {
                                                     Write-PscriboMessage "Discovered $($Bkjob.Name) rpo monitor options."
@@ -526,7 +526,7 @@ function Get-AbrVbrBackupjobHyperV {
                                 }
                                 $SecondaryTargets = [Veeam.Backup.Core.CBackupJob]::GetSecondDestinationJobs($Bkjob.Id) | Where-Object {$_.JobType -ne 'SimpleBackupCopyWorker'}
                                 if ($SecondaryTargets) {
-                                    Section -Style Heading5 -ExcludeFromTOC "Secondary Target" {
+                                    Section -Style NOTOCHeading5 -ExcludeFromTOC "Secondary Target" {
                                         $OutObj = @()
                                         try {
                                             foreach ($SecondaryTarget in $SecondaryTargets) {
@@ -560,7 +560,7 @@ function Get-AbrVbrBackupjobHyperV {
                                     }
                                 }
                                 if ($Bkjob.VssOptions.Enabled) {
-                                    Section -Style Heading5 -ExcludeFromTOC "Guest Processing" {
+                                    Section -Style NOTOCHeading5 -ExcludeFromTOC "Guest Processing" {
                                         $OutObj = @()
                                         try {
                                             $VSSObjs = Get-VBRJobObject -Job $Bkjob.Name | Where-Object {$_.Type -eq "Include" -or $_.Type -eq "VssChild"}
@@ -672,7 +672,7 @@ function Get-AbrVbrBackupjobHyperV {
                                     }
                                 }
                                 if ($Bkjob.GetScheduleOptions().NextRun -and $Bkjob.ScheduleOptions.OptionsContinuous.Enabled -ne "True") {
-                                    Section -Style Heading5 -ExcludeFromTOC "Schedule" {
+                                    Section -Style NOTOCHeading5 -ExcludeFromTOC "Schedule" {
                                         $OutObj = @()
                                         try {
                                             Write-PscriboMessage "Discovered $($Bkjob.Name) schedule options."
