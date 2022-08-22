@@ -73,12 +73,10 @@ function Get-AbrVbrSureBackup {
                                 $SureBackupAGs = Get-VBRApplicationGroup
                                 foreach ($SureBackupAG in $SureBackupAGs) {
                                     if ($SureBackupAG.VM) {
-                                        Section -Style Heading5 -ExcludeFromTOC "$($SureBackupAG.Name) VM Settings" {
+                                        Section -Style Heading5 "$($SureBackupAG.Name) VM Settings" {
                                             try {
                                                 foreach ($VMSetting in $SureBackupAG.VM) {
-                                                    Section -Style Heading5 -ExcludeFromTOC "$($VMSetting.Name)" {
-                                                        Paragraph "The following section provides VM Application Group detailed information."
-                                                        BlankLine
+                                                    Section -Style NOTOCHeading4 -ExcludeFromTOC $($VMSetting.Name) {
                                                         $OutObj = @()
                                                         Write-PscriboMessage "Discovered $($VMSetting.Name) Application Group VM Setting."
                                                         $inObj = [ordered] @{
@@ -151,101 +149,99 @@ function Get-AbrVbrSureBackup {
                                     $TableParams['Caption'] = "- $($TableParams.Name)"
                                 }
                                 $OutObj | Sort-Object -Property 'Name' | Table @TableParams
-                            }
-                        }
-                        catch {
-                            Write-PscriboMessage -IsWarning $_.Exception.Message
-                        }
-                    }
-                    if ((Get-VBRVirtualLab).count -gt 0) {
-                        if ($InfoLevel.Infrastructure.SureBackup -ge 2) {
-                            try {
-                                Section -Style Heading5 "Virtual Labs Configuration" {
-                                    $SureBackupVLs = Get-VBRViVirtualLabConfiguration
-                                    foreach ($SureBackupVL in $SureBackupVLs) {
-                                        try {
-                                            Section -Style Heading6 -ExcludeFromTOC "$($SureBackupVL.Name) Settings" {
-                                                $OutObj = @()
-                                                Write-PscriboMessage "Discovered $($SureBackupVL.Name)  Virtual Lab."
-                                                $inObj = [ordered] @{
-                                                    'Host' = $SureBackupVL.Server.Name
-                                                    'Resource Pool' = $SureBackupVL.DesignatedResourcePoolName
-                                                    'VM Folder' =  $SureBackupVL.DesignatedVMFolderName
-                                                    'Cache Datastore' = $SureBackupVL.CacheDatastore
-                                                    'Proxy Appliance' = $SureBackupVL.ProxyAppliance
-                                                    'Proxy Appliance Enabled' = ConvertTo-TextYN $SureBackupVL.ProxyApplianceEnabled
-                                                    'Networking Type' = $SureBackupVL.Type
-                                                    'Production Network' = $SureBackupVL.NetworkMapping.ProductionNetwork.NetworkName
-                                                    'Isolated Network' = $SureBackupVL.NetworkMapping.IsolatedNetworkName
-                                                    'Routing Between vNics' = ConvertTo-TextYN $SureBackupVL.RoutingBetweenvNicsEnabled
-                                                    'Multi Host' = ConvertTo-TextYN $SureBackupVL.IsMultiHost
-                                                    'Ip Mapping Rule' = "Isolated IP Address: $($SureBackupVL.IpMappingRule.IsolatedIPAddress)`r`nAccess IP Address: $($SureBackupVL.IpMappingRule.AccessIPAddress)"
-                                                    'Static IP Mapping' = ConvertTo-TextYN $SureBackupVL.StaticIPMappingEnabled
-                                                }
-
-                                                $OutObj += [pscustomobject]$inobj
-
-                                                $TableParams = @{
-                                                    Name = "Virtual Lab Settings - $($SureBackupVL.Name)"
-                                                    List = $true
-                                                    ColumnWidths = 40, 60
-                                                }
-                                                if ($Report.ShowTableCaptions) {
-                                                    $TableParams['Caption'] = "- $($TableParams.Name)"
-                                                }
-                                                $OutObj | Table @TableParams
+                                if ($InfoLevel.Infrastructure.SureBackup -ge 2) {
+                                    try {
+                                        Section -Style Heading5 "Virtual Labs Configuration" {
+                                            $SureBackupVLs = Get-VBRViVirtualLabConfiguration
+                                            foreach ($SureBackupVL in $SureBackupVLs) {
                                                 try {
-                                                    Section -Style Heading6 -ExcludeFromTOC "vNIC Settings" {
+                                                    Section -Style Heading6 "$($SureBackupVL.Name) Settings" {
                                                         $OutObj = @()
-                                                        foreach ($NetworkOption in $SureBackupVL.NetworkOptions) {
-                                                            $inObj = [ordered] @{
-                                                                'Isolated Network' = $NetworkOption.NetworkMappingRule.IsolatedNetworkName
-                                                                'VLAN ID' = $NetworkOption.NetworkMappingRule.VLANID
-                                                                'DHCP Enabled' = ConvertTo-TextYN $NetworkOption.DHCPEnabled
-                                                                'Network Properties' = "IP Address: $($NetworkOption.IPAddress)`r`nSubnet Mask: $($NetworkOption.SubnetMask)`r`nMasquerade IP: $($NetworkOption.MasqueradeIPAddress)`r`nDNS Server: $($NetworkOption.DNSServer)"
-                                                            }
-
-                                                            $OutObj += [pscustomobject]$inobj
+                                                        Write-PscriboMessage "Discovered $($SureBackupVL.Name)  Virtual Lab."
+                                                        $inObj = [ordered] @{
+                                                            'Host' = $SureBackupVL.Server.Name
+                                                            'Resource Pool' = $SureBackupVL.DesignatedResourcePoolName
+                                                            'VM Folder' =  $SureBackupVL.DesignatedVMFolderName
+                                                            'Cache Datastore' = $SureBackupVL.CacheDatastore
+                                                            'Proxy Appliance' = $SureBackupVL.ProxyAppliance
+                                                            'Proxy Appliance Enabled' = ConvertTo-TextYN $SureBackupVL.ProxyApplianceEnabled
+                                                            'Networking Type' = $SureBackupVL.Type
+                                                            'Production Network' = $SureBackupVL.NetworkMapping.ProductionNetwork.NetworkName
+                                                            'Isolated Network' = $SureBackupVL.NetworkMapping.IsolatedNetworkName
+                                                            'Routing Between vNics' = ConvertTo-TextYN $SureBackupVL.RoutingBetweenvNicsEnabled
+                                                            'Multi Host' = ConvertTo-TextYN $SureBackupVL.IsMultiHost
+                                                            'Ip Mapping Rule' = "Isolated IP Address: $($SureBackupVL.IpMappingRule.IsolatedIPAddress)`r`nAccess IP Address: $($SureBackupVL.IpMappingRule.AccessIPAddress)"
+                                                            'Static IP Mapping' = ConvertTo-TextYN $SureBackupVL.StaticIPMappingEnabled
                                                         }
 
+                                                        $OutObj += [pscustomobject]$inobj
+
                                                         $TableParams = @{
-                                                            Name = "vNIC Settings - $($SureBackupVL.Name)"
-                                                            List = $false
-                                                            ColumnWidths = 45, 10, 10, 35
+                                                            Name = "Virtual Lab Settings - $($SureBackupVL.Name)"
+                                                            List = $true
+                                                            ColumnWidths = 40, 60
                                                         }
                                                         if ($Report.ShowTableCaptions) {
                                                             $TableParams['Caption'] = "- $($TableParams.Name)"
                                                         }
-                                                        $OutObj | Sort-Object -Property 'VLAN ID' | Table @TableParams
-                                                    }
-                                                }
-                                                catch {
-                                                    Write-PscriboMessage -IsWarning $_.Exception.Message
-                                                }
-                                                try {
-                                                    if ($SureBackupVL.IpMappingRule) {
-                                                        Section -Style Heading6 -ExcludeFromTOC "IP Address Mapping" {
-                                                            $OutObj = @()
-                                                            foreach ($NetworkOption in $SureBackupVL.IpMappingRule) {
-                                                                $inObj = [ordered] @{
-                                                                    'Production Network' = $NetworkOption.ProductionNetwork.Name
-                                                                    'Isolated IP Address' = $NetworkOption.IsolatedIPAddress
-                                                                    'Access IP Address' = $NetworkOption.AccessIPAddress
-                                                                    'Notes' = $NetworkOption.Note
+                                                        $OutObj | Table @TableParams
+                                                        try {
+                                                            Section -Style NOTOCHeading6 -ExcludeFromTOC "vNIC Settings" {
+                                                                $OutObj = @()
+                                                                foreach ($NetworkOption in $SureBackupVL.NetworkOptions) {
+                                                                    $inObj = [ordered] @{
+                                                                        'Isolated Network' = $NetworkOption.NetworkMappingRule.IsolatedNetworkName
+                                                                        'VLAN ID' = $NetworkOption.NetworkMappingRule.VLANID
+                                                                        'DHCP Enabled' = ConvertTo-TextYN $NetworkOption.DHCPEnabled
+                                                                        'Network Properties' = "IP Address: $($NetworkOption.IPAddress)`r`nSubnet Mask: $($NetworkOption.SubnetMask)`r`nMasquerade IP: $($NetworkOption.MasqueradeIPAddress)`r`nDNS Server: $($NetworkOption.DNSServer)"
+                                                                    }
+
+                                                                    $OutObj += [pscustomobject]$inobj
                                                                 }
 
-                                                                $OutObj += [pscustomobject]$inobj
+                                                                $TableParams = @{
+                                                                    Name = "vNIC Settings - $($SureBackupVL.Name)"
+                                                                    List = $false
+                                                                    ColumnWidths = 45, 10, 10, 35
+                                                                }
+                                                                if ($Report.ShowTableCaptions) {
+                                                                    $TableParams['Caption'] = "- $($TableParams.Name)"
+                                                                }
+                                                                $OutObj | Sort-Object -Property 'VLAN ID' | Table @TableParams
                                                             }
+                                                        }
+                                                        catch {
+                                                            Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                        }
+                                                        try {
+                                                            if ($SureBackupVL.IpMappingRule) {
+                                                                Section -Style NOTOCHeading6 -ExcludeFromTOC "IP Address Mapping" {
+                                                                    $OutObj = @()
+                                                                    foreach ($NetworkOption in $SureBackupVL.IpMappingRule) {
+                                                                        $inObj = [ordered] @{
+                                                                            'Production Network' = $NetworkOption.ProductionNetwork.Name
+                                                                            'Isolated IP Address' = $NetworkOption.IsolatedIPAddress
+                                                                            'Access IP Address' = $NetworkOption.AccessIPAddress
+                                                                            'Notes' = $NetworkOption.Note
+                                                                        }
 
-                                                            $TableParams = @{
-                                                                Name = "IP Address Mapping - $($SureBackupVL.Name)"
-                                                                List = $false
-                                                                ColumnWidths = 30, 15, 15, 40
+                                                                        $OutObj += [pscustomobject]$inobj
+                                                                    }
+
+                                                                    $TableParams = @{
+                                                                        Name = "IP Address Mapping - $($SureBackupVL.Name)"
+                                                                        List = $false
+                                                                        ColumnWidths = 30, 15, 15, 40
+                                                                    }
+                                                                    if ($Report.ShowTableCaptions) {
+                                                                        $TableParams['Caption'] = "- $($TableParams.Name)"
+                                                                    }
+                                                                    $OutObj | Sort-Object -Property 'Production Network' | Table @TableParams
+                                                                }
                                                             }
-                                                            if ($Report.ShowTableCaptions) {
-                                                                $TableParams['Caption'] = "- $($TableParams.Name)"
-                                                            }
-                                                            $OutObj | Sort-Object -Property 'Production Network' | Table @TableParams
+                                                        }
+                                                        catch {
+                                                            Write-PscriboMessage -IsWarning $_.Exception.Message
                                                         }
                                                     }
                                                 }
@@ -254,15 +250,15 @@ function Get-AbrVbrSureBackup {
                                                 }
                                             }
                                         }
-                                        catch {
-                                            Write-PscriboMessage -IsWarning $_.Exception.Message
-                                        }
+                                    }
+                                    catch {
+                                        Write-PscriboMessage -IsWarning $_.Exception.Message
                                     }
                                 }
                             }
-                            catch {
-                                Write-PscriboMessage -IsWarning $_.Exception.Message
-                            }
+                        }
+                        catch {
+                            Write-PscriboMessage -IsWarning $_.Exception.Message
                         }
                     }
                 }

@@ -34,7 +34,7 @@ function Get-AbrVbrStorageOntap {
                     try {
                         $OntapHosts = Get-NetAppHost
                         foreach ($OntapHost in $OntapHosts) {
-                            Section -Style Heading4 -ExcludeFromTOC "$($OntapHost.Name)" {
+                            Section -Style Heading4 $($OntapHost.Name) {
                                 try {
                                     Write-PscriboMessage "Discovered $($OntapHost.Name) NetApp Host."
                                     $UsedCred = Get-VBRCredentials | Where-Object { $_.Id -eq $OntapHost.Info.CredsId}
@@ -71,7 +71,7 @@ function Get-AbrVbrStorageOntap {
                                         try {
                                             $OntapVols = Get-NetAppVolume -Host $OntapHost
                                             if ($OntapVols) {
-                                                Section -Style Heading5 -ExcludeFromTOC 'Volumes' {
+                                                Section -Style NOTOCHeading5 -ExcludeFromTOC 'Volumes' {
                                                     $OutObj = @()
                                                     foreach ($OntapVol in $OntapVols) {
                                                         try {

@@ -86,7 +86,7 @@ function Get-AbrVbrInstalledLicense {
                                 try {
                                     $Licenses = Get-VBRInstalledLicense | Select-Object -ExpandProperty InstanceLicenseSummary
                                     if ($Licenses) {
-                                        Section -Style Heading5 -ExcludeFromTOC 'Instance License Usage' {
+                                        Section -Style NOTOCHeading5 -ExcludeFromTOC 'Instance License Usage' {
                                             $OutObj = @()
                                             try {
                                                 foreach ($License in $Licenses) {
@@ -105,7 +105,7 @@ function Get-AbrVbrInstalledLicense {
                                             }
 
                                             $TableParams = @{
-                                                Name = "Instances - $VeeamBackupServer"
+                                                Name = "Instance License Usage - $VeeamBackupServer"
                                                 List = $false
                                                 ColumnWidths = 25, 25, 25, 25
                                             }
@@ -119,7 +119,7 @@ function Get-AbrVbrInstalledLicense {
                                             try {
                                                 $Licenses = (Get-VBRInstalledLicense | Select-Object -ExpandProperty InstanceLicenseSummary).Object
                                                 if ($Licenses) {
-                                                    Section -Style Heading5 -ExcludeFromTOC 'Per Instance Type License Usage' {
+                                                    Section -Style NOTOCHeading5 -ExcludeFromTOC 'Per Instance Type License Usage' {
                                                         $OutObj = @()
                                                         try {
                                                             foreach ($License in $Licenses) {
@@ -164,7 +164,7 @@ function Get-AbrVbrInstalledLicense {
                                 try {
                                     $Licenses = Get-VBRInstalledLicense | Select-Object -ExpandProperty SocketLicenseSummary
                                     if ($Licenses) {
-                                        Section -Style Heading5 -ExcludeFromTOC 'CPU Socket License Usage' {
+                                        Section -Style NOTOCHeading5 -ExcludeFromTOC 'CPU Socket License Usage' {
                                             $OutObj = @()
                                             try {
                                                 foreach ($License in $Licenses) {
@@ -202,7 +202,7 @@ function Get-AbrVbrInstalledLicense {
                                 try {
                                     $Licenses = Get-VBRInstalledLicense | Select-Object -ExpandProperty CapacityLicenseSummary
                                     if ($Licenses) {
-                                        Section -Style Heading5 -ExcludeFromTOC 'Capacity License Usage' {
+                                        Section -Style NOTOCHeading5 -ExcludeFromTOC 'Capacity License Usage' {
                                             $OutObj = @()
                                             try {
                                                 foreach ($License in $Licenses) {

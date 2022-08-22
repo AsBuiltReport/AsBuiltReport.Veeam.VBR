@@ -28,7 +28,7 @@ function Get-AbrVbrIOControlSetting {
         try {
             if (Get-VBRInstalledLicense | Where-Object {$_.Edition -in @("EnterprisePlus","Enterprise") -and $_.Status -ne "Expired"}) {
                 if ((Get-VBRStorageLatencyControlOptions).count -gt 0) {
-                    Section -Style Heading4 'Storage Latency Control Options' {
+                    Section -Style Heading4 'Storage Latency Control' {
                         $OutObj = @()
                         try {
                             $StorageLatencyControls = Get-VBRStorageLatencyControlOptions
@@ -50,7 +50,7 @@ function Get-AbrVbrIOControlSetting {
                         }
 
                         $TableParams = @{
-                            Name = "Storage Latency Control Options - $VeeamBackupServer"
+                            Name = "Storage Latency Control - $VeeamBackupServer"
                             List = $false
                             ColumnWidths = 35, 35, 30
                         }
@@ -63,7 +63,7 @@ function Get-AbrVbrIOControlSetting {
                         #---------------------------------------------------------------------------------------------#
                         try {
                             if ((Get-VBRInstalledLicense | Where-Object {$_.Edition -eq "EnterprisePlus"}) -and ((Get-VBRAdvancedLatencyOptions).count -gt 0)) {
-                                Section -Style Heading5 -ExcludeFromTOC 'Per Datastore Latency Control Options' {
+                                Section -Style NOTOCHeading5 -ExcludeFromTOC 'Per Datastore Latency Control Options' {
                                     $OutObj = @()
                                     try {
                                         $StorageLatencyControls = Get-VBRAdvancedLatencyOptions

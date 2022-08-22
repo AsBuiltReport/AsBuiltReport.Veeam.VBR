@@ -68,7 +68,7 @@ function Get-AbrVbrNetworkTrafficRule {
                     #---------------------------------------------------------------------------------------------#
                     try {
                         if ((Get-VBRPreferredNetwork).count -gt 0) {
-                            Section -Style Heading5 -ExcludeFromTOC 'Preferred Networks' {
+                            Section -Style NOTOCHeading5 -ExcludeFromTOC 'Preferred Networks' {
                                 $OutObj = @()
                                 try {
                                     $PreferedNetworks = Get-VBRPreferredNetwork

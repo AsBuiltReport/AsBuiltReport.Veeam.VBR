@@ -33,7 +33,7 @@ function Get-AbrVbrReplFailoverPlan {
                     $OutObj = @()
                     foreach ($FailOverPlan in $FailOverPlans) {
                         try {
-                            Section -Style Heading2 $($FailOverPlan.Name) {
+                            Section -Style Heading4 $($FailOverPlan.Name) {
                                 $inObj = [ordered] @{
                                     'Platform' = $FailOverPlan.Platform
                                     'Status' = $FailOverPlan.Status
@@ -58,7 +58,7 @@ function Get-AbrVbrReplFailoverPlan {
                                 if ($InfoLevel.Replication.FailoverPlan -ge 2) {
                                     if ($FailOverPlan) {
                                         try {
-                                            Section -Style Heading4 -ExcludeFromTOC 'Virtual Machines' {
+                                            Section -Style NOTOCHeading5 -ExcludeFromTOC 'Virtual Machines' {
                                                 $OutObj = @()
                                                 foreach ($FailOverPlansVM in $FailOverPlan.FailoverPlanObject) {
                                                     try {

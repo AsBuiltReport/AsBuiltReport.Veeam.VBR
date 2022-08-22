@@ -6,7 +6,7 @@ function Get-AbrVbrTapeInfraSummary {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.5.1
+        Version:        0.5.3
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -26,37 +26,39 @@ function Get-AbrVbrTapeInfraSummary {
 
     process {
         try {
-            $OutObj = @()
-            try {
-                $TapeServer = Get-VBRTapeServer
-                $TapeLibrary = Get-VBRTapeLibrary
-                $TapeMediaPool = Get-VBRTapeMediaPool
-                $TapeVault = Get-VBRTapeVault
-                $TapeDrive = Get-VBRTapeDrive
-                $TapeMedium = Get-VBRTapeMedium
-                $inObj = [ordered] @{
-                    'Number of Tape Servers' = $TapeServer.Count
-                    'Number of Tape Library' = $TapeLibrary.Count
-                    'Number of Tape MediaPool' = $TapeMediaPool.Count
-                    'Number of Tape Vault' = $TapeVault.Count
-                    'Number of Tape Drives' = $TapeDrive.Count
-                    'Number of Tape Medium' = $TapeMedium.Count
+            Section -Style NOTOCHeading3 -ExcludeFromTOC 'Tape Infrastructure' {
+                $OutObj = @()
+                try {
+                    $TapeServer = Get-VBRTapeServer
+                    $TapeLibrary = Get-VBRTapeLibrary
+                    $TapeMediaPool = Get-VBRTapeMediaPool
+                    $TapeVault = Get-VBRTapeVault
+                    $TapeDrive = Get-VBRTapeDrive
+                    $TapeMedium = Get-VBRTapeMedium
+                    $inObj = [ordered] @{
+                        'Number of Tape Servers' = $TapeServer.Count
+                        'Number of Tape Library' = $TapeLibrary.Count
+                        'Number of Tape MediaPool' = $TapeMediaPool.Count
+                        'Number of Tape Vault' = $TapeVault.Count
+                        'Number of Tape Drives' = $TapeDrive.Count
+                        'Number of Tape Medium' = $TapeMedium.Count
+                    }
+                    $OutObj += [pscustomobject]$inobj
                 }
-                $OutObj += [pscustomobject]$inobj
-            }
-            catch {
-                Write-PscriboMessage -IsWarning $_.Exception.Message
-            }
+                catch {
+                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                }
 
-            $TableParams = @{
-                Name = "Executive Summary - $VeeamBackupServer"
-                List = $true
-                ColumnWidths = 50, 50
+                $TableParams = @{
+                    Name = "Tape Infrastructure Summary - $VeeamBackupServer"
+                    List = $true
+                    ColumnWidths = 50, 50
+                }
+                if ($Report.ShowTableCaptions) {
+                    $TableParams['Caption'] = "- $($TableParams.Name)"
+                }
+                $OutObj | Table @TableParams
             }
-            if ($Report.ShowTableCaptions) {
-                $TableParams['Caption'] = "- $($TableParams.Name)"
-            }
-            $OutObj | Table @TableParams
         }
         catch {
             Write-PscriboMessage -IsWarning $_.Exception.Message
