@@ -27,7 +27,7 @@ function Get-AbrVbrEmailNotificationSetting {
     process {
         try {
             if ((Get-VBRMailNotificationConfiguration).count -gt 0) {
-                Section -Style Heading4 'Email Notification Settings' {
+                Section -Style Heading4 'Email Notification' {
                     $OutObj = @()
                     try {
                         $EmailSettings = Get-VBRMailNotificationConfiguration

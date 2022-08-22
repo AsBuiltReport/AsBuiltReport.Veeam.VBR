@@ -120,7 +120,7 @@ function Get-AbrVbrBackupProxy {
                                     Write-PScriboMessage "Backup Proxy InfoLevel set at $($InfoLevel.Infrastructure.Proxy)."
                                     Write-PScriboMessage "Collecting Inventory Summary."
                                     $BackupProxies = Get-VBRViProxy | Where-Object {$_.Host.Type -eq "Windows"}
-                                    Section -Style Heading4 "Hardware Inventory" {
+                                    Section -Style Heading4 "Hardware & Software Inventory" {
                                         foreach ($BackupProxy in $BackupProxies) {
                                             try {
                                                 Write-PscriboMessage "Collecting Backup Proxy Inventory Summary from $($BackupProxy.Host.Name)."
@@ -535,7 +535,7 @@ function Get-AbrVbrBackupProxy {
                                         Write-PScriboMessage "Collecting Inventory Summary."
                                         $BackupProxies = Get-VBRHvProxy
                                         if ($BackupProxies) {
-                                            Section -Style Heading4 'Hardware Inventory' {
+                                            Section -Style Heading4 'Hardware & Software Inventory' {
                                                 foreach ($BackupProxy in $BackupProxies) {
                                                     try {
                                                         Write-PscriboMessage "Collecting Backup Proxy Inventory Summary from $($BackupProxy.Host.Name)."
