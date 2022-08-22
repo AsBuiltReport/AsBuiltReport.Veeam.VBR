@@ -6,7 +6,7 @@ function Get-AbrVbrReplReplica {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.5.1
+        Version:        0.5.3
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -30,7 +30,7 @@ function Get-AbrVbrReplReplica {
                 $Replicas = Get-VBRReplica
                 if ($Replicas) {
                     if ($InfoLevel.Replication.Replica -eq 1) {
-                        Section -Style Heading2 'Replicas' {
+                        Section -Style Heading3 'Replicas' {
                             Paragraph "The following section details replica information from Veeam Server $(((Get-VBRServerSession).Server))."
                             BlankLine
                             $OutObj = @()
@@ -59,7 +59,7 @@ function Get-AbrVbrReplReplica {
                     }
                     if ($InfoLevel.Replication.Replica -ge 2) {
                         try {
-                            Section -Style Heading2 'Replicas' {
+                            Section -Style Heading3 'Replicas' {
                                 Paragraph "The following section details replica information from Veeam Server $(((Get-VBRServerSession).Server))."
                                 BlankLine
                                 $OutObj = @()

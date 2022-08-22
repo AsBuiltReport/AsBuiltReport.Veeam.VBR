@@ -6,7 +6,7 @@ function Get-AbrVbrInfrastructureSummary {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.5.1
+        Version:        0.5.3
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -26,6 +26,7 @@ function Get-AbrVbrInfrastructureSummary {
 
     process {
         try {
+            Section -Style NOTOCHeading3 -ExcludeFromTOC 'Backup Infrastructure' {
             $OutObj = @()
             try {
                 $BackupServers = (Get-VBRServer).Count
@@ -68,7 +69,7 @@ function Get-AbrVbrInfrastructureSummary {
             }
 
             $TableParams = @{
-                Name = "Executive Summary - $VeeamBackupServer"
+                Name = "Backup Infrastructure Summary - $VeeamBackupServer"
                 List = $true
                 ColumnWidths = 50, 50
             }
@@ -76,6 +77,7 @@ function Get-AbrVbrInfrastructureSummary {
                 $TableParams['Caption'] = "- $($TableParams.Name)"
             }
             $OutObj | Table @TableParams
+            }
         }
         catch {
             Write-PscriboMessage -IsWarning $_.Exception.Message

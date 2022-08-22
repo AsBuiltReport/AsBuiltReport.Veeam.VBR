@@ -8,11 +8,17 @@ Style -Name 'Title' -Size 24 -Color '005f4b' -Align Center
 Style -Name 'Title 2' -Size 18 -Color '54B948' -Align Center
 Style -Name 'Title 3' -Size 12 -Color '54B948' -Align Left
 Style -Name 'Heading 1' -Size 16 -Color '005f4b'
+Style -Name 'NO TOC Heading 1' -Size 16 -Color '005f4b'
 Style -Name 'Heading 2' -Size 14 -Color '005f4b'
+Style -Name 'NO TOC Heading 2' -Size 14 -Color '005f4b'
 Style -Name 'Heading 3' -Size 12 -Color '005f4b'
+Style -Name 'NO TOC Heading 3' -Size 12 -Color '005f4b'
 Style -Name 'Heading 4' -Size 11 -Color '005f4b'
+Style -Name 'NO TOC Heading 4' -Size 11 -Color '005f4b'
 Style -Name 'Heading 5' -Size 10  -Color '005f4b'
+Style -Name 'NO TOC Heading 5' -Size 10  -Color '005f4b'
 Style -Name 'Heading 6' -Size 10 -Color '005f4b'
+Style -Name 'NO TOC Heading 6' -Size 10 -Color '005f4b'
 Style -Name 'Normal' -Size 10 -Color '565656' -Default
 Style -Name 'Caption' -Size 10 -Color '565656' -Italic -Align Center
 Style -Name 'Header' -Size 10 -Color '565656' -Align Center
@@ -80,9 +86,10 @@ if ($ReportConfig.Report.ShowCoverPageImage) {
 # Add Report Name
 Paragraph -Style Title $ReportConfig.Report.Name
 
+
 if ($AsBuiltConfig.Company.FullName) {
     # Add Company Name if specified
-    BlankLine -Count 2
+    BlankLine -Count 1
     Paragraph -Style Title2 $AsBuiltConfig.Company.FullName
     BlankLine -Count $LineCount
 } else {

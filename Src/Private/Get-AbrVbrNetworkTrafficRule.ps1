@@ -6,7 +6,7 @@ function Get-AbrVbrNetworkTrafficRule {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.5.1
+        Version:        0.5.3
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -68,7 +68,7 @@ function Get-AbrVbrNetworkTrafficRule {
                     #---------------------------------------------------------------------------------------------#
                     try {
                         if ((Get-VBRPreferredNetwork).count -gt 0) {
-                            Section -Style Heading5 'Preferred Networks' {
+                            Section -Style NOTOCHeading5 -ExcludeFromTOC 'Preferred Networks' {
                                 $OutObj = @()
                                 try {
                                     $PreferedNetworks = Get-VBRPreferredNetwork

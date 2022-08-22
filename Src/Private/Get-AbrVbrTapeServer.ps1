@@ -6,7 +6,7 @@ function Get-AbrVbrTapeServer {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.5.1
+        Version:        0.5.3
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -28,8 +28,6 @@ function Get-AbrVbrTapeServer {
         try {
             if ((Get-VBRTapeServer).count -gt 0) {
                 Section -Style Heading3 'Tape Servers' {
-                    Paragraph "The following section provides summary information about Tape Servers."
-                    BlankLine
                     $OutObj = @()
                     $TapeObjs = Get-VBRTapeServer
                     try {

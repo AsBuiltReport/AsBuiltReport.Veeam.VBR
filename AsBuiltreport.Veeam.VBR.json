@@ -1,6 +1,6 @@
 {
     "Report": {
-        "Name": "Veeam VBR As Built Report",
+        "Name": "Veeam Backup & Replication As Built Report",
         "Version": "1.0",
         "Status": "Released",
         "ShowCoverPageImage": true,
