@@ -59,7 +59,7 @@ function Get-AbrVbrBackupProxy {
                                     }
 
                                     $TableParams = @{
-                                        Name = "Backup Proxy - $($BackupProxy.Name)"
+                                        Name = "Backup Proxy - $VeeamBackupServer"
                                         List = $false
                                         ColumnWidths = 35, 15, 15, 15, 20
                                     }
@@ -474,7 +474,7 @@ function Get-AbrVbrBackupProxy {
                                     }
 
                                     $TableParams = @{
-                                        Name = "Backup Proxy - $($BackupProxy.Name)"
+                                        Name = "Backup Proxy - $VeeamBackupServer"
                                         List = $false
                                         ColumnWidths = 35, 15, 15, 15, 20
                                     }

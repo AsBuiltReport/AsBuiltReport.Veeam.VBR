@@ -6,6 +6,10 @@
 
 - Improvement to the report's table of contents
 
+### Fixed
+
+- Fixes [#46](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/46)
+
 ## [0.5.2] - 2022-07-05
 
 ### Added
