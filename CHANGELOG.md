@@ -1,5 +1,10 @@
 # :arrows_clockwise: Veeam VBR As Built Report Changelog
 
+## [0.5.4] - 2022-09-?
+### Fixed
+
+- Fixes [#50](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/50)
+
 ## [0.5.3] - 2022-08-21
 
 ### Changed
