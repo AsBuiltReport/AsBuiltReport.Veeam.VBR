@@ -568,7 +568,7 @@ function Get-AbrVbrBackupjobHyperV {
                                                 Write-PscriboMessage "Discovered $($Bkjob.Name) guest processing."
                                                 $inObj = [ordered] @{
                                                     'Name' = $VSSObj.Name
-                                                    'Enabled' = ConvertTo-TextYN $Bkjob.VssOptions.Enabled
+                                                    'Enabled' = ConvertTo-TextYN $VSSObj.VssOptions.Enabled
                                                     'Resource Type' = ($Bkjob.GetHvOijs() | Where-Object {$_.Name -eq $VSSObj.Name -and ($_.Type -eq "Include" -or $_.Type -eq "VssChild")}).TypeDisplayName
                                                     'Ignore Errors' = ConvertTo-TextYN $VSSObj.VssOptions.IgnoreErrors
                                                     'Guest Proxy Auto Detect' = ConvertTo-TextYN  $VSSObj.VssOptions.GuestProxyAutoDetect
