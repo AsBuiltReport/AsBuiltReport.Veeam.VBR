@@ -6,7 +6,7 @@ function Get-AbrVbrRepljobVMware {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.5.3
+        Version:        0.5.4
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -611,7 +611,7 @@ function Get-AbrVbrRepljobVMware {
                                                 Write-PscriboMessage "Discovered $($Bkjob.Name) guest processing."
                                                 $inObj = [ordered] @{
                                                     'Name' = $VSSObj.Name
-                                                    'Enabled' = ConvertTo-TextYN $Bkjob.VssOptions.Enabled
+                                                    'Enabled' = ConvertTo-TextYN $VSSObj.VssOptions.Enabled
                                                     'Resource Type' = ($Bkjob.GetViOijs() | Where-Object {$_.Name -eq $VSSObj.Name -and ($_.Type -eq "Include" -or $_.Type -eq "VssChild")}).TypeDisplayName
                                                     'Ignore Errors' = ConvertTo-TextYN $VSSObj.VssOptions.IgnoreErrors
                                                     'Guest Proxy Auto Detect' = ConvertTo-TextYN  $VSSObj.VssOptions.GuestProxyAutoDetect

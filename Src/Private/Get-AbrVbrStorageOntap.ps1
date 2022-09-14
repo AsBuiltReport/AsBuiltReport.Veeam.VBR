@@ -28,7 +28,7 @@ function Get-AbrVbrStorageOntap {
         try {
             if ((Get-NetAppHost).count -gt 0) {
                 Section -Style Heading3 'NetApp Ontap Storage' {
-                    Paragraph "TThe following section details information about NetApp storage infrastructure."
+                    Paragraph "The following section details information about NetApp storage infrastructure."
                     BlankLine
                     $OutObj = @()
                     try {
@@ -50,8 +50,8 @@ function Get-AbrVbrStorageOntap {
                                             0 {"-"}
                                             default {"$($UsedCred.Name) - ($($UsedCred.Description))"}
                                         }
-                                        'Connnection Address' = $OntapHost.ConnPoints -join ", "
-                                        'Connnection Port' =  "$($OntapOptions.NaHostOptions.NaHostOptions.NaHostConnectionOptions.Port)\TCP"
+                                        'Connection Address' = $OntapHost.ConnPoints -join ", "
+                                        'Connection Port' =  "$($OntapOptions.NaHostOptions.NaHostOptions.NaHostConnectionOptions.Port)\TCP"
                                         'Installed Licenses' = $OntapHost.NaOptions.License
                                     }
 
