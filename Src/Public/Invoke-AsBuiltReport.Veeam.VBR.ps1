@@ -235,6 +235,11 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                             Get-AbrVbrAgentBackupjob
                             Get-AbrVbrAgentBackupjobConf
                         }
+                        Write-PScriboMessage "File Share Jobs InfoLevel set at $($InfoLevel.Jobs.FileShare)."
+                        if ($InfoLevel.Jobs.FileShare -ge 1) {
+                            Get-AbrVbrFileShareBackupjob
+                            Get-AbrVbrFileShareBackupjobConf
+                        }
                     }
                 }
             }
