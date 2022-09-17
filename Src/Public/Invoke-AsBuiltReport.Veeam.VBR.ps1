@@ -5,7 +5,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.5.3
+        Version:        0.5.4
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -25,6 +25,17 @@ function Invoke-AsBuiltReport.Veeam.VBR {
     Write-PScriboMessage -IsWarning "Do not forget to update your report configuration file after each new version release."
     Write-PScriboMessage -IsWarning "Documentation: https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR"
     Write-PScriboMessage -IsWarning "Issues or bug reporting: https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues"
+
+    $InstalledVersion = Get-Module -ListAvailable -Name AsBuiltReport.Veeam.VBR -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Version
+
+    if ($InstalledVersion) {
+        Write-PScriboMessage -IsWarning "Installed AsBuiltReport.Veeam.VBR Version: $($InstalledVersion.ToString())"
+        $MostCurrentVersion = Find-Module -Name AsBuiltReport.Veeam.VBR -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Version
+        if ($MostCurrentVersion -and ($MostCurrentVersion -gt $InstalledVersion)) {
+            Write-PScriboMessage -IsWarning "New Update: AsBuiltReport.Veeam.VBR Version: $($MostCurrentVersion.ToString())"
+            Write-PScriboMessage -IsWarning "To Update run: Update-Module -Name AsBuiltReport.Veeam.VBR -Force"
+        }
+    }
 
     # Import Report Configuration
     $Report = $ReportConfig.Report
