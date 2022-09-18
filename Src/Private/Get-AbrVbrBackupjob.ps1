@@ -62,9 +62,17 @@ function Get-AbrVbrBackupjob {
                     $TableParams['Caption'] = "- $($TableParams.Name)"
                 }
                 try {
-                    $TapeJobsResult = (Get-VBRTapeJob).LastResult
-                    $BackupJobResult = $Bkjobs.info.LatestStatus
-                    $sampleData = ($BackupJobResult + $TapeJobsResult) | Group-Object
+                    $Alljobs = @()
+                    if ($Bkjobs.info.LatestStatus) {
+                        $Alljobs += $Bkjobs.info.LatestStatus
+                    }
+                    if ((Get-VBRTapeJob -ErrorAction SilentlyContinue).LastResult) {
+                        $Alljobs += (Get-VBRTapeJob).LastResult
+                    }
+                    if ((Get-VSBJob -ErrorAction SilentlyContinue).GetLastResult()) {
+                        $Alljobs += (Get-VSBJob).GetLastResult()
+                    }
+                    $sampleData = $Alljobs | Group-Object
                     $exampleChart = New-Chart -Name BackupJobs -Width 600 -Height 400
 
                     $addChartAreaParams = @{
