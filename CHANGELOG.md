@@ -1,5 +1,18 @@
 # :arrows_clockwise: Veeam VBR As Built Report Changelog
 
+## [0.5.4] - 2022-09-17
+
+### Added
+
+- Added support for File Share Backup Job information
+- Added support for Backup Jobs GFS Policy information
+- Added Simple Chart support
+
+### Fixed
+
+- Fixes [#49](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/49)
+- Fixes [#50](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/50)
+
 ## [0.5.3] - 2022-08-21
 
 ### Changed

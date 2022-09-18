@@ -49,8 +49,8 @@ function Get-AbrVbrStorageIsilon {
                                             0 {"-"}
                                             default {"$($UsedCred.Name) - ($($UsedCred.Description))"}
                                         }
-                                        'Connnection Address' = $IsilonOptions.IsilonHostOptions.AdditionalAddresses.IP -join ", "
-                                        'Connnection Port' =  "$($IsilonOptions.IsilonHostOptions.Port)\TCP"
+                                        'Connection Address' = $IsilonOptions.IsilonHostOptions.AdditionalAddresses.IP -join ", "
+                                        'Connection Port' =  "$($IsilonOptions.IsilonHostOptions.Port)\TCP"
                                     }
 
                                     $OutObj = [pscustomobject]$inobj

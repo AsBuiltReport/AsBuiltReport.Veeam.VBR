@@ -52,6 +52,7 @@
             "Tape": 1,
             "Surebackup": 1,
             "Agent": 1,
+            "FileShare": 1,
             "Replication": 1
         }
     },

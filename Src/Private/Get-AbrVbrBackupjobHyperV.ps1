@@ -267,6 +267,24 @@ function Get-AbrVbrBackupjobHyperV {
 
 
                                         }
+                                        if ($Bkjob.Options.GfsPolicy.IsEnabled) {
+                                            $inObj.add('Keep certain full backup longer for archival purposes (GFS)',(ConvertTo-TextYN $Bkjob.Options.GfsPolicy.IsEnabled))
+                                            if (-Not $Bkjob.Options.GfsPolicy.Weekly.IsEnabled) {
+                                                $inObj.add('Keep Weekly full backup', ('Disabled'))
+                                            } else {
+                                                $inObj.add('Keep Weekly full backup for', ("$($Bkjob.Options.GfsPolicy.Weekly.KeepBackupsForNumberOfWeeks) weeks,`r`nIf multiple backup exist use the one from: $($Bkjob.Options.GfsPolicy.Weekly.DesiredTime)"))
+                                            }
+                                            if (-Not $Bkjob.Options.GfsPolicy.Monthly.IsEnabled) {
+                                                $inObj.add('Keep Monthly full backup', ('Disabled'))
+                                            } else {
+                                                $inObj.add('Keep Monthly full backup for', ("$($Bkjob.Options.GfsPolicy.Monthly.KeepBackupsForNumberOfMonths) months,`r`nUse weekly full backup from the following week of the month: $($Bkjob.Options.GfsPolicy.Monthly.DesiredTime)"))
+                                            }
+                                            if (-Not $Bkjob.Options.GfsPolicy.Yearly.IsEnabled) {
+                                                $inObj.add('Keep Yearly full backup', ('Disabled'))
+                                            } else {
+                                                $inObj.add('Keep Yearly full backup for', ("$($Bkjob.Options.GfsPolicy.Yearly.KeepBackupsForNumberOfYears) years,`r`nUse monthly full backup from the following month: $($Bkjob.Options.GfsPolicy.Yearly.DesiredTime)"))
+                                            }
+                                        }
                                         $OutObj = [pscustomobject]$inobj
 
                                         $TableParams = @{
@@ -568,7 +586,7 @@ function Get-AbrVbrBackupjobHyperV {
                                                 Write-PscriboMessage "Discovered $($Bkjob.Name) guest processing."
                                                 $inObj = [ordered] @{
                                                     'Name' = $VSSObj.Name
-                                                    'Enabled' = ConvertTo-TextYN $Bkjob.VssOptions.Enabled
+                                                    'Enabled' = ConvertTo-TextYN $VSSObj.VssOptions.Enabled
                                                     'Resource Type' = ($Bkjob.GetHvOijs() | Where-Object {$_.Name -eq $VSSObj.Name -and ($_.Type -eq "Include" -or $_.Type -eq "VssChild")}).TypeDisplayName
                                                     'Ignore Errors' = ConvertTo-TextYN $VSSObj.VssOptions.IgnoreErrors
                                                     'Guest Proxy Auto Detect' = ConvertTo-TextYN  $VSSObj.VssOptions.GuestProxyAutoDetect
