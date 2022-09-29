@@ -6,7 +6,7 @@ function Get-AbrVbrLocation {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.5.1
+        Version:        0.5.5
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -55,7 +55,7 @@ function Get-AbrVbrLocation {
                         if ($Report.ShowTableCaptions) {
                             $TableParams['Caption'] = "- $($TableParams.Name)"
                         }
-                        $OutObj | Table @TableParams
+                        $OutObj | Sort-Object -Property Name | Table @TableParams
                     }
                     catch {
                         Write-PscriboMessage -IsWarning $_.Exception.Message

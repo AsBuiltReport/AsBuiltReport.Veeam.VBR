@@ -26,7 +26,7 @@ function Get-AbrVbrTapeLibrary {
 
     process {
         try {
-            $TapeObjs = Get-VBRTapeLibrary
+            $TapeObjs = Get-VBRTapeLibrary | Sort-Object -Property Name
             if ($TapeObjs) {
                 Section -Style Heading3 'Tape Libraries' {
                     Paragraph "The following section provides summary information about Tape Server connected Tape Library."

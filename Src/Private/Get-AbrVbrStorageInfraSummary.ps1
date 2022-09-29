@@ -6,7 +6,7 @@ function Get-AbrVbrStorageInfraSummary {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.5.4
+        Version:        0.5.5
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -100,6 +100,7 @@ function Get-AbrVbrStorageInfraSummary {
                     if ($chartFileItem -and ($inObj.Values | Measure-Object -Sum).Sum -ne 0) {
                         Image -Text 'Storage Infrastructure Inventory - Diagram' -Align 'Center' -Percent 100 -Path $chartFileItem
                     }
+                    BlankLine
                     $OutObj | Table @TableParams
                 }
             }
