@@ -126,6 +126,7 @@ function Get-AbrVbrInfrastructureSummary {
                     if ($chartFileItem -and ($inObj.Values | Measure-Object -Sum).Sum -ne 0) {
                         Image -Text 'Backup Infrastructure - Diagram' -Align 'Center' -Percent 100 -Path $chartFileItem
                     }
+                    BlankLine
                     $OutObj | Table @TableParams
                 }
             }

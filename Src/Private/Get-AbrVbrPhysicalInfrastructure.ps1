@@ -6,7 +6,7 @@ function Get-AbrVbrPhysicalInfrastructure {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.5.3
+        Version:        0.5.5
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -69,7 +69,7 @@ function Get-AbrVbrPhysicalInfrastructure {
                                 if ($InfoLevel.Inventory.PHY -ge 2) {
                                     try {
                                         $OutObj = @()
-                                        $InventObjs = Get-VBRProtectionGroup
+                                        $InventObjs = Get-VBRProtectionGroup | Sort-Object -Property Name
                                         if (($InventObjs).count -gt 0) {
                                             Section -Style Heading5 "Protection Group Configuration" {
                                                 foreach ($InventObj in $InventObjs) {
@@ -79,7 +79,6 @@ function Get-AbrVbrPhysicalInfrastructure {
                                                                 Section -Style NOTOCHeading6 -ExcludeFromTOC "$($InventObj.Name)" {
                                                                     Write-PscriboMessage "Discovered $($InventObj.Name) Protection Group Setting."
                                                                     $inObj = [ordered] @{
-                                                                        'Name' = $InventObj.Name
                                                                         'Domain' = ($InventObj).Container.Domain
                                                                         'Backup Objects' =  $InventObj.Container.Entity | ForEach-Object {"Name: $(($_).Name)`r`nType: $(($_).Type)`r`nDistinguished Name: $(($_).DistinguishedName)`r`n"}
                                                                         'Exclude VM' = ConvertTo-TextYN ($InventObj).Container.ExcludeVMs
@@ -116,7 +115,6 @@ function Get-AbrVbrPhysicalInfrastructure {
                                                                 Section -Style NOTOCHeading6 -ExcludeFromTOC "$($InventObj.Name)" {
                                                                     Write-PscriboMessage "Discovered $($InventObj.Name) Protection Group Setting."
                                                                     $inObj = [ordered] @{
-                                                                        'Name' = $InventObj.Name
                                                                         'Deployment Options' = "Install Agent: $(ConvertTo-TextYN $InventObj.DeploymentOptions.InstallAgent)`r`nUpgrade Automatically: $(ConvertTo-TextYN $InventObj.DeploymentOptions.UpgradeAutomatically)`r`nInstall Driver: $(ConvertTo-TextYN $InventObj.DeploymentOptions.InstallDriver)`r`nReboot If Required: $(ConvertTo-TextYN $InventObj.DeploymentOptions.RebootIfRequired)"
                                                                     }
                                                                     if (($InventObj.NotificationOptions.EnableAdditionalNotification) -like 'True') {
