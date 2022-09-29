@@ -6,7 +6,7 @@ function Get-AbrVbrTapejob {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.5.3
+        Version:        0.5.5
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -31,7 +31,7 @@ function Get-AbrVbrTapejob {
                     Paragraph "The following section list tape backup jobs created in Veeam Backup & Replication."
                     BlankLine
                     $OutObj = @()
-                    $TBkjobs = Get-VBRTapeJob
+                    $TBkjobs = Get-VBRTapeJob | Sort-Object -Property Name
                     foreach ($TBkjob in $TBkjobs) {
                         try {
                             Write-PscriboMessage "Discovered $($TBkjob.Name) location."

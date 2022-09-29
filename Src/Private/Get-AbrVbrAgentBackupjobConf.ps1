@@ -6,7 +6,7 @@ function Get-AbrVbrAgentBackupjobConf {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.5.3
+        Version:        0.5.5
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -31,7 +31,7 @@ function Get-AbrVbrAgentBackupjobConf {
                     Paragraph "The following section details agent backup jobs configuration created in Veeam Backup & Replication."
                     BlankLine
                     $OutObj = @()
-                    $ABkjobs = Get-VBRComputerBackupJob
+                    $ABkjobs = Get-VBRComputerBackupJob | Sort-Object -Property Name
                     foreach ($ABkjob in $ABkjobs) {
                         try {
                             Section -Style Heading4 $($ABkjob.Name) {
