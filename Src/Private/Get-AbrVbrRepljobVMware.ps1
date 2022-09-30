@@ -714,7 +714,7 @@ function Get-AbrVbrRepljobVMware {
                                         }
                                     }
                                 }
-                                if ($Bkjob.GetScheduleOptions().NextRun -and $Bkjob.ScheduleOptions.OptionsContinuous.Enabled -ne "True") {
+                                if ($Bkjob.GetScheduleOptions().NextRun) {
                                     Section -Style NOTOCHeading5 -ExcludeFromTOC "Schedule" {
                                         $OutObj = @()
                                         try {
@@ -728,8 +728,12 @@ function Get-AbrVbrRepljobVMware {
                                                 $Schedule = "Day Of Month: $($Bkjob.ScheduleOptions.OptionsMonthly.DayOfMonth),`r`nDay Number In Month: $($Bkjob.ScheduleOptions.OptionsMonthly.DayNumberInMonth),`r`nDay Of Week: $($Bkjob.ScheduleOptions.OptionsMonthly.DayOfWeek)"
                                             }
                                             elseif ($Bkjob.ScheduleOptions.OptionsPeriodically.Enabled -eq "True") {
-                                                $ScheduleType = "Hours"
+                                                $ScheduleType = $Bkjob.ScheduleOptions.OptionsPeriodically.Kind
                                                 $Schedule = "Full Period: $($Bkjob.ScheduleOptions.OptionsPeriodically.FullPeriod),`r`nHourly Offset: $($Bkjob.ScheduleOptions.OptionsPeriodically.HourlyOffset),`r`nUnit: $($Bkjob.ScheduleOptions.OptionsPeriodically.Unit)"
+                                            }
+                                            elseif ($Bkjob.ScheduleOptions.OptionsContinuous.Enabled -eq "True") {
+                                                $ScheduleType = 'Continuous'
+                                                $Schedule = "Schedule Time Period"
                                             }
                                             $inObj = [ordered] @{
                                                 'Retry Failed item' = $Bkjob.ScheduleOptions.RetryTimes
