@@ -6,7 +6,7 @@ function Get-AbrVbrReplReplica {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.5.3
+        Version:        0.5.5
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -27,7 +27,7 @@ function Get-AbrVbrReplReplica {
     process {
         try {
             try {
-                $Replicas = Get-VBRReplica
+                $Replicas = Get-VBRReplica | Sort-Object -Property VmName
                 if ($Replicas) {
                     if ($InfoLevel.Replication.Replica -eq 1) {
                         Section -Style Heading3 'Replicas' {
@@ -65,7 +65,7 @@ function Get-AbrVbrReplReplica {
                                 $OutObj = @()
                                 foreach ($Replica in $Replicas) {
                                     try {
-                                        foreach ($VM in $Replica.GetBackupReplicas()) {
+                                        foreach ($VM in $Replica.GetBackupReplicas() | Sort-Object -Property VMName) {
                                             $inObj = [ordered] @{
                                                 'VM Name' = $VM.VmName
                                                 'Target Vm Name' = $VM.TargetVmName

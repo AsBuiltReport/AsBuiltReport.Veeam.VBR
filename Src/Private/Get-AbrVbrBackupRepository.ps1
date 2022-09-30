@@ -6,7 +6,7 @@ function Get-AbrVbrBackupRepository {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.5.4
+        Version:        0.5.5
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -29,10 +29,10 @@ function Get-AbrVbrBackupRepository {
             if ((Get-VBRBackupRepository).count -gt 0) {
                 $OutObj = @()
                 try {
-                    [Array]$BackupRepos = Get-VBRBackupRepository | Where-Object {$_.Type -ne "SanSnapshotOnly"}
-                    [Array]$ScaleOuts = Get-VBRBackupRepository -ScaleOut
+                    [Array]$BackupRepos = Get-VBRBackupRepository | Where-Object {$_.Type -ne "SanSnapshotOnly"} | Sort-Object -Property Name
+                    [Array]$ScaleOuts = Get-VBRBackupRepository -ScaleOut | Sort-Object -Property Name
                     if ($ScaleOuts) {
-                        $Extents = Get-VBRRepositoryExtent -Repository $ScaleOuts
+                        $Extents = Get-VBRRepositoryExtent -Repository $ScaleOuts | Sort-Object -Property Name
                         $BackupRepos += $Extents.Repository
                     }
                     foreach ($BackupRepo in $BackupRepos) {
@@ -127,6 +127,7 @@ function Get-AbrVbrBackupRepository {
                         if ($chartFileItem) {
                             Image -Text 'Backup Repository - Diagram' -Align 'Center' -Percent 100 -Path $chartFileItem
                         }
+                        BlankLine
                         $OutObj | Sort-Object -Property 'Name' | Table @TableParams
                         #---------------------------------------------------------------------------------------------#
                         #                        Backup Repository Configuration Section                              #

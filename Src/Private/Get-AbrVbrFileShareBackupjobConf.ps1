@@ -377,13 +377,20 @@ function Get-AbrVbrFileShareBackupjobConf {
                                                 $Schedule = "Day Of Month: $($Bkjob.ScheduleOptions.OptionsMonthly.DayOfMonth),`r`nDay Number In Month: $($Bkjob.ScheduleOptions.OptionsMonthly.DayNumberInMonth),`r`nDay Of Week: $($Bkjob.ScheduleOptions.OptionsMonthly.DayOfWeek)"
                                             }
                                             elseif ($Bkjob.ScheduleOptions.OptionsPeriodically.Enabled -eq "True") {
-                                                $ScheduleType = "Hours"
+                                                $ScheduleType = $Bkjob.ScheduleOptions.OptionsPeriodically.Kind
                                                 $Schedule = "Full Period: $($Bkjob.ScheduleOptions.OptionsPeriodically.FullPeriod),`r`nHourly Offset: $($Bkjob.ScheduleOptions.OptionsPeriodically.HourlyOffset),`r`nUnit: $($Bkjob.ScheduleOptions.OptionsPeriodically.Unit)"
+                                            }
+                                            elseif ($Bkjob.ScheduleOptions.OptionsContinuous.Enabled -eq "True") {
+                                                $ScheduleType = 'Continuous'
+                                                $Schedule = "Schedule Time Period"
                                             }
                                             $inObj = [ordered] @{
                                                 'Retry Failed item' = $Bkjob.ScheduleOptions.RetryTimes
                                                 'Wait before each retry' = "$($Bkjob.ScheduleOptions.RetryTimeout)/min"
-                                                'Backup Window' = ConvertTo-TextYN $Bkjob.ScheduleOptions.OptionsBackupWindow.IsEnabled
+                                                'Backup Window' = Switch ($Bkjob.TypeToString) {
+                                                    "Backup Copy" {ConvertTo-TextYN $Bkjob.ScheduleOptions.OptionsContinuous.Enabled}
+                                                    default {ConvertTo-TextYN $Bkjob.ScheduleOptions.OptionsBackupWindow.IsEnabled}
+                                                }
                                                 'Shedule type' = $ScheduleType
                                                 'Shedule Options' = $Schedule
                                                 'Start Time' =  $Bkjob.ScheduleOptions.OptionsDaily.TimeLocal.ToShorttimeString()

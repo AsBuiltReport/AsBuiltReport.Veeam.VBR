@@ -159,6 +159,7 @@ function Get-AbrVbrInstalledLicense {
                                                 if ($chartFileItem -and ($inObj.Values | Measure-Object -Sum).Sum -ne 0) {
                                                     Image -Text 'Instance License Usage - Diagram' -Align 'Center' -Percent 100 -Path $chartFileItem
                                                 }
+                                                BlankLine
                                                 $OutObj | Table @TableParams
                                                 #---------------------------------------------------------------------------------------------#
                                                 #                                  Per Instance Section                                       #

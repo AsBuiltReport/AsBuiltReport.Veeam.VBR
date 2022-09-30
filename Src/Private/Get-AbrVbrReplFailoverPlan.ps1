@@ -6,7 +6,7 @@ function Get-AbrVbrReplFailoverPlan {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.5.3
+        Version:        0.5.5
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -26,7 +26,7 @@ function Get-AbrVbrReplFailoverPlan {
 
     process {
         try {
-            $FailOverPlans = Get-VBRFailoverPlan
+            $FailOverPlans = Get-VBRFailoverPlan | Sort-Object -Property Name
             if ($FailOverPlans) {
                 Section -Style Heading3 'Failover Plans' {
                     Paragraph "The following section details failover plan information from Veeam Server $(((Get-VBRServerSession).Server))."
