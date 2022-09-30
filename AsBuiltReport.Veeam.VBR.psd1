@@ -57,6 +57,10 @@ RequiredModules = @(
         ModuleName = 'AsBuiltReport.Core';
         ModuleVersion = '1.2.0'
     }
+    @{
+        ModuleName = 'PScriboCharts';
+        ModuleVersion = '0.9.0'
+    }
 )
 
 # Assemblies that must be loaded prior to importing this module
