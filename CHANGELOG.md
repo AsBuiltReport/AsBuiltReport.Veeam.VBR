@@ -3,11 +3,19 @@
 
 ### Added
 
--
+- Addeds support for schedule backup windows on Backup Jobs
+
+### Changed
+
+- Improved table sorting
+- Added BlankLine between charts and table content
 
 ### Fixed
 
 - Fixes [#56](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/56)
+- Fixes [#57](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/57)
+- Fixes [#60](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/60)
+- Fixes [#62](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/62)
 
 ## [0.5.4] - 2022-09-17
 
