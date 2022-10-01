@@ -751,6 +751,88 @@ function Get-AbrVbrRepljobHyperV {
                                                 $TableParams['Caption'] = "- $($TableParams.Name)"
                                             }
                                             $OutObj | Table @TableParams
+                                            if ($Bkjob.ScheduleOptions.OptionsBackupWindow.IsEnabled -or $Bkjob.ScheduleOptions.OptionsContinuous.Enabled) {
+                                                Section -Style NOTOCHeading6 -ExcludeFromTOC "Backup Window Time Period" {
+                                                    $OutObj = @()
+                                                    try {
+                                                        $Days = 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'
+                                                        $Hours24 = [ordered]@{
+                                                            0 = 12
+                                                            1 = 1
+                                                            2 = 2
+                                                            3 = 3
+                                                            4 = 4
+                                                            5 = 5
+                                                            6 = 6
+                                                            7 = 7
+                                                            8 = 8
+                                                            9 = 9
+                                                            10 = 10
+                                                            11 = 11
+                                                            12 = 12
+                                                            13 = 1
+                                                            14 = 2
+                                                            15 = 3
+                                                            16 = 4
+                                                            17 = 5
+                                                            18 = 6
+                                                            19 = 7
+                                                            20 = 8
+                                                            21 = 9
+                                                            22 = 10
+                                                            23 = 11
+                                                        }
+                                                        $ScheduleTimePeriod = @()
+                                                        foreach ($Day in $Days) {
+
+                                                            $Regex = [Regex]::new("(?<=<$Day>)(.*)(?=</$Day>)")
+                                                            if ($Bkjob.TypeToString -eq "Backup Copy") {
+                                                                $BackupWindow = $Bkjob.ScheduleOptions.OptionsContinuous.Schedule
+                                                            } else {$BackupWindow = $Bkjob.ScheduleOptions.OptionsBackupWindow.BackupWindow}
+                                                            $Match = $Regex.Match($BackupWindow)
+                                                            if($Match.Success)
+                                                            {
+                                                                $ScheduleTimePeriodConverted = @()
+
+                                                                foreach ($Val in $Match.Value.Split(',')) {
+                                                                    if ($Val -eq 0) {
+                                                                        $ScheduleTimePeriodConverted += 'on'
+                                                                    } else {$ScheduleTimePeriodConverted += 'off'}
+                                                                }
+                                                                $ScheduleTimePeriod += $ScheduleTimePeriodConverted -join ","
+                                                            }
+                                                        }
+
+                                                        foreach ($OBJ in $Hours24.GetEnumerator()) {
+
+                                                            $inObj = [ordered] @{
+                                                                'Hour' = $OBJ.Value
+                                                                'Sun' = $ScheduleTimePeriod[0].Split(',')[$OBJ.Key]
+                                                                'Mon' = $ScheduleTimePeriod[1].Split(',')[$OBJ.Key]
+                                                                'Tue' = $ScheduleTimePeriod[2].Split(',')[$OBJ.Key]
+                                                                'Wed' = $ScheduleTimePeriod[3].Split(',')[$OBJ.Key]
+                                                                'Thu' = $ScheduleTimePeriod[4].Split(',')[$OBJ.Key]
+                                                                'Fri' = $ScheduleTimePeriod[5].Split(',')[$OBJ.Key]
+                                                                'Sat' = $ScheduleTimePeriod[6].Split(',')[$OBJ.Key]
+                                                            }
+                                                            $OutObj += $inobj
+                                                        }
+
+                                                        $TableParams = @{
+                                                            Name = "Backup Window - $($Bkjob.Name)"
+                                                            List = $true
+                                                            Key = 'Hour'
+                                                        }
+                                                        if ($Report.ShowTableCaptions) {
+                                                            $TableParams['Caption'] = "- $($TableParams.Name)"
+                                                        }
+                                                        Table -Hashtable $OutObj @TableParams
+                                                    }
+                                                    catch {
+                                                        Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                    }
+                                                }
+                                            }
                                         }
                                         catch {
                                             Write-PscriboMessage -IsWarning $_.Exception.Message
