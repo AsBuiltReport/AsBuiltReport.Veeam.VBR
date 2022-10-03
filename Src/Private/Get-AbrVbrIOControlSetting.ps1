@@ -6,7 +6,7 @@ function Get-AbrVbrIOControlSetting {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.5.3
+        Version:        0.5.5
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -65,20 +65,26 @@ function Get-AbrVbrIOControlSetting {
                             if ((Get-VBRInstalledLicense | Where-Object {$_.Edition -eq "EnterprisePlus"}) -and ((Get-VBRAdvancedLatencyOptions).count -gt 0)) {
                                 Section -Style NOTOCHeading5 -ExcludeFromTOC 'Per Datastore Latency Control Options' {
                                     $OutObj = @()
-                                    try {
-                                        $StorageLatencyControls = Get-VBRAdvancedLatencyOptions
-                                        foreach ($StorageLatencyControl in $StorageLatencyControls) {
+                                    $StorageLatencyControls = Get-VBRAdvancedLatencyOptions
+                                    foreach ($StorageLatencyControl in $StorageLatencyControls) {
+                                        try {
+                                            $Datastores = Find-VBRViEntity -DatastoresAndVMs -ErrorAction SilentlyContinue | Where-Object {($_.type -eq "Datastore")}
+                                            $DatastoreName = ($Datastores | Where-Object {$_.Reference -eq $StorageLatencyControl.DatastoreId}).Name
                                             $inObj = [ordered] @{
-                                                'Datastore Name' = $StorageLatencyControl.DatastoreId
+                                                'Datastore Name' = Switch ($DatastoreName) {
+                                                    $Null {$StorageLatencyControl.DatastoreId}
+                                                    default {$DatastoreName}
+                                                }
                                                 'Latency Limit' = "$($StorageLatencyControl.LatencyLimitMs)/ms"
                                                 'Throttling IO Limit' = "$($StorageLatencyControl.ThrottlingIOLimitMs)/ms"
                                             }
                                             $OutObj += [pscustomobject]$inobj
                                         }
+                                        catch {
+                                            Write-PscriboMessage -IsWarning $_.Exception.Message
+                                        }
                                     }
-                                    catch {
-                                        Write-PscriboMessage -IsWarning $_.Exception.Message
-                                    }
+
 
                                     $TableParams = @{
                                         Name = "Per Datastore Latency Control Options - $VeeamBackupServer"

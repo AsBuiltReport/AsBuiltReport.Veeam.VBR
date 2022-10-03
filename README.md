@@ -38,7 +38,7 @@ Please refer to the AsBuiltReport [website](https://www.asbuiltreport.com) for m
 
 ## Sample Report - Custom Style
 
-Sample Veeam VBR As Built report HTML file: [Sample Veeam VBR As-Built Report.html](https://htmlpreview.github.io/?https://raw.githubusercontent.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/dev/Samples/Sample%20Veeam%20VBR%20As%20Built%20Report.html)
+Sample Veeam VBR As Built report HTML file: [Sample Veeam Backup & Replication As Built Report.html](https://htmlpreview.github.io/?https://raw.githubusercontent.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/dev/Samples/Sample%20Veeam%20Backup%20%26%20Replication%20As%20Built%20Report.html)
 
 Sample Veeam VBR As Built report PDF file: [Sample Veeam Backup & Replication As Built Report.pdf](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/raw/dev/Samples/Sample%20Veeam%20Backup%20%26%20Replication%20As%20Built%20Report.pdf)
 
@@ -66,6 +66,7 @@ This report is compatible with the following PowerShell versions;
 PowerShell 5.1 or PowerShell 7, and the following PowerShell modules are required for generating a Veeam VBR As Built report.
 
 - [Veeam.Backup.PowerShell Module](https://helpcenter.veeam.com/docs/backup/powershell/getting_started.html?ver=110)
+- [PScriboCharts Module](https://github.com/iainbrighton/PScriboCharts)
 - [AsBuiltReport.Core Module](https://github.com/AsBuiltReport/AsBuiltReport.Core)
 
 ### Linux & macOS

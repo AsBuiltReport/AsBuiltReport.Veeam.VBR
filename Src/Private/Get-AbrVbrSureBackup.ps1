@@ -6,7 +6,7 @@ function Get-AbrVbrSureBackup {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.5.3
+        Version:        0.5.5
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -70,7 +70,7 @@ function Get-AbrVbrSureBackup {
                     if ((Get-VBRApplicationGroup).count -gt 0) {
                         if ($InfoLevel.Infrastructure.SureBackup -ge 2) {
                             try {
-                                $SureBackupAGs = Get-VBRApplicationGroup
+                                $SureBackupAGs = Get-VBRApplicationGroup | Sort-Object -Property Name
                                 foreach ($SureBackupAG in $SureBackupAGs) {
                                     if ($SureBackupAG.VM) {
                                         Section -Style Heading5 "$($SureBackupAG.Name) VM Settings" {
@@ -152,7 +152,7 @@ function Get-AbrVbrSureBackup {
                                 if ($InfoLevel.Infrastructure.SureBackup -ge 2) {
                                     try {
                                         Section -Style Heading5 "Virtual Labs Configuration" {
-                                            $SureBackupVLs = Get-VBRViVirtualLabConfiguration
+                                            $SureBackupVLs = Get-VBRViVirtualLabConfiguration | Sort-Object -Property Name
                                             foreach ($SureBackupVL in $SureBackupVLs) {
                                                 try {
                                                     Section -Style Heading6 "$($SureBackupVL.Name) Settings" {

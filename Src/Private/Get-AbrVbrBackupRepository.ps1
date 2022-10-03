@@ -6,7 +6,7 @@ function Get-AbrVbrBackupRepository {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.5.4
+        Version:        0.5.5
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -29,10 +29,10 @@ function Get-AbrVbrBackupRepository {
             if ((Get-VBRBackupRepository).count -gt 0) {
                 $OutObj = @()
                 try {
-                    [Array]$BackupRepos = Get-VBRBackupRepository | Where-Object {$_.Type -ne "SanSnapshotOnly"}
-                    [Array]$ScaleOuts = Get-VBRBackupRepository -ScaleOut
+                    [Array]$BackupRepos = Get-VBRBackupRepository | Where-Object {$_.Type -ne "SanSnapshotOnly"} | Sort-Object -Property Name
+                    [Array]$ScaleOuts = Get-VBRBackupRepository -ScaleOut | Sort-Object -Property Name
                     if ($ScaleOuts) {
-                        $Extents = Get-VBRRepositoryExtent -Repository $ScaleOuts
+                        $Extents = Get-VBRRepositoryExtent -Repository $ScaleOuts | Sort-Object -Property Name
                         $BackupRepos += $Extents.Repository
                     }
                     foreach ($BackupRepo in $BackupRepos) {
@@ -64,9 +64,8 @@ function Get-AbrVbrBackupRepository {
 
                 if ($HealthCheck.Infrastructure.BR) {
                     $OutObj | Where-Object { $_.'Status' -eq 'Unavailable'} | Set-Style -Style Warning -Property 'Status'
-                    if ([int]([regex]::Matches($OutObj.'Space Used', "\d+(?!.*\d+)").value) -ge 75) { $OutObj | Set-Style -Style Warning -Property 'Space Used' }
-                    if ([int]([regex]::Matches($OutObj.'Space Used', "\d+(?!.*\d+)").value) -ge 90) { $OutObj | Set-Style -Style Critical -Property 'Space Used' }
-
+                    $OutObj | Where-Object { $_.'Used Space %' -ge 75} | Set-Style -Style Warning -Property 'Used Space %'
+                    $OutObj | Where-Object { $_.'Used Space %' -ge 90} | Set-Style -Style Critical -Property 'Used Space %'
                 }
 
                 $TableParams = @{
@@ -127,6 +126,7 @@ function Get-AbrVbrBackupRepository {
                         if ($chartFileItem) {
                             Image -Text 'Backup Repository - Diagram' -Align 'Center' -Percent 100 -Path $chartFileItem
                         }
+                        BlankLine
                         $OutObj | Sort-Object -Property 'Name' | Table @TableParams
                         #---------------------------------------------------------------------------------------------#
                         #                        Backup Repository Configuration Section                              #

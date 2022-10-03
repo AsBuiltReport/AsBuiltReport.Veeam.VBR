@@ -32,7 +32,7 @@ function Get-AbrVbrWANAccelerator {
                     BlankLine
                     $OutObj = @()
                     try {
-                        $WANAccels = Get-VBRWANAccelerator
+                        $WANAccels = Get-VBRWANAccelerator | Sort-Object -Property Name
                         foreach ($WANAccel in $WANAccels) {
                             $IsWaHasAnyCaches = 'Unknown'
                             try {
