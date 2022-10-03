@@ -64,9 +64,8 @@ function Get-AbrVbrBackupRepository {
 
                 if ($HealthCheck.Infrastructure.BR) {
                     $OutObj | Where-Object { $_.'Status' -eq 'Unavailable'} | Set-Style -Style Warning -Property 'Status'
-                    if ([int]([regex]::Matches($OutObj.'Space Used', "\d+(?!.*\d+)").value) -ge 75) { $OutObj | Set-Style -Style Warning -Property 'Space Used' }
-                    if ([int]([regex]::Matches($OutObj.'Space Used', "\d+(?!.*\d+)").value) -ge 90) { $OutObj | Set-Style -Style Critical -Property 'Space Used' }
-
+                    $OutObj | Where-Object { $_.'Used Space %' -ge 75} | Set-Style -Style Warning -Property 'Used Space %'
+                    $OutObj | Where-Object { $_.'Used Space %' -ge 90} | Set-Style -Style Critical -Property 'Used Space %'
                 }
 
                 $TableParams = @{

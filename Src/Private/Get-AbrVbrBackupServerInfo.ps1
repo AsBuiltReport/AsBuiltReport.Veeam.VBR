@@ -6,7 +6,7 @@ function Get-AbrVbrBackupServerInfo {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.5.3
+        Version:        0.5.5
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -391,6 +391,79 @@ function Get-AbrVbrBackupServerInfo {
                                             $TableParams['Caption'] = "- $($TableParams.Name)"
                                         }
                                         $OutObj | Table @TableParams
+                                    }
+                                }
+                            }
+                        }
+                        catch {
+                            Write-PscriboMessage -IsWarning $_.Exception.Message
+                        }
+                        try {
+                            Write-PScriboMessage "Infrastructure Backup Server InfoLevel set at $($InfoLevel.Infrastructure.BackupServer)."
+                            if ($InfoLevel.Infrastructure.BackupServer -ge 2) {
+                                $VeeamInfo = Invoke-Command -Session $PssSession -ErrorAction SilentlyContinue -ScriptBlock { Get-ItemProperty -Path 'HKLM:\SOFTWARE\Veeam\Veeam Backup and Replication' }
+                                $DefaultRegistryHash = @{
+                                    "AgentLogging" = "1"
+                                    "AgentLogOptions" = "flush"
+                                    "LoggingLevel" = "4"
+                                    "VNXBlockNaviSECCliPath" = "C:\Program Files\Veeam\Backup and Replication\Backup\EMC Navisphere CLI\NaviSECCli.exe"
+                                    "VNXeUemcliPath"= "C:\Program Files\Veeam\Backup and Replication\Backup\EMC Unisphere CLI\3.0.1\uemcli.exe"
+                                    "SqlLockInfo" = ""
+                                    "CloudServerPort" = "10003"
+                                    "SqlDatabaseName" = "VeeamBackup"
+                                    "SqlInstanceName" = "VEEAMSQL2016"
+                                    "SqlServerName" = ""
+                                    "SqlLogin" = ""
+                                    "CorePath" = "C:\Program Files\Veeam\Backup and Replication\Backup\"
+                                    "BackupServerPort" = "9392"
+                                    "SecureConnectionsPort" = "9401"
+                                    "VddkReadBufferSize" = "0"
+                                    "EndPointServerPort" = "10001"
+                                    "SqlSecuredPassword" = ""
+                                    "IsComponentsUpdateRequired" = "0"
+                                    "LicenseAutoUpdate" = "1"
+                                    "CloudSvcPort" = "6169"
+                                    "VBRServiceRestartNeeded" = "0"
+                                    "ImportServers" = "0"
+                                    "MaxLogCount" = "10"
+                                    "MaxLogSize" = "10240"
+                                    "RunspaceId" = "0000"
+                                    "ProviderCredentialsId" = ""
+                                    "ProviderInfo" = ""
+                                    "ProviderId" = ""
+                                }
+                                if ($VeeamInfo) {
+                                    $OutObj = @()
+                                    $Hashtable = $VeeamInfo | ForEach-Object {
+                                        foreach ($prop in $_.psobject.Properties.Where({ $_.Name -notlike 'PS*'})) {
+                                            [pscustomobject] @{
+                                                Key = $prop.Name
+                                                Value = $prop.Value
+                                            }
+                                        }
+                                    }
+                                    foreach ($Registry in $Hashtable) {
+                                        if ($Registry.Key -notin $DefaultRegistryHash.Keys) {
+                                            $inObj = [ordered] @{
+                                                'Registry Key' = $Registry.Key
+                                                'Registry Value' = $Registry.Value
+                                            }
+                                            $OutObj += [pscustomobject]$inobj
+                                        }
+                                    }
+
+                                    $TableParams = @{
+                                        Name = "HealthCheck - Non-Default Registry Keys - $($BackupServer.Name.Split(".")[0])"
+                                        List = $false
+                                        ColumnWidths = 50, 50
+                                    }
+                                    if ($Report.ShowTableCaptions) {
+                                        $TableParams['Caption'] = "- $($TableParams.Name)"
+                                    }
+                                }
+                                if ($OutObj) {
+                                    Section -Style Heading4 "HealthCheck - Non-Default Registry Keys" {
+                                        $OutObj | Sort-Object -Property 'Registry Key' | Table @TableParams
                                     }
                                 }
                             }
