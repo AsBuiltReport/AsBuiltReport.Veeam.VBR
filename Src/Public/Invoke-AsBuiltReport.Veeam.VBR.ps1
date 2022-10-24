@@ -26,7 +26,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
     Write-PScriboMessage -IsWarning "Documentation: https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR"
     Write-PScriboMessage -IsWarning "Issues or bug reporting: https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues"
 
-    $InstalledVersion = Get-Module -ListAvailable -Name AsBuiltReport.Veeam.VBR -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Version
+    $InstalledVersion = (Get-Module -ListAvailable -Name AsBuiltReport.Veeam.VBR -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Version)[0]
 
     if ($InstalledVersion) {
         Write-PScriboMessage -IsWarning "Installed AsBuiltReport.Veeam.VBR Version: $($InstalledVersion.ToString())"
