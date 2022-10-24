@@ -69,10 +69,6 @@ PowerShell 5.1 or PowerShell 7, and the following PowerShell modules are require
 - [PScriboCharts Module](https://github.com/iainbrighton/PScriboCharts)
 - [AsBuiltReport.Core Module](https://github.com/AsBuiltReport/AsBuiltReport.Core)
 
-### Linux & macOS
-
-This report does not support Linux or Mac due to the fact that the 'Veeam.Backup.PowerShell' module is dependent on the .NET Framework. Until Veeam migrates these modules to native PowerShell Core, only PowerShell >= (5.x, v7.2 co-living) will be supported on Windows.
-
 ### :closed_lock_with_key: Required Privileges
 
 Only users with Veeam Backup Administrator role assigned can generate a Veeam VBR As Built Report.
