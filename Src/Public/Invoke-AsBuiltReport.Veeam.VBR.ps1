@@ -5,7 +5,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.5.4
+        Version:        0.6.0
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -62,7 +62,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                 Get-AbrVbrTapeInfraSummary
                 Get-AbrVbrInventorySummary
                 Get-AbrVbrStorageInfraSummary
-                Get-AbrVbrReplInfraSummary
+                # Get-AbrVbrReplInfraSummary
             }
             #---------------------------------------------------------------------------------------------#
             #                            Backup Infrastructure Section                                    #
@@ -252,6 +252,22 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                             Get-AbrVbrFileShareBackupjobConf
                         }
                     }
+                }
+            }
+            #---------------------------------------------------------------------------------------------#
+            #                                  Backup Jobs Section                                        #
+            #---------------------------------------------------------------------------------------------#
+            if ($InfoLevel.Security.PSObject.Properties.Value -ne 0) {
+                Section -Style Heading2 'Infrastructure Security Hardening' {
+                    Paragraph "Protecting your infrastructure successfully is all about understanding the current attack vectors; what and whom you are protecting, your Veeam infrastructure, against. If you know what and whom you are protecting against, makes it easier to take the correct countermeasures. One of those countermeasures is hardening.
+
+                    Looking at the different Veeam Backup & Replication components you have to protect the following components:
+
+                    * Veeam Backup server
+                    * User Accounts
+                    * Backup repositories
+                    * Backup data flows"
+                    Get-AbrVbrSecInfraHard
                 }
             }
         }

@@ -1,4 +1,19 @@
 # :arrows_clockwise: Veeam VBR As Built Report Changelog
+
+## [0.5.5] - 2022-10-13
+
+### Added
+
+- Added Infrastructure Hardening section
+
+### Changed
+
+- Updated `RequiredModules` for AsBuiltReport.Core 1.3.0
+
+### Fixed
+
+- Fixes [#63](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/63)
+
 ## [0.5.5] - 2022-10-02
 
 ### Added
