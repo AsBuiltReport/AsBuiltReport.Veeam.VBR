@@ -62,7 +62,7 @@ function Get-AbrVbrPhysicalInfrastructure {
                                 if ($Report.ShowTableCaptions) {
                                     $TableParams['Caption'] = "- $($TableParams.Name)"
                                 }
-                                $OutObj | Table @TableParams
+                                $OutObj | Sort-Object -Property 'Name' | Table @TableParams
                                 #---------------------------------------------------------------------------------------------#
                                 #                            Protection Groups Detailed Section                               #
                                 #---------------------------------------------------------------------------------------------#

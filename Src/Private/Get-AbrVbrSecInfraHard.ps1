@@ -205,9 +205,9 @@ function Get-AbrVbrSecInfraHard {
                 Write-PscriboMessage -IsWarning $_.Exception.Message
             }
             Section -Style Heading3 'Console Access' {
-                Paragraph "The Veeam Backup & Replication console is a client-side component that provides access to the backup server. The console lets several backup operators and admins log in to Veeam Backup & Replication simultaneous and perform all kind of data protection and disaster recovery operations as if you work on the backup server.
-
-                Install the Veeam Backup & Replication console on a central management server that is, positioned in a DMZ and protected with 2-factor authentication. Do NOT install the console on the local desktops of backup & recovery admins."
+                Paragraph "The Veeam Backup & Replication console is a client-side component that provides access to the backup server. The console lets several backup operators and admins log in to Veeam Backup & Replication simultaneous and perform all kind of data protection and disaster recovery operations as if you work on the backup server."
+                BlankLine
+                Paragraph "Install the Veeam Backup & Replication console on a central management server that is, positioned in a DMZ and protected with 2-factor authentication. Do NOT install the console on the local desktops of backup & recovery admins."
             }
             try {
                 $PssSession = New-PSSession $BackupServer.Name -Credential $Credential -Authentication $Options.PSDefaultAuthentication
@@ -237,13 +237,13 @@ function Get-AbrVbrSecInfraHard {
                 }
                 $PasswordPolicyConfiObj = if ($policyConfigHash) {
                     Section -Style Heading4 "Password Management Policy" {
-                        Paragraph "Use a clever Password management policy, which works for your organization. Enforcing the use of strong passwords across your infrastructure is a valuable control. It's more challenging for attackers to guess passwords/crack hashes to gain unauthorized access to critical systems.
-
-                        Selecting passwords of 10 characters with a mixture of upper and lowercase letters, numbers and special characters is a good start for user accounts.
-
-                        For Admin accounts adding 2-factor authentication is also a must to secure the infrastructure.
-
-                        And for service accounts use 25+ characters combined with a password tool for easier management. An Admin can copy and paste the password when needed, increasing security of the service accounts."
+                        Paragraph "Use a clever Password management policy, which works for your organization. Enforcing the use of strong passwords across your infrastructure is a valuable control. It's more challenging for attackers to guess passwords/crack hashes to gain unauthorized access to critical systems."
+                        BlankLine
+                        Paragraph "Selecting passwords of 10 characters with a mixture of upper and lowercase letters, numbers and special characters is a good start for user accounts."
+                        BlankLine
+                        Paragraph "For Admin accounts adding 2-factor authentication is also a must to secure the infrastructure."
+                        BlankLine
+                        Paragraph "And for service accounts use 25+ characters combined with a password tool for easier management. An Admin can copy and paste the password when needed, increasing security of the service accounts."
                         BlankLine
                         $OutObj = @()
                         $inObj = [ordered] @{
@@ -304,18 +304,18 @@ function Get-AbrVbrSecInfraHard {
                 }
                 if ($PasswordPolicyConfiObj -or $LockpolicyConfiObj) {
                     Section -Style Heading3 'Roles and Users' {
-                        Paragraph "Deploy an Access Control policy, managing access to management components is crucial for a good protection. Use the principle of least privilege. Provide the minimal privilege needed for some operation to occur. An attacker who gained high-privilege access to backup infrastructure servers can get credentials of user accounts and compromise other systems in your environment. Make sure that all accounts have a specific role and that they are added to that specific group.
-
-                        Containment to keep the attackers from moving around too easily. Some standard measures and policies are:
-
-                        *  Do not use user accounts for admin access, reducing incidents and accidents.
-                        *  Give every Veeam admin his own admin account or add their admin account to the appropriate security group within Veeam, for traceability and easy adding and removal.
-                        *  Only give out access to what is needed for the job.
-                        *  Limit users who can log in using Remote Desktop and/or Veeam Backup Console.
-                        *  Add 2-factor authentication to highly valuable assets.
-                        *  Monitor your accounts for suspicious activity.
-
-                        A role assigned to the user defines the user activity scope: what operations in Veeam Backup & Replication the user can perform."
+                        Paragraph "Deploy an Access Control policy, managing access to management components is crucial for a good protection. Use the principle of least privilege. Provide the minimal privilege needed for some operation to occur. An attacker who gained high-privilege access to backup infrastructure servers can get credentials of user accounts and compromise other systems in your environment. Make sure that all accounts have a specific role and that they are added to that specific group."
+                        Blankline
+                        Paragraph "Containment to keep the attackers from moving around too easily. Some standard measures and policies are:"
+                        Blankline
+                        Paragraph '*  Do not use user accounts for admin access, reducing incidents and accidents.'
+                        Paragraph '*  Give every Veeam admin his own admin account or add their admin account to the appropriate security group within Veeam, for traceability and easy adding and removal.'
+                        Paragraph '*  Only give out access to what is needed for the job.'
+                        Paragraph '*  Limit users who can log in using Remote Desktop and/or Veeam Backup Console.'
+                        Paragraph '*  Add 2-factor authentication to highly valuable assets.'
+                        Paragraph '*  Monitor your accounts for suspicious activity.'
+                        Blankline
+                        Paragraph "A role assigned to the user defines the user activity scope: what operations in Veeam Backup & Replication the user can perform."
                         BlankLine
                         try {
                             $OutObj = @()
@@ -362,11 +362,11 @@ function Get-AbrVbrSecInfraHard {
                 $VCInventObjs = Get-VBRServer | Where-Object {$_.Type -eq 'VC'}
                 $vSphereCredObj = if ($VCInventObjs) {
                     Section -Style Heading4 "VMware vSphere Credentials" {
-                        Paragraph 'If VMware vCenter Server is added to the backup infrastructure, an account with reduced permissions can be used. Use the minimum permissions for your use-case. See Required Permissions document:
-
-                        *  https://helpcenter.veeam.com/docs/backup/permissions/installation.html?ver=110
-
-                        For example Hot-Add backup requires the delte disk permission. You can also consider elevating permissions for restores.'
+                        Paragraph 'If VMware vCenter Server is added to the backup infrastructure, an account with reduced permissions can be used. Use the minimum permissions for your use-case. See Required Permissions document:'
+                        BlankLine
+                        Paragraph '*  https://helpcenter.veeam.com/docs/backup/permissions/installation.html?ver=110'
+                        BlankLine
+                        Paragraph 'For example, Hot-Add backup requires the delete disk permission. You can also consider elevating permissions for restores.'
                         try {
                             Section -Style Heading5 'vCenter Server' {
                                 $OutObj = @()
@@ -438,11 +438,11 @@ function Get-AbrVbrSecInfraHard {
                 }
                 if ($vSphereCredObj -or $EsxiCredObj) {
                     Section -Style Heading3 'Required Permissions' {
-                        Paragraph "Use the principle of least privilege. Provide the minimal required permissions needed for the accounts to run. The accounts used for installing and using Veeam Backup & Replication must have the following permissions:
-
-                        *  https://helpcenter.veeam.com/docs/backup/vsphere/required_permissions.html?ver=110
-
-                        Backup proxies must be considered the target for compromise. During backup, proxies obtain from the backup server credentials required to access virtual infrastructure servers. A person having administrator privileges on a backup proxy can intercept the credentials and use them to access the virtual infrastructure."
+                        Paragraph "Use the principle of least privilege. Provide the minimal required permissions needed for the accounts to run. The accounts used for installing and using Veeam Backup & Replication must have the following permissions:"
+                        Blankline
+                        Paragraph "*  https://helpcenter.veeam.com/docs/backup/vsphere/required_permissions.html?ver=110"
+                        Blankline
+                        Paragraph "Backup proxies must be considered the target for compromise. During backup, proxies obtain from the backup server credentials required to access virtual infrastructure servers. A person having administrator privileges on a backup proxy can intercept the credentials and use them to access the virtual infrastructure."
                         $vSphereCredObj
                         Paragraph "Reference: https://helpcenter.veeam.com/docs/backup/permissions/installation.html?ver=110" -Bold
                     }
@@ -919,13 +919,11 @@ function Get-AbrVbrSecInfraHard {
                 }
                 if ($BKJobsEncObj) {
                     Section -Style Heading3 'Encryption' {
-                        Paragraph "Backup and replica data is a highly potential source of vulnerability. To secure data stored in backups and replicas, follow these guidelines:
-
-                        * Ensure physical security of target servers. Check that only authorized personnel have access to the room where your target servers (backup repositories and hosts) reside.
-
-                        * Restrict user access to backups and replicas. Check that only authorized users have permissions to access backups and replicas on target servers.
-
-                        * Encrypt data in backups. Use Veeam Backup & Replication inbuilt encryption to protect data in backups. To guarantee security of data in backups, follow Encryption Best Practices."
+                        Paragraph "Backup and replica data is a highly potential source of vulnerability. To secure data stored in backups and replicas, follow these guidelines:"
+                        BlankLine
+                        Paragraph "* Ensure physical security of target servers. Check that only authorized personnel have access to the room where your target servers (backup repositories and hosts) reside."
+                        Paragraph "* Restrict user access to backups and replicas. Check that only authorized users have permissions to access backups and replicas on target servers."
+                        Paragraph "* Encrypt data in backups. Use Veeam Backup & Replication inbuilt encryption to protect data in backups. To guarantee security of data in backups, follow Encryption Best Practices."
                         BlankLine
                         Paragraph "Reference: https://bp.veeam.com/vbr/Security/infrastructure_hardening.html#encryption" -Bold
                         $BKJobsEncObj
