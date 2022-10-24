@@ -26,15 +26,19 @@ function Invoke-AsBuiltReport.Veeam.VBR {
     Write-PScriboMessage -IsWarning "Documentation: https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR"
     Write-PScriboMessage -IsWarning "Issues or bug reporting: https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues"
 
-    $InstalledVersion = (Get-Module -ListAvailable -Name AsBuiltReport.Veeam.VBR -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Version)[0]
+    Try {
+        $InstalledVersion = (Get-Module -ListAvailable -Name AsBuiltReport.Veeam.VBR -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Version)[0]
 
-    if ($InstalledVersion) {
-        Write-PScriboMessage -IsWarning "Installed AsBuiltReport.Veeam.VBR Version: $($InstalledVersion.ToString())"
-        $MostCurrentVersion = Find-Module -Name AsBuiltReport.Veeam.VBR -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Version
-        if ($MostCurrentVersion -and ($MostCurrentVersion -gt $InstalledVersion)) {
-            Write-PScriboMessage -IsWarning "New Update: AsBuiltReport.Veeam.VBR Version: $($MostCurrentVersion.ToString())"
-            Write-PScriboMessage -IsWarning "To Update run: Update-Module -Name AsBuiltReport.Veeam.VBR -Force"
+        if ($InstalledVersion) {
+            Write-PScriboMessage -IsWarning "Installed AsBuiltReport.Veeam.VBR Version: $($InstalledVersion.ToString())"
+            $MostCurrentVersion = Find-Module -Name AsBuiltReport.Veeam.VBR -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Version
+            if ($MostCurrentVersion -and ($MostCurrentVersion -gt $InstalledVersion)) {
+                Write-PScriboMessage -IsWarning "New Update: AsBuiltReport.Veeam.VBR Version: $($MostCurrentVersion.ToString())"
+                Write-PScriboMessage -IsWarning "To Update run: Update-Module -Name AsBuiltReport.Veeam.VBR -Force"
+            }
         }
+    } Catch {
+        Write-PscriboMessage -IsWarning $_.Exception.Message
     }
 
     # Import Report Configuration
@@ -255,7 +259,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                 }
             }
             #---------------------------------------------------------------------------------------------#
-            #                                  Backup Jobs Section                                        #
+            #                      Infrastructure Security Hardening Section                              #
             #---------------------------------------------------------------------------------------------#
             if ($InfoLevel.Security.PSObject.Properties.Value -ne 0) {
                 Section -Style Heading2 'Infrastructure Security Hardening' {
@@ -267,7 +271,9 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                     * User Accounts
                     * Backup repositories
                     * Backup data flows"
-                    Get-AbrVbrSecInfraHard
+                    if ($InfoLevel.Security.Infrastructure -ge 1) {
+                        Get-AbrVbrSecInfraHard
+                    }
                 }
             }
         }

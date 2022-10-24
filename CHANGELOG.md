@@ -1,6 +1,6 @@
 # :arrows_clockwise: Veeam VBR As Built Report Changelog
 
-## [0.5.5] - 2022-10-13
+## [0.6.0] - 2022-10-XX
 
 ### Added
 
@@ -13,6 +13,7 @@
 ### Fixed
 
 - Fixes [#63](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/63)
+- Fixes [#70](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/70)
 
 ## [0.5.5] - 2022-10-02
 

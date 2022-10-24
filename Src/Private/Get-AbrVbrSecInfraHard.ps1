@@ -749,7 +749,7 @@ function Get-AbrVbrSecInfraHard {
                 $Bkjobs = Get-VBRJob -WarningAction SilentlyContinue | Where-Object {$_.TypetoString -notlike '*Agent*' -and $_.TypetoString -notlike '*File*'}
                 $ABkjobs = Get-VBRComputerBackupJob | Sort-Object -Property Name
                 $FSjobs = Get-VBRJob -WarningAction SilentlyContinue | Where-Object {$_.TypeToString -like 'File Backup'} | Sort-Object -Property Name
-                $BKJobsObj = if ($BKJobs) {
+                $BKJobsEncObj = if ($BKJobs) {
                     Section -Style Heading4 "Backup Jobs Encryption Status" {
                         Paragraph 'Data security is an important part of the backup strategy. You must protect your information from unauthorized access, especially if you back up sensitive VM data to off-site locations or archive it to tape. To keep your data safe, you can use data encryption.'
                         try {
@@ -767,6 +767,10 @@ function Get-AbrVbrSecInfraHard {
                                         }
 
                                         $OutObj += [pscustomobject]$inobj
+
+                                        if ($HealthCheck.Security.BestPractice) {
+                                            $OutObj | Where-Object { $_.'Storage Encryption' -like 'No'} | Set-Style -Style Warning -Property 'Storage Encryption'
+                                        }
                                     }
                                     catch {
                                         Write-PscriboMessage -IsWarning $_.Exception.Message
@@ -803,6 +807,10 @@ function Get-AbrVbrSecInfraHard {
                                         }
 
                                         $OutObj += [pscustomobject]$inobj
+
+                                        if ($HealthCheck.Security.BestPractice) {
+                                            $OutObj | Where-Object { $_.'Enabled Backup File Encryption' -like 'No'} | Set-Style -Style Warning -Property 'Enabled Backup File Encryption'
+                                        }
                                     }
                                     catch {
                                         Write-PscriboMessage -IsWarning $_.Exception.Message
@@ -825,7 +833,7 @@ function Get-AbrVbrSecInfraHard {
                             Write-PscriboMessage -IsWarning $_.Exception.Message
                         }
                         try {
-                            Section -Style Heading5 'File Share Backup Jobs' {
+                            Section -Style Heading4 'File Share Backup Jobs' {
                                 $OutObj = @()
                                 foreach ($FSjob in $FSjobs) {
                                     try {
@@ -839,6 +847,10 @@ function Get-AbrVbrSecInfraHard {
                                         }
 
                                         $OutObj += [pscustomobject]$inobj
+
+                                        if ($HealthCheck.Security.BestPractice) {
+                                            $OutObj | Where-Object { $_.'Enabled Backup File Encryption' -like 'No'} | Set-Style -Style Warning -Property 'Enabled Backup File Encryption'
+                                        }
                                     }
                                     catch {
                                         Write-PscriboMessage -IsWarning $_.Exception.Message
@@ -862,7 +874,50 @@ function Get-AbrVbrSecInfraHard {
                         }
                     }
                 }
-                if ($BKJobsObj) {
+                try {
+                    $TrafficRules = Get-VBRNetworkTrafficRule
+                    $EncryptNetworkTraffic = if (($TrafficRules).count -gt 0) {
+                        Section -Style Heading4 'Encrypt Network Traffic' {
+                            Paragraph "By default, Veeam Backup & Replication encrypts network traffic traveling between public networks. To ensure secure communication of sensitive data within the boundaries of the same network, you can also encrypt backup traffic in private networks."
+                            BlankLine
+                            $OutObj = @()
+                            try {
+                                foreach ($TrafficRule in $TrafficRules) {
+                                    $inObj = [ordered] @{
+                                        'Name' = $TrafficRule.Name
+                                        'Source IP Start' = $TrafficRule.SourceIPStart
+                                        'Source IP End' = ConvertTo-EmptyToFiller $TrafficRule.SourceIPEnd
+                                        'Target IP Start' = $TrafficRule.TargetIPStart
+                                        'Target IP End' = ConvertTo-EmptyToFiller $TrafficRule.TargetIPEnd
+                                        'Encryption Enabled' = ConvertTo-TextYN $TrafficRule.EncryptionEnabled
+                                    }
+                                    $OutObj += [pscustomobject]$inobj
+
+                                    if ($HealthCheck.Security.BestPractice) {
+                                        $OutObj | Where-Object { $_.'Encryption Enabled' -like 'No'} | Set-Style -Style Warning -Property 'Encryption Enabled'
+                                    }
+                                }
+
+                                $TableParams = @{
+                                    Name = "Encrypt Network Traffic - $VeeamBackupServer"
+                                    List = $false
+                                    ColumnWidths = 20, 17, 17, 17, 17, 12
+                                }
+                                if ($Report.ShowTableCaptions) {
+                                    $TableParams['Caption'] = "- $($TableParams.Name)"
+                                }
+                                $OutObj | Table @TableParams
+                            }
+                            catch {
+                                Write-PscriboMessage -IsWarning $_.Exception.Message
+                            }
+                        }
+                    }
+                }
+                catch {
+                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                }
+                if ($BKJobsEncObj) {
                     Section -Style Heading3 'Encryption' {
                         Paragraph "Backup and replica data is a highly potential source of vulnerability. To secure data stored in backups and replicas, follow these guidelines:
 
@@ -873,7 +928,81 @@ function Get-AbrVbrSecInfraHard {
                         * Encrypt data in backups. Use Veeam Backup & Replication inbuilt encryption to protect data in backups. To guarantee security of data in backups, follow Encryption Best Practices."
                         BlankLine
                         Paragraph "Reference: https://bp.veeam.com/vbr/Security/infrastructure_hardening.html#encryption" -Bold
-                        $BKJobsObj
+                        $BKJobsEncObj
+                        $EncryptNetworkTraffic
+                    }
+                }
+            }
+            catch {
+                Write-PscriboMessage -IsWarning $_.Exception.Message
+            }
+            try {
+                $BackupSettings = Get-VBRConfigurationBackupJob
+                $BKPConf = if (($BackupSettings).count -gt 0) {
+                    Section -Style Heading4 'Encrypt Data in Configuration Backups' {
+                        Paragraph 'Enable data encryption for configuration backup to secure sensitive data stored in the configuration database.'
+                        BlankLine
+                        Paragraph "Reference: https://helpcenter.veeam.com/docs/backup/vsphere/config_backup_encrypted.html?ver=110" -Bold
+                        BlankLine
+                        $OutObj = @()
+                        try {
+                            if ($BackupSettings.ScheduleOptions.Type -like "Daily") {
+                                $ScheduleOptions = "Type: $($BackupSettings.ScheduleOptions.DailyOptions.Type)`r`nPeriod: $($BackupSettings.ScheduleOptions.DailyOptions.Period)`r`nDay Of Week: $($BackupSettings.ScheduleOptions.DailyOptions.DayOfWeek)"
+                            }
+                            elseif ($BackupSettings.ScheduleOptions.Type -like "Monthly") {
+                                $ScheduleOptions = "Period: $($BackupSettings.ScheduleOptions.MonthlyOptions.Period)`r`nDay Number In Month: $($BackupSettings.ScheduleOptions.MonthlyOptions.DayNumberInMonth)`r`nDay of Week: $($BackupSettings.ScheduleOptions.MonthlyOptions.DayOfWeek)`r`nDay of Month: $($BackupSettings.ScheduleOptions.MonthlyOptions.DayOfMonth)"
+                            }
+                            $inObj = [ordered] @{
+                                'Name' = $BackupSettings.Name
+                                'Run Job Automatically' = ConvertTo-TextYN $BackupSettings.ScheduleOptions.Enabled
+                                'Schedule Type' = $BackupSettings.ScheduleOptions.Type
+                                'Schedule Options' = $ScheduleOptions
+                                'Restore Points To Keep' = $BackupSettings.RestorePointsToKeep
+                                'Encryption Enabled' = ConvertTo-TextYN $BackupSettings.EncryptionOptions
+                                'Encryption Key' = $BackupSettings.EncryptionOptions.Key.Description
+                                'Additional Address' = $BackupSettings.NotificationOptions.AdditionalAddress
+                                'Email Subject' = $BackupSettings.NotificationOptions.NotificationSubject
+                                'Notify On' = Switch ($BackupSettings.NotificationOptions.EnableAdditionalNotification) {
+                                    "" {"-"; break}
+                                    $Null {"-"; break}
+                                    default {"Notify On Success: $(ConvertTo-TextYN $BackupSettings.NotificationOptions.NotifyOnSuccess)`r`nNotify On Warning: $(ConvertTo-TextYN $BackupSettings.NotificationOptions.NotifyOnWarning)`r`nNotify On Error: $(ConvertTo-TextYN $BackupSettings.NotificationOptions.NotifyOnError)`r`nNotify On Last Retry Only: $(ConvertTo-TextYN $BackupSettings.NotificationOptions.NotifyOnLastRetryOnly)"}
+                                }
+                                'NextRun' = $BackupSettings.NextRun
+                                'Target' = $BackupSettings.Target
+                                'Enabled' = ConvertTo-TextYN $BackupSettings.Enabled
+                                'LastResult' = $BackupSettings.LastResult
+                            }
+                            $OutObj += [pscustomobject]$inobj
+                        }
+                        catch {
+                            Write-PscriboMessage -IsWarning $_.Exception.Message
+                        }
+
+                        if ($HealthCheck.Infrastructure.Settings) {
+                            $OutObj | Where-Object { $_.'Enabled' -like 'No'} | Set-Style -Style Warning -Property 'Enabled'
+                            $OutObj | Where-Object { $_.'Run Job Automatically' -like 'No'} | Set-Style -Style Warning -Property 'Run Job Automatically'
+                            $OutObj | Where-Object { $_.'Encryption Enabled' -like 'No'} | Set-Style -Style Critical -Property 'Encryption Enabled'
+                            $OutObj | Where-Object { $_.'LastResult' -like 'Warning'} | Set-Style -Style Warning -Property 'LastResult'
+                            $OutObj | Where-Object { $_.'LastResult' -like 'Failed'} | Set-Style -Style Critical -Property 'LastResult'
+                        }
+
+                        $TableParams = @{
+                            Name = "Configuration Backup Settings - $VeeamBackupServer"
+                            List = $true
+                            ColumnWidths = 40, 60
+                        }
+                        if ($Report.ShowTableCaptions) {
+                            $TableParams['Caption'] = "- $($TableParams.Name)"
+                        }
+                        $OutObj | Table @TableParams
+                    }
+                }
+                if ($BKPConf) {
+                    Section -Style Heading3 'Backup and Replication Database' {
+                        Paragraph "The Backup & Replication configuration database stores credentials to connect to virtual servers and other systems in the backup & replication infrastructure. All passwords stored in the database are encrypted. However, a user with administrator privileges on the backup server can decrypt the passwords, which presents a potential threat."
+                        BlankLine
+                        Paragraph "Reference: https://bp.veeam.com/vbr/Security/infrastructure_hardening.html#backup-and-replication-database" -Bold
+                        $BKPConf
                     }
                 }
             }

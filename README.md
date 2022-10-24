@@ -78,7 +78,7 @@ Only users with Veeam Backup Administrator role assigned can generate a Veeam VB
 ### PowerShell
 
 ```powershell
-install-module AsBuiltReport.Veeam.VBR
+Install-Module -Name AsBuiltReport.Veeam.VBR
 ```
 
 ### GitHub
@@ -206,6 +206,12 @@ The table below outlines the default and maximum **InfoLevel** settings for each
 |--------------|:---------------:|:---------------:|
 | Replica       |        1        |        2        |
 | FailoverPlan          |        1        |        1        |
+
+The table below outlines the default and maximum **InfoLevel** settings for each Security section.
+
+| Sub-Schema   | Default Setting | Maximum Setting |
+|--------------|:---------------:|:---------------:|
+| Infrastructure       |        1        |        1       |
 
 ### Healthcheck
 

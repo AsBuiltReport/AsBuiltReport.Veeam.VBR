@@ -46,7 +46,7 @@ function Get-AbrVbrNetworkTrafficRule {
                             $OutObj = [pscustomobject]$inobj
 
                             if ($HealthCheck.Infrastructure.Settings) {
-                                $OutObj | Where-Object { $_.'Enabled' -like 'No'} | Set-Style -Style Warning -Property 'Enabled'
+                                $OutObj | Where-Object { $_.'Encryption Enabled' -like 'No'} | Set-Style -Style Warning -Property 'Encryption Enabled'
                             }
 
                             $TableParams = @{

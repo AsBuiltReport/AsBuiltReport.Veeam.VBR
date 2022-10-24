@@ -72,6 +72,9 @@
         },
         "Tape": {
             "Status": true
+        },
+        "Security": {
+            "BestPractice": true
         }
 
     }
