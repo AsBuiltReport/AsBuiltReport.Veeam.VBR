@@ -26,20 +26,21 @@ function Invoke-AsBuiltReport.Veeam.VBR {
     Write-PScriboMessage -IsWarning "Documentation: https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR"
     Write-PScriboMessage -IsWarning "Issues or bug reporting: https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues"
 
+    # Check the current AsBuiltReport.VMware.ESXi module
     Try {
-        $InstalledVersion = (Get-Module -ListAvailable -Name AsBuiltReport.Veeam.VBR -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Version)[0]
+        $InstalledVersion = Get-Module -ListAvailable -Name AsBuiltReport.Veeam.VBR -ErrorAction SilentlyContinue | Sort-Object -Property Version -Descending | Select-Object -First 1 -ExpandProperty Version
 
         if ($InstalledVersion) {
-            Write-PScriboMessage -IsWarning "Installed AsBuiltReport.Veeam.VBR Version: $($InstalledVersion.ToString())"
-            $MostCurrentVersion = Find-Module -Name AsBuiltReport.Veeam.VBR -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Version
-            if ($MostCurrentVersion -and ($MostCurrentVersion -gt $InstalledVersion)) {
-                Write-PScriboMessage -IsWarning "New Update: AsBuiltReport.Veeam.VBR Version: $($MostCurrentVersion.ToString())"
-                Write-PScriboMessage -IsWarning "To Update run: Update-Module -Name AsBuiltReport.Veeam.VBR -Force"
+            Write-PScriboMessage -IsWarning "AsBuiltReport.Veeam.VBR $($InstalledVersion.ToString()) is currently installed."
+            $LatestVersion = Find-Module -Name AsBuiltReport.Veeam.VBR -Repository PSGallery -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Version
+            if ($LatestVersion -gt $InstalledVersion) {
+                Write-PScriboMessage -IsWarning "AsBuiltReport.Veeam.VBR $($LatestVersion.ToString()) is available."
+                Write-PScriboMessage -IsWarning "Run 'Update-Module -Name AsBuiltReport.Veeam.VBR -Force' to install the latest version."
             }
         }
     } Catch {
-        Write-PscriboMessage -IsWarning $_.Exception.Message
-    }
+            Write-PscriboMessage -IsWarning $_.Exception.Message
+        }
 
     # Import Report Configuration
     $Report = $ReportConfig.Report
@@ -66,7 +67,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                 Get-AbrVbrTapeInfraSummary
                 Get-AbrVbrInventorySummary
                 Get-AbrVbrStorageInfraSummary
-                # Get-AbrVbrReplInfraSummary
+                Get-AbrVbrReplInfraSummary
             }
             #---------------------------------------------------------------------------------------------#
             #                            Backup Infrastructure Section                                    #
