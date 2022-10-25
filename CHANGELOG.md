@@ -12,8 +12,9 @@
 
 ### Fixed
 
-- Fixes [#63](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/63)
-- Fixes [#70](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/70)
+- Close [#63](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/63)
+- Fix [#70](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/70)
+- Resolve [#72](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/72)
 
 ## [0.5.5] - 2022-10-02
 

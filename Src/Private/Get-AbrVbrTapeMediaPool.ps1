@@ -48,7 +48,7 @@ function Get-AbrVbrTapeMediaPool {
                                     'Tape Count' = ((Get-VBRTapeMediaPool -Id $PoolObj.Id).Medium).count
                                     'Total Space' = ConvertTo-FileSizeString $Capacity
                                     'Free Space' = ConvertTo-FileSizeString $FreeSpace
-                                    'Tape Library' = $PoolObj.LibraryId | ForEach-Object {Get-VBRTapeLibrary -Id $_}
+                                    'Tape Library' = ($PoolObj.GlobalOptions.LibraryId | ForEach-Object {Get-VBRTapeLibrary -Id $_}).Name
                                 }
 
                                 $OutObj += [pscustomobject]$inobj
