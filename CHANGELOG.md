@@ -5,6 +5,7 @@
 ### Added
 
 - Added Infrastructure Hardening section
+- Added per Tape Media Pool configuration information [#71](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/71)
 
 ### Changed
 
@@ -14,6 +15,7 @@
 
 - Close [#63](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/63)
 - Fix [#70](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/70)
+- Close [#71](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/71)
 - Resolve [#72](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/72)
 
 ## [0.5.5] - 2022-10-02
