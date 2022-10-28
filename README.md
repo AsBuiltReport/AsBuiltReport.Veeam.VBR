@@ -1,242 +1,4196 @@
-<p align="center">
-    <a href="https://www.asbuiltreport.com/" alt="AsBuiltReport"></a>
-            <img src='https://raw.githubusercontent.com/AsBuiltReport/AsBuiltReport/master/AsBuiltReport.png' width="8%" height="8%" /></a>
-</p>
-<p align="center">
-    <a href="https://www.powershellgallery.com/packages/AsBuiltReport.Veeam.VBR/" alt="PowerShell Gallery Version">
-        <img src="https://img.shields.io/powershellgallery/v/AsBuiltReport.Veeam.VBR.svg" /></a>
-    <a href="https://www.powershellgallery.com/packages/AsBuiltReport.Veeam.VBR/" alt="PS Gallery Downloads">
-        <img src="https://img.shields.io/powershellgallery/dt/AsBuiltReport.Veeam.VBR.svg" /></a>
-    <a href="https://www.powershellgallery.com/packages/AsBuiltReport.Veeam.VBR/" alt="PS Platform">
-        <img src="https://img.shields.io/powershellgallery/p/AsBuiltReport.Veeam.VBR.svg" /></a>
-</p>
-<p align="center">
-    <a href="https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/graphs/commit-activity" alt="GitHub Last Commit">
-        <img src="https://img.shields.io/github/last-commit/AsBuiltReport/AsBuiltReport.Veeam.VBR/master.svg" /></a>
-    <a href="https://raw.githubusercontent.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/master/LICENSE" alt="GitHub License">
-        <img src="https://img.shields.io/github/license/AsBuiltReport/AsBuiltReport.Veeam.VBR.svg" /></a>
-    <a href="https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/graphs/contributors" alt="GitHub Contributors">
-        <img src="https://img.shields.io/github/contributors/AsBuiltReport/AsBuiltReport.Veeam.VBR.svg"/></a>
-</p>
-<p align="center">
-    <a href="https://twitter.com/AsBuiltReport" alt="Twitter">
-            <img src="https://img.shields.io/twitter/follow/AsBuiltReport.svg?style=social"/></a>
-</p>
-<p align="center">
-    <a href='https://ko-fi.com/F1F8DEV80' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://cdn.ko-fi.com/cdn/kofi1.png?v=3'            border='0' alt='Buy Me a Coffee at ko-fi.com' /></a>
-</p>
-
-# Veeam VBR As Built Report
-
-Veeam VBR As Built Report is a PowerShell module which works in conjunction with [AsBuiltReport.Core](https://github.com/AsBuiltReport/AsBuiltReport.Core).
-
-[AsBuiltReport](https://github.com/AsBuiltReport/AsBuiltReport) is an open-sourced community project which utilises PowerShell to produce as-built documentation in multiple document formats for multiple vendors and technologies.
-
-Please refer to the AsBuiltReport [website](https://www.asbuiltreport.com) for more detailed information about this project.
-
-# :books: Sample Reports
-
-## Sample Report - Custom Style
-
-Sample Veeam VBR As Built report HTML file: [Sample Veeam Backup & Replication As Built Report.html](https://htmlpreview.github.io/?https://raw.githubusercontent.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/dev/Samples/Sample%20Veeam%20Backup%20%26%20Replication%20As%20Built%20Report.html)
-
-Sample Veeam VBR As Built report PDF file: [Sample Veeam Backup & Replication As Built Report.pdf](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/raw/dev/Samples/Sample%20Veeam%20Backup%20%26%20Replication%20As%20Built%20Report.pdf)
-
-# :beginner: Getting Started
-
-Below are the instructions on how to install, configure and generate a Veeam VBR As Built report.
-
-## :floppy_disk: Supported Versions
-<!-- ********** Update supported Veeam versions ********** -->
-The Veeam VBR As Built Report supports the following Veeam Backup & Replication version;
-
-- Veeam Backup & Replication V11 (Standard, Enterprise & Enterprise Plus Edition)
-
-### PowerShell
-
-This report is compatible with the following PowerShell versions;
-
-<!-- ********** Update supported PowerShell versions ********** -->
-| Windows PowerShell 5.1 |     PowerShell 7    |
-|:----------------------:|:--------------------:|
-|   :white_check_mark:   | :x: |
-
-## :wrench: System Requirements
-
-PowerShell 5.1 and the following PowerShell modules are required for generating a Veeam VBR As Built report.
-
-- [Veeam.Backup.PowerShell Module](https://helpcenter.veeam.com/docs/backup/powershell/getting_started.html?ver=110)
-- [PScriboCharts Module](https://github.com/iainbrighton/PScriboCharts)
-- [AsBuiltReport.Core Module](https://github.com/AsBuiltReport/AsBuiltReport.Core)
-
-### :closed_lock_with_key: Required Privileges
-
-Only users with Veeam Backup Administrator role assigned can generate a Veeam VBR As Built Report.
-
-## :package: Module Installation
-
-### PowerShell
-
-```powershell
-Install-Module -Name AsBuiltReport.Veeam.VBR
-```
-
-### GitHub
-
-If you are unable to use the PowerShell Gallery, you can still install the module manually. Ensure you repeat the following steps for the [system requirements](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR#wrench-system-requirements) also.
-
-1. Download the code package / [latest release](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/releases/latest) zip from GitHub
-2. Extract the zip file
-3. Copy the folder `AsBuiltReport.Veeam.VBR` to a path that is set in `$env:PSModulePath`.
-4. Open a PowerShell terminal window and unblock the downloaded files with
-
-    ```powershell
-    $path = (Get-Module -Name AsBuiltReport.Veeam.VBR -ListAvailable).ModuleBase; Unblock-File -Path $path\*.psd1; Unblock-File -Path $path\Src\Public\*.ps1; Unblock-File -Path $path\Src\Private\*.ps1
-    ```
-
-5. Close and reopen the PowerShell terminal window.
-
-_Note: You are not limited to installing the module to those example paths, you can add a new entry to the environment variable PSModulePath if you want to use another path._
-
-## :pencil2: Configuration
-
-The Veeam VBR As Built Report utilises a JSON file to allow configuration of report information, options, detail and healthchecks.
-
-A Veeam VBR report configuration file can be generated by executing the following command;
-
-```powershell
-New-AsBuiltReportConfig -Report Veeam.VBR -FolderPath <User specified folder> -Filename <Optional>
-```
-
-Executing this command will copy the default Veeam VBR report JSON configuration to a user specified folder.
-
-All report settings can then be configured via the JSON file.
-
-The following provides information of how to configure each schema within the report's JSON file.
-
-### Report
-
-The **Report** schema provides configuration of the Veeam VBR report information.
-
-| Sub-Schema          | Setting      | Default                        | Description                                                  |
-|---------------------|--------------|--------------------------------|--------------------------------------------------------------|
-| Name                | User defined | Veeam VBR As Built Report | The name of the As Built Report                              |
-| Version             | User defined | 1.0                            | The report version                                           |
-| Status              | User defined | Released                       | The report release status                                    |
-| ShowCoverPageImage  | true / false | true                           | Toggle to enable/disable the display of the cover page image |
-| ShowTableOfContents | true / false | true                           | Toggle to enable/disable table of contents                   |
-| ShowHeaderFooter    | true / false | true                           | Toggle to enable/disable document headers & footers          |
-| ShowTableCaptions   | true / false | true                           | Toggle to enable/disable table captions/numbering            |
-
-### Options
-
-The **Options** schema allows certain options within the report to be toggled on or off.
-
-| Sub-Schema      | Setting      | Default | Description                                                                                                                                                                                 |
-|-----------------|--------------|---------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| BackupServerPort | TCP Port  | 9392    | Used to specify the backup service's custom port
-| PSDefaultAuthentication | Negotiate/Kerberos  | Default    | Allow to set the value of the PSRemoting authentication method. For Workgroup authentication Negotiate value is required.
-
-### InfoLevel
-
-The **InfoLevel** schema allows configuration of each section of the report at a granular level. The following sections can be set.
-
-There are 4 levels (0-3) of detail granularity for each section as follows;
-
-| Setting | InfoLevel         | Description                                                                                                                                |
-|:-------:|-------------------|--------------------------------------------------------------------------------------------------------------------------------------------|
-|    0    | Disabled          | Does not collect or display any information                                                                                                |
-|    1    | Enabled | Provides summarised information for a collection of objects                                                                                |
-|    2    | Adv Summary       | Provides condensed, detailed information for a collection of objects                                                                       |
-|    3    | Detailed          | Provides detailed information for individual objects                                                                                       |
-
-The table below outlines the default and maximum **InfoLevel** settings for each Backup Infrastructure section.
-
-| Sub-Schema   | Default Setting | Maximum Setting |
-|--------------|:---------------:|:---------------:|
-| BackupServer       |        1        |        3        |
-| Proxy          |        1        |        3        |
-| Settings         |        1        |        2        |
-| BR           |        1        |        2        |
-| Licenses           |        1        |        1        |
-| SOBR           |        1        |        2        |
-| WANAccel           |        1        |        1        |
-| ServiceProvider           |        1        |        2        |
-| SureBackup           |        1        |        2        |
-
-The table below outlines the default and maximum **InfoLevel** settings for each Tape Infrastructure section.
-
-| Sub-Schema   | Default Setting | Maximum Setting |
-|--------------|:---------------:|:---------------:|
-| Server       |        1        |        1        |
-| Library          |        1        |        2        |
-| MediaPool          |        1        |        2        |
-| Vault          |        1        |        1        |
-| NDMP          |        1        |        1        |
-
-The table below outlines the default and maximum **InfoLevel** settings for each Inventory section.
-
-| Sub-Schema   | Default Setting | Maximum Setting |
-|--------------|:---------------:|:---------------:|
-| VI       |        1        |        1        |
-| PHY          |        1        |        2        |
-| FileShare          |        1        |        1        |
-
-The table below outlines the default and maximum **InfoLevel** settings for each Storage Infrastructure section.
-
-| Sub-Schema   | Default Setting | Maximum Setting |
-|--------------|:---------------:|:---------------:|
-| ONTAP       |        1        |        2        |
-| ISILON          |        1        |        2        |
-
-The table below outlines the default and maximum **InfoLevel** settings for each Backup Jobs section.
-
-| Sub-Schema   | Default Setting | Maximum Setting |
-|--------------|:---------------:|:---------------:|
-| Backup       |        1        |        2        |
-| Tape          |        1        |        2        |
-| Surebackup          |        1        |        2        |
-| Agent          |        1        |        2        |
-| FileShare          |        1        |        2        |
-| Replication          |        1        |        2        |
-
-The table below outlines the default and maximum **InfoLevel** settings for each Replication section.
-
-| Sub-Schema   | Default Setting | Maximum Setting |
-|--------------|:---------------:|:---------------:|
-| Replica       |        1        |        2        |
-| FailoverPlan          |        1        |        1        |
-
-The table below outlines the default and maximum **InfoLevel** settings for each Security section.
-
-| Sub-Schema   | Default Setting | Maximum Setting |
-|--------------|:---------------:|:---------------:|
-| Infrastructure       |        1        |        1       |
-
-### Healthcheck
-
-The **Healthcheck** schema is used to toggle health checks on or off.
-
-## :computer: Examples
-
-There are a few examples listed below on running the AsBuiltReport script against a Veeam Backup Server. Refer to the `README.md` file in the main AsBuiltReport project repository for more examples.
-
-```powershell
-# Generate a Veeam VBR As Built Report for Backup Server 'veeam-vbr.pharmax.local' using specified credentials. Export report to HTML & DOCX formats. Use default report style. Append timestamp to report filename. Save reports to 'C:\Users\Jon\Documents'
-PS C:\> New-AsBuiltReport -Report Veeam.VBR -Target veeam-vbr.pharmax.local -Username 'Domain\veeam_admin' -Password 'P@ssw0rd' -Format Html,Word -OutputFolderPath 'C:\Users\Jon\Documents' -Timestamp
-
-# Generate a Veeam VBR As Built Report for Backup Server veeam-vbr.pharmax.local using specified credentials and report configuration file. Export report to Text, HTML & DOCX formats. Use default report style. Save reports to 'C:\Users\Jon\Documents'. Display verbose messages to the console.
-PS C:\> New-AsBuiltReport -Report Veeam.VBR -Target veeam-vbr.pharmax.local -Username 'Domain\veeam_admin' -Password 'P@ssw0rd' -Format Text,Html,Word -OutputFolderPath 'C:\Users\Jon\Documents' -ReportConfigFilePath 'C:\Users\Jon\AsBuiltReport\AsBuiltReport.Veeam.VBR.json' -Verbose
-
-# Generate a Veeam VBR As Built Report for Backup Server veeam-vbr.pharmax.local using stored credentials. Export report to HTML & Text formats. Use default report style. Highlight environment issues within the report. Save reports to 'C:\Users\Jon\Documents'.
-PS C:\> $Creds = Get-Credential
-PS C:\> New-AsBuiltReport -Report Veeam.VBR -Target veeam-vbr.pharmax.local -Credential $Creds -Format Html,Text -OutputFolderPath 'C:\Users\Jon\Documents' -EnableHealthCheck
-
-# Generate a Veeam VBR As Built Report for Backup Server veeam-vbr.pharmax.local using stored credentials. Export report to HTML & DOCX formats. Use default report style. Reports are saved to the user profile folder by default. Attach and send reports via e-mail.
-PS C:\> New-AsBuiltReport -Report Veeam.VBR -Target veeam-vbr.pharmax.local -Username 'Domain\veeam_admin' -Password 'P@ssw0rd' -Format Html,Word -OutputFolderPath 'C:\Users\Jon\Documents' -SendEmail
-
-```
-
-## :x: Known Issues
-
-- Since many of Veeam's features depend on the Standard+ license, the Community edition will not be supported.
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head><title>Veeam Backup & Replication As Built Report</title>
+<style type="text/css">
+html { height: 100%; -webkit-background-size: cover; -moz-background-size: cover; -o-background-size: cover; background-size: cover; background: #e6e6e6; }
+page { background: white; display: block; margin-top: 1rem; margin-left: auto; margin-right: auto; margin-bottom: 1rem; border-style: solid; border-width: 1px; border-color: #c6c6c6; }
+@media print { body, page { margin: 0; box-shadow: 0; } }
+hr { margin-top: 1.0rem; }
+ .portrait { background: white; width: 210mm; display: block; margin-top: 1rem; margin-left: auto; margin-right: auto; margin-bottom: 1rem; position: relative; border-style: solid; border-width: 1px; border-color: #c6c6c6; }
+ .landscape { background: white; width: 297mm; display: block; margin-top: 1rem; margin-left: auto; margin-right: auto; margin-bottom: 1rem; position: relative; border-style: solid; border-width: 1px; border-color: #c6c6c6; }
+ .TableDefaultHeading { font-family: 'Arial'; font-size: 0.83rem; text-align: left; font-weight: normal; color: #fafafa; background-color: #005f4b; }
+ .Critical { font-family: 'Arial'; font-size: 0.83rem; text-align: left; font-weight: normal; color: #000000; background-color: #f1655c; }
+ .Heading4 { font-family: 'Arial'; font-size: 0.92rem; text-align: left; font-weight: normal; color: #005f4b; }
+ .NOTOCHeading3 { font-family: 'Arial'; font-size: 1.00rem; text-align: left; font-weight: normal; color: #005f4b; }
+ .TOC { font-family: 'Arial'; font-size: 1.33rem; text-align: left; font-weight: normal; color: #005f4b; }
+ .Heading1 { font-family: 'Arial'; font-size: 1.33rem; text-align: left; font-weight: normal; color: #005f4b; }
+ .NOTOCHeading2 { font-family: 'Arial'; font-size: 1.17rem; text-align: left; font-weight: normal; color: #005f4b; }
+ .Footer { font-family: 'Arial'; font-size: 0.83rem; text-align: center; font-weight: normal; color: #565656; }
+ .TableDefaultRow { font-family: 'Arial'; font-size: 0.83rem; text-align: left; font-weight: normal; color: #565656; }
+ .Heading2 { font-family: 'Arial'; font-size: 1.17rem; text-align: left; font-weight: normal; color: #005f4b; }
+ .Title2 { font-family: 'Arial'; font-size: 1.50rem; text-align: center; font-weight: normal; color: #54b948; }
+ .Warning { font-family: 'Arial'; font-size: 0.83rem; text-align: left; font-weight: normal; color: #000000; background-color: #f4a71c; }
+ .TableDefaultAltRow { font-family: 'Calibri','Candara','Segoe','Segoe UI','Optima','Arial','Sans-Serif'; font-size: 0.92rem; text-align: left; font-weight: normal; color: #000000; background-color: #d0ddee; }
+ .Title { font-family: 'Arial'; font-size: 2.00rem; text-align: center; font-weight: normal; color: #005f4b; }
+ .Heading3 { font-family: 'Arial'; font-size: 1.00rem; text-align: left; font-weight: normal; color: #005f4b; }
+ .Title3 { font-family: 'Arial'; font-size: 1.00rem; text-align: left; font-weight: normal; color: #54b948; }
+ .Heading5 { font-family: 'Arial'; font-size: 0.83rem; text-align: left; font-weight: normal; color: #005f4b; }
+ .NOTOCHeading6 { font-family: 'Arial'; font-size: 0.83rem; text-align: left; font-weight: normal; color: #005f4b; }
+ .Normal { font-family: 'Arial'; font-size: 0.83rem; text-align: left; font-weight: normal; color: #565656; }
+ .Info { font-family: 'Arial'; font-size: 0.83rem; text-align: left; font-weight: normal; color: #000000; background-color: #5ac0ed; }
+ .Heading6 { font-family: 'Arial'; font-size: 0.83rem; text-align: left; font-weight: normal; color: #005f4b; }
+ .Caption { font-family: 'Arial'; font-size: 0.83rem; text-align: center; font-weight: normal; font-style: italic; color: #565656; }
+ .OK { font-family: 'Arial'; font-size: 0.83rem; text-align: left; font-weight: normal; color: #000000; background-color: #81bc50; }
+ .NOTOCHeading1 { font-family: 'Arial'; font-size: 1.33rem; text-align: left; font-weight: normal; color: #005f4b; }
+ .NOTOCHeading4 { font-family: 'Arial'; font-size: 0.92rem; text-align: left; font-weight: normal; color: #005f4b; }
+ .Header { font-family: 'Arial'; font-size: 0.83rem; text-align: center; font-weight: normal; color: #565656; }
+ .NOTOCHeading5 { font-family: 'Arial'; font-size: 0.83rem; text-align: left; font-weight: normal; color: #005f4b; }
+ table.tabledefault { padding: 0.08rem 0.17rem 0.13rem 0.17rem; border-style: solid; border-width: 0.02rem; border-color: #005f4b; border-collapse: collapse; }
+ table.tabledefault th { font-family: 'Arial'; font-size: 0.83rem; text-align: left; font-weight: normal; color: #fafafa; background-color: #005f4b; padding: 0.08rem 0.17rem 0.13rem 0.17rem; border-style: solid; border-width: 0.02rem; border-color: #005f4b; border-collapse: collapse; }
+ table.tabledefault td { padding: 0.08rem 0.17rem 0.13rem 0.17rem; border-style: solid; border-width: 0.02rem; border-color: #005f4b; border-collapse: collapse; }
+ table.tabledefault tr:nth-child(odd) { font-family: 'Arial'; font-size: 0.83rem; text-align: left; font-weight: normal; color: #565656; padding: 0.08rem 0.17rem 0.13rem 0.17rem; border-style: solid; border-width: 0.02rem; border-color: #005f4b; border-collapse: collapse; }
+ table.tabledefault tr:nth-child(even) { font-family: 'Arial'; font-size: 0.83rem; text-align: left; font-weight: normal; color: #565656; padding: 0.08rem 0.17rem 0.13rem 0.17rem; border-style: solid; border-width: 0.02rem; border-color: #005f4b; border-collapse: collapse; }
+ table.borderless { padding: 0.08rem 0.33rem 0rem 0.33rem; border-style: none; border-collapse: collapse; }
+ table.borderless th { font-family: 'Arial'; font-size: 0.83rem; text-align: left; font-weight: normal; color: #565656; padding: 0.08rem 0.33rem 0rem 0.33rem; border-style: none; border-collapse: collapse; }
+ table.borderless td { padding: 0.08rem 0.33rem 0rem 0.33rem; border-style: none; border-collapse: collapse; }
+ table.borderless tr:nth-child(odd) { font-family: 'Arial'; font-size: 0.83rem; text-align: left; font-weight: normal; color: #565656; padding: 0.08rem 0.33rem 0rem 0.33rem; border-style: none; border-collapse: collapse; }
+ table.borderless tr:nth-child(even) { font-family: 'Arial'; font-size: 0.83rem; text-align: left; font-weight: normal; color: #565656; padding: 0.08rem 0.33rem 0rem 0.33rem; border-style: none; border-collapse: collapse; }
+</style></head><body>
+<div class="portrait"><div class="Normal" style="padding-top: 5.92rem; padding-left: 5.92rem; padding-bottom: 5.92rem; padding-right: 5.92rem;">
+
+<div style="min-height: 246.9mm" ><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><div align="Center">
+<img src="data:image/jpeg;base64, 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9BNerV49o98mm6vbXkiF0ibJVeuCCOPzr0rU/EEGnWH2lopWyQoAA6n8fali4tzSRGd0pzxEOVbq34s//9n/4Qx3aHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wLwA8P3hwYWNrZXQgYmVnaW49Iu+7vyIgaWQ9Ilc1TTBNcENlaGlIenJlU3pOVGN6a2M5ZCI/PiA8eDp4bXBtZXRhIHhtbG5zOng9ImFkb2JlOm5zOm1ldGEvIiB4OnhtcHRrPSJYTVAgQ29yZSA0LjQuMC1FeGl2MiI+IDxyZGY6UkRGIHhtbG5zOnJkZj0iaHR0cDovL3d3dy53My5vcmcvMTk5OS8wMi8yMi1yZGYtc3ludGF4LW5zIyI+IDxyZGY6RGVzY3JpcHRpb24gcmRmOmFib3V0PSIiIHhtbG5zOnhtcE1NPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvbW0vIiB4bWxuczpzdEV2dD0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL3NUeXBlL1Jlc291cmNlRXZlbnQjIiB4bWxuczpkYz0iaHR0cDovL3B1cmwub3JnL2RjL2VsZW1lbnRzLzEuMS8iIHhtbG5zOkdJTVA9Imh0dHA6Ly93d3cuZ2ltcC5vcmcveG1wLyIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bXBNTTpEb2N1bWVudElEPSJnaW1wOmRvY2lkOmdpbXA6MDM3ODU3YmQtNDJhZS00ZGE2LWI3NTctMWI0OTgyNzJkOWE5IiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOmUzMzU0OWNmLTcyN2YtNGRhYy04ZDMzLWEzZWQ4ZmU1ZDZjZSIgeG1wTU06T3JpZ2luYWxEb2N1bWVudElEPSJ4bXAuZGlkOjI0NmU3NjUwLWE4YzUtNGFhNS05NmZmLTQ4ODZhYzFhZmY2MiIgZGM6Rm9ybWF0PSJpbWFnZS9qcGVnIiBHSU1QOkFQST0iMi4wIiBHSU1QOlBsYXRmb3JtPSJMaW51eCIgR0lNUDpUaW1lU3RhbXA9IjE2NDE0MDU1NjUwODkyNDgiIEdJTVA6VmVyc2lvbj0iMi4xMC4zMCIgeG1wOkNyZWF0b3JUb29sPSJHSU1QIDIuMTAiPiA8eG1wTU06SGlzdG9yeT4gPHJkZjpTZXE+IDxyZGY6bGkgc3RFdnQ6YWN0aW9uPSJzYXZlZCIgc3RFdnQ6Y2hhbmdlZD0iLyIgc3RFdnQ6aW5zdGFuY2VJRD0ieG1wLmlpZDpmYzVlNWQ0Ny1iMDQyLTRhNTMtYjdmMi04YTQxODBlM2Y3NmUiIHN0RXZ0OnNvZnR3YXJlQWdlbnQ9IkdpbXAgMi4xMCAoTGludXgpIiBzdEV2dDp3aGVuPSIyMDIyLTAxLTA1VDEzOjU5OjI1LTA0OjAwIi8+IDwvcmRmOlNlcT4gPC94bXBNTTpIaXN0b3J5PiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8P3hwYWNrZXQgZW5kPSJ3Ij8+/+ICsElDQ19QUk9GSUxFAAEBAAACoGxjbXMEMAAAbW50clJHQiBYWVogB+YAAQAFABEAOgA2YWNzcEFQUEwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPbWAAEAAAAA0y1sY21zAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAANZGVzYwAAASAAAABAY3BydAAAAWAAAAA2d3RwdAAAAZgAAAAUY2hhZAAAAawAAAAsclhZWgAAAdgAAAAUYlhZWgAAAewAAAAUZ1hZWgAAAgAAAAAUclRSQwAAAhQAAAAgZ1RSQwAAAhQAAAAgYlRSQwAAAhQAAAAgY2hybQAAAjQAAAAkZG1uZAAAAlgAAAAkZG1kZAAAAnwAAAAkbWx1YwAAAAAAAAABAAAADGVuVVMAAAAkAAAAHABHAEkATQBQACAA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" alt="Veeam Logo" height="40" width="224" />
+</div>
+<br /><br /><div class="Title">Veeam Backup &amp; Replication As Built Report</div><br /><div class="Title2">Zen Pr Solutions</div><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="borderless"><tbody>
+<tr><th>Author:</th><td>Jonathan Colon</td></tr>
+<tr><th>Date:</th><td>Friday, September 30, 2022</td></tr>
+<tr><th>Version:</th><td>1.0</td></tr>
+</tbody></table>
+<br /></div>
+</div></div></div><div class="portrait"><div class="Normal" style="padding-top: 5.92rem; padding-left: 5.92rem; padding-bottom: 5.92rem; padding-right: 5.92rem;">
+<div style="min-height: 246.9mm" ><div><div class="Header">Veeam Backup &amp; Replication As Built Report - v1.0</div><br /></div><h1 class="TOC">Table of Contents</h1><table>
+<tr><td>1</td><td><a href="#2560efc8-20fd-4a4b-9fd0-a8a8af1e8f71" style="text-decoration: none;">VEEAM-VBR</a></td></tr>
+<tr><td>1.1</td><td>&nbsp;&nbsp;&nbsp;<a href="#fe3a9736-8980-44ec-8cbb-4709e5afa167" style="text-decoration: none;">Executive Summary</a></td></tr>
+<tr><td>1.2</td><td>&nbsp;&nbsp;&nbsp;<a href="#68d0d462-b7c8-46ec-b5d3-af7e68453729" style="text-decoration: none;">Backup Infrastructure Components</a></td></tr>
+<tr><td>1.2.1</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#9631c7b3-8e42-4890-9bd0-9327e2296267" style="text-decoration: none;">Backup Server</a></td></tr>
+<tr><td>1.2.1.1</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#8ebd6871-c925-4704-937d-a00073cc877d" style="text-decoration: none;">Hardware & Software Inventory</a></td></tr>
+<tr><td>1.2.1.2</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#a23eb907-67b8-485c-aae5-08c00e9edccc" style="text-decoration: none;">HealthCheck - Services Status</a></td></tr>
+<tr><td>1.2.1.3</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#eb637ab0-a868-4337-851d-7c284f67c40d" style="text-decoration: none;">HealthCheck - Network Statistics</a></td></tr>
+<tr><td>1.2.2</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#0f676159-2d7b-4cd4-b8d8-1935a766a9d7" style="text-decoration: none;">Enterprise Manager Information</a></td></tr>
+<tr><td>1.2.3</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#5561b39b-fc4a-4d7c-be01-0383f99a1651" style="text-decoration: none;">License Information</a></td></tr>
+<tr><td>1.2.3.1</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#2b3aae2c-aa99-4b6f-b262-90bfd58bddf2" style="text-decoration: none;">Installed License Information</a></td></tr>
+<tr><td>1.2.4</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#c11a9cec-de2e-48ba-ad3e-8f2562344b77" style="text-decoration: none;">General Options</a></td></tr>
+<tr><td>1.2.4.1</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#64331f02-d112-4a09-a9b4-9d37decc6b41" style="text-decoration: none;">Configuration Backup</a></td></tr>
+<tr><td>1.2.4.2</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#95a5e208-aa98-47f7-9b7d-21c58eb6f727" style="text-decoration: none;">Email Notification</a></td></tr>
+<tr><td>1.2.4.3</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#4ea5302a-3a5c-44b2-8bf9-513cf7e13571" style="text-decoration: none;">Storage Latency Control</a></td></tr>
+<tr><td>1.2.4.4</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#7bfe1033-9791-4a46-9b44-aedae4430175" style="text-decoration: none;">Backup Server TLS Certificate</a></td></tr>
+<tr><td>1.2.4.5</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#905fdb42-0883-4680-ac61-11b8c96266e2" style="text-decoration: none;">Network Traffic Rules</a></td></tr>
+<tr><td>1.2.5</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#f91c6d8e-9539-497b-bcf4-3ba8a4db4e04" style="text-decoration: none;">Roles and Users</a></td></tr>
+<tr><td>1.2.6</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#da28f411-e7c4-4868-892d-39e3f2803728" style="text-decoration: none;">Security Credentials</a></td></tr>
+<tr><td>1.2.6.1</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#04f3ca5f-e875-43d7-aa79-dbb0929d2e15" style="text-decoration: none;">Service Provider Credentials</a></td></tr>
+<tr><td>1.2.7</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#26af97bb-2891-4469-9618-8dcee61ea861" style="text-decoration: none;">Geographical Locations</a></td></tr>
+<tr><td>1.2.8</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#fff914bb-4e2f-4f42-9b1f-4c1c1fcb8f5e" style="text-decoration: none;">Virtualization Servers and Hosts</a></td></tr>
+<tr><td>1.2.9</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#987a6d6a-65ad-45c0-8fd3-9e31103f4400" style="text-decoration: none;">Backup Proxies</a></td></tr>
+<tr><td>1.2.9.1</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#ad081f0c-d676-44c3-a3f8-66c515b6994b" style="text-decoration: none;">VMware Backup Proxies</a></td></tr>
+<tr><td>1.2.9.1.1</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#0820d19e-ddcf-4f9a-b1d0-c68d1614641d" style="text-decoration: none;">Hardware & Software Inventory</a></td></tr>
+<tr><td>1.2.9.1.1.1</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#fa71316e-0945-400c-b588-81398d6dfdfb" style="text-decoration: none;">VEEAM-VBR-02V</a></td></tr>
+<tr><td>1.2.9.2</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#7ff4ce28-66b4-450a-88b8-4cc0f8407837" style="text-decoration: none;">Hyper-V Backup Proxies</a></td></tr>
+<tr><td>1.2.9.2.1</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#a1c24d84-2c1d-4d46-9775-6ad38c01ecd0" style="text-decoration: none;">Hardware & Software Inventory</a></td></tr>
+<tr><td>1.2.9.2.1.1</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#67dda5a8-ab37-4362-a300-27f32f69562d" style="text-decoration: none;">VEEAM-HVPRX-01V</a></td></tr>
+<tr><td>1.2.10</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#250b3ce4-6cf4-4c7d-a844-14d4eecc31ed" style="text-decoration: none;">WAN Accelerators</a></td></tr>
+<tr><td>1.2.11</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#30e00078-a3f1-432f-b3f7-7262b2d6511a" style="text-decoration: none;">Backup Repository</a></td></tr>
+<tr><td>1.2.11.1</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#cb5736b2-02a2-4ac4-9e65-69dbad0e5c09" style="text-decoration: none;">Backup Repository Configuration</a></td></tr>
+<tr><td>1.2.12</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#cc67b165-eda4-4cfa-b360-78cf50676d14" style="text-decoration: none;">Object Storage Repository</a></td></tr>
+<tr><td>1.2.12.1</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#66c7cbab-2387-4bbf-84d9-253d25507afa" style="text-decoration: none;">Object Storage Repository Configuration</a></td></tr>
+<tr><td>1.2.13</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#cb108240-79c6-47ac-bfcd-e2686e3b8599" style="text-decoration: none;">Archive Object Storage Repository</a></td></tr>
+<tr><td>1.2.14</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#197ac4d0-1ba7-4197-b263-fbe0f267c556" style="text-decoration: none;">ScaleOut Backup Repository</a></td></tr>
+<tr><td>1.2.14.1</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#6b272e51-b04d-4317-96a6-54b7438f8fd8" style="text-decoration: none;">ScaleOut Backup Repository Configuration</a></td></tr>
+<tr><td>1.2.14.1.1</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#97cc7836-511a-404f-9f0f-50605ef7749f" style="text-decoration: none;">SOBR - AWS S3</a></td></tr>
+<tr><td>1.2.14.1.2</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#8227ef18-7c2c-4511-87af-1d4a3b30009c" style="text-decoration: none;">SOBR - Azure Blob</a></td></tr>
+<tr><td>1.2.14.1.3</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#2e4bad7d-6c36-47a2-b236-ab2e7d826ac1" style="text-decoration: none;">SOBR - Minio</a></td></tr>
+<tr><td>1.2.15</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#15561911-35a8-4b5a-b179-fb85d0ea35ee" style="text-decoration: none;">SureBackup Configuration</a></td></tr>
+<tr><td>1.2.15.1</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#26eb4a61-579b-4cba-a1fd-edf1bfbdcdca" style="text-decoration: none;">Application Groups</a></td></tr>
+<tr><td>1.2.15.2</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#b6c4239b-c6c4-4996-a6a8-045d9c5053cc" style="text-decoration: none;">HV - APPGroup VM Settings</a></td></tr>
+<tr><td>1.2.15.3</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#b9782031-5895-4c93-8751-495ac808e9b8" style="text-decoration: none;">PHARMAX-AG VM Settings</a></td></tr>
+<tr><td>1.2.15.4</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#951e16ff-bb14-4597-850d-777bc29810b6" style="text-decoration: none;">Virtual Labs</a></td></tr>
+<tr><td>1.2.15.4.1</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#6a76f3dd-c245-4eaf-b9f9-30e408f6450d" style="text-decoration: none;">Virtual Labs Configuration</a></td></tr>
+<tr><td>1.2.15.4.1.1</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#96a71c86-6e34-40dc-960c-05c48195fd0b" style="text-decoration: none;">PHARMAX-VLAB Settings</a></td></tr>
+<tr><td>1.3</td><td>&nbsp;&nbsp;&nbsp;<a href="#f2f56fe4-58ce-4cbc-a723-faacb2507f85" style="text-decoration: none;">Tape Infrastructure Components</a></td></tr>
+<tr><td>1.3.1</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#d9f59396-46ca-4c9d-94ea-7cb959afb9d4" style="text-decoration: none;">Tape Servers</a></td></tr>
+<tr><td>1.3.2</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#f5d382dd-29bd-4762-948e-98d717495699" style="text-decoration: none;">Tape Libraries</a></td></tr>
+<tr><td>1.3.2.1</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#4073153c-4694-4835-afc9-3135a052af2a" style="text-decoration: none;">HP MSL G3 Series 9.50</a></td></tr>
+<tr><td>1.3.2.2</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#c1636bc2-dc96-4bbd-9e99-0a6944ddd87c" style="text-decoration: none;">HP MSL G3 Series 9.50</a></td></tr>
+<tr><td>1.3.2.3</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#2f92d1f9-c56f-40fc-913c-05bc0278871a" style="text-decoration: none;">QUANTUM Scalar i2000 7000</a></td></tr>
+<tr><td>1.3.3</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#b03d6411-a1b8-4d05-9cf1-ffd104a6e7ab" style="text-decoration: none;">Tape Media Pools</a></td></tr>
+<tr><td>1.3.4</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#44a4398c-7863-410e-a5d9-7c7e71e5d34f" style="text-decoration: none;">Tape Vaults</a></td></tr>
+<tr><td>1.3.5</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#0bbed093-ca37-424e-9fd2-51c0f0ae01f5" style="text-decoration: none;">NDMP Servers</a></td></tr>
+<tr><td>1.4</td><td>&nbsp;&nbsp;&nbsp;<a href="#3196779e-d9c4-40ac-a37f-57b261e25753" style="text-decoration: none;">Inventory Components</a></td></tr>
+<tr><td>1.4.1</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#c0d44e4c-61cf-46a2-a382-2a3626875a9a" style="text-decoration: none;">Virtual Infrastructure</a></td></tr>
+<tr><td>1.4.1.1</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#9c89cfee-b048-4b4c-94f7-a018ebaeddc9" style="text-decoration: none;">VMware vSphere</a></td></tr>
+<tr><td>1.4.1.2</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#16bf5be9-a4f4-462f-ad2e-cd9c7dd50599" style="text-decoration: none;">Microsoft Hyper-V</a></td></tr>
+<tr><td>1.4.2</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#54fbba9d-c6c3-4ce6-b1fe-0eb5705b72f0" style="text-decoration: none;">Physical Infrastructure</a></td></tr>
+<tr><td>1.4.2.1</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#532fc81b-da99-4967-9eae-81af96cedeb3" style="text-decoration: none;">Protection Groups Summary</a></td></tr>
+<tr><td>1.4.2.1.1</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#abd8a90d-f825-40fa-8b92-c208ad8ccd1f" style="text-decoration: none;">Protection Group Configuration</a></td></tr>
+<tr><td>1.4.3</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#b389f9ba-3195-4d2c-9002-d27214cef581" style="text-decoration: none;">File Shares</a></td></tr>
+<tr><td>1.5</td><td>&nbsp;&nbsp;&nbsp;<a href="#b863a2cf-3a7c-4846-9d34-747aabe388bc" style="text-decoration: none;">Storage Infrastructure Components</a></td></tr>
+<tr><td>1.5.1</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#abd89534-56ee-41d5-8657-70d997fe9ee7" style="text-decoration: none;">NetApp Ontap Storage</a></td></tr>
+<tr><td>1.5.1.1</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#09d72507-18ca-4362-a13a-87c24d3c96c3" style="text-decoration: none;">ONTAP-DR-SAN</a></td></tr>
+<tr><td>1.5.1.2</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#d3a98a3b-fae1-405b-ab8d-43a39c940b29" style="text-decoration: none;">ONTAP-HQ-SAN</a></td></tr>
+<tr><td>1.5.1.3</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#9199834c-1429-44f7-8f09-2fba9b49c567" style="text-decoration: none;">VEEAM-NTAP-CLUSTER</a></td></tr>
+<tr><td>1.5.1.4</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#affc7438-7464-40c2-8564-428e59b8d8f5" style="text-decoration: none;">PHARMAX-DR</a></td></tr>
+<tr><td>1.5.1.5</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#15b36efb-2b71-448b-a3f1-1c7f6c99d7b5" style="text-decoration: none;">PHARMAX-HQ</a></td></tr>
+<tr><td>1.5.2</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#8707aded-d166-41b6-a518-9be493f2793e" style="text-decoration: none;">Dell Isilon Storage</a></td></tr>
+<tr><td>1.5.2.1</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#9ae07021-862d-4c48-9211-f4c67c2a03ca" style="text-decoration: none;">PHARMAX-ISILON</a></td></tr>
+<tr><td>1.6</td><td>&nbsp;&nbsp;&nbsp;<a href="#95063463-60d8-4e8d-8279-e06d1c191406" style="text-decoration: none;">Replication Components</a></td></tr>
+<tr><td>1.6.1</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#65ecdb64-534d-42dc-80cc-9a45aaab67ad" style="text-decoration: none;">Replicas</a></td></tr>
+<tr><td>1.6.2</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#1244fec4-69a5-42d2-8650-f79c27b41fbc" style="text-decoration: none;">Failover Plans</a></td></tr>
+<tr><td>1.6.2.1</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#ea3e8aad-8038-4bea-a249-31bfb5d350df" style="text-decoration: none;">Cisco-CSR-FailoverPlan</a></td></tr>
+<tr><td>1.6.2.2</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#30ec3c24-35cb-4ad5-92cb-079571fbdbdd" style="text-decoration: none;">HQ-To-DR-HV</a></td></tr>
+<tr><td>1.6.2.3</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#89a33efc-4fb5-4fe0-874d-3852ad390d1c" style="text-decoration: none;">HQ-to-EDGE FailOver Plan</a></td></tr>
+<tr><td>1.7</td><td>&nbsp;&nbsp;&nbsp;<a href="#541a3dde-cfcc-459f-b5b9-b80d3c4a020c" style="text-decoration: none;">Jobs Summary</a></td></tr>
+<tr><td>1.7.1</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#18ddcd6a-af47-4700-858a-ec6122abd48b" style="text-decoration: none;">Backup Jobs</a></td></tr>
+<tr><td>1.7.2</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#832467f6-6ebc-4ce3-9242-f846929bc8d5" style="text-decoration: none;">VMware Backup Jobs Configuration</a></td></tr>
+<tr><td>1.7.2.1</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#0a1914f4-d6cc-4266-bd4b-a4a77a1d9bd6" style="text-decoration: none;">Backup - Replicated VM - Cloud Virtualdcs</a></td></tr>
+<tr><td>1.7.2.2</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#1a582cb4-07a4-412b-b57c-62e5c98abf26" style="text-decoration: none;">Backup Copy Job 1</a></td></tr>
+<tr><td>1.7.2.3</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#6e4f5ad9-cab5-4b37-920f-9c0760e134bf" style="text-decoration: none;">COMP-CLUSTER-NFS</a></td></tr>
+<tr><td>1.7.2.4</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#0a778ab6-d47c-488b-a33d-4f5a82184013" style="text-decoration: none;">HPE-StoreOnce-Copy-Job</a></td></tr>
+<tr><td>1.7.2.5</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#86b53c9a-d13f-4491-a81b-3f82740ccd0a" style="text-decoration: none;">PHARMAX-HQ-SVR</a></td></tr>
+<tr><td>1.7.2.6</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#e21f4111-b910-4608-8afe-b6899640297b" style="text-decoration: none;">SOBR - TEST</a></td></tr>
+<tr><td>1.7.2.7</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#7aaf4e98-6b08-4dd3-b387-45b0bb1f0990" style="text-decoration: none;">VM - Test - AWS</a></td></tr>
+<tr><td>1.7.2.8</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#58135968-cfd0-4f36-bdb2-a9c413296402" style="text-decoration: none;">VM Copy Job 1</a></td></tr>
+<tr><td>1.7.3</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#75137acd-5d71-4374-a103-e99094899d4e" style="text-decoration: none;">Hyper-V Backup Jobs Configuration</a></td></tr>
+<tr><td>1.7.3.1</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#47ebc873-37a8-423f-a0ac-2af8b1a5bc61" style="text-decoration: none;">Hyper-V-Backup-Copy</a></td></tr>
+<tr><td>1.7.3.2</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#ff156b58-4a6a-4cca-bdb0-7e6d7d5a5448" style="text-decoration: none;">HyperV-Backup-Job</a></td></tr>
+<tr><td>1.7.3.3</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#4ae82998-0eb4-494f-8a9d-0193887f68fc" style="text-decoration: none;">WIN HyperV VM Backup</a></td></tr>
+<tr><td>1.7.4</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#421dbdc3-1a02-4bf1-aaa3-5a6a5953fd04" style="text-decoration: none;">Tape Backup Jobs</a></td></tr>
+<tr><td>1.7.5</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#46c6dff8-1ff5-4304-9e4e-e9360d991a68" style="text-decoration: none;">Backup To Tape Job Configuration</a></td></tr>
+<tr><td>1.7.5.1</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#5e93c377-d8f2-41cf-a887-a9068d1a1992" style="text-decoration: none;">PHARMAX-HQ-SVR-TAPE</a></td></tr>
+<tr><td>1.7.5.2</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#06d0b981-54b0-4c93-ad3f-35fad409789f" style="text-decoration: none;">PHARMAX-HQ-SVR-TAPE Standard</a></td></tr>
+<tr><td>1.7.6</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#005a45af-3460-45ff-a6f4-70b58f023eea" style="text-decoration: none;">File To Tape Job Configuration</a></td></tr>
+<tr><td>1.7.6.1</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#4b950bea-2db0-4415-a266-599201a25d41" style="text-decoration: none;">File to Tape Job - Data Share</a></td></tr>
+<tr><td>1.7.6.2</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#71ca0968-04d8-4cd6-9936-aaf6cafe0d46" style="text-decoration: none;">File to Tape Job - Server Share</a></td></tr>
+<tr><td>1.7.7</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#9dce9086-3e52-4bd0-a630-724ca89d92e7" style="text-decoration: none;">SureBackup Jobs</a></td></tr>
+<tr><td>1.7.8</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#d051ef7b-2820-45d2-b9f8-2f88e4830d8a" style="text-decoration: none;">SureBackup Job Configuration</a></td></tr>
+<tr><td>1.7.8.1</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#ae774557-620c-4d32-8176-6c3ae8c9d6b6" style="text-decoration: none;">Pharmax-Lab Test Oracle Upgrade</a></td></tr>
+<tr><td>1.7.8.2</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#439afdf9-ba08-40ff-b9eb-cf8edf2b74a9" style="text-decoration: none;">SureBackup Job 3</a></td></tr>
+<tr><td>1.7.9</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#3528b187-7b64-4476-b612-6225ce650bb4" style="text-decoration: none;">Agent Backup Jobs</a></td></tr>
+<tr><td>1.7.10</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#d78428e1-8fb0-4301-bdd3-8ff75014978e" style="text-decoration: none;">Agent Backup Jobs Configuration</a></td></tr>
+<tr><td>1.7.10.1</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#3d4404ea-d6d7-4b0d-b0e3-5dfe352669fc" style="text-decoration: none;">Agent Backup Job 3</a></td></tr>
+<tr><td>1.7.10.2</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#15c3e2d3-bde1-43cd-94db-e5fb0f15e4ee" style="text-decoration: none;">Agent Backup Policy 2</a></td></tr>
+<tr><td>1.7.10.3</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#bde84f04-8ab2-466e-96a9-73ff8c5ae118" style="text-decoration: none;">Gurabo PC - Backup Job</a></td></tr>
+<tr><td>1.7.10.4</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#887a6b9f-759a-4366-b60c-1590fda2189e" style="text-decoration: none;">Linux Agent Backup Job</a></td></tr>
+<tr><td>1.7.10.5</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#5ce559aa-15a1-4e9a-845e-822290e9aaf4" style="text-decoration: none;">Server With Netapp LUNS - Backup</a></td></tr>
+<tr><td>1.7.11</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#1f81e4de-0dda-4c34-a4d9-9483d5c65e68" style="text-decoration: none;">File Share Backup Jobs</a></td></tr>
+<tr><td>1.7.12</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#b165e7fb-cfca-4606-a059-130c65b25651" style="text-decoration: none;">File Share Backup Jobs Configuration</a></td></tr>
+<tr><td>1.7.12.1</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#93aeb6e6-753f-4595-a41a-fea0b6b2b5c5" style="text-decoration: none;">File Backup Job 1</a></td></tr>
+<tr><td>1.7.12.2</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#5bd8ca2e-fd7c-4475-8dd0-f2e13320f8e0" style="text-decoration: none;">Server - Share Backup</a></td></tr>
+</table>
+</div><div><br /><div class="Footer">Page 2</div></div></div></div><div class="portrait"><div class="Normal" style="padding-top: 5.92rem; padding-left: 5.92rem; padding-bottom: 5.92rem; padding-right: 5.92rem;">
+<div style="min-height: 246.9mm" ><div><div class="Header">Veeam Backup &amp; Replication As Built Report - v1.0</div><br /></div><a name="2560efc8-20fd-4a4b-9fd0-a8a8af1e8f71"><h1 class="Heading1">1 VEEAM-VBR</h1></a><div>The following section provides an overview of the implemented components of Veeam Backup &amp; Replication.</div><br /><a name="fe3a9736-8980-44ec-8cbb-4709e5afa167"><h2 class="Heading2">1.1 Executive Summary</h2></a><a name="cf0b4bd8-c4e9-49f0-ab19-c9f524f3af0c"><h1 class="NOTOCHeading3">Backup Infrastructure Inventory</h1></a><div align="Center">
+<img src="data:image/png;base64, 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" alt="Backup Infrastructure - Diagram" height="400" width="600" />
+</div>
+<br /><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:50%; min-width:50%; width:50%" /><col style="max-width:50%; min-width:50%; width:50%" /></colgroup>
+<tbody>
+<tr><th>Backup Proxies</th><td>4</td></tr>
+<tr><th>Managed Servers</th><td>38</td></tr>
+<tr><th>Backup Repositories</th><td>6</td></tr>
+<tr><th>SOBR Repositories</th><td>3</td></tr>
+<tr><th>Object Repository</th><td>3</td></tr>
+<tr><th>WAN Accelerator</th><td>3</td></tr>
+<tr><th>Cloud Service Providers</th><td>2</td></tr>
+<tr><th>SureBackup Application Group</th><td>2</td></tr>
+<tr><th>SureBackup Virtual Lab</th><td>2</td></tr>
+<tr><th>Locations</th><td>7</td></tr>
+<tr><th>Instance Licenses (Total/Used)</th><td>1000/5</td></tr>
+<tr><th>Socket Licenses (Total/Used)</th><td>0/0</td></tr>
+<tr><th>Capacity Licenses (Total/Used)</th><td>0TB/0TB</td></tr>
+</tbody></table>
+<div class="Caption">Table 1 - Backup Infrastructure Inventory - VEEAM-VBR</div><br /></div>
+<a name="ecda7e17-e8d7-48b2-8c62-477d2661251c"><h1 class="NOTOCHeading3">Tape Infrastructure</h1></a><div align="Center">
+<img src="data:image/png;base64, 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" alt="Tape Infrastructure - Diagram" height="400" width="600" />
+</div>
+<br /><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:50%; min-width:50%; width:50%" /><col style="max-width:50%; min-width:50%; width:50%" /></colgroup>
+<tbody>
+<tr><th>Tape Servers</th><td>2</td></tr>
+<tr><th>Tape Library</th><td>3</td></tr>
+<tr><th>Tape MediaPool</th><td>9</td></tr>
+<tr><th>Tape Vault</th><td>2</td></tr>
+<tr><th>Tape Drives</th><td>7</td></tr>
+<tr><th>Tape Medium</th><td>33</td></tr>
+</tbody></table>
+<div class="Caption">Table 2 - Tape Infrastructure Inventory - VEEAM-VBR</div><br /></div>
+<a name="cebfbd75-5e1a-4355-a3e0-28198ac1e687"><h1 class="NOTOCHeading3">Inventory</h1></a><div align="Center">
+<img src="data:image/png;base64, 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" alt="Inventory - Diagram" height="400" width="600" />
+</div>
+<br /><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:50%; min-width:50%; width:50%" /><col style="max-width:50%; min-width:50%; width:50%" /></colgroup>
+<tbody>
+<tr><th>vCenter Servers</th><td>2</td></tr>
+<tr><th>ESXi Servers</th><td>5</td></tr>
+<tr><th>Hyper-V Clusters</th><td>1</td></tr>
+<tr><th>Hyper-V Servers</th><td>3</td></tr>
+<tr><th>Protection Groups</th><td>6</td></tr>
+<tr><th>File Shares</th><td>10</td></tr>
+</tbody></table>
+<div class="Caption">Table 3 - Inventory Summary - VEEAM-VBR</div><br /></div>
+<a name="e52a2a01-ea8f-462b-8eb2-d94fdc4a23e1"><h1 class="NOTOCHeading3">Storage Infrastructure Inventory</h1></a><div align="Center">
+<img src="data:image/png;base64, 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" alt="Storage Infrastructure Inventory - Diagram" height="400" width="600" />
+</div>
+<br /><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:50%; min-width:50%; width:50%" /><col style="max-width:50%; min-width:50%; width:50%" /></colgroup>
+<tbody>
+<tr><th>NetApp Ontap Storage</th><td>5</td></tr>
+<tr><th>NetApp Ontap Volumes</th><td>5</td></tr>
+<tr><th>Dell Isilon Storage</th><td>1</td></tr>
+<tr><th>Dell Isilon Volumes</th><td>1</td></tr>
+</tbody></table>
+<div class="Caption">Table 4 - Storage Infrastructure Inventory - VEEAM-VBR</div><br /></div>
+<a name="ef47f722-4867-4468-823e-79d153f39916"><h1 class="NOTOCHeading3">Replication Inventory</h1></a><div align="Center">
+<img src="data:image/png;base64, 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" alt="Replication Inventory - Diagram" height="400" width="600" />
+</div>
+<br /><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:50%; min-width:50%; width:50%" /><col style="max-width:50%; min-width:50%; width:50%" /></colgroup>
+<tbody>
+<tr><th>Replicas</th><td>3</td></tr>
+<tr><th>Failover Plans</th><td>3</td></tr>
+</tbody></table>
+<div class="Caption">Table 5 - Replication Inventory - VEEAM-VBR</div><br /></div>
+<a name="68d0d462-b7c8-46ec-b5d3-af7e68453729"><h2 class="Heading2">1.2 Backup Infrastructure Components</h2></a><div>The following section details configuration information about the Backup Server: VEEAM-VBR</div><br /><a name="9631c7b3-8e42-4890-9bd0-9327e2296267"><h3 class="Heading3">1.2.1 Backup Server</h3></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Server Name</th><td>VEEAM-VBR.pharmax.local</td></tr>
+<tr><th>Version</th><td>11.0.1.1261</td></tr>
+<tr><th>Database Server</th><td>VEEAM-SQL.pharmax.local</td></tr>
+<tr><th>Database Instance</th><td>&nbsp;</td></tr>
+<tr><th>Database Name</th><td>VeeamBackup</td></tr>
+<tr><th>Connection Ports</th><td>Backup Server Port: 9392<br />Secure Connections Port: 9401<br />Cloud Server Port: 10003<br />Cloud Service Port: 6169</td></tr>
+<tr><th>Install Path</th><td>C:\Program Files\Veeam\Backup and Replication\Backup\</td></tr>
+<tr><th>Audit Logs Path</th><td>C:\ProgramData\Veeam\Backup\Audit</td></tr>
+<tr><th>Compress Old Audit Logs</th><td>Yes</td></tr>
+<tr><th>Fips Compliant Mode</th><td>Disabled</td></tr>
+<tr><th>Logging Level</th><td>4</td></tr>
+<tr><th>Log Directory</th><td>C:\ProgramData\Veeam\Backup</td></tr>
+</tbody></table>
+<div class="Caption">Table 6 - Backup Server - VEEAM-VBR</div><br /></div>
+<a name="8ebd6871-c925-4704-937d-a00073cc877d"><h4 class="Heading4">1.2.1.1 Hardware &amp; Software Inventory</h4></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Name</th><td>VEEAM-VBR</td></tr>
+<tr><th>Windows Product Name</th><td>Windows Server 2019 Standard Evaluation</td></tr>
+<tr><th>Windows Current Version</th><td>6.3</td></tr>
+<tr><th>Windows Build Number</th><td>10.0.17763</td></tr>
+<tr><th>Windows Install Type</th><td>Server</td></tr>
+<tr><th>Active Directory Domain</th><td>pharmax.local</td></tr>
+<tr><th>Windows Installation Date</th><td>12/03/2019 11:13:44</td></tr>
+<tr><th>Time Zone</th><td>(UTC-04:00) Georgetown, La Paz, Manaus, San Juan</td></tr>
+<tr><th>License Type</th><td>Retail:TB:Eval</td></tr>
+<tr><th>Partial Product Key</th><td>Y7XRX</td></tr>
+<tr><th>Manufacturer</th><td>VMware, Inc.</td></tr>
+<tr><th>Model</th><td>VMware7,1</td></tr>
+<tr><th>Serial Number</th><td>VMware-42 30 cb b7 cb bd 7a c2-8f 7f 82 e9 07 31 63 90</td></tr>
+<tr><th>Bios Type</th><td>Uefi</td></tr>
+<tr><th>BIOS Version</th><td>INTEL  - 6040000</td></tr>
+<tr><th>Processor Manufacturer</th><td>GenuineIntel</td></tr>
+<tr><th>Processor Model</th><td>Intel(R) Core(TM) i7-6700 CPU @ 3.40GHz</td></tr>
+<tr><th>Number of CPU Cores</th><td style="font-family: 'Arial'; font-size: 0.83rem; text-align: left; font-weight: normal; color: #000000; background-color: #f4a71c;">2</td></tr>
+<tr><th>Number of Logical Cores</th><td>2</td></tr>
+<tr><th>Physical Memory (GB)</th><td>8 GB</td></tr>
+</tbody></table>
+<div class="Caption">Table 7 - Backup Server Inventory - VEEAM-VBR</div><br /></div>
+<a name="3d2d6f45-ec2f-4bd1-884e-f18f6466b2c3"><h1 class="NOTOCHeading5">Local Disks</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:20%; min-width:20%; width:20%" /><col style="max-width:20%; min-width:20%; width:20%" /><col style="max-width:20%; min-width:20%; width:20%" /><col style="max-width:20%; min-width:20%; width:20%" /><col style="max-width:20%; min-width:20%; width:20%" /></colgroup>
+<thead><tr><th>Disk Number</th><th>Model</th><th>Serial Number</th><th>Partition Style</th><th>Disk Size</th></tr></thead><tbody>
+<tr><td>0</td><td>Virtual disk    </td><td>6000c294f4726ed3721b15c76abaffcc</td><td>2</td><td>60 GB</td></tr>
+<tr><td>1</td><td>Virtual disk    </td><td>6000c290f86cd3c472f24b32a0ddb0e4</td><td>2</td><td>100 GB</td></tr>
+<tr><td>2</td><td>Virtual disk    </td><td>6000c299dbe68476926d68da7e017ac1</td><td>2</td><td>500 GB</td></tr>
+</tbody></table>
+<div class="Caption">Table 8 - Backup Server - Local Disks</div><br /></div>
+<a name="9361c696-e574-4bfc-99a3-f327d3d7c7e9"><h1 class="NOTOCHeading5">Host Volumes</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:15%; min-width:15%; width:15%" /><col style="max-width:15%; min-width:15%; width:15%" /><col style="max-width:15%; min-width:15%; width:15%" /><col style="max-width:20%; min-width:20%; width:20%" /><col style="max-width:20%; min-width:20%; width:20%" /><col style="max-width:15%; min-width:15%; width:15%" /></colgroup>
+<thead><tr><th>Drive Letter</th><th>File System Label</th><th>File System</th><th>Size</th><th>Free Space</th><th>Health Status</th></tr></thead><tbody>
+<tr><td>C</td><td>&nbsp;</td><td>NTFS</td><td>59 GB</td><td>24 GB</td><td>0</td></tr>
+<tr><td>E</td><td>VEEAM2</td><td>ReFS</td><td>500 GB</td><td>344 GB</td><td>0</td></tr>
+<tr><td>F</td><td>VEEAM</td><td>NTFS</td><td>100 GB</td><td>96 GB</td><td>0</td></tr>
+</tbody></table>
+<div class="Caption">Table 9 - Backup Server - Volumes</div><br /></div>
+<a name="a8e0c35b-ce12-4b0a-b106-f64c88728ad5"><h1 class="NOTOCHeading5">Network Adapters</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:30%; min-width:30%; width:30%" /><col style="max-width:35%; min-width:35%; width:35%" /><col style="max-width:20%; min-width:20%; width:20%" /><col style="max-width:15%; min-width:15%; width:15%" /></colgroup>
+<thead><tr><th>Adapter Name</th><th>Adapter Description</th><th>Mac Address</th><th>Link Speed</th></tr></thead><tbody>
+<tr><td>External</td><td>vmxnet3 Ethernet Adapter</td><td>00-50-56-B0-10-7A</td><td>10 Gbps</td></tr>
+<tr><td>ISCSI-A</td><td>vmxnet3 Ethernet Adapter #2</td><td>00-50-56-B0-66-B1</td><td>10 Gbps</td></tr>
+<tr><td>ISCSI-B</td><td>vmxnet3 Ethernet Adapter #3</td><td>00-50-56-B0-EC-C1</td><td>10 Gbps</td></tr>
+</tbody></table>
+<div class="Caption">Table 10 - Backup Server - Network Adapters</div><br /></div>
+<a name="58ffb282-5d45-467d-bcfe-dee1c492a2b6"><h1 class="NOTOCHeading5">IP Address</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:25%; min-width:25%; width:25%" /><col style="max-width:25%; min-width:25%; width:25%" /><col style="max-width:20%; min-width:20%; width:20%" /><col style="max-width:10%; min-width:10%; width:10%" /><col style="max-width:20%; min-width:20%; width:20%" /></colgroup>
+<thead><tr><th>Interface Name</th><th>Interface Description</th><th>IPv4 Addresses</th><th>Subnet Mask</th><th>IPv4 Gateway</th></tr></thead><tbody>
+<tr><td>External</td><td>vmxnet3 Ethernet Adapter</td><td>192.168.7.73</td><td>24</td><td>192.168.7.254</td></tr>
+<tr><td>ISCSI-A</td><td>vmxnet3 Ethernet Adapter #2</td><td>192.168.6.13</td><td>24</td><td>&nbsp;</td></tr>
+<tr><td>ISCSI-B</td><td>vmxnet3 Ethernet Adapter #3</td><td>192.168.12.13</td><td>24</td><td>&nbsp;</td></tr>
+</tbody></table>
+<div class="Caption">Table 11 - Backup Server - IP Address</div><br /></div>
+<a name="a23eb907-67b8-485c-aae5-08c00e9edccc"><h4 class="Heading4">1.2.1.2 HealthCheck - Services Status</h4></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:45%; min-width:45%; width:45%" /><col style="max-width:35%; min-width:35%; width:35%" /><col style="max-width:20%; min-width:20%; width:20%" /></colgroup>
+<thead><tr><th>Display Name</th><th>Short Name</th><th>Status</th></tr></thead><tbody>
+<tr><td>Veeam AWS Service</td><td>VeeamAWSSvc</td><td>Running</td></tr>
+<tr><td>Veeam Azure Service</td><td>VeeamAzureSvc</td><td>Running</td></tr>
+<tr><td>Veeam CDP Coordinator Service</td><td>VeeamBackupCdpSvc</td><td>Running</td></tr>
+<tr><td>Veeam Backup Server RESTful API Service</td><td>VeeamBackupRESTSvc</td><td>Running</td></tr>
+<tr><td>Veeam Backup Service</td><td>VeeamBackupSvc</td><td>Running</td></tr>
+<tr><td>Veeam Broker Service</td><td>VeeamBrokerSvc</td><td>Running</td></tr>
+<tr><td>Veeam Guest Catalog Service</td><td>VeeamCatalogSvc</td><td>Running</td></tr>
+<tr><td>Veeam Cloud Connect Service</td><td>VeeamCloudSvc</td><td>Running</td></tr>
+<tr><td>Veeam Installer Service</td><td>VeeamDeploySvc</td><td>Running</td></tr>
+<tr><td>Veeam Distribution Service</td><td>VeeamDistributionSvc</td><td style="font-family: 'Arial'; font-size: 0.83rem; text-align: left; font-weight: normal; color: #000000; background-color: #f4a71c;">Stopped</td></tr>
+<tr><td>Veeam Explorers Recovery Service</td><td>VeeamExplorersRecoverySvc</td><td>Running</td></tr>
+<tr><td>Veeam Backup VSS Integration Service</td><td>VeeamFilesysVssSvc</td><td>Running</td></tr>
+<tr><td>Veeam GCP Service</td><td>VeeamGCPSvc</td><td>Running</td></tr>
+<tr><td>Veeam Management Agent Service</td><td>VeeamManagementAgentSvc</td><td>Running</td></tr>
+<tr><td>Veeam Mount Service</td><td>VeeamMountSvc</td><td>Running</td></tr>
+<tr><td>Veeam vPower NFS Service</td><td>VeeamNFSSvc</td><td>Running</td></tr>
+<tr><td>Veeam Tape Access Service</td><td>VeeamTapeSvc</td><td>Running</td></tr>
+<tr><td>Veeam Data Mover Service</td><td>VeeamTransportSvc</td><td>Running</td></tr>
+<tr><td>Veeam VSS Hardware Provider Service</td><td>VeeamVssProviderSvc</td><td>Running</td></tr>
+<tr><td>Veeam WAN Accelerator Service</td><td>VeeamWANSvc</td><td>Running</td></tr>
+</tbody></table>
+<div class="Caption">Table 12 - HealthCheck - Services Status - VEEAM-VBR</div><br /></div>
+<a name="eb637ab0-a868-4337-851d-7c284f67c40d"><h4 class="Heading4">1.2.1.3 HealthCheck - Network Statistics</h4></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:8%; min-width:8%; width:8%" /><col style="max-width:16%; min-width:16%; width:16%" /><col style="max-width:8%; min-width:8%; width:8%" /><col style="max-width:16%; min-width:16%; width:16%" /><col style="max-width:9%; min-width:9%; width:9%" /><col style="max-width:16%; min-width:16%; width:16%" /><col style="max-width:19%; min-width:19%; width:19%" /><col style="max-width:8%; min-width:8%; width:8%" /></colgroup>
+<thead><tr><th>Proto</th><th>Local IP</th><th>Local Port</th><th>Remote IP</th><th>Remote Port</th><th>State</th><th>Process Name</th><th>PID</th></tr></thead><tbody>
+<tr><td>UDP</td><td>0.0.0.0</td><td>1063</td><td>*</td><td>*</td><td>&nbsp;</td><td>VeeamNFSSvc</td><td>3280</td></tr>
+<tr><td>UDP</td><td>0.0.0.0</td><td>111</td><td>*</td><td>*</td><td>&nbsp;</td><td>VeeamNFSSvc</td><td>3280</td></tr>
+<tr><td>UDP</td><td>0.0.0.0</td><td>2049</td><td>*</td><td>*</td><td>&nbsp;</td><td>VeeamNFSSvc</td><td>3280</td></tr>
+<tr><td>TCP</td><td>192.168.7.73</td><td>9392</td><td>192.168.7.73</td><td>55549</td><td>CLOSE_WAIT</td><td>Veeam.Backup.Service</td><td>2460</td></tr>
+<tr><td>TCP</td><td>192.168.7.73</td><td>9392</td><td>192.168.7.73</td><td>55554</td><td>CLOSE_WAIT</td><td>Veeam.Backup.Service</td><td>2460</td></tr>
+<tr><td>TCP</td><td>127.0.0.1</td><td>9392</td><td>127.0.0.1</td><td>55481</td><td>CLOSE_WAIT</td><td>Veeam.Backup.Service</td><td>2460</td></tr>
+<tr><td>TCP</td><td>192.168.7.73</td><td>9392</td><td>192.168.7.73</td><td>55525</td><td>CLOSE_WAIT</td><td>Veeam.Backup.Service</td><td>2460</td></tr>
+<tr><td>TCP</td><td>192.168.7.73</td><td>9392</td><td>192.168.7.73</td><td>55555</td><td>CLOSE_WAIT</td><td>Veeam.Backup.Service</td><td>2460</td></tr>
+<tr><td>TCP</td><td>192.168.7.73</td><td>9392</td><td>192.168.7.73</td><td>55558</td><td>CLOSE_WAIT</td><td>Veeam.Backup.Service</td><td>2460</td></tr>
+<tr><td>TCP</td><td>192.168.7.73</td><td>9392</td><td>192.168.7.73</td><td>55559</td><td>CLOSE_WAIT</td><td>Veeam.Backup.Service</td><td>2460</td></tr>
+<tr><td>TCP</td><td>192.168.7.73</td><td>9392</td><td>192.168.7.73</td><td>55556</td><td>CLOSE_WAIT</td><td>Veeam.Backup.Service</td><td>2460</td></tr>
+<tr><td>TCP</td><td>192.168.7.73</td><td>9392</td><td>192.168.7.73</td><td>55557</td><td>CLOSE_WAIT</td><td>Veeam.Backup.Service</td><td>2460</td></tr>
+<tr><td>TCP</td><td>127.0.0.1</td><td>49443</td><td>127.0.0.1</td><td>6290</td><td>ESTABLISHED</td><td>VeeamTransportSvc</td><td>3192</td></tr>
+<tr><td>TCP</td><td>192.168.7.73</td><td>49846</td><td>158.255.230.230</td><td>6180</td><td>ESTABLISHED</td><td>VeeamNetworkRedirector</td><td>3680</td></tr>
+<tr><td>TCP</td><td>192.168.7.73</td><td>50086</td><td>192.168.7.72</td><td>1433</td><td>ESTABLISHED</td><td>Veeam.Backup.Service</td><td>2460</td></tr>
+<tr><td>TCP</td><td>192.168.7.73</td><td>53097</td><td>192.168.7.72</td><td>1433</td><td>ESTABLISHED</td><td>Veeam.Backup.Manager</td><td>5392</td></tr>
+<tr><td>TCP</td><td>192.168.7.73</td><td>54661</td><td>192.168.7.72</td><td>1433</td><td>ESTABLISHED</td><td>Veeam.Backup.UIServer</td><td>2280</td></tr>
+<tr><td>TCP</td><td>192.168.7.73</td><td>55377</td><td>192.168.7.72</td><td>1433</td><td>ESTABLISHED</td><td>Veeam.Backup.Satellite</td><td>7864</td></tr>
+<tr><td>TCP</td><td>192.168.7.73</td><td>55518</td><td>158.255.230.230</td><td>6180</td><td>ESTABLISHED</td><td>Veeam.MBP.Agent</td><td>6416</td></tr>
+<tr><td>TCP</td><td>127.0.0.1</td><td>55552</td><td>127.0.0.1</td><td>9396</td><td>ESTABLISHED</td><td>veeam.backup.shell</td><td>9524</td></tr>
+<tr><td>TCP</td><td>127.0.0.1</td><td>55598</td><td>127.0.0.1</td><td>6170</td><td>ESTABLISHED</td><td>Veeam.StandBy.Service</td><td>6620</td></tr>
+<tr><td>TCP</td><td>192.168.7.73</td><td>55608</td><td>192.168.7.73</td><td>9392</td><td>ESTABLISHED</td><td>Veeam.Backup.CloudService</td><td>6444</td></tr>
+<tr><td>TCP</td><td>127.0.0.1</td><td>55612</td><td>127.0.0.1</td><td>9396</td><td>ESTABLISHED</td><td>veeam.backup.shell</td><td>9524</td></tr>
+<tr><td>TCP</td><td>192.168.7.73</td><td>56467</td><td>192.168.7.72</td><td>1433</td><td>ESTABLISHED</td><td>Veeam.Backup.Manager</td><td>6728</td></tr>
+<tr><td>TCP</td><td>192.168.7.73</td><td>57978</td><td>192.168.7.72</td><td>1433</td><td>ESTABLISHED</td><td>Veeam.Backup.BrokerService</td><td>1060</td></tr>
+<tr><td>TCP</td><td>192.168.7.73</td><td>58287</td><td>192.168.7.72</td><td>1433</td><td>ESTABLISHED</td><td>Veeam.Backup.ExternalInfrastructure.DbProvider</td><td>4028</td></tr>
+<tr><td>TCP</td><td>192.168.7.73</td><td>58289</td><td>192.168.7.72</td><td>1433</td><td>ESTABLISHED</td><td>Veeam.Backup.Manager</td><td>324</td></tr>
+<tr><td>TCP</td><td>192.168.7.73</td><td>58482</td><td>192.168.7.72</td><td>1433</td><td>ESTABLISHED</td><td>Veeam.Backup.Service</td><td>2460</td></tr>
+<tr><td>TCP</td><td>192.168.7.73</td><td>58625</td><td>192.168.7.72</td><td>1433</td><td>ESTABLISHED</td><td>Veeam.Backup.CloudService</td><td>6444</td></tr>
+<tr><td>TCP</td><td>192.168.7.73</td><td>58690</td><td>192.168.7.72</td><td>1433</td><td>ESTABLISHED</td><td>Veeam.Backup.RestAPIService</td><td>3608</td></tr>
+<tr><td>TCP</td><td>192.168.7.73</td><td>58713</td><td>192.168.7.72</td><td>1433</td><td>ESTABLISHED</td><td>Veeam.Backup.WmiServer</td><td>6948</td></tr>
+<tr><td>TCP</td><td>192.168.7.73</td><td>59497</td><td>192.168.7.72</td><td>1433</td><td>ESTABLISHED</td><td>Veeam.Backup.Cdp.Service</td><td>9152</td></tr>
+<tr><td>TCP</td><td>192.168.7.73</td><td>60438</td><td>192.168.7.72</td><td>1433</td><td>ESTABLISHED</td><td>Veeam.Backup.UIServer</td><td>2280</td></tr>
+<tr><td>TCP</td><td>127.0.0.1</td><td>6170</td><td>127.0.0.1</td><td>55598</td><td>ESTABLISHED</td><td>Veeam.Backup.MountService</td><td>1204</td></tr>
+<tr><td>TCP</td><td>192.168.7.73</td><td>61748</td><td>192.168.7.72</td><td>1433</td><td>ESTABLISHED</td><td>Veeam.Backup.UIServer</td><td>2280</td></tr>
+<tr><td>TCP</td><td>127.0.0.1</td><td>6290</td><td>127.0.0.1</td><td>49443</td><td>ESTABLISHED</td><td>Veeam.Guest.Interaction.Proxy</td><td>4448</td></tr>
+<tr><td>TCP</td><td>192.168.7.73</td><td>63488</td><td>192.168.5.2</td><td>443</td><td>ESTABLISHED</td><td>Veeam.Backup.BrokerService</td><td>1060</td></tr>
+<tr><td>TCP</td><td>192.168.7.73</td><td>9392</td><td>192.168.7.73</td><td>55590</td><td>ESTABLISHED</td><td>Veeam.Backup.Service</td><td>2460</td></tr>
+<tr><td>TCP</td><td>192.168.7.73</td><td>9392</td><td>192.168.7.73</td><td>55608</td><td>ESTABLISHED</td><td>Veeam.Backup.Service</td><td>2460</td></tr>
+<tr><td>TCP</td><td>192.168.7.73</td><td>9392</td><td>192.168.7.91</td><td>6463</td><td>ESTABLISHED</td><td>Veeam.Backup.Service</td><td>2460</td></tr>
+<tr><td>TCP</td><td>192.168.7.73</td><td>9396</td><td>192.168.7.91</td><td>6477</td><td>ESTABLISHED</td><td>Veeam.Backup.UIServer</td><td>2280</td></tr>
+<tr><td>TCP</td><td>127.0.0.1</td><td>9396</td><td>127.0.0.1</td><td>55612</td><td>ESTABLISHED</td><td>Veeam.Backup.UIServer</td><td>2280</td></tr>
+<tr><td>TCP</td><td>127.0.0.1</td><td>9396</td><td>127.0.0.1</td><td>55552</td><td>ESTABLISHED</td><td>Veeam.Backup.UIServer</td><td>2280</td></tr>
+<tr><td>TCP</td><td>192.168.7.73</td><td>9501</td><td>192.168.7.73</td><td>55610</td><td>ESTABLISHED</td><td>Veeam.Backup.BrokerService</td><td>1060</td></tr>
+<tr><td>TCP</td><td>127.0.0.1</td><td>55481</td><td>127.0.0.1</td><td>9392</td><td>FIN_WAIT_2</td><td>veeam.backup.shell</td><td>9524</td></tr>
+<tr><td>TCP</td><td>192.168.7.73</td><td>55525</td><td>192.168.7.73</td><td>9392</td><td>FIN_WAIT_2</td><td>Veeam.Backup.Manager</td><td>6728</td></tr>
+<tr><td>TCP</td><td>192.168.7.73</td><td>55549</td><td>192.168.7.73</td><td>9392</td><td>FIN_WAIT_2</td><td>Veeam.Backup.Cdp.Service</td><td>9152</td></tr>
+<tr><td>TCP</td><td>192.168.7.73</td><td>55554</td><td>192.168.7.73</td><td>9392</td><td>FIN_WAIT_2</td><td>Veeam.Backup.UIServer</td><td>2280</td></tr>
+<tr><td>TCP</td><td>192.168.7.73</td><td>55555</td><td>192.168.7.73</td><td>9392</td><td>FIN_WAIT_2</td><td>Veeam.Backup.RestAPIService</td><td>3608</td></tr>
+<tr><td>TCP</td><td>192.168.7.73</td><td>55556</td><td>192.168.7.73</td><td>9392</td><td>FIN_WAIT_2</td><td>Veeam.Backup.Manager</td><td>324</td></tr>
+<tr><td>TCP</td><td>192.168.7.73</td><td>55557</td><td>192.168.7.73</td><td>9392</td><td>FIN_WAIT_2</td><td>Veeam.Backup.ExternalInfrastructure.DbProvider</td><td>4028</td></tr>
+<tr><td>TCP</td><td>192.168.7.73</td><td>55558</td><td>192.168.7.73</td><td>9392</td><td>FIN_WAIT_2</td><td>Veeam.Backup.Manager</td><td>5304</td></tr>
+<tr><td>TCP</td><td>192.168.7.73</td><td>55559</td><td>192.168.7.73</td><td>9392</td><td>FIN_WAIT_2</td><td>Veeam.Backup.Manager</td><td>5392</td></tr>
+<tr><td>TCP</td><td>0.0.0.0</td><td>10001</td><td>0.0.0.0</td><td>0</td><td>LISTENING</td><td>Veeam.Backup.Service</td><td>2460</td></tr>
+<tr><td>TCP</td><td>0.0.0.0</td><td>10002</td><td>0.0.0.0</td><td>0</td><td>LISTENING</td><td>Veeam.Backup.Service</td><td>2460</td></tr>
+<tr><td>TCP</td><td>0.0.0.0</td><td>10003</td><td>0.0.0.0</td><td>0</td><td>LISTENING</td><td>Veeam.Backup.CloudService</td><td>6444</td></tr>
+<tr><td>TCP</td><td>0.0.0.0</td><td>10005</td><td>0.0.0.0</td><td>0</td><td>LISTENING</td><td>Veeam.Backup.Service</td><td>2460</td></tr>
+<tr><td>TCP</td><td>0.0.0.0</td><td>10006</td><td>0.0.0.0</td><td>0</td><td>LISTENING</td><td>Veeam.Backup.Service</td><td>2460</td></tr>
+<tr><td>TCP</td><td>0.0.0.0</td><td>1063</td><td>0.0.0.0</td><td>0</td><td>LISTENING</td><td>VeeamNFSSvc</td><td>3280</td></tr>
+<tr><td>TCP</td><td>0.0.0.0</td><td>111</td><td>0.0.0.0</td><td>0</td><td>LISTENING</td><td>VeeamNFSSvc</td><td>3280</td></tr>
+<tr><td>TCP</td><td>0.0.0.0</td><td>11731</td><td>0.0.0.0</td><td>0</td><td>LISTENING</td><td>VeeamDeploymentSvc</td><td>3272</td></tr>
+<tr><td>TCP</td><td>127.0.0.1</td><td>16170</td><td>0.0.0.0</td><td>0</td><td>LISTENING</td><td>Veeam.StandBy.Service</td><td>6620</td></tr>
+<tr><td>TCP</td><td>0.0.0.0</td><td>20443</td><td>0.0.0.0</td><td>0</td><td>LISTENING</td><td>Veeam.Azure.PlatformSvc</td><td>1832</td></tr>
+<tr><td>TCP</td><td>0.0.0.0</td><td>2049</td><td>0.0.0.0</td><td>0</td><td>LISTENING</td><td>VeeamNFSSvc</td><td>3280</td></tr>
+<tr><td>TCP</td><td>0.0.0.0</td><td>6160</td><td>0.0.0.0</td><td>0</td><td>LISTENING</td><td>VeeamDeploymentSvc</td><td>3272</td></tr>
+<tr><td>TCP</td><td>0.0.0.0</td><td>6161</td><td>0.0.0.0</td><td>0</td><td>LISTENING</td><td>VeeamNFSSvc</td><td>3280</td></tr>
+<tr><td>TCP</td><td>0.0.0.0</td><td>6162</td><td>0.0.0.0</td><td>0</td><td>LISTENING</td><td>VeeamTransportSvc</td><td>3192</td></tr>
+<tr><td>TCP</td><td>0.0.0.0</td><td>6164</td><td>0.0.0.0</td><td>0</td><td>LISTENING</td><td>VeeamWANSvc</td><td>3264</td></tr>
+<tr><td>TCP</td><td>0.0.0.0</td><td>6165</td><td>0.0.0.0</td><td>0</td><td>LISTENING</td><td>VeeamWANSvc</td><td>3264</td></tr>
+<tr><td>TCP</td><td>0.0.0.0</td><td>6166</td><td>0.0.0.0</td><td>0</td><td>LISTENING</td><td>VeeamTapeSvc</td><td>3084</td></tr>
+<tr><td>TCP</td><td>0.0.0.0</td><td>6169</td><td>0.0.0.0</td><td>0</td><td>LISTENING</td><td>Veeam.Backup.CloudService</td><td>6444</td></tr>
+<tr><td>TCP</td><td>0.0.0.0</td><td>6170</td><td>0.0.0.0</td><td>0</td><td>LISTENING</td><td>Veeam.Backup.MountService</td><td>1204</td></tr>
+<tr><td>TCP</td><td>0.0.0.0</td><td>6190</td><td>0.0.0.0</td><td>0</td><td>LISTENING</td><td>Veeam.Guest.Interaction.Proxy</td><td>4448</td></tr>
+<tr><td>TCP</td><td>0.0.0.0</td><td>6210</td><td>0.0.0.0</td><td>0</td><td>LISTENING</td><td>VeeamFilesysVssSvc</td><td>3228</td></tr>
+<tr><td>TCP</td><td>0.0.0.0</td><td>6290</td><td>0.0.0.0</td><td>0</td><td>LISTENING</td><td>Veeam.Guest.Interaction.Proxy</td><td>4448</td></tr>
+<tr><td>TCP</td><td>0.0.0.0</td><td>9392</td><td>0.0.0.0</td><td>0</td><td>LISTENING</td><td>Veeam.Backup.Service</td><td>2460</td></tr>
+<tr><td>TCP</td><td>0.0.0.0</td><td>9393</td><td>0.0.0.0</td><td>0</td><td>LISTENING</td><td>Veeam.Backup.CatalogDataService</td><td>4772</td></tr>
+<tr><td>TCP</td><td>0.0.0.0</td><td>9396</td><td>0.0.0.0</td><td>0</td><td>LISTENING</td><td>Veeam.Backup.UIServer</td><td>2280</td></tr>
+<tr><td>TCP</td><td>0.0.0.0</td><td>9401</td><td>0.0.0.0</td><td>0</td><td>LISTENING</td><td>Veeam.Backup.Service</td><td>2460</td></tr>
+<tr><td>TCP</td><td>0.0.0.0</td><td>9402</td><td>0.0.0.0</td><td>0</td><td>LISTENING</td><td>Veeam.CloudBackup.PlatformService</td><td>740</td></tr>
+<tr><td>TCP</td><td>0.0.0.0</td><td>9403</td><td>0.0.0.0</td><td>0</td><td>LISTENING</td><td>Veeam.GCP.PlatformService.WebService</td><td>1804</td></tr>
+<tr><td>TCP</td><td>0.0.0.0</td><td>9501</td><td>0.0.0.0</td><td>0</td><td>LISTENING</td><td>Veeam.Backup.BrokerService</td><td>1060</td></tr>
+<tr><td>TCP</td><td>0.0.0.0</td><td>9509</td><td>0.0.0.0</td><td>0</td><td>LISTENING</td><td>Veeam.Backup.Cdp.Service</td><td>9152</td></tr>
+<tr><td>TCP</td><td>192.168.7.73</td><td>55566</td><td>192.168.6.14</td><td>6160</td><td>SYN_SENT</td><td>Veeam.Backup.Service</td><td>2460</td></tr>
+</tbody></table>
+<div class="Caption">Table 13 - HealthCheck - Network Statistics - VEEAM-VBR</div><br /></div>
+<a name="0f676159-2d7b-4cd4-b8d8-1935a766a9d7"><h3 class="Heading3">1.2.2 Enterprise Manager Information</h3></a><div>The following table details information about Veeam Enterprise Manager</div><br /><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Server Name</th><td>VEEAM-EM.pharmax.local</td></tr>
+<tr><th>Server URL</th><td>https://VEEAM-EM.pharmax.local:9443/</td></tr>
+<tr><th>Skip License Push</th><td>No</td></tr>
+<tr><th>Is Connected</th><td>Yes</td></tr>
+</tbody></table>
+<div class="Caption">Table 14 - Enterprise Manager - VEEAM-VBR</div><br /></div>
+<a name="5561b39b-fc4a-4d7c-be01-0383f99a1651"><h3 class="Heading3">1.2.3 License Information</h3></a><div>The following section provides a summary about the installed licenses</div><br /><a name="2b3aae2c-aa99-4b6f-b262-90bfd58bddf2"><h4 class="Heading4">1.2.3.1 Installed License Information</h4></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Licensed To</th><td>Veeam Software Group GmbH</td></tr>
+<tr><th>Edition</th><td>EnterprisePlus</td></tr>
+<tr><th>Type</th><td style="font-family: 'Arial'; font-size: 0.83rem; text-align: left; font-weight: normal; color: #000000; background-color: #f4a71c;">Evaluation</td></tr>
+<tr><th>Status</th><td>Valid</td></tr>
+<tr><th>Expiration Date</th><td>Thursday, December 1, 2022</td></tr>
+<tr><th>Support Id</th><td>N/A</td></tr>
+<tr><th>Support Expiration Date</th><td>-</td></tr>
+<tr><th>Auto Update Enabled</th><td>No</td></tr>
+<tr><th>Free Agent Instance</th><td>Yes</td></tr>
+<tr><th>Cloud Connect</th><td>Disabled</td></tr>
+</tbody></table>
+<div class="Caption">Table 15 - Licenses - VEEAM-VBR</div><br /></div>
+<a name="927998c5-bd90-4731-a607-e43ab845d841"><h1 class="NOTOCHeading5">Instance License Usage</h1></a><div align="Center">
+<img src="data:image/png;base64, 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" alt="Instance License Usage - Diagram" height="400" width="600" />
+</div>
+<br /><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:25%; min-width:25%; width:25%" /><col style="max-width:25%; min-width:25%; width:25%" /><col style="max-width:25%; min-width:25%; width:25%" /><col style="max-width:25%; min-width:25%; width:25%" /></colgroup>
+<thead><tr><th>Instances Capacity</th><th>Used Instances</th><th>New Instances</th><th>Rental Instances</th></tr></thead><tbody>
+<tr><td>1000</td><td>5</td><td>0</td><td>0</td></tr>
+</tbody></table>
+<div class="Caption">Table 16 - Instance License Usage - VEEAM-VBR</div><br /></div>
+<a name="ee11c3a5-7782-493d-8c86-136ef793082f"><h1 class="NOTOCHeading5">Per Instance Type License Usage</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:25%; min-width:25%; width:25%" /><col style="max-width:25%; min-width:25%; width:25%" /><col style="max-width:25%; min-width:25%; width:25%" /><col style="max-width:25%; min-width:25%; width:25%" /></colgroup>
+<thead><tr><th>Type</th><th>Count</th><th>Multiplier</th><th>Used Instances</th></tr></thead><tbody>
+<tr><td>VM</td><td>5</td><td>1</td><td>5</td></tr>
+</tbody></table>
+<div class="Caption">Table 17 - Per Instance Type - VEEAM-VBR</div><br /></div>
+<a name="c11a9cec-de2e-48ba-ad3e-8f2562344b77"><h3 class="Heading3">1.2.4 General Options</h3></a><div>The following section details Veaam Backup &amp; Replication general setting. General settings are applied to all jobs, backup infrastructure components and other objects managed by the backup server.</div><br /><a name="64331f02-d112-4a09-a9b4-9d37decc6b41"><h4 class="Heading4">1.2.4.1 Configuration Backup</h4></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Name</th><td>Backup Configuration Job</td></tr>
+<tr><th>Run Job Automatically</th><td>Yes</td></tr>
+<tr><th>Schedule Type</th><td>Daily</td></tr>
+<tr><th>Schedule Options</th><td>Type: Everyday<br />Period: 10:00:00<br />Day Of Week: Sunday Monday Tuesday Wednesday Thursday Friday Saturday</td></tr>
+<tr><th>Restore Points To Keep</th><td>10</td></tr>
+<tr><th>Encryption Enabled</th><td>Yes</td></tr>
+<tr><th>Encryption Key</th><td>Password Global</td></tr>
+<tr><th>Additional Address</th><td>veeam_admin@pharmax.local</td></tr>
+<tr><th>Email Subject</th><td>[%JobResult%] %JobName% (%Time%)</td></tr>
+<tr><th>Notify On</th><td>Notify On Success: No<br />Notify On Warning: Yes<br />Notify On Error: Yes<br />Notify On Last Retry Only: Yes</td></tr>
+<tr><th>NextRun</th><td>10/01/2022 10:00:00</td></tr>
+<tr><th>Target</th><td>Linux - Hardened Repository</td></tr>
+<tr><th>Enabled</th><td>Yes</td></tr>
+<tr><th>LastResult</th><td style="font-family: 'Arial'; font-size: 0.83rem; text-align: left; font-weight: normal; color: #000000; background-color: #f1655c;">Failed</td></tr>
+</tbody></table>
+<div class="Caption">Table 18 - Configuration Backup Settings - VEEAM-VBR</div><br /></div>
+<a name="95a5e208-aa98-47f7-9b7d-21c58eb6f727"><h4 class="Heading4">1.2.4.2 Email Notification</h4></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Email Recipient</th><td>veeam_admin@pharmax.local,jcolonf@zenprsolutions.com</td></tr>
+<tr><th>Email Sender</th><td>veeam_admin@pharmax.local</td></tr>
+<tr><th>SMTP Server</th><td>veeam-ex.pharmax.local</td></tr>
+<tr><th>Email Subject</th><td>[%JobResult%] %JobName% (%VmCount% machines) %Issues%</td></tr>
+<tr><th>SSL Enabled</th><td>Yes</td></tr>
+<tr><th>Auth Enabled</th><td>Yes</td></tr>
+<tr><th>Credentials</th><td>rebelinux@gmail.com</td></tr>
+<tr><th>Daily Reports Time</th><td>10:00 PM</td></tr>
+<tr><th>Enabled</th><td>Yes</td></tr>
+<tr><th>Notify On</th><td>Notify On Success: Yes<br />Notify On Warning: Yes<br />Notify On Failure: Yes<br />Notify On Last Retry Only: Yes</td></tr>
+</tbody></table>
+<div class="Caption">Table 19 - Email Notification Settings - VEEAM-VBR</div><br /></div>
+<a name="4ea5302a-3a5c-44b2-8bf9-513cf7e13571"><h4 class="Heading4">1.2.4.3 Storage Latency Control</h4></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:35%; min-width:35%; width:35%" /><col style="max-width:35%; min-width:35%; width:35%" /><col style="max-width:30%; min-width:30%; width:30%" /></colgroup>
+<thead><tr><th>Latency Limit</th><th>Throttling IO Limit</th><th>Enabled</th></tr></thead><tbody>
+<tr><td>20/ms</td><td>30/ms</td><td>Yes</td></tr>
+</tbody></table>
+<div class="Caption">Table 20 - Storage Latency Control - VEEAM-VBR</div><br /></div>
+<a name="6c5bf144-1a80-46c0-943e-b710c4452e5f"><h1 class="NOTOCHeading5">Per Datastore Latency Control Options</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:30%; min-width:30%; width:30%" /><col style="max-width:30%; min-width:30%; width:30%" /></colgroup>
+<thead><tr><th>Datastore Name</th><th>Latency Limit</th><th>Throttling IO Limit</th></tr></thead><tbody>
+<tr><td>HDD-VM-MED-PERF-01</td><td>10/ms</td><td>15/ms</td></tr>
+</tbody></table>
+<div class="Caption">Table 21 - Per Datastore Latency Control Options - VEEAM-VBR</div><br /></div>
+<a name="7bfe1033-9791-4a46-9b44-aedae4430175"><h4 class="Heading4">1.2.4.4 Backup Server TLS Certificate</h4></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Friendly Name</th><td>Veeam Backup Server Certificate</td></tr>
+<tr><th>Subject Name</th><td>CN=Veeam Backup Server Certificate</td></tr>
+<tr><th>Issuer Name</th><td>CN=Veeam Backup Server Certificate</td></tr>
+<tr><th>Expiration Date</th><td>6/27/2032</td></tr>
+<tr><th>Issued Date</th><td>6/27/2022</td></tr>
+<tr><th>Thumbprint</th><td>958974015EB6E49D6B381229D2521966CB25B9BE</td></tr>
+<tr><th>SerialNumber</th><td>4369014BA8DF88B344C2B090F1D19974</td></tr>
+</tbody></table>
+<div class="Caption">Table 22 - TLS Certificate - VEEAM-VBR</div><br /></div>
+<a name="905fdb42-0883-4680-ac61-11b8c96266e2"><h4 class="Heading4">1.2.4.5 Network Traffic Rules</h4></a><div>The following section details network traffic rules settings configured on Veeam Backup &amp; Replication.</div><br /><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Name</th><td>Inter-Site-to-DR</td></tr>
+<tr><th>Source IP Start</th><td>192.168.7.1</td></tr>
+<tr><th>Source IP End</th><td>192.168.7.255</td></tr>
+<tr><th>Target IP Start</th><td>10.10.33.1</td></tr>
+<tr><th>Target IP End</th><td>10.10.33.255</td></tr>
+<tr><th>Encryption Enabled</th><td>No</td></tr>
+<tr><th>Throttling</th><td>Throttling Enabled: Yes<br />Throttling Unit: MbytePerSec<br />Throttling Value: 10<br />Throttling Windows: Yes</td></tr>
+</tbody></table>
+<div class="Caption">Table 23 - Network Traffic Rules - Inter-Site-to-DR</div><br /></div>
+<div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Name</th><td>Internet</td></tr>
+<tr><th>Source IP Start</th><td>Any</td></tr>
+<tr><th>Source IP End</th><td>-</td></tr>
+<tr><th>Target IP Start</th><td>Internet</td></tr>
+<tr><th>Target IP End</th><td>-</td></tr>
+<tr><th>Encryption Enabled</th><td>Yes</td></tr>
+<tr><th>Throttling</th><td>Throttling Enabled: No<br />Throttling Unit: MbitPerSec<br />Throttling Value: 1<br />Throttling Windows: No</td></tr>
+</tbody></table>
+<div class="Caption">Table 24 - Network Traffic Rules - Internet</div><br /></div>
+<a name="e32116dd-44ed-4ad8-a7f2-04da2eb8ceda"><h1 class="NOTOCHeading5">Preferred Networks</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:30%; min-width:30%; width:30%" /><col style="max-width:30%; min-width:30%; width:30%" /><col style="max-width:40%; min-width:40%; width:40%" /></colgroup>
+<thead><tr><th>IP Address</th><th>Subnet Mask</th><th>CIDR Notation</th></tr></thead><tbody>
+<tr><td>192.168.7.0</td><td>255.255.255.0</td><td>192.168.7.0/24</td></tr>
+</tbody></table>
+<div class="Caption">Table 25 - Preferred Networks - VEEAM-VBR</div><br /></div>
+<a name="f91c6d8e-9539-497b-bcf4-3ba8a4db4e04"><h3 class="Heading3">1.2.5 Roles and Users</h3></a><div>The following section provides information about roles assigned to users or groups.</div><br /><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:45%; min-width:45%; width:45%" /><col style="max-width:15%; min-width:15%; width:15%" /><col style="max-width:40%; min-width:40%; width:40%" /></colgroup>
+<thead><tr><th>Name</th><th>Type</th><th>Role</th></tr></thead><tbody>
+<tr><td>Administrators</td><td>Group</td><td>BackupAdmin</td></tr>
+<tr><td>PHARMAX\veeam_admin</td><td>User</td><td>BackupOperator</td></tr>
+<tr><td>PHARMAX\vrauser</td><td>User</td><td>BackupOperator</td></tr>
+</tbody></table>
+<div class="Caption">Table 26 - Roles and Users - VEEAM-VBR</div><br /></div>
+<a name="da28f411-e7c4-4868-892d-39e3f2803728"><h3 class="Heading3">1.2.6 Security Credentials</h3></a><div>The following table provide information about the credentials managed by Veeam Backup &amp; Replication.</div><br /><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:35%; min-width:35%; width:35%" /><col style="max-width:20%; min-width:20%; width:20%" /><col style="max-width:45%; min-width:45%; width:45%" /></colgroup>
+<thead><tr><th>Name</th><th>Change Time</th><th>Description</th></tr></thead><tbody>
+<tr><td>admin</td><td>12/14/2019</td><td>admin netapp</td></tr>
+<tr><td>admin</td><td>2/24/2022</td><td>ONTAP-HQ-SAN</td></tr>
+<tr><td>admin</td><td>1/16/2022</td><td>Isilon Account</td></tr>
+<tr><td>administrator@pharmax.local</td><td>12/16/2019</td><td>administrator@pharmax.local</td></tr>
+<tr><td>administrator@vsphere.local</td><td>2/27/2021</td><td>administrator@vsphere.local</td></tr>
+<tr><td>backup_admin1</td><td>5/29/2020</td><td>veeam_admin netapp nmdp</td></tr>
+<tr><td>backup_admin1</td><td>2/24/2022</td><td>backup_admin1</td></tr>
+<tr><td>god</td><td>12/28/2021</td><td>god</td></tr>
+<tr><td>god</td><td>12/28/2021</td><td>god</td></tr>
+<tr><td>rebelinux@gmail.com</td><td>12/28/2021</td><td>rebelinux@gmail.com</td></tr>
+<tr><td>root</td><td>12/14/2019</td><td>Azure helper appliance credentials</td></tr>
+<tr><td>root</td><td>7/20/2022</td><td>ESXi root account</td></tr>
+<tr><td>root</td><td>12/14/2019</td><td>Helper appliance credentials</td></tr>
+<tr><td>root</td><td>12/14/2019</td><td>Provider-side network extension appliance credentials</td></tr>
+<tr><td>root</td><td>12/18/2019</td><td>root</td></tr>
+<tr><td>root</td><td>12/14/2019</td><td>Tenant-side network extension appliance credentials</td></tr>
+<tr><td>SYS</td><td>12/18/2019</td><td>SYS</td></tr>
+<tr><td>veeam</td><td>7/6/2021</td><td>veeam_dxi</td></tr>
+<tr><td>VEEAM</td><td>12/18/2019</td><td>VEEAM</td></tr>
+<tr><td>VEEAM_ADMIN</td><td>12/18/2019</td><td>VEEAM_ADMIN</td></tr>
+<tr><td>veeam_admin</td><td>12/15/2019</td><td>veeam_admin</td></tr>
+<tr><td>veeam_admin@pharmax.local</td><td>12/14/2019</td><td>veeam_admin@pharmax.local</td></tr>
+<tr><td>VEEAM-VBR</td><td>2/6/2022</td><td>VEAM-VBR</td></tr>
+<tr><td>VEEAM-VBR</td><td>6/30/2021</td><td>HP StoreOne VSA</td></tr>
+<tr><td>ZenPRSolutions-130858420/ZenPRSolutions-130858420</td><td>6/9/2022</td><td>ZenPRSolutions-130858420/ZenPRSolutions-130858420</td></tr>
+</tbody></table>
+<div class="Caption">Table 27 - Security Credentials - VEEAM-VBR</div><br /></div>
+<a name="04f3ca5f-e875-43d7-aa79-dbb0929d2e15"><h4 class="Heading3">1.2.6.1 Service Provider Credentials</h4></a><div>The following table provide information about the service provider credentials managed by Veeam Backup &amp; Replication.</div><br /><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:50%; min-width:50%; width:50%" /><col style="max-width:50%; min-width:50%; width:50%" /></colgroup>
+<thead><tr><th>Name</th><th>Description</th></tr></thead><tbody>
+<tr><td>godadmin</td><td>ACME Inc. Provider</td></tr>
+<tr><td>jcolonfzenpr</td><td>jcolonfzenpr</td></tr>
+<tr><td>ultra_super_god_admin</td><td>Super Duper Backup Provider Credential</td></tr>
+<tr><td>VCC-ZenPRSolutions</td><td>VCC-ZenPRSolutions</td></tr>
+</tbody></table>
+<div class="Caption">Table 28 - Service Provider Credentials - VEEAM-VBR</div><br /></div>
+<a name="26af97bb-2891-4469-9618-8dcee61ea861"><h3 class="Heading3">1.2.7 Geographical Locations</h3></a><div>The following section provide a summary about geographical locations.</div><br /><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:50%; min-width:50%; width:50%" /><col style="max-width:50%; min-width:50%; width:50%" /></colgroup>
+<thead><tr><th>Name</th><th>id</th></tr></thead><tbody>
+<tr><td>Brazil</td><td>ceadd22f-3872-4152-9dca-9b27af11b144</td></tr>
+<tr><td>Cayey</td><td>1f13b88a-d8c0-4048-a79c-0f4575dc904a</td></tr>
+<tr><td>Florida</td><td>39a4cbc6-c715-484e-b976-00560946aea9</td></tr>
+<tr><td>Gurabo</td><td>39928575-1581-4f81-bd8f-348b1391bfc0</td></tr>
+<tr><td>Mexico</td><td>e9ccc857-5620-48e7-b229-5bef94293cc3</td></tr>
+<tr><td>San Juan</td><td>a7643c0e-ed73-4803-85f1-eef451169a54</td></tr>
+<tr><td>Texas</td><td>21037406-af0a-4f39-9393-13c8f3d0c8be</td></tr>
+</tbody></table>
+<div class="Caption">Table 29 - Location - VEEAM-VBR</div><br /></div>
+<a name="fff914bb-4e2f-4f42-9b1f-4c1c1fcb8f5e"><h3 class="Heading3">1.2.8 Virtualization Servers and Hosts</h3></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:50%; min-width:50%; width:50%" /><col style="max-width:35%; min-width:35%; width:35%" /><col style="max-width:15%; min-width:15%; width:15%" /></colgroup>
+<thead><tr><th>Name</th><th>Description</th><th>Status</th></tr></thead><tbody>
+<tr><td>veeam-lnx-px.pharmax.local</td><td>Linux host</td><td style="font-family: 'Arial'; font-size: 0.83rem; text-align: left; font-weight: normal; color: #000000; background-color: #f4a71c;">Unavailable</td></tr>
+<tr><td>veeam-dxi.pharmax.local</td><td>Linux host</td><td style="font-family: 'Arial'; font-size: 0.83rem; text-align: left; font-weight: normal; color: #000000; background-color: #f4a71c;">Unavailable</td></tr>
+<tr><td>pharmax-cluster.pharmax.local</td><td>Microsoft Hyper-V cluster</td><td>Available</td></tr>
+<tr><td>VEEAM-HV-02</td><td>Microsoft Hyper-V server</td><td style="font-family: 'Arial'; font-size: 0.83rem; text-align: left; font-weight: normal; color: #000000; background-color: #f4a71c;">Unavailable</td></tr>
+<tr><td>VEEAM-HV-01</td><td>Microsoft Hyper-V server</td><td style="font-family: 'Arial'; font-size: 0.83rem; text-align: left; font-weight: normal; color: #000000; background-color: #f4a71c;">Unavailable</td></tr>
+<tr><td>VEEAM-HV-03.pharmax.local</td><td>Microsoft Hyper-V server</td><td>Available</td></tr>
+<tr><td>VEEAM-VBR-02V.pharmax.local</td><td>Microsoft Windows server</td><td>Available</td></tr>
+<tr><td>VEEAM-HV-01.pharmax.local</td><td>Microsoft Windows server</td><td style="font-family: 'Arial'; font-size: 0.83rem; text-align: left; font-weight: normal; color: #000000; background-color: #f4a71c;">Unavailable</td></tr>
+<tr><td>VEEAM-EDGE-PRX.pharmax.local</td><td>Microsoft Windows server</td><td style="font-family: 'Arial'; font-size: 0.83rem; text-align: left; font-weight: normal; color: #000000; background-color: #f4a71c;">Unavailable</td></tr>
+<tr><td>VEEAM-HV-03.pharmax.local</td><td>Microsoft Windows server</td><td>Available</td></tr>
+<tr><td>VEEAM-HV-02.pharmax.local</td><td>Microsoft Windows server</td><td style="font-family: 'Arial'; font-size: 0.83rem; text-align: left; font-weight: normal; color: #000000; background-color: #f4a71c;">Unavailable</td></tr>
+<tr><td>VEEAM-VBR.pharmax.local</td><td>Microsoft Windows server</td><td>Available</td></tr>
+<tr><td>server-dc-01v</td><td>Microsoft Windows server</td><td>Available</td></tr>
+<tr><td>VEEAM-HVPRX-01V.pharmax.local</td><td>Microsoft Windows server</td><td style="font-family: 'Arial'; font-size: 0.83rem; text-align: left; font-weight: normal; color: #000000; background-color: #f4a71c;">Unavailable</td></tr>
+<tr><td>VEEAM-REPO-01V.pharmax.local</td><td>Microsoft Windows server</td><td style="font-family: 'Arial'; font-size: 0.83rem; text-align: left; font-weight: normal; color: #000000; background-color: #f4a71c;">Unavailable</td></tr>
+<tr><td>ONTAP-HQ-SAN-IC.pharmax.local</td><td>NDMP server</td><td style="font-family: 'Arial'; font-size: 0.83rem; text-align: left; font-weight: normal; color: #000000; background-color: #f4a71c;">Unavailable</td></tr>
+<tr><td>192.168.5.18:/oracle</td><td>NFS file share</td><td>Available</td></tr>
+<tr><td>ONTAP-HQ-SAN\NAS-VEEAM:/DATA</td><td>NFS filer</td><td>Available</td></tr>
+<tr><td>ONTAP-HQ-SAN\NAS-VEEAM:/oracle</td><td>NFS filer</td><td>Available</td></tr>
+<tr><td>\\server-dc-01v\UEMConfig</td><td>SMB file share</td><td>Available</td></tr>
+<tr><td>\\isilon_nas.pharmax.local\DATA</td><td>SMB file share</td><td>Available</td></tr>
+<tr><td>PHARMAX-ISILON\System:\DATA</td><td>SMB filer</td><td>Available</td></tr>
+<tr><td>ONTAP-HQ-SAN\NAS-VEEAM:\data</td><td>SMB filer</td><td>Available</td></tr>
+<tr><td>ONTAP-HQ-SAN\NAS-VEEAM:\c$</td><td>SMB filer</td><td>Available</td></tr>
+<tr><td>ONTAP-HQ-SAN\NAS-VEEAM:\ipc$</td><td>SMB filer</td><td>Available</td></tr>
+<tr><td>PHARMAX-ISILON</td><td>Storage</td><td>Available</td></tr>
+<tr><td>VEEAM-NTAP-CLUSTER</td><td>Storage</td><td>Available</td></tr>
+<tr><td>PHARMAX-DR</td><td>Storage</td><td>Available</td></tr>
+<tr><td>PHARMAX-HQ</td><td>Storage</td><td>Available</td></tr>
+<tr><td>ONTAP-HQ-SAN</td><td>Storage</td><td>Available</td></tr>
+<tr><td>ONTAP-DR-SAN</td><td>Storage</td><td>Available</td></tr>
+<tr><td>comp-02a.pharmax.local</td><td>VMware ESXi server</td><td>Available</td></tr>
+<tr><td>comp-01a.pharmax.local</td><td>VMware ESXi server</td><td>Available</td></tr>
+<tr><td>edge-01a.pharmax.local</td><td>VMware ESXi server</td><td>Available</td></tr>
+<tr><td>esxsvr-00f.pharmax.local</td><td>VMware ESXi server</td><td>Available</td></tr>
+<tr><td>disaster-01a.pharmax.local</td><td>VMware ESXi server</td><td>Available</td></tr>
+<tr><td>vcenter-03v.pharmax.local</td><td>VMware vCenter server</td><td>Available</td></tr>
+<tr><td>vcenter-01v.pharmax.local</td><td>VMware vCenter server</td><td>Available</td></tr>
+</tbody></table>
+<div class="Caption">Table 30 - Managed Servers - VEEAM-VBR</div><br /></div>
+<a name="987a6d6a-65ad-45c0-8fd3-9e31103f4400"><h3 class="Heading3">1.2.9 Backup Proxies</h3></a><div>The following section provides a summary of the Veeam Backup Proxies</div><br /><a name="ad081f0c-d676-44c3-a3f8-66c515b6994b"><h4 class="Heading4">1.2.9.1 VMware Backup Proxies</h4></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Name</th><td>veeam-lnx-px.pharmax.local</td></tr>
+<tr><th>Host Name</th><td>veeam-lnx-px.pharmax.local</td></tr>
+<tr><th>Type</th><td>Vi</td></tr>
+<tr><th>Disabled</th><td>No</td></tr>
+<tr><th>Max Tasks Count</th><td>2</td></tr>
+<tr><th>Use Ssl</th><td>No</td></tr>
+<tr><th>Failover To Network</th><td>Yes</td></tr>
+<tr><th>Transport Mode</th><td>Auto</td></tr>
+<tr><th>Chassis Type</th><td>ViVirtual</td></tr>
+<tr><th>OS Type</th><td>Linux</td></tr>
+<tr><th>Services Credential</th><td>-</td></tr>
+<tr><th>Status</th><td style="font-family: 'Arial'; font-size: 0.83rem; text-align: left; font-weight: normal; color: #000000; background-color: #f4a71c;">Unavailable</td></tr>
+</tbody></table>
+<div class="Caption">Table 31 - Backup Proxy - veeam-lnx-px.pharmax.local</div><br /></div>
+<div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Name</th><td>VMware Backup Proxy</td></tr>
+<tr><th>Host Name</th><td>VEEAM-VBR.pharmax.local</td></tr>
+<tr><th>Type</th><td>Vi</td></tr>
+<tr><th>Disabled</th><td>No</td></tr>
+<tr><th>Max Tasks Count</th><td>2</td></tr>
+<tr><th>Use Ssl</th><td>No</td></tr>
+<tr><th>Failover To Network</th><td>Yes</td></tr>
+<tr><th>Transport Mode</th><td>Auto</td></tr>
+<tr><th>Chassis Type</th><td>ViVirtual</td></tr>
+<tr><th>OS Type</th><td>Local</td></tr>
+<tr><th>Services Credential</th><td>-</td></tr>
+<tr><th>Status</th><td>Available</td></tr>
+</tbody></table>
+<div class="Caption">Table 32 - Backup Proxy - VMware Backup Proxy</div><br /></div>
+<div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Name</th><td>VEEAM-VBR-02V.pharmax.local</td></tr>
+<tr><th>Host Name</th><td>VEEAM-VBR-02V.pharmax.local</td></tr>
+<tr><th>Type</th><td>Vi</td></tr>
+<tr><th>Disabled</th><td>No</td></tr>
+<tr><th>Max Tasks Count</th><td>2</td></tr>
+<tr><th>Use Ssl</th><td>No</td></tr>
+<tr><th>Failover To Network</th><td>Yes</td></tr>
+<tr><th>Transport Mode</th><td>Auto</td></tr>
+<tr><th>Chassis Type</th><td>ViVirtual</td></tr>
+<tr><th>OS Type</th><td>Windows</td></tr>
+<tr><th>Services Credential</th><td>administrator@pharmax.local</td></tr>
+<tr><th>Status</th><td>Available</td></tr>
+</tbody></table>
+<div class="Caption">Table 33 - Backup Proxy - VEEAM-VBR-02V.pharmax.local</div><br /></div>
+<a name="0820d19e-ddcf-4f9a-b1d0-c68d1614641d"><h5 class="Heading4">1.2.9.1.1 Hardware &amp; Software Inventory</h5></a><a name="fa71316e-0945-400c-b588-81398d6dfdfb"><h6 class="Heading5">1.2.9.1.1.1 VEEAM-VBR-02V</h6></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Name</th><td>VEEAM-VBR-02V</td></tr>
+<tr><th>Windows Product Name</th><td>Windows Server 2022 Datacenter</td></tr>
+<tr><th>Windows Current Version</th><td>6.3</td></tr>
+<tr><th>Windows Build Number</th><td>10.0.20344</td></tr>
+<tr><th>Windows Install Type</th><td>Server</td></tr>
+<tr><th>Active Directory Domain</th><td>pharmax.local</td></tr>
+<tr><th>Windows Installation Date</th><td>12/20/2021 10:22:51</td></tr>
+<tr><th>Time Zone</th><td>(UTC-04:00) Georgetown, La Paz, Manaus, San Juan</td></tr>
+<tr><th>License Type</th><td>&nbsp;</td></tr>
+<tr><th>Partial Product Key</th><td>&nbsp;</td></tr>
+<tr><th>Manufacturer</th><td>VMware, Inc.</td></tr>
+<tr><th>Model</th><td>VMware7,1</td></tr>
+<tr><th>Serial Number</th><td>VMware-42 30 a1 96 fa e8 cc 89-a4 2b ac 48 a6 88 1c 95</td></tr>
+<tr><th>Bios Type</th><td>Uefi</td></tr>
+<tr><th>BIOS Version</th><td>INTEL  - 6040000</td></tr>
+<tr><th>Processor Manufacturer</th><td>GenuineIntel</td></tr>
+<tr><th>Processor Model</th><td>Intel(R) Core(TM) i7-6700 CPU @ 3.40GHz</td></tr>
+<tr><th>Number of CPU Cores</th><td style="font-family: 'Arial'; font-size: 0.83rem; text-align: left; font-weight: normal; color: #000000; background-color: #f4a71c;">2</td></tr>
+<tr><th>Number of Logical Cores</th><td>2</td></tr>
+<tr><th>Physical Memory (GB)</th><td style="font-family: 'Arial'; font-size: 0.83rem; text-align: left; font-weight: normal; color: #000000; background-color: #f4a71c;">4 GB</td></tr>
+</tbody></table>
+<div class="Caption">Table 34 - Backup Proxy Inventory - VEEAM-VBR-02V</div><br /></div>
+<a name="9cb304d5-a412-4f6c-aebd-94eba60b77a5"><h1 class="NOTOCHeading6">Local Disks</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:20%; min-width:20%; width:20%" /><col style="max-width:20%; min-width:20%; width:20%" /><col style="max-width:20%; min-width:20%; width:20%" /><col style="max-width:20%; min-width:20%; width:20%" /><col style="max-width:20%; min-width:20%; width:20%" /></colgroup>
+<thead><tr><th>Disk Number</th><th>Model</th><th>Serial Number</th><th>Partition Style</th><th>Disk Size</th></tr></thead><tbody>
+<tr><td>0</td><td>Virtual disk    </td><td>6000c298c298c0d02feed362b8c93888</td><td>2</td><td>40 GB</td></tr>
+<tr><td>1</td><td>Virtual disk    </td><td>6000c298728ba2eb597c2f4188f201d7</td><td>2</td><td>100 GB</td></tr>
+<tr><td>2</td><td>Virtual disk    </td><td>6000c295bcc8c34352b1ae03aadccff2</td><td>2</td><td>100 GB</td></tr>
+</tbody></table>
+<div class="Caption">Table 35 - Local Disks - VEEAM-VBR-02V</div><br /></div>
+<a name="bd4a9f1c-7a4d-41d3-a101-b8fc14867d8a"><h1 class="NOTOCHeading6">Host Volumes</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:15%; min-width:15%; width:15%" /><col style="max-width:15%; min-width:15%; width:15%" /><col style="max-width:15%; min-width:15%; width:15%" /><col style="max-width:20%; min-width:20%; width:20%" /><col style="max-width:20%; min-width:20%; width:20%" /><col style="max-width:15%; min-width:15%; width:15%" /></colgroup>
+<thead><tr><th>Drive Letter</th><th>File System Label</th><th>File System</th><th>Size</th><th>Free Space</th><th>Health Status</th></tr></thead><tbody>
+<tr><td>C</td><td>&nbsp;</td><td>NTFS</td><td>39 GB</td><td>27 GB</td><td>0</td></tr>
+<tr><td>E</td><td>Backup Drive</td><td>ReFS</td><td>100 GB</td><td>6 GB</td><td>0</td></tr>
+<tr><td>F</td><td>Backup Drive</td><td>ReFS</td><td>100 GB</td><td>91 GB</td><td>0</td></tr>
+</tbody></table>
+<div class="Caption">Table 36 - Volumes - VEEAM-VBR-02V</div><br /></div>
+<a name="7a3d6f4a-aab3-4693-be3f-9f444136beb3"><h1 class="NOTOCHeading3">Network Adapters</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:30%; min-width:30%; width:30%" /><col style="max-width:35%; min-width:35%; width:35%" /><col style="max-width:20%; min-width:20%; width:20%" /><col style="max-width:15%; min-width:15%; width:15%" /></colgroup>
+<thead><tr><th>Adapter Name</th><th>Adapter Description</th><th>Mac Address</th><th>Link Speed</th></tr></thead><tbody>
+<tr><td>Ethernet0 2</td><td>vmxnet3 Ethernet Adapter</td><td>00-50-56-B0-18-9E</td><td>10 Gbps</td></tr>
+</tbody></table>
+<div class="Caption">Table 37 - Network Adapters - VEEAM-VBR-02V</div><br /></div>
+<a name="8c1d5df4-0703-407d-a7c8-955628b89176"><h1 class="NOTOCHeading3">IP Address</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:25%; min-width:25%; width:25%" /><col style="max-width:25%; min-width:25%; width:25%" /><col style="max-width:20%; min-width:20%; width:20%" /><col style="max-width:10%; min-width:10%; width:10%" /><col style="max-width:20%; min-width:20%; width:20%" /></colgroup>
+<thead><tr><th>Interface Name</th><th>Interface Description</th><th>IPv4 Addresses</th><th>Subnet Mask</th><th>IPv4 Gateway</th></tr></thead><tbody>
+<tr><td>Ethernet0 2</td><td>vmxnet3 Ethernet Adapter</td><td>192.168.7.189</td><td>24</td><td>192.168.7.254</td></tr>
+</tbody></table>
+<div class="Caption">Table 38 - IP Address - VEEAM-VBR-02V</div><br /></div>
+<a name="de977b60-5c84-40f9-9dc4-486697a4be77"><h1 class="NOTOCHeading4">HealthCheck - VEEAM-VBR-02V Services Status</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:45%; min-width:45%; width:45%" /><col style="max-width:35%; min-width:35%; width:35%" /><col style="max-width:20%; min-width:20%; width:20%" /></colgroup>
+<thead><tr><th>Display Name</th><th>Short Name</th><th>Status</th></tr></thead><tbody>
+<tr><td>Veeam Backup VSS Integration Service</td><td>VeeamFilesysVssSvc</td><td>Running</td></tr>
+<tr><td>Veeam Data Mover Service</td><td>VeeamTransportSvc</td><td>Running</td></tr>
+<tr><td>Veeam Explorers Recovery Service</td><td>VeeamExplorersRecoverySvc</td><td>Running</td></tr>
+<tr><td>Veeam Installer Service</td><td>VeeamDeploySvc</td><td>Running</td></tr>
+<tr><td>Veeam Mount Service</td><td>VeeamMountSvc</td><td>Running</td></tr>
+<tr><td>Veeam Tape Access Service</td><td>VeeamTapeSvc</td><td>Running</td></tr>
+<tr><td>Veeam vPower NFS Service</td><td>VeeamNFSSvc</td><td>Running</td></tr>
+<tr><td>Veeam VSS Hardware Provider Service</td><td>VeeamVssProviderSvc</td><td>Running</td></tr>
+<tr><td>Veeam WAN Accelerator Service</td><td>VeeamWANSvc</td><td>Running</td></tr>
+</tbody></table>
+<div class="Caption">Table 39 - HealthCheck - Services Status - VEEAM-VBR-02V</div><br /></div>
+<a name="7ff4ce28-66b4-450a-88b8-4cc0f8407837"><h4 class="Heading4">1.2.9.2 Hyper-V Backup Proxies</h4></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Name</th><td>VEEAM-HVPRX-01V.pharmax.local</td></tr>
+<tr><th>Host Name</th><td>VEEAM-HVPRX-01V.pharmax.local</td></tr>
+<tr><th>Type</th><td>HvOffhost</td></tr>
+<tr><th>Disabled</th><td>No</td></tr>
+<tr><th>Max Tasks Count</th><td>2</td></tr>
+<tr><th>AutoDetect Volumes</th><td>Yes</td></tr>
+<tr><th>OS Type</th><td>Windows</td></tr>
+<tr><th>Services Credential</th><td>administrator@pharmax.local</td></tr>
+<tr><th>Status</th><td style="font-family: 'Arial'; font-size: 0.83rem; text-align: left; font-weight: normal; color: #000000; background-color: #f4a71c;">Unavailable</td></tr>
+</tbody></table>
+<div class="Caption">Table 40 - Backup Proxy - VEEAM-HVPRX-01V</div><br /></div>
+<a name="a1c24d84-2c1d-4d46-9775-6ad38c01ecd0"><h5 class="Heading4">1.2.9.2.1 Hardware &amp; Software Inventory</h5></a><a name="67dda5a8-ab37-4362-a300-27f32f69562d"><h6 class="Heading5">1.2.9.2.1.1 VEEAM-HVPRX-01V</h6></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Name</th><td>VEEAM-HVPRX-01V</td></tr>
+<tr><th>Windows Product Name</th><td>Windows Server 2022 Datacenter Evaluation</td></tr>
+<tr><th>Windows Current Version</th><td>6.3</td></tr>
+<tr><th>Windows Build Number</th><td>10.0.20348</td></tr>
+<tr><th>Windows Install Type</th><td>Server</td></tr>
+<tr><th>Active Directory Domain</th><td>pharmax.local</td></tr>
+<tr><th>Windows Installation Date</th><td>07/18/2022 16:23:09</td></tr>
+<tr><th>Time Zone</th><td>(UTC-04:00) Georgetown, La Paz, Manaus, San Juan</td></tr>
+<tr><th>License Type</th><td>Retail:TB:Eval</td></tr>
+<tr><th>Partial Product Key</th><td>37CYR</td></tr>
+<tr><th>Manufacturer</th><td>VMware, Inc.</td></tr>
+<tr><th>Model</th><td>VMware7,1</td></tr>
+<tr><th>Serial Number</th><td>VMware-42 30 5a 5e c8 7a a3 b7-c2 b6 2e a0 bd 1f 22 fe</td></tr>
+<tr><th>Bios Type</th><td>Uefi</td></tr>
+<tr><th>BIOS Version</th><td>INTEL  - 6040000</td></tr>
+<tr><th>Processor Manufacturer</th><td>GenuineIntel</td></tr>
+<tr><th>Processor Model</th><td>Intel(R) Core(TM) i7-6700 CPU @ 3.40GHz</td></tr>
+<tr><th>Number of CPU Cores</th><td style="font-family: 'Arial'; font-size: 0.83rem; text-align: left; font-weight: normal; color: #000000; background-color: #f4a71c;">2</td></tr>
+<tr><th>Number of Logical Cores</th><td>2</td></tr>
+<tr><th>Physical Memory (GB)</th><td style="font-family: 'Arial'; font-size: 0.83rem; text-align: left; font-weight: normal; color: #000000; background-color: #f4a71c;">4 GB</td></tr>
+</tbody></table>
+<div class="Caption">Table 41 - Backup Proxy Inventory - VEEAM-HVPRX-01V</div><br /></div>
+<a name="fddddd22-0815-4f63-ae54-5a45285cc1f8"><h1 class="NOTOCHeading6">Local Disks</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:20%; min-width:20%; width:20%" /><col style="max-width:20%; min-width:20%; width:20%" /><col style="max-width:20%; min-width:20%; width:20%" /><col style="max-width:20%; min-width:20%; width:20%" /><col style="max-width:20%; min-width:20%; width:20%" /></colgroup>
+<thead><tr><th>Disk Number</th><th>Model</th><th>Serial Number</th><th>Partition Style</th><th>Disk Size</th></tr></thead><tbody>
+<tr><td>0</td><td>Virtual disk    </td><td>6000c298c782b6e31d88e2825e5b4f1d</td><td>2</td><td>100 GB</td></tr>
+</tbody></table>
+<div class="Caption">Table 42 - Local Disks - VEEAM-HVPRX-01V</div><br /></div>
+<a name="4d74a6d0-a574-4ba9-8e5a-babdfac6e160"><h1 class="NOTOCHeading6">Host Volumes</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:15%; min-width:15%; width:15%" /><col style="max-width:15%; min-width:15%; width:15%" /><col style="max-width:15%; min-width:15%; width:15%" /><col style="max-width:20%; min-width:20%; width:20%" /><col style="max-width:20%; min-width:20%; width:20%" /><col style="max-width:15%; min-width:15%; width:15%" /></colgroup>
+<thead><tr><th>Drive Letter</th><th>File System Label</th><th>File System</th><th>Size</th><th>Free Space</th><th>Health Status</th></tr></thead><tbody>
+<tr><td>C</td><td>&nbsp;</td><td>NTFS</td><td>99 GB</td><td>84 GB</td><td>0</td></tr>
+</tbody></table>
+<div class="Caption">Table 43 - Volumes - VEEAM-HVPRX-01V</div><br /></div>
+<a name="7f8e93cf-d7eb-4af4-b191-1e0523104259"><h1 class="NOTOCHeading6">Network Adapters</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:30%; min-width:30%; width:30%" /><col style="max-width:35%; min-width:35%; width:35%" /><col style="max-width:20%; min-width:20%; width:20%" /><col style="max-width:15%; min-width:15%; width:15%" /></colgroup>
+<thead><tr><th>Adapter Name</th><th>Adapter Description</th><th>Mac Address</th><th>Link Speed</th></tr></thead><tbody>
+<tr><td>Ethernet0</td><td>vmxnet3 Ethernet Adapter</td><td>00-50-56-B0-34-96</td><td>10 Gbps</td></tr>
+<tr><td>vEthernet (vmxnet3 Ethernet Adapter - Virtual Switch)</td><td>Hyper-V Virtual Ethernet Adapter</td><td>00-50-56-B0-34-96</td><td>10 Gbps</td></tr>
+</tbody></table>
+<div class="Caption">Table 44 - Network Adapters - VEEAM-HVPRX-01V</div><br /></div>
+<a name="408ad34e-d637-40ec-bb3c-235394f4d5c6"><h1 class="NOTOCHeading6">IP Address</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:25%; min-width:25%; width:25%" /><col style="max-width:25%; min-width:25%; width:25%" /><col style="max-width:20%; min-width:20%; width:20%" /><col style="max-width:10%; min-width:10%; width:10%" /><col style="max-width:20%; min-width:20%; width:20%" /></colgroup>
+<thead><tr><th>Interface Name</th><th>Interface Description</th><th>IPv4 Addresses</th><th>Subnet Mask</th><th>IPv4 Gateway</th></tr></thead><tbody>
+<tr><td>vEthernet (vmxnet3 Ethernet Adapter - Virtual Switch)</td><td>Hyper-V Virtual Ethernet Adapter</td><td>192.168.7.215</td><td>24</td><td>192.168.7.254</td></tr>
+</tbody></table>
+<div class="Caption">Table 45 - IP Address - VEEAM-HVPRX-01V</div><br /></div>
+<a name="81a2fac1-e83c-4bd0-afd4-ffd2dac18b0d"><h1 class="NOTOCHeading4">HealthCheck - VEEAM-HVPRX-01V Services Status</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:45%; min-width:45%; width:45%" /><col style="max-width:35%; min-width:35%; width:35%" /><col style="max-width:20%; min-width:20%; width:20%" /></colgroup>
+<thead><tr><th>Display Name</th><th>Short Name</th><th>Status</th></tr></thead><tbody>
+<tr><td>Veeam Data Mover Service</td><td>VeeamTransportSvc</td><td style="font-family: 'Arial'; font-size: 0.83rem; text-align: left; font-weight: normal; color: #000000; background-color: #f4a71c;">Stopped</td></tr>
+<tr><td>Veeam Hyper-V Integration Service</td><td>VeeamHvIntegrationSvc</td><td>Running</td></tr>
+<tr><td>Veeam Installer Service</td><td>VeeamDeploySvc</td><td>Running</td></tr>
+</tbody></table>
+<div class="Caption">Table 46 - HealthCheck - Services Status - VEEAM-HVPRX-01V</div><br /></div>
+<a name="250b3ce4-6cf4-4c7d-a844-14d4eecc31ed"><h3 class="Heading3">1.2.10 WAN Accelerators</h3></a><div>The following section provides information about WAN Accelerator. WAN accelerators are responsible for global data caching and data deduplication.</div><br /><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Name</th><td>VEEAM-EDGE-PRX.pharmax.local</td></tr>
+<tr><th>Host Name</th><td>VEEAM-EDGE-PRX.pharmax.local</td></tr>
+<tr><th>Is Public</th><td>Yes</td></tr>
+<tr><th>Management Port</th><td>6164\TCP</td></tr>
+<tr><th>Service IP Address</th><td>&nbsp;</td></tr>
+<tr><th>Traffic Port</th><td>6165\TCP</td></tr>
+<tr><th>Max Tasks Count</th><td>1</td></tr>
+<tr><th>Download Stream Count</th><td>5</td></tr>
+<tr><th>Enable Performance Mode</th><td>No</td></tr>
+<tr><th>Configured Cache</th><td>Unknown</td></tr>
+<tr><th>Cache Path</th><td>C:\VeeamWAN</td></tr>
+<tr><th>Max Cache Size</th><td>10 GB</td></tr>
+</tbody></table>
+<div class="Caption">Table 47 - Wan Accelerator - VEEAM-EDGE-PRX.pharmax.local</div><br /></div>
+<div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Name</th><td>VEEAM-VBR</td></tr>
+<tr><th>Host Name</th><td>VEEAM-VBR.pharmax.local</td></tr>
+<tr><th>Is Public</th><td>Yes</td></tr>
+<tr><th>Management Port</th><td>6164\TCP</td></tr>
+<tr><th>Service IP Address</th><td>192.168.7.73, 192.168.12.13, 192.168.6.13</td></tr>
+<tr><th>Traffic Port</th><td>6165\TCP</td></tr>
+<tr><th>Max Tasks Count</th><td>1</td></tr>
+<tr><th>Download Stream Count</th><td>5</td></tr>
+<tr><th>Enable Performance Mode</th><td>Yes</td></tr>
+<tr><th>Configured Cache</th><td>No</td></tr>
+<tr><th>Cache Path</th><td>E:\VeeamWAN</td></tr>
+<tr><th>Max Cache Size</th><td>10 GB</td></tr>
+</tbody></table>
+<div class="Caption">Table 48 - Wan Accelerator - VEEAM-VBR.pharmax.local</div><br /></div>
+<div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Name</th><td>VEEAM-VBR-02V.pharmax.local</td></tr>
+<tr><th>Host Name</th><td>VEEAM-VBR-02V.pharmax.local</td></tr>
+<tr><th>Is Public</th><td>Yes</td></tr>
+<tr><th>Management Port</th><td>6164\TCP</td></tr>
+<tr><th>Service IP Address</th><td>192.168.7.189</td></tr>
+<tr><th>Traffic Port</th><td>6165\TCP</td></tr>
+<tr><th>Max Tasks Count</th><td>1</td></tr>
+<tr><th>Download Stream Count</th><td>5</td></tr>
+<tr><th>Enable Performance Mode</th><td>No</td></tr>
+<tr><th>Configured Cache</th><td>Yes</td></tr>
+<tr><th>Cache Path</th><td>E:\VeeamWAN</td></tr>
+<tr><th>Max Cache Size</th><td>100 GB</td></tr>
+</tbody></table>
+<div class="Caption">Table 49 - Wan Accelerator - VEEAM-VBR-02V.pharmax.local</div><br /></div>
+<a name="30e00078-a3f1-432f-b3f7-7262b2d6511a"><h3 class="Heading3">1.2.11 Backup Repository</h3></a><div>The following section provides Backup Repository summary information.</div><br /><div align="Center">
+<img src="data:image/png;base64, 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" alt="Backup Repository - Diagram" height="400" width="600" />
+</div>
+<br /><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:30%; min-width:30%; width:30%" /><col style="max-width:18%; min-width:18%; width:18%" /><col style="max-width:18%; min-width:18%; width:18%" /><col style="max-width:19%; min-width:19%; width:19%" /><col style="max-width:15%; min-width:15%; width:15%" /></colgroup>
+<thead><tr><th>Name</th><th>Total Space</th><th>Free Space</th><th>Used Space %</th><th>Status</th></tr></thead><tbody>
+<tr><td>cloud-jcolonfzenpr-01</td><td>1000 Gb</td><td>923 Gb</td><td>8</td><td>Available</td></tr>
+<tr><td>HQ - Backups</td><td>199 Gb</td><td>198 Gb</td><td>1</td><td style="font-family: 'Arial'; font-size: 0.83rem; text-align: left; font-weight: normal; color: #000000; background-color: #f4a71c;">Unavailable</td></tr>
+<tr><td>Linux - Hardened Repository</td><td>199 Gb</td><td>187 Gb</td><td>6</td><td style="font-family: 'Arial'; font-size: 0.83rem; text-align: left; font-weight: normal; color: #000000; background-color: #f4a71c;">Unavailable</td></tr>
+<tr><td>VEEAM-DD</td><td>351 Gb</td><td>291 Gb</td><td>17</td><td style="font-family: 'Arial'; font-size: 0.83rem; text-align: left; font-weight: normal; color: #000000; background-color: #f4a71c;">Unavailable</td></tr>
+<tr><td>VEEAM-HPE-StoreOnce-VSA</td><td>0 Gb</td><td>0 Gb</td><td>0</td><td style="font-family: 'Arial'; font-size: 0.83rem; text-align: left; font-weight: normal; color: #000000; background-color: #f4a71c;">Unavailable</td></tr>
+<tr><td>VEEAM-VBR - E:\</td><td>499 Gb</td><td>344 Gb</td><td>31</td><td>Available</td></tr>
+<tr><td>VEEAM-VBR - F:\</td><td>99 Gb</td><td>95 Gb</td><td>4</td><td>Available</td></tr>
+<tr><td>VEEAM-VBR-02V - E:\</td><td>99 Gb</td><td>5 Gb</td><td>95</td><td>Available</td></tr>
+<tr><td>VEEAM-VBR-02V - F:\</td><td>99 Gb</td><td>90 Gb</td><td>9</td><td>Available</td></tr>
+</tbody></table>
+<div class="Caption">Table 50 - Backup Repository - VEEAM-VBR</div><br /></div>
+<a name="cb5736b2-02a2-4ac4-9e65-69dbad0e5c09"><h4 class="Heading4">1.2.11.1 Backup Repository Configuration</h4></a><div>The following section provides a detailed information of the Veeam Backup Repository Configuration.</div><br /><a name="c9fb79a6-0b59-4de3-90d4-77242f063e99"><h1 class="NOTOCHeading5">cloud-jcolonfzenpr-01</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Backup Proxy</th><td>uk-rep04.peasoup.net</td></tr>
+<tr><th>Integration Type</th><td>Cloud</td></tr>
+<tr><th>Path</th><td>&nbsp;</td></tr>
+<tr><th>Connection Type</th><td>Cloud</td></tr>
+<tr><th>Max Task Count</th><td>-1</td></tr>
+<tr><th>Use Nfs On Mount Host</th><td>No</td></tr>
+<tr><th>San Snapshot Only</th><td>No</td></tr>
+<tr><th>Dedup Storage</th><td>No</td></tr>
+<tr><th>Split Storages Per Vm</th><td>No</td></tr>
+<tr><th>Immutability Supported</th><td>Yes</td></tr>
+<tr><th>Immutability Enabled</th><td style="font-family: 'Arial'; font-size: 0.83rem; text-align: left; font-weight: normal; color: #000000; background-color: #f4a71c;">No</td></tr>
+<tr><th>Immutability Interval</th><td>7</td></tr>
+<tr><th>Version Of Creation</th><td>11.0.1.1261</td></tr>
+<tr><th>Has Backup Chain Length Limitation</th><td>No</td></tr>
+</tbody></table>
+<div class="Caption">Table 51 - Backup Repository - cloud-jcolonfzenpr-01</div><br /></div>
+<a name="ae626cb3-c72d-4fae-87b4-ff3606255723"><h1 class="NOTOCHeading5">HQ - Backups</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Backup Proxy</th><td>VEEAM-REPO-01V.pharmax.local</td></tr>
+<tr><th>Integration Type</th><td>Windows</td></tr>
+<tr><th>Path</th><td>E:\Backups</td></tr>
+<tr><th>Connection Type</th><td>WinLocal</td></tr>
+<tr><th>Max Task Count</th><td>4</td></tr>
+<tr><th>Use Nfs On Mount Host</th><td>Yes</td></tr>
+<tr><th>San Snapshot Only</th><td>No</td></tr>
+<tr><th>Dedup Storage</th><td>No</td></tr>
+<tr><th>Split Storages Per Vm</th><td>Yes</td></tr>
+<tr><th>Immutability Supported</th><td>No</td></tr>
+<tr><th>Immutability Enabled</th><td>No</td></tr>
+<tr><th>Immutability Interval</th><td>7</td></tr>
+<tr><th>Version Of Creation</th><td>11.0.1.1261</td></tr>
+<tr><th>Has Backup Chain Length Limitation</th><td>No</td></tr>
+</tbody></table>
+<div class="Caption">Table 52 - Backup Repository - HQ - Backups</div><br /></div>
+<a name="c83023d5-c734-4670-93a5-77af24d74626"><h1 class="NOTOCHeading5">Linux - Hardened Repository</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Backup Proxy</th><td>veeam-lnx-px.pharmax.local</td></tr>
+<tr><th>Integration Type</th><td>Linux</td></tr>
+<tr><th>Path</th><td>/backup_data/backups</td></tr>
+<tr><th>Connection Type</th><td>LinuxLocal</td></tr>
+<tr><th>Max Task Count</th><td>4</td></tr>
+<tr><th>Use Nfs On Mount Host</th><td>Yes</td></tr>
+<tr><th>San Snapshot Only</th><td>No</td></tr>
+<tr><th>Dedup Storage</th><td>No</td></tr>
+<tr><th>Split Storages Per Vm</th><td>No</td></tr>
+<tr><th>Immutability Supported</th><td>Yes</td></tr>
+<tr><th>Immutability Enabled</th><td style="font-family: 'Arial'; font-size: 0.83rem; text-align: left; font-weight: normal; color: #000000; background-color: #f4a71c;">No</td></tr>
+<tr><th>Immutability Interval</th><td>7</td></tr>
+<tr><th>Version Of Creation</th><td>11.0.1.1261</td></tr>
+<tr><th>Has Backup Chain Length Limitation</th><td>No</td></tr>
+</tbody></table>
+<div class="Caption">Table 53 - Backup Repository - Linux - Hardened Repository</div><br /></div>
+<a name="cd2b1042-b261-43aa-afb9-24a464e61cf8"><h1 class="NOTOCHeading5">VEEAM-DD</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Backup Proxy</th><td>VEEAM-VBR.pharmax.local</td></tr>
+<tr><th>Integration Type</th><td>Dell EMC Data Domain</td></tr>
+<tr><th>Path</th><td>ddboost://VEEAM-DD.pharmax.local:VEEAM_BACKUP@/</td></tr>
+<tr><th>Connection Type</th><td>DDBoost</td></tr>
+<tr><th>Max Task Count</th><td>15</td></tr>
+<tr><th>Use Nfs On Mount Host</th><td>Yes</td></tr>
+<tr><th>San Snapshot Only</th><td>No</td></tr>
+<tr><th>Dedup Storage</th><td>Yes</td></tr>
+<tr><th>Split Storages Per Vm</th><td>Yes</td></tr>
+<tr><th>Immutability Supported</th><td>No</td></tr>
+<tr><th>Immutability Enabled</th><td>No</td></tr>
+<tr><th>Immutability Interval</th><td>7</td></tr>
+<tr><th>Version Of Creation</th><td>9.5.4.2866</td></tr>
+<tr><th>Has Backup Chain Length Limitation</th><td>Yes</td></tr>
+</tbody></table>
+<div class="Caption">Table 54 - Backup Repository - VEEAM-DD</div><br /></div>
+<a name="9f4d0924-ecb6-4d03-8325-361437368e54"><h1 class="NOTOCHeading5">VEEAM-HPE-StoreOnce-VSA</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Backup Proxy</th><td>VEEAM-VBR.pharmax.local</td></tr>
+<tr><th>Integration Type</th><td>HPE StoreOnce</td></tr>
+<tr><th>Path</th><td>storeonce://veeam-hsv.pharmax.local:VEEAM-VLT-HPE@/</td></tr>
+<tr><th>Connection Type</th><td>HPStoreOnceIntegration</td></tr>
+<tr><th>Max Task Count</th><td>4</td></tr>
+<tr><th>Use Nfs On Mount Host</th><td>Yes</td></tr>
+<tr><th>San Snapshot Only</th><td>No</td></tr>
+<tr><th>Dedup Storage</th><td>Yes</td></tr>
+<tr><th>Split Storages Per Vm</th><td>Yes</td></tr>
+<tr><th>Immutability Supported</th><td>No</td></tr>
+<tr><th>Immutability Enabled</th><td>No</td></tr>
+<tr><th>Immutability Interval</th><td>7</td></tr>
+<tr><th>Version Of Creation</th><td>11.0.0.837</td></tr>
+<tr><th>Has Backup Chain Length Limitation</th><td>Yes</td></tr>
+</tbody></table>
+<div class="Caption">Table 55 - Backup Repository - VEEAM-HPE-StoreOnce-VSA</div><br /></div>
+<a name="41ea0a6b-9dd8-4fda-ad4f-daffb26d33b2"><h1 class="NOTOCHeading5">VEEAM-VBR - E:\</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Extent of ScaleOut Backup Repository</th><td>SOBR - Minio</td></tr>
+<tr><th>Backup Proxy</th><td>VEEAM-VBR.pharmax.local</td></tr>
+<tr><th>Integration Type</th><td>Windows</td></tr>
+<tr><th>Path</th><td>E:\Backups</td></tr>
+<tr><th>Connection Type</th><td>WinLocal</td></tr>
+<tr><th>Max Task Count</th><td>4</td></tr>
+<tr><th>Use Nfs On Mount Host</th><td>Yes</td></tr>
+<tr><th>San Snapshot Only</th><td>No</td></tr>
+<tr><th>Dedup Storage</th><td>No</td></tr>
+<tr><th>Split Storages Per Vm</th><td>No</td></tr>
+<tr><th>Immutability Supported</th><td>No</td></tr>
+<tr><th>Immutability Enabled</th><td>No</td></tr>
+<tr><th>Immutability Interval</th><td>7</td></tr>
+<tr><th>Version Of Creation</th><td>10.0.0.4461</td></tr>
+<tr><th>Has Backup Chain Length Limitation</th><td>No</td></tr>
+</tbody></table>
+<div class="Caption">Table 56 - Backup Repository - VEEAM-VBR - E:\</div><br /></div>
+<a name="25726a7a-c844-4442-a5a9-6ad5e3f575f8"><h1 class="NOTOCHeading5">VEEAM-VBR - F:\</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Extent of ScaleOut Backup Repository</th><td>SOBR - AWS S3</td></tr>
+<tr><th>Backup Proxy</th><td>VEEAM-VBR.pharmax.local</td></tr>
+<tr><th>Integration Type</th><td>Windows</td></tr>
+<tr><th>Path</th><td>F:\Backup</td></tr>
+<tr><th>Connection Type</th><td>WinLocal</td></tr>
+<tr><th>Max Task Count</th><td>4</td></tr>
+<tr><th>Use Nfs On Mount Host</th><td>Yes</td></tr>
+<tr><th>San Snapshot Only</th><td>No</td></tr>
+<tr><th>Dedup Storage</th><td>No</td></tr>
+<tr><th>Split Storages Per Vm</th><td>No</td></tr>
+<tr><th>Immutability Supported</th><td>No</td></tr>
+<tr><th>Immutability Enabled</th><td>No</td></tr>
+<tr><th>Immutability Interval</th><td>7</td></tr>
+<tr><th>Version Of Creation</th><td>9.0.0.0</td></tr>
+<tr><th>Has Backup Chain Length Limitation</th><td>No</td></tr>
+</tbody></table>
+<div class="Caption">Table 57 - Backup Repository - VEEAM-VBR - F:\</div><br /></div>
+<a name="84630b62-708c-4f58-995f-b4d4fde063ff"><h1 class="NOTOCHeading5">VEEAM-VBR-02V - E:\</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Extent of ScaleOut Backup Repository</th><td>SOBR - AWS S3</td></tr>
+<tr><th>Backup Proxy</th><td>VEEAM-VBR-02V.pharmax.local</td></tr>
+<tr><th>Integration Type</th><td>Windows</td></tr>
+<tr><th>Path</th><td>E:\Backups</td></tr>
+<tr><th>Connection Type</th><td>WinLocal</td></tr>
+<tr><th>Max Task Count</th><td>4</td></tr>
+<tr><th>Use Nfs On Mount Host</th><td>Yes</td></tr>
+<tr><th>San Snapshot Only</th><td>No</td></tr>
+<tr><th>Dedup Storage</th><td>No</td></tr>
+<tr><th>Split Storages Per Vm</th><td>No</td></tr>
+<tr><th>Immutability Supported</th><td>No</td></tr>
+<tr><th>Immutability Enabled</th><td>No</td></tr>
+<tr><th>Immutability Interval</th><td>7</td></tr>
+<tr><th>Version Of Creation</th><td>11.0.1.1261</td></tr>
+<tr><th>Has Backup Chain Length Limitation</th><td>No</td></tr>
+</tbody></table>
+<div class="Caption">Table 58 - Backup Repository - VEEAM-VBR-02V - E:\</div><br /></div>
+<a name="33672419-87ad-4705-b095-7298de241842"><h1 class="NOTOCHeading5">VEEAM-VBR-02V - F:\</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Extent of ScaleOut Backup Repository</th><td>SOBR - Azure Blob</td></tr>
+<tr><th>Backup Proxy</th><td>VEEAM-VBR-02V.pharmax.local</td></tr>
+<tr><th>Integration Type</th><td>Windows</td></tr>
+<tr><th>Path</th><td>F:\Backups</td></tr>
+<tr><th>Connection Type</th><td>WinLocal</td></tr>
+<tr><th>Max Task Count</th><td>4</td></tr>
+<tr><th>Use Nfs On Mount Host</th><td>Yes</td></tr>
+<tr><th>San Snapshot Only</th><td>No</td></tr>
+<tr><th>Dedup Storage</th><td>No</td></tr>
+<tr><th>Split Storages Per Vm</th><td>No</td></tr>
+<tr><th>Immutability Supported</th><td>No</td></tr>
+<tr><th>Immutability Enabled</th><td>No</td></tr>
+<tr><th>Immutability Interval</th><td>7</td></tr>
+<tr><th>Version Of Creation</th><td>11.0.1.1261</td></tr>
+<tr><th>Has Backup Chain Length Limitation</th><td>No</td></tr>
+</tbody></table>
+<div class="Caption">Table 59 - Backup Repository - VEEAM-VBR-02V - F:\</div><br /></div>
+<a name="cc67b165-eda4-4cfa-b360-78cf50676d14"><h3 class="Heading3">1.2.12 Object Storage Repository</h3></a><div>The following section provides a summary about the Veeam Object Storage Repository.</div><br /><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:30%; min-width:30%; width:30%" /><col style="max-width:25%; min-width:25%; width:25%" /><col style="max-width:15%; min-width:15%; width:15%" /><col style="max-width:30%; min-width:30%; width:30%" /></colgroup>
+<thead><tr><th>Name</th><th>Type</th><th>Use Gateway Server</th><th>Gateway Server</th></tr></thead><tbody>
+<tr><td>AWS - S3 - Backup</td><td>AmazonS3</td><td>Yes</td><td>VEEAM-VBR</td></tr>
+<tr><td>Object storage repository  - Minio</td><td>AmazonS3Compatible</td><td>No</td><td>-</td></tr>
+<tr><td>OS - Azure Blob</td><td>AzureBlob</td><td>Yes</td><td>VEEAM-VBR</td></tr>
+</tbody></table>
+<div class="Caption">Table 60 - Object Storage Repository - VEEAM-VBR</div><br /></div>
+<a name="66c7cbab-2387-4bbf-84d9-253d25507afa"><h4 class="Heading4">1.2.12.1 Object Storage Repository Configuration</h4></a><div>The following section provides detailed information about Object Storage Backup Repository</div><br /><a name="1b6a092d-2db5-4d9c-9bff-2e42dae40aba"><h1 class="NOTOCHeading4">AWS - S3 - Backup</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Name</th><td>AWS - S3 - Backup</td></tr>
+<tr><th>Type</th><td>AmazonS3</td></tr>
+<tr><th>Amazon S3 Folder</th><td>backuptest</td></tr>
+<tr><th>Use Gateway Server</th><td>Yes</td></tr>
+<tr><th>Gateway Server</th><td>VEEAM-VBR.pharmax.local</td></tr>
+<tr><th>Immutability Period</th><td>30</td></tr>
+<tr><th>Size Limit Enabled</th><td>No</td></tr>
+<tr><th>Size Limit</th><td>10240</td></tr>
+<tr><th>Use IA Storage Class</th><td>No</td></tr>
+<tr><th>Use OZ IA Storage Class</th><td>No</td></tr>
+</tbody></table>
+<div class="Caption">Table 61 - Object Storage Repository - AWS - S3 - Backup</div><br /></div>
+<a name="c832b7c4-7575-4e20-9b27-5d41f3e42a15"><h1 class="NOTOCHeading4">Object storage repository  - Minio</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Name</th><td>Object storage repository  - Minio</td></tr>
+<tr><th>Service Point</th><td>https://veeam-minio.pharmax.local:9000/</td></tr>
+<tr><th>Type</th><td>AmazonS3Compatible</td></tr>
+<tr><th>Amazon S3 Folder</th><td>SOBR</td></tr>
+<tr><th>Use Gateway Server</th><td>No</td></tr>
+<tr><th>Gateway Server</th><td>Auto</td></tr>
+<tr><th>Immutability Period</th><td>30</td></tr>
+<tr><th>Size Limit Enabled</th><td>No</td></tr>
+<tr><th>Size Limit</th><td>10240</td></tr>
+</tbody></table>
+<div class="Caption">Table 62 - Object Storage Repository - Object storage repository  - Minio</div><br /></div>
+<a name="f3c30932-ccd7-4da5-8813-1213adaca98e"><h1 class="NOTOCHeading4">OS - Azure Blob</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Name</th><td>OS - Azure Blob</td></tr>
+<tr><th>Type</th><td>AzureBlob</td></tr>
+<tr><th>Use Gateway Server</th><td>Yes</td></tr>
+<tr><th>Gateway Server</th><td>VEEAM-VBR.pharmax.local</td></tr>
+<tr><th>Size Limit Enabled</th><td>No</td></tr>
+<tr><th>Size Limit</th><td>10240</td></tr>
+<tr><th>Azure Blob Name</th><td>Veeam</td></tr>
+<tr><th>Azure Blob Container</th><td>veeam-backup</td></tr>
+</tbody></table>
+<div class="Caption">Table 63 - Object Storage Repository - OS - Azure Blob</div><br /></div>
+<a name="cb108240-79c6-47ac-bfcd-e2686e3b8599"><h3 class="Heading3">1.2.13 Archive Object Storage Repository</h3></a><div>The following section provides detailed information about Archive Object Storage Backup Repository</div><br /><a name="347d437a-3560-4c84-bdd0-f92c3c94b30f"><h1 class="NOTOCHeading4">AWS - S3 Glacier</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Gateway Server</th><td>veeam-lnx-px</td></tr>
+<tr><th>Gateway Server Enabled</th><td>Yes</td></tr>
+<tr><th>Archive Type</th><td>AmazonS3Glacier</td></tr>
+<tr><th>AWS Deep Archive</th><td>Yes</td></tr>
+<tr><th>AWS Backup Immutability</th><td>No</td></tr>
+<tr><th>AWS Proxy Instance Type</th><td>m5a.large</td></tr>
+<tr><th>AWS Proxy Instance vCPU</th><td>2</td></tr>
+<tr><th>AWS Proxy Instance Memory</th><td>8</td></tr>
+<tr><th>AWS Proxy Subnet</th><td>172.31.32.0/20</td></tr>
+<tr><th>AWS Proxy Security Group</th><td>veeam-auto-cfdff081-b091-4108-a943-a03340a08644</td></tr>
+<tr><th>AWS Proxy Availability Zone</th><td>us-east-1b</td></tr>
+</tbody></table>
+<div class="Caption">Table 64 - Archive Object Storage Repository - AWS - S3 Glacier</div><br /></div>
+<a name="9c54679c-ed24-4464-bd28-1c9cac1e70c2"><h1 class="NOTOCHeading4">Azure - Blob Archives</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Gateway Server</th><td>veeam-lnx-px</td></tr>
+<tr><th>Gateway Server Enabled</th><td>Yes</td></tr>
+<tr><th>Archive Type</th><td>AzureArchive</td></tr>
+<tr><th>Azure Service Type</th><td>ArchiveTier</td></tr>
+<tr><th>Azure Archive Container</th><td>veeamarchive</td></tr>
+<tr><th>Azure Archive Folder</th><td>Archive</td></tr>
+<tr><th>Azure Proxy Resource Group</th><td>VEEAM_Backup</td></tr>
+<tr><th>Azure Proxy Network</th><td>veeam-auto-91b1c68a-6504-4d87-accf-00778d53a3aa</td></tr>
+<tr><th>Azure Proxy VM Size</th><td>Standard_D2</td></tr>
+<tr><th>Azure Proxy VM vCPU</th><td>2</td></tr>
+<tr><th>Azure Proxy VM Memory</th><td>7</td></tr>
+<tr><th>Azure Proxy VM Max Disks</th><td>8</td></tr>
+<tr><th>Azure Proxy VM Location</th><td>eastus</td></tr>
+</tbody></table>
+<div class="Caption">Table 65 - Archive Object Storage Repository - Azure - Blob Archives</div><br /></div>
+<a name="197ac4d0-1ba7-4197-b263-fbe0f267c556"><h3 class="Heading3">1.2.14 ScaleOut Backup Repository</h3></a><div>The following section provides a summary about ScaleOut Backup Repository</div><br /><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:25%; min-width:25%; width:25%" /><col style="max-width:25%; min-width:25%; width:25%" /><col style="max-width:25%; min-width:25%; width:25%" /><col style="max-width:25%; min-width:25%; width:25%" /></colgroup>
+<thead><tr><th>Name</th><th>Performance Tier</th><th>Capacity Tier</th><th>Archive Tier</th></tr></thead><tbody>
+<tr><td>SOBR - AWS S3</td><td>VEEAM-VBR - F:\<br />VEEAM-VBR-02V - E:\</td><td>AWS - S3 - Backup</td><td>AWS - S3 Glacier</td></tr>
+<tr><td>SOBR - Azure Blob</td><td>VEEAM-VBR-02V - F:\</td><td>OS - Azure Blob</td><td>Azure - Blob Archives</td></tr>
+<tr><td>SOBR - Minio</td><td>VEEAM-VBR - E:\</td><td>Object storage repository  - Minio</td><td>Not configured</td></tr>
+</tbody></table>
+<div class="Caption">Table 66 - Scale Backup Repository - VEEAM-VBR</div><br /></div>
+<a name="6b272e51-b04d-4317-96a6-54b7438f8fd8"><h4 class="Heading4">1.2.14.1 ScaleOut Backup Repository Configuration</h4></a><div>The following section provides a detailed information about the ScaleOut Backup Repository</div><br /><a name="97cc7836-511a-404f-9f0f-50605ef7749f"><h5 class="Heading5">1.2.14.1.1 SOBR - AWS S3</h5></a><a name="5627e460-fb0b-49f2-b801-3169bbe03b13"><h1 class="NOTOCHeading6">General Settings</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Placement Policy</th><td>Performance</td></tr>
+<tr><th>Use Per VM Backup Files</th><td>Yes</td></tr>
+<tr><th>Perform Full When Extent Offline</th><td>No</td></tr>
+<tr><th>Use Capacity Tier</th><td>Yes</td></tr>
+<tr><th>Encryption Enabled</th><td>No</td></tr>
+<tr><th>Encryption Key</th><td>Disabled</td></tr>
+<tr><th>Move backup file older than</th><td>14</td></tr>
+<tr><th>Override Policy Enabled</th><td>No</td></tr>
+<tr><th>Override Space Threshold</th><td>90</td></tr>
+<tr><th>Use Archive GFS Tier</th><td>Yes</td></tr>
+<tr><th>Archive GFS Backup older than</th><td>90</td></tr>
+<tr><th>Store archived backup as standalone fulls</th><td>No</td></tr>
+<tr><th>Cost Optimized Archive Enabled</th><td>Yes</td></tr>
+<tr><th>Description</th><td>Created by PHARMAX\jocolon at 12/21/2021 8:08 PM.</td></tr>
+</tbody></table>
+<div class="Caption">Table 67 - General Settings - SOBR - AWS S3</div><br /></div>
+<a name="aeb27d98-421c-43ce-a648-9335f4a6ca56"><h1 class="NOTOCHeading6">Performance Tier</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Name</th><td>VEEAM-VBR - F:\</td></tr>
+<tr><th>Repository</th><td>VEEAM-VBR - F:\</td></tr>
+<tr><th>Path</th><td>F:\Backup</td></tr>
+<tr><th>Total Space</th><td>99 99 GB</td></tr>
+<tr><th>Used Space</th><td>95 5 GB</td></tr>
+<tr><th>Status</th><td>Normal</td></tr>
+</tbody></table>
+<div class="Caption">Table 68 - Performance Tier - VEEAM-VBR - F:\</div><br /></div>
+<a name="510ba95e-5a3b-4468-987b-6298ce32c2ae"><h1 class="NOTOCHeading6">Performance Tier</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Name</th><td>VEEAM-VBR-02V - E:\</td></tr>
+<tr><th>Repository</th><td>VEEAM-VBR-02V - E:\</td></tr>
+<tr><th>Path</th><td>E:\Backups</td></tr>
+<tr><th>Total Space</th><td>99 99 GB</td></tr>
+<tr><th>Used Space</th><td>95 5 GB</td></tr>
+<tr><th>Status</th><td>Normal</td></tr>
+</tbody></table>
+<div class="Caption">Table 69 - Performance Tier - VEEAM-VBR-02V - E:\</div><br /></div>
+<a name="9ba622bc-6194-4e4e-aa83-b7651c68e296"><h1 class="NOTOCHeading6">Capacity Tier</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Name</th><td>AWS - S3 - Backup</td></tr>
+<tr><th>Type</th><td>AmazonS3</td></tr>
+<tr><th>Amazon S3 Folder</th><td>backuptest</td></tr>
+<tr><th>Use Gateway Server</th><td>Yes</td></tr>
+<tr><th>Gateway Server</th><td>VEEAM-VBR.pharmax.local</td></tr>
+<tr><th>Immutability Period</th><td>30</td></tr>
+<tr><th>Size Limit Enabled</th><td>No</td></tr>
+<tr><th>Size Limit</th><td>10240</td></tr>
+<tr><th>Use IA Storage Class</th><td>No</td></tr>
+<tr><th>Use OZ IA Storage Class</th><td>No</td></tr>
+</tbody></table>
+<div class="Caption">Table 70 - Capacity Tier - AWS - S3 - Backup</div><br /></div>
+<a name="6c4fd6b5-2b49-42f8-955a-b9562d315457"><h1 class="NOTOCHeading6">Archive Tier</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Name</th><td>AWS - S3 Glacier</td></tr>
+<tr><th>Type</th><td>AmazonS3Glacier</td></tr>
+<tr><th>Use Gateway Server</th><td>Yes</td></tr>
+<tr><th>Gateway Server</th><td>veeam-lnx-px.pharmax.local</td></tr>
+<tr><th>Backup Immutability Enabled</th><td>No</td></tr>
+</tbody></table>
+<div class="Caption">Table 71 - Archive Tier - AWS - S3 Glacier</div><br /></div>
+<a name="8227ef18-7c2c-4511-87af-1d4a3b30009c"><h5 class="Heading5">1.2.14.1.2 SOBR - Azure Blob</h5></a><a name="7ab5b92e-e294-4287-b33c-f2b334245a56"><h1 class="NOTOCHeading6">General Settings</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Placement Policy</th><td>Data Locality</td></tr>
+<tr><th>Use Per VM Backup Files</th><td>Yes</td></tr>
+<tr><th>Perform Full When Extent Offline</th><td>No</td></tr>
+<tr><th>Use Capacity Tier</th><td>Yes</td></tr>
+<tr><th>Encryption Enabled</th><td>Yes</td></tr>
+<tr><th>Encryption Key</th><td>Password Global</td></tr>
+<tr><th>Move backup file older than</th><td>14</td></tr>
+<tr><th>Override Policy Enabled</th><td>No</td></tr>
+<tr><th>Override Space Threshold</th><td>90</td></tr>
+<tr><th>Use Archive GFS Tier</th><td>Yes</td></tr>
+<tr><th>Archive GFS Backup older than</th><td>90</td></tr>
+<tr><th>Store archived backup as standalone fulls</th><td>No</td></tr>
+<tr><th>Cost Optimized Archive Enabled</th><td>Yes</td></tr>
+<tr><th>Description</th><td>Created by PHARMAX\jocolon at 12/22/2021 8:15 PM.</td></tr>
+</tbody></table>
+<div class="Caption">Table 72 - General Settings - SOBR - Azure Blob</div><br /></div>
+<a name="c72d98f4-4a80-4cd7-8a1e-67766cf74de6"><h1 class="NOTOCHeading6">Performance Tier</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Name</th><td>VEEAM-VBR-02V - F:\</td></tr>
+<tr><th>Repository</th><td>VEEAM-VBR-02V - F:\</td></tr>
+<tr><th>Path</th><td>F:\Backups</td></tr>
+<tr><th>Total Space</th><td>99 GB</td></tr>
+<tr><th>Used Space</th><td>90 GB</td></tr>
+<tr><th>Status</th><td>Normal</td></tr>
+</tbody></table>
+<div class="Caption">Table 73 - Performance Tier - VEEAM-VBR-02V - F:\</div><br /></div>
+<a name="f3cf517a-e6af-4366-9c6b-4d5c8a242d31"><h1 class="NOTOCHeading6">Capacity Tier</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Name</th><td>OS - Azure Blob</td></tr>
+<tr><th>Type</th><td>AzureBlob</td></tr>
+<tr><th>Use Gateway Server</th><td>Yes</td></tr>
+<tr><th>Gateway Server</th><td>VEEAM-VBR.pharmax.local</td></tr>
+<tr><th>Size Limit Enabled</th><td>No</td></tr>
+<tr><th>Size Limit</th><td>10240</td></tr>
+<tr><th>Azure Blob Name</th><td>Veeam</td></tr>
+<tr><th>Azure Blob Container</th><td>veeam-backup</td></tr>
+</tbody></table>
+<div class="Caption">Table 74 - Capacity Tier - OS - Azure Blob</div><br /></div>
+<a name="32288090-2294-495d-bac4-49686b22d0fb"><h1 class="NOTOCHeading6">Archive Tier</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Name</th><td>Azure - Blob Archives</td></tr>
+<tr><th>Type</th><td>AzureArchive</td></tr>
+<tr><th>Use Gateway Server</th><td>Yes</td></tr>
+<tr><th>Gateway Server</th><td>veeam-lnx-px.pharmax.local</td></tr>
+<tr><th>Azure Service Type</th><td>ArchiveTier</td></tr>
+<tr><th>Azure Blob Name</th><td>Archive</td></tr>
+<tr><th>Azure Blob Container</th><td>veeamarchive</td></tr>
+</tbody></table>
+<div class="Caption">Table 75 - Archive Tier - Azure - Blob Archives</div><br /></div>
+<a name="2e4bad7d-6c36-47a2-b236-ab2e7d826ac1"><h5 class="Heading5">1.2.14.1.3 SOBR - Minio</h5></a><a name="1e1521c1-c87f-4372-83cd-40390b299019"><h1 class="NOTOCHeading6">General Settings</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Placement Policy</th><td>Data Locality</td></tr>
+<tr><th>Use Per VM Backup Files</th><td>Yes</td></tr>
+<tr><th>Perform Full When Extent Offline</th><td>No</td></tr>
+<tr><th>Use Capacity Tier</th><td>Yes</td></tr>
+<tr><th>Encryption Enabled</th><td>Yes</td></tr>
+<tr><th>Encryption Key</th><td>Password Global</td></tr>
+<tr><th>Move backup file older than</th><td>14</td></tr>
+<tr><th>Override Policy Enabled</th><td>No</td></tr>
+<tr><th>Override Space Threshold</th><td>90</td></tr>
+<tr><th>Use Archive GFS Tier</th><td>No</td></tr>
+<tr><th>Archive GFS Backup older than</th><td>90</td></tr>
+<tr><th>Store archived backup as standalone fulls</th><td>No</td></tr>
+<tr><th>Cost Optimized Archive Enabled</th><td>Yes</td></tr>
+<tr><th>Description</th><td>Created by PHARMAX\administrator at 2/27/2021 7:29 PM.</td></tr>
+</tbody></table>
+<div class="Caption">Table 76 - General Settings - SOBR - Minio</div><br /></div>
+<a name="58392de5-bd99-47f4-a30d-335dd1687289"><h1 class="NOTOCHeading6">Performance Tier</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Name</th><td>VEEAM-VBR - E:\</td></tr>
+<tr><th>Repository</th><td>VEEAM-VBR - E:\</td></tr>
+<tr><th>Path</th><td>E:\Backups</td></tr>
+<tr><th>Total Space</th><td>499 GB</td></tr>
+<tr><th>Used Space</th><td>344 GB</td></tr>
+<tr><th>Status</th><td>Normal</td></tr>
+</tbody></table>
+<div class="Caption">Table 77 - Performance Tier - VEEAM-VBR - E:\</div><br /></div>
+<a name="550b7626-35ef-4d61-aac1-145d6026a43b"><h1 class="NOTOCHeading6">Capacity Tier</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Name</th><td>Object storage repository  - Minio</td></tr>
+<tr><th>Service Point</th><td>https://veeam-minio.pharmax.local:9000/</td></tr>
+<tr><th>Type</th><td>AmazonS3Compatible</td></tr>
+<tr><th>Amazon S3 Folder</th><td>SOBR</td></tr>
+<tr><th>Use Gateway Server</th><td>No</td></tr>
+<tr><th>Gateway Server</th><td>Auto</td></tr>
+<tr><th>Immutability Period</th><td>30</td></tr>
+<tr><th>Size Limit Enabled</th><td>No</td></tr>
+<tr><th>Size Limit</th><td>10240</td></tr>
+</tbody></table>
+<div class="Caption">Table 78 - Capacity Tier - Object storage repository  - Minio</div><br /></div>
+<a name="15561911-35a8-4b5a-b179-fb85d0ea35ee"><h3 class="Heading3">1.2.15 SureBackup Configuration</h3></a><div>The following section provides configuration information about SureBackup.</div><br /><a name="26eb4a61-579b-4cba-a1fd-edf1bfbdcdca"><h4 class="Heading4">1.2.15.1 Application Groups</h4></a><div>The following section provides a summary about Application Groups.</div><br /><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:30%; min-width:30%; width:30%" /><col style="max-width:20%; min-width:20%; width:20%" /><col style="max-width:50%; min-width:50%; width:50%" /></colgroup>
+<thead><tr><th>Name</th><th>Platform</th><th>VM List</th></tr></thead><tbody>
+<tr><td>HV - APPGroup</td><td>HyperV</td><td>WIN</td></tr>
+<tr><td>PHARMAX-AG</td><td>VMWare</td><td>smallserver-01v, LINUX-VM</td></tr>
+</tbody></table>
+<div class="Caption">Table 79 - Application Group - VEEAM-VBR</div><br /></div>
+<a name="b6c4239b-c6c4-4996-a6a8-045d9c5053cc"><h4 class="Heading5">1.2.15.2 HV - APPGroup VM Settings</h4></a><a name="96ebd132-d8b3-454e-92ce-7e11933065c4"><h1 class="NOTOCHeading4">WIN</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>VM Name</th><td>WIN</td></tr>
+<tr><th>Credentials</th><td>-</td></tr>
+<tr><th>Role</th><td>-</td></tr>
+<tr><th>Test Script</th><td>-</td></tr>
+<tr><th>Startup Options</th><td>Allocated Memory: 100<br />Heartbeat Check: Yes<br />Maximum Boot Time: 600<br />App Init Timeout: 120<br />Ping Check: Yes</td></tr>
+</tbody></table>
+<div class="Caption">Table 80 - Application Group VM Settings - WIN</div><br /></div>
+<a name="b9782031-5895-4c93-8751-495ac808e9b8"><h4 class="Heading5">1.2.15.3 PHARMAX-AG VM Settings</h4></a><a name="4fe7a6d5-e08a-489b-a08d-c6204b696c61"><h1 class="NOTOCHeading4">smallserver-01v</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>VM Name</th><td>smallserver-01v</td></tr>
+<tr><th>Credentials</th><td>-</td></tr>
+<tr><th>Role</th><td>-</td></tr>
+<tr><th>Test Script</th><td>-</td></tr>
+<tr><th>Startup Options</th><td>Allocated Memory: 100<br />Heartbeat Check: Yes<br />Maximum Boot Time: 600<br />App Init Timeout: 120<br />Ping Check: Yes</td></tr>
+</tbody></table>
+<div class="Caption">Table 81 - Application Group VM Settings - smallserver-01v</div><br /></div>
+<a name="19aa46d7-eedb-44c9-bdf2-82f2c2f3eadf"><h1 class="NOTOCHeading4">LINUX-VM</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>VM Name</th><td>LINUX-VM</td></tr>
+<tr><th>Credentials</th><td>root</td></tr>
+<tr><th>Role</th><td>DNSServer, DomainControllerAuthoritative, GlobalCatalog, MailServer, SQLServer, VBO, WebServer</td></tr>
+<tr><th>Test Script</th><td>WebServer, SQLServer, DNSServer, DomainController, GlobalCatalog, MailServer, VBO</td></tr>
+<tr><th>Startup Options</th><td>Allocated Memory: 100<br />Heartbeat Check: No<br />Maximum Boot Time: 7800<br />App Init Timeout: 120<br />Ping Check: No</td></tr>
+</tbody></table>
+<div class="Caption">Table 82 - Application Group VM Settings - LINUX-VM</div><br /></div>
+<a name="951e16ff-bb14-4597-850d-777bc29810b6"><h4 class="Heading4">1.2.15.4 Virtual Labs</h4></a><div>The following section provides a summary about SureBackup Virtual Lab.</div><br /><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:30%; min-width:30%; width:30%" /><col style="max-width:15%; min-width:15%; width:15%" /><col style="max-width:20%; min-width:20%; width:20%" /><col style="max-width:35%; min-width:35%; width:35%" /></colgroup>
+<thead><tr><th>Name</th><th>Platform</th><th>Physical Host</th><th>Physical Host Version</th></tr></thead><tbody>
+<tr><td>PHARMAX-HV-VLAB</td><td>HyperV</td><td>VEEAM-HV-01</td><td>Microsoft Windows Server 2022 Datacenter Evaluation 64-bit (10.0.20348 build:20348)</td></tr>
+<tr><td>PHARMAX-VLAB</td><td>VMWare</td><td>esxsvr-00f</td><td>VMware ESXi 7.0.3 build-20036589</td></tr>
+</tbody></table>
+<div class="Caption">Table 83 - Virtual Lab - VEEAM-VBR</div><br /></div>
+<a name="6a76f3dd-c245-4eaf-b9f9-30e408f6450d"><h5 class="Heading5">1.2.15.4.1 Virtual Labs Configuration</h5></a><a name="96a71c86-6e34-40dc-960c-05c48195fd0b"><h6 class="Heading6">1.2.15.4.1.1 PHARMAX-VLAB Settings</h6></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Host</th><td>esxsvr-00f.pharmax.local</td></tr>
+<tr><th>Resource Pool</th><td>PHARMAX-VLAB</td></tr>
+<tr><th>VM Folder</th><td>PHARMAX-VLAB</td></tr>
+<tr><th>Cache Datastore</th><td>SSD-VM-HIGH-CAPACITY-PERF-KN</td></tr>
+<tr><th>Proxy Appliance</th><td>PHARMAX-VLAB</td></tr>
+<tr><th>Proxy Appliance Enabled</th><td>Yes</td></tr>
+<tr><th>Networking Type</th><td>Advanced</td></tr>
+<tr><th>Production Network</th><td>DVS-Esxi-VM-Network-DR<br />DVS-ESXi-MANAGEMENT</td></tr>
+<tr><th>Isolated Network</th><td>PHARMAX-VLAB DVS-Esxi-VM-Network-DR<br />PHARMAX-VLAB DVS-ESXi-MANAGEMENT</td></tr>
+<tr><th>Routing Between vNics</th><td>No</td></tr>
+<tr><th>Multi Host</th><td>No</td></tr>
+<tr><th>Ip Mapping Rule</th><td>Isolated IP Address: 10.10.33.4<br />Access IP Address: 192.168.5.3</td></tr>
+<tr><th>Static IP Mapping</th><td>Yes</td></tr>
+</tbody></table>
+<div class="Caption">Table 84 - Virtual Lab Settings - PHARMAX-VLAB</div><br /></div>
+<a name="8a309905-9f1a-449a-9eb5-1983503a0884"><h1 class="NOTOCHeading6">vNIC Settings</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:45%; min-width:45%; width:45%" /><col style="max-width:10%; min-width:10%; width:10%" /><col style="max-width:10%; min-width:10%; width:10%" /><col style="max-width:35%; min-width:35%; width:35%" /></colgroup>
+<thead><tr><th>Isolated Network</th><th>VLAN ID</th><th>DHCP Enabled</th><th>Network Properties</th></tr></thead><tbody>
+<tr><td>PHARMAX-VLAB DVS-ESXi-MANAGEMENT</td><td>5</td><td>Yes</td><td>IP Address: 192.168.5.254<br />Subnet Mask: 255.255.255.0<br />Masquerade IP: 192.168.255.0<br />DNS Server: 192.168.5.1</td></tr>
+<tr><td>PHARMAX-VLAB DVS-Esxi-VM-Network-DR</td><td>33</td><td>Yes</td><td>IP Address: 10.10.33.254<br />Subnet Mask: 255.255.255.0<br />Masquerade IP: 10.255.255.0<br />DNS Server: 192.168.5.1</td></tr>
+</tbody></table>
+<div class="Caption">Table 85 - vNIC Settings - PHARMAX-VLAB</div><br /></div>
+<a name="92056cdc-f5bc-4e47-b5e0-6d46fe83305c"><h1 class="NOTOCHeading6">IP Address Mapping</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:30%; min-width:30%; width:30%" /><col style="max-width:15%; min-width:15%; width:15%" /><col style="max-width:15%; min-width:15%; width:15%" /><col style="max-width:40%; min-width:40%; width:40%" /></colgroup>
+<thead><tr><th>Production Network</th><th>Isolated IP Address</th><th>Access IP Address</th><th>Notes</th></tr></thead><tbody>
+<tr><td>DVS-Esxi-VM-Network-DR</td><td>10.10.33.4</td><td>192.168.5.3</td><td>IP Addess used to access oracle instance</td></tr>
+</tbody></table>
+<div class="Caption">Table 86 - IP Address Mapping - PHARMAX-VLAB</div><br /></div>
+<a name="f2f56fe4-58ce-4cbc-a723-faacb2507f85"><h2 class="Heading2">1.3 Tape Infrastructure Components</h2></a><div>The following section details Tape Infrastructure configuration information</div><br /><a name="d9f59396-46ca-4c9d-94ea-7cb959afb9d4"><h3 class="Heading3">1.3.1 Tape Servers</h3></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:25%; min-width:25%; width:25%" /><col style="max-width:50%; min-width:50%; width:50%" /><col style="max-width:25%; min-width:25%; width:25%" /></colgroup>
+<thead><tr><th>Name</th><th>Description</th><th>Status</th></tr></thead><tbody>
+<tr><td>VEEAM-VBR</td><td>Pharmax HQ Tape Server</td><td>Available</td></tr>
+<tr><td>VEEAM-VBR-02V.pharmax.local</td><td>Created by PHARMAX\jocolon at 1/6/2022 9:16 PM.</td><td>Available</td></tr>
+</tbody></table>
+<div class="Caption">Table 87 - Tape Server - VEEAM-VBR</div><br /></div>
+<a name="f5d382dd-29bd-4762-948e-98d717495699"><h3 class="Heading3">1.3.2 Tape Libraries</h3></a><div>The following section provides summary information about Tape Server connected Tape Library.</div><br /><a name="4073153c-4694-4835-afc9-3135a052af2a"><h4 class="Heading4">1.3.2.1 HP MSL G3 Series 9.50</h4></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Library Name</th><td>HP MSL G3 Series 9.50</td></tr>
+<tr><th>Library Model</th><td>MSL G3 Series</td></tr>
+<tr><th>Library Type</th><td>Automated</td></tr>
+<tr><th>Number of Slots</th><td>96</td></tr>
+<tr><th>Connected to</th><td>VEEAM-VBR-02V.pharmax.local</td></tr>
+<tr><th>Enabled</th><td>Yes</td></tr>
+<tr><th>Status</th><td style="font-family: 'Arial'; font-size: 0.83rem; text-align: left; font-weight: normal; color: #000000; background-color: #f4a71c;">Unavailable</td></tr>
+</tbody></table>
+<div class="Caption">Table 88 - Tape Library - HP MSL G3 Series 9.50</div><br /></div>
+<a name="b1d36f63-2fd9-41b8-b9c7-23da12f8e9ba"><h1 class="NOTOCHeading5">Tape Mediums</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:30%; min-width:30%; width:30%" /><col style="max-width:16%; min-width:16%; width:16%" /><col style="max-width:12%; min-width:12%; width:12%" /><col style="max-width:12%; min-width:12%; width:12%" /><col style="max-width:10%; min-width:10%; width:10%" /><col style="max-width:10%; min-width:10%; width:10%" /><col style="max-width:10%; min-width:10%; width:10%" /></colgroup>
+<thead><tr><th>Name</th><th>Expiration Date</th><th>Total Space</th><th>Free Space</th><th>Locked</th><th>Retired</th><th>Worm</th></tr></thead><tbody>
+<tr><td>SW24P002</td><td>-</td><td>0 KB</td><td>0 KB</td><td>No</td><td>No</td><td>No</td></tr>
+<tr><td>SW24P003</td><td>-</td><td>0 KB</td><td>0 KB</td><td>No</td><td>No</td><td>No</td></tr>
+<tr><td>SW24P004</td><td>-</td><td>0 KB</td><td>0 KB</td><td>No</td><td>No</td><td>No</td></tr>
+</tbody></table>
+<div class="Caption">Table 89 - Tape Mediums - HP MSL G3 Series 9.50</div><br /></div>
+<a name="c1636bc2-dc96-4bbd-9e99-0a6944ddd87c"><h4 class="Heading4">1.3.2.2 HP MSL G3 Series 9.50</h4></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Library Name</th><td>HP MSL G3 Series 9.50</td></tr>
+<tr><th>Library Model</th><td>MSL G3 Series</td></tr>
+<tr><th>Library Type</th><td>Automated</td></tr>
+<tr><th>Number of Slots</th><td>96</td></tr>
+<tr><th>Connected to</th><td>VEEAM-VBR-02V.pharmax.local</td></tr>
+<tr><th>Enabled</th><td>Yes</td></tr>
+<tr><th>Status</th><td style="font-family: 'Arial'; font-size: 0.83rem; text-align: left; font-weight: normal; color: #000000; background-color: #f4a71c;">Unavailable</td></tr>
+</tbody></table>
+<div class="Caption">Table 90 - Tape Library - HP MSL G3 Series 9.50</div><br /></div>
+<a name="54e011c3-65c3-4a0f-9afc-bfa1a148ce4f"><h1 class="NOTOCHeading5">Tape Drives</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:14%; min-width:14%; width:14%" /><col style="max-width:18%; min-width:18%; width:18%" /><col style="max-width:16%; min-width:16%; width:16%" /><col style="max-width:16%; min-width:16%; width:16%" /><col style="max-width:12%; min-width:12%; width:12%" /><col style="max-width:12%; min-width:12%; width:12%" /><col style="max-width:12%; min-width:12%; width:12%" /></colgroup>
+<thead><tr><th>Name</th><th>Model</th><th>Serial Number</th><th>Medium</th><th>Enabled</th><th>Is Locked</th><th>State</th></tr></thead><tbody>
+<tr><td>Tape0</td><td>HPE Ultrium 8-SCSI</td><td>3E4C4D2070</td><td>SWV4O001</td><td>No</td><td>No</td><td>Offline</td></tr>
+<tr><td>Tape1</td><td>HPE Ultrium 8-SCSI</td><td>3E4C4D2071</td><td>&nbsp;</td><td>No</td><td>No</td><td>Offline</td></tr>
+<tr><td>Tape2</td><td>HPE Ultrium 8-SCSI</td><td>3E4C4D2072</td><td>&nbsp;</td><td>No</td><td>No</td><td>Offline</td></tr>
+<tr><td>Tape3</td><td>HPE Ultrium 8-SCSI</td><td>3E4C4D2073</td><td>&nbsp;</td><td>No</td><td>No</td><td>Offline</td></tr>
+</tbody></table>
+<div class="Caption">Table 91 - Tape Drives - HP MSL G3 Series 9.50</div><br /></div>
+<a name="bf417fbb-31e1-4349-894f-cfcf053d8d0a"><h1 class="NOTOCHeading5">Tape Mediums</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:30%; min-width:30%; width:30%" /><col style="max-width:16%; min-width:16%; width:16%" /><col style="max-width:12%; min-width:12%; width:12%" /><col style="max-width:12%; min-width:12%; width:12%" /><col style="max-width:10%; min-width:10%; width:10%" /><col style="max-width:10%; min-width:10%; width:10%" /><col style="max-width:10%; min-width:10%; width:10%" /></colgroup>
+<thead><tr><th>Name</th><th>Expiration Date</th><th>Total Space</th><th>Free Space</th><th>Locked</th><th>Retired</th><th>Worm</th></tr></thead><tbody>
+<tr><td>SWV4O001</td><td>12/31/9999</td><td>12 TB</td><td>12 TB</td><td>No</td><td>No</td><td>No</td></tr>
+<tr><td>SWV4O002</td><td>-</td><td>12 TB</td><td>12 TB</td><td>No</td><td>No</td><td>No</td></tr>
+<tr><td>SWV4O003</td><td>-</td><td>12 TB</td><td>12 TB</td><td>No</td><td>No</td><td>No</td></tr>
+<tr><td>SWV4O004</td><td>-</td><td>12 TB</td><td>12 TB</td><td>No</td><td>No</td><td>No</td></tr>
+<tr><td>SWV4O005</td><td>-</td><td>12 TB</td><td>12 TB</td><td>No</td><td>No</td><td>No</td></tr>
+<tr><td>SWV4O006</td><td>-</td><td>12 TB</td><td>12 TB</td><td>No</td><td>No</td><td>No</td></tr>
+<tr><td>SWV4O007</td><td>-</td><td>12 TB</td><td>12 TB</td><td>No</td><td>No</td><td>No</td></tr>
+<tr><td>SWV4O008</td><td>-</td><td>12 TB</td><td>12 TB</td><td>No</td><td>No</td><td>No</td></tr>
+<tr><td>SWV4O009</td><td>-</td><td>12 TB</td><td>12 TB</td><td>No</td><td>No</td><td>No</td></tr>
+</tbody></table>
+<div class="Caption">Table 92 - Tape Mediums - HP MSL G3 Series 9.50</div><br /></div>
+<a name="2f92d1f9-c56f-40fc-913c-05bc0278871a"><h4 class="Heading4">1.3.2.3 QUANTUM Scalar i2000 7000</h4></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Library Name</th><td>QUANTUM Scalar i2000 7000</td></tr>
+<tr><th>Library Model</th><td>Scalar i2000</td></tr>
+<tr><th>Library Type</th><td>Automated</td></tr>
+<tr><th>Number of Slots</th><td>20</td></tr>
+<tr><th>Connected to</th><td>VEEAM-VBR</td></tr>
+<tr><th>Enabled</th><td>Yes</td></tr>
+<tr><th>Status</th><td style="font-family: 'Arial'; font-size: 0.83rem; text-align: left; font-weight: normal; color: #000000; background-color: #f4a71c;">Unavailable</td></tr>
+</tbody></table>
+<div class="Caption">Table 93 - Tape Library - QUANTUM Scalar i2000 7000</div><br /></div>
+<a name="23310205-5867-43ef-9998-76a7c9ce83c4"><h1 class="NOTOCHeading5">Tape Drives</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:14%; min-width:14%; width:14%" /><col style="max-width:18%; min-width:18%; width:18%" /><col style="max-width:16%; min-width:16%; width:16%" /><col style="max-width:16%; min-width:16%; width:16%" /><col style="max-width:12%; min-width:12%; width:12%" /><col style="max-width:12%; min-width:12%; width:12%" /><col style="max-width:12%; min-width:12%; width:12%" /></colgroup>
+<thead><tr><th>Name</th><th>Model</th><th>Serial Number</th><th>Medium</th><th>Enabled</th><th>Is Locked</th><th>State</th></tr></thead><tbody>
+<tr><td>Tape2</td><td>IBM ULT3580-TD8</td><td>1657072330</td><td>&nbsp;</td><td>No</td><td>No</td><td>Offline</td></tr>
+<tr><td>Tape3</td><td>IBM ULT3580-TD8</td><td>1260008002</td><td>&nbsp;</td><td>No</td><td>No</td><td>Offline</td></tr>
+<tr><td>Tape5</td><td>IBM ULT3580-TD8</td><td>0527746823</td><td>&nbsp;</td><td>No</td><td>No</td><td>Offline</td></tr>
+</tbody></table>
+<div class="Caption">Table 94 - Tape Drives - QUANTUM Scalar i2000 7000</div><br /></div>
+<a name="0529887c-3beb-4520-8610-8a68a8861e74"><h1 class="NOTOCHeading5">Tape Mediums</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:30%; min-width:30%; width:30%" /><col style="max-width:16%; min-width:16%; width:16%" /><col style="max-width:12%; min-width:12%; width:12%" /><col style="max-width:12%; min-width:12%; width:12%" /><col style="max-width:10%; min-width:10%; width:10%" /><col style="max-width:10%; min-width:10%; width:10%" /><col style="max-width:10%; min-width:10%; width:10%" /></colgroup>
+<thead><tr><th>Name</th><th>Expiration Date</th><th>Total Space</th><th>Free Space</th><th>Locked</th><th>Retired</th><th>Worm</th></tr></thead><tbody>
+<tr><td>TEK000L8</td><td>7/13/2021</td><td>12 TB</td><td>12 TB</td><td>No</td><td>No</td><td>No</td></tr>
+<tr><td>TEK001L8</td><td>7/5/2022</td><td>12 TB</td><td>12 TB</td><td>No</td><td>No</td><td>No</td></tr>
+<tr><td>TEK002L8</td><td>1/3/2023</td><td>12 TB</td><td>12 TB</td><td>No</td><td>No</td><td>No</td></tr>
+<tr><td>WRM232LY</td><td>-</td><td>12 TB</td><td>12 TB</td><td>No</td><td>No</td><td>Yes</td></tr>
+<tr><td>affe25L8</td><td>-</td><td>12 TB</td><td>12 TB</td><td>No</td><td>No</td><td>No</td></tr>
+<tr><td>affe27L8</td><td>-</td><td>12 TB</td><td>12 TB</td><td>No</td><td>No</td><td>No</td></tr>
+<tr><td>affe28L8</td><td>-</td><td>12 TB</td><td>12 TB</td><td>No</td><td>No</td><td>No</td></tr>
+<tr><td>affe29L8</td><td>-</td><td>12 TB</td><td>12 TB</td><td>No</td><td>No</td><td>No</td></tr>
+<tr><td>affe30L8</td><td>-</td><td>12 TB</td><td>12 TB</td><td>No</td><td>No</td><td>No</td></tr>
+<tr><td>WRM233LY</td><td>-</td><td>12 TB</td><td>12 TB</td><td>No</td><td>No</td><td>Yes</td></tr>
+<tr><td>WRM234LY</td><td>-</td><td>12 TB</td><td>12 TB</td><td>No</td><td>No</td><td>Yes</td></tr>
+<tr><td>WRM235LY</td><td>-</td><td>12 TB</td><td>12 TB</td><td>No</td><td>No</td><td>Yes</td></tr>
+<tr><td>WRM236LY</td><td>-</td><td>12 TB</td><td>12 TB</td><td>No</td><td>No</td><td>Yes</td></tr>
+<tr><td>WRM237LY</td><td>-</td><td>12 TB</td><td>12 TB</td><td>No</td><td>No</td><td>Yes</td></tr>
+<tr><td>WRM238LY</td><td>-</td><td>12 TB</td><td>12 TB</td><td>No</td><td>No</td><td>Yes</td></tr>
+<tr><td>WRM239LY</td><td>-</td><td>12 TB</td><td>12 TB</td><td>No</td><td>No</td><td>Yes</td></tr>
+<tr><td>WRM240LY</td><td>-</td><td>12 TB</td><td>12 TB</td><td>No</td><td>No</td><td>Yes</td></tr>
+<tr><td>WRM241LY</td><td>-</td><td>12 TB</td><td>12 TB</td><td>No</td><td>No</td><td>Yes</td></tr>
+<tr><td>affe23L8</td><td>3/26/2022</td><td>12 TB</td><td>12 TB</td><td>No</td><td>No</td><td>No</td></tr>
+<tr><td>affe24L8</td><td>6/4/2022</td><td>12 TB</td><td>12 TB</td><td>No</td><td>No</td><td>No</td></tr>
+<tr><td>affe26L8</td><td>12/31/9999</td><td>12 TB</td><td>12 TB</td><td>No</td><td>No</td><td>No</td></tr>
+</tbody></table>
+<div class="Caption">Table 95 - Tape Mediums - QUANTUM Scalar i2000 7000</div><br /></div>
+<a name="b03d6411-a1b8-4d05-9cf1-ffd104a6e7ab"><h3 class="Heading3">1.3.3 Tape Media Pools</h3></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:24%; min-width:24%; width:24%" /><col style="max-width:15%; min-width:15%; width:15%" /><col style="max-width:12%; min-width:12%; width:12%" /><col style="max-width:12%; min-width:12%; width:12%" /><col style="max-width:12%; min-width:12%; width:12%" /><col style="max-width:25%; min-width:25%; width:25%" /></colgroup>
+<thead><tr><th>Name</th><th>Type</th><th>Tape Count</th><th>Total Space</th><th>Free Space</th><th>Tape Library</th></tr></thead><tbody>
+<tr><td>Free</td><td>Free</td><td>4</td><td>12 TB</td><td>12 TB</td><td>HP MSL G3 Series 9.50</td></tr>
+<tr><td>GFS Media Pool 1</td><td>Gfs</td><td>1</td><td>70 TB</td><td>70 TB</td><td>QUANTUM Scalar i2000 7000</td></tr>
+<tr><td>Imported</td><td>Imported</td><td>0</td><td>0 KB</td><td>0 KB</td><td>HP MSL G3 Series 9.50</td></tr>
+<tr><td>Oracle - Media Pool</td><td>Custom</td><td>10</td><td>120 TB</td><td>120 TB</td><td>HP MSL G3 Series 9.50</td></tr>
+<tr><td>Retired</td><td>Retired</td><td>0</td><td>0 KB</td><td>0 KB</td><td>HP MSL G3 Series 9.50</td></tr>
+<tr><td>Standard Media Pool</td><td>Custom</td><td>3</td><td>35 TB</td><td>35 TB</td><td>QUANTUM Scalar i2000 7000</td></tr>
+<tr><td>Unrecognized</td><td>Unrecognized</td><td>0</td><td>0 KB</td><td>0 KB</td><td>HP MSL G3 Series 9.50</td></tr>
+<tr><td>WORM GFS Media Pool 1</td><td>Gfs</td><td>0</td><td>59 TB</td><td>59 TB</td><td>QUANTUM Scalar i2000 7000</td></tr>
+<tr><td>WORM Media Pool 1</td><td>Custom</td><td>5</td><td>59 TB</td><td>59 TB</td><td>QUANTUM Scalar i2000 7000</td></tr>
+</tbody></table>
+<div class="Caption">Table 96 - Tape Media Pools - VEEAM-VBR</div><br /></div>
+<a name="44a4398c-7863-410e-a5d9-7c7e71e5d34f"><h3 class="Heading3">1.3.4 Tape Vaults</h3></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:32%; min-width:32%; width:32%" /><col style="max-width:32%; min-width:32%; width:32%" /><col style="max-width:16%; min-width:16%; width:16%" /><col style="max-width:20%; min-width:20%; width:20%" /></colgroup>
+<thead><tr><th>Name</th><th>Description</th><th>Automatic Protect</th><th>Location</th></tr></thead><tbody>
+<tr><td>DR - Tape Vault</td><td>Created by PHARMAX\jocolon at 1/4/2022 11:10 PM.</td><td>No</td><td>-</td></tr>
+<tr><td>Pharmax - Veeam Tape Vault</td><td>Pharmax - HQ Tape Vault</td><td>Yes</td><td>-</td></tr>
+</tbody></table>
+<div class="Caption">Table 97 - Tape Vault - VEEAM-VBR</div><br /></div>
+<a name="0bbed093-ca37-424e-9fd2-51c0f0ae01f5"><h3 class="Heading3">1.3.5 NDMP Servers</h3></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:35%; min-width:35%; width:35%" /><col style="max-width:20%; min-width:20%; width:20%" /><col style="max-width:10%; min-width:10%; width:10%" /><col style="max-width:35%; min-width:35%; width:35%" /></colgroup>
+<thead><tr><th>Name</th><th>Credentials</th><th>Port</th><th>Gateway</th></tr></thead><tbody>
+<tr><td>ONTAP-HQ-SAN-IC.pharmax.local</td><td>backup_admin1</td><td>10000</td><td>VEEAM-VBR.pharmax.local</td></tr>
+</tbody></table>
+<div class="Caption">Table 98 - NDMP Servers - VEEAM-VBR</div><br /></div>
+<a name="3196779e-d9c4-40ac-a37f-57b261e25753"><h2 class="Heading2">1.4 Inventory Components</h2></a><div>The following section provides inventory information about the Virtual Infrastructure managed by Veeam Server veeam-vbr.pharmax.local.</div><br /><a name="c0d44e4c-61cf-46a2-a382-2a3626875a9a"><h3 class="Heading3">1.4.1 Virtual Infrastructure</h3></a><div>The following sections detail the configuration about managed virtual servers backed-up by Veeam Server veeam-vbr.pharmax.local.</div><br /><a name="9c89cfee-b048-4b4c-94f7-a018ebaeddc9"><h4 class="Heading4">1.4.1.1 VMware vSphere</h4></a><div>The following section details information about VMware Virtual Infrastructure backed-up by Veeam Server veeam-vbr.pharmax.local.</div><br /><a name="a4dd2bff-8127-453f-a924-ea05e1047b8d"><h1 class="NOTOCHeading5">VMware vCenter</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:33%; min-width:33%; width:33%" /><col style="max-width:33%; min-width:33%; width:33%" /><col style="max-width:34%; min-width:34%; width:34%" /></colgroup>
+<thead><tr><th>Name</th><th>Version</th><th>Child Host</th></tr></thead><tbody>
+<tr><td>vcenter-01v.pharmax.local</td><td>VMware vCenter Server 7.0.3 build-20395099</td><td>comp-02a.pharmax.local, esxsvr-00f.pharmax.local, comp-01a.pharmax.local</td></tr>
+<tr><td>vcenter-03v.pharmax.local</td><td>VMware vCenter Server 7.0.3 build-20395099</td><td>edge-01a.pharmax.local</td></tr>
+</tbody></table>
+<div class="Caption">Table 99 - vCenter Servers - VEEAM-VBR</div><br /></div>
+<a name="e646f2cd-e241-46cd-ae1a-5d70b08ae697"><h1 class="NOTOCHeading6">Esxi Host</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<thead><tr><th>Name</th><th>Version</th></tr></thead><tbody>
+<tr><td>comp-01a.pharmax.local</td><td>VMware ESXi 7.0.3 build-20036589</td></tr>
+<tr><td>comp-02a.pharmax.local</td><td>VMware ESXi 7.0.3 build-20036589</td></tr>
+<tr><td>disaster-01a.pharmax.local</td><td>VMware ESXi 7.0.3 build-20036589</td></tr>
+<tr><td>edge-01a.pharmax.local</td><td>VMware ESXi 7.0.3 build-20036589</td></tr>
+<tr><td>esxsvr-00f.pharmax.local</td><td>VMware ESXi 7.0.3 build-20036589</td></tr>
+</tbody></table>
+<div class="Caption">Table 100 - Esxi Hosts - VEEAM-VBR</div><br /></div>
+<a name="16bf5be9-a4f4-462f-ad2e-cd9c7dd50599"><h4 class="Heading4">1.4.1.2 Microsoft Hyper-V</h4></a><a name="2192c789-50bb-40dd-be7f-bf75bb4142cd"><h1 class="NOTOCHeading5">Hyper-V Clusters</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:34%; min-width:34%; width:34%" /><col style="max-width:33%; min-width:33%; width:33%" /><col style="max-width:33%; min-width:33%; width:33%" /></colgroup>
+<thead><tr><th>Name</th><th>Credentials</th><th>Child Host</th></tr></thead><tbody>
+<tr><td>pharmax-cluster.pharmax.local</td><td>administrator@pharmax.local</td><td>VEEAM-HV-02, VEEAM-HV-01</td></tr>
+</tbody></table>
+<div class="Caption">Table 101 - Hyper-V Clusters - VEEAM-VBR</div><br /></div>
+<a name="b7e742d0-c48f-469b-8a57-d204615c9493"><h1 class="NOTOCHeading6">Hyper-V Host</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<thead><tr><th>Name</th><th>Version</th></tr></thead><tbody>
+<tr><td>VEEAM-HV-01</td><td>Microsoft Windows Server 2022 Datacenter Evaluation 64-bit (10.0.20348 build:20348)</td></tr>
+<tr><td>VEEAM-HV-02</td><td>Microsoft Windows Server 2022 Datacenter Evaluation 64-bit (10.0.20348 build:20348)</td></tr>
+<tr><td>VEEAM-HV-03.pharmax.local</td><td>Microsoft Windows Server 2022 Datacenter Evaluation 64-bit (10.0.20348 build:20348)</td></tr>
+</tbody></table>
+<div class="Caption">Table 102 - Hyper-V Hosts - VEEAM-VBR</div><br /></div>
+<a name="54fbba9d-c6c3-4ce6-b1fe-0eb5705b72f0"><h3 class="Heading3">1.4.2 Physical Infrastructure</h3></a><div>The following sections detail configuration information about managed physical infrastructure.</div><br /><a name="532fc81b-da99-4967-9eae-81af96cedeb3"><h4 class="Heading4">1.4.2.1 Protection Groups Summary</h4></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:23%; min-width:23%; width:23%" /><col style="max-width:23%; min-width:23%; width:23%" /><col style="max-width:23%; min-width:23%; width:23%" /><col style="max-width:16%; min-width:16%; width:16%" /><col style="max-width:15%; min-width:15%; width:15%" /></colgroup>
+<thead><tr><th>Name</th><th>Type</th><th>Container</th><th>Schedule</th><th>Enabled</th></tr></thead><tbody>
+<tr><td>Manually Added</td><td>ManuallyAdded</td><td>IndividualComputers</td><td>Daily</td><td>Yes</td></tr>
+<tr><td>Linux Protection Group</td><td>Custom</td><td>IndividualComputers</td><td>Daily</td><td>Yes</td></tr>
+<tr><td>HQ - Manual Packet</td><td>Custom</td><td>ManuallyDeployed</td><td>Daily</td><td>Yes</td></tr>
+<tr><td>Gurabo PC - Backup</td><td>Custom</td><td>ActiveDirectory</td><td>Periodically</td><td>Yes</td></tr>
+<tr><td>Server with Netapp LUNS</td><td>Custom</td><td>ActiveDirectory</td><td>Daily</td><td>Yes</td></tr>
+<tr><td>Others</td><td>Custom</td><td>ManuallyDeployed</td><td>Daily</td><td>Yes</td></tr>
+</tbody></table>
+<div class="Caption">Table 103 - Protection Groups - VEEAM-VBR</div><br /></div>
+<a name="abd8a90d-f825-40fa-8b92-c208ad8ccd1f"><h5 class="Heading5">1.4.2.1.1 Protection Group Configuration</h5></a><a name="ad91a828-11a4-4b86-a357-a1071898ffbe"><h1 class="NOTOCHeading6">Gurabo PC - Backup</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Domain</th><td>pharmax.local</td></tr>
+<tr><th>Backup Objects</th><td>Name: VDI-Computers<br />Type: OrganizationUnit<br />Distinguished Name: OU=VDI-Computers,DC=pharmax,DC=local<br /><br />Name: VEEAM WorkStations<br />Type: OrganizationUnit<br />Distinguished Name: OU=VEEAM WorkStations,DC=pharmax,DC=local<br /></td></tr>
+<tr><th>Exclude VM</th><td>No</td></tr>
+<tr><th>Exclude Computers</th><td>No</td></tr>
+<tr><th>Exclude Offline Computers</th><td>Yes</td></tr>
+<tr><th>Excluded Entity</th><td>&nbsp;</td></tr>
+<tr><th>Master Credentials</th><td>administrator@pharmax.local</td></tr>
+<tr><th>Deployment Options</th><td>Install Agent: Yes<br />Upgrade Automatically: Yes<br />Install Driver: No<br />Reboot If Required: No</td></tr>
+<tr><th>Notification Options</th><td>Send Time: 08:00:00<br />Additional Address: [veeam_admin@pharmax.local]<br />Use Notification Options: No<br />Subject: [%JobResult%] %PGName%: (%FoundCount% new hosts found (%TotalCount% total, %SeenCount% seen)</td></tr>
+</tbody></table>
+<div class="Caption">Table 104 - Protection Group Configuration - Gurabo PC - Backup</div><br /></div>
+<a name="2fb78328-9000-42a2-896e-a2ae0157d900"><h1 class="NOTOCHeading6">Manually Added</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Deployment Options</th><td>Install Agent: Yes<br />Upgrade Automatically: Yes<br />Install Driver: No<br />Reboot If Required: No</td></tr>
+<tr><th>Notification Options</th><td>Send Time: 10:00:00<br />Additional Address: [jcolonf@zenprsolutions.com, rebelinux@gmail.com]<br />Use Notification Options: No<br />Subject: [%JobResult%] %JobName% (%ObjectCount% machines) %Issues%</td></tr>
+</tbody></table>
+<div class="Caption">Table 105 - Protection Group Configuration - Manually Added</div><br /></div>
+<a name="3f15e1e5-0d93-4b0a-8f03-fe37ef282313"><h1 class="NOTOCHeading6">Server with Netapp LUNS</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Domain</th><td>pharmax.local</td></tr>
+<tr><th>Backup Objects</th><td>Name: NTAPSVR-01v.pharmax.local<br />Type: Computer<br />Distinguished Name: CN=NTAPSVR-01V,OU=Member Servers,DC=pharmax,DC=local<br /></td></tr>
+<tr><th>Exclude VM</th><td>No</td></tr>
+<tr><th>Exclude Computers</th><td>No</td></tr>
+<tr><th>Exclude Offline Computers</th><td>Yes</td></tr>
+<tr><th>Excluded Entity</th><td>&nbsp;</td></tr>
+<tr><th>Master Credentials</th><td>administrator@pharmax.local</td></tr>
+<tr><th>Deployment Options</th><td>Install Agent: Yes<br />Upgrade Automatically: Yes<br />Install Driver: Yes<br />Reboot If Required: Yes</td></tr>
+</tbody></table>
+<div class="Caption">Table 106 - Protection Group Configuration - Server with Netapp LUNS</div><br /></div>
+<a name="b389f9ba-3195-4d2c-9002-d27214cef581"><h3 class="Heading3">1.4.3 File Shares</h3></a><div>The following table provides a summary about the file shares backed-up by Veeam Server veeam-vbr.pharmax.local.</div><br /><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:30%; min-width:30%; width:30%" /><col style="max-width:13%; min-width:13%; width:13%" /><col style="max-width:12%; min-width:12%; width:12%" /><col style="max-width:22%; min-width:22%; width:22%" /><col style="max-width:23%; min-width:23%; width:23%" /></colgroup>
+<thead><tr><th>Path</th><th>Type</th><th>Backup IO Control</th><th>Credentials</th><th>Cache Repository</th></tr></thead><tbody>
+<tr><td>\\192.168.5.18\c$</td><td>NAS Filler</td><td>Medium</td><td>admin</td><td>Linux - Hardened Repository</td></tr>
+<tr><td>\\192.168.5.18\DATA</td><td>NAS Filler</td><td>Medium</td><td>admin</td><td>Linux - Hardened Repository</td></tr>
+<tr><td>\\192.168.5.18\ipc$</td><td>NAS Filler</td><td>Medium</td><td>admin</td><td>Linux - Hardened Repository</td></tr>
+<tr><td>\\192.168.7.90\data</td><td>NAS Filler</td><td>Highest</td><td>admin</td><td>Linux - Hardened Repository</td></tr>
+<tr><td>\\isilon_nas.pharmax.local\DATA</td><td>SMB Share</td><td>Low</td><td>administrator@pharmax.local</td><td>Linux - Hardened Repository</td></tr>
+<tr><td>\\server-dc-01v\UEMConfig</td><td>SMB Share</td><td>Medium</td><td>administrator@pharmax.local</td><td>Linux - Hardened Repository</td></tr>
+<tr><td>192.168.5.18:/DATA</td><td>NAS Filler</td><td>Medium</td><td>None</td><td>Linux - Hardened Repository</td></tr>
+<tr><td>192.168.5.18:/oracle</td><td>NFS Share</td><td>Low</td><td>None</td><td>Linux - Hardened Repository</td></tr>
+<tr><td>192.168.5.18:/oracle</td><td>NAS Filler</td><td>Medium</td><td>None</td><td>Linux - Hardened Repository</td></tr>
+<tr><td>server-dc-01v</td><td>File Server</td><td>Medium</td><td>administrator@pharmax.local</td><td>Linux - Hardened Repository</td></tr>
+</tbody></table>
+<div class="Caption">Table 107 - File Shares - VEEAM-VBR</div><br /></div>
+<a name="b863a2cf-3a7c-4846-9d34-747aabe388bc"><h2 class="Heading2">1.5 Storage Infrastructure Components</h2></a><div>The following section provides information about the storage infrastructure managed by Veeam Server veeam-vbr.pharmax.local.</div><br /><a name="abd89534-56ee-41d5-8657-70d997fe9ee7"><h3 class="Heading3">1.5.1 NetApp Ontap Storage</h3></a><div>The following section details information about NetApp storage infrastructure.</div><br /><a name="09d72507-18ca-4362-a13a-87c24d3c96c3"><h4 class="Heading4">1.5.1.1 ONTAP-DR-SAN</h4></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>DNS Name</th><td>ONTAP-DR-SAN.pharmax.local</td></tr>
+<tr><th>Description</th><td>Created by PHARMAX\jocolon at 1/9/2022 7:40 PM.</td></tr>
+<tr><th>Storage Type</th><td>NaCluster</td></tr>
+<tr><th>Used Credential</th><td>admin - (ONTAP-HQ-SAN)</td></tr>
+<tr><th>Connection Address</th><td>ONTAP-DR-SAN-01V.pharmax.local, 10.10.30.17, 10.10.30.16</td></tr>
+<tr><th>Connection Port</th><td>443\TCP</td></tr>
+<tr><th>Installed Licenses</th><td>FlexClone, SnapRestore, Iscsi, Nfs, SnapVaultPrimary, SnapVaultSecondary, SnapMirror, Cifs</td></tr>
+</tbody></table>
+<div class="Caption">Table 108 - NetApp Host - ONTAP-DR-SAN</div><br /></div>
+<a name="d60e30b5-2779-4a29-94b7-ca1d77048edc"><h1 class="NOTOCHeading5">Volumes</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:52%; min-width:52%; width:52%" /><col style="max-width:15%; min-width:15%; width:15%" /><col style="max-width:15%; min-width:15%; width:15%" /><col style="max-width:18%; min-width:18%; width:18%" /></colgroup>
+<thead><tr><th>Name</th><th>Total Space</th><th>Used Space</th><th>Thin Provision</th></tr></thead><tbody>
+<tr><td>SRM_PLACEHOLDER_01</td><td>10 GB</td><td>341 MB</td><td>Yes</td></tr>
+<tr><td>SRM_LAB_STORAGE_DR_01</td><td>50 GB</td><td>956 MB</td><td>Yes</td></tr>
+<tr><td>SRM_EDGE_STORAGE_01</td><td>50 GB</td><td>4 GB</td><td>Yes</td></tr>
+<tr><td>vol_SRM_LAB_STORAGE_02_dest</td><td>31 GB</td><td>848 MB</td><td>Yes</td></tr>
+<tr><td>vol_SRM_LAB_STORAGE_01_dest</td><td>40 GB</td><td>32 GB</td><td>Yes</td></tr>
+<tr><td>vol_SRM_POL_DEDUP_01_dest</td><td>30 GB</td><td>26 GB</td><td>Yes</td></tr>
+<tr><td>vol_SRM_HQ_EDGE_01_dest</td><td>833 MB</td><td>669 MB</td><td>Yes</td></tr>
+<tr><td>SRM_EDGE_PLACEHOLDER_01</td><td>10 GB</td><td>85 MB</td><td>Yes</td></tr>
+<tr><td>SAN_DR_root</td><td>973 MB</td><td>664 KB</td><td>No</td></tr>
+</tbody></table>
+<div class="Caption">Table 109 - NetApp Volumes - ONTAP-DR-SAN</div><br /></div>
+<a name="d3a98a3b-fae1-405b-ab8d-43a39c940b29"><h4 class="Heading4">1.5.1.2 ONTAP-HQ-SAN</h4></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>DNS Name</th><td>ONTAP-HQ-SAN.pharmax.local</td></tr>
+<tr><th>Description</th><td>Created by PHARMAX\jocolon at 12/23/2021 9:12 PM.</td></tr>
+<tr><th>Storage Type</th><td>NaCluster</td></tr>
+<tr><th>Used Credential</th><td>admin - (ONTAP-HQ-SAN)</td></tr>
+<tr><th>Connection Address</th><td>192.168.5.16, 192.168.5.17</td></tr>
+<tr><th>Connection Port</th><td>443\TCP</td></tr>
+<tr><th>Installed Licenses</th><td>FlexClone, SnapRestore, Iscsi, Nfs, SnapVaultPrimary, SnapVaultSecondary, SnapMirror, Cifs</td></tr>
+</tbody></table>
+<div class="Caption">Table 110 - NetApp Host - ONTAP-HQ-SAN</div><br /></div>
+<a name="5cd82bde-fc59-46dd-8368-3c7726071cbe"><h1 class="NOTOCHeading5">Volumes</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:52%; min-width:52%; width:52%" /><col style="max-width:15%; min-width:15%; width:15%" /><col style="max-width:15%; min-width:15%; width:15%" /><col style="max-width:18%; min-width:18%; width:18%" /></colgroup>
+<thead><tr><th>Name</th><th>Total Space</th><th>Used Space</th><th>Thin Provision</th></tr></thead><tbody>
+<tr><td>SAN_HQ_root</td><td>973 MB</td><td>4 MB</td><td>No</td></tr>
+<tr><td>DATA</td><td>10 GB</td><td>2 GB</td><td>No</td></tr>
+<tr><td>HYPERV_VM_STORAGE</td><td>50 GB</td><td>123 MB</td><td>No</td></tr>
+<tr><td>oracle</td><td>10 GB</td><td>4 MB</td><td>No</td></tr>
+<tr><td>NAS_VEEAM_root</td><td>973 MB</td><td>4 MB</td><td>No</td></tr>
+<tr><td>HYPERV_QUORUM_STORAGE</td><td>15 GB</td><td>109 MB</td><td>No</td></tr>
+</tbody></table>
+<div class="Caption">Table 111 - NetApp Volumes - ONTAP-HQ-SAN</div><br /></div>
+<a name="9199834c-1429-44f7-8f09-2fba9b49c567"><h4 class="Heading4">1.5.1.3 VEEAM-NTAP-CLUSTER</h4></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>DNS Name</th><td>VEEAM-NTAP-CLUSTER.pharmax.local</td></tr>
+<tr><th>Description</th><td>Created by PHARMAX\administrator at 5/5/2022 12:54 PM.</td></tr>
+<tr><th>Storage Type</th><td>NaCluster</td></tr>
+<tr><th>Used Credential</th><td>admin - (admin netapp)</td></tr>
+<tr><th>Connection Address</th><td>VEEAM-NTAP-CLUSTER, 192.168.5.131, 192.168.5.130</td></tr>
+<tr><th>Connection Port</th><td>443\TCP</td></tr>
+<tr><th>Installed Licenses</th><td>FlexClone, SnapRestore, Iscsi, Nfs, SnapVaultPrimary, SnapVaultSecondary, SnapMirror, Cifs</td></tr>
+</tbody></table>
+<div class="Caption">Table 112 - NetApp Host - VEEAM-NTAP-CLUSTER</div><br /></div>
+<a name="affc7438-7464-40c2-8564-428e59b8d8f5"><h4 class="Heading4">1.5.1.4 PHARMAX-DR</h4></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>DNS Name</th><td>pharmax-dr.pharmax.local</td></tr>
+<tr><th>Description</th><td>Created by PHARMAX\administrator at 6/29/2021 7:48 PM.</td></tr>
+<tr><th>Storage Type</th><td>NaCluster</td></tr>
+<tr><th>Used Credential</th><td>admin - (admin netapp)</td></tr>
+<tr><th>Connection Address</th><td>pharmax-dr.pharmax.local, 10.10.33.14, 10.10.33.15, 10.10.33.16</td></tr>
+<tr><th>Connection Port</th><td>443\TCP</td></tr>
+<tr><th>Installed Licenses</th><td>FlexClone, SnapRestore, Fcp, Iscsi, Nfs, SnapVaultPrimary, SnapVaultSecondary, SnapMirror, Cifs</td></tr>
+</tbody></table>
+<div class="Caption">Table 113 - NetApp Host - PHARMAX-DR</div><br /></div>
+<a name="761cc511-7232-433c-a9a1-14c12fede668"><h1 class="NOTOCHeading5">Volumes</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:52%; min-width:52%; width:52%" /><col style="max-width:15%; min-width:15%; width:15%" /><col style="max-width:15%; min-width:15%; width:15%" /><col style="max-width:18%; min-width:18%; width:18%" /></colgroup>
+<thead><tr><th>Name</th><th>Total Space</th><th>Used Space</th><th>Thin Provision</th></tr></thead><tbody>
+<tr><td>Oracle_Data_Volumes_dest_clone_36</td><td>5 GB</td><td>2 GB</td><td>Yes</td></tr>
+<tr><td>DP_Server_Home</td><td>15 GB</td><td>42 MB</td><td>Yes</td></tr>
+<tr><td>SRM_PlaceHolder_DR</td><td>10 GB</td><td>31 MB</td><td>Yes</td></tr>
+<tr><td>vol_NTAPSOL_LUN_1_dest_clone_807</td><td>192 MB</td><td>16 MB</td><td>Yes</td></tr>
+<tr><td>vol_SERVER_DATASTORE_dest</td><td>15 GB</td><td>8 GB</td><td>Yes</td></tr>
+<tr><td>SnapLock_COM</td><td>10 GB</td><td>552 KB</td><td>No</td></tr>
+<tr><td>vol_SERVER_DATASTORE_2_dest</td><td>122 MB</td><td>404 KB</td><td>Yes</td></tr>
+<tr><td>SERVER_DATASTORE_DR</td><td>50 GB</td><td>288 MB</td><td>Yes</td></tr>
+<tr><td>SAN_DR_root</td><td>19 MB</td><td>1 MB</td><td>No</td></tr>
+<tr><td>vol_NTAPSOL_LUN_1_dest</td><td>192 MB</td><td>16 MB</td><td>Yes</td></tr>
+<tr><td>NAS_DR_root</td><td>19 MB</td><td>1 MB</td><td>No</td></tr>
+<tr><td>SnapLock_ENT</td><td>10 GB</td><td>552 KB</td><td>No</td></tr>
+<tr><td>VVOL_REPLICATION_MIRROR</td><td>122 MB</td><td>364 KB</td><td>Yes</td></tr>
+<tr><td>Oracle_Data_Volumes_dest</td><td>5 GB</td><td>2 GB</td><td>Yes</td></tr>
+</tbody></table>
+<div class="Caption">Table 114 - NetApp Volumes - PHARMAX-DR</div><br /></div>
+<a name="15b36efb-2b71-448b-a3f1-1c7f6c99d7b5"><h4 class="Heading4">1.5.1.5 PHARMAX-HQ</h4></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>DNS Name</th><td>pharmax-hq.pharmax.local</td></tr>
+<tr><th>Description</th><td>Created by PHARMAX\administrator at 6/29/2021 12:10 PM.</td></tr>
+<tr><th>Storage Type</th><td>NaCluster</td></tr>
+<tr><th>Used Credential</th><td>admin - (admin netapp)</td></tr>
+<tr><th>Connection Address</th><td>pharmax-hq.pharmax.local, 192.168.7.61, 192.168.7.62, 192.168.7.60</td></tr>
+<tr><th>Connection Port</th><td>443\TCP</td></tr>
+<tr><th>Installed Licenses</th><td>FlexClone, SnapRestore, Fcp, Iscsi, Nfs, SnapVaultPrimary, SnapVaultSecondary, SnapMirror, Cifs</td></tr>
+</tbody></table>
+<div class="Caption">Table 115 - NetApp Host - PHARMAX-HQ</div><br /></div>
+<a name="20721f27-34a5-4fcd-a16b-06483720fac9"><h1 class="NOTOCHeading5">Volumes</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:52%; min-width:52%; width:52%" /><col style="max-width:15%; min-width:15%; width:15%" /><col style="max-width:15%; min-width:15%; width:15%" /><col style="max-width:18%; min-width:18%; width:18%" /></colgroup>
+<thead><tr><th>Name</th><th>Total Space</th><th>Used Space</th><th>Thin Provision</th></tr></thead><tbody>
+<tr><td>HYPERV_VM_DATASTORE</td><td>50 GB</td><td>9 GB</td><td>Yes</td></tr>
+<tr><td>SQL_SERVER_01_V</td><td>80 GB</td><td>109 MB</td><td>Yes</td></tr>
+<tr><td>SERVER_DATASTORE</td><td>50 GB</td><td>5 GB</td><td>Yes</td></tr>
+<tr><td>SAN_root</td><td>19 MB</td><td>996 KB</td><td>No</td></tr>
+<tr><td>HYPERV_LOG_DATASTORE</td><td>50 GB</td><td>8 GB</td><td>Yes</td></tr>
+<tr><td>SERVER_DATASTORE_DR_dest</td><td>300 MB</td><td>231 MB</td><td>Yes</td></tr>
+<tr><td>ESX_RDM_TEST</td><td>48 GB</td><td>89 MB</td><td>Yes</td></tr>
+<tr><td>HYPERV_CLUSTER_QUORUM</td><td>10 GB</td><td>5 MB</td><td>Yes</td></tr>
+</tbody></table>
+<div class="Caption">Table 116 - NetApp Volumes - PHARMAX-HQ</div><br /></div>
+<a name="8707aded-d166-41b6-a518-9be493f2793e"><h3 class="Heading3">1.5.2 Dell Isilon Storage</h3></a><div>The following section details information about Dell storage infrastructure.</div><br /><a name="9ae07021-862d-4c48-9211-f4c67c2a03ca"><h4 class="Heading4">1.5.2.1 PHARMAX-ISILON</h4></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>DNS Name</th><td>isilon_nas.pharmax.local</td></tr>
+<tr><th>Description</th><td>Created by PHARMAX\jocolon at 1/16/2022 12:33 PM.</td></tr>
+<tr><th>Used Credential</th><td>admin - (Isilon Account)</td></tr>
+<tr><th>Connection Address</th><td>192.168.7.90</td></tr>
+<tr><th>Connection Port</th><td>8080\TCP</td></tr>
+</tbody></table>
+<div class="Caption">Table 117 - Isilon Host - PHARMAX-ISILON</div><br /></div>
+<a name="cff530c2-7249-4838-be6d-c9db59399b75"><h1 class="NOTOCHeading5">Volumes</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:52%; min-width:52%; width:52%" /><col style="max-width:15%; min-width:15%; width:15%" /><col style="max-width:15%; min-width:15%; width:15%" /><col style="max-width:18%; min-width:18%; width:18%" /></colgroup>
+<thead><tr><th>Name</th><th>Total Space</th><th>Used Space</th><th>Thin Provision</th></tr></thead><tbody>
+<tr><td>DATA</td><td>0 KB</td><td>0 KB</td><td>No</td></tr>
+</tbody></table>
+<div class="Caption">Table 118 - Isilon Volumes - PHARMAX-ISILON</div><br /></div>
+<a name="95063463-60d8-4e8d-8279-e06d1c191406"><h2 class="Heading2">1.6 Replication Components</h2></a><div>The following section provides information about the replications managed by Veeam Server veeam-vbr.pharmax.local.</div><br /><a name="65ecdb64-534d-42dc-80cc-9a45aaab67ad"><h3 class="Heading3">1.6.1 Replicas</h3></a><div>The following section details replica information from Veeam Server veeam-vbr.pharmax.local.</div><br /><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>VM Name</th><td>csr-mapserver</td></tr>
+<tr><th>Target Vm Name</th><td>csr-mapserver_replica</td></tr>
+<tr><th>Original Location</th><td>vcenter-01v.pharmax.local\RegionHQ-MGMT</td></tr>
+<tr><th>Destination Location</th><td>vcenter-03v.pharmax.local\edge-01a.pharmax.local</td></tr>
+<tr><th>Job Name</th><td>Cisco-CSR-Replication</td></tr>
+<tr><th>State</th><td>Ready</td></tr>
+<tr><th>Type</th><td>VMware Replication</td></tr>
+<tr><th>Restore Points</th><td>3</td></tr>
+<tr><th>Creation Time</th><td>05/08/2022 18:21:32</td></tr>
+</tbody></table>
+<div class="Caption">Table 119 - Cisco-CSR-Replication - csr-mapserver</div><br /></div>
+<div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>VM Name</th><td>VEEAM-Linux-VM</td></tr>
+<tr><th>Target Vm Name</th><td>VEEAM-Linux-VM_replica</td></tr>
+<tr><th>Original Location</th><td>vcenter-01v.pharmax.local\RegionA01-COMP</td></tr>
+<tr><th>Destination Location</th><td>vcenter-03v.pharmax.local\edge-01a.pharmax.local</td></tr>
+<tr><th>Job Name</th><td>HQ-to-EDGE</td></tr>
+<tr><th>State</th><td>Ready</td></tr>
+<tr><th>Type</th><td>VMware Replication</td></tr>
+<tr><th>Restore Points</th><td>5</td></tr>
+<tr><th>Creation Time</th><td>05/05/2022 14:22:24</td></tr>
+</tbody></table>
+<div class="Caption">Table 120 - HQ-to-EDGE - VEEAM-Linux-VM</div><br /></div>
+<div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>VM Name</th><td>VEEAM-VM</td></tr>
+<tr><th>Target Vm Name</th><td>VEEAM-VM_replica</td></tr>
+<tr><th>Original Location</th><td>vcenter-01v.pharmax.local\RegionA01-COMP</td></tr>
+<tr><th>Destination Location</th><td>vcenter-03v.pharmax.local\edge-01a.pharmax.local</td></tr>
+<tr><th>Job Name</th><td>HQ-to-EDGE</td></tr>
+<tr><th>State</th><td>Ready</td></tr>
+<tr><th>Type</th><td>VMware Replication</td></tr>
+<tr><th>Restore Points</th><td>1</td></tr>
+<tr><th>Creation Time</th><td>05/05/2022 14:22:24</td></tr>
+</tbody></table>
+<div class="Caption">Table 121 - HQ-to-EDGE - VEEAM-VM</div><br /></div>
+<div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>VM Name</th><td>Tiny-VM</td></tr>
+<tr><th>Target Vm Name</th><td>Tiny-VM_replica</td></tr>
+<tr><th>Original Location</th><td>pharmax-cluster.pharmax.local\VEEAM-HV-02</td></tr>
+<tr><th>Destination Location</th><td>VEEAM-HV-03.pharmax.local</td></tr>
+<tr><th>Job Name</th><td>HVCluster-To-HVStandalone</td></tr>
+<tr><th>State</th><td>Ready</td></tr>
+<tr><th>Type</th><td>Hyper-V Replication</td></tr>
+<tr><th>Restore Points</th><td>2</td></tr>
+<tr><th>Creation Time</th><td>05/07/2022 13:38:35</td></tr>
+</tbody></table>
+<div class="Caption">Table 122 - HVCluster-To-HVStandalone - Tiny-VM</div><br /></div>
+<a name="1244fec4-69a5-42d2-8650-f79c27b41fbc"><h3 class="Heading3">1.6.2 Failover Plans</h3></a><div>The following section details failover plan information from Veeam Server veeam-vbr.pharmax.local.</div><a name="ea3e8aad-8038-4bea-a249-31bfb5d350df"><h4 class="Heading4">1.6.2.1 Cisco-CSR-FailoverPlan</h4></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Platform</th><td>VMWare</td></tr>
+<tr><th>Status</th><td>Ready</td></tr>
+<tr><th>Pre Failover Script Enabled</th><td>No</td></tr>
+<tr><th>Pre Failover Command</th><td>-</td></tr>
+<tr><th>Post Failover Script Enabled</th><td>No</td></tr>
+<tr><th>Post Failover Command</th><td>-</td></tr>
+<tr><th>VM Count</th><td>1</td></tr>
+<tr><th>Description</th><td>Created by PHARMAX\administrator at 5/6/2022 11:54 AM.</td></tr>
+</tbody></table>
+<div class="Caption">Table 123 - Failover Plan - Cisco-CSR-FailoverPlan</div><br /></div>
+<a name="bf976160-359d-4df2-86d4-856ef72221e9"><h1 class="NOTOCHeading5">Virtual Machines</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:30%; min-width:30%; width:30%" /><col style="max-width:30%; min-width:30%; width:30%" /></colgroup>
+<thead><tr><th>VM Name</th><th>Boot Order</th><th>Boot Delay</th></tr></thead><tbody>
+<tr><td>Unknown</td><td>0</td><td>60</td></tr>
+</tbody></table>
+<div class="Caption">Table 124 - Virtual Machines - Cisco-CSR-FailoverPlan</div><br /></div>
+<a name="30ec3c24-35cb-4ad5-92cb-079571fbdbdd"><h4 class="Heading4">1.6.2.2 HQ-To-DR-HV</h4></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Platform</th><td>HyperV</td></tr>
+<tr><th>Status</th><td>Ready</td></tr>
+<tr><th>Pre Failover Script Enabled</th><td>Yes</td></tr>
+<tr><th>Pre Failover Command</th><td>predbsetup.ps1</td></tr>
+<tr><th>Post Failover Script Enabled</th><td>Yes</td></tr>
+<tr><th>Post Failover Command</th><td>postdbsetup.ps1</td></tr>
+<tr><th>VM Count</th><td>1</td></tr>
+<tr><th>Description</th><td>Created by PHARMAX\administrator at 5/8/2022 12:00 PM.</td></tr>
+</tbody></table>
+<div class="Caption">Table 125 - Failover Plan - HQ-To-DR-HV</div><br /></div>
+<a name="254924cc-65a3-4931-8e30-65eb0832d691"><h1 class="NOTOCHeading5">Virtual Machines</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:30%; min-width:30%; width:30%" /><col style="max-width:30%; min-width:30%; width:30%" /></colgroup>
+<thead><tr><th>VM Name</th><th>Boot Order</th><th>Boot Delay</th></tr></thead><tbody>
+<tr><td>Unknown</td><td>0</td><td>60</td></tr>
+</tbody></table>
+<div class="Caption">Table 126 - Virtual Machines - HQ-To-DR-HV</div><br /></div>
+<a name="89a33efc-4fb5-4fe0-874d-3852ad390d1c"><h4 class="Heading4">1.6.2.3 HQ-to-EDGE FailOver Plan</h4></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Platform</th><td>VMWare</td></tr>
+<tr><th>Status</th><td>Ready</td></tr>
+<tr><th>Pre Failover Script Enabled</th><td>No</td></tr>
+<tr><th>Pre Failover Command</th><td>mysql</td></tr>
+<tr><th>Post Failover Script Enabled</th><td>No</td></tr>
+<tr><th>Post Failover Command</th><td>-</td></tr>
+<tr><th>VM Count</th><td>2</td></tr>
+<tr><th>Description</th><td>Created by PHARMAX\administrator at 5/5/2022 9:43 PM.</td></tr>
+</tbody></table>
+<div class="Caption">Table 127 - Failover Plan - HQ-to-EDGE FailOver Plan</div><br /></div>
+<a name="67b66f5f-61c8-4cc6-afd4-e96c2b9d680a"><h1 class="NOTOCHeading5">Virtual Machines</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:30%; min-width:30%; width:30%" /><col style="max-width:30%; min-width:30%; width:30%" /></colgroup>
+<thead><tr><th>VM Name</th><th>Boot Order</th><th>Boot Delay</th></tr></thead><tbody>
+<tr><td>Unknown</td><td>1</td><td>60</td></tr>
+<tr><td>Unknown</td><td>0</td><td>60</td></tr>
+</tbody></table>
+<div class="Caption">Table 128 - Virtual Machines - HQ-to-EDGE FailOver Plan</div><br /></div>
+<a name="541a3dde-cfcc-459f-b5b9-b80d3c4a020c"><h2 class="Heading2">1.7 Jobs Summary</h2></a><div>The following section provides information about the configured jobs in Veeam Server: veeam-vbr.pharmax.local.</div><br /><div align="Center">
+<img src="data:image/png;base64, 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" alt="Backup Repository - Diagram" height="400" width="600" />
+</div>
+<a name="18ddcd6a-af47-4700-858a-ec6122abd48b"><h3 class="Heading3">1.7.1 Backup Jobs</h3></a><div>The following section list backup jobs created in Veeam Backup &amp; Replication.</div><br /><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:25%; min-width:25%; width:25%" /><col style="max-width:20%; min-width:20%; width:20%" /><col style="max-width:15%; min-width:15%; width:15%" /><col style="max-width:15%; min-width:15%; width:15%" /><col style="max-width:25%; min-width:25%; width:25%" /></colgroup>
+<thead><tr><th>Name</th><th>Type</th><th>Status</th><th>Latest Result</th><th>Target Repository</th></tr></thead><tbody>
+<tr><td>Agent Backup Policy 2</td><td>Linux Agent Policy</td><td>Enabled</td><td>Failed</td><td>SOBR - Minio</td></tr>
+<tr><td>Backup - Replicated VM - Cloud Virtualdcs</td><td>VMware Backup</td><td>Enabled</td><td>Success</td><td>Linux - Hardened Repository</td></tr>
+<tr><td>Backup Copy Job 1</td><td>VMware Backup Copy</td><td>Enabled</td><td>Warning</td><td>cloud-jcolonfzenpr-01</td></tr>
+<tr><td>COMP-CLUSTER-NFS</td><td>VMware Backup</td><td>Enabled</td><td>Warning</td><td>SOBR - Minio</td></tr>
+<tr><td>File Backup Job 1</td><td>File Backup</td><td>Enabled</td><td>Failed</td><td>SOBR - Minio</td></tr>
+<tr><td>File Backup Job 1 (Copy) 1</td><td>Backup Copy</td><td>Enabled</td><td>None</td><td>VEEAM-DD</td></tr>
+<tr><td>Gurabo PC - Backup Job</td><td>Windows Agent Policy</td><td>Enabled</td><td>None</td><td>SOBR - Minio</td></tr>
+<tr><td>HPE-StoreOnce-Copy-Job</td><td>VMware Backup Copy</td><td>Enabled</td><td>Success</td><td>VEEAM-HPE-StoreOnce-VSA</td></tr>
+<tr><td>Hyper-V-Backup-Copy</td><td>Hyper-V Backup Copy</td><td>Disabled</td><td>None</td><td>SOBR - Minio</td></tr>
+<tr><td>HyperV-Backup-Job</td><td>Hyper-V Backup</td><td>Enabled</td><td>Success</td><td>VEEAM-HPE-StoreOnce-VSA</td></tr>
+<tr><td>Linux Agent Backup Job</td><td>Linux Agent Backup</td><td>Enabled</td><td>Failed</td><td>Linux - Hardened Repository</td></tr>
+<tr><td>PHARMAX-HQ-SVR</td><td>VMware Backup</td><td>Disabled</td><td>None</td><td>SOBR - Minio</td></tr>
+<tr><td>Server - Share Backup</td><td>File Backup</td><td>Enabled</td><td>None</td><td>SOBR - Minio</td></tr>
+<tr><td>SOBR - TEST</td><td>VMware Backup</td><td>Enabled</td><td>Success</td><td>SOBR - Minio</td></tr>
+<tr><td>VM - Test - AWS</td><td>VMware Backup</td><td>Enabled</td><td>Failed</td><td>SOBR - AWS S3</td></tr>
+<tr><td>VM Copy Job 1</td><td>VM Copy</td><td>Enabled</td><td>Failed</td><td>F:\VM<br /></td></tr>
+<tr><td>WIN HyperV VM Backup</td><td>Hyper-V Backup</td><td>Disabled</td><td>Failed</td><td>SOBR - Minio</td></tr>
+</tbody></table>
+<div class="Caption">Table 129 - Backup Jobs - VEEAM-VBR</div><br /></div>
+<a name="832467f6-6ebc-4ce3-9242-f846929bc8d5"><h3 class="Heading3">1.7.2 VMware Backup Jobs Configuration</h3></a><div>The following section details the configuration of VMware type backup jobs.</div><br /><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:35%; min-width:35%; width:35%" /><col style="max-width:35%; min-width:35%; width:35%" /><col style="max-width:30%; min-width:30%; width:30%" /></colgroup>
+<thead><tr><th>Name</th><th>Creation Time</th><th>VM Count</th></tr></thead><tbody>
+<tr><td>Backup - Replicated VM - Cloud Virtualdcs</td><td>06/27/2022 16:57:50</td><td>3</td></tr>
+<tr><td>Backup Copy Job 1</td><td>12/21/2021 20:14:52</td><td>1</td></tr>
+<tr><td>Backup Copy Job 1</td><td>06/14/2022 20:57:51</td><td>8</td></tr>
+<tr><td>COMP-CLUSTER-NFS</td><td>06/02/2021 20:31:27</td><td>1</td></tr>
+<tr><td>HPE-StoreOnce-Copy-Job</td><td>06/30/2021 18:00:40</td><td>1</td></tr>
+<tr><td>PHARMAX-HQ-SVR</td><td>06/29/2021 12:15:23</td><td>1</td></tr>
+<tr><td>Servers Backup Daily</td><td>12/15/2019 19:25:18</td><td>0</td></tr>
+<tr><td>SOBR - TEST</td><td>02/27/2021 21:07:32</td><td>6</td></tr>
+<tr><td>SQL Server Backup</td><td>12/15/2019 20:46:10</td><td>0</td></tr>
+<tr><td>VEEAM-SP Server Backup</td><td>12/15/2019 23:22:23</td><td>0</td></tr>
+<tr><td>VM - Test - AWS</td><td>12/20/2021 12:57:43</td><td>1</td></tr>
+</tbody></table>
+<div class="Caption">Table 130 - VMware Backup Summary - VEEAM-VBR</div><br /></div>
+<a name="0a1914f4-d6cc-4266-bd4b-a4a77a1d9bd6"><h4 class="Heading4">1.7.2.1 Backup - Replicated VM - Cloud Virtualdcs</h4></a><a name="7dc8b765-68e4-4a9a-808c-5bf38f1b6169"><h1 class="NOTOCHeading4">Common Information</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Name</th><td>Backup - Replicated VM - Cloud Virtualdcs</td></tr>
+<tr><th>Type</th><td>VMware Backup</td></tr>
+<tr><th>Total Backup Size</th><td>5 GB</td></tr>
+<tr><th>Target Address</th><td>/backup_data/backups</td></tr>
+<tr><th>Target File</th><td>Backup - Replicated VM - Cloud Virtualdcs</td></tr>
+<tr><th>Description</th><td>Created by PHARMAX\administrator at 6/27/2022 4:56 PM.</td></tr>
+<tr><th>Modified By</th><td>PHARMAX\administrator</td></tr>
+</tbody></table>
+<div class="Caption">Table 131 - Common Information - Backup - Replicated VM - Cloud Virtualdcs</div><br /></div>
+<a name="6dad7907-4b37-4128-becb-0514f6418a43"><h1 class="NOTOCHeading5">Virtual Machines</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Name</th><td>csr-mapserver</td></tr>
+<tr><th>Resource Type</th><td>Virtual Machine</td></tr>
+<tr><th>Role</th><td>Include</td></tr>
+<tr><th>Location</th><td>vcenter-01v.pharmax.local\PHARMAX-VSI-DC\RegionHQ-MGMT\csr-mapserver</td></tr>
+<tr><th>Approx Size</th><td>1.5 GB</td></tr>
+<tr><th>Disk Filter Mode</th><td>AllDisks</td></tr>
+</tbody></table>
+<div class="Caption">Table 132 - Virtual Machines - csr-mapserver</div><br /></div>
+<div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Name</th><td>csr-pharmax-dr</td></tr>
+<tr><th>Resource Type</th><td>Virtual Machine</td></tr>
+<tr><th>Role</th><td>Include</td></tr>
+<tr><th>Location</th><td>vcenter-01v.pharmax.local\PHARMAX-VSI-DC\RegionHQ-MGMT\csr-pharmax-dr</td></tr>
+<tr><th>Approx Size</th><td>1.5 GB</td></tr>
+<tr><th>Disk Filter Mode</th><td>AllDisks</td></tr>
+</tbody></table>
+<div class="Caption">Table 133 - Virtual Machines - csr-pharmax-dr</div><br /></div>
+<div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Name</th><td>csr-pharmax-hq</td></tr>
+<tr><th>Resource Type</th><td>Virtual Machine</td></tr>
+<tr><th>Role</th><td>Include</td></tr>
+<tr><th>Location</th><td>vcenter-01v.pharmax.local\PHARMAX-VSI-DC\RegionHQ-MGMT\csr-pharmax-hq</td></tr>
+<tr><th>Approx Size</th><td>1.5 GB</td></tr>
+<tr><th>Disk Filter Mode</th><td>AllDisks</td></tr>
+</tbody></table>
+<div class="Caption">Table 134 - Virtual Machines - csr-pharmax-hq</div><br /></div>
+<a name="0f8dfaa0-405e-4b8d-8996-ae745d0986cc"><h1 class="NOTOCHeading5">Storage</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Backup Proxy</th><td>veeam-lnx-px.pharmax.local</td></tr>
+<tr><th>Backup Repository</th><td>Linux - Hardened Repository</td></tr>
+<tr><th>Retention Type</th><td>Days</td></tr>
+<tr><th>Retain Days To Keep</th><td>7</td></tr>
+<tr><th>Keep First Full Backup</th><td>No</td></tr>
+<tr><th>Enable Full Backup</th><td>No</td></tr>
+<tr><th>Integrity Checks</th><td>Yes</td></tr>
+<tr><th>Storage Encryption</th><td>No</td></tr>
+<tr><th>Backup Mode</th><td>Incremental</td></tr>
+<tr><th>Active Full Backup Schedule Kind</th><td>Daily</td></tr>
+<tr><th>Active Full Backup Days</th><td>Saturday</td></tr>
+<tr><th>Transform Full To Syntethic</th><td>Yes</td></tr>
+<tr><th>Transform Increments To Syntethic</th><td>No</td></tr>
+<tr><th>Transform To Syntethic Days</th><td>Saturday</td></tr>
+</tbody></table>
+<div class="Caption">Table 135 - Storage Options - Backup - Replicated VM - Cloud Virtualdcs</div><br /></div>
+<a name="bf608d69-8573-4a2f-9c01-a8c605814cc2"><h1 class="NOTOCHeading6">Advanced Settings (Maintenance)</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Storage-Level Corruption Guard (SLCG)</th><td>Yes</td></tr>
+<tr><th>SLCG Schedule Type</th><td>Monthly</td></tr>
+<tr><th>SLCG Schedule Day</th><td>Friday</td></tr>
+<tr><th>SLCG Backup Monthly Schedule</th><td>Day Of Week: Friday<br />Day Number In Month: Last<br />Day of Month: 1<br />Months: January February March April May June July August September October November December</td></tr>
+<tr><th>Defragment and Compact Full Backup (DCFB)</th><td>No</td></tr>
+<tr><th>DCFB Schedule Type</th><td>Monthly</td></tr>
+<tr><th>DCFB Schedule Day</th><td>Saturday</td></tr>
+<tr><th>DCFB Backup Monthly Schedule</th><td>Day Of Week: Saturday<br />Day Number In Month: Last<br />Day of Month: 1<br />Months: January February March April May June July August September October November December</td></tr>
+<tr><th>Remove deleted item data after</th><td>14</td></tr>
+</tbody></table>
+<div class="Caption">Table 136 - Advanced Settings (Maintenance) - Backup - Replicated VM - Cloud Virtualdcs</div><br /></div>
+<a name="0963830c-3395-43f7-84aa-9b0c2e223bf0"><h1 class="NOTOCHeading6">Advanced Settings (Storage)</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Inline Data Deduplication</th><td>Yes</td></tr>
+<tr><th>Exclude Swap Files Block</th><td>Yes</td></tr>
+<tr><th>Exclude Deleted Files Block</th><td>Yes</td></tr>
+<tr><th>Compression Level</th><td>OPTIMAL (Default)</td></tr>
+<tr><th>Storage optimization</th><td>Local target</td></tr>
+<tr><th>Enabled Backup File Encryption</th><td>No</td></tr>
+<tr><th>Encryption Key</th><td>None</td></tr>
+</tbody></table>
+<div class="Caption">Table 137 - Advanced Settings (Storage) - Backup - Replicated VM - Cloud Virtualdcs</div><br /></div>
+<a name="8bee56a9-1f6e-475d-80a9-780f6bc32d9f"><h1 class="NOTOCHeading6">Advanced Settings (vSphere)</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Enable VMware Tools Quiescence</th><td>No</td></tr>
+<tr><th>Use Change Block Tracking</th><td>Yes</td></tr>
+<tr><th>Enable CBT for all protected VMs</th><td>Yes</td></tr>
+<tr><th>Reset CBT On each Active Full Backup</th><td>Yes</td></tr>
+</tbody></table>
+<div class="Caption">Table 138 - Advanced Settings (vSphere) - Backup - Replicated VM - Cloud Virtualdcs</div><br /></div>
+<a name="dcb38b8d-9209-4f7a-ad2c-017a7838b92c"><h1 class="NOTOCHeading6">Advanced Settings (Integration)</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Enable Backup from Storage Snapshots</th><td>Yes</td></tr>
+<tr><th>Limit processed VM count per Storage Snapshot</th><td>No</td></tr>
+<tr><th>VM count per Storage Snapshot</th><td>10</td></tr>
+<tr><th>Failover to Standard Backup</th><td>No</td></tr>
+<tr><th>Failover to Primary Storage Snapshot</th><td>No</td></tr>
+</tbody></table>
+<div class="Caption">Table 139 - Advanced Settings (Integration) - Backup - Replicated VM - Cloud Virtualdcs</div><br /></div>
+<a name="1a582cb4-07a4-412b-b57c-62e5c98abf26"><h4 class="Heading4">1.7.2.2 Backup Copy Job 1</h4></a><a name="a8239a68-68a4-41fb-a381-7a2d631a8966"><h1 class="NOTOCHeading4">Common Information</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Name</th><td>Backup Copy Job 1</td></tr>
+<tr><th>Type</th><td>VMware Backup Copy</td></tr>
+<tr><th>Total Backup Size</th><td>0 KB</td></tr>
+<tr><th>Target Address</th><td>&nbsp;</td></tr>
+<tr><th>Target File</th><td>Backup Copy Job 1</td></tr>
+<tr><th>Description</th><td>Created by PHARMAX\administrator at 2/12/2022 9:10 PM.</td></tr>
+<tr><th>Modified By</th><td>PHARMAX\administrator</td></tr>
+</tbody></table>
+<div class="Caption">Table 140 - Common Information - Backup Copy Job 1</div><br /></div>
+<a name="fd62b5e7-3334-41e3-9138-2d99f8f5c8ee"><h1 class="NOTOCHeading5">Linked Backup Jobs</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:35%; min-width:35%; width:35%" /><col style="max-width:25%; min-width:25%; width:25%" /><col style="max-width:15%; min-width:15%; width:15%" /><col style="max-width:25%; min-width:25%; width:25%" /></colgroup>
+<thead><tr><th>Name</th><th>Type</th><th>Size</th><th>Repository</th></tr></thead><tbody>
+<tr><td>PHARMAX-HQ-SVR</td><td>VMware Backup</td><td>31 GB</td><td>SOBR - Minio</td></tr>
+</tbody></table>
+<div class="Caption">Table 141 - Linked Backup Jobs - Backup Copy Job 1</div><br /></div>
+<a name="3dc348fd-e647-4344-a7d3-a020376cbe25"><h1 class="NOTOCHeading5">Data Transfer</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Use Wan accelerator</th><td>No</td></tr>
+<tr><th>Source Wan accelerator</th><td>VEEAM-VBR</td></tr>
+<tr><th>Target Wan accelerator</th><td>VEEAM-VBR-02V.pharmax.local</td></tr>
+</tbody></table>
+<div class="Caption">Table 142 - Data Transfer - Backup Copy Job 1</div><br /></div>
+<a name="45c308a3-e16e-4a0b-80e5-d14a834aaaca"><h1 class="NOTOCHeading5">Target</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Backup Proxy</th><td>Unknown</td></tr>
+<tr><th>Backup Repository</th><td>cloud-jcolonfzenpr-01</td></tr>
+<tr><th>Retention Type</th><td>Days</td></tr>
+<tr><th>Retain Days To Keep</th><td>7</td></tr>
+<tr><th>Keep First Full Backup</th><td>No</td></tr>
+<tr><th>Enable Full Backup</th><td>No</td></tr>
+<tr><th>Integrity Checks</th><td>Yes</td></tr>
+<tr><th>Storage Encryption</th><td>Yes</td></tr>
+<tr><th>Backup Mode</th><td>Incremental</td></tr>
+<tr><th>Active Full Backup Schedule Kind</th><td>Daily</td></tr>
+<tr><th>Active Full Backup Days</th><td>Saturday</td></tr>
+<tr><th>Transform Full To Syntethic</th><td>Yes</td></tr>
+<tr><th>Transform Increments To Syntethic</th><td>No</td></tr>
+<tr><th>Transform To Syntethic Days</th><td>&nbsp;</td></tr>
+<tr><th>Keep certain full backup longer for archival purposes (GFS)</th><td>Yes</td></tr>
+<tr><th>Keep Weekly full backup for</th><td>1 weeks,<br />If multiple backup exist use the one from: Sunday</td></tr>
+<tr><th>Keep Monthly full backup for</th><td>1 months,<br />Use weekly full backup from the following week of the month: First</td></tr>
+<tr><th>Keep Yearly full backup for</th><td>1 years,<br />Use monthly full backup from the following month: January</td></tr>
+</tbody></table>
+<div class="Caption">Table 143 - Target Options - Backup Copy Job 1</div><br /></div>
+<a name="9e89558f-a406-4eac-aa80-b05f58df0ece"><h1 class="NOTOCHeading6">Advanced Settings (Maintenance)</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Storage-Level Corruption Guard (SLCG)</th><td>Yes</td></tr>
+<tr><th>SLCG Schedule Type</th><td>Monthly</td></tr>
+<tr><th>SLCG Schedule Day</th><td>Saturday</td></tr>
+<tr><th>SLCG Backup Monthly Schedule</th><td>Day Of Week: Saturday<br />Day Number In Month: Last<br />Day of Month: 1<br />Months: January February March April May June July August September October November December</td></tr>
+<tr><th>Defragment and Compact Full Backup (DCFB)</th><td>No</td></tr>
+<tr><th>DCFB Schedule Type</th><td>Monthly</td></tr>
+<tr><th>DCFB Schedule Day</th><td>Sunday</td></tr>
+<tr><th>DCFB Backup Monthly Schedule</th><td>Day Of Week: Sunday<br />Day Number In Month: Last<br />Day of Month: 1<br />Months: January February March April May June July August September October November December</td></tr>
+<tr><th>Remove deleted item data after</th><td>14</td></tr>
+</tbody></table>
+<div class="Caption">Table 144 - Advanced Settings (Maintenance) - Backup Copy Job 1</div><br /></div>
+<a name="eb7db36a-940b-4c9e-bc85-8dc418d4a379"><h1 class="NOTOCHeading6">Advanced Settings (Storage)</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Inline Data Deduplication</th><td>Yes</td></tr>
+<tr><th>Exclude Swap Files Block</th><td>Yes</td></tr>
+<tr><th>Exclude Deleted Files Block</th><td>Yes</td></tr>
+<tr><th>Compression Level</th><td>AUTO</td></tr>
+<tr><th>Storage optimization</th><td>Automatic</td></tr>
+<tr><th>Enabled Backup File Encryption</th><td>Yes</td></tr>
+<tr><th>Encryption Key</th><td>Password Global</td></tr>
+</tbody></table>
+<div class="Caption">Table 145 - Advanced Settings (Storage) - Backup Copy Job 1</div><br /></div>
+<a name="2d92ce57-e9ad-4289-a842-568416b001a6"><h1 class="NOTOCHeading6">Advanced Settings (Notification)</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Send Snmp Notification</th><td>Yes</td></tr>
+<tr><th>Send Email Notification</th><td>Yes</td></tr>
+<tr><th>Email Notification Additional Addresses</th><td>rebelinux@gmail.com</td></tr>
+<tr><th>Email Notify Time</th><td>10:00 PM</td></tr>
+<tr><th>Use Custom Email Notification Options</th><td>No</td></tr>
+<tr><th>Use Custom Notification Setting</th><td>[%JobResult%] %JobName% (%ObjectCount% machines) %Issues%</td></tr>
+<tr><th>Notify On Success</th><td>Yes</td></tr>
+<tr><th>Notify On Warning</th><td>Yes</td></tr>
+<tr><th>Notify On Error</th><td>Yes</td></tr>
+<tr><th>Suppress Notification until Last Retry</th><td>No</td></tr>
+<tr><th>Set Results To Vm Notes</th><td>No</td></tr>
+<tr><th>VM Attribute Note Value</th><td>Notes</td></tr>
+<tr><th>Append to Existing Attribute</th><td>Yes</td></tr>
+</tbody></table>
+<div class="Caption">Table 146 - Advanced Settings (Notification) - Backup Copy Job 1</div><br /></div>
+<a name="4e0bae57-ac30-4c1b-8728-9f7bd23cfe95"><h1 class="NOTOCHeading6">Advanced Settings (vSphere)</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Enable VMware Tools Quiescence</th><td>No</td></tr>
+<tr><th>Use Change Block Tracking</th><td>Yes</td></tr>
+<tr><th>Enable CBT for all protected VMs</th><td>Yes</td></tr>
+<tr><th>Reset CBT On each Active Full Backup</th><td>Yes</td></tr>
+</tbody></table>
+<div class="Caption">Table 147 - Advanced Settings (vSphere) - Backup Copy Job 1</div><br /></div>
+<a name="d5c1282f-9028-42e8-8318-222b4171e012"><h1 class="NOTOCHeading6">Advanced Settings (Integration)</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Enable Backup from Storage Snapshots</th><td>Yes</td></tr>
+<tr><th>Limit processed VM count per Storage Snapshot</th><td>No</td></tr>
+<tr><th>VM count per Storage Snapshot</th><td>10</td></tr>
+<tr><th>Failover to Standard Backup</th><td>No</td></tr>
+<tr><th>Failover to Primary Storage Snapshot</th><td>No</td></tr>
+</tbody></table>
+<div class="Caption">Table 148 - Advanced Settings (Integration) - Backup Copy Job 1</div><br /></div>
+<a name="83e6ec62-9512-4487-bf29-48e5a21c58d3"><h1 class="NOTOCHeading6">Advanced Settings (RPO Monitor)</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>RPO Monitor Enabled</th><td>Yes</td></tr>
+<tr><th>If Backup is not Copied Within</th><td>1 Day</td></tr>
+<tr><th>Log Backup RPO Monitor Enabled</th><td>No</td></tr>
+<tr><th>If Log Backup is not Copied Within</th><td>1 Hour</td></tr>
+</tbody></table>
+<div class="Caption">Table 149 - Advanced Settings (RPO Monitor) - Backup Copy Job 1</div><br /></div>
+<a name="75178f03-9a1e-433d-9179-afbddda2cc75"><h1 class="NOTOCHeading5">Schedule</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Retry Failed item</th><td>3</td></tr>
+<tr><th>Wait before each retry</th><td>10/min</td></tr>
+<tr><th>Backup Window</th><td>Yes</td></tr>
+<tr><th>Shedule type</th><td>Continuous</td></tr>
+<tr><th>Shedule Options</th><td>Schedule Time Period</td></tr>
+<tr><th>Start Time</th><td>10:00 PM</td></tr>
+<tr><th>Latest Run</th><td>09/30/2022 18:29:50</td></tr>
+</tbody></table>
+<div class="Caption">Table 150 - Schedule Options - Backup Copy Job 1</div><br /></div>
+<a name="3c7d31c1-7abf-487c-a7e0-277816674232"><h1 class="NOTOCHeading6">Backup Window Time Period</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%;"><thead><tr><th>Hour</th><th>12</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th><th>9</th><th>10</th><th>11</th><th>12</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th><th>9</th><th>10</th><th>11</th></tr></thead><tbody>
+<tr><th>Sun</th><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td></tr>
+<tr><th>Mon</th><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td></tr>
+<tr><th>Tue</th><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td></tr>
+<tr><th>Wed</th><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td></tr>
+<tr><th>Thu</th><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td></tr>
+<tr><th>Fri</th><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td></tr>
+<tr><th>Sat</th><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td></tr>
+</tbody></table>
+<div class="Caption">Table 151 - Backup Window - Backup Copy Job 1</div><br /></div>
+<a name="6e4f5ad9-cab5-4b37-920f-9c0760e134bf"><h4 class="Heading4">1.7.2.3 COMP-CLUSTER-NFS</h4></a><a name="b69e2b15-2d74-48b1-a2ef-4812b4956871"><h1 class="NOTOCHeading4">Common Information</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Name</th><td>COMP-CLUSTER-NFS</td></tr>
+<tr><th>Type</th><td>VMware Backup</td></tr>
+<tr><th>Total Backup Size</th><td>0 KB</td></tr>
+<tr><th>Target Address</th><td>&nbsp;</td></tr>
+<tr><th>Target File</th><td>COMP-CLUSTER-NFS</td></tr>
+<tr><th>Description</th><td>Created by PHARMAX\administrator at 6/2/2021 8:15 PM.</td></tr>
+<tr><th>Modified By</th><td>PHARMAX\administrator</td></tr>
+</tbody></table>
+<div class="Caption">Table 152 - Common Information - COMP-CLUSTER-NFS</div><br /></div>
+<a name="ef0c3e6b-fd8d-4e9c-98ca-aaea666b9096"><h1 class="NOTOCHeading5">Virtual Machines</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Name</th><td>RocaWeb</td></tr>
+<tr><th>Resource Type</th><td>Virtual Machine</td></tr>
+<tr><th>Role</th><td>Include</td></tr>
+<tr><th>Location</th><td>vcenter-01v.pharmax.local\PHARMAX-VSI-DC\RegionA01-COMP\PHARMAX-HQ-SVR\RocaWeb</td></tr>
+<tr><th>Approx Size</th><td>0 B</td></tr>
+<tr><th>Disk Filter Mode</th><td>AllDisks</td></tr>
+</tbody></table>
+<div class="Caption">Table 153 - Virtual Machines - RocaWeb</div><br /></div>
+<a name="afc7c178-7fe2-44e0-9972-e9022e18cb52"><h1 class="NOTOCHeading5">Storage</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Backup Proxy</th><td>Automatic</td></tr>
+<tr><th>Backup Repository</th><td>SOBR - Minio</td></tr>
+<tr><th>Retention Type</th><td>Days</td></tr>
+<tr><th>Retain Days To Keep</th><td>7</td></tr>
+<tr><th>Keep First Full Backup</th><td>No</td></tr>
+<tr><th>Enable Full Backup</th><td>No</td></tr>
+<tr><th>Integrity Checks</th><td>Yes</td></tr>
+<tr><th>Storage Encryption</th><td>No</td></tr>
+<tr><th>Backup Mode</th><td>Incremental</td></tr>
+<tr><th>Active Full Backup Schedule Kind</th><td>Daily</td></tr>
+<tr><th>Active Full Backup Days</th><td>Saturday</td></tr>
+<tr><th>Transform Full To Syntethic</th><td>Yes</td></tr>
+<tr><th>Transform Increments To Syntethic</th><td>No</td></tr>
+<tr><th>Transform To Syntethic Days</th><td>Saturday</td></tr>
+</tbody></table>
+<div class="Caption">Table 154 - Storage Options - COMP-CLUSTER-NFS</div><br /></div>
+<a name="5394b8a3-d648-49bd-829e-29044725fe16"><h1 class="NOTOCHeading6">Advanced Settings (Storage)</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Inline Data Deduplication</th><td>Yes</td></tr>
+<tr><th>Exclude Swap Files Block</th><td>Yes</td></tr>
+<tr><th>Exclude Deleted Files Block</th><td>Yes</td></tr>
+<tr><th>Compression Level</th><td>OPTIMAL (Default)</td></tr>
+<tr><th>Storage optimization</th><td>Local target</td></tr>
+<tr><th>Enabled Backup File Encryption</th><td>No</td></tr>
+<tr><th>Encryption Key</th><td>None</td></tr>
+</tbody></table>
+<div class="Caption">Table 155 - Advanced Settings (Storage) - COMP-CLUSTER-NFS</div><br /></div>
+<a name="01962448-1059-4838-ad6b-03f0b8cf7031"><h1 class="NOTOCHeading6">Advanced Settings (vSphere)</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Enable VMware Tools Quiescence</th><td>No</td></tr>
+<tr><th>Use Change Block Tracking</th><td>Yes</td></tr>
+<tr><th>Enable CBT for all protected VMs</th><td>Yes</td></tr>
+<tr><th>Reset CBT On each Active Full Backup</th><td>Yes</td></tr>
+</tbody></table>
+<div class="Caption">Table 156 - Advanced Settings (vSphere) - COMP-CLUSTER-NFS</div><br /></div>
+<a name="0ded4028-4d03-4a60-b166-11f2ddf5eb41"><h1 class="NOTOCHeading5">Schedule</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Retry Failed item</th><td>3</td></tr>
+<tr><th>Wait before each retry</th><td>10/min</td></tr>
+<tr><th>Backup Window</th><td>Yes</td></tr>
+<tr><th>Shedule type</th><td>Daily</td></tr>
+<tr><th>Shedule Options</th><td>Kind: Everyday,<br />Days: Sunday Monday Tuesday Wednesday Thursday Friday Saturday</td></tr>
+<tr><th>Start Time</th><td>10:00 PM</td></tr>
+<tr><th>Latest Run</th><td>01/01/0001 00:00:00</td></tr>
+</tbody></table>
+<div class="Caption">Table 157 - Schedule Options - COMP-CLUSTER-NFS</div><br /></div>
+<a name="9cc768bc-bdb1-4265-ba47-350f13fb2c4e"><h1 class="NOTOCHeading6">Backup Window Time Period</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%;"><thead><tr><th>Hour</th><th>12</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th><th>9</th><th>10</th><th>11</th><th>12</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th><th>9</th><th>10</th><th>11</th></tr></thead><tbody>
+<tr><th>Sun</th><td>off</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>off</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td></tr>
+<tr><th>Mon</th><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td></tr>
+<tr><th>Tue</th><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>on</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td></tr>
+<tr><th>Wed</th><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td></tr>
+<tr><th>Thu</th><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>on</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td></tr>
+<tr><th>Fri</th><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td></tr>
+<tr><th>Sat</th><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>off</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td></tr>
+</tbody></table>
+<div class="Caption">Table 158 - Backup Window - COMP-CLUSTER-NFS</div><br /></div>
+<a name="0a778ab6-d47c-488b-a33d-4f5a82184013"><h4 class="Heading4">1.7.2.4 HPE-StoreOnce-Copy-Job</h4></a><a name="9ba6571a-7281-4a59-88de-267ddaa48346"><h1 class="NOTOCHeading4">Common Information</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Name</th><td>HPE-StoreOnce-Copy-Job</td></tr>
+<tr><th>Type</th><td>VMware Backup Copy</td></tr>
+<tr><th>Total Backup Size</th><td>8 GB</td></tr>
+<tr><th>Target Address</th><td>storeonce://veeam-hsv.pharmax.local:VEEAM-VLT-HPE@/</td></tr>
+<tr><th>Target File</th><td>HPE-StoreOnce-Copy-Job</td></tr>
+<tr><th>Description</th><td>Created by PHARMAX\administrator at 6/30/2021 5:58 PM.</td></tr>
+<tr><th>Modified By</th><td>PHARMAX\administrator</td></tr>
+</tbody></table>
+<div class="Caption">Table 159 - Common Information - HPE-StoreOnce-Copy-Job</div><br /></div>
+<a name="b224f40a-83ce-43b2-9053-a266fcbf654f"><h1 class="NOTOCHeading5">Target</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Backup Proxy</th><td>Unknown</td></tr>
+<tr><th>Backup Repository</th><td>VEEAM-HPE-StoreOnce-VSA</td></tr>
+<tr><th>Retention Type</th><td>Days</td></tr>
+<tr><th>Retain Days To Keep</th><td>7</td></tr>
+<tr><th>Keep First Full Backup</th><td>No</td></tr>
+<tr><th>Enable Full Backup</th><td>No</td></tr>
+<tr><th>Integrity Checks</th><td>Yes</td></tr>
+<tr><th>Storage Encryption</th><td>No</td></tr>
+<tr><th>Backup Mode</th><td>Incremental</td></tr>
+<tr><th>Active Full Backup Schedule Kind</th><td>Daily</td></tr>
+<tr><th>Active Full Backup Days</th><td>Saturday</td></tr>
+<tr><th>Transform Full To Syntethic</th><td>No</td></tr>
+<tr><th>Transform Increments To Syntethic</th><td>No</td></tr>
+<tr><th>Transform To Syntethic Days</th><td>&nbsp;</td></tr>
+</tbody></table>
+<div class="Caption">Table 160 - Target Options - HPE-StoreOnce-Copy-Job</div><br /></div>
+<a name="06e70033-de55-4db0-a532-cbd9aa985c16"><h1 class="NOTOCHeading6">Advanced Settings (Storage)</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Inline Data Deduplication</th><td>Yes</td></tr>
+<tr><th>Exclude Swap Files Block</th><td>Yes</td></tr>
+<tr><th>Exclude Deleted Files Block</th><td>Yes</td></tr>
+<tr><th>Compression Level</th><td>AUTO</td></tr>
+<tr><th>Storage optimization</th><td>Automatic</td></tr>
+<tr><th>Enabled Backup File Encryption</th><td>No</td></tr>
+<tr><th>Encryption Key</th><td>None</td></tr>
+</tbody></table>
+<div class="Caption">Table 161 - Advanced Settings (Storage) - HPE-StoreOnce-Copy-Job</div><br /></div>
+<a name="259b7ef2-cbae-49de-bda7-814fdd0c95bf"><h1 class="NOTOCHeading6">Advanced Settings (vSphere)</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Enable VMware Tools Quiescence</th><td>No</td></tr>
+<tr><th>Use Change Block Tracking</th><td>Yes</td></tr>
+<tr><th>Enable CBT for all protected VMs</th><td>Yes</td></tr>
+<tr><th>Reset CBT On each Active Full Backup</th><td>Yes</td></tr>
+</tbody></table>
+<div class="Caption">Table 162 - Advanced Settings (vSphere) - HPE-StoreOnce-Copy-Job</div><br /></div>
+<a name="4ecfb61c-0321-4ae0-af7e-fc99f6485acd"><h1 class="NOTOCHeading6">Advanced Settings (Integration)</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Enable Backup from Storage Snapshots</th><td>Yes</td></tr>
+<tr><th>Limit processed VM count per Storage Snapshot</th><td>No</td></tr>
+<tr><th>VM count per Storage Snapshot</th><td>10</td></tr>
+<tr><th>Failover to Standard Backup</th><td>No</td></tr>
+<tr><th>Failover to Primary Storage Snapshot</th><td>No</td></tr>
+</tbody></table>
+<div class="Caption">Table 163 - Advanced Settings (Integration) - HPE-StoreOnce-Copy-Job</div><br /></div>
+<a name="85fa2ac0-391c-489d-a80d-0a3fdebcf816"><h1 class="NOTOCHeading6">Advanced Settings (RPO Monitor)</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>RPO Monitor Enabled</th><td>Yes</td></tr>
+<tr><th>If Backup is not Copied Within</th><td>1 Day</td></tr>
+<tr><th>Log Backup RPO Monitor Enabled</th><td>No</td></tr>
+<tr><th>If Log Backup is not Copied Within</th><td>0 Hour</td></tr>
+</tbody></table>
+<div class="Caption">Table 164 - Advanced Settings (RPO Monitor) - HPE-StoreOnce-Copy-Job</div><br /></div>
+<a name="a2449754-077b-48da-a15c-f9a29b52bda3"><h1 class="NOTOCHeading5">Schedule</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Retry Failed item</th><td>3</td></tr>
+<tr><th>Wait before each retry</th><td>10/min</td></tr>
+<tr><th>Backup Window</th><td>Yes</td></tr>
+<tr><th>Shedule type</th><td>Continuous</td></tr>
+<tr><th>Shedule Options</th><td>Schedule Time Period</td></tr>
+<tr><th>Start Time</th><td>10:00 PM</td></tr>
+<tr><th>Latest Run</th><td>06/30/2021 18:00:12</td></tr>
+</tbody></table>
+<div class="Caption">Table 165 - Schedule Options - HPE-StoreOnce-Copy-Job</div><br /></div>
+<a name="d3e93e6e-c41f-4331-aad6-5a0d8b46681e"><h1 class="NOTOCHeading6">Backup Window Time Period</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%;"><thead><tr><th>Hour</th><th>12</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th><th>9</th><th>10</th><th>11</th><th>12</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th><th>9</th><th>10</th><th>11</th></tr></thead><tbody>
+<tr><th>Sun</th><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td></tr>
+<tr><th>Mon</th><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td></tr>
+<tr><th>Tue</th><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td></tr>
+<tr><th>Wed</th><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td></tr>
+<tr><th>Thu</th><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td></tr>
+<tr><th>Fri</th><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td></tr>
+<tr><th>Sat</th><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td></tr>
+</tbody></table>
+<div class="Caption">Table 166 - Backup Window - HPE-StoreOnce-Copy-Job</div><br /></div>
+<a name="86b53c9a-d13f-4491-a81b-3f82740ccd0a"><h4 class="Heading4">1.7.2.5 PHARMAX-HQ-SVR</h4></a><a name="c71f581c-939c-454a-acf3-6f6f256ae076"><h1 class="NOTOCHeading4">Common Information</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Name</th><td>PHARMAX-HQ-SVR</td></tr>
+<tr><th>Type</th><td>VMware Backup</td></tr>
+<tr><th>Total Backup Size</th><td>31 GB</td></tr>
+<tr><th>Target Address</th><td>&nbsp;</td></tr>
+<tr><th>Target File</th><td>PHARMAX-HQ-SVR</td></tr>
+<tr><th>Description</th><td>Created by PHARMAX\administrator at 6/29/2021 12:12 PM.</td></tr>
+<tr><th>Modified By</th><td>PHARMAX\administrator</td></tr>
+</tbody></table>
+<div class="Caption">Table 167 - Common Information - PHARMAX-HQ-SVR</div><br /></div>
+<a name="6e7beecb-dc1d-4387-a0ad-785e738e8848"><h1 class="NOTOCHeading5">Virtual Machines</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Name</th><td>Linux-Mon-01v</td></tr>
+<tr><th>Resource Type</th><td>Virtual Machine</td></tr>
+<tr><th>Role</th><td>Exclude</td></tr>
+<tr><th>Location</th><td>vcenter-01v.pharmax.local\PHARMAX-VSI-DC\RegionA01-COMP\PHARMAX-HQ-SVR\Linux-Mon-01v</td></tr>
+<tr><th>Approx Size</th><td>0 B</td></tr>
+<tr><th>Disk Filter Mode</th><td>SelectedDisks</td></tr>
+</tbody></table>
+<div class="Caption">Table 168 - Virtual Machines - Linux-Mon-01v</div><br /></div>
+<div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Name</th><td>PHARMAX-HQ-SVR</td></tr>
+<tr><th>Resource Type</th><td>Resource Pool</td></tr>
+<tr><th>Role</th><td>Include</td></tr>
+<tr><th>Location</th><td>vcenter-01v.pharmax.local\PHARMAX-VSI-DC\RegionA01-COMP\PHARMAX-HQ-SVR</td></tr>
+<tr><th>Approx Size</th><td>30.6 GB</td></tr>
+<tr><th>Disk Filter Mode</th><td>SelectedDisks</td></tr>
+</tbody></table>
+<div class="Caption">Table 169 - Virtual Machines - PHARMAX-HQ-SVR</div><br /></div>
+<a name="31e3d5f3-615f-4342-b711-43d11d9d1a19"><h1 class="NOTOCHeading5">Storage</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Backup Proxy</th><td>veeam-lnx-px.pharmax.local</td></tr>
+<tr><th>Backup Repository</th><td>SOBR - Minio</td></tr>
+<tr><th>Retention Type</th><td>Cycles</td></tr>
+<tr><th>Retain Cycles</th><td>8</td></tr>
+<tr><th>Keep First Full Backup</th><td>No</td></tr>
+<tr><th>Enable Full Backup</th><td>No</td></tr>
+<tr><th>Integrity Checks</th><td>Yes</td></tr>
+<tr><th>Storage Encryption</th><td>Yes</td></tr>
+<tr><th>Backup Mode</th><td>Incremental</td></tr>
+<tr><th>Active Full Backup Schedule Kind</th><td>Daily</td></tr>
+<tr><th>Active Full Backup Days</th><td>Saturday</td></tr>
+<tr><th>Transform Full To Syntethic</th><td>No</td></tr>
+<tr><th>Transform Increments To Syntethic</th><td>No</td></tr>
+<tr><th>Transform To Syntethic Days</th><td>Saturday</td></tr>
+<tr><th>Keep certain full backup longer for archival purposes (GFS)</th><td>Yes</td></tr>
+<tr><th>Keep Weekly full backup for</th><td>1 weeks,<br />If multiple backup exist use the one from: Sunday</td></tr>
+<tr><th>Keep Monthly full backup</th><td>Disabled</td></tr>
+<tr><th>Keep Yearly full backup</th><td>Disabled</td></tr>
+</tbody></table>
+<div class="Caption">Table 170 - Storage Options - PHARMAX-HQ-SVR</div><br /></div>
+<a name="13a8eb84-d7d4-4773-8fcc-c9f5eca0185e"><h1 class="NOTOCHeading6">Advanced Settings (Maintenance)</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Storage-Level Corruption Guard (SLCG)</th><td>Yes</td></tr>
+<tr><th>SLCG Schedule Type</th><td>Daily</td></tr>
+<tr><th>SLCG Schedule Day</th><td>Friday</td></tr>
+<tr><th>SLCG Backup Monthly Schedule</th><td>Day Of Week: Friday<br />Day Number In Month: Last<br />Day of Month: 1<br />Months: January February March April May June July August September October November December</td></tr>
+<tr><th>Defragment and Compact Full Backup (DCFB)</th><td>No</td></tr>
+<tr><th>DCFB Schedule Type</th><td>Monthly</td></tr>
+<tr><th>DCFB Schedule Day</th><td>Saturday</td></tr>
+<tr><th>DCFB Backup Monthly Schedule</th><td>Day Of Week: Saturday<br />Day Number In Month: Last<br />Day of Month: 1<br />Months: January February March April May June July August September October November December</td></tr>
+<tr><th>Remove deleted item data after</th><td>15</td></tr>
+</tbody></table>
+<div class="Caption">Table 171 - Advanced Settings (Maintenance) - PHARMAX-HQ-SVR</div><br /></div>
+<a name="d881a4bc-2589-41af-970e-5f0979877459"><h1 class="NOTOCHeading6">Advanced Settings (Storage)</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Inline Data Deduplication</th><td>Yes</td></tr>
+<tr><th>Exclude Swap Files Block</th><td>Yes</td></tr>
+<tr><th>Exclude Deleted Files Block</th><td>Yes</td></tr>
+<tr><th>Compression Level</th><td>OPTIMAL (Default)</td></tr>
+<tr><th>Storage optimization</th><td>Local target (large blocks)</td></tr>
+<tr><th>Enabled Backup File Encryption</th><td>Yes</td></tr>
+<tr><th>Encryption Key</th><td>Password Global</td></tr>
+</tbody></table>
+<div class="Caption">Table 172 - Advanced Settings (Storage) - PHARMAX-HQ-SVR</div><br /></div>
+<a name="cb6c6cb9-59fc-4425-9d87-2f2bdc765bf9"><h1 class="NOTOCHeading6">Advanced Settings (Notification)</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Send Snmp Notification</th><td>Yes</td></tr>
+<tr><th>Send Email Notification</th><td>Yes</td></tr>
+<tr><th>Email Notification Additional Addresses</th><td>rebelinux@gmail.com</td></tr>
+<tr><th>Email Notify Time</th><td>10:00 PM</td></tr>
+<tr><th>Use Custom Email Notification Options</th><td>Yes</td></tr>
+<tr><th>Use Custom Notification Setting</th><td>[%JobResult%] %JobName% (%ObjectCount% machines) %Issues%</td></tr>
+<tr><th>Notify On Success</th><td>Yes</td></tr>
+<tr><th>Notify On Warning</th><td>Yes</td></tr>
+<tr><th>Notify On Error</th><td>Yes</td></tr>
+<tr><th>Suppress Notification until Last Retry</th><td>Yes</td></tr>
+<tr><th>Set Results To Vm Notes</th><td>Yes</td></tr>
+<tr><th>VM Attribute Note Value</th><td>Notes</td></tr>
+<tr><th>Append to Existing Attribute</th><td>Yes</td></tr>
+</tbody></table>
+<div class="Caption">Table 173 - Advanced Settings (Notification) - PHARMAX-HQ-SVR</div><br /></div>
+<a name="1f71cb3b-4977-4119-86cb-d060bd0f3615"><h1 class="NOTOCHeading6">Advanced Settings (vSphere)</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Enable VMware Tools Quiescence</th><td>Yes</td></tr>
+<tr><th>Use Change Block Tracking</th><td>Yes</td></tr>
+<tr><th>Enable CBT for all protected VMs</th><td>No</td></tr>
+<tr><th>Reset CBT On each Active Full Backup</th><td>No</td></tr>
+</tbody></table>
+<div class="Caption">Table 174 - Advanced Settings (vSphere) - PHARMAX-HQ-SVR</div><br /></div>
+<a name="fb24e1e8-b7c2-44ab-bb48-7cc3387e5556"><h1 class="NOTOCHeading6">Advanced Settings (Integration)</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Enable Backup from Storage Snapshots</th><td>Yes</td></tr>
+<tr><th>Limit processed VM count per Storage Snapshot</th><td>No</td></tr>
+<tr><th>VM count per Storage Snapshot</th><td>10</td></tr>
+<tr><th>Failover to Standard Backup</th><td>Yes</td></tr>
+<tr><th>Failover to Primary Storage Snapshot</th><td>Yes</td></tr>
+</tbody></table>
+<div class="Caption">Table 175 - Advanced Settings (Integration) - PHARMAX-HQ-SVR</div><br /></div>
+<a name="6135d50b-8f46-45ab-9dd8-0985706c6be3"><h1 class="NOTOCHeading6">Advanced Settings (Script)</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Run the Following Script Before</th><td>Yes</td></tr>
+<tr><th>Run Script Before the Job</th><td>sql_prefreeze.cmd</td></tr>
+<tr><th>Run the Following Script After</th><td>Yes</td></tr>
+<tr><th>Run Script After the Job</th><td>sql_postunfreeze.cmd</td></tr>
+<tr><th>Run Script Frequency</th><td>Days</td></tr>
+<tr><th>Run Script on the Selected Days</th><td>Saturday</td></tr>
+</tbody></table>
+<div class="Caption">Table 176 - Advanced Settings (Script) - PHARMAX-HQ-SVR</div><br /></div>
+<a name="a021ec3d-fb2a-421a-b285-62d26956023e"><h1 class="NOTOCHeading5">Secondary Target</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:25%; min-width:25%; width:25%" /><col style="max-width:25%; min-width:25%; width:25%" /><col style="max-width:15%; min-width:15%; width:15%" /><col style="max-width:35%; min-width:35%; width:35%" /></colgroup>
+<thead><tr><th>Job Name</th><th>Type</th><th>State</th><th>Description</th></tr></thead><tbody>
+<tr><td>Backup Copy Job 1</td><td>VMware Backup Copy</td><td>Warning</td><td>Created by PHARMAX\administrator at 2/12/2022 9:10 PM.</td></tr>
+<tr><td>PHARMAX-HQ-SVR-TAPE</td><td>Backup to Tape</td><td>Failed</td><td>Created by PHARMAX\administrator at 6/29/2021 7:24 PM.</td></tr>
+</tbody></table>
+<div class="Caption">Table 177 - Secondary Destination Jobs - PHARMAX-HQ-SVR</div><br /></div>
+<a name="ef3f4e50-3385-411e-9cf4-151600fc5ccc"><h1 class="NOTOCHeading5">Guest Processing</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Name</th><td>PHARMAX-HQ-SVR</td></tr>
+<tr><th>Enabled</th><td>Yes</td></tr>
+<tr><th>Resource Type</th><td>Resource Pool</td></tr>
+<tr><th>Ignore Errors</th><td>Yes</td></tr>
+<tr><th>Guest Proxy Auto Detect</th><td>Yes</td></tr>
+<tr><th>Default Credential</th><td>administrator@pharmax.local</td></tr>
+<tr><th>Object Credential</th><td>administrator@vsphere.local</td></tr>
+<tr><th>Application Processing</th><td>Yes</td></tr>
+<tr><th>Transaction Logs</th><td>Process Transaction Logs</td></tr>
+<tr><th>Use Persistent Guest Agent</th><td>Yes</td></tr>
+<tr><th>SQL Transaction Logs Processing</th><td>Backup logs periodically</td></tr>
+<tr><th>SQL Backup Log Every</th><td>15 min</td></tr>
+<tr><th>SQL Retain Log Backups</th><td>Keep Only Last 15 days of log backups</td></tr>
+<tr><th>Oracle Account Type</th><td>Oracle</td></tr>
+<tr><th>Oracle Sysdba Creds</th><td>backup_admin1</td></tr>
+<tr><th>Oracle Backup Logs Every</th><td>5 min</td></tr>
+<tr><th>Oracle Archive Logs</th><td>Delete Log Over 45 GB</td></tr>
+<tr><th>Oracle Retain Log Backups</th><td>Keep Only Last 15 days of log backups</td></tr>
+<tr><th>File Exclusions</th><td>Yes</td></tr>
+<tr><th>Include only the following file and folders</th><td>c:\data2,c:\Windows</td></tr>
+<tr><th>Scripts</th><td>Yes</td></tr>
+<tr><th>Scripts Mode</th><td>Ignore script execution failures</td></tr>
+<tr><th>Windows Pre-freeze script</th><td>c:\superduperscript.cmd</td></tr>
+<tr><th>Windows Post-thaw script</th><td>c:\superduperscriptpost.cmd</td></tr>
+</tbody></table>
+<div class="Caption">Table 178 - Guest Processing Options - PHARMAX-HQ-SVR</div><br /></div>
+<div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Name</th><td>Linux-Mon-01v</td></tr>
+<tr><th>Enabled</th><td>Yes</td></tr>
+<tr><th>Resource Type</th><td>Virtual Machine</td></tr>
+<tr><th>Ignore Errors</th><td>No</td></tr>
+<tr><th>Guest Proxy Auto Detect</th><td>Yes</td></tr>
+<tr><th>Default Credential</th><td>administrator@pharmax.local</td></tr>
+<tr><th>Object Credential</th><td>Default Credential</td></tr>
+<tr><th>Application Processing</th><td>Yes</td></tr>
+<tr><th>Transaction Logs</th><td>Process Transaction Logs</td></tr>
+<tr><th>Use Persistent Guest Agent</th><td>No</td></tr>
+<tr><th>SQL Transaction Logs Processing</th><td>Do not truncate logs</td></tr>
+<tr><th>SQL Backup Log Every</th><td>15 min</td></tr>
+<tr><th>SQL Retain Log Backups</th><td>Until the corresponding image-level backup is deleted</td></tr>
+<tr><th>Oracle Account Type</th><td>Oracle</td></tr>
+<tr><th>Oracle Sysdba Creds</th><td>Guest OS Credential</td></tr>
+<tr><th>Oracle Backup Logs Every</th><td>15 min</td></tr>
+<tr><th>Oracle Archive Logs</th><td>Delete Log Older Than 24 hours</td></tr>
+<tr><th>Oracle Retain Log Backups</th><td>Until the corresponding image-level backup is deleted</td></tr>
+<tr><th>File Exclusions</th><td>Yes</td></tr>
+<tr><th>Exclude the following file and folders</th><td>c:\data,c:\Users</td></tr>
+<tr><th>Scripts</th><td>Yes</td></tr>
+<tr><th>Scripts Mode</th><td>Require successfull script execution</td></tr>
+<tr><th>Linux Pre-freeze script</th><td>/sbin/premysql.sh</td></tr>
+<tr><th>Linux Post-thaw script</th><td>/sbin/postmysql.sh</td></tr>
+</tbody></table>
+<div class="Caption">Table 179 - Guest Processing Options - Linux-Mon-01v</div><br /></div>
+<a name="e21f4111-b910-4608-8afe-b6899640297b"><h4 class="Heading4">1.7.2.6 SOBR - TEST</h4></a><a name="487b238e-935a-4f21-ba21-9bf2cb774eca"><h1 class="NOTOCHeading4">Common Information</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Name</th><td>SOBR - TEST</td></tr>
+<tr><th>Type</th><td>VMware Backup</td></tr>
+<tr><th>Total Backup Size</th><td>78 GB</td></tr>
+<tr><th>Target Address</th><td>&nbsp;</td></tr>
+<tr><th>Target File</th><td>SOBR - TEST</td></tr>
+<tr><th>Description</th><td>Created by PHARMAX\administrator at 2/27/2021 9:06 PM.</td></tr>
+<tr><th>Modified By</th><td>PHARMAX\administrator</td></tr>
+</tbody></table>
+<div class="Caption">Table 180 - Common Information - SOBR - TEST</div><br /></div>
+<a name="2c1cdbbf-7c5c-4dbe-86ed-cd60c34c979f"><h1 class="NOTOCHeading5">Virtual Machines</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Name</th><td>LINUX-VM</td></tr>
+<tr><th>Resource Type</th><td>Virtual Machine</td></tr>
+<tr><th>Role</th><td>Include</td></tr>
+<tr><th>Location</th><td>vcenter-01v.pharmax.local\PHARMAX-VSI-DC\RegionHQ-MGMT\LINUX-VM</td></tr>
+<tr><th>Approx Size</th><td>8.4 GB</td></tr>
+<tr><th>Disk Filter Mode</th><td>AllDisks</td></tr>
+</tbody></table>
+<div class="Caption">Table 181 - Virtual Machines - LINUX-VM</div><br /></div>
+<div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Name</th><td>AD-LAB</td></tr>
+<tr><th>Resource Type</th><td>Virtual Application</td></tr>
+<tr><th>Role</th><td>Include</td></tr>
+<tr><th>Location</th><td>vcenter-01v.pharmax.local\PHARMAX-VSI-DC\RegionHQ-MGMT\AD-LAB</td></tr>
+<tr><th>Approx Size</th><td>69.5 GB</td></tr>
+<tr><th>Disk Filter Mode</th><td>AllDisks</td></tr>
+</tbody></table>
+<div class="Caption">Table 182 - Virtual Machines - AD-LAB</div><br /></div>
+<a name="ae81608a-7c31-4f5f-9b4c-3f89f436ef1c"><h1 class="NOTOCHeading5">Storage</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Backup Proxy</th><td>Automatic</td></tr>
+<tr><th>Backup Repository</th><td>SOBR - Minio</td></tr>
+<tr><th>Retention Type</th><td>Days</td></tr>
+<tr><th>Retain Days To Keep</th><td>7</td></tr>
+<tr><th>Keep First Full Backup</th><td>No</td></tr>
+<tr><th>Enable Full Backup</th><td>No</td></tr>
+<tr><th>Integrity Checks</th><td>Yes</td></tr>
+<tr><th>Storage Encryption</th><td>No</td></tr>
+<tr><th>Backup Mode</th><td>Incremental</td></tr>
+<tr><th>Active Full Backup Schedule Kind</th><td>Daily</td></tr>
+<tr><th>Active Full Backup Days</th><td>Saturday</td></tr>
+<tr><th>Transform Full To Syntethic</th><td>Yes</td></tr>
+<tr><th>Transform Increments To Syntethic</th><td>No</td></tr>
+<tr><th>Transform To Syntethic Days</th><td>Saturday</td></tr>
+<tr><th>Keep certain full backup longer for archival purposes (GFS)</th><td>Yes</td></tr>
+<tr><th>Keep Weekly full backup</th><td>Disabled</td></tr>
+<tr><th>Keep Monthly full backup for</th><td>2 months,<br />Use weekly full backup from the following week of the month: First</td></tr>
+<tr><th>Keep Yearly full backup for</th><td>1 years,<br />Use monthly full backup from the following month: July</td></tr>
+</tbody></table>
+<div class="Caption">Table 183 - Storage Options - SOBR - TEST</div><br /></div>
+<a name="415da5ea-e227-4220-bf95-5a4c83a10e0b"><h1 class="NOTOCHeading6">Advanced Settings (Storage)</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Inline Data Deduplication</th><td>Yes</td></tr>
+<tr><th>Exclude Swap Files Block</th><td>Yes</td></tr>
+<tr><th>Exclude Deleted Files Block</th><td>Yes</td></tr>
+<tr><th>Compression Level</th><td>OPTIMAL (Default)</td></tr>
+<tr><th>Storage optimization</th><td>Local target</td></tr>
+<tr><th>Enabled Backup File Encryption</th><td>No</td></tr>
+<tr><th>Encryption Key</th><td>None</td></tr>
+</tbody></table>
+<div class="Caption">Table 184 - Advanced Settings (Storage) - SOBR - TEST</div><br /></div>
+<a name="4369012b-c3e2-479f-bd85-f6f2bf56cd4d"><h1 class="NOTOCHeading6">Advanced Settings (vSphere)</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Enable VMware Tools Quiescence</th><td>No</td></tr>
+<tr><th>Use Change Block Tracking</th><td>Yes</td></tr>
+<tr><th>Enable CBT for all protected VMs</th><td>Yes</td></tr>
+<tr><th>Reset CBT On each Active Full Backup</th><td>Yes</td></tr>
+</tbody></table>
+<div class="Caption">Table 185 - Advanced Settings (vSphere) - SOBR - TEST</div><br /></div>
+<a name="03e65dce-44e5-472c-9e95-8276a0d17328"><h1 class="NOTOCHeading5">Guest Processing</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Name</th><td>LINUX-VM</td></tr>
+<tr><th>Enabled</th><td>Yes</td></tr>
+<tr><th>Resource Type</th><td>Virtual Machine</td></tr>
+<tr><th>Ignore Errors</th><td>No</td></tr>
+<tr><th>Guest Proxy Auto Detect</th><td>Yes</td></tr>
+<tr><th>Default Credential</th><td>administrator@vsphere.local</td></tr>
+<tr><th>Object Credential</th><td>Default Credential</td></tr>
+<tr><th>Application Processing</th><td>Yes</td></tr>
+<tr><th>Transaction Logs</th><td>Process Transaction Logs</td></tr>
+<tr><th>Use Persistent Guest Agent</th><td>No</td></tr>
+<tr><th>SQL Transaction Logs Processing</th><td>Truncate logs</td></tr>
+<tr><th>SQL Backup Log Every</th><td>15 min</td></tr>
+<tr><th>SQL Retain Log Backups</th><td>Until the corresponding image-level backup is deleted</td></tr>
+</tbody></table>
+<div class="Caption">Table 186 - Guest Processing Options - LINUX-VM</div><br /></div>
+<div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Name</th><td>AD-LAB</td></tr>
+<tr><th>Enabled</th><td>Yes</td></tr>
+<tr><th>Resource Type</th><td>Virtual Application</td></tr>
+<tr><th>Ignore Errors</th><td>No</td></tr>
+<tr><th>Guest Proxy Auto Detect</th><td>Yes</td></tr>
+<tr><th>Default Credential</th><td>administrator@vsphere.local</td></tr>
+<tr><th>Object Credential</th><td>Default Credential</td></tr>
+<tr><th>Application Processing</th><td>Yes</td></tr>
+<tr><th>Transaction Logs</th><td>Process Transaction Logs</td></tr>
+<tr><th>Use Persistent Guest Agent</th><td>No</td></tr>
+<tr><th>SQL Transaction Logs Processing</th><td>Truncate logs</td></tr>
+<tr><th>SQL Backup Log Every</th><td>15 min</td></tr>
+<tr><th>SQL Retain Log Backups</th><td>Until the corresponding image-level backup is deleted</td></tr>
+</tbody></table>
+<div class="Caption">Table 187 - Guest Processing Options - AD-LAB</div><br /></div>
+<a name="7aaf4e98-6b08-4dd3-b387-45b0bb1f0990"><h4 class="Heading4">1.7.2.7 VM - Test - AWS</h4></a><a name="e59639aa-726b-44f2-a22d-36ecdcadbe24"><h1 class="NOTOCHeading4">Common Information</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Name</th><td>VM - Test - AWS</td></tr>
+<tr><th>Type</th><td>VMware Backup</td></tr>
+<tr><th>Total Backup Size</th><td>26 MB</td></tr>
+<tr><th>Target Address</th><td>&nbsp;</td></tr>
+<tr><th>Target File</th><td>VM - Test - AWS</td></tr>
+<tr><th>Description</th><td>Created by PHARMAX\jocolon at 12/20/2021 12:56 PM.</td></tr>
+<tr><th>Modified By</th><td>PHARMAX\jocolon</td></tr>
+</tbody></table>
+<div class="Caption">Table 188 - Common Information - VM - Test - AWS</div><br /></div>
+<a name="03598b25-cd4a-4c57-9b86-a5d8ee7e860b"><h1 class="NOTOCHeading5">Virtual Machines</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Name</th><td>VEEAM-VM-TINY</td></tr>
+<tr><th>Resource Type</th><td>Virtual Machine</td></tr>
+<tr><th>Role</th><td>Include</td></tr>
+<tr><th>Location</th><td>vcenter-01v.pharmax.local\PHARMAX-VSI-DC\RegionHQ-MGMT\VEEAM-VM-TINY</td></tr>
+<tr><th>Approx Size</th><td>26 MB</td></tr>
+<tr><th>Disk Filter Mode</th><td>AllDisks</td></tr>
+</tbody></table>
+<div class="Caption">Table 189 - Virtual Machines - VEEAM-VM-TINY</div><br /></div>
+<a name="e1854450-8502-41c9-b863-6687712e9ad0"><h1 class="NOTOCHeading5">Storage</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Backup Proxy</th><td>Automatic</td></tr>
+<tr><th>Backup Repository</th><td>SOBR - AWS S3</td></tr>
+<tr><th>Retention Type</th><td>Days</td></tr>
+<tr><th>Retain Days To Keep</th><td>7</td></tr>
+<tr><th>Keep First Full Backup</th><td>No</td></tr>
+<tr><th>Enable Full Backup</th><td>No</td></tr>
+<tr><th>Integrity Checks</th><td>Yes</td></tr>
+<tr><th>Storage Encryption</th><td>No</td></tr>
+<tr><th>Backup Mode</th><td>Incremental</td></tr>
+<tr><th>Active Full Backup Schedule Kind</th><td>Daily</td></tr>
+<tr><th>Active Full Backup Days</th><td>Saturday</td></tr>
+<tr><th>Transform Full To Syntethic</th><td>Yes</td></tr>
+<tr><th>Transform Increments To Syntethic</th><td>No</td></tr>
+<tr><th>Transform To Syntethic Days</th><td>Saturday</td></tr>
+</tbody></table>
+<div class="Caption">Table 190 - Storage Options - VM - Test - AWS</div><br /></div>
+<a name="d43045bc-0fc0-47c1-8f5e-ca0560584044"><h1 class="NOTOCHeading6">Advanced Settings (Storage)</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Inline Data Deduplication</th><td>Yes</td></tr>
+<tr><th>Exclude Swap Files Block</th><td>Yes</td></tr>
+<tr><th>Exclude Deleted Files Block</th><td>Yes</td></tr>
+<tr><th>Compression Level</th><td>OPTIMAL (Default)</td></tr>
+<tr><th>Storage optimization</th><td>Local target</td></tr>
+<tr><th>Enabled Backup File Encryption</th><td>No</td></tr>
+<tr><th>Encryption Key</th><td>None</td></tr>
+</tbody></table>
+<div class="Caption">Table 191 - Advanced Settings (Storage) - VM - Test - AWS</div><br /></div>
+<a name="feeb4464-db36-472e-90f7-88c448e85f70"><h1 class="NOTOCHeading6">Advanced Settings (vSphere)</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Enable VMware Tools Quiescence</th><td>No</td></tr>
+<tr><th>Use Change Block Tracking</th><td>Yes</td></tr>
+<tr><th>Enable CBT for all protected VMs</th><td>Yes</td></tr>
+<tr><th>Reset CBT On each Active Full Backup</th><td>Yes</td></tr>
+</tbody></table>
+<div class="Caption">Table 192 - Advanced Settings (vSphere) - VM - Test - AWS</div><br /></div>
+<a name="2b914764-8655-4e86-8254-3992ba855e40"><h1 class="NOTOCHeading6">Advanced Settings (Integration)</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Enable Backup from Storage Snapshots</th><td>Yes</td></tr>
+<tr><th>Limit processed VM count per Storage Snapshot</th><td>No</td></tr>
+<tr><th>VM count per Storage Snapshot</th><td>10</td></tr>
+<tr><th>Failover to Standard Backup</th><td>No</td></tr>
+<tr><th>Failover to Primary Storage Snapshot</th><td>No</td></tr>
+</tbody></table>
+<div class="Caption">Table 193 - Advanced Settings (Integration) - VM - Test - AWS</div><br /></div>
+<a name="0fb5f440-2c4d-4567-8294-a2e5dfc789ad"><h1 class="NOTOCHeading5">Secondary Target</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:25%; min-width:25%; width:25%" /><col style="max-width:25%; min-width:25%; width:25%" /><col style="max-width:15%; min-width:15%; width:15%" /><col style="max-width:35%; min-width:35%; width:35%" /></colgroup>
+<thead><tr><th>Job Name</th><th>Type</th><th>State</th><th>Description</th></tr></thead><tbody>
+<tr><td>PHARMAX-HQ-SVR-TAPE Standard</td><td>Backup to Tape</td><td>Warning</td><td>Created by PHARMAX\administrator at 2/25/2022 7:14 PM.</td></tr>
+</tbody></table>
+<div class="Caption">Table 194 - Secondary Destination Jobs - VM - Test - AWS</div><br /></div>
+<a name="58135968-cfd0-4f36-bdb2-a9c413296402"><h4 class="Heading4">1.7.2.8 VM Copy Job 1</h4></a><a name="1e19330e-6285-4198-9b2e-07c61fde8ba5"><h1 class="NOTOCHeading4">Common Information</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Name</th><td>VM Copy Job 1</td></tr>
+<tr><th>Type</th><td>VM Copy</td></tr>
+<tr><th>Total Backup Size</th><td>2 GB</td></tr>
+<tr><th>Target Address</th><td>F:\VM</td></tr>
+<tr><th>Target File</th><td>&nbsp;</td></tr>
+<tr><th>Description</th><td>Created by PHARMAX\jocolon at 2/6/2022 3:28 PM.</td></tr>
+<tr><th>Modified By</th><td>PHARMAX\administrator</td></tr>
+</tbody></table>
+<div class="Caption">Table 195 - Common Information - VM Copy Job 1</div><br /></div>
+<a name="ac27ea0b-3f36-4dd8-b894-805cb2f2c93a"><h1 class="NOTOCHeading5">Virtual Machines</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Name</th><td>csr-mapserver</td></tr>
+<tr><th>Resource Type</th><td>Virtual Machine</td></tr>
+<tr><th>Role</th><td>Include</td></tr>
+<tr><th>Location</th><td>vcenter-01v.pharmax.local\PHARMAX-VSI-DC\RegionHQ-MGMT\csr-mapserver</td></tr>
+<tr><th>Approx Size</th><td>1.5 GB</td></tr>
+<tr><th>Disk Filter Mode</th><td>AllDisks</td></tr>
+</tbody></table>
+<div class="Caption">Table 196 - Virtual Machines - csr-mapserver</div><br /></div>
+<a name="ca0a8ad5-c16a-4163-bad8-890658c5817c"><h1 class="NOTOCHeading5">Storage</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Backup Proxy</th><td>Automatic</td></tr>
+<tr><th>Backup Repository</th><td>F:\VM<br /></td></tr>
+<tr><th>Retention Type</th><td>Days</td></tr>
+<tr><th>Retain Days To Keep</th><td>7</td></tr>
+<tr><th>Keep First Full Backup</th><td>No</td></tr>
+<tr><th>Enable Full Backup</th><td>No</td></tr>
+<tr><th>Integrity Checks</th><td>Yes</td></tr>
+<tr><th>Storage Encryption</th><td>No</td></tr>
+<tr><th>Backup Mode</th><td>Incremental</td></tr>
+<tr><th>Active Full Backup Schedule Kind</th><td>Daily</td></tr>
+<tr><th>Active Full Backup Days</th><td>Saturday</td></tr>
+<tr><th>Transform Full To Syntethic</th><td>Yes</td></tr>
+<tr><th>Transform Increments To Syntethic</th><td>No</td></tr>
+<tr><th>Transform To Syntethic Days</th><td>Saturday</td></tr>
+</tbody></table>
+<div class="Caption">Table 197 - Storage Options - VM Copy Job 1</div><br /></div>
+<a name="f4294e80-31b3-4030-9a42-847e63918a44"><h1 class="NOTOCHeading6">Advanced Settings (Storage)</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Inline Data Deduplication</th><td>Yes</td></tr>
+<tr><th>Exclude Swap Files Block</th><td>Yes</td></tr>
+<tr><th>Exclude Deleted Files Block</th><td>Yes</td></tr>
+<tr><th>Compression Level</th><td>OPTIMAL (Default)</td></tr>
+<tr><th>Storage optimization</th><td>Local target</td></tr>
+<tr><th>Enabled Backup File Encryption</th><td>No</td></tr>
+<tr><th>Encryption Key</th><td>None</td></tr>
+</tbody></table>
+<div class="Caption">Table 198 - Advanced Settings (Storage) - VM Copy Job 1</div><br /></div>
+<a name="05ed3990-1135-4f36-892c-4bcb58bb3aea"><h1 class="NOTOCHeading6">Advanced Settings (vSphere)</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Enable VMware Tools Quiescence</th><td>No</td></tr>
+<tr><th>Use Change Block Tracking</th><td>Yes</td></tr>
+<tr><th>Enable CBT for all protected VMs</th><td>Yes</td></tr>
+<tr><th>Reset CBT On each Active Full Backup</th><td>Yes</td></tr>
+</tbody></table>
+<div class="Caption">Table 199 - Advanced Settings (vSphere) - VM Copy Job 1</div><br /></div>
+<a name="a08282d1-d7e6-44e2-a60e-07c4ae581fb3"><h1 class="NOTOCHeading6">Advanced Settings (Integration)</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Enable Backup from Storage Snapshots</th><td>Yes</td></tr>
+<tr><th>Limit processed VM count per Storage Snapshot</th><td>No</td></tr>
+<tr><th>VM count per Storage Snapshot</th><td>10</td></tr>
+<tr><th>Failover to Standard Backup</th><td>No</td></tr>
+<tr><th>Failover to Primary Storage Snapshot</th><td>No</td></tr>
+</tbody></table>
+<div class="Caption">Table 200 - Advanced Settings (Integration) - VM Copy Job 1</div><br /></div>
+<a name="7eb779cd-d6c9-4464-a008-aa64210866e1"><h1 class="NOTOCHeading5">Guest Processing</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Name</th><td>csr-mapserver</td></tr>
+<tr><th>Enabled</th><td>Yes</td></tr>
+<tr><th>Resource Type</th><td>Virtual Machine</td></tr>
+<tr><th>Ignore Errors</th><td>Yes</td></tr>
+<tr><th>Guest Proxy Auto Detect</th><td>Yes</td></tr>
+<tr><th>Default Credential</th><td>administrator@pharmax.local</td></tr>
+<tr><th>Object Credential</th><td>Default Credential</td></tr>
+<tr><th>Application Processing</th><td>Yes</td></tr>
+<tr><th>Transaction Logs</th><td>Process Transaction Logs</td></tr>
+<tr><th>Use Persistent Guest Agent</th><td>Yes</td></tr>
+<tr><th>SQL Transaction Logs Processing</th><td>Truncate logs</td></tr>
+<tr><th>SQL Backup Log Every</th><td>15 min</td></tr>
+<tr><th>SQL Retain Log Backups</th><td>Until the corresponding image-level backup is deleted</td></tr>
+<tr><th>Oracle Account Type</th><td>Oracle</td></tr>
+<tr><th>Oracle Sysdba Creds</th><td>Guest OS Credential</td></tr>
+<tr><th>Oracle Archive Logs</th><td>Delete Log Over 10 GB</td></tr>
+<tr><th>Oracle Retain Log Backups</th><td>Until the corresponding image-level backup is deleted</td></tr>
+<tr><th>Scripts</th><td>Yes</td></tr>
+<tr><th>Scripts Mode</th><td>Require successfull script execution</td></tr>
+<tr><th>Windows Pre-freeze script</th><td>preprueba.exe</td></tr>
+<tr><th>Windows Post-thaw script</th><td>postprueba.exe</td></tr>
+</tbody></table>
+<div class="Caption">Table 201 - Guest Processing Options - csr-mapserver</div><br /></div>
+<a name="5f238acb-981c-4bd7-8977-5c0b473e9947"><h1 class="NOTOCHeading5">Schedule</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Retry Failed item</th><td>3</td></tr>
+<tr><th>Wait before each retry</th><td>10/min</td></tr>
+<tr><th>Backup Window</th><td>Yes</td></tr>
+<tr><th>Shedule type</th><td>Minutes</td></tr>
+<tr><th>Shedule Options</th><td>Full Period: 1,<br />Hourly Offset: 0,<br />Unit: Minutes</td></tr>
+<tr><th>Start Time</th><td>10:00 PM</td></tr>
+<tr><th>Latest Run</th><td>09/30/2022 22:53:02</td></tr>
+</tbody></table>
+<div class="Caption">Table 202 - Schedule Options - VM Copy Job 1</div><br /></div>
+<a name="16671794-031f-449b-b59c-994f6b27bf31"><h1 class="NOTOCHeading6">Backup Window Time Period</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%;"><thead><tr><th>Hour</th><th>12</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th><th>9</th><th>10</th><th>11</th><th>12</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th><th>9</th><th>10</th><th>11</th></tr></thead><tbody>
+<tr><th>Sun</th><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td></tr>
+<tr><th>Mon</th><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td></tr>
+<tr><th>Tue</th><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td></tr>
+<tr><th>Wed</th><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td></tr>
+<tr><th>Thu</th><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td></tr>
+<tr><th>Fri</th><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td></tr>
+<tr><th>Sat</th><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td></tr>
+</tbody></table>
+<div class="Caption">Table 203 - Backup Window - VM Copy Job 1</div><br /></div>
+<a name="75137acd-5d71-4374-a103-e99094899d4e"><h3 class="Heading3">1.7.3 Hyper-V Backup Jobs Configuration</h3></a><div>The following section details the configuration of the Hyper-V type backup jobs.</div><br /><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:35%; min-width:35%; width:35%" /><col style="max-width:35%; min-width:35%; width:35%" /><col style="max-width:30%; min-width:30%; width:30%" /></colgroup>
+<thead><tr><th>Name</th><th>Creation Time</th><th>VM Count</th></tr></thead><tbody>
+<tr><td>HyperV-Backup-Job</td><td>06/30/2021 22:06:10</td><td>2</td></tr>
+<tr><td>HYPERV-VEEAM-Win2016</td><td>12/15/2019 22:03:08</td><td>0</td></tr>
+<tr><td>WIN HyperV VM Backup</td><td>12/26/2021 20:38:56</td><td>1</td></tr>
+</tbody></table>
+<div class="Caption">Table 204 - Hyper-V Backup Summary - VEEAM-VBR</div><br /></div>
+<a name="47ebc873-37a8-423f-a0ac-2af8b1a5bc61"><h4 class="Heading4">1.7.3.1 Hyper-V-Backup-Copy</h4></a><a name="10cbf517-d622-4827-b589-52786a7f6c75"><h1 class="NOTOCHeading4">Common Information</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Name</th><td>Hyper-V-Backup-Copy</td></tr>
+<tr><th>Type</th><td>Hyper-V Backup Copy</td></tr>
+<tr><th>Total Backup Size</th><td>0 KB</td></tr>
+<tr><th>Target Address</th><td>&nbsp;</td></tr>
+<tr><th>Target File</th><td>Hyper-V-Backup-Copy</td></tr>
+<tr><th>Description</th><td>Created by PHARMAX\administrator at 2/20/2022 10:38 AM.</td></tr>
+<tr><th>Modified By</th><td>PHARMAX\administrator</td></tr>
+</tbody></table>
+<div class="Caption">Table 205 - Common Information - Hyper-V-Backup-Copy</div><br /></div>
+<a name="6cade651-4bf9-46e7-9a18-71665a84d045"><h1 class="NOTOCHeading5">Linked Backup Jobs</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:35%; min-width:35%; width:35%" /><col style="max-width:25%; min-width:25%; width:25%" /><col style="max-width:15%; min-width:15%; width:15%" /><col style="max-width:25%; min-width:25%; width:25%" /></colgroup>
+<thead><tr><th>Name</th><th>Type</th><th>Size</th><th>Repository</th></tr></thead><tbody>
+<tr><td>HyperV-Backup-Job</td><td>Hyper-V Backup</td><td>20 GB</td><td>VEEAM-HPE-StoreOnce-VSA</td></tr>
+</tbody></table>
+<div class="Caption">Table 206 - Linked Backup Jobs - Hyper-V-Backup-Copy</div><br /></div>
+<a name="dc5e1eef-f2a9-433f-9fc0-883b5c580c95"><h1 class="NOTOCHeading5">Data Transfer</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Use Wan accelerator</th><td>Yes</td></tr>
+<tr><th>Source Wan accelerator</th><td>VEEAM-VBR</td></tr>
+<tr><th>Target Wan accelerator</th><td>VEEAM-VBR-02V.pharmax.local</td></tr>
+</tbody></table>
+<div class="Caption">Table 207 - Data Transfer - Hyper-V-Backup-Copy</div><br /></div>
+<a name="3b6433fc-b5c2-4aaf-b21f-1c52954093d2"><h1 class="NOTOCHeading5">Target</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Backup Proxy</th><td>Unknown</td></tr>
+<tr><th>Backup Repository</th><td>SOBR - Minio</td></tr>
+<tr><th>Retention Type</th><td>Days</td></tr>
+<tr><th>Retain Days To Keep</th><td>7</td></tr>
+<tr><th>Keep First Full Backup</th><td>No</td></tr>
+<tr><th>Enable Full Backup</th><td>No</td></tr>
+<tr><th>Integrity Checks</th><td>Yes</td></tr>
+<tr><th>Storage Encryption</th><td>Yes</td></tr>
+<tr><th>Backup Mode</th><td>Incremental</td></tr>
+<tr><th>Active Full Backup Schedule Kind</th><td>Daily</td></tr>
+<tr><th>Active Full Backup Days</th><td>Saturday</td></tr>
+<tr><th>Transform Full To Syntethic</th><td>Yes</td></tr>
+<tr><th>Transform Increments To Syntethic</th><td>No</td></tr>
+<tr><th>Transform To Syntethic Days</th><td>&nbsp;</td></tr>
+<tr><th>Keep certain full backup longer for archival purposes (GFS)</th><td>Yes</td></tr>
+<tr><th>Keep Weekly full backup for</th><td>1 weeks,<br />If multiple backup exist use the one from: Friday</td></tr>
+<tr><th>Keep Monthly full backup</th><td>Disabled</td></tr>
+<tr><th>Keep Yearly full backup for</th><td>1 years,<br />Use monthly full backup from the following month: December</td></tr>
+</tbody></table>
+<div class="Caption">Table 208 - Target Options - Hyper-V-Backup-Copy</div><br /></div>
+<a name="c68b298b-e59e-4b3f-b1f6-87ee6301994b"><h1 class="NOTOCHeading6">Advanced Settings (Maintenance)</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Storage-Level Corruption Guard (SLCG)</th><td>Yes</td></tr>
+<tr><th>SLCG Schedule Type</th><td>Monthly</td></tr>
+<tr><th>SLCG Schedule Day</th><td>Saturday</td></tr>
+<tr><th>SLCG Backup Monthly Schedule</th><td>Day Of Week: Saturday<br />Day Number In Month: Last<br />Day of Month: 1<br />Months: January February March April May June July August September October November December</td></tr>
+<tr><th>Defragment and Compact Full Backup (DCFB)</th><td>No</td></tr>
+<tr><th>DCFB Schedule Type</th><td>Monthly</td></tr>
+<tr><th>DCFB Schedule Day</th><td>Sunday</td></tr>
+<tr><th>DCFB Backup Monthly Schedule</th><td>Day Of Week: Sunday<br />Day Number In Month: Last<br />Day of Month: 1<br />Months: January February March April May June July August September October November December</td></tr>
+<tr><th>Remove deleted item data after</th><td>14</td></tr>
+</tbody></table>
+<div class="Caption">Table 209 - Advanced Settings (Maintenance) - Hyper-V-Backup-Copy</div><br /></div>
+<a name="7f63fc3c-dd14-4932-9009-c88cc8e6cffa"><h1 class="NOTOCHeading6">Advanced Settings (Storage)</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Inline Data Deduplication</th><td>Yes</td></tr>
+<tr><th>Exclude Swap Files Block</th><td>Yes</td></tr>
+<tr><th>Exclude Deleted Files Block</th><td>Yes</td></tr>
+<tr><th>Compression Level</th><td>AUTO</td></tr>
+<tr><th>Storage optimization</th><td>Automatic</td></tr>
+<tr><th>Enabled Backup File Encryption</th><td>Yes</td></tr>
+<tr><th>Encryption Key</th><td>Password Global</td></tr>
+</tbody></table>
+<div class="Caption">Table 210 - Advanced Settings (Storage) - Hyper-V-Backup-Copy</div><br /></div>
+<a name="fc8093a1-5192-4c59-839a-ac54375e47ca"><h1 class="NOTOCHeading6">Advanced Settings (Notification)</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Send Snmp Notification</th><td>Yes</td></tr>
+<tr><th>Send Email Notification</th><td>Yes</td></tr>
+<tr><th>Email Notification Additional Addresses</th><td>rebelinux@gmail.com</td></tr>
+<tr><th>Email Notify Time</th><td>10:00 PM</td></tr>
+<tr><th>Use Custom Email Notification Options</th><td>Yes</td></tr>
+<tr><th>Use Custom Notification Setting</th><td>[%JobResult%] %JobName% (%ObjectCount% machines) %Issues%</td></tr>
+<tr><th>Notify On Success</th><td>Yes</td></tr>
+<tr><th>Notify On Warning</th><td>Yes</td></tr>
+<tr><th>Notify On Error</th><td>Yes</td></tr>
+<tr><th>Suppress Notification until Last Retry</th><td>No</td></tr>
+<tr><th>Set Results To Vm Notes</th><td>-</td></tr>
+<tr><th>VM Attribute Note Value</th><td>&nbsp;</td></tr>
+<tr><th>Append to Existing Attribute</th><td>-</td></tr>
+</tbody></table>
+<div class="Caption">Table 211 - Advanced Settings (Notification) - Hyper-V-Backup-Copy</div><br /></div>
+<a name="7234b5df-4ee0-4277-9bf3-50608ab89474"><h1 class="NOTOCHeading6">Advanced Settings (Hyper-V)</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Enable Hyper-V Guest Quiescence</th><td>No</td></tr>
+<tr><th>Crash Consistent Backup</th><td>No</td></tr>
+<tr><th>Use Change Block Tracking</th><td>Yes</td></tr>
+<tr><th>Volume Snapshot</th><td>Yes</td></tr>
+</tbody></table>
+<div class="Caption">Table 212 - Advanced Settings (Hyper-V) - Hyper-V-Backup-Copy</div><br /></div>
+<a name="541a0b0f-7922-4b1c-9ccb-b400a525f002"><h1 class="NOTOCHeading6">Advanced Settings (Integration)</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Enable Backup from Storage Snapshots</th><td>Yes</td></tr>
+<tr><th>Limit processed VM count per Storage Snapshot</th><td>No</td></tr>
+<tr><th>VM count per Storage Snapshot</th><td>10</td></tr>
+<tr><th>Failover to Standard Backup</th><td>No</td></tr>
+<tr><th>Failover to Primary Storage Snapshot</th><td>No</td></tr>
+</tbody></table>
+<div class="Caption">Table 213 - Advanced Settings (Integration) - Hyper-V-Backup-Copy</div><br /></div>
+<a name="9a62f204-1978-4c98-bcd1-0cc3ed1960f1"><h1 class="NOTOCHeading6">Advanced Settings (Script)</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Run the Following Script Before</th><td>Yes</td></tr>
+<tr><th>Run Script Before the Job</th><td>pre-freeze.bat</td></tr>
+<tr><th>Run the Following Script After</th><td>Yes</td></tr>
+<tr><th>Run Script After the Job</th><td>post-freeze.bat</td></tr>
+<tr><th>Run Script Frequency</th><td>Cycles</td></tr>
+<tr><th>Run Script Every Backup Session</th><td>1</td></tr>
+</tbody></table>
+<div class="Caption">Table 214 - Advanced Settings (Script) - Hyper-V-Backup-Copy</div><br /></div>
+<a name="46f24ea5-92c6-4429-8cea-d2d27fa80785"><h1 class="NOTOCHeading6">Advanced Settings (RPO Monitor)</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>RPO Monitor Enabled</th><td>Yes</td></tr>
+<tr><th>If Backup is not Copied Within</th><td>1 Day</td></tr>
+<tr><th>Log Backup RPO Monitor Enabled</th><td>No</td></tr>
+<tr><th>If Log Backup is not Copied Within</th><td>1 Hour</td></tr>
+</tbody></table>
+<div class="Caption">Table 215 - Advanced Settings (RPO Monitor) - Hyper-V-Backup-Copy</div><br /></div>
+<a name="bd255913-8660-4821-a809-fcb355ee7a65"><h1 class="NOTOCHeading5">Schedule</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Retry Failed item</th><td>3</td></tr>
+<tr><th>Wait before each retry</th><td>10/min</td></tr>
+<tr><th>Backup Window</th><td>Yes</td></tr>
+<tr><th>Shedule type</th><td>Continuous</td></tr>
+<tr><th>Shedule Options</th><td>Schedule Time Period</td></tr>
+<tr><th>Start Time</th><td>10:00 PM</td></tr>
+<tr><th>Latest Run</th><td>09/30/2022 20:11:44</td></tr>
+</tbody></table>
+<div class="Caption">Table 216 - Schedule Options - Hyper-V-Backup-Copy</div><br /></div>
+<a name="0e797f5c-5dff-4fbc-a5f4-51aa938fdd80"><h1 class="NOTOCHeading6">Backup Window Time Period</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%;"><thead><tr><th>Hour</th><th>12</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th><th>9</th><th>10</th><th>11</th><th>12</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th><th>9</th><th>10</th><th>11</th></tr></thead><tbody>
+<tr><th>Sun</th><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td></tr>
+<tr><th>Mon</th><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td></tr>
+<tr><th>Tue</th><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td></tr>
+<tr><th>Wed</th><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td></tr>
+<tr><th>Thu</th><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td></tr>
+<tr><th>Fri</th><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td></tr>
+<tr><th>Sat</th><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td></tr>
+</tbody></table>
+<div class="Caption">Table 217 - Backup Window - Hyper-V-Backup-Copy</div><br /></div>
+<a name="ff156b58-4a6a-4cca-bdb0-7e6d7d5a5448"><h4 class="Heading4">1.7.3.2 HyperV-Backup-Job</h4></a><a name="e5b534f4-e299-418f-be92-618db6d052d0"><h1 class="NOTOCHeading4">Common Information</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Name</th><td>HyperV-Backup-Job</td></tr>
+<tr><th>Type</th><td>Hyper-V Backup</td></tr>
+<tr><th>Total Backup Size</th><td>20 GB</td></tr>
+<tr><th>Target Address</th><td>storeonce://veeam-hsv.pharmax.local:VEEAM-VLT-HPE@/</td></tr>
+<tr><th>Target File</th><td>HyperV-Backup-Job</td></tr>
+<tr><th>Description</th><td>Created by PHARMAX\administrator at 6/30/2021 10:02 PM.</td></tr>
+<tr><th>Modified By</th><td>PHARMAX\administrator</td></tr>
+</tbody></table>
+<div class="Caption">Table 218 - Common Information - HyperV-Backup-Job</div><br /></div>
+<a name="5087d0e5-2a23-4386-a23b-dbb346dd03d3"><h1 class="NOTOCHeading5">Virtual Machines</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Name</th><td>pharmax-cluster.pharmax.local</td></tr>
+<tr><th>Resource Type</th><td>Directory</td></tr>
+<tr><th>Role</th><td>Include</td></tr>
+<tr><th>Location</th><td>pharmax-cluster.pharmax.local</td></tr>
+<tr><th>Approx Size</th><td>19.6 GB</td></tr>
+<tr><th>Disk Filter Mode</th><td>AllDisks</td></tr>
+</tbody></table>
+<div class="Caption">Table 219 - Virtual Machines - pharmax-cluster.pharmax.local</div><br /></div>
+<a name="329d3542-1c4b-49bf-a728-434ecbb42dce"><h1 class="NOTOCHeading5">Storage</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Backup Proxy</th><td>VEEAM-HVPRX-01V.pharmax.local</td></tr>
+<tr><th>Backup Repository</th><td>VEEAM-HPE-StoreOnce-VSA</td></tr>
+<tr><th>Retention Type</th><td>Days</td></tr>
+<tr><th>Retain Days To Keep</th><td>7</td></tr>
+<tr><th>Keep First Full Backup</th><td>No</td></tr>
+<tr><th>Enable Full Backup</th><td>No</td></tr>
+<tr><th>Integrity Checks</th><td>Yes</td></tr>
+<tr><th>Storage Encryption</th><td>No</td></tr>
+<tr><th>Backup Mode</th><td>Incremental</td></tr>
+<tr><th>Active Full Backup Schedule Kind</th><td>Daily</td></tr>
+<tr><th>Active Full Backup Days</th><td>Saturday</td></tr>
+<tr><th>Transform Full To Syntethic</th><td>Yes</td></tr>
+<tr><th>Transform Increments To Syntethic</th><td>No</td></tr>
+<tr><th>Transform To Syntethic Days</th><td>Saturday</td></tr>
+</tbody></table>
+<div class="Caption">Table 220 - Storage Options - HyperV-Backup-Job</div><br /></div>
+<a name="e9605c8e-202d-4a50-b4e4-6f701658e502"><h1 class="NOTOCHeading6">Advanced Settings (Storage)</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Inline Data Deduplication</th><td>No</td></tr>
+<tr><th>Exclude Swap Files Block</th><td>Yes</td></tr>
+<tr><th>Exclude Deleted Files Block</th><td>Yes</td></tr>
+<tr><th>Compression Level</th><td>OPTIMAL (Default)</td></tr>
+<tr><th>Storage optimization</th><td>Local target (large blocks)</td></tr>
+<tr><th>Enabled Backup File Encryption</th><td>No</td></tr>
+<tr><th>Encryption Key</th><td>None</td></tr>
+</tbody></table>
+<div class="Caption">Table 221 - Advanced Settings (Storage) - HyperV-Backup-Job</div><br /></div>
+<a name="caa78fd5-b959-45db-bfd9-b5a42e6de95b"><h1 class="NOTOCHeading6">Advanced Settings (Hyper-V)</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Enable Hyper-V Guest Quiescence</th><td>No</td></tr>
+<tr><th>Crash Consistent Backup</th><td>No</td></tr>
+<tr><th>Use Change Block Tracking</th><td>Yes</td></tr>
+<tr><th>Volume Snapshot</th><td>Yes</td></tr>
+</tbody></table>
+<div class="Caption">Table 222 - Advanced Settings (Hyper-V) - HyperV-Backup-Job</div><br /></div>
+<a name="0311d0d8-fba0-44e6-88b9-870d38b59894"><h1 class="NOTOCHeading6">Advanced Settings (Integration)</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Enable Backup from Storage Snapshots</th><td>Yes</td></tr>
+<tr><th>Limit processed VM count per Storage Snapshot</th><td>No</td></tr>
+<tr><th>VM count per Storage Snapshot</th><td>10</td></tr>
+<tr><th>Failover to Standard Backup</th><td>No</td></tr>
+<tr><th>Failover to Primary Storage Snapshot</th><td>No</td></tr>
+</tbody></table>
+<div class="Caption">Table 223 - Advanced Settings (Integration) - HyperV-Backup-Job</div><br /></div>
+<a name="417e1a19-4862-4560-924f-954b223518f9"><h1 class="NOTOCHeading5">Secondary Target</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:25%; min-width:25%; width:25%" /><col style="max-width:25%; min-width:25%; width:25%" /><col style="max-width:15%; min-width:15%; width:15%" /><col style="max-width:35%; min-width:35%; width:35%" /></colgroup>
+<thead><tr><th>Job Name</th><th>Type</th><th>State</th><th>Description</th></tr></thead><tbody>
+<tr><td>Hyper-V-Backup-Copy</td><td>Hyper-V Backup Copy</td><td>None</td><td>Created by PHARMAX\administrator at 2/20/2022 10:38 AM.</td></tr>
+</tbody></table>
+<div class="Caption">Table 224 - Secondary Destination Jobs - HyperV-Backup-Job</div><br /></div>
+<a name="7018ba55-0dee-42a6-b91b-907daf5b96c9"><h1 class="NOTOCHeading5">Schedule</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Retry Failed item</th><td>3</td></tr>
+<tr><th>Wait before each retry</th><td>10/min</td></tr>
+<tr><th>Backup Window</th><td>No</td></tr>
+<tr><th>Shedule type</th><td>Daily</td></tr>
+<tr><th>Shedule Options</th><td>Kind: Everyday,<br />Days: Sunday Monday Tuesday Wednesday Thursday Friday Saturday</td></tr>
+<tr><th>Start Time</th><td>10:00 PM</td></tr>
+<tr><th>Latest Run</th><td>01/01/0001 00:00:00</td></tr>
+</tbody></table>
+<div class="Caption">Table 225 - Schedule Options - HyperV-Backup-Job</div><br /></div>
+<a name="4ae82998-0eb4-494f-8a9d-0193887f68fc"><h4 class="Heading4">1.7.3.3 WIN HyperV VM Backup</h4></a><a name="599839b0-fa48-4294-affb-fc6afde16811"><h1 class="NOTOCHeading4">Common Information</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Name</th><td>WIN HyperV VM Backup</td></tr>
+<tr><th>Type</th><td>Hyper-V Backup</td></tr>
+<tr><th>Total Backup Size</th><td>4 MB</td></tr>
+<tr><th>Target Address</th><td>&nbsp;</td></tr>
+<tr><th>Target File</th><td>WIN HyperV VM Backup</td></tr>
+<tr><th>Description</th><td>Created by PHARMAX\jocolon at 12/26/2021 8:36 PM.</td></tr>
+<tr><th>Modified By</th><td>PHARMAX\administrator</td></tr>
+</tbody></table>
+<div class="Caption">Table 226 - Common Information - WIN HyperV VM Backup</div><br /></div>
+<a name="d0801cf8-cb0a-40c6-b61b-c0a2cb44e9f2"><h1 class="NOTOCHeading5">Virtual Machines</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Name</th><td>pharmax-cluster.pharmax.local</td></tr>
+<tr><th>Resource Type</th><td>Directory</td></tr>
+<tr><th>Role</th><td>Include</td></tr>
+<tr><th>Location</th><td>pharmax-cluster.pharmax.local</td></tr>
+<tr><th>Approx Size</th><td>4 MB</td></tr>
+<tr><th>Disk Filter Mode</th><td>AllDisks</td></tr>
+</tbody></table>
+<div class="Caption">Table 227 - Virtual Machines - pharmax-cluster.pharmax.local</div><br /></div>
+<div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Name</th><td>Server-EX-01v</td></tr>
+<tr><th>Resource Type</th><td>VM</td></tr>
+<tr><th>Role</th><td>Exclude</td></tr>
+<tr><th>Location</th><td>pharmax-cluster.pharmax.local\Server-EX-01v</td></tr>
+<tr><th>Approx Size</th><td>0 B</td></tr>
+<tr><th>Disk Filter Mode</th><td>SelectedDisks</td></tr>
+</tbody></table>
+<div class="Caption">Table 228 - Virtual Machines - Server-EX-01v</div><br /></div>
+<a name="3aeec93a-2834-47f5-8901-42001d08de78"><h1 class="NOTOCHeading5">Storage</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Backup Proxy</th><td>VEEAM-HVPRX-01V.pharmax.local</td></tr>
+<tr><th>Backup Repository</th><td>SOBR - Minio</td></tr>
+<tr><th>Retention Type</th><td>Days</td></tr>
+<tr><th>Retain Days To Keep</th><td>7</td></tr>
+<tr><th>Keep First Full Backup</th><td>No</td></tr>
+<tr><th>Enable Full Backup</th><td>Yes</td></tr>
+<tr><th>Integrity Checks</th><td>Yes</td></tr>
+<tr><th>Storage Encryption</th><td>Yes</td></tr>
+<tr><th>Backup Mode</th><td>Incremental</td></tr>
+<tr><th>Active Full Backup Schedule Kind</th><td>Daily</td></tr>
+<tr><th>Active Full Backup Days</th><td>Saturday</td></tr>
+<tr><th>Transform Full To Syntethic</th><td>Yes</td></tr>
+<tr><th>Transform Increments To Syntethic</th><td>No</td></tr>
+<tr><th>Transform To Syntethic Days</th><td>Saturday</td></tr>
+<tr><th>Keep certain full backup longer for archival purposes (GFS)</th><td>Yes</td></tr>
+<tr><th>Keep Weekly full backup for</th><td>1 weeks,<br />If multiple backup exist use the one from: Sunday</td></tr>
+<tr><th>Keep Monthly full backup</th><td>Disabled</td></tr>
+<tr><th>Keep Yearly full backup</th><td>Disabled</td></tr>
+</tbody></table>
+<div class="Caption">Table 229 - Storage Options - WIN HyperV VM Backup</div><br /></div>
+<a name="56c4f92f-9d08-479e-af16-eed204cfde72"><h1 class="NOTOCHeading6">Advanced Settings (Maintenance)</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Storage-Level Corruption Guard (SLCG)</th><td>Yes</td></tr>
+<tr><th>SLCG Schedule Type</th><td>Monthly</td></tr>
+<tr><th>SLCG Schedule Day</th><td>Friday</td></tr>
+<tr><th>SLCG Backup Monthly Schedule</th><td>Day Of Week: Friday<br />Day Number In Month: Last<br />Day of Month: 1<br />Months: January February March April May June July August September October November December</td></tr>
+<tr><th>Defragment and Compact Full Backup (DCFB)</th><td>No</td></tr>
+<tr><th>DCFB Schedule Type</th><td>Monthly</td></tr>
+<tr><th>DCFB Schedule Day</th><td>Saturday</td></tr>
+<tr><th>DCFB Backup Monthly Schedule</th><td>Day Of Week: Saturday<br />Day Number In Month: Last<br />Day of Month: 1<br />Months: January February March April May June July August September October November December</td></tr>
+<tr><th>Remove deleted item data after</th><td>14</td></tr>
+</tbody></table>
+<div class="Caption">Table 230 - Advanced Settings (Maintenance) - WIN HyperV VM Backup</div><br /></div>
+<a name="8b1eb516-2d83-49fe-99e8-b6b136e45c88"><h1 class="NOTOCHeading6">Advanced Settings (Storage)</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Inline Data Deduplication</th><td>Yes</td></tr>
+<tr><th>Exclude Swap Files Block</th><td>Yes</td></tr>
+<tr><th>Exclude Deleted Files Block</th><td>Yes</td></tr>
+<tr><th>Compression Level</th><td>OPTIMAL (Default)</td></tr>
+<tr><th>Storage optimization</th><td>Local target</td></tr>
+<tr><th>Enabled Backup File Encryption</th><td>Yes</td></tr>
+<tr><th>Encryption Key</th><td>Password Global</td></tr>
+</tbody></table>
+<div class="Caption">Table 231 - Advanced Settings (Storage) - WIN HyperV VM Backup</div><br /></div>
+<a name="0263bae0-9671-4a52-a5c5-a98f4102d05c"><h1 class="NOTOCHeading6">Advanced Settings (Notification)</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Send Snmp Notification</th><td>Yes</td></tr>
+<tr><th>Send Email Notification</th><td>Yes</td></tr>
+<tr><th>Email Notification Additional Addresses</th><td>rebelinux@gmail.com</td></tr>
+<tr><th>Email Notify Time</th><td>10:00 PM</td></tr>
+<tr><th>Use Custom Email Notification Options</th><td>No</td></tr>
+<tr><th>Use Custom Notification Setting</th><td>[%JobResult%] %JobName% (%ObjectCount% machines) %Issues%</td></tr>
+<tr><th>Notify On Success</th><td>Yes</td></tr>
+<tr><th>Notify On Warning</th><td>Yes</td></tr>
+<tr><th>Notify On Error</th><td>Yes</td></tr>
+<tr><th>Suppress Notification until Last Retry</th><td>Yes</td></tr>
+<tr><th>Set Results To Vm Notes</th><td>-</td></tr>
+<tr><th>VM Attribute Note Value</th><td>&nbsp;</td></tr>
+<tr><th>Append to Existing Attribute</th><td>-</td></tr>
+</tbody></table>
+<div class="Caption">Table 232 - Advanced Settings (Notification) - WIN HyperV VM Backup</div><br /></div>
+<a name="aaf1b1d3-6dfa-489b-9c50-74826fd0962d"><h1 class="NOTOCHeading6">Advanced Settings (Hyper-V)</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Enable Hyper-V Guest Quiescence</th><td>Yes</td></tr>
+<tr><th>Crash Consistent Backup</th><td>Yes</td></tr>
+<tr><th>Use Change Block Tracking</th><td>Yes</td></tr>
+<tr><th>Volume Snapshot</th><td>Yes</td></tr>
+</tbody></table>
+<div class="Caption">Table 233 - Advanced Settings (Hyper-V) - WIN HyperV VM Backup</div><br /></div>
+<a name="b5dea333-c0f4-48b6-9727-7e5f2e3a6fdc"><h1 class="NOTOCHeading6">Advanced Settings (Integration)</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Enable Backup from Storage Snapshots</th><td>Yes</td></tr>
+<tr><th>Limit processed VM count per Storage Snapshot</th><td>No</td></tr>
+<tr><th>VM count per Storage Snapshot</th><td>10</td></tr>
+<tr><th>Failover to Standard Backup</th><td>No</td></tr>
+<tr><th>Failover to Primary Storage Snapshot</th><td>No</td></tr>
+</tbody></table>
+<div class="Caption">Table 234 - Advanced Settings (Integration) - WIN HyperV VM Backup</div><br /></div>
+<a name="e84b3321-918e-46fb-b09b-88be42442634"><h1 class="NOTOCHeading6">Advanced Settings (Script)</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Run the Following Script Before</th><td>Yes</td></tr>
+<tr><th>Run Script Before the Job</th><td>pre-exchange.bat</td></tr>
+<tr><th>Run the Following Script After</th><td>Yes</td></tr>
+<tr><th>Run Script After the Job</th><td>post-exchange.bat</td></tr>
+<tr><th>Run Script Frequency</th><td>Days</td></tr>
+<tr><th>Run Script on the Selected Days</th><td>Saturday</td></tr>
+</tbody></table>
+<div class="Caption">Table 235 - Advanced Settings (Script) - WIN HyperV VM Backup</div><br /></div>
+<a name="406976d0-2b98-4783-835d-a26e0354a613"><h1 class="NOTOCHeading5">Secondary Target</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:25%; min-width:25%; width:25%" /><col style="max-width:25%; min-width:25%; width:25%" /><col style="max-width:15%; min-width:15%; width:15%" /><col style="max-width:35%; min-width:35%; width:35%" /></colgroup>
+<thead><tr><th>Job Name</th><th>Type</th><th>State</th><th>Description</th></tr></thead><tbody>
+<tr><td>PHARMAX-HQ-SVR-TAPE</td><td>Backup to Tape</td><td>Failed</td><td>Created by PHARMAX\administrator at 6/29/2021 7:24 PM.</td></tr>
+</tbody></table>
+<div class="Caption">Table 236 - Secondary Destination Jobs - WIN HyperV VM Backup</div><br /></div>
+<a name="4a68f5fc-2a51-4cf2-b08b-f2d6633eedbd"><h1 class="NOTOCHeading5">Guest Processing</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Name</th><td>pharmax-cluster.pharmax.local</td></tr>
+<tr><th>Enabled</th><td>Yes</td></tr>
+<tr><th>Resource Type</th><td>&nbsp;</td></tr>
+<tr><th>Ignore Errors</th><td>No</td></tr>
+<tr><th>Guest Proxy Auto Detect</th><td>Yes</td></tr>
+<tr><th>Default Credential</th><td>admin</td></tr>
+<tr><th>Object Credential</th><td>Default Credential</td></tr>
+<tr><th>Application Processing</th><td>Yes</td></tr>
+<tr><th>Transaction Logs</th><td>Process Transaction Logs</td></tr>
+<tr><th>Use Persistent Guest Agent</th><td>No</td></tr>
+<tr><th>SQL Transaction Logs Processing</th><td>Truncate logs</td></tr>
+<tr><th>SQL Backup Log Every</th><td>15 min</td></tr>
+<tr><th>SQL Retain Log Backups</th><td>Until the corresponding image-level backup is deleted</td></tr>
+</tbody></table>
+<div class="Caption">Table 237 - Guest Processing Options - pharmax-cluster.pharmax.local</div><br /></div>
+<div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Name</th><td>Server-EX-01v</td></tr>
+<tr><th>Enabled</th><td>Yes</td></tr>
+<tr><th>Resource Type</th><td>&nbsp;</td></tr>
+<tr><th>Ignore Errors</th><td>Yes</td></tr>
+<tr><th>Guest Proxy Auto Detect</th><td>Yes</td></tr>
+<tr><th>Default Credential</th><td>admin</td></tr>
+<tr><th>Object Credential</th><td>Default Credential</td></tr>
+<tr><th>Application Processing</th><td>Yes</td></tr>
+<tr><th>Transaction Logs</th><td>Process Transaction Logs</td></tr>
+<tr><th>Use Persistent Guest Agent</th><td>Yes</td></tr>
+<tr><th>SQL Transaction Logs Processing</th><td>Truncate logs</td></tr>
+<tr><th>SQL Backup Log Every</th><td>15 min</td></tr>
+<tr><th>SQL Retain Log Backups</th><td>Until the corresponding image-level backup is deleted</td></tr>
+<tr><th>Oracle Account Type</th><td>Oracle</td></tr>
+<tr><th>Oracle Sysdba Creds</th><td>Guest OS Credential</td></tr>
+<tr><th>Oracle Backup Logs Every</th><td>15 min</td></tr>
+<tr><th>Oracle Archive Logs</th><td>Disabled</td></tr>
+<tr><th>Oracle Retain Log Backups</th><td>Until the corresponding image-level backup is deleted</td></tr>
+</tbody></table>
+<div class="Caption">Table 238 - Guest Processing Options - Server-EX-01v</div><br /></div>
+<a name="421dbdc3-1a02-4bf1-aaa3-5a6a5953fd04"><h3 class="Heading3">1.7.4 Tape Backup Jobs</h3></a><div>The following section list tape backup jobs created in Veeam Backup &amp; Replication.</div><br /><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:30%; min-width:30%; width:30%" /><col style="max-width:25%; min-width:25%; width:25%" /><col style="max-width:15%; min-width:15%; width:15%" /><col style="max-width:30%; min-width:30%; width:30%" /></colgroup>
+<thead><tr><th>Name</th><th>Type</th><th>Latest Status</th><th>Target Repository</th></tr></thead><tbody>
+<tr><td>File to Tape Job - Data Share</td><td>File To Tape</td><td>Failed</td><td>Standard Media Pool [Oracle - Media Pool]</td></tr>
+<tr><td>File to Tape Job - Server Share</td><td>File To Tape</td><td>Success</td><td>Standard Media Pool [WORM Media Pool 1]</td></tr>
+<tr><td>PHARMAX-HQ-SVR-TAPE</td><td>Backup To Tape</td><td>Success</td><td>WORM GFS Media Pool 1</td></tr>
+<tr><td>PHARMAX-HQ-SVR-TAPE Standard</td><td>Backup To Tape</td><td>Warning</td><td>Standard Media Pool [WORM Media Pool 1]</td></tr>
+</tbody></table>
+<div class="Caption">Table 239 - Backup Jobs - VEEAM-VBR</div><br /></div>
+<a name="46c6dff8-1ff5-4304-9e4e-e9360d991a68"><h3 class="Heading3">1.7.5 Backup To Tape Job Configuration</h3></a><div>The following section details the configuration about the backup to tape jobs .</div><br /><a name="5e93c377-d8f2-41cf-a887-a9068d1a1992"><h4 class="Heading4">1.7.5.1 PHARMAX-HQ-SVR-TAPE</h4></a><a name="1c4f70a3-7c05-4a78-91fd-c2b6859cd996"><h1 class="NOTOCHeading5">Backups Information</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Name</th><td>PHARMAX-HQ-SVR-TAPE</td></tr>
+<tr><th>Type</th><td>BackupToTape</td></tr>
+<tr><th>Total Backup Size</th><td>186 GB</td></tr>
+<tr><th>Next Run</th><td>Disabled</td></tr>
+<tr><th>Description</th><td>Created by PHARMAX\administrator at 6/29/2021 7:24 PM.</td></tr>
+</tbody></table>
+<div class="Caption">Table 240 - Common Information - PHARMAX-HQ-SVR-TAPE</div><br /></div>
+<a name="65f84adc-0370-43fa-8d76-65c3ba35a988"><h1 class="NOTOCHeading5">Backups Objects</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:35%; min-width:35%; width:35%" /><col style="max-width:25%; min-width:25%; width:25%" /><col style="max-width:15%; min-width:15%; width:15%" /><col style="max-width:25%; min-width:25%; width:25%" /></colgroup>
+<thead><tr><th>Name</th><th>Type</th><th>Size</th><th>Repository</th></tr></thead><tbody>
+<tr><td>Gurabo PC - Backup Job</td><td>Backup Job</td><td>0 KB</td><td>SOBR - Minio</td></tr>
+<tr><td>Linux Agent Backup Job</td><td>Backup Job</td><td>0 KB</td><td>Linux - Hardened Repository</td></tr>
+<tr><td>PHARMAX-HQ-SVR</td><td>Backup Job</td><td>31 GB</td><td>SOBR - Minio</td></tr>
+<tr><td>Server With Netapp LUNS - Backup</td><td>Backup Job</td><td>0 KB</td><td>SOBR - Minio</td></tr>
+<tr><td>SOBR - Minio</td><td>Repository</td><td>156 GB</td><td>SOBR - Minio</td></tr>
+<tr><td>WIN HyperV VM Backup</td><td>Backup Job</td><td>4 MB</td><td>SOBR - Minio</td></tr>
+</tbody></table>
+<div class="Caption">Table 241 - Backups Objects - PHARMAX-HQ-SVR-TAPE</div><br /></div>
+<a name="e98f1cd4-8eb9-4777-a8c2-6a8f67431566"><h1 class="NOTOCHeading5">Media Pool</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Name</th><td>WORM GFS Media Pool 1</td></tr>
+<tr><th>Pool Type</th><td>Gfs</td></tr>
+<tr><th>Tape Count</th><td>5</td></tr>
+<tr><th>Free Space</th><td>59 TB</td></tr>
+<tr><th>Encryption Enabled</th><td>Yes</td></tr>
+<tr><th>Encryption Key</th><td>Password Global</td></tr>
+<tr><th>Parallel Processing</th><td>2 drives; Multiple Backup Chains: Yes</td></tr>
+<tr><th>Is WORM</th><td>Yes</td></tr>
+<tr><th>Daily</th><td>14 days; Use any available media; append; do not export</td></tr>
+<tr><th>Weekly</th><td>4 days; Use any available media; do not append; do not export</td></tr>
+<tr><th>Monthly</th><td>12 days; Use any available media; do not append; do not export</td></tr>
+<tr><th>Quarterly</th><td>4 days; Use any available media; do not append; do not export</td></tr>
+<tr><th>Yearly</th><td>1 days; Use any available media; do not append; do not export</td></tr>
+</tbody></table>
+<div class="Caption">Table 242 - Media Pool - PHARMAX-HQ-SVR-TAPE</div><br /></div>
+<a name="a46b2aed-c74c-4faf-bae7-840219cda283"><h1 class="NOTOCHeading5">Options</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Eject Tape Media Upon Job Completion</th><td>Yes</td></tr>
+<tr><th>Export the following MediaSet Upon Job Completion</th><td>Yes</td></tr>
+<tr><th>Limit the number of drives this job can use</th><td>Enabled: Yes; Tape Drives Limit: 3</td></tr>
+</tbody></table>
+<div class="Caption">Table 243 - Options - PHARMAX-HQ-SVR-TAPE</div><br /></div>
+<a name="45d1e50e-3229-4448-844e-a13c2dd1bf67"><h1 class="NOTOCHeading6">Advanced Settings (Notifications)</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Send Email Notification</th><td>Yes</td></tr>
+<tr><th>Email Notification Additional Recipients</th><td>veeam_admin@pharmax.local</td></tr>
+<tr><th>Use Custom Notification Settings</th><td>Yes</td></tr>
+<tr><th>Subject</th><td>[%JobResult%] %JobName% (%TapeCount% Tapes) %Issues%</td></tr>
+<tr><th>Notify On Success</th><td>Yes</td></tr>
+<tr><th>Notify On Warning</th><td>Yes</td></tr>
+<tr><th>Notify On Error</th><td>Yes</td></tr>
+<tr><th>Notify On Last Retry Only</th><td>Yes</td></tr>
+<tr><th>Notify When Waiting For Tape</th><td>Yes</td></tr>
+</tbody></table>
+<div class="Caption">Table 244 - Advanced Settings (Notifications) - PHARMAX-HQ-SVR-TAPE</div><br /></div>
+<a name="034a0cec-e137-4dda-bf4b-52f7571273d0"><h1 class="NOTOCHeading6">Advanced Settings (Advanced)</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Process the most recent Restore Point instead of waiting</th><td>Yes</td></tr>
+<tr><th>Use Hardware Compression when available</th><td>Yes</td></tr>
+<tr><th>Run the following script before job</th><td>c:\pretapebackup.bat</td></tr>
+<tr><th>Run the following script after job</th><td>c:\posttapebackup.bat</td></tr>
+<tr><th>Run Script Every Backup Session</th><td>Every 1 backup session</td></tr>
+</tbody></table>
+<div class="Caption">Table 245 - Advanced Settings (Advanced) - PHARMAX-HQ-SVR-TAPE</div><br /></div>
+<a name="afa64073-edf8-4973-9bfb-8a43580f8a20"><h1 class="NOTOCHeading5">Schedule</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Prevent this job from being interrupted by source backup job</th><td>No</td></tr>
+<tr><th>Perform GFS scan daily at</th><td>0:00:00</td></tr>
+<tr><th>Daily backup</th><td>Everyday</td></tr>
+<tr><th>Weekly backup</th><td>Wednesday 00:00:00</td></tr>
+<tr><th>Monthly backup</th><td>Fourth Wednesday of the month</td></tr>
+<tr><th>Quarterly backup</th><td>1 day of the Last month of the quarter</td></tr>
+<tr><th>Yearly backup</th><td>1 day of May</td></tr>
+</tbody></table>
+<div class="Caption">Table 246 - Schedule - PHARMAX-HQ-SVR-TAPE</div><br /></div>
+<a name="06d0b981-54b0-4c93-ad3f-35fad409789f"><h4 class="Heading4">1.7.5.2 PHARMAX-HQ-SVR-TAPE Standard</h4></a><a name="33ff1966-868b-4d3f-a027-62aa6f25f0ea"><h1 class="NOTOCHeading5">Backups Information</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Name</th><td>PHARMAX-HQ-SVR-TAPE Standard</td></tr>
+<tr><th>Type</th><td>BackupToTape</td></tr>
+<tr><th>Total Backup Size</th><td>13 GB</td></tr>
+<tr><th>Next Run</th><td>&nbsp;</td></tr>
+<tr><th>Description</th><td>Created by PHARMAX\administrator at 2/25/2022 7:14 PM.</td></tr>
+</tbody></table>
+<div class="Caption">Table 247 - Common Information - PHARMAX-HQ-SVR-TAPE Standard</div><br /></div>
+<a name="1f222631-b0c9-4751-91b6-3eba50984a96"><h1 class="NOTOCHeading5">Backups Objects</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:35%; min-width:35%; width:35%" /><col style="max-width:25%; min-width:25%; width:25%" /><col style="max-width:15%; min-width:15%; width:15%" /><col style="max-width:25%; min-width:25%; width:25%" /></colgroup>
+<thead><tr><th>Name</th><th>Type</th><th>Size</th><th>Repository</th></tr></thead><tbody>
+<tr><td>Agent Backup Job 3</td><td>Backup Job</td><td>0 KB</td><td>SOBR - Minio</td></tr>
+<tr><td>Agent Backup Policy 2</td><td>Backup Job</td><td>0 KB</td><td>SOBR - Minio</td></tr>
+<tr><td>Linux - Hardened Repository</td><td>Repository</td><td>13 GB</td><td>Linux - Hardened Repository</td></tr>
+<tr><td>Server With Netapp LUNS - Backup</td><td>Backup Job</td><td>0 KB</td><td>SOBR - Minio</td></tr>
+<tr><td>VM - Test - AWS</td><td>Backup Job</td><td>26 MB</td><td>SOBR - AWS S3</td></tr>
+</tbody></table>
+<div class="Caption">Table 248 - Backups Objects - PHARMAX-HQ-SVR-TAPE Standard</div><br /></div>
+<a name="3238a046-b609-4d77-82a4-693c8d907cd5"><h1 class="NOTOCHeading5">Media Pool</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Name</th><td>Standard Media Pool</td></tr>
+<tr><th>Pool Type</th><td>Custom</td></tr>
+<tr><th>Tape Count</th><td>3</td></tr>
+<tr><th>Free Space</th><td>35 TB</td></tr>
+<tr><th>Encryption Enabled</th><td>No</td></tr>
+<tr><th>Encryption Key</th><td>Disabled</td></tr>
+<tr><th>Parallel Processing</th><td>2 drives; Multiple Backup Chains: Yes</td></tr>
+<tr><th>Is WORM</th><td>No</td></tr>
+<tr><th>Retention</th><td>Protect data for 1 Months</td></tr>
+<tr><th>Export to Vault</th><td>Yes</td></tr>
+<tr><th>Vault</th><td>DR - Tape Vault</td></tr>
+<tr><th>Media Set Name</th><td>Media set # %id% %date%</td></tr>
+<tr><th>Automatically create new media set</th><td>Do not create, always continue using current media set</td></tr>
+<tr><th>Full Backup Schedule</th><td>Weekly on selected days: Monday, Tuesday, Wednesday, Thursday, Friday</td></tr>
+</tbody></table>
+<div class="Caption">Table 249 - Media Pool - PHARMAX-HQ-SVR-TAPE Standard</div><br /></div>
+<a name="71699aa7-cba0-4550-97b1-76bd45ecb753"><h1 class="NOTOCHeading5">Incremental Backup</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Media Pool</th><td>WORM Media Pool 1</td></tr>
+<tr><th>Pool Type</th><td>Custom</td></tr>
+<tr><th>Tape Count</th><td>5</td></tr>
+<tr><th>Free Space</th><td>59 TB</td></tr>
+<tr><th>Encryption Enabled</th><td>Yes</td></tr>
+<tr><th>Encryption Key</th><td>Password Global</td></tr>
+<tr><th>Parallel Processing</th><td>2 drives; Multiple Backup Chains: Yes</td></tr>
+<tr><th>Is WORM</th><td>Yes</td></tr>
+<tr><th>Retention</th><td>Never Overwrite Data</td></tr>
+<tr><th>Export to Vault</th><td>Yes</td></tr>
+<tr><th>Vault</th><td>DR - Tape Vault</td></tr>
+<tr><th>Media Set Name</th><td>WORM media set # %id% %date%</td></tr>
+<tr><th>Automatically create new media set</th><td>Do not create, always continue using current media set</td></tr>
+</tbody></table>
+<div class="Caption">Table 250 - Incremental Backup - PHARMAX-HQ-SVR-TAPE Standard</div><br /></div>
+<a name="f7a7c6a4-ce02-4b1f-b5d0-6dfbaa75aa86"><h1 class="NOTOCHeading5">Options</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Eject Tape Media Upon Job Completion</th><td>Yes</td></tr>
+<tr><th>Export the following MediaSet Upon Job Completion</th><td>Yes</td></tr>
+<tr><th>Limit the number of drives this job can use</th><td>Enabled: Yes; Tape Drives Limit: 2</td></tr>
+</tbody></table>
+<div class="Caption">Table 251 - Options - PHARMAX-HQ-SVR-TAPE Standard</div><br /></div>
+<a name="b3549b90-263b-43fa-80b8-e5d30b66df66"><h1 class="NOTOCHeading6">Advanced Settings (Notifications)</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Send Email Notification</th><td>Yes</td></tr>
+<tr><th>Email Notification Additional Recipients</th><td>veeam_admin@pharmax.local</td></tr>
+<tr><th>Use Global Notification Settings</th><td>No</td></tr>
+</tbody></table>
+<div class="Caption">Table 252 - Advanced Settings (Notifications) - PHARMAX-HQ-SVR-TAPE Standard</div><br /></div>
+<a name="4383d877-6eec-4567-bbb4-a7cdf94a936e"><h1 class="NOTOCHeading6">Advanced Settings (Advanced)</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Process the most recent Restore Point instead of waiting</th><td>Yes</td></tr>
+<tr><th>Use Hardware Compression when available</th><td>Yes</td></tr>
+<tr><th>Pre Job Script Enabled</th><td>No</td></tr>
+<tr><th>Post Job Script Enabled</th><td>No</td></tr>
+</tbody></table>
+<div class="Caption">Table 253 - Advanced Settings (Advanced) - PHARMAX-HQ-SVR-TAPE Standard</div><br /></div>
+<a name="747e14ea-f95c-4ee6-9c5b-8644d8919b29"><h1 class="NOTOCHeading5">Schedule</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Prevent this job from being interrupted by source backup job</th><td>Yes</td></tr>
+<tr><th>Run Automatically</th><td> After Job: PHARMAX-HQ-SVR</td></tr>
+<tr><th>Wait for Backup Job</th><td>03:00:00 hours</td></tr>
+</tbody></table>
+<div class="Caption">Table 254 - Schedule - PHARMAX-HQ-SVR-TAPE Standard</div><br /></div>
+<a name="005a45af-3460-45ff-a6f4-70b58f023eea"><h3 class="Heading3">1.7.6 File To Tape Job Configuration</h3></a><div>The following section details the configuration about file to tape jobs.</div><br /><a name="4b950bea-2db0-4415-a266-599201a25d41"><h4 class="Heading4">1.7.6.1 File to Tape Job - Data Share</h4></a><a name="1410db10-989d-41b2-9916-9df0e1b6b344"><h1 class="NOTOCHeading5">Backups Information</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Name</th><td>File to Tape Job - Data Share</td></tr>
+<tr><th>Type</th><td>FileToTape</td></tr>
+<tr><th>Next Run</th><td>10/03/2022 18:00:00</td></tr>
+<tr><th>Description</th><td>Created by PHARMAX\jocolon at 1/8/2022 1:02 PM.</td></tr>
+</tbody></table>
+<div class="Caption">Table 255 - Common Information - File to Tape Job - Data Share</div><br /></div>
+<a name="8da89f4a-c28d-4859-bba6-13ab6fed6c80"><h1 class="NOTOCHeading5">Files and Folders</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:25%; min-width:25%; width:25%" /><col style="max-width:15%; min-width:15%; width:15%" /><col style="max-width:15%; min-width:15%; width:15%" /><col style="max-width:25%; min-width:25%; width:25%" /><col style="max-width:10%; min-width:10%; width:10%" /><col style="max-width:10%; min-width:10%; width:10%" /></colgroup>
+<thead><tr><th>Name</th><th>Type</th><th>Selection Type</th><th>Path</th><th>Include Filter</th><th>Exclude Filter</th></tr></thead><tbody>
+<tr><td>192.168.5.18:/oracle</td><td>NfsShare</td><td>Directory</td><td>nfs3://192.168.5.18:/oracle</td><td>*.*</td><td>*.odt</td></tr>
+<tr><td>ONTAP-HQ-SAN-IC.pharmax.local</td><td>NDMP</td><td>Directory</td><td>/NAS-VEEAM/DATA</td><td>-</td><td>-</td></tr>
+</tbody></table>
+<div class="Caption">Table 256 - Files and Folders - File to Tape Job - Data Share</div><br /></div>
+<a name="87e15025-9bfa-467e-a00c-e89afb369c08"><h1 class="NOTOCHeading5">Full Backup</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Name</th><td>Standard Media Pool</td></tr>
+<tr><th>Pool Type</th><td>Custom</td></tr>
+<tr><th>Tape Count</th><td>3</td></tr>
+<tr><th>Capacity</th><td>35 TB</td></tr>
+<tr><th>Remaining</th><td>35 TB</td></tr>
+<tr><th>Is WORM</th><td>No</td></tr>
+<tr><th>Schedule Enabled</th><td>Yes</td></tr>
+<tr><th>Daily at this Time</th><td>18:00:00 - Monday, Tuesday, Wednesday, Thursday, Friday</td></tr>
+</tbody></table>
+<div class="Caption">Table 257 - Full Backup - File to Tape Job - Data Share</div><br /></div>
+<a name="d74acf25-96fe-439e-9b0e-027c418b0ca9"><h1 class="NOTOCHeading5">Incremental Backup</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Name</th><td>Oracle - Media Pool</td></tr>
+<tr><th>Pool Type</th><td>Custom</td></tr>
+<tr><th>Tape Count</th><td>10</td></tr>
+<tr><th>Capacity</th><td>120 TB</td></tr>
+<tr><th>Remaining</th><td>120 TB</td></tr>
+<tr><th>Is WORM</th><td>No</td></tr>
+<tr><th>Schedule Enabled</th><td>Yes</td></tr>
+<tr><th>Monthly at this Time</th><td>At 00:00:00, Monthly on the: Fourth Saturday of Every Month</td></tr>
+</tbody></table>
+<div class="Caption">Table 258 - Incremental Backup - File to Tape Job - Data Share</div><br /></div>
+<a name="2f325129-7f36-4e48-8e7e-783491c76917"><h1 class="NOTOCHeading5">Options</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Use Microsoft volume shadow copy (VSS)</th><td>Yes</td></tr>
+<tr><th>Eject Tape Media Upon Job Completion</th><td>Yes</td></tr>
+<tr><th>Export the following MediaSet Upon Job Completion</th><td>Yes</td></tr>
+</tbody></table>
+<div class="Caption">Table 259 - Options - File to Tape Job - Data Share</div><br /></div>
+<a name="c929b46c-2510-42dc-86c5-6c01aa89c600"><h1 class="NOTOCHeading6">Advanced Settings (Notifications)</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Send Email Notification</th><td>Yes</td></tr>
+<tr><th>Email Notification Additional Recipients</th><td>admin@superdc.com,admin@netapp.com</td></tr>
+<tr><th>Use Custom Notification Settings</th><td>Yes</td></tr>
+<tr><th>Subject</th><td>[%JobResult%] %JobName% (%TapeCount% Tapes) %Issues%</td></tr>
+<tr><th>Notify On Success</th><td>Yes</td></tr>
+<tr><th>Notify On Warning</th><td>Yes</td></tr>
+<tr><th>Notify On Error</th><td>Yes</td></tr>
+<tr><th>Notify On Last Retry Only</th><td>Yes</td></tr>
+<tr><th>Notify When Waiting For Tape</th><td>Yes</td></tr>
+</tbody></table>
+<div class="Caption">Table 260 - Advanced Settings (Notifications) - File to Tape Job - Data Share</div><br /></div>
+<a name="1183410d-d9cf-4acd-8fcf-7a8de1df4b75"><h1 class="NOTOCHeading6">Advanced Settings (Advanced)</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Use Hardware Compression when available</th><td>Yes</td></tr>
+<tr><th>Run the following script before job</th><td>c:\pretest.exe</td></tr>
+<tr><th>Run the following script after job</th><td>c:\posttest.exe</td></tr>
+<tr><th>Run Script Every Backup Session</th><td>Every 4 backup session</td></tr>
+</tbody></table>
+<div class="Caption">Table 261 - Advanced Settings (Advanced) - File to Tape Job - Data Share</div><br /></div>
+<a name="71ca0968-04d8-4cd6-9936-aaf6cafe0d46"><h4 class="Heading4">1.7.6.2 File to Tape Job - Server Share</h4></a><a name="3aca9c2f-8c84-44e7-a6da-0758f88ef9ec"><h1 class="NOTOCHeading5">Backups Information</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Name</th><td>File to Tape Job - Server Share</td></tr>
+<tr><th>Type</th><td>FileToTape</td></tr>
+<tr><th>Next Run</th><td>10/01/2022 18:00:00</td></tr>
+<tr><th>Description</th><td>Created by PHARMAX\administrator at 2/26/2022 6:01 PM.</td></tr>
+</tbody></table>
+<div class="Caption">Table 262 - Common Information - File to Tape Job - Server Share</div><br /></div>
+<a name="a9c70f95-c983-4777-ae51-adfd08b382f5"><h1 class="NOTOCHeading5">Files and Folders</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:25%; min-width:25%; width:25%" /><col style="max-width:15%; min-width:15%; width:15%" /><col style="max-width:15%; min-width:15%; width:15%" /><col style="max-width:25%; min-width:25%; width:25%" /><col style="max-width:10%; min-width:10%; width:10%" /><col style="max-width:10%; min-width:10%; width:10%" /></colgroup>
+<thead><tr><th>Name</th><th>Type</th><th>Selection Type</th><th>Path</th><th>Include Filter</th><th>Exclude Filter</th></tr></thead><tbody>
+<tr><td>\\server-dc-01v\UEMConfig</td><td>CifsShare</td><td>Directory</td><td>\\server-dc-01v\UEMConfig</td><td>*.*</td><td>-</td></tr>
+<tr><td>server-dc-01v</td><td>Windows</td><td>Host</td><td>server-dc-01v</td><td>*.*</td><td>-</td></tr>
+<tr><td>veeam-lnx-px.pharmax.local</td><td>Linux</td><td>Directory</td><td>/home</td><td>*.*</td><td>-</td></tr>
+</tbody></table>
+<div class="Caption">Table 263 - Files and Folders - File to Tape Job - Server Share</div><br /></div>
+<a name="f10f8ea4-218f-4edf-b7cd-ed42339df20c"><h1 class="NOTOCHeading5">Full Backup</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Name</th><td>Standard Media Pool</td></tr>
+<tr><th>Pool Type</th><td>Custom</td></tr>
+<tr><th>Tape Count</th><td>3</td></tr>
+<tr><th>Capacity</th><td>35 TB</td></tr>
+<tr><th>Remaining</th><td>35 TB</td></tr>
+<tr><th>Is WORM</th><td>No</td></tr>
+<tr><th>Schedule Enabled</th><td>Yes</td></tr>
+<tr><th>Daily at this Time</th><td>18:00:00 - Saturday</td></tr>
+</tbody></table>
+<div class="Caption">Table 264 - Full Backup - File to Tape Job - Server Share</div><br /></div>
+<a name="3ba7c609-6eac-4091-b404-1d8ad3537cd6"><h1 class="NOTOCHeading5">Incremental Backup</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Name</th><td>WORM Media Pool 1</td></tr>
+<tr><th>Pool Type</th><td>Custom</td></tr>
+<tr><th>Tape Count</th><td>5</td></tr>
+<tr><th>Capacity</th><td>59 TB</td></tr>
+<tr><th>Remaining</th><td>59 TB</td></tr>
+<tr><th>Is WORM</th><td>Yes</td></tr>
+<tr><th>Schedule Enabled</th><td>Yes</td></tr>
+<tr><th>Monthly at this Time</th><td>At 00:00:00, Monthly on the: First Wednesday of January, February, March, April, May, June, July, August, September, October</td></tr>
+</tbody></table>
+<div class="Caption">Table 265 - Incremental Backup - File to Tape Job - Server Share</div><br /></div>
+<a name="c8975de5-64b6-43ab-92eb-95159d04e820"><h1 class="NOTOCHeading5">Options</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Use Microsoft volume shadow copy (VSS)</th><td>Yes</td></tr>
+<tr><th>Eject Tape Media Upon Job Completion</th><td>Yes</td></tr>
+<tr><th>Export the following MediaSet Upon Job Completion</th><td>Yes</td></tr>
+</tbody></table>
+<div class="Caption">Table 266 - Options - File to Tape Job - Server Share</div><br /></div>
+<a name="8acd9a7d-a65f-43d0-aea3-50377d6aee3d"><h1 class="NOTOCHeading6">Advanced Settings (Notifications)</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Send Email Notification</th><td>Yes</td></tr>
+<tr><th>Email Notification Additional Recipients</th><td>admin@veeam.com</td></tr>
+<tr><th>Use Custom Notification Settings</th><td>Yes</td></tr>
+<tr><th>Subject</th><td>[%JobResult%] %JobName% (%TapeCount% Tapes) %Issues%</td></tr>
+<tr><th>Notify On Success</th><td>Yes</td></tr>
+<tr><th>Notify On Warning</th><td>Yes</td></tr>
+<tr><th>Notify On Error</th><td>Yes</td></tr>
+<tr><th>Notify On Last Retry Only</th><td>Yes</td></tr>
+<tr><th>Notify When Waiting For Tape</th><td>Yes</td></tr>
+</tbody></table>
+<div class="Caption">Table 267 - Advanced Settings (Notifications) - File to Tape Job - Server Share</div><br /></div>
+<a name="025fe8b3-4431-4d55-b798-e4e03d85ff13"><h1 class="NOTOCHeading6">Advanced Settings (Advanced)</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Use Hardware Compression when available</th><td>Yes</td></tr>
+<tr><th>Pre Job Script Enabled</th><td>No</td></tr>
+<tr><th>Post Job Script Enabled</th><td>No</td></tr>
+</tbody></table>
+<div class="Caption">Table 268 - Advanced Settings (Advanced) - File to Tape Job - Server Share</div><br /></div>
+<a name="9dce9086-3e52-4bd0-a630-724ca89d92e7"><h3 class="Heading3">1.7.7 SureBackup Jobs</h3></a><div>The following section list surebackup jobs created in Veeam Backup &amp; Replication.</div><br /><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:30%; min-width:30%; width:30%" /><col style="max-width:15%; min-width:15%; width:15%" /><col style="max-width:15%; min-width:15%; width:15%" /><col style="max-width:15%; min-width:15%; width:15%" /><col style="max-width:25%; min-width:25%; width:25%" /></colgroup>
+<thead><tr><th>Name</th><th>Platform</th><th>Status</th><th>Latest Result</th><th>Virtual Lab</th></tr></thead><tbody>
+<tr><td>SureBackup Job 3</td><td>VMware</td><td>Enabled</td><td>None</td><td>PHARMAX-VLAB</td></tr>
+<tr><td>SQL Server - Update Testing</td><td>Hyper-V</td><td>Enabled</td><td>None</td><td>PHARMAX-HV-VLAB</td></tr>
+<tr><td>Pharmax-Lab Test Oracle Upgrade</td><td>VMware</td><td>Enabled</td><td>None</td><td>PHARMAX-VLAB</td></tr>
+</tbody></table>
+<div class="Caption">Table 269 - SureBackup Jobs - VEEAM-VBR</div><br /></div>
+<a name="d051ef7b-2820-45d2-b9f8-2f88e4830d8a"><h3 class="Heading3">1.7.8 SureBackup Job Configuration</h3></a><div>The following section provide detailed jobs configuration about Surebackup.</div><br /><a name="ae774557-620c-4d32-8176-6c3ae8c9d6b6"><h4 class="Heading4">1.7.8.1 Pharmax-Lab Test Oracle Upgrade</h4></a><a name="2fdc5c59-1752-4322-a38e-3aab101f5bc2"><h1 class="NOTOCHeading5">Common Information</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Name</th><td>Pharmax-Lab Test Oracle Upgrade</td></tr>
+<tr><th>Last Run</th><td>02/27/2022 19:05:08</td></tr>
+<tr><th>Next Run</th><td>10/04/2022 22:00:00</td></tr>
+<tr><th>Description</th><td>Created by PHARMAX\jocolon at 12/25/2021 6:07 PM.</td></tr>
+</tbody></table>
+<div class="Caption">Table 270 - Common Information - Pharmax-Lab Test Oracle Upgrade</div><br /></div>
+<a name="966d27a8-b492-4bc2-93ca-ca835b9ed4a7"><h1 class="NOTOCHeading5">Virtual Lab</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Name</th><td>PHARMAX-VLAB</td></tr>
+<tr><th>Description</th><td>Created by PHARMAX\jocolon at 12/25/2021 6:02 PM.</td></tr>
+<tr><th>Physical Host</th><td>esxsvr-00f.pharmax.local</td></tr>
+<tr><th>Physical Host Version</th><td>VMware ESXi 7.0.3 build-20036589</td></tr>
+<tr><th>Cache Datastore</th><td>SSD-VM-HIGH-CAPACITY-PERF-KN</td></tr>
+</tbody></table>
+<div class="Caption">Table 271 - Virtual Lab - Pharmax-Lab Test Oracle Upgrade</div><br /></div>
+<a name="a8a524af-5c83-4da9-a5b4-722a9b31b524"><h1 class="NOTOCHeading5">Application Group</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Name</th><td>PHARMAX-AG</td></tr>
+<tr><th>Description</th><td>Created by PHARMAX\administrator at 6/30/2021 6:35 PM.</td></tr>
+<tr><th>Platform</th><td>VMWare</td></tr>
+<tr><th>Virtual Machines</th><td>smallserver-01v, LINUX-VM</td></tr>
+<tr><th>Keep Application Group Running</th><td>Yes</td></tr>
+</tbody></table>
+<div class="Caption">Table 272 - Application Group - Pharmax-Lab Test Oracle Upgrade</div><br /></div>
+<a name="fca50026-203e-4574-8143-105e34f00ffe"><h1 class="NOTOCHeading5">Linked Jobs</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:30%; min-width:30%; width:30%" /><col style="max-width:30%; min-width:30%; width:30%" /><col style="max-width:40%; min-width:40%; width:40%" /></colgroup>
+<thead><tr><th>Name</th><th>Roles</th><th>Description</th></tr></thead><tbody>
+<tr><td>COMP-CLUSTER-NFS</td><td>DNSServer</td><td>Created by PHARMAX\administrator at 6/2/2021 8:15 PM.</td></tr>
+<tr><td>PHARMAX-HQ-SVR</td><td>WebServer</td><td>Created by PHARMAX\administrator at 6/29/2021 12:12 PM.</td></tr>
+</tbody></table>
+<div class="Caption">Table 273 - Linked Jobs - Pharmax-Lab Test Oracle Upgrade</div><br /></div>
+<a name="23284062-359b-4e04-94af-169dadf75ea4"><h1 class="NOTOCHeading6">Verification Options</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Job Name</th><td>COMP-CLUSTER-NFS</td></tr>
+<tr><th>Amount of memory to Allocate to VM</th><td>100 percent</td></tr>
+<tr><th>Maximum allowed boot time</th><td>600 sec</td></tr>
+<tr><th>Application Initialization Timeout</th><td>120 sec</td></tr>
+<tr><th>VM heartbeat is present</th><td>Yes</td></tr>
+<tr><th>VM respond to ping on any interface</th><td>Yes</td></tr>
+<tr><th>VM Test Script</th><td>DNSServer,MailServer</td></tr>
+<tr><th>Credentials</th><td>administrator@pharmax.local</td></tr>
+</tbody></table>
+<div class="Caption">Table 274 - Verification Options - Pharmax-Lab Test Oracle Upgrade</div><br /></div>
+<div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Job Name</th><td>PHARMAX-HQ-SVR</td></tr>
+<tr><th>Amount of memory to Allocate to VM</th><td>100 percent</td></tr>
+<tr><th>Maximum allowed boot time</th><td>600 sec</td></tr>
+<tr><th>Application Initialization Timeout</th><td>120 sec</td></tr>
+<tr><th>VM heartbeat is present</th><td>Yes</td></tr>
+<tr><th>VM respond to ping on any interface</th><td>Yes</td></tr>
+<tr><th>VM Test Script</th><td>SQLServer</td></tr>
+<tr><th>Credentials</th><td>Isilon Account</td></tr>
+</tbody></table>
+<div class="Caption">Table 275 - Verification Options - Pharmax-Lab Test Oracle Upgrade</div><br /></div>
+<a name="98af9c8b-1078-4a32-8d8d-a003786ff525"><h1 class="NOTOCHeading5">Settings</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Backup file integrity scan</th><td>Yes</td></tr>
+<tr><th>Skip validation for application group VM</th><td>Yes</td></tr>
+<tr><th>Malware Scan</th><td>Yes</td></tr>
+<tr><th>Scan the entire image</th><td>Yes</td></tr>
+<tr><th>Skip application group machine from malware scan</th><td>Yes</td></tr>
+<tr><th>Send SNMP trap</th><td>No</td></tr>
+<tr><th>Send Email notification</th><td>Yes</td></tr>
+<tr><th>Email recipients</th><td>admin@veem.com, admin@netapp.com</td></tr>
+</tbody></table>
+<div class="Caption">Table 276 - Settings - Pharmax-Lab Test Oracle Upgrade</div><br /></div>
+<a name="b6a46da4-dd93-4ff3-9daa-3a1bee3b959b"><h1 class="NOTOCHeading5">Schedule</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Wait for backup jobs</th><td>180 minutes</td></tr>
+<tr><th>Run Automatically</th><td>Monthly at this time: 22:00:00,<br />This Day: 4,<br />Months: January February March April May June July August September October</td></tr>
+</tbody></table>
+<div class="Caption">Table 277 - Schedule - Pharmax-Lab Test Oracle Upgrade</div><br /></div>
+<a name="439afdf9-ba08-40ff-b9eb-cf8edf2b74a9"><h4 class="Heading4">1.7.8.2 SureBackup Job 3</h4></a><a name="562d45ed-c672-4daa-ab8f-d45f462defde"><h1 class="NOTOCHeading5">Common Information</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Name</th><td>SureBackup Job 3</td></tr>
+<tr><th>Last Run</th><td>02/27/2022 19:18:43</td></tr>
+<tr><th>Next Run</th><td>01/01/0001 00:00:00</td></tr>
+<tr><th>Description</th><td>Created by PHARMAX\jocolon at 2/6/2022 3:30 PM.</td></tr>
+</tbody></table>
+<div class="Caption">Table 278 - Common Information - SureBackup Job 3</div><br /></div>
+<a name="d7b3357b-675b-4319-bb81-a9a35ca91f84"><h1 class="NOTOCHeading5">Virtual Lab</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Name</th><td>PHARMAX-VLAB</td></tr>
+<tr><th>Description</th><td>Created by PHARMAX\jocolon at 12/25/2021 6:02 PM.</td></tr>
+<tr><th>Physical Host</th><td>esxsvr-00f.pharmax.local</td></tr>
+<tr><th>Physical Host Version</th><td>VMware ESXi 7.0.3 build-20036589</td></tr>
+<tr><th>Cache Datastore</th><td>SSD-VM-HIGH-CAPACITY-PERF-KN</td></tr>
+</tbody></table>
+<div class="Caption">Table 279 - Virtual Lab - SureBackup Job 3</div><br /></div>
+<a name="ccf0c265-5b03-4f87-a932-9752ab8cb212"><h1 class="NOTOCHeading5">Application Group</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Name</th><td>PHARMAX-AG</td></tr>
+<tr><th>Description</th><td>Created by PHARMAX\administrator at 6/30/2021 6:35 PM.</td></tr>
+<tr><th>Platform</th><td>VMWare</td></tr>
+<tr><th>Virtual Machines</th><td>smallserver-01v, LINUX-VM</td></tr>
+<tr><th>Keep Application Group Running</th><td>No</td></tr>
+</tbody></table>
+<div class="Caption">Table 280 - Application Group - SureBackup Job 3</div><br /></div>
+<a name="9a0551c9-6bcc-45e9-a623-5643fc6ae7fe"><h1 class="NOTOCHeading5">Linked Jobs</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:30%; min-width:30%; width:30%" /><col style="max-width:30%; min-width:30%; width:30%" /><col style="max-width:40%; min-width:40%; width:40%" /></colgroup>
+<thead><tr><th>Name</th><th>Roles</th><th>Description</th></tr></thead><tbody>
+<tr><td>COMP-CLUSTER-NFS</td><td>&nbsp;</td><td>Created by PHARMAX\administrator at 6/2/2021 8:15 PM.</td></tr>
+</tbody></table>
+<div class="Caption">Table 281 - Linked Jobs - SureBackup Job 3</div><br /></div>
+<a name="f6400d4d-8df7-49d7-bfb8-3f51a6a80db8"><h1 class="NOTOCHeading6">Verification Options</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Job Name</th><td>COMP-CLUSTER-NFS</td></tr>
+<tr><th>Amount of memory to Allocate to VM</th><td>100 percent</td></tr>
+<tr><th>Maximum allowed boot time</th><td>600 sec</td></tr>
+<tr><th>Application Initialization Timeout</th><td>120 sec</td></tr>
+<tr><th>VM heartbeat is present</th><td>Yes</td></tr>
+<tr><th>VM respond to ping on any interface</th><td>Yes</td></tr>
+<tr><th>VM Test Script</th><td>&nbsp;</td></tr>
+<tr><th>Credentials</th><td>None</td></tr>
+</tbody></table>
+<div class="Caption">Table 282 - Verification Options - SureBackup Job 3</div><br /></div>
+<a name="ff8ec7a3-c69a-4dd7-b05f-f8fcf5dc98b7"><h1 class="NOTOCHeading5">Settings</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Backup file integrity scan</th><td>No</td></tr>
+<tr><th>Skip validation for application group VM</th><td>Yes</td></tr>
+<tr><th>Malware Scan</th><td>No</td></tr>
+<tr><th>Scan the entire image</th><td>No</td></tr>
+<tr><th>Skip application group machine from malware scan</th><td>Yes</td></tr>
+<tr><th>Send SNMP trap</th><td>No</td></tr>
+<tr><th>Send Email notification</th><td>Yes</td></tr>
+<tr><th>Email recipients</th><td>&nbsp;</td></tr>
+</tbody></table>
+<div class="Caption">Table 283 - Settings - SureBackup Job 3</div><br /></div>
+<a name="3528b187-7b64-4476-b612-6225ce650bb4"><h3 class="Heading3">1.7.9 Agent Backup Jobs</h3></a><div>The following section list agent backup jobs created in Veeam Backup &amp; Replication.</div><br /><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:30%; min-width:30%; width:30%" /><col style="max-width:25%; min-width:25%; width:25%" /><col style="max-width:15%; min-width:15%; width:15%" /><col style="max-width:30%; min-width:30%; width:30%" /></colgroup>
+<thead><tr><th>Name</th><th>Type</th><th>OS Platform</th><th>Backup Object</th></tr></thead><tbody>
+<tr><td>Agent Backup Job 3</td><td>FailoverCluster</td><td>Windows</td><td>Server with Netapp LUNS</td></tr>
+<tr><td>Agent Backup Policy 2</td><td>Server</td><td>Linux</td><td>Linux Protection Group</td></tr>
+<tr><td>Gurabo PC - Backup Job</td><td>Workstation</td><td>Windows</td><td>Gurabo PC - Backup<br />HQ - Manual Packet</td></tr>
+<tr><td>Linux Agent Backup Job</td><td>Server</td><td>Linux</td><td>Linux Protection Group</td></tr>
+<tr><td>Server With Netapp LUNS - Backup</td><td>Server</td><td>Windows</td><td>Server with Netapp LUNS<br />server-dc-01v.pharmax.local</td></tr>
+</tbody></table>
+<div class="Caption">Table 284 - Agent Backup Jobs - VEEAM-VBR</div><br /></div>
+<a name="d78428e1-8fb0-4301-bdd3-8ff75014978e"><h3 class="Heading3">1.7.10 Agent Backup Jobs Configuration</h3></a><div>The following section details agent backup jobs configuration created in Veeam Backup &amp; Replication.</div><br /><a name="3d4404ea-d6d7-4b0d-b0e3-5dfe352669fc"><h4 class="Heading4">1.7.10.1 Agent Backup Job 3</h4></a><a name="99a59792-58a3-42dc-a6b6-bdd074db80be"><h1 class="NOTOCHeading5">Job Mode</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Name</th><td>Agent Backup Job 3</td></tr>
+<tr><th>Id</th><td>68ab65f1-235a-42b4-a1ae-7582951e0a99</td></tr>
+<tr><th>Type</th><td>FailoverCluster</td></tr>
+<tr><th>Mode</th><td>Managed by Backup Server</td></tr>
+<tr><th>Description</th><td>Created by PHARMAX\administrator at 5/2/2022 10:18 PM.</td></tr>
+<tr><th>Priority</th><td>Normal Priority</td></tr>
+</tbody></table>
+<div class="Caption">Table 285 - Job Mode - Agent Backup Job 3</div><br /></div>
+<a name="6fc9bc1a-3579-44d7-9343-061010d0265e"><h1 class="NOTOCHeading5">Protected Computers</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:25%; min-width:25%; width:25%" /><col style="max-width:25%; min-width:25%; width:25%" /><col style="max-width:25%; min-width:25%; width:25%" /><col style="max-width:25%; min-width:25%; width:25%" /></colgroup>
+<thead><tr><th>Name</th><th>Type</th><th>Enabled</th><th>Container</th></tr></thead><tbody>
+<tr><td>Server with Netapp LUNS</td><td>Custom</td><td>Yes</td><td>Active Directory</td></tr>
+</tbody></table>
+<div class="Caption">Table 286 - Protected Computers - Agent Backup Job 3</div><br /></div>
+<a name="34e2a999-c84f-4001-97e2-8df747d8d077"><h1 class="NOTOCHeading5">Backup Mode</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Backup Mode</th><td>Entire Computer</td></tr>
+<tr><th>Include external USB drives</th><td>No</td></tr>
+</tbody></table>
+<div class="Caption">Table 287 - Backup Mode - Agent Backup Job 3</div><br /></div>
+<a name="f01adf1e-c921-4a52-91d5-274bb3187ba9"><h1 class="NOTOCHeading5">Storage</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Backup Repository</th><td>SOBR - Minio</td></tr>
+<tr><th>Repository Type</th><td>ExtendableRepository</td></tr>
+<tr><th>Retention Policy</th><td>Restore Days</td></tr>
+<tr><th>Retain Days To Keep</th><td>7</td></tr>
+<tr><th>Configure Secondary Destination for this Job</th><td>Yes</td></tr>
+<tr><th>Keep certain full backup longer for archival purposes (GFS)</th><td>Yes</td></tr>
+<tr><th>Keep Weekly full backup for</th><td>1 weeks,<br />If multiple backup exist use the one from: Sunday</td></tr>
+<tr><th>Keep Monthly full backup for</th><td>1 months,<br />Use weekly full backup from the following week of the month: First</td></tr>
+<tr><th>Keep Yearly full backup for</th><td>1 years,<br />Use monthly full backup from the following month: January</td></tr>
+</tbody></table>
+<div class="Caption">Table 288 - Destination - Agent Backup Job 3</div><br /></div>
+<a name="b720b53c-0e23-4399-938a-b5f107075a3f"><h1 class="NOTOCHeading6">Secondary Target</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:25%; min-width:25%; width:25%" /><col style="max-width:25%; min-width:25%; width:25%" /><col style="max-width:15%; min-width:15%; width:15%" /><col style="max-width:35%; min-width:35%; width:35%" /></colgroup>
+<thead><tr><th>Job Name</th><th>Type</th><th>State</th><th>Description</th></tr></thead><tbody>
+<tr><td>PHARMAX-HQ-SVR-TAPE Standard</td><td>Backup to Tape</td><td>Warning</td><td>Created by PHARMAX\administrator at 2/25/2022 7:14 PM.</td></tr>
+</tbody></table>
+<div class="Caption">Table 289 - Secondary Destination Job - Agent Backup Job 3</div><br /></div>
+<a name="d59057e4-8f7f-4c8b-a230-d2ee8cff21cd"><h1 class="NOTOCHeading6">Advanced Settings (Backup)</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Syntethic Full Backup</th><td>Yes</td></tr>
+<tr><th>Create Syntethic on Days</th><td>Saturday</td></tr>
+<tr><th>Active Full Backup</th><td>No</td></tr>
+</tbody></table>
+<div class="Caption">Table 290 - Advanced Settings (Backup) - Agent Backup Job 3</div><br /></div>
+<a name="886d349d-785e-4a8f-8b24-e432a4843bc0"><h1 class="NOTOCHeading6">Advanced Settings (Maintenance)</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Storage-Level Corruption Guard (SLCG)</th><td>No</td></tr>
+<tr><th>Defragment and Compact Full Backup (DCFB)</th><td>No</td></tr>
+</tbody></table>
+<div class="Caption">Table 291 - Advanced Settings (Maintenance) - Agent Backup Job 3</div><br /></div>
+<a name="a64ec15b-0d03-404d-8cc9-9ca61d9e35c0"><h1 class="NOTOCHeading6">Advanced Settings (Storage)</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Compression Level</th><td>Optimal</td></tr>
+<tr><th>Storage optimization</th><td>LocalTarget</td></tr>
+<tr><th>Enabled Backup File Encryption</th><td>No</td></tr>
+<tr><th>Encryption Key</th><td>None</td></tr>
+</tbody></table>
+<div class="Caption">Table 292 - Advanced Settings (Storage) - Agent Backup Job 3</div><br /></div>
+<a name="56576831-0728-47ec-a95f-9d58b84d3e75"><h1 class="NOTOCHeading6">Advanced Settings (Notification)</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Send Snmp Notification</th><td>Yes</td></tr>
+<tr><th>Send Email Notification</th><td>No</td></tr>
+</tbody></table>
+<div class="Caption">Table 293 - Advanced Settings (Notification) - Agent Backup Job 3</div><br /></div>
+<a name="9ce0410d-4e71-4c4e-8c76-fae0c6f078c6"><h1 class="NOTOCHeading6">Advanced Settings (Integration)</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Enable Backup from Storage Snapshots</th><td>Yes</td></tr>
+<tr><th>Failover to On-Host Backup agent</th><td>Yes</td></tr>
+<tr><th>Off-host Backup Proxy Automatic Selection</th><td>Yes</td></tr>
+</tbody></table>
+<div class="Caption">Table 294 - Advanced Settings (Integration) - Agent Backup Job 3</div><br /></div>
+<a name="3059ded5-4e8b-4dbc-91ce-1f05f8b577c7"><h1 class="NOTOCHeading6">Advanced Settings (Script)</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Run the Following Script Before</th><td>No</td></tr>
+<tr><th>Run the Following Script After</th><td>No</td></tr>
+</tbody></table>
+<div class="Caption">Table 295 - Advanced Settings (Script) - Agent Backup Job 3</div><br /></div>
+<a name="12318549-ae87-4a91-ba92-0defa72b4685"><h1 class="NOTOCHeading5">Guest Processing</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Enabled Application Process Processing</th><td>Yes</td></tr>
+<tr><th>Enabled Guest File System Indexing</th><td>No</td></tr>
+</tbody></table>
+<div class="Caption">Table 296 - Guest Processing Options - Agent Backup Job 3</div><br /></div>
+<a name="4225d3af-1147-49dd-b003-656c8bb13382"><h1 class="NOTOCHeading5">Schedule</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Retry Failed item</th><td>3</td></tr>
+<tr><th>Wait before each retry</th><td>10/min</td></tr>
+<tr><th>Backup Window</th><td>Yes</td></tr>
+<tr><th>Schedule type</th><td>After Job</td></tr>
+<tr><th>Schedule Options</th><td>COMP-CLUSTER-NFS</td></tr>
+</tbody></table>
+<div class="Caption">Table 297 - Schedule Options - Agent Backup Job 3</div><br /></div>
+<a name="15c3e2d3-bde1-43cd-94db-e5fb0f15e4ee"><h4 class="Heading4">1.7.10.2 Agent Backup Policy 2</h4></a><a name="14b69003-4015-4f98-9091-ea6956e6b39c"><h1 class="NOTOCHeading5">Job Mode</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Name</th><td>Agent Backup Policy 2</td></tr>
+<tr><th>Id</th><td>48c82831-c4c7-460c-ba64-8871e9b563f6</td></tr>
+<tr><th>Type</th><td>Server</td></tr>
+<tr><th>Mode</th><td>Managed by Agent</td></tr>
+<tr><th>Description</th><td>Created by PHARMAX\administrator at 5/2/2022 10:04 PM.</td></tr>
+<tr><th>Priority</th><td>Normal Priority</td></tr>
+</tbody></table>
+<div class="Caption">Table 298 - Job Mode - Agent Backup Policy 2</div><br /></div>
+<a name="42172da2-cc66-40a0-84d5-905bcc68a78c"><h1 class="NOTOCHeading5">Protected Computers</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:25%; min-width:25%; width:25%" /><col style="max-width:25%; min-width:25%; width:25%" /><col style="max-width:25%; min-width:25%; width:25%" /><col style="max-width:25%; min-width:25%; width:25%" /></colgroup>
+<thead><tr><th>Name</th><th>Type</th><th>Enabled</th><th>Container</th></tr></thead><tbody>
+<tr><td>Linux Protection Group</td><td>Custom</td><td>Yes</td><td>Individual Computers</td></tr>
+</tbody></table>
+<div class="Caption">Table 299 - Protected Computers - Agent Backup Policy 2</div><br /></div>
+<a name="f68ff224-8e7d-4196-ac46-6a34f1ab3e63"><h1 class="NOTOCHeading5">Backup Mode</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Backup Mode</th><td>Entire Computer</td></tr>
+<tr><th>Include external USB drives</th><td>No</td></tr>
+</tbody></table>
+<div class="Caption">Table 300 - Backup Mode - Agent Backup Policy 2</div><br /></div>
+<a name="59746c3b-52ea-4fe3-9777-f30a53c3b5f8"><h1 class="NOTOCHeading5">Destination</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Destination Type</th><td>Veeam Backup Repository</td></tr>
+<tr><th>Retention Policy</th><td>Restore Points</td></tr>
+<tr><th>Retain Points</th><td>7</td></tr>
+<tr><th>Configure Secondary Destination for this Job</th><td>Yes</td></tr>
+<tr><th>Backup Server</th><td>VEEAM-VBR.pharmax.local</td></tr>
+<tr><th>Backup Repository</th><td>SOBR - Minio</td></tr>
+</tbody></table>
+<div class="Caption">Table 301 - Destination - Agent Backup Policy 2</div><br /></div>
+<a name="ebf3ff67-4abd-48be-9a7e-f53434b17328"><h1 class="NOTOCHeading6">Secondary Target</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:25%; min-width:25%; width:25%" /><col style="max-width:25%; min-width:25%; width:25%" /><col style="max-width:15%; min-width:15%; width:15%" /><col style="max-width:35%; min-width:35%; width:35%" /></colgroup>
+<thead><tr><th>Job Name</th><th>Type</th><th>State</th><th>Description</th></tr></thead><tbody>
+<tr><td>PHARMAX-HQ-SVR-TAPE Standard</td><td>Backup to Tape</td><td>Warning</td><td>Created by PHARMAX\administrator at 2/25/2022 7:14 PM.</td></tr>
+</tbody></table>
+<div class="Caption">Table 302 - Secondary Destination Job - Agent Backup Policy 2</div><br /></div>
+<a name="45419231-0490-4ece-96c9-2428c095ae8c"><h1 class="NOTOCHeading6">Advanced Settings (Backup)</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Syntethic Full Backup</th><td>-</td></tr>
+<tr><th>Active Full Backup</th><td>No</td></tr>
+</tbody></table>
+<div class="Caption">Table 303 - Advanced Settings (Backup) - Agent Backup Policy 2</div><br /></div>
+<a name="7b0c40c3-4406-4cd9-8f31-9d85945fa6e8"><h1 class="NOTOCHeading6">Advanced Settings (Maintenance)</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Storage-Level Corruption Guard (SLCG)</th><td>-</td></tr>
+<tr><th>Defragment and Compact Full Backup (DCFB)</th><td>-</td></tr>
+</tbody></table>
+<div class="Caption">Table 304 - Advanced Settings (Maintenance) - Agent Backup Policy 2</div><br /></div>
+<a name="cfd00521-0120-480b-9cd1-9c6ffb5c46c0"><h1 class="NOTOCHeading6">Advanced Settings (Storage)</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Compression Level</th><td>Optimal</td></tr>
+<tr><th>Storage optimization</th><td>LocalTarget</td></tr>
+<tr><th>Enabled Backup File Encryption</th><td>No</td></tr>
+<tr><th>Encryption Key</th><td>None</td></tr>
+</tbody></table>
+<div class="Caption">Table 305 - Advanced Settings (Storage) - Agent Backup Policy 2</div><br /></div>
+<a name="df072d3a-81c3-4d7c-9d37-46c11a3a2081"><h1 class="NOTOCHeading6">Advanced Settings (Notification)</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Send Snmp Notification</th><td>-</td></tr>
+<tr><th>Send Email Notification</th><td>-</td></tr>
+</tbody></table>
+<div class="Caption">Table 306 - Advanced Settings (Notification) - Agent Backup Policy 2</div><br /></div>
+<a name="66d4c024-5969-45ed-8fe5-e9f94549b707"><h1 class="NOTOCHeading5">Guest Processing</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Enabled Application Process Processing</th><td>Yes</td></tr>
+<tr><th>Enabled Guest File System Indexing</th><td>Yes</td></tr>
+</tbody></table>
+<div class="Caption">Table 307 - Guest Processing Options - Agent Backup Policy 2</div><br /></div>
+<a name="a0a5a608-0f83-4e9f-9286-8eb9d6b27bc3"><h1 class="NOTOCHeading5">Schedule</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Schedule type</th><td>&nbsp;</td></tr>
+<tr><th>Schedule Options</th><td>&nbsp;</td></tr>
+<tr><th>If Computer is Power Off Action</th><td>&nbsp;</td></tr>
+<tr><th>Once Backup is Taken</th><td>&nbsp;</td></tr>
+<tr><th>Backup At LogOff</th><td>-</td></tr>
+<tr><th>Backup At Lock</th><td>-</td></tr>
+<tr><th>Backup At Target Connection</th><td>-</td></tr>
+<tr><th>Eject Storage After Backup</th><td>-</td></tr>
+<tr><th>Backup Timeout</th><td> </td></tr>
+</tbody></table>
+<div class="Caption">Table 308 - Schedule Options - Agent Backup Policy 2</div><br /></div>
+<a name="bde84f04-8ab2-466e-96a9-73ff8c5ae118"><h4 class="Heading4">1.7.10.3 Gurabo PC - Backup Job</h4></a><a name="314632bc-24b4-49a5-bd78-9f7b1a3f611a"><h1 class="NOTOCHeading5">Job Mode</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Name</th><td>Gurabo PC - Backup Job</td></tr>
+<tr><th>Id</th><td>cc087b1f-629d-4890-ab02-30c6cba80e11</td></tr>
+<tr><th>Type</th><td>Workstation</td></tr>
+<tr><th>Mode</th><td>Managed by Agent</td></tr>
+<tr><th>Description</th><td>Created by PHARMAX\administrator at 4/28/2022 3:19 PM.</td></tr>
+<tr><th>Priority</th><td>Normal Priority</td></tr>
+</tbody></table>
+<div class="Caption">Table 309 - Job Mode - Gurabo PC - Backup Job</div><br /></div>
+<a name="d655c062-9e16-48b9-8714-286034ce342b"><h1 class="NOTOCHeading5">Protected Computers</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:25%; min-width:25%; width:25%" /><col style="max-width:25%; min-width:25%; width:25%" /><col style="max-width:25%; min-width:25%; width:25%" /><col style="max-width:25%; min-width:25%; width:25%" /></colgroup>
+<thead><tr><th>Name</th><th>Type</th><th>Enabled</th><th>Container</th></tr></thead><tbody>
+<tr><td>Gurabo PC - Backup</td><td>Custom</td><td>Yes</td><td>Active Directory</td></tr>
+<tr><td>HQ - Manual Packet</td><td>Custom</td><td>Yes</td><td>Manually Deployed</td></tr>
+</tbody></table>
+<div class="Caption">Table 310 - Protected Computers - Gurabo PC - Backup Job</div><br /></div>
+<a name="65cd18d0-8dcc-481e-b276-4ff9305d47ab"><h1 class="NOTOCHeading5">Backup Mode</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Backup Mode</th><td>Entire Computer</td></tr>
+<tr><th>Include external USB drives</th><td>No</td></tr>
+</tbody></table>
+<div class="Caption">Table 311 - Backup Mode - Gurabo PC - Backup Job</div><br /></div>
+<a name="829cc3bc-8db9-4e56-90a7-29ef739e516c"><h1 class="NOTOCHeading5">Destination</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Destination Type</th><td>Veeam Backup Repository</td></tr>
+<tr><th>Retention Policy</th><td>Restore Days</td></tr>
+<tr><th>Retain Days To Keep</th><td>7</td></tr>
+<tr><th>Configure Secondary Destination for this Job</th><td>Yes</td></tr>
+<tr><th>Backup Server</th><td>VEEAM-VBR.pharmax.local</td></tr>
+<tr><th>Backup Repository</th><td>SOBR - Minio</td></tr>
+</tbody></table>
+<div class="Caption">Table 312 - Destination - Gurabo PC - Backup Job</div><br /></div>
+<a name="28c48de7-5e53-42a3-8e14-a33a273a838f"><h1 class="NOTOCHeading6">Secondary Target</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:25%; min-width:25%; width:25%" /><col style="max-width:25%; min-width:25%; width:25%" /><col style="max-width:15%; min-width:15%; width:15%" /><col style="max-width:35%; min-width:35%; width:35%" /></colgroup>
+<thead><tr><th>Job Name</th><th>Type</th><th>State</th><th>Description</th></tr></thead><tbody>
+<tr><td>PHARMAX-HQ-SVR-TAPE</td><td>Backup to Tape</td><td>Failed</td><td>Created by PHARMAX\administrator at 6/29/2021 7:24 PM.</td></tr>
+</tbody></table>
+<div class="Caption">Table 313 - Secondary Destination Job - Gurabo PC - Backup Job</div><br /></div>
+<a name="bfb45703-82e9-4f7c-8de3-79cc77191e27"><h1 class="NOTOCHeading6">Advanced Settings (Backup)</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Syntethic Full Backup</th><td>No</td></tr>
+<tr><th>Active Full Backup</th><td>No</td></tr>
+</tbody></table>
+<div class="Caption">Table 314 - Advanced Settings (Backup) - Gurabo PC - Backup Job</div><br /></div>
+<a name="ba56fcde-a253-401a-b101-b6f1cd92c225"><h1 class="NOTOCHeading6">Advanced Settings (Maintenance)</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Storage-Level Corruption Guard (SLCG)</th><td>Yes</td></tr>
+<tr><th>SLCG Schedule Type</th><td>Monthly</td></tr>
+<tr><th>SLCG Schedule Day</th><td>Friday<br />Saturday<br />Sunday</td></tr>
+<tr><th>SLCG Backup Monthly Schedule</th><td>Day Of Week: Friday<br />Day Number In Month: Third<br />Day of Month: 1<br />Months: January February March April May June July August September October November December</td></tr>
+<tr><th>Defragment and Compact Full Backup (DCFB)</th><td>Yes</td></tr>
+<tr><th>DCFB Schedule Type</th><td>Monthly</td></tr>
+<tr><th>DCFB Schedule Day</th><td>Thursday<br />Friday<br />Saturday</td></tr>
+<tr><th>DCFB Backup Monthly Schedule</th><td>Day Of Week: Saturday<br />Day Number In Month: Last<br />Day of Month: 1<br />Months: January February March April May June July August September October November December</td></tr>
+</tbody></table>
+<div class="Caption">Table 315 - Advanced Settings (Maintenance) - Gurabo PC - Backup Job</div><br /></div>
+<a name="769359fe-5a8d-49c8-9f51-d1a8a4977c7f"><h1 class="NOTOCHeading6">Advanced Settings (Storage)</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Compression Level</th><td>Optimal</td></tr>
+<tr><th>Storage optimization</th><td>LocalTarget</td></tr>
+<tr><th>Enabled Backup File Encryption</th><td>Yes</td></tr>
+<tr><th>Encryption Key</th><td>Password Global</td></tr>
+</tbody></table>
+<div class="Caption">Table 316 - Advanced Settings (Storage) - Gurabo PC - Backup Job</div><br /></div>
+<a name="4b233fa7-ce3c-4ebb-8e78-14b8c35875a6"><h1 class="NOTOCHeading6">Advanced Settings (Notification)</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Send Snmp Notification</th><td>-</td></tr>
+<tr><th>Send Email Notification</th><td>-</td></tr>
+</tbody></table>
+<div class="Caption">Table 317 - Advanced Settings (Notification) - Gurabo PC - Backup Job</div><br /></div>
+<a name="b4ea47e1-c3a7-4b8a-a251-66fb8b08c9af"><h1 class="NOTOCHeading5">Backup Cache</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:33%; min-width:33%; width:33%" /><col style="max-width:33%; min-width:33%; width:33%" /><col style="max-width:34%; min-width:34%; width:34%" /></colgroup>
+<thead><tr><th>Maximun Size</th><th>Type</th><th>Path</th></tr></thead><tbody>
+<tr><td>10 GB</td><td>Automatic</td><td>Auto Selected</td></tr>
+</tbody></table>
+<div class="Caption">Table 318 - Backup Cache - Gurabo PC - Backup Job</div><br /></div>
+<a name="c080830a-2d48-47fe-9b74-49845af1531c"><h1 class="NOTOCHeading5">Schedule</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Schedule type</th><td>Daily</td></tr>
+<tr><th>Schedule Options</th><td>Recurrence: WeekDays,<br />Days: Monday Tuesday Wednesday Thursday Fridayr
+At: 22:00:00</td></tr>
+<tr><th>If Computer is Power Off Action</th><td>Backup At Power On</td></tr>
+<tr><th>Once Backup is Taken</th><td>Keep Running</td></tr>
+<tr><th>Backup At LogOff</th><td>Yes</td></tr>
+<tr><th>Backup At Lock</th><td>No</td></tr>
+<tr><th>Backup At Target Connection</th><td>Yes</td></tr>
+<tr><th>Eject Storage After Backup</th><td>Yes</td></tr>
+<tr><th>Backup Timeout</th><td>2 Hour</td></tr>
+</tbody></table>
+<div class="Caption">Table 319 - Schedule Options - Gurabo PC - Backup Job</div><br /></div>
+<a name="887a6b9f-759a-4366-b60c-1590fda2189e"><h4 class="Heading4">1.7.10.4 Linux Agent Backup Job</h4></a><a name="10ac56eb-0404-4311-adee-b369b5b5ff92"><h1 class="NOTOCHeading5">Job Mode</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Name</th><td>Linux Agent Backup Job</td></tr>
+<tr><th>Id</th><td>190c96cd-7b9a-48f4-82af-3dbc4f00dbe3</td></tr>
+<tr><th>Type</th><td>Server</td></tr>
+<tr><th>Mode</th><td>Managed by Backup Server</td></tr>
+<tr><th>Description</th><td>Created by PHARMAX\administrator at 4/29/2022 8:11 PM.</td></tr>
+<tr><th>Priority</th><td>Normal Priority</td></tr>
+</tbody></table>
+<div class="Caption">Table 320 - Job Mode - Linux Agent Backup Job</div><br /></div>
+<a name="3932fc31-1497-4a91-8e05-49c5b8538225"><h1 class="NOTOCHeading5">Protected Computers</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:25%; min-width:25%; width:25%" /><col style="max-width:25%; min-width:25%; width:25%" /><col style="max-width:25%; min-width:25%; width:25%" /><col style="max-width:25%; min-width:25%; width:25%" /></colgroup>
+<thead><tr><th>Name</th><th>Type</th><th>Enabled</th><th>Container</th></tr></thead><tbody>
+<tr><td>Linux Protection Group</td><td>Custom</td><td>Yes</td><td>Individual Computers</td></tr>
+</tbody></table>
+<div class="Caption">Table 321 - Protected Computers - Linux Agent Backup Job</div><br /></div>
+<a name="7bbc2b12-d5ad-4b08-ae18-2ef8cde41768"><h1 class="NOTOCHeading5">Backup Mode</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Backup Mode</th><td>Entire Computer</td></tr>
+<tr><th>Include external USB drives</th><td>No</td></tr>
+</tbody></table>
+<div class="Caption">Table 322 - Backup Mode - Linux Agent Backup Job</div><br /></div>
+<a name="3405252d-828f-4f77-b3ea-5e01fb12402e"><h1 class="NOTOCHeading5">Storage</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Backup Repository</th><td>Linux - Hardened Repository</td></tr>
+<tr><th>Repository Type</th><td>LinuxLocal</td></tr>
+<tr><th>Retention Policy</th><td>Restore Days</td></tr>
+<tr><th>Retain Days To Keep</th><td>7</td></tr>
+<tr><th>Configure Secondary Destination for this Job</th><td>Yes</td></tr>
+<tr><th>Keep certain full backup longer for archival purposes (GFS)</th><td>Yes</td></tr>
+<tr><th>Keep Weekly full backup for</th><td>1 weeks,<br />If multiple backup exist use the one from: Sunday</td></tr>
+<tr><th>Keep Monthly full backup for</th><td>1 months,<br />Use weekly full backup from the following week of the month: First</td></tr>
+<tr><th>Keep Yearly full backup for</th><td>1 years,<br />Use monthly full backup from the following month: January</td></tr>
+</tbody></table>
+<div class="Caption">Table 323 - Destination - Linux Agent Backup Job</div><br /></div>
+<a name="d9ae9876-95c0-43ee-8b00-8181075fcee0"><h1 class="NOTOCHeading6">Secondary Target</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:25%; min-width:25%; width:25%" /><col style="max-width:25%; min-width:25%; width:25%" /><col style="max-width:15%; min-width:15%; width:15%" /><col style="max-width:35%; min-width:35%; width:35%" /></colgroup>
+<thead><tr><th>Job Name</th><th>Type</th><th>State</th><th>Description</th></tr></thead><tbody>
+<tr><td>PHARMAX-HQ-SVR-TAPE</td><td>Backup to Tape</td><td>Failed</td><td>Created by PHARMAX\administrator at 6/29/2021 7:24 PM.</td></tr>
+</tbody></table>
+<div class="Caption">Table 324 - Secondary Destination Job - Linux Agent Backup Job</div><br /></div>
+<a name="7231de8f-7ec0-4d5c-a026-70f9fc747df1"><h1 class="NOTOCHeading6">Advanced Settings (Backup)</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Syntethic Full Backup</th><td>Yes</td></tr>
+<tr><th>Create Syntethic on Days</th><td>Saturday</td></tr>
+<tr><th>Active Full Backup</th><td>No</td></tr>
+</tbody></table>
+<div class="Caption">Table 325 - Advanced Settings (Backup) - Linux Agent Backup Job</div><br /></div>
+<a name="95c05b1f-737f-4c82-9811-c9167093c7a1"><h1 class="NOTOCHeading6">Advanced Settings (Maintenance)</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Storage-Level Corruption Guard (SLCG)</th><td>No</td></tr>
+<tr><th>Defragment and Compact Full Backup (DCFB)</th><td>No</td></tr>
+</tbody></table>
+<div class="Caption">Table 326 - Advanced Settings (Maintenance) - Linux Agent Backup Job</div><br /></div>
+<a name="4b2e9922-354e-4992-8fe5-440b9f2f29c5"><h1 class="NOTOCHeading6">Advanced Settings (Storage)</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Compression Level</th><td>Optimal</td></tr>
+<tr><th>Storage optimization</th><td>LocalTarget</td></tr>
+<tr><th>Enabled Backup File Encryption</th><td>No</td></tr>
+<tr><th>Encryption Key</th><td>None</td></tr>
+</tbody></table>
+<div class="Caption">Table 327 - Advanced Settings (Storage) - Linux Agent Backup Job</div><br /></div>
+<a name="3ee4a1c1-4f8b-4660-90f9-39f57b3df760"><h1 class="NOTOCHeading6">Advanced Settings (Notification)</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Send Snmp Notification</th><td>No</td></tr>
+<tr><th>Send Email Notification</th><td>No</td></tr>
+</tbody></table>
+<div class="Caption">Table 328 - Advanced Settings (Notification) - Linux Agent Backup Job</div><br /></div>
+<a name="6d3f8ee5-53bf-40b2-94c0-7e7e7c8430d0"><h1 class="NOTOCHeading6">Advanced Settings (Script)</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Run the Following Script Before</th><td>Yes</td></tr>
+<tr><th>Run the Following Script After</th><td>Yes</td></tr>
+<tr><th>Run Script Before the Job</th><td>pre_mysql.sh</td></tr>
+<tr><th>Run Script After the Job</th><td>post_mysql.sh</td></tr>
+<tr><th>Run Script Frequency</th><td>Days</td></tr>
+<tr><th>Run Script on the Selected Days</th><td>Saturday,Sunday</td></tr>
+</tbody></table>
+<div class="Caption">Table 329 - Advanced Settings (Script) - Linux Agent Backup Job</div><br /></div>
+<a name="59fd131b-9654-4deb-b18c-945b63cb6c1f"><h1 class="NOTOCHeading5">Schedule</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Retry Failed item</th><td>3</td></tr>
+<tr><th>Wait before each retry</th><td>10/min</td></tr>
+<tr><th>Backup Window</th><td>Yes</td></tr>
+<tr><th>Schedule type</th><td>Daily</td></tr>
+<tr><th>Schedule Options</th><td>Recurrence: WeekDays,<br />Days: Monday Tuesday Wednesday Thursday Friday<br />At: 22:00:00</td></tr>
+</tbody></table>
+<div class="Caption">Table 330 - Schedule Options - Linux Agent Backup Job</div><br /></div>
+<a name="5ce559aa-15a1-4e9a-845e-822290e9aaf4"><h4 class="Heading4">1.7.10.5 Server With Netapp LUNS - Backup</h4></a><a name="ca43c3ab-cc8f-49bc-acb2-8ec61e3e297e"><h1 class="NOTOCHeading5">Job Mode</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Name</th><td>Server With Netapp LUNS - Backup</td></tr>
+<tr><th>Id</th><td>b4f0ac88-76ab-4c61-b142-0cff89ec91f2</td></tr>
+<tr><th>Type</th><td>Server</td></tr>
+<tr><th>Mode</th><td>Managed by Backup Server</td></tr>
+<tr><th>Description</th><td>Created by PHARMAX\administrator at 3/1/2021 5:12 PM.</td></tr>
+<tr><th>Priority</th><td>Normal Priority</td></tr>
+</tbody></table>
+<div class="Caption">Table 331 - Job Mode - Server With Netapp LUNS - Backup</div><br /></div>
+<a name="d4af0a26-3420-443e-b259-d2c87933175d"><h1 class="NOTOCHeading5">Protected Computers</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:25%; min-width:25%; width:25%" /><col style="max-width:25%; min-width:25%; width:25%" /><col style="max-width:25%; min-width:25%; width:25%" /><col style="max-width:25%; min-width:25%; width:25%" /></colgroup>
+<thead><tr><th>Name</th><th>Type</th><th>Enabled</th><th>Container</th></tr></thead><tbody>
+<tr><td>Server with Netapp LUNS</td><td>Custom</td><td>Yes</td><td>Active Directory</td></tr>
+<tr><td>server-dc-01v.pharmax.local</td><td>Computer</td><td>-</td><td>Individual Computer</td></tr>
+</tbody></table>
+<div class="Caption">Table 332 - Protected Computers - Server With Netapp LUNS - Backup</div><br /></div>
+<a name="b32ca6ed-a52a-4408-b345-030070c50907"><h1 class="NOTOCHeading5">Backup Mode</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Backup Mode</th><td>Entire Computer</td></tr>
+<tr><th>Include external USB drives</th><td>No</td></tr>
+</tbody></table>
+<div class="Caption">Table 333 - Backup Mode - Server With Netapp LUNS - Backup</div><br /></div>
+<a name="b71c1683-f760-4a38-be48-251884572345"><h1 class="NOTOCHeading5">Storage</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Backup Repository</th><td>SOBR - Minio</td></tr>
+<tr><th>Repository Type</th><td>ExtendableRepository</td></tr>
+<tr><th>Retention Policy</th><td>Restore Points</td></tr>
+<tr><th>Restore Points</th><td>8</td></tr>
+<tr><th>Configure Secondary Destination for this Job</th><td>Yes</td></tr>
+<tr><th>Keep certain full backup longer for archival purposes (GFS)</th><td>Yes</td></tr>
+<tr><th>Keep Weekly full backup for</th><td>1 weeks,<br />If multiple backup exist use the one from: Sunday</td></tr>
+<tr><th>Keep Monthly full backup for</th><td>1 months,<br />Use weekly full backup from the following week of the month: First</td></tr>
+<tr><th>Keep Yearly full backup for</th><td>1 years,<br />Use monthly full backup from the following month: January</td></tr>
+</tbody></table>
+<div class="Caption">Table 334 - Destination - Server With Netapp LUNS - Backup</div><br /></div>
+<a name="914957fa-b0c1-47ff-ae67-b64aae5b847e"><h1 class="NOTOCHeading6">Secondary Target</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:25%; min-width:25%; width:25%" /><col style="max-width:25%; min-width:25%; width:25%" /><col style="max-width:15%; min-width:15%; width:15%" /><col style="max-width:35%; min-width:35%; width:35%" /></colgroup>
+<thead><tr><th>Job Name</th><th>Type</th><th>State</th><th>Description</th></tr></thead><tbody>
+<tr><td>PHARMAX-HQ-SVR-TAPE Standard</td><td>Backup to Tape</td><td>Warning</td><td>Created by PHARMAX\administrator at 2/25/2022 7:14 PM.</td></tr>
+<tr><td>PHARMAX-HQ-SVR-TAPE</td><td>Backup to Tape</td><td>Failed</td><td>Created by PHARMAX\administrator at 6/29/2021 7:24 PM.</td></tr>
+</tbody></table>
+<div class="Caption">Table 335 - Secondary Destination Job - Server With Netapp LUNS - Backup</div><br /></div>
+<a name="0a94c48c-9c8c-4caa-89c5-26c03c0b2aae"><h1 class="NOTOCHeading6">Advanced Settings (Backup)</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Syntethic Full Backup</th><td>Yes</td></tr>
+<tr><th>Create Syntethic on Days</th><td>Saturday</td></tr>
+<tr><th>Active Full Backup</th><td>No</td></tr>
+</tbody></table>
+<div class="Caption">Table 336 - Advanced Settings (Backup) - Server With Netapp LUNS - Backup</div><br /></div>
+<a name="7ec6a494-b3ef-4b68-bae8-56ae2a218052"><h1 class="NOTOCHeading6">Advanced Settings (Maintenance)</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Storage-Level Corruption Guard (SLCG)</th><td>No</td></tr>
+<tr><th>Defragment and Compact Full Backup (DCFB)</th><td>No</td></tr>
+</tbody></table>
+<div class="Caption">Table 337 - Advanced Settings (Maintenance) - Server With Netapp LUNS - Backup</div><br /></div>
+<a name="94665901-baf5-4cf2-8881-b13964678f79"><h1 class="NOTOCHeading6">Advanced Settings (Storage)</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Compression Level</th><td>Optimal</td></tr>
+<tr><th>Storage optimization</th><td>LocalTarget</td></tr>
+<tr><th>Enabled Backup File Encryption</th><td>No</td></tr>
+<tr><th>Encryption Key</th><td>None</td></tr>
+</tbody></table>
+<div class="Caption">Table 338 - Advanced Settings (Storage) - Server With Netapp LUNS - Backup</div><br /></div>
+<a name="1dd1fd65-ae9c-40d3-b74c-8bfe8d950fd1"><h1 class="NOTOCHeading6">Advanced Settings (Notification)</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Send Snmp Notification</th><td>Yes</td></tr>
+<tr><th>Send Email Notification</th><td>Yes</td></tr>
+<tr><th>Email Notification Additional Addresses</th><td>rebelinux@gmail.com</td></tr>
+<tr><th>Use Custom Email Notification Options</th><td>Yes</td></tr>
+<tr><th>Use Custom Notification Setting</th><td>[%JobResult%] %JobName% (%ObjectCount% machines) %Issues%</td></tr>
+<tr><th>Notify On Success</th><td>Yes</td></tr>
+<tr><th>Notify On Warning</th><td>Yes</td></tr>
+<tr><th>Notify On Error</th><td>No</td></tr>
+<tr><th>Suppress Notification until Last Retry</th><td>No</td></tr>
+</tbody></table>
+<div class="Caption">Table 339 - Advanced Settings (Notification) - Server With Netapp LUNS - Backup</div><br /></div>
+<a name="2039778b-c35d-4df0-9a11-093a648b3fa7"><h1 class="NOTOCHeading6">Advanced Settings (Integration)</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Enable Backup from Storage Snapshots</th><td>Yes</td></tr>
+<tr><th>Failover to On-Host Backup agent</th><td>Yes</td></tr>
+<tr><th>Off-host Backup Proxy Automatic Selection</th><td>No</td></tr>
+<tr><th>Off-host Backup Proxy Server</th><td>VEEAM-VBR-02V.pharmax.local</td></tr>
+</tbody></table>
+<div class="Caption">Table 340 - Advanced Settings (Integration) - Server With Netapp LUNS - Backup</div><br /></div>
+<a name="77814474-997d-4231-b644-c4d999deac94"><h1 class="NOTOCHeading6">Advanced Settings (Script)</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Run the Following Script Before</th><td>Yes</td></tr>
+<tr><th>Run the Following Script After</th><td>Yes</td></tr>
+<tr><th>Run Script Before the Job</th><td>sql_pre.cmd</td></tr>
+<tr><th>Run Script After the Job</th><td>sql_post.cmd</td></tr>
+<tr><th>Run Script Frequency</th><td>Cycles</td></tr>
+<tr><th>Run Script Every Backup Session</th><td>1</td></tr>
+</tbody></table>
+<div class="Caption">Table 341 - Advanced Settings (Script) - Server With Netapp LUNS - Backup</div><br /></div>
+<a name="a163101f-5018-4329-b3b2-a472ad21a588"><h1 class="NOTOCHeading5">Guest Processing</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Enabled Application Process Processing</th><td>Yes</td></tr>
+<tr><th>Enabled Guest File System Indexing</th><td>No</td></tr>
+</tbody></table>
+<div class="Caption">Table 342 - Guest Processing Options - Server With Netapp LUNS - Backup</div><br /></div>
+<a name="6d53f2ea-7147-4db6-8fdd-04f1a164b3de"><h1 class="NOTOCHeading5">Schedule</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Retry Failed item</th><td>3</td></tr>
+<tr><th>Wait before each retry</th><td>1/min</td></tr>
+<tr><th>Backup Window</th><td>No</td></tr>
+<tr><th>Schedule type</th><td>After Job</td></tr>
+<tr><th>Schedule Options</th><td>COMP-CLUSTER-NFS</td></tr>
+</tbody></table>
+<div class="Caption">Table 343 - Schedule Options - Server With Netapp LUNS - Backup</div><br /></div>
+<a name="1f81e4de-0dda-4c34-a4d9-9483d5c65e68"><h3 class="Heading3">1.7.11 File Share Backup Jobs</h3></a><div>The following section list file share backup jobs created in Veeam Backup &amp; Replication.</div><br /><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:25%; min-width:25%; width:25%" /><col style="max-width:20%; min-width:20%; width:20%" /><col style="max-width:15%; min-width:15%; width:15%" /><col style="max-width:15%; min-width:15%; width:15%" /><col style="max-width:25%; min-width:25%; width:25%" /></colgroup>
+<thead><tr><th>Name</th><th>Type</th><th>Status</th><th>Latest Result</th><th>Last Run</th></tr></thead><tbody>
+<tr><td>File Backup Job 1</td><td>File Backup</td><td>Enabled</td><td>Failed</td><td>09/29/2022 07:12:12</td></tr>
+<tr><td>Server - Share Backup</td><td>File Backup</td><td>Enabled</td><td>None</td><td>Unknown</td></tr>
+</tbody></table>
+<div class="Caption">Table 344 - File Share Backup Jobs - VEEAM-VBR</div><br /></div>
+<a name="b165e7fb-cfca-4606-a059-130c65b25651"><h3 class="Heading3">1.7.12 File Share Backup Jobs Configuration</h3></a><div>The following section details the configuration of File Share type backup jobs.</div><br /><a name="93aeb6e6-753f-4595-a41a-fea0b6b2b5c5"><h4 class="Heading4">1.7.12.1 File Backup Job 1</h4></a><a name="fb148e27-9124-49df-9a54-d2153063f8a6"><h1 class="NOTOCHeading4">Common Information</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Name</th><td>File Backup Job 1</td></tr>
+<tr><th>Type</th><td>File Backup</td></tr>
+<tr><th>Total Backup Size</th><td>0 KB</td></tr>
+<tr><th>Target Address</th><td>&nbsp;</td></tr>
+<tr><th>Target File</th><td>File Backup Job 1</td></tr>
+<tr><th>Description</th><td>Created by PHARMAX\jocolon at 1/8/2022 8:31 PM.</td></tr>
+<tr><th>Modified By</th><td>PHARMAX\administrator</td></tr>
+</tbody></table>
+<div class="Caption">Table 345 - Common Information - File Backup Job 1</div><br /></div>
+<a name="ee9d891d-f478-46c6-a8a5-df4b7dfb5638"><h1 class="NOTOCHeading5">Files and Folders</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Name</th><td>ONTAP-HQ-SAN</td></tr>
+<tr><th>Resource Type</th><td>Host</td></tr>
+<tr><th>Role</th><td>Include</td></tr>
+<tr><th>Location</th><td>ONTAP-HQ-SAN</td></tr>
+<tr><th>Approx Size</th><td>0 B</td></tr>
+<tr><th>File Filter Include Masks</th><td>*.*</td></tr>
+<tr><th>File Filter Exclude Masks</th><td>*.tmp</td></tr>
+</tbody></table>
+<div class="Caption">Table 346 - Files and Folders - ONTAP-HQ-SAN</div><br /></div>
+<div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Name</th><td>PHARMAX-ISILON</td></tr>
+<tr><th>Resource Type</th><td>Host</td></tr>
+<tr><th>Role</th><td>Include</td></tr>
+<tr><th>Location</th><td>PHARMAX-ISILON</td></tr>
+<tr><th>Approx Size</th><td>0 B</td></tr>
+<tr><th>File Filter Include Masks</th><td>*.*</td></tr>
+<tr><th>File Filter Exclude Masks</th><td>&nbsp;</td></tr>
+</tbody></table>
+<div class="Caption">Table 347 - Files and Folders - PHARMAX-ISILON</div><br /></div>
+<a name="6c95dded-b144-42b5-8c7c-da8379b0a5e4"><h1 class="NOTOCHeading5">Storage</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Backup Repository</th><td>SOBR - Minio</td></tr>
+<tr><th>Keep all file versions for the last</th><td>28 Day</td></tr>
+<tr><th>Keep previous file versions for</th><td>3 Year</td></tr>
+<tr><th>Archive repository</th><td>Linux - Hardened Repository</td></tr>
+<tr><th>File to Archive</th><td>All file exept the following extension: *.tmp *.ods</td></tr>
+</tbody></table>
+<div class="Caption">Table 348 - Storage Options - File Backup Job 1</div><br /></div>
+<a name="52453ab9-c573-4ec5-9d54-8664b53e7ecf"><h1 class="NOTOCHeading6">Advanced Settings (File Version)</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>File version to keep</th><td>Limit the number of both recent and archived file versions</td></tr>
+<tr><th>Active file version limit</th><td>10</td></tr>
+<tr><th>Delete file version limit</th><td>3</td></tr>
+</tbody></table>
+<div class="Caption">Table 349 - Advanced Settings (File Version) - File Backup Job 1</div><br /></div>
+<a name="7fe11e27-fb1c-4e08-a313-b3382bc943b0"><h1 class="NOTOCHeading6">Advanced Settings (Storage)</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Inline Data Deduplication</th><td>Yes</td></tr>
+<tr><th>Compression Level</th><td>OPTIMAL (Default)</td></tr>
+<tr><th>Enabled Backup File Encryption</th><td>Yes</td></tr>
+<tr><th>Encryption Key</th><td>Password Global</td></tr>
+</tbody></table>
+<div class="Caption">Table 350 - Advanced Settings (Storage) - File Backup Job 1</div><br /></div>
+<a name="966843ec-79db-4f7a-98ac-33cb872d6bea"><h1 class="NOTOCHeading6">Advanced Settings (Maintenance)</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Storage-Level Corruption Guard (SLCG)</th><td>Yes</td></tr>
+<tr><th>SLCG Schedule Type</th><td>Daily</td></tr>
+<tr><th>SLCG Schedule Day</th><td>Friday<br />Saturday<br />Sunday</td></tr>
+</tbody></table>
+<div class="Caption">Table 351 - Advanced Settings (Maintenance) - File Backup Job 1</div><br /></div>
+<a name="bafff6e4-2d41-419f-88af-c847b0c69a4b"><h1 class="NOTOCHeading6">Advanced Settings (Notification)</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Send Snmp Notification</th><td>Yes</td></tr>
+<tr><th>Send Email Notification</th><td>Yes</td></tr>
+<tr><th>Email Notification Additional Addresses</th><td>rebelinux@gmail.com</td></tr>
+<tr><th>Email Notify Time</th><td>10:00 PM</td></tr>
+<tr><th>Use Custom Email Notification Options</th><td>Yes</td></tr>
+<tr><th>Use Custom Notification Setting</th><td>[%JobResult%] %JobName% (%ObjectCount% objects) %Issues%</td></tr>
+<tr><th>Notify On Success</th><td>Yes</td></tr>
+<tr><th>Notify On Warning</th><td>Yes</td></tr>
+<tr><th>Notify On Error</th><td>Yes</td></tr>
+<tr><th>Suppress Notification until Last Retry</th><td>Yes</td></tr>
+<tr><th>Set Results To Vm Notes</th><td>No</td></tr>
+<tr><th>VM Attribute Note Value</th><td>Notes</td></tr>
+<tr><th>Append to Existing Attribute</th><td>Yes</td></tr>
+</tbody></table>
+<div class="Caption">Table 352 - Advanced Settings (Notification) - File Backup Job 1</div><br /></div>
+<a name="60a38e15-a646-48e3-892a-8e6b34a81525"><h1 class="NOTOCHeading6">Advanced Settings (Script)</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Run the Following Script Before</th><td>Yes</td></tr>
+<tr><th>Run Script Before the Job</th><td>caca.sh</td></tr>
+<tr><th>Run the Following Script After</th><td>Yes</td></tr>
+<tr><th>Run Script After the Job</th><td>cacaout.sh</td></tr>
+<tr><th>Run Script Frequency</th><td>Cycles</td></tr>
+<tr><th>Run Script Every Backup Session</th><td>1</td></tr>
+</tbody></table>
+<div class="Caption">Table 353 - Advanced Settings (Script) - File Backup Job 1</div><br /></div>
+<a name="ad2e23e9-bc0a-47a8-856f-37aad4dc253c"><h1 class="NOTOCHeading5">Secondary Target</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:25%; min-width:25%; width:25%" /><col style="max-width:25%; min-width:25%; width:25%" /><col style="max-width:15%; min-width:15%; width:15%" /><col style="max-width:35%; min-width:35%; width:35%" /></colgroup>
+<thead><tr><th>Job Name</th><th>Type</th><th>State</th><th>Description</th></tr></thead><tbody>
+<tr><td>File Backup Job 1 (Copy) 1</td><td>Backup Copy</td><td>None</td><td>&nbsp;</td></tr>
+</tbody></table>
+<div class="Caption">Table 354 - Secondary Destination Jobs - File Backup Job 1</div><br /></div>
+<a name="2da0a1ee-3dd7-4eb9-b975-0e2b818c3876"><h1 class="NOTOCHeading5">Schedule</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Retry Failed item</th><td>3</td></tr>
+<tr><th>Wait before each retry</th><td>10/min</td></tr>
+<tr><th>Backup Window</th><td>Yes</td></tr>
+<tr><th>Shedule type</th><td>Daily</td></tr>
+<tr><th>Shedule Options</th><td>Kind: Everyday,<br />Days: Sunday Monday Tuesday Wednesday Thursday Friday Saturday</td></tr>
+<tr><th>Start Time</th><td>10:00 PM</td></tr>
+<tr><th>Latest Run</th><td>09/17/2022 22:00:21</td></tr>
+</tbody></table>
+<div class="Caption">Table 355 - Schedule Options - File Backup Job 1</div><br /></div>
+<a name="be4eab5c-6364-4db5-b357-5ebe91dd1e67"><h1 class="NOTOCHeading6">Backup Window Time Period</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%;"><thead><tr><th>Hour</th><th>12</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th><th>9</th><th>10</th><th>11</th><th>12</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th><th>9</th><th>10</th><th>11</th></tr></thead><tbody>
+<tr><th>Sun</th><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td></tr>
+<tr><th>Mon</th><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td></tr>
+<tr><th>Tue</th><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td></tr>
+<tr><th>Wed</th><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td></tr>
+<tr><th>Thu</th><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td></tr>
+<tr><th>Fri</th><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td><td>off</td></tr>
+<tr><th>Sat</th><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td><td>on</td></tr>
+</tbody></table>
+<div class="Caption">Table 356 - Backup Window - File Backup Job 1</div><br /></div>
+<a name="5bd8ca2e-fd7c-4475-8dd0-f2e13320f8e0"><h4 class="Heading4">1.7.12.2 Server - Share Backup</h4></a><a name="d27dfeff-2c68-412d-96f7-da4b6dbcfa70"><h1 class="NOTOCHeading4">Common Information</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Name</th><td>Server - Share Backup</td></tr>
+<tr><th>Type</th><td>File Backup</td></tr>
+<tr><th>Total Backup Size</th><td>0 KB</td></tr>
+<tr><th>Target Address</th><td>&nbsp;</td></tr>
+<tr><th>Target File</th><td>Server - Share Backup</td></tr>
+<tr><th>Description</th><td>Created by PHARMAX\administrator at 9/16/2022 7:02 PM.</td></tr>
+<tr><th>Modified By</th><td>PHARMAX\administrator</td></tr>
+</tbody></table>
+<div class="Caption">Table 357 - Common Information - Server - Share Backup</div><br /></div>
+<a name="5a1ffe20-ecdf-4ffe-9d38-d8b56b335783"><h1 class="NOTOCHeading5">Files and Folders</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Name</th><td>\\server-dc-01v\UEMConfig</td></tr>
+<tr><th>Resource Type</th><td>&nbsp;</td></tr>
+<tr><th>Role</th><td>Include</td></tr>
+<tr><th>Location</th><td>\\server-dc-01v\UEMConfig</td></tr>
+<tr><th>Approx Size</th><td>0 B</td></tr>
+<tr><th>File Filter Include Masks</th><td>&nbsp;</td></tr>
+<tr><th>File Filter Exclude Masks</th><td>\\server-dc-01v\UEMConfig\.snapshot; \\server-dc-01v\UEMConfig\~snapshot</td></tr>
+</tbody></table>
+<div class="Caption">Table 358 - Files and Folders - \\server-dc-01v\UEMConfig</div><br /></div>
+<a name="f618142e-5207-4940-ad60-debfa6de9d06"><h1 class="NOTOCHeading5">Storage</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Backup Repository</th><td>SOBR - Minio</td></tr>
+<tr><th>Keep all file versions for the last</th><td>28 Day</td></tr>
+<tr><th>Keep previous file versions for</th><td>3 Year</td></tr>
+<tr><th>Archive repository</th><td>HQ - Backups</td></tr>
+<tr><th>File to Archive</th><td>All Files: *.*</td></tr>
+</tbody></table>
+<div class="Caption">Table 359 - Storage Options - Server - Share Backup</div><br /></div>
+<a name="31df63f9-c77a-4dbd-933e-dd481b3d9253"><h1 class="NOTOCHeading6">Advanced Settings (File Version)</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>File version to keep</th><td>Keep all file versions</td></tr>
+</tbody></table>
+<div class="Caption">Table 360 - Advanced Settings (File Version) - Server - Share Backup</div><br /></div>
+<a name="dccc894d-fb13-4e84-b202-806f85e54dd6"><h1 class="NOTOCHeading6">Advanced Settings (Storage)</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Inline Data Deduplication</th><td>Yes</td></tr>
+<tr><th>Compression Level</th><td>OPTIMAL (Default)</td></tr>
+<tr><th>Enabled Backup File Encryption</th><td>No</td></tr>
+<tr><th>Encryption Key</th><td>None</td></tr>
+</tbody></table>
+<div class="Caption">Table 361 - Advanced Settings (Storage) - Server - Share Backup</div><br /></div>
+<a name="343b6794-7a82-48b7-b979-fab04981486a"><h1 class="NOTOCHeading6">Advanced Settings (Maintenance)</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Storage-Level Corruption Guard (SLCG)</th><td>Yes</td></tr>
+<tr><th>SLCG Schedule Type</th><td>Monthly</td></tr>
+<tr><th>SLCG Backup Monthly Schedule</th><td>Day Of Week: Friday<br />Day Number In Month: Last<br />Day of Month: 1<br />Months: January February March April May June July August September October November December</td></tr>
+</tbody></table>
+<div class="Caption">Table 362 - Advanced Settings (Maintenance) - Server - Share Backup</div><br /></div>
+<a name="b9c102b2-2b12-4a19-9c3b-d5eef4d0f8d3"><h1 class="NOTOCHeading6">Advanced Settings (Notification)</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Send Snmp Notification</th><td>Yes</td></tr>
+<tr><th>Send Email Notification</th><td>Yes</td></tr>
+<tr><th>Email Notification Additional Addresses</th><td>rebelinux@gmail.com</td></tr>
+<tr><th>Email Notify Time</th><td>10:00 PM</td></tr>
+<tr><th>Use Custom Email Notification Options</th><td>No</td></tr>
+<tr><th>Use Custom Notification Setting</th><td>[%JobResult%] %JobName% (%ObjectCount% objects) %Issues%</td></tr>
+<tr><th>Notify On Success</th><td>Yes</td></tr>
+<tr><th>Notify On Warning</th><td>Yes</td></tr>
+<tr><th>Notify On Error</th><td>Yes</td></tr>
+<tr><th>Suppress Notification until Last Retry</th><td>Yes</td></tr>
+<tr><th>Set Results To Vm Notes</th><td>No</td></tr>
+<tr><th>VM Attribute Note Value</th><td>Notes</td></tr>
+<tr><th>Append to Existing Attribute</th><td>Yes</td></tr>
+</tbody></table>
+<div class="Caption">Table 363 - Advanced Settings (Notification) - Server - Share Backup</div><br /></div>
+<a name="1ecfebf1-6ebb-4eb9-b3e2-1eebf39d2738"><h1 class="NOTOCHeading6">Advanced Settings (Script)</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Run the Following Script Before</th><td>Yes</td></tr>
+<tr><th>Run Script Before the Job</th><td>test.cmd</td></tr>
+<tr><th>Run the Following Script After</th><td>No</td></tr>
+<tr><th>Run Script After the Job</th><td>&nbsp;</td></tr>
+<tr><th>Run Script Frequency</th><td>Days</td></tr>
+<tr><th>Run Script on the Selected Days</th><td>Saturday</td></tr>
+</tbody></table>
+<div class="Caption">Table 364 - Advanced Settings (Script) - Server - Share Backup</div><br /></div>
+<a name="b606504e-cd35-499c-97ad-ada012073f4f"><h1 class="NOTOCHeading5">Schedule</h1></a><div style="word-break: break-word; overflow-wrap: anywhere; "><table class="tabledefault" style="width:100%; table-layout: fixed;"><colgroup><col style="max-width:40%; min-width:40%; width:40%" /><col style="max-width:60%; min-width:60%; width:60%" /></colgroup>
+<tbody>
+<tr><th>Retry Failed item</th><td>3</td></tr>
+<tr><th>Wait before each retry</th><td>10/min</td></tr>
+<tr><th>Backup Window</th><td>No</td></tr>
+<tr><th>Shedule type</th><td>Monthly</td></tr>
+<tr><th>Shedule Options</th><td>Day Of Month: 1,<br />Day Number In Month: Fourth,<br />Day Of Week: Saturday</td></tr>
+<tr><th>Start Time</th><td>10:00 PM</td></tr>
+<tr><th>Latest Run</th><td>01/01/0001 00:00:00</td></tr>
+</tbody></table>
+<div class="Caption">Table 365 - Schedule Options - Server - Share Backup</div><br /></div>
+</div>
+<div><br /><div class="Footer">Page 3</div></div></div></div></body>
