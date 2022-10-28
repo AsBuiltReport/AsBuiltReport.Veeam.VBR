@@ -137,15 +137,19 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                         if ($InfoLevel.Tape.Server -ge 1) {
                             Get-AbrVbrTapeServer
                         }
+                        Write-PScriboMessage "Tape Library InfoLevel set at $($InfoLevel.Tape.Library)."
                         if ($InfoLevel.Tape.Library -ge 1) {
                             Get-AbrVbrTapeLibrary
                         }
+                        Write-PScriboMessage "Tape MediaPool InfoLevel set at $($InfoLevel.Tape.MediaPool)."
                         if ($InfoLevel.Tape.MediaPool -ge 1) {
                             Get-AbrVbrTapeMediaPool
                         }
+                        Write-PScriboMessage "Tape Vault InfoLevel set at $($InfoLevel.Tape.Vault)."
                         if ($InfoLevel.Tape.Vault -ge 1) {
                             Get-AbrVbrTapeVault
                         }
+                        Write-PScriboMessage "Tape NDMP InfoLevel set at $($InfoLevel.Tape.NDMP)."
                         if ($InfoLevel.Tape.NDMP -ge 1) {
                             Get-AbrVbrNDMPInfo
                         }
