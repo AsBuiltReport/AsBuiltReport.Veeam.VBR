@@ -54,6 +54,9 @@
             "Agent": 1,
             "FileShare": 1,
             "Replication": 1
+        },
+        "Security": {
+            "Infrastructure": 1
         }
     },
     "HealthCheck": {
@@ -69,6 +72,9 @@
         },
         "Tape": {
             "Status": true
+        },
+        "Security": {
+            "BestPractice": true
         }
 
     }

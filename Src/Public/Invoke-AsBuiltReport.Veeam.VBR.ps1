@@ -5,7 +5,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.5.4
+        Version:        0.6.0
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -26,16 +26,21 @@ function Invoke-AsBuiltReport.Veeam.VBR {
     Write-PScriboMessage -IsWarning "Documentation: https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR"
     Write-PScriboMessage -IsWarning "Issues or bug reporting: https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues"
 
-    $InstalledVersion = Get-Module -ListAvailable -Name AsBuiltReport.Veeam.VBR -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Version
+    # Check the current AsBuiltReport.VMware.ESXi module
+    Try {
+        $InstalledVersion = Get-Module -ListAvailable -Name AsBuiltReport.Veeam.VBR -ErrorAction SilentlyContinue | Sort-Object -Property Version -Descending | Select-Object -First 1 -ExpandProperty Version
 
-    if ($InstalledVersion) {
-        Write-PScriboMessage -IsWarning "Installed AsBuiltReport.Veeam.VBR Version: $($InstalledVersion.ToString())"
-        $MostCurrentVersion = Find-Module -Name AsBuiltReport.Veeam.VBR -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Version
-        if ($MostCurrentVersion -and ($MostCurrentVersion -gt $InstalledVersion)) {
-            Write-PScriboMessage -IsWarning "New Update: AsBuiltReport.Veeam.VBR Version: $($MostCurrentVersion.ToString())"
-            Write-PScriboMessage -IsWarning "To Update run: Update-Module -Name AsBuiltReport.Veeam.VBR -Force"
+        if ($InstalledVersion) {
+            Write-PScriboMessage -IsWarning "AsBuiltReport.Veeam.VBR $($InstalledVersion.ToString()) is currently installed."
+            $LatestVersion = Find-Module -Name AsBuiltReport.Veeam.VBR -Repository PSGallery -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Version
+            if ($LatestVersion -gt $InstalledVersion) {
+                Write-PScriboMessage -IsWarning "AsBuiltReport.Veeam.VBR $($LatestVersion.ToString()) is available."
+                Write-PScriboMessage -IsWarning "Run 'Update-Module -Name AsBuiltReport.Veeam.VBR -Force' to install the latest version."
+            }
         }
-    }
+    } Catch {
+            Write-PscriboMessage -IsWarning $_.Exception.Message
+        }
 
     # Import Report Configuration
     $Report = $ReportConfig.Report
@@ -131,18 +136,22 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                         Write-PScriboMessage "Tape Server InfoLevel set at $($InfoLevel.Tape.Server)."
                         if ($InfoLevel.Tape.Server -ge 1) {
                             Get-AbrVbrTapeServer
-                            if ($InfoLevel.Tape.Library -ge 1) {
-                                Get-AbrVbrTapeLibrary
-                            }
-                            if ($InfoLevel.Tape.MediaPool -ge 1) {
-                                Get-AbrVbrTapeMediaPool
-                            }
-                            if ($InfoLevel.Tape.Vault -ge 1) {
-                                Get-AbrVbrTapeVault
-                            }
-                            if ($InfoLevel.Tape.NDMP -ge 1) {
-                                Get-AbrVbrNDMPInfo
-                            }
+                        }
+                        Write-PScriboMessage "Tape Library InfoLevel set at $($InfoLevel.Tape.Library)."
+                        if ($InfoLevel.Tape.Library -ge 1) {
+                            Get-AbrVbrTapeLibrary
+                        }
+                        Write-PScriboMessage "Tape MediaPool InfoLevel set at $($InfoLevel.Tape.MediaPool)."
+                        if ($InfoLevel.Tape.MediaPool -ge 1) {
+                            Get-AbrVbrTapeMediaPool
+                        }
+                        Write-PScriboMessage "Tape Vault InfoLevel set at $($InfoLevel.Tape.Vault)."
+                        if ($InfoLevel.Tape.Vault -ge 1) {
+                            Get-AbrVbrTapeVault
+                        }
+                        Write-PScriboMessage "Tape NDMP InfoLevel set at $($InfoLevel.Tape.NDMP)."
+                        if ($InfoLevel.Tape.NDMP -ge 1) {
+                            Get-AbrVbrNDMPInfo
                         }
                     }
                 }
@@ -251,6 +260,25 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                             Get-AbrVbrFileShareBackupjob
                             Get-AbrVbrFileShareBackupjobConf
                         }
+                    }
+                }
+            }
+            #---------------------------------------------------------------------------------------------#
+            #                      Infrastructure Security Hardening Section                              #
+            #---------------------------------------------------------------------------------------------#
+            if ($InfoLevel.Security.PSObject.Properties.Value -ne 0) {
+                Section -Style Heading2 'Infrastructure Security Hardening' {
+                    Paragraph 'Protecting your infrastructure successfully is all about understanding the current attack vectors; what and whom you are protecting, your Veeam infrastructure, against. If you know what and whom you are protecting against, makes it easier to take the correct countermeasures. One of those countermeasures is hardening.'
+                    BlankLine
+                    Paragraph 'Looking at the different Veeam Backup & Replication components you have to protect the following components:'
+                    BlankLine
+                    Paragraph '* Veeam Backup server'
+                    Paragraph '* User Accounts'
+                    Paragraph '* Backup repositories'
+                    Paragraph '* Backup data flows'
+
+                    if ($InfoLevel.Security.Infrastructure -ge 1) {
+                        Get-AbrVbrSecInfraHard
                     }
                 }
             }
