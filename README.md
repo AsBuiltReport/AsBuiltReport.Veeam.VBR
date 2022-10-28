@@ -170,7 +170,7 @@ The table below outlines the default and maximum **InfoLevel** settings for each
 |--------------|:---------------:|:---------------:|
 | Server       |        1        |        1        |
 | Library          |        1        |        2        |
-| MediaPool          |        1        |        1        |
+| MediaPool          |        1        |        2        |
 | Vault          |        1        |        1        |
 | NDMP          |        1        |        1        |
 

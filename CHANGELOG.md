@@ -1,11 +1,16 @@
 # :arrows_clockwise: Veeam VBR As Built Report Changelog
 
-## [0.6.0] - 2022-10-XX
+## [0.6.0] - 2022-10-28
 
 ### Added
 
 - Added Infrastructure Hardening section
-- Added per Tape Media Pool configuration information [#71](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/71)
+- Added per Tape Media Pool configuration information (InfoLevel 2) [#71](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/71)
+  - Tape Library Sub-Section
+  - Tape Mediums Sub-Section
+  - Media Set & Gfs Media Set Sub-Section
+  - Retention Sub-Section
+  - Options Sub-Section
 
 ### Changed
 

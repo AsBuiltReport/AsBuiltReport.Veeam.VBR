@@ -123,7 +123,7 @@ function Get-AbrVbrTapeMediaPool {
                                                             'Tape Count' = ((Get-VBRTapeMediaPool -Id $PoolObj.Id).Medium).count
                                                             'Total Space' = ConvertTo-FileSizeString $Capacity
                                                             'Free Space' = ConvertTo-FileSizeString $FreeSpace
-                                                            'Add Tape from Free Media Pool Automatically when more Tape are Required' = ConvertTo-FileSizeString $PoolObj.MoveFromFreePool
+                                                            'Add Tape from Free Media Pool Automatically when more Tape are Required' = ConvertTo-TextYN $PoolObj.MoveFromFreePool
                                                             'Description' = $TapeLibraryObj.Description
                                                             'Library Mode' = Switch ($PoolObj.GlobalOptions.Mode) {
                                                                 'CrossLibraryParalleing' {'Active (Used Always)'}
@@ -302,7 +302,7 @@ function Get-AbrVbrTapeMediaPool {
                                                         'Period'  {"Protect Data for $($PoolObj.RetentionPolicy.Value) $($PoolObj.RetentionPolicy.Period)"}
                                                         default {'Unknown'}
                                                     }
-                                                    'Offile Media Tracking' = ConvertTo-TextYN $PoolObj.MoveOfflineToVault
+                                                    'Offline Media Tracking' = ConvertTo-TextYN $PoolObj.MoveOfflineToVault
                                                 }
 
                                                 if ($PoolObj.MoveOfflineToVault) {
