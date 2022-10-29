@@ -301,14 +301,14 @@ function Get-AbrVbrBackupjobVMware {
                                             'Integrity Checks' = ConvertTo-TextYN $Bkjob.BackupStorageOptions.EnableIntegrityChecks
                                             'Storage Encryption' = ConvertTo-TextYN $Bkjob.BackupStorageOptions.StorageEncryptionEnabled
                                             'Backup Mode' = Switch ($Bkjob.Options.BackupTargetOptions.Algorithm) {
-                                                'Syntethic' {"Reverse Incremental"}
+                                                'Synthetic' {"Reverse Incremental"}
                                                 'Increment' {'Incremental'}
                                             }
                                             'Active Full Backup Schedule Kind' = $Bkjob.Options.BackupTargetOptions.FullBackupScheduleKind
                                             'Active Full Backup Days' = $Bkjob.Options.BackupTargetOptions.FullBackupDays
-                                            'Transform Full To Syntethic' = ConvertTo-TextYN $Bkjob.Options.BackupTargetOptions.TransformFullToSyntethic
-                                            'Transform Increments To Syntethic' = ConvertTo-TextYN $Bkjob.Options.BackupTargetOptions.TransformIncrementsToSyntethic
-                                            'Transform To Syntethic Days' = $Bkjob.Options.BackupTargetOptions.TransformToSyntethicDays
+                                            'Transform Full To Synthetic' = ConvertTo-TextYN $Bkjob.Options.BackupTargetOptions.TransformFullToSyntethic
+                                            'Transform Increments To Synthetic' = ConvertTo-TextYN $Bkjob.Options.BackupTargetOptions.TransformIncrementsToSyntethic
+                                            'Transform To Synthetic Days' = $Bkjob.Options.BackupTargetOptions.TransformToSyntethicDays
 
 
                                         }
@@ -833,14 +833,14 @@ function Get-AbrVbrBackupjobVMware {
                                                         foreach ($OBJ in $Hours24.GetEnumerator()) {
 
                                                             $inObj = [ordered] @{
-                                                                'Hour' = $OBJ.Value
-                                                                'Sun' = $ScheduleTimePeriod[0].Split(',')[$OBJ.Key]
-                                                                'Mon' = $ScheduleTimePeriod[1].Split(',')[$OBJ.Key]
-                                                                'Tue' = $ScheduleTimePeriod[2].Split(',')[$OBJ.Key]
-                                                                'Wed' = $ScheduleTimePeriod[3].Split(',')[$OBJ.Key]
-                                                                'Thu' = $ScheduleTimePeriod[4].Split(',')[$OBJ.Key]
-                                                                'Fri' = $ScheduleTimePeriod[5].Split(',')[$OBJ.Key]
-                                                                'Sat' = $ScheduleTimePeriod[6].Split(',')[$OBJ.Key]
+                                                                'H' = $OBJ.Value
+                                                                'Su' = $ScheduleTimePeriod[0].Split(',')[$OBJ.Key]
+                                                                'M' = $ScheduleTimePeriod[1].Split(',')[$OBJ.Key]
+                                                                'Tu' = $ScheduleTimePeriod[2].Split(',')[$OBJ.Key]
+                                                                'W' = $ScheduleTimePeriod[3].Split(',')[$OBJ.Key]
+                                                                'Th' = $ScheduleTimePeriod[4].Split(',')[$OBJ.Key]
+                                                                'F' = $ScheduleTimePeriod[5].Split(',')[$OBJ.Key]
+                                                                'Sa' = $ScheduleTimePeriod[6].Split(',')[$OBJ.Key]
                                                             }
                                                             $OutObj += $inobj
                                                         }
@@ -848,7 +848,8 @@ function Get-AbrVbrBackupjobVMware {
                                                         $TableParams = @{
                                                             Name = "Backup Window - $($Bkjob.Name)"
                                                             List = $true
-                                                            Key = 'Hour'
+                                                            ColumnWidths = 4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4
+                                                            Key = 'H'
                                                         }
                                                         if ($Report.ShowTableCaptions) {
                                                             $TableParams['Caption'] = "- $($TableParams.Name)"

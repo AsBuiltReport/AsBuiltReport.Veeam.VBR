@@ -462,14 +462,14 @@ function Get-AbrVbrFileShareBackupjobConf {
                                                         foreach ($OBJ in $Hours24.GetEnumerator()) {
 
                                                             $inObj = [ordered] @{
-                                                                'Hour' = $OBJ.Value
-                                                                'Sun' = $ScheduleTimePeriod[0].Split(',')[$OBJ.Key]
-                                                                'Mon' = $ScheduleTimePeriod[1].Split(',')[$OBJ.Key]
-                                                                'Tue' = $ScheduleTimePeriod[2].Split(',')[$OBJ.Key]
-                                                                'Wed' = $ScheduleTimePeriod[3].Split(',')[$OBJ.Key]
-                                                                'Thu' = $ScheduleTimePeriod[4].Split(',')[$OBJ.Key]
-                                                                'Fri' = $ScheduleTimePeriod[5].Split(',')[$OBJ.Key]
-                                                                'Sat' = $ScheduleTimePeriod[6].Split(',')[$OBJ.Key]
+                                                                'H' = $OBJ.Value
+                                                                'Su' = $ScheduleTimePeriod[0].Split(',')[$OBJ.Key]
+                                                                'M' = $ScheduleTimePeriod[1].Split(',')[$OBJ.Key]
+                                                                'Tu' = $ScheduleTimePeriod[2].Split(',')[$OBJ.Key]
+                                                                'W' = $ScheduleTimePeriod[3].Split(',')[$OBJ.Key]
+                                                                'Th' = $ScheduleTimePeriod[4].Split(',')[$OBJ.Key]
+                                                                'F' = $ScheduleTimePeriod[5].Split(',')[$OBJ.Key]
+                                                                'Sa' = $ScheduleTimePeriod[6].Split(',')[$OBJ.Key]
                                                             }
                                                             $OutObj += $inobj
                                                         }
@@ -477,7 +477,8 @@ function Get-AbrVbrFileShareBackupjobConf {
                                                         $TableParams = @{
                                                             Name = "Backup Window - $($Bkjob.Name)"
                                                             List = $true
-                                                            Key = 'Hour'
+                                                            ColumnWidths = 4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4
+                                                            Key = 'H'
                                                         }
                                                         if ($Report.ShowTableCaptions) {
                                                             $TableParams['Caption'] = "- $($TableParams.Name)"

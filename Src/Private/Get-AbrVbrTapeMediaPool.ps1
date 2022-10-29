@@ -261,7 +261,7 @@ function Get-AbrVbrTapeMediaPool {
                                                             'Override Protection Period' = $PoolObj.$MediaSetOption.OverwritePeriod
                                                             'Medium' = $PoolObj.$MediaSetOption.MediaSetPolicy.Medium.Name -join ', '
                                                             'Media Set Name' = $PoolObj.$MediaSetOption.MediaSetPolicy.Name
-                                                            'Add Tapes fromMedia Pool Automatically' = ConvertTo-TextYN $PoolObj.$MediaSetOption.MediaSetPolicy.MoveFromMediaPoolAutomatically
+                                                            'Add Tapes from Media Pool Automatically' = ConvertTo-TextYN $PoolObj.$MediaSetOption.MediaSetPolicy.MoveFromMediaPoolAutomatically
                                                             'Append Backup Files to Incomplete Tapes' = ConvertTo-TextYN $PoolObj.$MediaSetOption.MediaSetPolicy.AppendToCurrentTape
                                                         }
                                                         if ($PoolObj.$MediaSetOption.MediaSetPolicy.MoveOfflineToVault) {
@@ -333,9 +333,9 @@ function Get-AbrVbrTapeMediaPool {
                                         Section -ExcludeFromTOC -Style NOTOCHeading5 'Options' {
                                             $OutObj = @()
                                             $inObj = [ordered] @{
-                                                'Enable Parrallel Processing for Tape Jobs using this Media Pool' = ConvertTo-TextYN $PoolObj.MultiStreamingOptions.Enabled
+                                                'Enable Parallel Processing for Tape Jobs using this Media Pool' = ConvertTo-TextYN $PoolObj.MultiStreamingOptions.Enabled
                                                 'Jobs Pointed to this Media Pool can use up to' = "$($PoolObj.MultiStreamingOptions.NumberOfStreams) Tape Drives Simultaneously"
-                                                'Enable Parrallel Processing of Backup Chains within a Single Tape Job' = ConvertTo-TextYN $PoolObj.MultiStreamingOptions.SplitJobFilesBetweenDrives
+                                                'Enable Parallel Processing of Backup Chains within a Single Tape Job' = ConvertTo-TextYN $PoolObj.MultiStreamingOptions.SplitJobFilesBetweenDrives
                                                 'Use Encryption' = ConvertTo-TextYN $PoolObj.EncryptionOptions.Enabled
                                             }
 
