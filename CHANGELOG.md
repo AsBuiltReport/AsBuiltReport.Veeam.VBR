@@ -12,16 +12,13 @@
   - Retention Sub-Section
   - Options Sub-Section
 
-### Changed
-
-- Updated `RequiredModules` for AsBuiltReport.Core 1.3.0
-
 ### Fixed
 
 - Close [#63](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/63)
 - Fix [#70](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/70)
 - Close [#71](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/71)
 - Resolve [#72](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/72)
+- Fix [#75](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/75)
 
 ## [0.5.5] - 2022-10-02
 
