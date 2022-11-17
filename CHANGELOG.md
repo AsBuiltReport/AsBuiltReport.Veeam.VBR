@@ -4,6 +4,21 @@
 
 ### Added
 
+- Added Cloud Connect Section
+
+### Changed
+
+- Added Option 'EnableGraph' false by default to allow to modify Charts in report
+
+### Fixed
+
+- Close [#78](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/78)
+- Close [#79](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/79)
+
+## [0.6.0] - 2022-10-28
+
+### Added
+
 - Added Infrastructure Hardening section
 - Added per Tape Media Pool configuration information (InfoLevel 2) [#71](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/71)
   - Tape Library Sub-Section

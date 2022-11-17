@@ -62,13 +62,13 @@ function Invoke-AsBuiltReport.Veeam.VBR {
             #---------------------------------------------------------------------------------------------#
             #                            Executive Summary Section                                    #
             #---------------------------------------------------------------------------------------------#
-            Section -Style Heading2 'Executive Summary' {
-                Get-AbrVbrInfrastructureSummary
-                Get-AbrVbrTapeInfraSummary
-                Get-AbrVbrInventorySummary
-                Get-AbrVbrStorageInfraSummary
-                Get-AbrVbrReplInfraSummary
-            }
+            # Section -Style Heading2 'Executive Summary' {
+            #     Get-AbrVbrInfrastructureSummary
+            #     Get-AbrVbrTapeInfraSummary
+            #     Get-AbrVbrInventorySummary
+            #     Get-AbrVbrStorageInfraSummary
+            #     Get-AbrVbrReplInfraSummary
+            # }
             #---------------------------------------------------------------------------------------------#
             #                            Backup Infrastructure Section                                    #
             #---------------------------------------------------------------------------------------------#
@@ -215,6 +215,41 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                         Write-PScriboMessage "Failover Plan InfoLevel set at $($InfoLevel.Replication.FailoverPlan)."
                         if ($InfoLevel.Replication.FailoverPlan -ge 1) {
                             Get-AbrVbrReplFailoverPlan
+                        }
+                    }
+                }
+            }
+            #---------------------------------------------------------------------------------------------#
+            #                                Cloud Connect Section                                        #
+            #---------------------------------------------------------------------------------------------#
+            if ($InfoLevel.CloudConnect.PSObject.Properties.Value -ne 0) {
+                if ((Get-VBRCloudGateway).count -gt 0 -or ((Get-VBRCloudTenant).count -gt 0))  {
+                    Section -Style Heading2 'Cloud Connect' {
+                        Paragraph "The following section provides information about Cloud Connect components from server $(((Get-VBRServerSession).Server))."
+                        BlankLine
+                        Write-PScriboMessage "Cloud Certificate InfoLevel set at $($InfoLevel.CloudConnect.Certificate)."
+                        if ($InfoLevel.CloudConnect.Certificate -ge 1) {
+                            Get-AbrVbrCloudConnectCert
+                        }
+                        Write-PScriboMessage "Cloud Gateway InfoLevel set at $($InfoLevel.CloudConnect.CloudGateway)."
+                        if ($InfoLevel.CloudConnect.CloudGateway -ge 1) {
+                            Get-AbrVbrCloudConnectCG
+                        }
+                        Write-PScriboMessage "Gateway Pools InfoLevel set at $($InfoLevel.CloudConnect.GatewayPools)."
+                        if ($InfoLevel.CloudConnect.GatewayPools -ge 1) {
+                            Get-AbrVbrCloudConnectGP
+                        }
+                        Write-PScriboMessage "Tenants InfoLevel set at $($InfoLevel.CloudConnect.Tenants)."
+                        if ($InfoLevel.CloudConnect.Tenants -ge 1) {
+                            Get-AbrVbrCloudConnectTenant
+                        }
+                        Write-PScriboMessage "Backup Storage InfoLevel set at $($InfoLevel.CloudConnect.BackupStorage)."
+                        if ($InfoLevel.CloudConnect.BackupStorage -ge 1) {
+                            Get-AbrVbrCloudConnectBS
+                        }
+                        Write-PScriboMessage "Backup Storage InfoLevel set at $($InfoLevel.CloudConnect.ReplicaResources)."
+                        if ($InfoLevel.CloudConnect.ReplicaResources -ge 1) {
+                            Get-AbrVbrCloudConnectRR
                         }
                     }
                 }

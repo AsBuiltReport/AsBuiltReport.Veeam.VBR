@@ -10,7 +10,8 @@
     },
     "Options": {
         "BackupServerPort": 9392,
-        "PSDefaultAuthentication": "Default"
+        "PSDefaultAuthentication": "Default",
+        "EnableGraph": false
     },
     "InfoLevel": {
 		"_comment_": "Please refer to the AsBuiltReport project contributing guide for information about how to define InfoLevels.",
@@ -47,6 +48,14 @@
             "FailoverPlan": 1,
             "Replica": 1
         },
+        "CloudConnect": {
+            "Certificate": 1,
+            "CloudGateway": 1,
+            "GatewayPools": 1,
+            "Tenants": 1,
+            "BackupStorage": 1,
+            "ReplicaResources": 1
+        },
         "Jobs": {
             "Backup": 1,
             "Tape": 1,
@@ -75,6 +84,10 @@
         },
         "Security": {
             "BestPractice": true
+        },
+        "CloudConnect": {
+            "Tenants": true,
+            "BackupStorage": true
         }
 
     }

@@ -207,6 +207,17 @@ The table below outlines the default and maximum **InfoLevel** settings for each
 | Replica       |        1        |        2        |
 | FailoverPlan          |        1        |        1        |
 
+The table below outlines the default and maximum **InfoLevel** settings for each Cloud Connect section.
+
+| Sub-Schema   | Default Setting | Maximum Setting |
+|--------------|:---------------:|:---------------:|
+| Certificate       |        1        |        1        |
+| CloudGateway          |        1        |        2        |
+| GatewayPools          |        1        |        1        |
+| Tenants          |        1        |        1        |
+| BackupStorage          |        1        |        1        |
+| ReplicaResources          |        1        |        2        |
+
 The table below outlines the default and maximum **InfoLevel** settings for each Security section.
 
 | Sub-Schema   | Default Setting | Maximum Setting |

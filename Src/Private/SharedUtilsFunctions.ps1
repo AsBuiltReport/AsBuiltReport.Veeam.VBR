@@ -138,7 +138,7 @@ function ConvertTo-FileSizeString {
         default
             {"0 KB"}
         }
-    } # end >> function Format-FileSize
+    } # end
 
 function Get-VeeamNetStat {
     <#
