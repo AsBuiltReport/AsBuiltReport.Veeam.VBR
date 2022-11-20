@@ -107,8 +107,8 @@ function Get-AbrVbrBackupServerInfo {
                     #                       Backup Server Inventory Summary Section                               #
                     #---------------------------------------------------------------------------------------------#
                     try {
-                        Write-PScriboMessage "Infrastructure Backup Server InfoLevel set at $($InfoLevel.Infrastructure.BackupServer)."
-                        if ($InfoLevel.Infrastructure.BackupServer -ge 2) {
+                        Write-PScriboMessage "Hardware Inventory Status set as $($Options.EnableHardwareInventory)."
+                        if ($Options.EnableHardwareInventory) {
                             $BackupServer = Get-VBRServer -Type Local
                             Write-PscriboMessage "Collecting Backup Server Inventory Summary from $($BackupServer.Name)."
                             $HW = Invoke-Command -Session $PssSession -ScriptBlock { Get-ComputerInfo }

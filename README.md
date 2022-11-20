@@ -136,7 +136,8 @@ The **Options** schema allows certain options within the report to be toggled on
 |-----------------|--------------|---------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | BackupServerPort | TCP Port  | 9392    | Used to specify the backup service's custom port.
 | PSDefaultAuthentication | Negotiate/Kerberos  | Default    | Allow to set the value of the PSRemoting authentication method. For Workgroup authentication Negotiate value is required.
-| EnableGraph | true/false  | false    | Used to manipulate the creation of charts.
+| EnableCharts | true/false  | false    | Used to manipulate the creation of charts.
+| EnableHardwareInventory | true/false  | false    | Enable the extraction of Hardware information from the Backup Server/Proxy servers (Windows OS only).
 
 ### InfoLevel
 
@@ -224,7 +225,7 @@ The table below outlines the default and maximum **InfoLevel** settings for each
 
 | Sub-Schema   | Default Setting | Maximum Setting |
 |--------------|:---------------:|:---------------:|
-| Infrastructure       |        1        |        1       |
+| Infrastructure       |        0        |        1       |
 
 ### Healthcheck
 

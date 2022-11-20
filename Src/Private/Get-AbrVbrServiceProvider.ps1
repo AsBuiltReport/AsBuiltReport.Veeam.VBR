@@ -74,8 +74,8 @@ function Get-AbrVbrServiceProvider {
                         $OutObj | Sort-Object -Property 'DNS Name' | Table @TableParams
                         if ($InfoLevel.Infrastructure.ServiceProvider -ge 2) {
                             try {
-                                foreach ($CloudProvider in $CloudProviders) {
-                                    Section -Style Heading4 'Service Providers Configuration' {
+                                Section -Style Heading4 'Service Providers Configuration' {
+                                    foreach ($CloudProvider in $CloudProviders) {
                                         Section -Style Heading5 $CloudProvider.DNSName {
                                             $OutObj = @()
                                             Write-PscriboMessage "Discovered $($CloudProvider.DNSName) Service Provider configuration information."

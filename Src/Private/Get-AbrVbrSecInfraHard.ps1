@@ -168,7 +168,7 @@ function Get-AbrVbrSecInfraHard {
                 $OutObj = @()
                 Write-PscriboMessage "Collecting Enterprise Manager information from $($BackupServer.Name)."
                 $EMInfo = [Veeam.Backup.Core.SBackupOptions]::GetEnterpriseServerInfo()
-                $EMObj = if ($EMInfo) {
+                $EMObj = if ($EMInfo.IsConnected -eq $true) {
                     Section -Style Heading4 "Enterprise Manager Server ($($EMInfo.ServerName.ToString().ToUpper().Split(".")[0]))" {
                         $inObj = [ordered] @{
                             'Server Name' = Switch ($EMInfo.ServerName) {
@@ -286,8 +286,16 @@ function Get-AbrVbrSecInfraHard {
                         $OutObj = @()
                         $inObj = [ordered] @{
                             'Account Lockout Thresholds' = $policyConfigHash.LockoutBadCount
-                            'Account Lockout Duration Age' = $policyConfigHash.LockoutDuration
-                            'Reset account lockout counter after' = $policyConfigHash.ResetLockoutCount
+                            'Account Lockout Duration Age' = Switch ([string]::IsNullOrEmpty($policyConfigHash.LockoutDuration)) {
+                                $true {'-'}
+                                $false {$policyConfigHash.LockoutDuration}
+                                default {'Unknown'}
+                            }
+                            'Reset account lockout counter after' = Switch ([string]::IsNullOrEmpty($policyConfigHash.ResetLockoutCount)) {
+                                $true {'-'}
+                                $false {$policyConfigHash.ResetLockoutCount}
+                                default {'Unknown'}
+                            }
                         }
 
                         $OutObj = [pscustomobject]$inobj
@@ -503,7 +511,7 @@ function Get-AbrVbrSecInfraHard {
                             $BackupProxies = @()
                             $BackupProxies += $ViBackupProxies
                             $BackupProxies += $HvBackupProxies
-                            if ($BackupProxies) {
+                            if ($BackupProxies | Where-Object {$_.Name -ne $BackupServer.Name}) {
                                 Section -Style Heading5 "Backup Proxy Servers" {
                                     foreach ($BackupProxy in $BackupProxies) {
                                         if (($BackupProxie.Host.id.Guid -notin $BackupServer.id.Guid)) {
@@ -556,7 +564,7 @@ function Get-AbrVbrSecInfraHard {
                         }
                         try {
                             $BackupRepos = Get-VBRBackupRepository | Where-Object {$_.Type -eq "WinLocal"}
-                            if ($BackupRepos) {
+                            if ($BackupRepos.Host.Name | Where-Object {$_ -ne $BackupServer.Name}) {
                                 $BRObj = foreach ($BackupRepo in $BackupRepos) {
                                     if ((($BackupRepo.id.Guid -notin $BackupServer.id.Guid) -and ($BackupRepo.id.Guid -notin $BackupProxies.id.Guid))) {
                                         try {
