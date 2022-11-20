@@ -134,8 +134,9 @@ The **Options** schema allows certain options within the report to be toggled on
 
 | Sub-Schema      | Setting      | Default | Description                                                                                                                                                                                 |
 |-----------------|--------------|---------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| BackupServerPort | TCP Port  | 9392    | Used to specify the backup service's custom port
+| BackupServerPort | TCP Port  | 9392    | Used to specify the backup service's custom port.
 | PSDefaultAuthentication | Negotiate/Kerberos  | Default    | Allow to set the value of the PSRemoting authentication method. For Workgroup authentication Negotiate value is required.
+| EnableGraph | true/false  | false    | Used to manipulate the creation of charts.
 
 ### InfoLevel
 
@@ -212,6 +213,7 @@ The table below outlines the default and maximum **InfoLevel** settings for each
 | Sub-Schema   | Default Setting | Maximum Setting |
 |--------------|:---------------:|:---------------:|
 | Certificate       |        1        |        1        |
+| PublicIP       |        1        |        1        |
 | CloudGateway          |        1        |        2        |
 | GatewayPools          |        1        |        1        |
 | Tenants          |        1        |        1        |

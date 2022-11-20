@@ -1,6 +1,6 @@
 # :arrows_clockwise: Veeam VBR As Built Report Changelog
 
-## [0.6.0] - 2022-10-28
+## [0.7.0] - 2022-11-28
 
 ### Added
 

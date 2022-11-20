@@ -58,15 +58,17 @@ function Get-AbrVbrSecInfraHard {
                                     Write-PscriboMessage -IsWarning $_.Exception.Message
                                 }
                             }
-                            $TableParams = @{
-                                Name = "Non-essential software programs - $($BackupServer.Name.ToString().ToUpper().Split(".")[0])"
-                                List = $false
-                                ColumnWidths = 50, 50
+                            if ($OutObj) {
+                                $TableParams = @{
+                                    Name = "Non-essential software programs - $($BackupServer.Name.ToString().ToUpper().Split(".")[0])"
+                                    List = $false
+                                    ColumnWidths = 50, 50
+                                }
+                                if ($Report.ShowTableCaptions) {
+                                    $TableParams['Caption'] = "- $($TableParams.Name)"
+                                }
+                                $OutObj | Sort-Object -Property 'Name' | Table @TableParams
                             }
-                            if ($Report.ShowTableCaptions) {
-                                $TableParams['Caption'] = "- $($TableParams.Name)"
-                            }
-                            $OutObj | Sort-Object -Property 'Name' | Table @TableParams
                         }
                         if ($Unused) {
                             Section -Style Heading4 'Remove Unused Components' {
@@ -793,80 +795,84 @@ function Get-AbrVbrSecInfraHard {
                             Write-PscriboMessage -IsWarning $_.Exception.Message
                         }
                         try {
-                            Section -Style Heading5 'Agent Backup Jobs' {
-                                $OutObj = @()
-                                foreach ($ABkjob in $ABkjobs) {
-                                    try {
-                                        $inObj = [ordered] @{
-                                            'Name' = $ABkjob.Name
-                                            'Enabled Backup File Encryption' = ConvertTo-TextYN $ABkjob.StorageOptions.EncryptionEnabled
-                                            'Encryption Key' = Switch ($ABkjob.StorageOptions.EncryptionEnabled) {
-                                                $false {'None'}
-                                                default {(Get-VBREncryptionKey | Where-Object { $_.id -eq $ABkjob.StorageOptions.EncryptionKey.Id }).Description}
+                            if ($ABkjobs) {
+                                Section -Style Heading5 'Agent Backup Jobs' {
+                                    $OutObj = @()
+                                    foreach ($ABkjob in $ABkjobs) {
+                                        try {
+                                            $inObj = [ordered] @{
+                                                'Name' = $ABkjob.Name
+                                                'Enabled Backup File Encryption' = ConvertTo-TextYN $ABkjob.StorageOptions.EncryptionEnabled
+                                                'Encryption Key' = Switch ($ABkjob.StorageOptions.EncryptionEnabled) {
+                                                    $false {'None'}
+                                                    default {(Get-VBREncryptionKey | Where-Object { $_.id -eq $ABkjob.StorageOptions.EncryptionKey.Id }).Description}
+                                                }
+                                            }
+
+                                            $OutObj += [pscustomobject]$inobj
+
+                                            if ($HealthCheck.Security.BestPractice) {
+                                                $OutObj | Where-Object { $_.'Enabled Backup File Encryption' -like 'No'} | Set-Style -Style Warning -Property 'Enabled Backup File Encryption'
                                             }
                                         }
-
-                                        $OutObj += [pscustomobject]$inobj
-
-                                        if ($HealthCheck.Security.BestPractice) {
-                                            $OutObj | Where-Object { $_.'Enabled Backup File Encryption' -like 'No'} | Set-Style -Style Warning -Property 'Enabled Backup File Encryption'
+                                        catch {
+                                            Write-PscriboMessage -IsWarning $_.Exception.Message
                                         }
                                     }
-                                    catch {
-                                        Write-PscriboMessage -IsWarning $_.Exception.Message
+
+                                    $TableParams = @{
+                                        Name = "Agent Backup Jobs - $VeeamBackupServer"
+                                        List = $false
+                                        ColumnWidths = 34, 33, 33
                                     }
-                                }
 
-                                $TableParams = @{
-                                    Name = "Agent Backup Jobs - $VeeamBackupServer"
-                                    List = $false
-                                    ColumnWidths = 34, 33, 33
+                                    if ($Report.ShowTableCaptions) {
+                                        $TableParams['Caption'] = "- $($TableParams.Name)"
+                                    }
+                                    $OutObj | Sort-Object -Property 'Name' | Table @TableParams
                                 }
-
-                                if ($Report.ShowTableCaptions) {
-                                    $TableParams['Caption'] = "- $($TableParams.Name)"
-                                }
-                                $OutObj | Sort-Object -Property 'Name' | Table @TableParams
                             }
                         }
                         catch {
                             Write-PscriboMessage -IsWarning $_.Exception.Message
                         }
                         try {
-                            Section -Style Heading4 'File Share Backup Jobs' {
-                                $OutObj = @()
-                                foreach ($FSjob in $FSjobs) {
-                                    try {
-                                        $inObj = [ordered] @{
-                                            'Name' = $FSjob.Name
-                                            'Enabled Backup File Encryption' = ConvertTo-TextYN $FSjob.Options.BackupStorageOptions.StorageEncryptionEnabled
-                                            'Encryption Key' = Switch ($FSjob.Options.BackupStorageOptions.StorageEncryptionEnabled) {
-                                                $false {'None'}
-                                                default {(Get-VBREncryptionKey | Where-Object { $_.id -eq $FSjob.Info.PwdKeyId }).Description}
+                            if ($FSjobs) {
+                                Section -Style Heading4 'File Share Backup Jobs' {
+                                    $OutObj = @()
+                                    foreach ($FSjob in $FSjobs) {
+                                        try {
+                                            $inObj = [ordered] @{
+                                                'Name' = $FSjob.Name
+                                                'Enabled Backup File Encryption' = ConvertTo-TextYN $FSjob.Options.BackupStorageOptions.StorageEncryptionEnabled
+                                                'Encryption Key' = Switch ($FSjob.Options.BackupStorageOptions.StorageEncryptionEnabled) {
+                                                    $false {'None'}
+                                                    default {(Get-VBREncryptionKey | Where-Object { $_.id -eq $FSjob.Info.PwdKeyId }).Description}
+                                                }
+                                            }
+
+                                            $OutObj += [pscustomobject]$inobj
+
+                                            if ($HealthCheck.Security.BestPractice) {
+                                                $OutObj | Where-Object { $_.'Enabled Backup File Encryption' -like 'No'} | Set-Style -Style Warning -Property 'Enabled Backup File Encryption'
                                             }
                                         }
-
-                                        $OutObj += [pscustomobject]$inobj
-
-                                        if ($HealthCheck.Security.BestPractice) {
-                                            $OutObj | Where-Object { $_.'Enabled Backup File Encryption' -like 'No'} | Set-Style -Style Warning -Property 'Enabled Backup File Encryption'
+                                        catch {
+                                            Write-PscriboMessage -IsWarning $_.Exception.Message
                                         }
                                     }
-                                    catch {
-                                        Write-PscriboMessage -IsWarning $_.Exception.Message
+
+                                    $TableParams = @{
+                                        Name = "File Share Backup Jobs - $VeeamBackupServer"
+                                        List = $false
+                                        ColumnWidths = 34, 33, 33
                                     }
-                                }
 
-                                $TableParams = @{
-                                    Name = "File Share Backup Jobs - $VeeamBackupServer"
-                                    List = $false
-                                    ColumnWidths = 34, 33, 33
+                                    if ($Report.ShowTableCaptions) {
+                                        $TableParams['Caption'] = "- $($TableParams.Name)"
+                                    }
+                                    $OutObj | Sort-Object -Property 'Name' | Table @TableParams
                                 }
-
-                                if ($Report.ShowTableCaptions) {
-                                    $TableParams['Caption'] = "- $($TableParams.Name)"
-                                }
-                                $OutObj | Sort-Object -Property 'Name' | Table @TableParams
                             }
                         }
                         catch {

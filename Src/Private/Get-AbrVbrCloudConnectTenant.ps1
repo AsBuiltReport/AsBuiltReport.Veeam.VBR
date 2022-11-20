@@ -6,7 +6,7 @@ function Get-AbrVbrCloudConnectTenant {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.5.3
+        Version:        0.7.0
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -26,259 +26,312 @@ function Get-AbrVbrCloudConnectTenant {
 
     process {
         try {
-            if ((Get-VBRInstalledLicense | Where-Object {$_.CloudConnect -in @("Enterprise")}) -and (Get-VBRCloudTenant).count -gt 0) {
-                Section -Style Heading3 'Tenants' {
-                    Paragraph "The following table provides status information about Cloud Connect Tenants."
-                    BlankLine
-                    $CloudObjects = Get-VBRCloudTenant | Sort-Object -Property Name
-                    $OutObj = @()
-                    foreach ($CloudObject in $CloudObjects) {
-                        try {
-                            Write-PscriboMessage "Discovered $($CloudObject.Name) Cloud Tenants information."
-                            $inObj = [ordered] @{
-                                'Name' = $CloudObject.Name
-                                'Type' = Switch ($CloudObject.Type) {
-                                    'Ad' {'Active Directory'}
-                                    'General' {'Standalone'}
-                                    default {'Unknown'}
+            if (Get-VBRInstalledLicense | Where-Object {$_.CloudConnect -in @("Enterprise")}) {
+                if ((Get-VBRCloudTenant).count -gt 0) {
+                    Section -Style Heading3 'Tenants' {
+                        Paragraph "The following table provides status information about Cloud Connect Tenants."
+                        BlankLine
+                        $CloudObjects = Get-VBRCloudTenant | Sort-Object -Property Name
+                        $OutObj = @()
+                        foreach ($CloudObject in $CloudObjects) {
+                            try {
+                                Write-PscriboMessage "Discovered $($CloudObject.Name) Cloud Tenants information."
+                                $inObj = [ordered] @{
+                                    'Name' = $CloudObject.Name
+                                    'Type' = Switch ($CloudObject.Type) {
+                                        'Ad' {'Active Directory'}
+                                        'General' {'Standalone'}
+                                        default {'Unknown'}
+                                    }
+                                    'Last Active' = $CloudObject.LastActive
+                                    'Last Result' = $CloudObject.LastResult
                                 }
-                                'Last Active' = $CloudObject.LastActive
-                                'Last Result' = $CloudObject.LastResult
+
+                                $OutObj += [pscustomobject]$inobj
                             }
-
-                            $OutObj += [pscustomobject]$inobj
+                            catch {
+                                Write-PscriboMessage -IsWarning $_.Exception.Message
+                            }
                         }
-                        catch {
-                            Write-PscriboMessage -IsWarning $_.Exception.Message
+
+                        if ($HealthCheck.CloudConnect.Tenants) {
+                            $OutObj | Where-Object { $_.'Last Result' -ne 'Success'} | Set-Style -Style Warning -Property 'Last Result'
                         }
-                    }
 
-                    if ($HealthCheck.CloudConnect.Tenants) {
-                        $OutObj | Where-Object { $_.'Last Result' -ne 'Success'} | Set-Style -Style Warning -Property 'Last Result'
-                    }
+                        $TableParams = @{
+                            Name = "Tenants Summary - $($VeeamBackupServer)"
+                            List = $false
+                            ColumnWidths = 40, 20, 25, 15
+                        }
 
-                    $TableParams = @{
-                        Name = "Tenants Summary - $($VeeamBackupServer)"
-                        List = $false
-                        ColumnWidths = 40, 20, 25, 15
-                    }
-
-                    if ($Report.ShowTableCaptions) {
-                        $TableParams['Caption'] = "- $($TableParams.Name)"
-                    }
-                    $OutObj | Sort-Object -Property 'Name' | Table @TableParams
-                    #---------------------------------------------------------------------------------------------#
-                    #                            Tape Infrastructure Section                                      #
-                    #---------------------------------------------------------------------------------------------#
-                    try {
-                        Section -Style Heading4 'Tenants Configuration' {
-                            Paragraph "The following section provides detailed configuration information about Cloud Connect Tenants."
-                            BlankLine
-                            foreach ($CloudObject in $CloudObjects) {
-                                Section -Style Heading5 $CloudObject.Name {
-                                    $OutObj = @()
-                                    try {
-                                        Section -ExcludeFromTOC -Style NOTOCHeading6 'General Information' {
-                                            Write-PscriboMessage "Discovered $($CloudObject.Name) Cloud Tenants information."
-                                            $inObj = [ordered] @{
-                                                'Name' = $CloudObject.Name
-                                                'Type' = Switch ($CloudObject.Type) {
-                                                    'Ad' {'Active Directory'}
-                                                    'General' {'Standalone'}
-                                                    default {'Unknown'}
-                                                }
-                                                'Status' = Switch ($CloudObject.Enabled) {
-                                                    'True' {'Enabled'}
-                                                    'False' {'Disabled'}
-                                                    default {'Unknown'}
-                                                }
-                                                'Expiration Date' = Switch ([string]::IsNullOrEmpty($CloudObject.LeaseExpirationDate)) {
-                                                    $true {'Never'}
-                                                    $false {$CloudObject.LeaseExpirationDate.ToLongDateString()}
-                                                    default {'-'}
-                                                }
-                                                'Backup Storage (Cloud Backup Repository)' = ConvertTo-TextYN $CloudObject.ResourcesEnabled
-                                                'Replication Resource (Cloud Host)' = ConvertTo-TextYN $CloudObject.ReplicationResourcesEnabled
-                                                'Description' = $CloudObject.Description
-                                            }
-
-                                            if ($CloudObject.Type -eq 'Ad') {
-                                                $inObj.add('Domain',$CloudObject.DomainUrl)
-                                                $inObj.add('Domain Username',$CloudObject.Name)
-                                            }
-
-                                            $OutObj = [pscustomobject]$inobj
-
-                                            $TableParams = @{
-                                                Name = "Tenant - $($CloudObject.Name)"
-                                                List = $true
-                                                ColumnWidths = 40, 60
-                                            }
-
-                                            if ($Report.ShowTableCaptions) {
-                                                $TableParams['Caption'] = "- $($TableParams.Name)"
-                                            }
-                                            $OutObj | Sort-Object -Property 'Name' | Table @TableParams
-                                        }
+                        if ($Report.ShowTableCaptions) {
+                            $TableParams['Caption'] = "- $($TableParams.Name)"
+                        }
+                        $OutObj | Sort-Object -Property 'Name' | Table @TableParams
+                        #---------------------------------------------------------------------------------------------#
+                        #                            Tape Infrastructure Section                                      #
+                        #---------------------------------------------------------------------------------------------#
+                        try {
+                            Section -Style Heading4 'Tenants Configuration' {
+                                Paragraph "The following section provides detailed configuration information about Cloud Connect Tenants."
+                                BlankLine
+                                foreach ($CloudObject in $CloudObjects) {
+                                    Section -Style Heading5 $CloudObject.Name {
+                                        $OutObj = @()
                                         try {
-                                            Section -ExcludeFromTOC -Style NOTOCHeading6 'Bandwidth' {
-                                                $OutObj = @()
+                                            Section -ExcludeFromTOC -Style NOTOCHeading6 'General Information' {
+                                                Write-PscriboMessage "Discovered $($CloudObject.Name) Cloud Tenants information."
+                                                $inObj = [ordered] @{
+                                                    'Name' = $CloudObject.Name
+                                                    'Type' = Switch ($CloudObject.Type) {
+                                                        'Ad' {'Active Directory'}
+                                                        'General' {'Standalone'}
+                                                        default {'Unknown'}
+                                                    }
+                                                    'Status' = Switch ($CloudObject.Enabled) {
+                                                        'True' {'Enabled'}
+                                                        'False' {'Disabled'}
+                                                        default {'Unknown'}
+                                                    }
+                                                    'Expiration Date' = Switch ([string]::IsNullOrEmpty($CloudObject.LeaseExpirationDate)) {
+                                                        $true {'Never'}
+                                                        $false {$CloudObject.LeaseExpirationDate.ToLongDateString()}
+                                                        default {'-'}
+                                                    }
+                                                    'Backup Storage (Cloud Backup Repository)' = ConvertTo-TextYN $CloudObject.ResourcesEnabled
+                                                    'Replication Resource (Cloud Host)' = ConvertTo-TextYN $CloudObject.ReplicationResourcesEnabled
+                                                    'Description' = $CloudObject.Description
+                                                }
+
+                                                if ($CloudObject.Type -eq 'Ad') {
+                                                    $inObj.add('Domain',$CloudObject.DomainUrl)
+                                                    $inObj.add('Domain Username',$CloudObject.Name)
+                                                }
+
+                                                $OutObj = [pscustomobject]$inobj
+
+                                                $TableParams = @{
+                                                    Name = "Tenant - $($CloudObject.Name)"
+                                                    List = $true
+                                                    ColumnWidths = 40, 60
+                                                }
+
+                                                if ($Report.ShowTableCaptions) {
+                                                    $TableParams['Caption'] = "- $($TableParams.Name)"
+                                                }
+                                                $OutObj | Sort-Object -Property 'Name' | Table @TableParams
+                                            }
+                                            try {
+                                                Section -ExcludeFromTOC -Style NOTOCHeading6 'Bandwidth' {
+                                                    $OutObj = @()
+                                                    try {
+                                                        Write-PscriboMessage "Discovered $($CloudObject.Name) Bandwidth information."
+                                                        $inObj = [ordered] @{
+                                                            'Max Concurrent Task' = $CloudObject.MaxConcurrentTask
+                                                        }
+
+                                                        if ($CloudObject.ThrottlingEnabled) {
+                                                            $inObj.add('Limit network traffic from this tenant?', (ConvertTo-TextYN $CloudObject.ThrottlingEnabled))
+                                                            Switch ($CloudObject.ThrottlingUnit) {
+                                                                'MbytePerSec' {$inObj.add('Throttling network traffic to',"$($CloudObject.ThrottlingValue) MB/s")}
+                                                                'KbytePerSec' {$inObj.add('Throttling network traffic to',"$($CloudObject.ThrottlingValue) KB/s")}
+                                                                'MbitPerSec' {$inObj.add('Throttling network traffic to',"$($CloudObject.ThrottlingValue) Mbps")}
+                                                            }
+                                                        }
+
+                                                        if ($CloudObject.GatewaySelectionType -eq 'StandaloneGateways') {
+                                                            $inObj.add('Gateway Pool', 'Automatic')
+                                                        } else {
+                                                            $GatewayPool = Switch ([string]::IsNullOrEmpty($CloudObject.GatewayPool.Name)) {
+                                                                $true {'-'}
+                                                                $false {$CloudObject.GatewayPool.Name}
+                                                                default {'Unknown'}
+                                                            }
+                                                            $inObj.add('Gateway Type', 'Gateway Pool')
+                                                            $inObj.add('Gateway Pool', $GatewayPool)
+                                                            $inObj.add('Gateway Failover', (ConvertTo-TextYN $CloudObject.GatewayFailoverEnabled))
+                                                        }
+
+                                                        $OutObj = [pscustomobject]$inobj
+
+                                                        $TableParams = @{
+                                                            Name = "Bandwidth - $($CloudObject.Name)"
+                                                            List = $true
+                                                            ColumnWidths = 40, 60
+                                                        }
+
+                                                        if ($Report.ShowTableCaptions) {
+                                                            $TableParams['Caption'] = "- $($TableParams.Name)"
+                                                        }
+                                                        $OutObj | Table @TableParams
+                                                    }
+                                                    catch {
+                                                        Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                    }
+                                                }
+                                            }
+                                            catch {
+                                                Write-PscriboMessage -IsWarning $_.Exception.Message
+                                            }
+                                            if ($CloudObject.ResourcesEnabled -and $CloudObject.Resources) {
                                                 try {
-                                                    Write-PscriboMessage "Discovered $($CloudObject.Name) Bandwidth information."
-                                                    $inObj = [ordered] @{
-                                                        'Max Concurrent Task' = $CloudObject.MaxConcurrentTask
-                                                    }
-
-                                                    if ($CloudObject.ThrottlingEnabled) {
-                                                        $inObj.add('Limit network traffic from this tenant?', (ConvertTo-TextYN $CloudObject.ThrottlingEnabled))
-                                                        Switch ($CloudObject.ThrottlingUnit) {
-                                                            'MbytePerSec' {$inObj.add('Throttling network traffic to',"$($CloudObject.ThrottlingValue) MB/s")}
-                                                            'KbytePerSec' {$inObj.add('Throttling network traffic to',"$($CloudObject.ThrottlingValue) KB/s")}
-                                                            'MbitPerSec' {$inObj.add('Throttling network traffic to',"$($CloudObject.ThrottlingValue) Mbps")}
-                                                        }
-                                                    }
-
-                                                    if ($CloudObject.GatewaySelectionType -eq 'StandaloneGateways') {
-                                                        $inObj.add('Gateway Pool', 'Automatic')
-                                                    } else {
-                                                        $GatewayPool = Switch ([string]::IsNullOrEmpty($CloudObject.GatewayPool.Name)) {
-                                                            $true {'-'}
-                                                            $false {$CloudObject.GatewayPool.Name}
-                                                            default {'Unknown'}
-                                                        }
-                                                        $inObj.add('Gateway Type', 'Gateway Pool')
-                                                        $inObj.add('Gateway Pool', $GatewayPool)
-                                                        $inObj.add('Gateway Failover', (ConvertTo-TextYN $CloudObject.GatewayFailoverEnabled))
-                                                    }
-
-                                                    $OutObj = [pscustomobject]$inobj
-
-                                                    $TableParams = @{
-                                                        Name = "Bandwidth - $($CloudObject.Name)"
-                                                        List = $true
-                                                        ColumnWidths = 40, 60
-                                                    }
-
-                                                    if ($Report.ShowTableCaptions) {
-                                                        $TableParams['Caption'] = "- $($TableParams.Name)"
-                                                    }
-                                                    $OutObj | Table @TableParams
-                                                }
-                                                catch {
-                                                    Write-PscriboMessage -IsWarning $_.Exception.Message
-                                                }
-                                            }
-                                        }
-                                        catch {
-                                            Write-PscriboMessage -IsWarning $_.Exception.Message
-                                        }
-                                        if ($CloudObject.ResourcesEnabled -and $CloudObject.Resources) {
-                                            try {
-                                                Section -ExcludeFromTOC -Style NOTOCHeading6 'Backup Resources' {
-                                                    $OutObj = @()
-                                                    foreach ($CloudBackupRepo in $CloudObject.Resources) {
-                                                        try {
-                                                            Write-PscriboMessage "Discovered $($CloudBackupRepo.RepositoryFriendlyName) Backup Resources information."
-                                                            $inObj = [ordered] @{
-                                                                'Repository' = $CloudBackupRepo.Repository.Name
-                                                                'Friendly Name' = $CloudBackupRepo.RepositoryFriendlyName
-                                                                'Quota' = "$([math]::Round($CloudBackupRepo.RepositoryQuota / 1Kb, 2)) GB"
-                                                                'Quota Path' = $CloudBackupRepo.RepositoryQuotaPath
-                                                                'Use Wan Acceleration' = ConvertTo-TextYN $CloudBackupRepo.WanAccelerationEnabled
-                                                            }
-
-                                                            if ($CloudBackupRepo.WanAccelerationEnabled) {
-                                                                $inObj.add('Wan Accelerator', ($CloudBackupRepo.WanAccelerator).Name)
-                                                            }
-                                                            if ($CloudObject.BackupProtectionEnabled) {
-                                                                $inObj.add('Keep deleted backup file for', "$($CloudObject.BackupProtectionPeriod) days")
-                                                            }
-
-                                                            $OutObj = [pscustomobject]$inobj
-
-                                                            $TableParams = @{
-                                                                Name = "Backup Resources - $($CloudBackupRepo.RepositoryFriendlyName)"
-                                                                List = $true
-                                                                ColumnWidths = 40, 60
-                                                            }
-
-                                                            if ($Report.ShowTableCaptions) {
-                                                                $TableParams['Caption'] = "- $($TableParams.Name)"
-                                                            }
-                                                            $OutObj | Table @TableParams
-                                                        }
-                                                        catch {
-                                                            Write-PscriboMessage -IsWarning $_.Exception.Message
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                            catch {
-                                                Write-PscriboMessage -IsWarning $_.Exception.Message
-                                            }
-                                        }
-                                        if ($CloudObject.ReplicationResourcesEnabled -and $CloudObject.ReplicationResources.HardwarePlanOptions) {
-                                            try {
-                                                Section -ExcludeFromTOC -Style NOTOCHeading6 'Replication Resources' {
-                                                    $OutObj = @()
-                                                    foreach ($CloudRepliRes in $CloudObject.ReplicationResources) {
-                                                        try {
-                                                            Write-PscriboMessage "Discovered $($CloudRepliRes.RepositoryFriendlyName) Replication Resources information."
-                                                            $inObj = [ordered] @{
-                                                                'Hardware Plans' = (Get-VBRCloudHardwarePlan  | Where-Object {$_.SubscribedTenantId -contains $CloudObject.Id}).Name -join ', '
-                                                                'Use Veeam Network Extension Capabilities during Partial and Full Site Failover' = ConvertTo-TextYN $CloudRepliRes.NetworkFailoverResourcesEnabled
-                                                            }
-
-                                                            $OutObj = [pscustomobject]$inobj
-
-                                                            $TableParams = @{
-                                                                Name = "Replication Resources - $($CloudObject.Name)"
-                                                                List = $true
-                                                                ColumnWidths = 40, 60
-                                                            }
-
-                                                            if ($Report.ShowTableCaptions) {
-                                                                $TableParams['Caption'] = "- $($TableParams.Name)"
-                                                            }
-                                                            $OutObj | Table @TableParams
-                                                        }
-                                                        catch {
-                                                            Write-PscriboMessage -IsWarning $_.Exception.Message
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                            catch {
-                                                Write-PscriboMessage -IsWarning $_.Exception.Message
-                                            }
-                                        }
-                                        if ($CloudObject.ReplicationResources.NetworkFailoverResourcesEnabled) {
-                                            try {
-                                                $TenantNetworkAppliances = Get-VBRCloudTenantNetworkAppliance -Tenant $CloudObject
-                                                if ($TenantNetworkAppliances) {
-                                                    Section -ExcludeFromTOC -Style NOTOCHeading6 'Network Extension' {
+                                                    Section -ExcludeFromTOC -Style NOTOCHeading6 'Backup Resources' {
                                                         $OutObj = @()
-                                                        foreach ($TenantNetworkAppliance in $TenantNetworkAppliances) {
+                                                        foreach ($CloudBackupRepo in $CloudObject.Resources) {
                                                             try {
-                                                                Write-PscriboMessage "Discovered $($TenantNetworkAppliance.Name) Network Extension information."
+                                                                Write-PscriboMessage "Discovered $($CloudBackupRepo.RepositoryFriendlyName) Backup Resources information."
                                                                 $inObj = [ordered] @{
-                                                                    'Name' = $TenantNetworkAppliance.Name
-                                                                    'Platform' = $TenantNetworkAppliance.Platform
-                                                                    'Hardware Plan' = (Get-VBRCloudHardwarePlan -Id $TenantNetworkAppliance.HardwarePlanId).Name
-                                                                    'Production Network' = $TenantNetworkAppliance.ProductionNetwork.Name
-                                                                    'Obtain Ip Address Automatically' = ConvertTo-TextYN $TenantNetworkAppliance.ObtainIpAddressAutomatically
+                                                                    'Repository' = $CloudBackupRepo.Repository.Name
+                                                                    'Friendly Name' = $CloudBackupRepo.RepositoryFriendlyName
+                                                                    'Quota' = "$([math]::Round($CloudBackupRepo.RepositoryQuota / 1Kb, 2)) GB"
+                                                                    'Quota Path' = $CloudBackupRepo.RepositoryQuotaPath
+                                                                    'Use Wan Acceleration' = ConvertTo-TextYN $CloudBackupRepo.WanAccelerationEnabled
                                                                 }
 
-                                                                if (-Not $TenantNetworkAppliance.ObtainIpAddressAutomatically) {
-                                                                    $inObj.add('Ip Address', $TenantNetworkAppliance.IpAddress)
-                                                                    $inObj.add('Subnet Mask', $TenantNetworkAppliance.SubnetMask)
-                                                                    $inObj.add('Default Gateway', $TenantNetworkAppliance.DefaultGateway)
+                                                                if ($CloudBackupRepo.WanAccelerationEnabled) {
+                                                                    $inObj.add('Wan Accelerator', ($CloudBackupRepo.WanAccelerator).Name)
+                                                                }
+                                                                if ($CloudObject.BackupProtectionEnabled) {
+                                                                    $inObj.add('Keep deleted backup file for', "$($CloudObject.BackupProtectionPeriod) days")
                                                                 }
 
                                                                 $OutObj = [pscustomobject]$inobj
 
                                                                 $TableParams = @{
-                                                                    Name = "Network Extension - $($CloudObject.Name)"
+                                                                    Name = "Backup Resources - $($CloudBackupRepo.RepositoryFriendlyName)"
+                                                                    List = $true
+                                                                    ColumnWidths = 40, 60
+                                                                }
+
+                                                                if ($Report.ShowTableCaptions) {
+                                                                    $TableParams['Caption'] = "- $($TableParams.Name)"
+                                                                }
+                                                                $OutObj | Table @TableParams
+                                                            }
+                                                            catch {
+                                                                Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                                catch {
+                                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                }
+                                            }
+                                            if ($CloudObject.ReplicationResourcesEnabled -and $CloudObject.ReplicationResources.HardwarePlanOptions) {
+                                                try {
+                                                    Section -ExcludeFromTOC -Style NOTOCHeading6 'Replication Resources' {
+                                                        $OutObj = @()
+                                                        foreach ($CloudRepliRes in $CloudObject.ReplicationResources) {
+                                                            try {
+                                                                Write-PscriboMessage "Discovered $($CloudRepliRes.RepositoryFriendlyName) Replication Resources information."
+                                                                $inObj = [ordered] @{
+                                                                    'Hardware Plans' = (Get-VBRCloudHardwarePlan  | Where-Object {$_.SubscribedTenantId -contains $CloudObject.Id}).Name -join ', '
+                                                                    'Use Veeam Network Extension Capabilities during Partial and Full Site Failover' = ConvertTo-TextYN $CloudRepliRes.NetworkFailoverResourcesEnabled
+                                                                }
+
+                                                                $OutObj = [pscustomobject]$inobj
+
+                                                                $TableParams = @{
+                                                                    Name = "Replication Resources - $($CloudObject.Name)"
+                                                                    List = $true
+                                                                    ColumnWidths = 40, 60
+                                                                }
+
+                                                                if ($Report.ShowTableCaptions) {
+                                                                    $TableParams['Caption'] = "- $($TableParams.Name)"
+                                                                }
+                                                                $OutObj | Table @TableParams
+                                                            }
+                                                            catch {
+                                                                Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                                catch {
+                                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                }
+                                            }
+                                            if ($CloudObject.ReplicationResources.NetworkFailoverResourcesEnabled) {
+                                                try {
+                                                    $TenantNetworkAppliances = Get-VBRCloudTenantNetworkAppliance -Tenant $CloudObject
+                                                    if ($TenantNetworkAppliances) {
+                                                        Section -ExcludeFromTOC -Style NOTOCHeading6 'Network Extension' {
+                                                            $OutObj = @()
+                                                            foreach ($TenantNetworkAppliance in $TenantNetworkAppliances) {
+                                                                try {
+                                                                    Write-PscriboMessage "Discovered $($TenantNetworkAppliance.Name) Network Extension information."
+                                                                    $inObj = [ordered] @{
+                                                                        'Name' = $TenantNetworkAppliance.Name
+                                                                        'Platform' = $TenantNetworkAppliance.Platform
+                                                                        'Hardware Plan' = (Get-VBRCloudHardwarePlan -Id $TenantNetworkAppliance.HardwarePlanId).Name
+                                                                        'Production Network' = $TenantNetworkAppliance.ProductionNetwork.Name
+                                                                        'Obtain Ip Address Automatically' = ConvertTo-TextYN $TenantNetworkAppliance.ObtainIpAddressAutomatically
+                                                                    }
+
+                                                                    if (-Not $TenantNetworkAppliance.ObtainIpAddressAutomatically) {
+                                                                        $inObj.add('Ip Address', $TenantNetworkAppliance.IpAddress)
+                                                                        $inObj.add('Subnet Mask', $TenantNetworkAppliance.SubnetMask)
+                                                                        $inObj.add('Default Gateway', $TenantNetworkAppliance.DefaultGateway)
+                                                                    }
+
+                                                                    $OutObj = [pscustomobject]$inobj
+
+                                                                    $TableParams = @{
+                                                                        Name = "Network Extension - $($CloudObject.Name)"
+                                                                        List = $true
+                                                                        ColumnWidths = 40, 60
+                                                                    }
+
+                                                                    if ($Report.ShowTableCaptions) {
+                                                                        $TableParams['Caption'] = "- $($TableParams.Name)"
+                                                                    }
+                                                                    $OutObj | Table @TableParams
+                                                                }
+                                                                catch {
+                                                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                                catch {
+                                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                }
+                                            }
+                                            try {
+                                                $CloudSubTenants = Get-VBRCloudSubTenant | Where-Object {$_.TenantId -eq $CloudObject.Id}
+                                                if ($CloudSubTenants) {
+                                                    Section -Style Heading6 'Sub-Tenants' {
+                                                        $OutObj = @()
+                                                        foreach ($CloudSubTenant in $CloudSubTenants) {
+                                                            try {
+                                                                Write-PscriboMessage "Discovered $($CloudSubTenant.Name) Subtenant information."
+                                                                $inObj = [ordered] @{
+                                                                    'Name' = $CloudSubTenant.Name
+                                                                    'Type' = $CloudSubTenant.Type
+                                                                    'Mode' = $CloudSubTenant.Mode
+                                                                    'Repository Name' = $CloudSubTenant.Resources.RepositoryFriendlyName
+                                                                    'Quota' = "$([math]::Round($CloudSubTenant.Resources.RepositoryQuota / 1Kb, 2)) GB"
+                                                                    'Quota Path' = $CloudSubTenant.Resources.RepositoryQuotaPath
+                                                                    'Used Space %' = $CloudSubTenant.Resources.UsedSpacePercentage
+                                                                    'Status' = Switch ($CloudSubTenant.Enabled) {
+                                                                        'True' {'Enabled'}
+                                                                        'False' {'Disabled'}
+                                                                        default {'-'}
+                                                                    }
+                                                                }
+
+                                                                $OutObj = [pscustomobject]$inobj
+
+                                                                if ($HealthCheck.CloudConnect.Tenants) {
+                                                                    $OutObj | Where-Object { $_.'Used Space %' -gt 85} | Set-Style -Style Warning -Property 'Used Space %'
+                                                                    $OutObj | Where-Object { $_.'Status' -eq 'Disabled'} | Set-Style -Style Warning -Property 'Status'
+                                                                }
+
+                                                                $TableParams = @{
+                                                                    Name = "Subtenant - $($CloudSubTenant.Name)"
                                                                     List = $true
                                                                     ColumnWidths = 40, 60
                                                                 }
@@ -299,67 +352,16 @@ function Get-AbrVbrCloudConnectTenant {
                                                 Write-PscriboMessage -IsWarning $_.Exception.Message
                                             }
                                         }
-                                        try {
-                                            $CloudSubTenants = Get-VBRCloudSubTenant | Where-Object {$_.TenantId -eq $CloudObject.Id}
-                                            if ($CloudSubTenants) {
-                                                Section -Style Heading6 'Sub-Tenants' {
-                                                    $OutObj = @()
-                                                    foreach ($CloudSubTenant in $CloudSubTenants) {
-                                                        try {
-                                                            Write-PscriboMessage "Discovered $($CloudSubTenant.Name) Subtenant information."
-                                                            $inObj = [ordered] @{
-                                                                'Name' = $CloudSubTenant.Name
-                                                                'Type' = $CloudSubTenant.Type
-                                                                'Mode' = $CloudSubTenant.Mode
-                                                                'Repository Name' = $CloudSubTenant.Resources.RepositoryFriendlyName
-                                                                'Quota' = "$([math]::Round($CloudSubTenant.Resources.RepositoryQuota / 1Kb, 2)) GB"
-                                                                'Quota Path' = $CloudSubTenant.Resources.RepositoryQuotaPath
-                                                                'Used Space %' = $CloudSubTenant.Resources.UsedSpacePercentage
-                                                                'Status' = Switch ($CloudSubTenant.Enabled) {
-                                                                    'True' {'Enabled'}
-                                                                    'False' {'Disabled'}
-                                                                    default {'-'}
-                                                                }
-                                                            }
-
-                                                            $OutObj = [pscustomobject]$inobj
-
-                                                            if ($HealthCheck.CloudConnect.Tenants) {
-                                                                $OutObj | Where-Object { $_.'Used Space %' -gt 85} | Set-Style -Style Warning -Property 'Used Space %'
-                                                                $OutObj | Where-Object { $_.'Status' -eq 'Disabled'} | Set-Style -Style Warning -Property 'Status'
-                                                            }
-
-                                                            $TableParams = @{
-                                                                Name = "Subtenant - $($CloudSubTenant.Name)"
-                                                                List = $true
-                                                                ColumnWidths = 40, 60
-                                                            }
-
-                                                            if ($Report.ShowTableCaptions) {
-                                                                $TableParams['Caption'] = "- $($TableParams.Name)"
-                                                            }
-                                                            $OutObj | Table @TableParams
-                                                        }
-                                                        catch {
-                                                            Write-PscriboMessage -IsWarning $_.Exception.Message
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
                                         catch {
                                             Write-PscriboMessage -IsWarning $_.Exception.Message
                                         }
                                     }
-                                    catch {
-                                        Write-PscriboMessage -IsWarning $_.Exception.Message
-                                    }
                                 }
                             }
                         }
-                    }
-                    catch {
-                        Write-PscriboMessage -IsWarning $_.Exception.Message
+                        catch {
+                            Write-PscriboMessage -IsWarning $_.Exception.Message
+                        }
                     }
                 }
             }

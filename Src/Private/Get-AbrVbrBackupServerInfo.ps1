@@ -35,7 +35,6 @@ function Get-AbrVbrBackupServerInfo {
                             $CimSession = New-CimSession $BackupServer.Name -Credential $Credential -Authentication $Options.PSDefaultAuthentication
                             $PssSession = New-PSSession $BackupServer.Name -Credential $Credential -Authentication $Options.PSDefaultAuthentication
                             $SecurityOptions = Get-VBRSecurityOptions
-                            $CloudConnectStatus = Get-VBRCloudInfrastructureState
                             Write-PscriboMessage "Collecting Backup Server information from $($BackupServer.Name)."
                             try {
                                 $VeeamVersion = Invoke-Command -Session $PssSession -ErrorAction SilentlyContinue -ScriptBlock { get-childitem -recurse HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall | get-itemproperty | Where-Object { $_.DisplayName  -match 'Veeam Backup & Replication Server' } | Select-Object -Property DisplayVersion }
@@ -76,11 +75,6 @@ function Get-AbrVbrBackupServerInfo {
                                     'True' {"Enabled"}
                                     'False' {"Disabled"}
                                 }
-                                'Cloud Connect Status' = Switch ([string]::IsNullOrEmpty($CloudConnectStatus)) {
-                                    $true {'N/A'}
-                                    $false {$CloudConnectStatus}
-                                    default {'-'}
-                                }
                                 'Logging Level' = $VeeamInfo.LoggingLevel
 
                             }
@@ -98,7 +92,6 @@ function Get-AbrVbrBackupServerInfo {
 
                     if ($HealthCheck.Infrastructure.BackupServer) {
                         $OutObj | Where-Object { $_.'Logging Level' -gt 4} | Set-Style -Style Warning -Property 'Logging Level'
-                        $OutObj | Where-Object { $_.'Cloud Connect Status' -eq 'Maintenance'} | Set-Style -Style Warning -Property 'Cloud Connect Status'
                     }
 
                     $TableParams = @{

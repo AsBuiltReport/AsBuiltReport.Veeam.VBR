@@ -227,9 +227,14 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                     Section -Style Heading2 'Cloud Connect' {
                         Paragraph "The following section provides information about Cloud Connect components from server $(((Get-VBRServerSession).Server))."
                         BlankLine
+                        Get-AbrVbrCloudConnectStatus
                         Write-PScriboMessage "Cloud Certificate InfoLevel set at $($InfoLevel.CloudConnect.Certificate)."
                         if ($InfoLevel.CloudConnect.Certificate -ge 1) {
                             Get-AbrVbrCloudConnectCert
+                        }
+                        Write-PScriboMessage "Cloud Public IP InfoLevel set at $($InfoLevel.CloudConnect.PublicIP)."
+                        if ($InfoLevel.CloudConnect.PublicIP -ge 1) {
+                            Get-AbrVbrCloudConnectPublicIP
                         }
                         Write-PScriboMessage "Cloud Gateway InfoLevel set at $($InfoLevel.CloudConnect.CloudGateway)."
                         if ($InfoLevel.CloudConnect.CloudGateway -ge 1) {
@@ -250,6 +255,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                         Write-PScriboMessage "Backup Storage InfoLevel set at $($InfoLevel.CloudConnect.ReplicaResources)."
                         if ($InfoLevel.CloudConnect.ReplicaResources -ge 1) {
                             Get-AbrVbrCloudConnectRR
+                            Get-AbrVbrCloudConnectReplica
                         }
                     }
                 }

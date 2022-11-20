@@ -1,8 +1,8 @@
 
-function Get-AbrVbrCloudConnectRR {
+function Get-AbrVbrCloudConnectReplica {
     <#
     .SYNOPSIS
-        Used by As Built Report to retrieve Veeam Cloud Connect Replica Resources
+        Used by As Built Report to retrieve Veeam Cloud Connect Replicas
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
@@ -21,15 +21,15 @@ function Get-AbrVbrCloudConnectRR {
     )
 
     begin {
-        Write-PscriboMessage "Discovering Veeam VBR Cloud Connect Replica Resources information from $System."
+        Write-PscriboMessage "Discovering Veeam VBR Cloud Connect Replicas information from $System."
     }
 
     process {
         try {
             if (Get-VBRInstalledLicense | Where-Object {$_.CloudConnect -in @("Enterprise")}) {
                 if ((Get-VBRCloudHardwarePlan).count -gt 0) {
-                    Section -Style Heading3 'Replica Resources' {
-                        Paragraph "The following table provides a summary of Replica Resources."
+                    Section -Style Heading3 'Replicas' {
+                        Paragraph "The following table provides a summary of Replicas."
                         BlankLine
                         try {
                             $CloudObjects = Get-VBRCloudHardwarePlan
@@ -137,7 +137,7 @@ function Get-AbrVbrCloudConnectRR {
                                                                 'Datastore Name' = $Storage.Datastore
                                                                 'Friendly Name' = $Storage.FriendlyName
                                                                 'Platform' = $Storage.Platform
-                                                                'Storage Quota' = "$($Storage.Quota) GB"
+                                                                'Storage Quota' = "$($Storage.Quota)GB"
                                                                 'Storage Policy' = Switch ([string]::IsNullOrEmpty($Storage.StoragePolicy.Name)) {
                                                                     $true {'-'}
                                                                     $false {$Storage.StoragePolicy.Name}
@@ -177,8 +177,8 @@ function Get-AbrVbrCloudConnectRR {
                                                             $inObj.add('Host or Cluster', "$($VlanConfiguration.Host.Name) ($($VlanConfiguration.Host.Type))")
                                                             $inObj.add('Platform', $VlanConfiguration.Platform)
                                                             $inObj.add('Virtual Switch', $VlanConfiguration.VirtualSwitch)
-                                                            $inObj.add('VLANs With Internet', "$($VlanConfiguration.FirstVLANWithInternet) - $($VlanConfiguration.LastVLANWithInternet)")
-                                                            $inObj.add('VLANs Without Internet', "$($VlanConfiguration.FirstVLANWithoutInternet) - $($VlanConfiguration.LastVLANWithoutInternet)")
+                                                            $inObj.add('VLAN With Internet', "$($VlanConfiguration.FirstVLANWithInternet) - $($VlanConfiguration.LastVLANWithInternet)")
+                                                            $inObj.add('VLAN Without Internet', "$($VlanConfiguration.FirstVLANWithoutInternet) - $($VlanConfiguration.LastVLANWithoutInternet)")
                                                         }
 
                                                         $OutObj = [pscustomobject]$inobj
