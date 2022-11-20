@@ -75,7 +75,7 @@ function Get-AbrVbrInfrastructureSummary {
             if ($Report.ShowTableCaptions) {
                 $TableParams['Caption'] = "- $($TableParams.Name)"
             }
-            if ($Options.EnableGraph) {
+            if ($Options.EnableCharts) {
                 try {
                     $inObj.Remove('Instance Licenses (Total/Used)')
                     $inObj.Remove('Socket Licenses (Total/Used)')
@@ -125,7 +125,7 @@ function Get-AbrVbrInfrastructureSummary {
             }
             if ($OutObj) {
                 Section -Style NOTOCHeading3 -ExcludeFromTOC 'Backup Infrastructure Inventory' {
-                    if ($Options.EnableGraph -and $chartFileItem -and ($inObj.Values | Measure-Object -Sum).Sum -ne 0) {
+                    if ($Options.EnableCharts -and $chartFileItem -and ($inObj.Values | Measure-Object -Sum).Sum -ne 0) {
                         Image -Text 'Backup Infrastructure - Diagram' -Align 'Center' -Percent 100 -Path $chartFileItem
                     }
                     BlankLine

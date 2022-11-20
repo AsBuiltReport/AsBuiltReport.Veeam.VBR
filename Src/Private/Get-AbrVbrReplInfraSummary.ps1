@@ -43,7 +43,7 @@ function Get-AbrVbrReplInfraSummary {
             if ($Report.ShowTableCaptions) {
                 $TableParams['Caption'] = "- $($TableParams.Name)"
             }
-            if ($Options.EnableGraph) {
+            if ($Options.EnableCharts) {
                 try {
                     $sampleData = $inObj.GetEnumerator() | Select-Object @{ Name = 'Category';  Expression = {$_.key}},@{ Name = 'Value';  Expression = {$_.value}} | Sort-Object -Property 'Category'
 
@@ -90,7 +90,7 @@ function Get-AbrVbrReplInfraSummary {
             }
             if ($OutObj) {
                 Section -Style NOTOCHeading3 -ExcludeFromTOC 'Replication Inventory' {
-                    if ($Options.EnableGraph -and $chartFileItem -and ($inObj.Values | Measure-Object -Sum).Sum -ne 0) {
+                    if ($Options.EnableCharts -and $chartFileItem -and ($inObj.Values | Measure-Object -Sum).Sum -ne 0) {
                         Image -Text 'Replication Inventory - Diagram' -Align 'Center' -Percent 100 -Path $chartFileItem
                     }
                     BlankLine

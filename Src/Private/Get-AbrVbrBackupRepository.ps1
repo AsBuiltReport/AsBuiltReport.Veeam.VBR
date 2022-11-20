@@ -76,7 +76,7 @@ function Get-AbrVbrBackupRepository {
                 if ($Report.ShowTableCaptions) {
                     $TableParams['Caption'] = "- $($TableParams.Name)"
                 }
-                if ($Options.EnableGraph) {
+                if ($Options.EnableCharts) {
                     try {
                         $sampleData = $OutObj | Select-Object -Property 'Name','Used Space %'
 
@@ -125,7 +125,7 @@ function Get-AbrVbrBackupRepository {
                     Section -Style Heading3 'Backup Repository' {
                         Paragraph "The following section provides Backup Repository summary information."
                         BlankLine
-                        if ($Options.EnableGraph -and $chartFileItem) {
+                        if ($Options.EnableCharts -and $chartFileItem) {
                             Image -Text 'Backup Repository - Diagram' -Align 'Center' -Percent 100 -Path $chartFileItem
                         }
                         BlankLine
