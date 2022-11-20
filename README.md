@@ -254,3 +254,4 @@ PS C:\> New-AsBuiltReport -Report Veeam.VBR -Target veeam-vbr.pharmax.local -Use
 ## :x: Known Issues
 
 - Since many of Veeam's features depend on the Standard+ license, the Community edition will not be supported.
+- If the Veeam Backup Server is not joined to an Active Directory domain (WorkGroup Auth), the PSDefaultAuthentication option must be set to Negotiate. If it is not, some of the report sections will be missing
