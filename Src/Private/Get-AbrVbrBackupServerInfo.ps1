@@ -446,7 +446,12 @@ function Get-AbrVbrBackupServerInfo {
                                         if ($Registry.Key -notin $DefaultRegistryHash.Keys) {
                                             $inObj = [ordered] @{
                                                 'Registry Key' = $Registry.Key
-                                                'Registry Value' = $Registry.Value
+                                                'Registry Value' = Switch (($Registry.Value).count) {
+                                                    0 {'-'}
+                                                    1 {$Registry.Value}
+                                                    default {$Registry.Value -Join ', '}
+
+                                                }
                                             }
                                             $OutObj += [pscustomobject]$inobj
                                         }

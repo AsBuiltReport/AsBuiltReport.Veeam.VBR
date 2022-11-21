@@ -221,7 +221,7 @@ The table below outlines the default and maximum **InfoLevel** settings for each
 | BackupStorage          |        1        |        1        |
 | ReplicaResources          |        1        |        2        |
 
-The table below outlines the default and maximum **InfoLevel** settings for each Security section.
+The table below outlines the default and maximum **InfoLevel** settings for each Security section (Disabled by Default).
 
 | Sub-Schema   | Default Setting | Maximum Setting |
 |--------------|:---------------:|:---------------:|
