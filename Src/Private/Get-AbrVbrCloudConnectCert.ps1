@@ -28,7 +28,7 @@ function Get-AbrVbrCloudConnectCert {
         try {
             if (Get-VBRInstalledLicense | Where-Object {$_.CloudConnect -in @("Enterprise")}) {
                 if ((Get-VBRCloudGatewayCertificate).count -gt 0) {
-                    Section -Style Heading3 'Gateways Certificate' {
+                    Section -Style Heading3 'Gateway Certificate' {
                         Paragraph "The following section provides information about Cloud Gateways SSL Certificate."
                         BlankLine
                         try {
@@ -57,7 +57,7 @@ function Get-AbrVbrCloudConnectCert {
                             }
 
                             $TableParams = @{
-                                Name = "Cloud Gateways SSL Certificate - $VeeamBackupServer"
+                                Name = "Gateway SSL Certificate - $VeeamBackupServer"
                                 List = $true
                                 ColumnWidths = 40, 60
                             }

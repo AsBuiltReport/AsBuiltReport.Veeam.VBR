@@ -76,79 +76,49 @@ function Get-AbrVbrCloudConnectRR {
                                 $TableParams['Caption'] = "- $($TableParams.Name)"
                             }
                             $OutObj | Sort-Object -Property 'Name' | Table @TableParams
-                            Section -Style Heading4 'Replica Resources Configuration' {
-                                try {
-                                    $OutObj = @()
-                                    foreach ($CloudObject in $CloudObjects) {
-                                        try {
-                                            Section -Style Heading5 $CloudObject.Name {
-                                                try {
-                                                    Section -ExcludeFromTOC -Style NOTOCHeading6 'Host Hardware Quota' {
-                                                        Write-PscriboMessage "Discovered $($CloudObject.Name) Cloud Connect Hardware Quota information."
-                                                        $inObj = [ordered] @{
-                                                            'Host or Cluster' = "$($CloudObject.Host.Name) ($($CloudObject.Host.Type))"
-                                                            'Platform' = $CloudObject.Platform
-                                                            'CPU' = Switch ([string]::IsNullOrEmpty($CloudObject.CPU)) {
-                                                                $true {'Unlimited'}
-                                                                $false {"$([math]::Round($CloudObject.CPU / 1000, 1)) Ghz"}
-                                                                default {'-'}
-                                                            }
-                                                            'Memory' = Switch ([string]::IsNullOrEmpty($CloudObject.Memory)) {
-                                                                $true {'Unlimited'}
-                                                                $false {"$([math]::Round($CloudObject.Memory / 1Kb, 2)) GB"}
-                                                                default {'-'}
-                                                            }
-                                                            'Network Count' = $CloudObject.NumberOfNetWithInternet + $CloudObject.NumberOfNetWithoutInternet
-                                                            'Subscribed Tenant' = Switch ([string]::IsNullOrEmpty($CloudObject.SubscribedTenantId)) {
-                                                                $true {'None'}
-                                                                $false {($CloudObject.SubscribedTenantId | ForEach-Object {Get-VBRCloudTenant -Id $_}).Name}
-                                                                default {'Unknown'}
-                                                            }
-                                                            'Description' = $CloudObject.Description
-                                                        }
-
-                                                        $OutObj += [pscustomobject]$inobj
-
-                                                        if ($HealthCheck.CloudConnect.ReplicaResources) {
-                                                            $OutObj | Where-Object {$_.'Subscribed Tenant' -eq 'None'} | Set-Style -Style Warning -Property 'Subscribed Tenant'
-                                                        }
-
-                                                        $TableParams = @{
-                                                            Name = "Host Hardware Quota - $($CloudObject.Name)"
-                                                            List = $true
-                                                            ColumnWidths = 40, 60
-                                                        }
-
-                                                        if ($Report.ShowTableCaptions) {
-                                                            $TableParams['Caption'] = "- $($TableParams.Name)"
-                                                        }
-                                                        $OutObj | Sort-Object -Property 'Name' | Table @TableParams
-                                                    }
-                                                }
-                                                catch {
-                                                    Write-PscriboMessage -IsWarning $_.Exception.Message
-                                                }
-                                                try {
-                                                    Section -ExcludeFromTOC -Style NOTOCHeading6 'Storage Quota' {
-                                                        $OutObj = @()
-                                                        Write-PscriboMessage "Discovered $($CloudObject.Name) Cloud Connect Storage Quota information."
-                                                        foreach ($Storage in $CloudObject.Datastore) {
+                            #---------------------------------------------------------------------------------------------#
+                            #                          Replica Resources Configuration Section                            #
+                            #---------------------------------------------------------------------------------------------#
+                            if ($InfoLevel.CloudConnect.ReplicaResources -ge 2) {
+                                Section -Style Heading4 'Replica Resources Configuration' {
+                                    try {
+                                        $OutObj = @()
+                                        foreach ($CloudObject in $CloudObjects) {
+                                            try {
+                                                Section -Style Heading5 $CloudObject.Name {
+                                                    try {
+                                                        Section -ExcludeFromTOC -Style NOTOCHeading6 'Host Hardware Quota' {
+                                                            Write-PscriboMessage "Discovered $($CloudObject.Name) Cloud Connect Hardware Quota information."
                                                             $inObj = [ordered] @{
-                                                                'Datastore Name' = $Storage.Datastore
-                                                                'Friendly Name' = $Storage.FriendlyName
-                                                                'Platform' = $Storage.Platform
-                                                                'Storage Quota' = "$($Storage.Quota) GB"
-                                                                'Storage Policy' = Switch ([string]::IsNullOrEmpty($Storage.StoragePolicy.Name)) {
-                                                                    $true {'-'}
-                                                                    $false {$Storage.StoragePolicy.Name}
+                                                                'Host or Cluster' = "$($CloudObject.Host.Name) ($($CloudObject.Host.Type))"
+                                                                'Platform' = $CloudObject.Platform
+                                                                'CPU' = Switch ([string]::IsNullOrEmpty($CloudObject.CPU)) {
+                                                                    $true {'Unlimited'}
+                                                                    $false {"$([math]::Round($CloudObject.CPU / 1000, 1)) Ghz"}
+                                                                    default {'-'}
+                                                                }
+                                                                'Memory' = Switch ([string]::IsNullOrEmpty($CloudObject.Memory)) {
+                                                                    $true {'Unlimited'}
+                                                                    $false {"$([math]::Round($CloudObject.Memory / 1Kb, 2)) GB"}
+                                                                    default {'-'}
+                                                                }
+                                                                'Network Count' = $CloudObject.NumberOfNetWithInternet + $CloudObject.NumberOfNetWithoutInternet
+                                                                'Subscribed Tenant' = Switch ([string]::IsNullOrEmpty($CloudObject.SubscribedTenantId)) {
+                                                                    $true {'None'}
+                                                                    $false {($CloudObject.SubscribedTenantId | ForEach-Object {Get-VBRCloudTenant -Id $_}).Name}
                                                                     default {'Unknown'}
                                                                 }
+                                                                'Description' = $CloudObject.Description
                                                             }
 
-                                                            $OutObj = [pscustomobject]$inobj
+                                                            $OutObj += [pscustomobject]$inobj
+
+                                                            if ($HealthCheck.CloudConnect.ReplicaResources) {
+                                                                $OutObj | Where-Object {$_.'Subscribed Tenant' -eq 'None'} | Set-Style -Style Warning -Property 'Subscribed Tenant'
+                                                            }
 
                                                             $TableParams = @{
-                                                                Name = "Storage Quota - $($Storage.Datastore)"
+                                                                Name = "Host Hardware Quota - $($CloudObject.Name)"
                                                                 List = $true
                                                                 ColumnWidths = 40, 60
                                                             }
@@ -159,54 +129,89 @@ function Get-AbrVbrCloudConnectRR {
                                                             $OutObj | Sort-Object -Property 'Name' | Table @TableParams
                                                         }
                                                     }
-                                                }
-                                                catch {
-                                                    Write-PscriboMessage -IsWarning $_.Exception.Message
-                                                }
-                                                try {
-                                                    Section -ExcludeFromTOC -Style NOTOCHeading6 'Network Quota' {
-                                                        $OutObj = @()
-                                                        $VlanConfiguration = Get-VBRCloudVLANConfiguration | Where-Object {$_.Host.Name -eq $CloudObject.Host.Name}
-                                                        Write-PscriboMessage "Discovered $($CloudObject.Name) Cloud Connect Network Quota information."
-                                                        $inObj = [ordered] @{
-                                                            'Specify number of networks with Internet Access' = $CloudObject.NumberOfNetWithInternet + $CloudObject.NumberOfNetWithoutInternet
-                                                            'Specify number of internal networks' = $CloudObject.NumberOfNetWithoutInternet
-                                                        }
+                                                    catch {
+                                                        Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                    }
+                                                    try {
+                                                        Section -ExcludeFromTOC -Style NOTOCHeading6 'Storage Quota' {
+                                                            $OutObj = @()
+                                                            Write-PscriboMessage "Discovered $($CloudObject.Name) Cloud Connect Storage Quota information."
+                                                            foreach ($Storage in $CloudObject.Datastore) {
+                                                                $inObj = [ordered] @{
+                                                                    'Datastore Name' = $Storage.Datastore
+                                                                    'Friendly Name' = $Storage.FriendlyName
+                                                                    'Platform' = $Storage.Platform
+                                                                    'Storage Quota' = "$($Storage.Quota) GB"
+                                                                    'Storage Policy' = Switch ([string]::IsNullOrEmpty($Storage.StoragePolicy.Name)) {
+                                                                        $true {'-'}
+                                                                        $false {$Storage.StoragePolicy.Name}
+                                                                        default {'Unknown'}
+                                                                    }
+                                                                }
 
-                                                        if ($VlanConfiguration) {
-                                                            $inObj.add('Host or Cluster', "$($VlanConfiguration.Host.Name) ($($VlanConfiguration.Host.Type))")
-                                                            $inObj.add('Platform', $VlanConfiguration.Platform)
-                                                            $inObj.add('Virtual Switch', $VlanConfiguration.VirtualSwitch)
-                                                            $inObj.add('VLANs With Internet', "$($VlanConfiguration.FirstVLANWithInternet) - $($VlanConfiguration.LastVLANWithInternet)")
-                                                            $inObj.add('VLANs Without Internet', "$($VlanConfiguration.FirstVLANWithoutInternet) - $($VlanConfiguration.LastVLANWithoutInternet)")
-                                                        }
+                                                                $OutObj = [pscustomobject]$inobj
 
-                                                        $OutObj = [pscustomobject]$inobj
+                                                                $TableParams = @{
+                                                                    Name = "Storage Quota - $($Storage.Datastore)"
+                                                                    List = $true
+                                                                    ColumnWidths = 40, 60
+                                                                }
 
-                                                        $TableParams = @{
-                                                            Name = "Network Quota - $($CloudObject.Name)"
-                                                            List = $true
-                                                            ColumnWidths = 40, 60
+                                                                if ($Report.ShowTableCaptions) {
+                                                                    $TableParams['Caption'] = "- $($TableParams.Name)"
+                                                                }
+                                                                $OutObj | Sort-Object -Property 'Name' | Table @TableParams
+                                                            }
                                                         }
+                                                    }
+                                                    catch {
+                                                        Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                    }
+                                                    try {
+                                                        Section -ExcludeFromTOC -Style NOTOCHeading6 'Network Quota' {
+                                                            $OutObj = @()
+                                                            $VlanConfiguration = Get-VBRCloudVLANConfiguration | Where-Object {$_.Host.Name -eq $CloudObject.Host.Name}
+                                                            Write-PscriboMessage "Discovered $($CloudObject.Name) Cloud Connect Network Quota information."
+                                                            $inObj = [ordered] @{
+                                                                'Specify number of networks with Internet Access' = $CloudObject.NumberOfNetWithInternet + $CloudObject.NumberOfNetWithoutInternet
+                                                                'Specify number of internal networks' = $CloudObject.NumberOfNetWithoutInternet
+                                                            }
 
-                                                        if ($Report.ShowTableCaptions) {
-                                                            $TableParams['Caption'] = "- $($TableParams.Name)"
+                                                            if ($VlanConfiguration) {
+                                                                $inObj.add('Host or Cluster', "$($VlanConfiguration.Host.Name) ($($VlanConfiguration.Host.Type))")
+                                                                $inObj.add('Platform', $VlanConfiguration.Platform)
+                                                                $inObj.add('Virtual Switch', $VlanConfiguration.VirtualSwitch)
+                                                                $inObj.add('VLANs With Internet', "$($VlanConfiguration.FirstVLANWithInternet) - $($VlanConfiguration.LastVLANWithInternet)")
+                                                                $inObj.add('VLANs Without Internet', "$($VlanConfiguration.FirstVLANWithoutInternet) - $($VlanConfiguration.LastVLANWithoutInternet)")
+                                                            }
+
+                                                            $OutObj = [pscustomobject]$inobj
+
+                                                            $TableParams = @{
+                                                                Name = "Network Quota - $($CloudObject.Name)"
+                                                                List = $true
+                                                                ColumnWidths = 40, 60
+                                                            }
+
+                                                            if ($Report.ShowTableCaptions) {
+                                                                $TableParams['Caption'] = "- $($TableParams.Name)"
+                                                            }
+                                                            $OutObj | Sort-Object -Property 'Name' | Table @TableParams
                                                         }
-                                                        $OutObj | Sort-Object -Property 'Name' | Table @TableParams
+                                                    }
+                                                    catch {
+                                                        Write-PscriboMessage -IsWarning $_.Exception.Message
                                                     }
                                                 }
-                                                catch {
-                                                    Write-PscriboMessage -IsWarning $_.Exception.Message
-                                                }
+                                            }
+                                            catch {
+                                                Write-PscriboMessage -IsWarning $_.Exception.Message
                                             }
                                         }
-                                        catch {
-                                            Write-PscriboMessage -IsWarning $_.Exception.Message
-                                        }
                                     }
-                                }
-                                catch {
-                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                    catch {
+                                        Write-PscriboMessage -IsWarning $_.Exception.Message
+                                    }
                                 }
                             }
                         }

@@ -32,14 +32,14 @@ function Get-AbrVbrCloudConnectStatus {
                         Paragraph "The following section provides information about Cloud Gateways SSL Certificate."
                         BlankLine
                         try {
-                            $CloudConnectInfraStatus= Get-VBRCloudInfrastructureState
-                            $CloudConnectInfraServiceStatus= Get-VBRCloudInfrastructureServiceState
+                            $CloudConnectInfraStatus = Get-VBRCloudInfrastructureState
+                            $CloudConnectInfraServiceStatus = Get-VBRCloudInfrastructureServiceState
                             $OutObj = @()
                             try {
                                 Write-PscriboMessage "Discovered $($CloudObject.DisplayName) Cloud Connect Service Status information."
                                 $inObj = [ordered] @{
                                     'Server Name' = $VeeamBackupServer
-                                    'Global Status' = $CloudConnectInfraStatus.State
+                                    'Global Status' = $CloudConnectInfraStatus
                                     'Service State' = $CloudConnectInfraServiceStatus.State
                                     'Service Response Delay' = $CloudConnectInfraServiceStatus.ServiceResponseDelay
                                 }
