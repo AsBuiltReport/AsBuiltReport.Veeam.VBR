@@ -217,7 +217,7 @@ The table below outlines the default and maximum **InfoLevel** settings for each
 | PublicIP       |        1        |        1        |
 | CloudGateway          |        1        |        2        |
 | GatewayPools          |        1        |        1        |
-| Tenants          |        1        |        1        |
+| Tenants          |        1        |        2        |
 | BackupStorage          |        1        |        1        |
 | ReplicaResources          |        1        |        2        |
 
