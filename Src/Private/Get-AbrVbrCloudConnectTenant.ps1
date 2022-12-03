@@ -41,6 +41,7 @@ function Get-AbrVbrCloudConnectTenant {
                                     'Type' = Switch ($CloudObject.Type) {
                                         'Ad' {'Active Directory'}
                                         'General' {'Standalone'}
+                                        'vCD' {'vCloud Director'}
                                         default {'Unknown'}
                                     }
                                     'Last Active' = $CloudObject.LastActive
@@ -87,6 +88,7 @@ function Get-AbrVbrCloudConnectTenant {
                                                         'Type' = Switch ($CloudObject.Type) {
                                                             'Ad' {'Active Directory'}
                                                             'General' {'Standalone'}
+                                                            'vCD' {'vCloud Director'}
                                                             default {'Unknown'}
                                                         }
                                                         'Status' = Switch ($CloudObject.Enabled) {
@@ -100,7 +102,11 @@ function Get-AbrVbrCloudConnectTenant {
                                                             default {'-'}
                                                         }
                                                         'Backup Storage (Cloud Backup Repository)' = ConvertTo-TextYN $CloudObject.ResourcesEnabled
-                                                        'Replication Resource (Cloud Host)' = ConvertTo-TextYN $CloudObject.ReplicationResourcesEnabled
+                                                        'Replication Resource (Cloud Host)' = Switch ($CloudObject.ReplicationResourcesEnabled -or $CloudObject.vCDReplicationResourcesEnabled) {
+                                                            'True' {'Yes'}
+                                                            'False' {'No'}
+                                                            default {'-'}
+                                                        }
                                                         'Description' = $CloudObject.Description
                                                     }
 
@@ -184,7 +190,7 @@ function Get-AbrVbrCloudConnectTenant {
                                                                     $inObj = [ordered] @{
                                                                         'Repository' = $CloudBackupRepo.Repository.Name
                                                                         'Friendly Name' = $CloudBackupRepo.RepositoryFriendlyName
-                                                                        'Quota' = "$([math]::Round($CloudBackupRepo.RepositoryQuota / 1Kb, 2)) GB"
+                                                                        'Quota' = "$(Convert-Size -from MB -to GB -Value $CloudBackupRepo.RepositoryQuota) GB"
                                                                         'Quota Path' = $CloudBackupRepo.RepositoryQuotaPath
                                                                         'Use Wan Acceleration' = ConvertTo-TextYN $CloudBackupRepo.WanAccelerationEnabled
                                                                     }
@@ -254,7 +260,47 @@ function Get-AbrVbrCloudConnectTenant {
                                                         Write-PscriboMessage -IsWarning $_.Exception.Message
                                                     }
                                                 }
-                                                if ($CloudObject.ReplicationResources.NetworkFailoverResourcesEnabled) {
+                                                if ($CloudObject.vCDReplicationResourcesEnabled) {
+                                                    try {
+                                                        Section -ExcludeFromTOC -Style NOTOCHeading6 'Replication Resources (vCD)' {
+                                                            $OutObj = @()
+                                                            foreach ($CloudRepliRes in $CloudObject.vCDReplicationResource.OrganizationvDCOptions) {
+                                                                try {
+                                                                    Write-PscriboMessage "Discovered $($CloudRepliRes.RepositoryFriendlyName) Replication Resources information."
+                                                                    $inObj = [ordered] @{
+                                                                        'Organization vDC Name' = $CloudRepliRes.OrganizationvDCName
+                                                                        'Allocation Model' = $CloudRepliRes.AllocationModel
+                                                                        'WAN Accelaration?' = ConvertTo-TextYN $CloudRepliRes.WANAccelarationEnabled
+                                                                    }
+
+                                                                    if ($CloudRepliRes.WANAccelarationEnabled) {
+                                                                        $inObj.add('WAN Accelerator', $CloudRepliRes.WANAccelerator.Name)
+                                                                    }
+
+                                                                    $OutObj = [pscustomobject]$inobj
+
+                                                                    $TableParams = @{
+                                                                        Name = "Replication Resources (vCD) - $($CloudObject.Name)"
+                                                                        List = $true
+                                                                        ColumnWidths = 40, 60
+                                                                    }
+
+                                                                    if ($Report.ShowTableCaptions) {
+                                                                        $TableParams['Caption'] = "- $($TableParams.Name)"
+                                                                    }
+                                                                    $OutObj | Table @TableParams
+                                                                }
+                                                                catch {
+                                                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                    catch {
+                                                        Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                    }
+                                                }
+                                                if ($CloudObject.ReplicationResources.NetworkFailoverResourcesEnabled -or $CloudObject.vCDReplicationResource.TenantNetworkAppliance) {
                                                     try {
                                                         $TenantNetworkAppliances = Get-VBRCloudTenantNetworkAppliance -Tenant $CloudObject
                                                         if ($TenantNetworkAppliances) {
@@ -266,10 +312,14 @@ function Get-AbrVbrCloudConnectTenant {
                                                                         $inObj = [ordered] @{
                                                                             'Name' = $TenantNetworkAppliance.Name
                                                                             'Platform' = $TenantNetworkAppliance.Platform
-                                                                            'Hardware Plan' = (Get-VBRCloudHardwarePlan -Id $TenantNetworkAppliance.HardwarePlanId).Name
-                                                                            'Production Network' = $TenantNetworkAppliance.ProductionNetwork.Name
-                                                                            'Obtain Ip Address Automatically' = ConvertTo-TextYN $TenantNetworkAppliance.ObtainIpAddressAutomatically
                                                                         }
+
+                                                                        if (-Not $CloudObject.vCDReplicationResource.TenantNetworkAppliance) {
+                                                                            $inObj.add('Hardware Plan', (Get-VBRCloudHardwarePlan -Id $TenantNetworkAppliance.HardwarePlanId).Name)
+                                                                        }
+
+                                                                        $inObj.add('Production Network', $TenantNetworkAppliance.ProductionNetwork.Name)
+                                                                        $inObj.add('Obtain Ip Address Automatically', (ConvertTo-TextYN $TenantNetworkAppliance.ObtainIpAddressAutomatically))
 
                                                                         if (-Not $TenantNetworkAppliance.ObtainIpAddressAutomatically) {
                                                                             $inObj.add('Ip Address', $TenantNetworkAppliance.IpAddress)
@@ -314,7 +364,7 @@ function Get-AbrVbrCloudConnectTenant {
                                                                         'Type' = $CloudSubTenant.Type
                                                                         'Mode' = $CloudSubTenant.Mode
                                                                         'Repository Name' = $CloudSubTenant.Resources.RepositoryFriendlyName
-                                                                        'Quota' = "$([math]::Round($CloudSubTenant.Resources.RepositoryQuota / 1Kb, 2)) GB"
+                                                                        'Quota' = "$(Convert-Size -from MB -to GB -Value $CloudSubTenant.Resources.RepositoryQuota) GB"
                                                                         'Quota Path' = $CloudSubTenant.Resources.RepositoryQuotaPath
                                                                         'Used Space %' = $CloudSubTenant.Resources.UsedSpacePercentage
                                                                         'Status' = Switch ($CloudSubTenant.Enabled) {

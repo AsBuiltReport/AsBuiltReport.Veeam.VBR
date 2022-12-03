@@ -8,12 +8,16 @@
 
 ### Changed
 
-- Added Option 'EnableGraph' false by default to allow to modify Charts in report
+- Added 'EnableGraph' option false by default to allow to modify Charts in report
+- Added 'EnableHardwareInventory' option false by default to allow to modify Charts in report
+- Modified Infrastructure Security Hardening section to be disable by default.
+
 
 ### Fixed
 
 - Close [#78](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/78)
 - Close [#79](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/79)
+- Close [#80](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/80)
 
 ## [0.6.0] - 2022-10-28
 

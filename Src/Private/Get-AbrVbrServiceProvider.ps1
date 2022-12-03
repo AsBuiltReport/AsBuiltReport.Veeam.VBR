@@ -189,10 +189,42 @@ function Get-AbrVbrServiceProvider {
                                                     Write-PscriboMessage -IsWarning $_.Exception.Message
                                                 }
                                             }
-
                                             try {
                                                 $DefaultGatewayConfig = Get-VBRDefaultGatewayConfiguration | Where-Object {$_.ProviderId -eq $CloudProvider.id}
                                                 if ($DefaultGatewayConfig.DefaultGateway) {
+                                                    Section -ExcludeFromTOC -Style NOTOCHeading6 'Default Gateway' {
+                                                        $OutObj = @()
+                                                        foreach ($Gateway in $DefaultGatewayConfig.DefaultGateway) {
+                                                            Write-PscriboMessage "Discovered $($Gateway.Name) Service Provider Default Gateway information."
+                                                            $inObj = [ordered] @{
+                                                                'Name' = $Gateway.Name
+                                                                'IP Address' = $Gateway.IpAddress
+                                                                'Network Mask' = $Gateway.NetworkMask
+                                                                'Routing Enabled?' = ConvertTo-TextYN $DefaultGatewayConfig.RoutingEnabled
+                                                            }
+
+                                                            $OutObj = [pscustomobject]$inobj
+
+                                                            $TableParams = @{
+                                                                Name = "Default Gateway - $($Gateway.Name)"
+                                                                List = $true
+                                                                ColumnWidths = 40, 60
+                                                            }
+
+                                                            if ($Report.ShowTableCaptions) {
+                                                                $TableParams['Caption'] = "- $($TableParams.Name)"
+                                                            }
+                                                            $OutObj | Table @TableParams
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                            catch {
+                                                Write-PscriboMessage -IsWarning $_.Exception.Message
+                                            }
+                                            try {
+                                                $CloudSubUserConfig = Get-VBRCloudSubUser | Where-Object {$_.CloudProviderId -eq $CloudProvider.id}
+                                                if ($CloudSubUserConfig.DefaultGateway) {
                                                     Section -ExcludeFromTOC -Style NOTOCHeading6 'Default Gateway' {
                                                         $OutObj = @()
                                                         foreach ($Gateway in $DefaultGatewayConfig.DefaultGateway) {

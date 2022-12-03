@@ -5,7 +5,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.6.0
+        Version:        0.7.0
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -62,13 +62,13 @@ function Invoke-AsBuiltReport.Veeam.VBR {
             #---------------------------------------------------------------------------------------------#
             #                            Executive Summary Section                                    #
             #---------------------------------------------------------------------------------------------#
-            # Section -Style Heading2 'Executive Summary' {
-            #     Get-AbrVbrInfrastructureSummary
-            #     Get-AbrVbrTapeInfraSummary
-            #     Get-AbrVbrInventorySummary
-            #     Get-AbrVbrStorageInfraSummary
-            #     Get-AbrVbrReplInfraSummary
-            # }
+            Section -Style Heading2 'Executive Summary' {
+                Get-AbrVbrInfrastructureSummary
+                Get-AbrVbrTapeInfraSummary
+                Get-AbrVbrInventorySummary
+                Get-AbrVbrStorageInfraSummary
+                Get-AbrVbrReplInfraSummary
+            }
             #---------------------------------------------------------------------------------------------#
             #                            Backup Infrastructure Section                                    #
             #---------------------------------------------------------------------------------------------#
