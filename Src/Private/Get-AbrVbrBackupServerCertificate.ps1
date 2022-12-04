@@ -39,7 +39,7 @@ function Get-AbrVbrBackupServerCertificate {
                                 'Expiration Date' = $TLSSettings.NotAfter.ToShortDateString()
                                 'Issued Date' = $TLSSettings.NotBefore.ToShortDateString()
                                 'Thumbprint' = $TLSSettings.Thumbprint
-                                'SerialNumber' = $TLSSettings.SerialNumber
+                                'Serial Number' = $TLSSettings.SerialNumber
                             }
                             $OutObj += [pscustomobject]$inobj
                         }

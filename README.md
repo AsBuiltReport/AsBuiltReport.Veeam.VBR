@@ -134,8 +134,10 @@ The **Options** schema allows certain options within the report to be toggled on
 
 | Sub-Schema      | Setting      | Default | Description                                                                                                                                                                                 |
 |-----------------|--------------|---------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| BackupServerPort | TCP Port  | 9392    | Used to specify the backup service's custom port
+| BackupServerPort | TCP Port  | 9392    | Used to specify the backup service's custom port.
 | PSDefaultAuthentication | Negotiate/Kerberos  | Default    | Allow to set the value of the PSRemoting authentication method. For Workgroup authentication Negotiate value is required.
+| EnableCharts | true/false  | false    | Used to manipulate the creation of charts.
+| EnableHardwareInventory | true/false  | false    | Enable the extraction of Hardware information from the Backup Server/Proxy servers (Windows OS only).
 
 ### InfoLevel
 
@@ -207,11 +209,23 @@ The table below outlines the default and maximum **InfoLevel** settings for each
 | Replica       |        1        |        2        |
 | FailoverPlan          |        1        |        1        |
 
-The table below outlines the default and maximum **InfoLevel** settings for each Security section.
+The table below outlines the default and maximum **InfoLevel** settings for each Cloud Connect section.
 
 | Sub-Schema   | Default Setting | Maximum Setting |
 |--------------|:---------------:|:---------------:|
-| Infrastructure       |        1        |        1       |
+| Certificate       |        1        |        1        |
+| PublicIP       |        1        |        1        |
+| CloudGateway          |        1        |        2        |
+| GatewayPools          |        1        |        1        |
+| Tenants          |        1        |        2        |
+| BackupStorage          |        1        |        1        |
+| ReplicaResources          |        1        |        2        |
+
+The table below outlines the default and maximum **InfoLevel** settings for each Security section (Disabled by Default).
+
+| Sub-Schema   | Default Setting | Maximum Setting |
+|--------------|:---------------:|:---------------:|
+| Infrastructure       |        0        |        1       |
 
 ### Healthcheck
 
@@ -240,3 +254,4 @@ PS C:\> New-AsBuiltReport -Report Veeam.VBR -Target veeam-vbr.pharmax.local -Use
 ## :x: Known Issues
 
 - Since many of Veeam's features depend on the Standard+ license, the Community edition will not be supported.
+- If the Veeam Backup Server is not joined to an Active Directory domain (WorkGroup Auth), the PSDefaultAuthentication option must be set to Negotiate. If it is not, some of the report sections will be missing

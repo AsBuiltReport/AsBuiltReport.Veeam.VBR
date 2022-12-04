@@ -113,12 +113,12 @@ function Get-AbrVbrBackupProxy {
                                 Write-PscriboMessage -IsWarning $_.Exception.Message
                             }
                             #---------------------------------------------------------------------------------------------#
-                            #                    VMware Backup Prxy Inventory Summary Section                             #
+                            #                    VMware Backup Proxy Inventory Summary Section                             #
                             #---------------------------------------------------------------------------------------------#
                             try {
-                                if ($InfoLevel.Infrastructure.Proxy -ge 3) {
-                                    Write-PScriboMessage "Backup Proxy InfoLevel set at $($InfoLevel.Infrastructure.Proxy)."
-                                    Write-PScriboMessage "Collecting Inventory Summary."
+                                Write-PScriboMessage "Hardware Inventory Status set as $($Options.EnableHardwareInventory)."
+                                if ($Options.EnableHardwareInventory) {
+                                    Write-PScriboMessage "Collecting Hardware/Software Inventory Summary."
                                     $BackupProxies = Get-VBRViProxy | Where-Object {$_.Host.Type -eq "Windows"}
                                     if ($BackupProxies) {
                                         $vSphereVBProxyObj = foreach ($BackupProxy in $BackupProxies) {
@@ -382,7 +382,7 @@ function Get-AbrVbrBackupProxy {
                                 Write-PscriboMessage -IsWarning $_.Exception.Message
                             }
                             #---------------------------------------------------------------------------------------------#
-                            #                    VMware Backup Prxy Service information Section                           #
+                            #                    VMware Backup Proxy Service information Section                           #
                             #---------------------------------------------------------------------------------------------#
                             if ($HealthCheck.Infrastructure.Server) {
                                 try {
@@ -532,12 +532,13 @@ function Get-AbrVbrBackupProxy {
                                     }
                                 }
                                 #---------------------------------------------------------------------------------------------#
-                                #                    Hyper-V Backup Prxy Inventory Summary Section                         #
+                                #                    Hyper-V Backup Proxy Inventory Summary Section                         #
                                 #---------------------------------------------------------------------------------------------#
                                 try {
-                                    if ($InfoLevel.Infrastructure.Proxy -ge 3) {
+                                    Write-PScriboMessage "Hardware Inventory Status set as $($Options.EnableHardwareInventory)."
+                                    if ($Options.EnableHardwareInventory) {
                                         Write-PScriboMessage "Backup Proxy InfoLevel set at $($InfoLevel.Infrastructure.Proxy)."
-                                        Write-PScriboMessage "Collecting Inventory Summary."
+                                        Write-PScriboMessage "Collecting Hardware/Software Inventory Summary."
                                         $BackupProxies = Get-VBRHvProxy
                                         if ($BackupProxies) {
                                             $HyperVBProxyObj = foreach ($BackupProxy in $BackupProxies) {

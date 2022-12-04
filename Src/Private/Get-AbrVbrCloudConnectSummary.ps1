@@ -1,12 +1,11 @@
-
-function Get-AbrVbrTapeInfraSummary {
+function Get-AbrVbrCloudConnectSummary {
     <#
     .SYNOPSIS
-    Used by As Built Report to retrieve Veeam VBR Tape Infrastructure Summary.
+    Used by As Built Report to retrieve Veeam VBR Cloud Connect Infrastructure Summary.
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.5.5
+        Version:        0.7.0
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -21,26 +20,27 @@ function Get-AbrVbrTapeInfraSummary {
     )
 
     begin {
-        Write-PscriboMessage "Discovering Veeam VBR Tape Infrastructure Summary from $System."
+        Write-PscriboMessage "Discovering Veeam VBR Cloud Connect Summary from $System."
     }
 
     process {
         try {
             $OutObj = @()
             try {
-                $TapeServer = Get-VBRTapeServer
-                $TapeLibrary = Get-VBRTapeLibrary
-                $TapeMediaPool = Get-VBRTapeMediaPool
-                $TapeVault = Get-VBRTapeVault
-                $TapeDrive = Get-VBRTapeDrive
-                $TapeMedium = Get-VBRTapeMedium
+                $CloudConnectRR = Get-VBRCloudHardwarePlan
+                $CloudConnectTenant = Get-VBRCloudTenant
+                $CloudConnectGW = Get-VBRCloudGateway
+                $CloudConnectGWPool = Get-VBRCloudGatewayPool
+                $CloudConnectPublicIP = Get-VBRCloudPublicIP
+                $CloudConnectBS = (Get-VBRCloudTenant).Resources.Repository
+
                 $inObj = [ordered] @{
-                    'Tape Servers' = $TapeServer.Count
-                    'Tape Library' = $TapeLibrary.Count
-                    'Tape MediaPool' = $TapeMediaPool.Count
-                    'Tape Vault' = $TapeVault.Count
-                    'Tape Drives' = $TapeDrive.Count
-                    'Tape Medium' = $TapeMedium.Count
+                    'Cloud Gateways' = $CloudConnectGW.Count
+                    'Gateway Pools' = $CloudConnectGWPool.Count
+                    'Tenants' = $CloudConnectTenant.Count
+                    'Backup Storage' = $CloudConnectBS.Count
+                    'Public IP Addresses' = $CloudConnectPublicIP.Count
+                    'Hardware Plans' = $CloudConnectRR.Count
                 }
                 $OutObj += [pscustomobject]$inobj
             }
@@ -49,7 +49,7 @@ function Get-AbrVbrTapeInfraSummary {
             }
 
             $TableParams = @{
-                Name = "Tape Infrastructure Inventory - $VeeamBackupServer"
+                Name = "Cloud Connect Inventory - $VeeamBackupServer"
                 List = $true
                 ColumnWidths = 50, 50
             }
@@ -102,9 +102,9 @@ function Get-AbrVbrTapeInfraSummary {
                 }
             }
             if ($OutObj) {
-                Section -Style NOTOCHeading3 -ExcludeFromTOC 'Tape Infrastructure' {
+                Section -Style NOTOCHeading3 -ExcludeFromTOC 'Cloud Connect Infrastructure' {
                     if ($Options.EnableCharts -and $chartFileItem -and ($inObj.Values | Measure-Object -Sum).Sum -ne 0) {
-                        Image -Text 'Tape Infrastructure - Diagram' -Align 'Center' -Percent 100 -Path $chartFileItem
+                        Image -Text 'Cloud Connect Infrastructure - Diagram' -Align 'Center' -Percent 100 -Path $chartFileItem
                     }
                     BlankLine
                     $OutObj | Table @TableParams
