@@ -1,5 +1,26 @@
 # :arrows_clockwise: Veeam VBR As Built Report Changelog
 
+## [0.7.0] - 2022-12-03
+
+### Added
+
+- Added support for Cloud Connect.
+
+### Changed
+
+- Added 'EnableCharts' option to enable/disable the creation of Charts in report (Disabled by default).
+- Added 'EnableHardwareInventory' option to enable/disable the collection of HW inventory (Disabled by default).
+- The Infrastructure Security Hardening section has been modified so it is disabled by default.
+- The Executive Summary section has been removed. The summary table has been moved to each corresponding section.
+- The service providers section has been improved.
+
+
+### Fixed
+
+- Close [#78](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/78)
+- Close [#79](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/79)
+- Close [#80](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/80)
+
 ## [0.6.0] - 2022-10-28
 
 ### Added

@@ -38,12 +38,12 @@ function Get-AbrVbrEnterpriseManagerInfo {
                         $EMInfo = [Veeam.Backup.Core.SBackupOptions]::GetEnterpriseServerInfo()
                             if ($EMInfo) {
                                 $inObj = [ordered] @{
-                                    'Server Name' = Switch ($EMInfo.ServerName) {
-                                        $Null {'Not Connected'}
+                                    'Server Name' = Switch ([string]::IsNullOrEmpty($EMInfo.ServerName)) {
+                                        $true {'Not Connected'}
                                         default {$EMInfo.ServerName}
                                     }
-                                    'Server URL' = Switch ($EMInfo.URL) {
-                                        $Null {'Not Connected'}
+                                    'Server URL' = Switch ([string]::IsNullOrEmpty($EMInfo.URL)) {
+                                        $true {'Not Connected'}
                                         default {$EMInfo.URL}
                                     }
                                     'Skip License Push' = ConvertTo-TextYN $EMInfo.SkipLicensePush

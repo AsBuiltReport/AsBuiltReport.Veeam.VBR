@@ -58,15 +58,17 @@ function Get-AbrVbrSecInfraHard {
                                     Write-PscriboMessage -IsWarning $_.Exception.Message
                                 }
                             }
-                            $TableParams = @{
-                                Name = "Non-essential software programs - $($BackupServer.Name.ToString().ToUpper().Split(".")[0])"
-                                List = $false
-                                ColumnWidths = 50, 50
+                            if ($OutObj) {
+                                $TableParams = @{
+                                    Name = "Non-essential software programs - $($BackupServer.Name.ToString().ToUpper().Split(".")[0])"
+                                    List = $false
+                                    ColumnWidths = 50, 50
+                                }
+                                if ($Report.ShowTableCaptions) {
+                                    $TableParams['Caption'] = "- $($TableParams.Name)"
+                                }
+                                $OutObj | Sort-Object -Property 'Name' | Table @TableParams
                             }
-                            if ($Report.ShowTableCaptions) {
-                                $TableParams['Caption'] = "- $($TableParams.Name)"
-                            }
-                            $OutObj | Sort-Object -Property 'Name' | Table @TableParams
                         }
                         if ($Unused) {
                             Section -Style Heading4 'Remove Unused Components' {
@@ -166,7 +168,7 @@ function Get-AbrVbrSecInfraHard {
                 $OutObj = @()
                 Write-PscriboMessage "Collecting Enterprise Manager information from $($BackupServer.Name)."
                 $EMInfo = [Veeam.Backup.Core.SBackupOptions]::GetEnterpriseServerInfo()
-                $EMObj = if ($EMInfo) {
+                $EMObj = if ($EMInfo.IsConnected -eq $true) {
                     Section -Style Heading4 "Enterprise Manager Server ($($EMInfo.ServerName.ToString().ToUpper().Split(".")[0]))" {
                         $inObj = [ordered] @{
                             'Server Name' = Switch ($EMInfo.ServerName) {
@@ -284,8 +286,16 @@ function Get-AbrVbrSecInfraHard {
                         $OutObj = @()
                         $inObj = [ordered] @{
                             'Account Lockout Thresholds' = $policyConfigHash.LockoutBadCount
-                            'Account Lockout Duration Age' = $policyConfigHash.LockoutDuration
-                            'Reset account lockout counter after' = $policyConfigHash.ResetLockoutCount
+                            'Account Lockout Duration Age' = Switch ([string]::IsNullOrEmpty($policyConfigHash.LockoutDuration)) {
+                                $true {'-'}
+                                $false {$policyConfigHash.LockoutDuration}
+                                default {'Unknown'}
+                            }
+                            'Reset account lockout counter after' = Switch ([string]::IsNullOrEmpty($policyConfigHash.ResetLockoutCount)) {
+                                $true {'-'}
+                                $false {$policyConfigHash.ResetLockoutCount}
+                                default {'Unknown'}
+                            }
                         }
 
                         $OutObj = [pscustomobject]$inobj
@@ -501,7 +511,7 @@ function Get-AbrVbrSecInfraHard {
                             $BackupProxies = @()
                             $BackupProxies += $ViBackupProxies
                             $BackupProxies += $HvBackupProxies
-                            if ($BackupProxies) {
+                            if ($BackupProxies | Where-Object {$_.Name -ne $BackupServer.Name}) {
                                 Section -Style Heading5 "Backup Proxy Servers" {
                                     foreach ($BackupProxy in $BackupProxies) {
                                         if (($BackupProxie.Host.id.Guid -notin $BackupServer.id.Guid)) {
@@ -554,7 +564,7 @@ function Get-AbrVbrSecInfraHard {
                         }
                         try {
                             $BackupRepos = Get-VBRBackupRepository | Where-Object {$_.Type -eq "WinLocal"}
-                            if ($BackupRepos) {
+                            if ($BackupRepos.Host.Name | Where-Object {$_ -ne $BackupServer.Name}) {
                                 $BRObj = foreach ($BackupRepo in $BackupRepos) {
                                     if ((($BackupRepo.id.Guid -notin $BackupServer.id.Guid) -and ($BackupRepo.id.Guid -notin $BackupProxies.id.Guid))) {
                                         try {
@@ -793,80 +803,84 @@ function Get-AbrVbrSecInfraHard {
                             Write-PscriboMessage -IsWarning $_.Exception.Message
                         }
                         try {
-                            Section -Style Heading5 'Agent Backup Jobs' {
-                                $OutObj = @()
-                                foreach ($ABkjob in $ABkjobs) {
-                                    try {
-                                        $inObj = [ordered] @{
-                                            'Name' = $ABkjob.Name
-                                            'Enabled Backup File Encryption' = ConvertTo-TextYN $ABkjob.StorageOptions.EncryptionEnabled
-                                            'Encryption Key' = Switch ($ABkjob.StorageOptions.EncryptionEnabled) {
-                                                $false {'None'}
-                                                default {(Get-VBREncryptionKey | Where-Object { $_.id -eq $ABkjob.StorageOptions.EncryptionKey.Id }).Description}
+                            if ($ABkjobs) {
+                                Section -Style Heading5 'Agent Backup Jobs' {
+                                    $OutObj = @()
+                                    foreach ($ABkjob in $ABkjobs) {
+                                        try {
+                                            $inObj = [ordered] @{
+                                                'Name' = $ABkjob.Name
+                                                'Enabled Backup File Encryption' = ConvertTo-TextYN $ABkjob.StorageOptions.EncryptionEnabled
+                                                'Encryption Key' = Switch ($ABkjob.StorageOptions.EncryptionEnabled) {
+                                                    $false {'None'}
+                                                    default {(Get-VBREncryptionKey | Where-Object { $_.id -eq $ABkjob.StorageOptions.EncryptionKey.Id }).Description}
+                                                }
+                                            }
+
+                                            $OutObj += [pscustomobject]$inobj
+
+                                            if ($HealthCheck.Security.BestPractice) {
+                                                $OutObj | Where-Object { $_.'Enabled Backup File Encryption' -like 'No'} | Set-Style -Style Warning -Property 'Enabled Backup File Encryption'
                                             }
                                         }
-
-                                        $OutObj += [pscustomobject]$inobj
-
-                                        if ($HealthCheck.Security.BestPractice) {
-                                            $OutObj | Where-Object { $_.'Enabled Backup File Encryption' -like 'No'} | Set-Style -Style Warning -Property 'Enabled Backup File Encryption'
+                                        catch {
+                                            Write-PscriboMessage -IsWarning $_.Exception.Message
                                         }
                                     }
-                                    catch {
-                                        Write-PscriboMessage -IsWarning $_.Exception.Message
+
+                                    $TableParams = @{
+                                        Name = "Agent Backup Jobs - $VeeamBackupServer"
+                                        List = $false
+                                        ColumnWidths = 34, 33, 33
                                     }
-                                }
 
-                                $TableParams = @{
-                                    Name = "Agent Backup Jobs - $VeeamBackupServer"
-                                    List = $false
-                                    ColumnWidths = 34, 33, 33
+                                    if ($Report.ShowTableCaptions) {
+                                        $TableParams['Caption'] = "- $($TableParams.Name)"
+                                    }
+                                    $OutObj | Sort-Object -Property 'Name' | Table @TableParams
                                 }
-
-                                if ($Report.ShowTableCaptions) {
-                                    $TableParams['Caption'] = "- $($TableParams.Name)"
-                                }
-                                $OutObj | Sort-Object -Property 'Name' | Table @TableParams
                             }
                         }
                         catch {
                             Write-PscriboMessage -IsWarning $_.Exception.Message
                         }
                         try {
-                            Section -Style Heading4 'File Share Backup Jobs' {
-                                $OutObj = @()
-                                foreach ($FSjob in $FSjobs) {
-                                    try {
-                                        $inObj = [ordered] @{
-                                            'Name' = $FSjob.Name
-                                            'Enabled Backup File Encryption' = ConvertTo-TextYN $FSjob.Options.BackupStorageOptions.StorageEncryptionEnabled
-                                            'Encryption Key' = Switch ($FSjob.Options.BackupStorageOptions.StorageEncryptionEnabled) {
-                                                $false {'None'}
-                                                default {(Get-VBREncryptionKey | Where-Object { $_.id -eq $FSjob.Info.PwdKeyId }).Description}
+                            if ($FSjobs) {
+                                Section -Style Heading4 'File Share Backup Jobs' {
+                                    $OutObj = @()
+                                    foreach ($FSjob in $FSjobs) {
+                                        try {
+                                            $inObj = [ordered] @{
+                                                'Name' = $FSjob.Name
+                                                'Enabled Backup File Encryption' = ConvertTo-TextYN $FSjob.Options.BackupStorageOptions.StorageEncryptionEnabled
+                                                'Encryption Key' = Switch ($FSjob.Options.BackupStorageOptions.StorageEncryptionEnabled) {
+                                                    $false {'None'}
+                                                    default {(Get-VBREncryptionKey | Where-Object { $_.id -eq $FSjob.Info.PwdKeyId }).Description}
+                                                }
+                                            }
+
+                                            $OutObj += [pscustomobject]$inobj
+
+                                            if ($HealthCheck.Security.BestPractice) {
+                                                $OutObj | Where-Object { $_.'Enabled Backup File Encryption' -like 'No'} | Set-Style -Style Warning -Property 'Enabled Backup File Encryption'
                                             }
                                         }
-
-                                        $OutObj += [pscustomobject]$inobj
-
-                                        if ($HealthCheck.Security.BestPractice) {
-                                            $OutObj | Where-Object { $_.'Enabled Backup File Encryption' -like 'No'} | Set-Style -Style Warning -Property 'Enabled Backup File Encryption'
+                                        catch {
+                                            Write-PscriboMessage -IsWarning $_.Exception.Message
                                         }
                                     }
-                                    catch {
-                                        Write-PscriboMessage -IsWarning $_.Exception.Message
+
+                                    $TableParams = @{
+                                        Name = "File Share Backup Jobs - $VeeamBackupServer"
+                                        List = $false
+                                        ColumnWidths = 34, 33, 33
                                     }
-                                }
 
-                                $TableParams = @{
-                                    Name = "File Share Backup Jobs - $VeeamBackupServer"
-                                    List = $false
-                                    ColumnWidths = 34, 33, 33
+                                    if ($Report.ShowTableCaptions) {
+                                        $TableParams['Caption'] = "- $($TableParams.Name)"
+                                    }
+                                    $OutObj | Sort-Object -Property 'Name' | Table @TableParams
                                 }
-
-                                if ($Report.ShowTableCaptions) {
-                                    $TableParams['Caption'] = "- $($TableParams.Name)"
-                                }
-                                $OutObj | Sort-Object -Property 'Name' | Table @TableParams
                             }
                         }
                         catch {

@@ -21,5 +21,8 @@
     "editor.rulers": [
         115
     ],
-    "files.trimTrailingWhitespace": true
+    "files.trimTrailingWhitespace": true,
+    "githubPullRequests.ignoredPullRequestBranches": [
+        "dev"
+    ]
 }
