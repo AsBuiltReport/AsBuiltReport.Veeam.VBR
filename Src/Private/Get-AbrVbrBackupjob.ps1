@@ -69,7 +69,7 @@ function Get-AbrVbrBackupjob {
                     if ((Get-VBRTapeJob -ErrorAction SilentlyContinue).LastResult) {
                         $Alljobs += (Get-VBRTapeJob).LastResult
                     }
-                    if ((Get-VSBJob -ErrorAction SilentlyContinue).GetLastResult()) {
+                    if (Get-VSBJob -ErrorAction SilentlyContinue) {
                         $Alljobs += (Get-VSBJob).GetLastResult()
                     }
                     $sampleData = $Alljobs | Group-Object
