@@ -62,7 +62,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
             #                            Backup Infrastructure Section                                    #
             #---------------------------------------------------------------------------------------------#
             if ($InfoLevel.Infrastructure.PSObject.Properties.Value -ne 0) {
-                Section -Style Heading2 'Backup Infrastructure Components' {
+                Section -Style Heading2 'Backup Infrastructure' {
                     Paragraph "The following section details configuration information about the Backup Server: $($VeeamBackupServer)"
                     BlankLine
                     Get-AbrVbrInfrastructureSummary
@@ -120,7 +120,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
             #---------------------------------------------------------------------------------------------#
             if ($InfoLevel.Tape.PSObject.Properties.Value -ne 0) {
                 if ((Get-VBRTapeServer).count -gt 0) {
-                    Section -Style Heading2 'Tape Infrastructure Components' {
+                    Section -Style Heading2 'Tape Infrastructure' {
                         Paragraph "The following section details Tape Infrastructure configuration information"
                         BlankLine
                         Get-AbrVbrTapeInfraSummary
@@ -152,7 +152,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
             #---------------------------------------------------------------------------------------------#
             if ($InfoLevel.Inventory.PSObject.Properties.Value -ne 0) {
                 if ((Get-VBRServer).count -gt 0) {
-                    Section -Style Heading2 'Inventory Components' {
+                    Section -Style Heading2 'Inventory' {
                         Paragraph "The following section provides inventory information about the Virtual Infrastructure managed by Veeam Server $(((Get-VBRServerSession).Server))."
                         BlankLine
                         Get-AbrVbrInventorySummary
@@ -178,7 +178,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
             #---------------------------------------------------------------------------------------------#
             if ($InfoLevel.Storage.PSObject.Properties.Value -ne 0) {
                 if ((Get-NetAppHost).count -gt 0) {
-                    Section -Style Heading2 'Storage Infrastructure Components' {
+                    Section -Style Heading2 'Storage Infrastructure' {
                         Paragraph "The following section provides information about the storage infrastructure managed by Veeam Server $(((Get-VBRServerSession).Server))."
                         BlankLine
                         Get-AbrVbrStorageInfraSummary
@@ -198,7 +198,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
             #---------------------------------------------------------------------------------------------#
             if ($InfoLevel.Replication.PSObject.Properties.Value -ne 0) {
                 if ((Get-VBRReplica).count -gt 0 -or ((Get-VBRFailoverPlan).count -gt 0))  {
-                    Section -Style Heading2 'Replication Components' {
+                    Section -Style Heading2 'Replication' {
                         Paragraph "The following section provides information about the replications managed by Veeam Server $(((Get-VBRServerSession).Server))."
                         BlankLine
                         Get-AbrVbrReplInfraSummary
