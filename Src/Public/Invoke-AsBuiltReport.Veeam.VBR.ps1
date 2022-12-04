@@ -58,17 +58,6 @@ function Invoke-AsBuiltReport.Veeam.VBR {
         Section -Style Heading1 $($VeeamBackupServer) {
             Paragraph "The following section provides an overview of the implemented components of Veeam Backup & Replication."
             BlankLine
-
-            #---------------------------------------------------------------------------------------------#
-            #                            Executive Summary Section                                    #
-            #---------------------------------------------------------------------------------------------#
-            Section -Style Heading2 'Executive Summary' {
-                Get-AbrVbrInfrastructureSummary
-                Get-AbrVbrTapeInfraSummary
-                Get-AbrVbrInventorySummary
-                Get-AbrVbrStorageInfraSummary
-                Get-AbrVbrReplInfraSummary
-            }
             #---------------------------------------------------------------------------------------------#
             #                            Backup Infrastructure Section                                    #
             #---------------------------------------------------------------------------------------------#
@@ -76,6 +65,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                 Section -Style Heading2 'Backup Infrastructure Components' {
                     Paragraph "The following section details configuration information about the Backup Server: $($VeeamBackupServer)"
                     BlankLine
+                    Get-AbrVbrInfrastructureSummary
                     Get-AbrVbrBackupServerInfo
                     Get-AbrVbrEnterpriseManagerInfo
                     Write-PScriboMessage "Infrastructure Licenses InfoLevel set at $($InfoLevel.Infrastructure.Licenses)."
@@ -133,6 +123,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                     Section -Style Heading2 'Tape Infrastructure Components' {
                         Paragraph "The following section details Tape Infrastructure configuration information"
                         BlankLine
+                        Get-AbrVbrTapeInfraSummary
                         Write-PScriboMessage "Tape Server InfoLevel set at $($InfoLevel.Tape.Server)."
                         if ($InfoLevel.Tape.Server -ge 1) {
                             Get-AbrVbrTapeServer
@@ -164,6 +155,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                     Section -Style Heading2 'Inventory Components' {
                         Paragraph "The following section provides inventory information about the Virtual Infrastructure managed by Veeam Server $(((Get-VBRServerSession).Server))."
                         BlankLine
+                        Get-AbrVbrInventorySummary
                         Write-PScriboMessage "Virtual Inventory InfoLevel set at $($InfoLevel.Inventory.VI)."
                         if ($InfoLevel.Inventory.VI -ge 1) {
                             Get-AbrVbrVirtualInfrastructure
@@ -189,6 +181,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                     Section -Style Heading2 'Storage Infrastructure Components' {
                         Paragraph "The following section provides information about the storage infrastructure managed by Veeam Server $(((Get-VBRServerSession).Server))."
                         BlankLine
+                        Get-AbrVbrStorageInfraSummary
                         Write-PScriboMessage "NetApp Ontap InfoLevel set at $($InfoLevel.Storage.Ontap)."
                         if ($InfoLevel.Storage.Ontap -ge 1) {
                             Get-AbrVbrStorageOntap
@@ -208,6 +201,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                     Section -Style Heading2 'Replication Components' {
                         Paragraph "The following section provides information about the replications managed by Veeam Server $(((Get-VBRServerSession).Server))."
                         BlankLine
+                        Get-AbrVbrReplInfraSummary
                         Write-PScriboMessage "Replica InfoLevel set at $($InfoLevel.Replication.Replica)."
                         if ($InfoLevel.Replication.Replica -ge 1) {
                             Get-AbrVbrReplReplica
@@ -228,6 +222,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                         Section -Style Heading2 'Cloud Connect' {
                             Paragraph "The following section provides information about Cloud Connect components from server $(((Get-VBRServerSession).Server))."
                             BlankLine
+                            Get-AbrVbrCloudConnectSummary
                             Get-AbrVbrCloudConnectStatus
                             Write-PScriboMessage "Cloud Certificate InfoLevel set at $($InfoLevel.CloudConnect.Certificate)."
                             if ($InfoLevel.CloudConnect.Certificate -ge 1) {

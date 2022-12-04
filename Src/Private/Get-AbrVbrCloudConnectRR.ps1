@@ -52,7 +52,7 @@ function Get-AbrVbrCloudConnectRR {
                                         }
                                         'Storage Quota' = "$(($CloudObject.Datastore.Quota | Measure-Object -Sum).Sum) GB"
                                         'Network Count' = $CloudObject.NumberOfNetWithInternet + $CloudObject.NumberOfNetWithoutInternet
-                                        'Subscribers' = ($CloudObject.SubscribedTenantId).count
+                                        'Subscribers Count' = ($CloudObject.SubscribedTenantId).count
                                     }
 
                                     $OutObj += [pscustomobject]$inobj
@@ -63,7 +63,7 @@ function Get-AbrVbrCloudConnectRR {
                             }
 
                             if ($HealthCheck.CloudConnect.ReplicaResources) {
-                                $OutObj | Where-Object { $_.'Subscribers' -eq 0} | Set-Style -Style Warning -Property 'Subscribers'
+                                $OutObj | Where-Object { $_.'Subscribers Count' -eq 0} | Set-Style -Style Warning -Property 'Subscribers Count'
                             }
 
                             $TableParams = @{
@@ -105,7 +105,7 @@ function Get-AbrVbrCloudConnectRR {
                                                                 'Network Count' = $CloudObject.NumberOfNetWithInternet + $CloudObject.NumberOfNetWithoutInternet
                                                                 'Subscribed Tenant' = Switch ([string]::IsNullOrEmpty($CloudObject.SubscribedTenantId)) {
                                                                     $true {'None'}
-                                                                    $false {($CloudObject.SubscribedTenantId | ForEach-Object {Get-VBRCloudTenant -Id $_}).Name}
+                                                                    $false {($CloudObject.SubscribedTenantId | ForEach-Object {Get-VBRCloudTenant -Id $_}).Name -join ", "}
                                                                     default {'Unknown'}
                                                                 }
                                                                 'Description' = $CloudObject.Description
@@ -197,6 +197,43 @@ function Get-AbrVbrCloudConnectRR {
                                                                 $TableParams['Caption'] = "- $($TableParams.Name)"
                                                             }
                                                             $OutObj | Sort-Object -Property 'Name' | Table @TableParams
+                                                        }
+                                                    }
+                                                    catch {
+                                                        Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                    }
+                                                    try {
+                                                        $Tenants = Get-VBRCloudTenant | where-Object {$_.ReplicationResources.HardwarePlanOptions.HardwarePlanId -eq $CloudObject.Id}
+                                                        $TenantHardwarePlan = @()
+                                                        foreach ($Tenant in $Tenants) {
+                                                            $planOption = $Tenant.ReplicationResources.HardwarePlanOptions | Where-Object {$_.HardwarePlanId -eq $CloudObject.Id}
+                                                            $TenantHardwarePlan += $Tenant | Select-Object Name, @{n='CPUUsage';e={$planOption.UsedCPU}}, @{n='MemoryUsage';e={$planOption.UsedMemory}}, @{n='StorageUsage';e={$planOption.DatastoreQuota}}
+                                                        }
+                                                        if ($TenantHardwarePlan) {
+                                                            Section -ExcludeFromTOC -Style NOTOCHeading6 'Tenant Utilization' {
+                                                                $OutObj = @()
+                                                                foreach ($TenantUtil in $TenantHardwarePlan) {
+                                                                    $inObj = [ordered] @{
+                                                                        'Name' = $TenantUtil.Name
+                                                                        'CPU Usage' = $TenantUtil.CPUUsage
+                                                                        'Memory Usage' = $TenantUtil.MemoryUsage
+                                                                        'Storage Usage' =  $TenantUtil.StorageUsage | ForEach-Object {"$($_.UsedSpace) GB ($($_.FriendlyName))"}
+                                                                    }
+
+                                                                    $OutObj += [pscustomobject]$inobj
+                                                                }
+
+                                                                $TableParams = @{
+                                                                    Name = "Tenant Utilization - $($CloudObject.Name)"
+                                                                    List = $false
+                                                                    ColumnWidths = 25, 25, 25, 25
+                                                                }
+
+                                                                if ($Report.ShowTableCaptions) {
+                                                                    $TableParams['Caption'] = "- $($TableParams.Name)"
+                                                                }
+                                                                $OutObj | Sort-Object -Property 'Name' | Table @TableParams
+                                                            }
                                                         }
                                                     }
                                                     catch {
