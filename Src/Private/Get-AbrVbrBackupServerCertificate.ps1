@@ -45,7 +45,7 @@ function Get-AbrVbrBackupServerCertificate {
                         }
                     }
                     catch {
-                        Write-PscriboMessage -IsWarning $_.Exception.Message
+                        Write-PscriboMessage -IsWarning "Backup Server TLS Certificate Section: $($_.Exception.Message)"
                     }
 
                     if ($HealthCheck.Infrastructure.Settings) {
@@ -65,7 +65,7 @@ function Get-AbrVbrBackupServerCertificate {
             }
         }
         catch {
-            Write-PscriboMessage -IsWarning $_.Exception.Message
+            Write-PscriboMessage -IsWarning "Backup Server TLS Certificate Section: $($_.Exception.Message)"
         }
     }
     end {}

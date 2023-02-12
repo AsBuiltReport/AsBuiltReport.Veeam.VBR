@@ -49,7 +49,7 @@ function Get-AbrVbrBackupjob {
                         $OutObj += [pscustomobject]$inobj
                     }
                     catch {
-                        Write-PscriboMessage -IsWarning $_.Exception.Message
+                        Write-PscriboMessage -IsWarning "Backup Jobs Section: $($_.Exception.Message)"
                     }
                 }
 
@@ -69,7 +69,7 @@ function Get-AbrVbrBackupjob {
                     if ((Get-VBRTapeJob -ErrorAction SilentlyContinue).LastResult) {
                         $Alljobs += (Get-VBRTapeJob).LastResult
                     }
-                    if (Get-VSBJob -ErrorAction SilentlyContinue) {
+                    if ((Get-VSBJob -ErrorAction SilentlyContinue).GetLastResult()) {
                         $Alljobs += (Get-VSBJob).GetLastResult()
                     }
                     $sampleData = $Alljobs | Group-Object
@@ -128,7 +128,7 @@ function Get-AbrVbrBackupjob {
             }
         }
         catch {
-            Write-PscriboMessage -IsWarning $_.Exception.Message
+            Write-PscriboMessage -IsWarning "Backup Jobs Section: $($_.Exception.Message)"
         }
     }
     end {}

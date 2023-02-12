@@ -110,7 +110,7 @@ function Get-AbrVbrBackupProxy {
                                 }
                             }
                             catch {
-                                Write-PscriboMessage -IsWarning $_.Exception.Message
+                                Write-PscriboMessage -IsWarning "VMware Backup Proxies Section: $($_.Exception.Message)"
                             }
                             #---------------------------------------------------------------------------------------------#
                             #                    VMware Backup Proxy Inventory Summary Section                             #
@@ -194,7 +194,7 @@ function Get-AbrVbrBackupProxy {
                                                                                 $LocalDiskReport += $TempLocalDiskReport
                                                                             }
                                                                             catch {
-                                                                                Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                                                Write-PscriboMessage -IsWarning "VMware Backup Proxies Local Disks $($Disk.Number) Section: $($_.Exception.Message)"
                                                                             }
                                                                         }
                                                                         $TableParams = @{
@@ -210,7 +210,7 @@ function Get-AbrVbrBackupProxy {
                                                                 }
                                                             }
                                                             catch {
-                                                                Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                                Write-PscriboMessage -IsWarning "VMware Backup Proxies Fibre Channel Section: $($_.Exception.Message)"
                                                             }
                                                             #---------------------------------------------------------------------------------------------#
                                                             #                       Backup Proxy SAN Disk Inventory Section                              #
@@ -232,7 +232,7 @@ function Get-AbrVbrBackupProxy {
                                                                                 $SanDiskReport += $TempSanDiskReport
                                                                             }
                                                                             catch {
-                                                                                Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                                                Write-PscriboMessage -IsWarning "VMware Backup Proxies Fibre Channel $($Disk.Number) Section: $($_.Exception.Message)"
                                                                             }
                                                                         }
                                                                         $TableParams = @{
@@ -248,7 +248,7 @@ function Get-AbrVbrBackupProxy {
                                                                 }
                                                             }
                                                             catch {
-                                                                Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                                Write-PscriboMessage -IsWarning "VMware Backup Proxies Fibre Channel Section: $($_.Exception.Message)"
                                                             }
                                                         }
                                                         try {
@@ -269,7 +269,7 @@ function Get-AbrVbrBackupProxy {
                                                                             $HostVolumeReport += $TempHostVolumeReport
                                                                         }
                                                                         catch {
-                                                                            Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                                            Write-PscriboMessage -IsWarning "VMware Backup Proxies Host Volumes $($HostVolume.DriveLetter) Section: $($_.Exception.Message)"
                                                                         }
                                                                     }
                                                                     $TableParams = @{
@@ -285,7 +285,7 @@ function Get-AbrVbrBackupProxy {
                                                             }
                                                         }
                                                         catch {
-                                                            Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                            Write-PscriboMessage -IsWarning "VMware Backup Proxies Host Volumes Section: $($_.Exception.Message)"
                                                         }
                                                         #---------------------------------------------------------------------------------------------#
                                                         #                       Backup Proxy Network Inventory Section                               #
@@ -307,7 +307,7 @@ function Get-AbrVbrBackupProxy {
                                                                                 $HostAdaptersReport += $TempHostAdaptersReport
                                                                             }
                                                                             catch {
-                                                                                Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                                                Write-PscriboMessage -IsWarning "VMware Backup Proxies Network Adapter $($HostAdapter.Name) Section: $($_.Exception.Message)"
                                                                             }
                                                                         }
                                                                         $TableParams = @{
@@ -323,7 +323,7 @@ function Get-AbrVbrBackupProxy {
                                                                 }
                                                             }
                                                             catch {
-                                                                Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                                Write-PscriboMessage -IsWarning "VMware Backup Proxies Network Adapter Section: $($_.Exception.Message)"
                                                             }
                                                             try {
                                                                 $NetIPs = Invoke-Command -Session $PssSession { Get-NetIPConfiguration | Where-Object -FilterScript { ($_.NetAdapter.Status -Eq "Up") } }
@@ -342,7 +342,7 @@ function Get-AbrVbrBackupProxy {
                                                                                 $NetIpsReport += $TempNetIpsReport
                                                                             }
                                                                             catch {
-                                                                                Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                                                Write-PscriboMessage -IsWarning "VMware Backup Proxies IP Address $($NetIp.InterfaceAlias) Section: $($_.Exception.Message)"
                                                                             }
                                                                         }
                                                                         $TableParams = @{
@@ -358,7 +358,7 @@ function Get-AbrVbrBackupProxy {
                                                                 }
                                                             }
                                                             catch {
-                                                                Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                                Write-PscriboMessage -IsWarning "VMware Backup Proxies IP Address Section: $($_.Exception.Message)"
                                                             }
                                                         }
                                                     }
@@ -367,7 +367,7 @@ function Get-AbrVbrBackupProxy {
                                                 }
                                             }
                                             catch {
-                                                Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                Write-PscriboMessage -IsWarning "VMware Backup Proxies  Section: $($_.Exception.Message)"
                                             }
                                         }
                                         if ($vSphereVBProxyObj) {
@@ -379,7 +379,7 @@ function Get-AbrVbrBackupProxy {
                                 }
                             }
                             catch {
-                                Write-PscriboMessage -IsWarning $_.Exception.Message
+                                Write-PscriboMessage -IsWarning "VMware Backup Proxies Hardware & Software Inventory Section: $($_.Exception.Message)"
                             }
                             #---------------------------------------------------------------------------------------------#
                             #                    VMware Backup Proxy Service information Section                           #
@@ -431,13 +431,13 @@ function Get-AbrVbrBackupProxy {
                                                 }
                                             }
                                             catch {
-                                                Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                Write-PscriboMessage -IsWarning "VMware Backup Proxies $($BackupProxy.Host.Name) Services Status Section: $($_.Exception.Message)"
                                             }
                                         }
                                     }
                                 }
                                 catch {
-                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                    Write-PscriboMessage -IsWarning "VMware Backup Proxies Services Status Section: $($_.Exception.Message)"
                                 }
                             }
                         }
@@ -470,7 +470,7 @@ function Get-AbrVbrBackupProxy {
                                             $OutObj += [pscustomobject]$inobj
                                         }
                                         catch {
-                                            Write-PscriboMessage -IsWarning $_.Exception.Message
+                                            Write-PscriboMessage -IsWarning "Hyper-V Backup Proxies $($BackupProxy.Name) Section: $($_.Exception.Message)"
                                         }
                                     }
 
@@ -527,7 +527,7 @@ function Get-AbrVbrBackupProxy {
                                             $OutObj | Table @TableParams
                                         }
                                         catch {
-                                            Write-PscriboMessage -IsWarning $_.Exception.Message
+                                            Write-PscriboMessage -IsWarning "Hyper-V Backup Proxies $($BackupProxy.Name) Section: $($_.Exception.Message)"
                                         }
                                     }
                                 }
@@ -614,7 +614,7 @@ function Get-AbrVbrBackupProxy {
                                                                                     $LocalDiskReport += $TempLocalDiskReport
                                                                                 }
                                                                                 catch {
-                                                                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                                                    Write-PscriboMessage -IsWarning "Hyper-V Backup Proxies Local Disk $($Disk.Number) Section: $($_.Exception.Message)"
                                                                                 }
                                                                             }
                                                                             $TableParams = @{
@@ -630,7 +630,7 @@ function Get-AbrVbrBackupProxy {
                                                                     }
                                                                 }
                                                                 catch {
-                                                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                                    Write-PscriboMessage -IsWarning "Hyper-V Backup Proxies Local Disk Section: $($_.Exception.Message)"
                                                                 }
                                                                 #---------------------------------------------------------------------------------------------#
                                                                 #                       Backup Proxy SAN Disk Inventory Section                              #
@@ -652,7 +652,7 @@ function Get-AbrVbrBackupProxy {
                                                                                     $SanDiskReport += $TempSanDiskReport
                                                                                 }
                                                                                 catch {
-                                                                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                                                    Write-PscriboMessage -IsWarning "Hyper-V Backup Proxies SAN Disk $($Disk.Number) Section: $($_.Exception.Message)"
                                                                                 }
                                                                             }
                                                                             $TableParams = @{
@@ -668,7 +668,7 @@ function Get-AbrVbrBackupProxy {
                                                                     }
                                                                 }
                                                                 catch {
-                                                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                                    Write-PscriboMessage -IsWarning "Hyper-V Backup Proxies Local Disk Section: $($_.Exception.Message)"
                                                                 }
                                                             }
                                                             #---------------------------------------------------------------------------------------------#
@@ -692,7 +692,7 @@ function Get-AbrVbrBackupProxy {
                                                                                 $HostVolumeReport += $TempHostVolumeReport
                                                                             }
                                                                             catch {
-                                                                                Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                                                Write-PscriboMessage -IsWarning "Hyper-V Backup Proxies Host Volume $($HostVolume.DriveLetter) Section: $($_.Exception.Message)"
                                                                             }
                                                                         }
                                                                         $TableParams = @{
@@ -708,7 +708,7 @@ function Get-AbrVbrBackupProxy {
                                                                 }
                                                             }
                                                             catch {
-                                                                Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                                Write-PscriboMessage -IsWarning "Hyper-V Backup Proxies Host Volume Section: $($_.Exception.Message)"
                                                             }
                                                             #---------------------------------------------------------------------------------------------#
                                                             #                       Backup Proxy Network Inventory Section                               #
@@ -730,7 +730,7 @@ function Get-AbrVbrBackupProxy {
                                                                                     $HostAdaptersReport += $TempHostAdaptersReport
                                                                                 }
                                                                                 catch {
-                                                                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                                                    Write-PscriboMessage -IsWarning "Hyper-V Backup Proxies Network Adapter $($HostAdapter.Name) Section: $($_.Exception.Message)"
                                                                                 }
                                                                             }
                                                                             $TableParams = @{
@@ -746,7 +746,7 @@ function Get-AbrVbrBackupProxy {
                                                                     }
                                                                 }
                                                                 catch {
-                                                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                                    Write-PscriboMessage -IsWarning "Hyper-V Backup Proxies Network Adapter Section: $($_.Exception.Message)"
                                                                 }
                                                                 try {
                                                                     $NetIPs = Invoke-Command -Session $PssSession { Get-NetIPConfiguration | Where-Object -FilterScript { ($_.NetAdapter.Status -Eq "Up") } }
@@ -765,7 +765,7 @@ function Get-AbrVbrBackupProxy {
                                                                                     $NetIpsReport += $TempNetIpsReport
                                                                                 }
                                                                                 catch {
-                                                                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                                                    Write-PscriboMessage -IsWarning "Hyper-V Backup Proxies IP Address $($NetIp.InterfaceAlias) Section: $($_.Exception.Message)"
                                                                                 }
                                                                             }
                                                                             $TableParams = @{
@@ -781,7 +781,7 @@ function Get-AbrVbrBackupProxy {
                                                                     }
                                                                 }
                                                                 catch {
-                                                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                                    Write-PscriboMessage -IsWarning "Hyper-V Backup Proxies IP Address Section: $($_.Exception.Message)"
                                                                 }
                                                             }
                                                         }
@@ -790,7 +790,7 @@ function Get-AbrVbrBackupProxy {
                                                     }
                                                 }
                                                 catch {
-                                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                    Write-PscriboMessage -IsWarning "Hyper-V Backup Proxies Hardware & Software Inventory Section: $($_.Exception.Message)"
                                                 }
                                             }
                                             if ($HyperVBProxyObj) {
@@ -803,7 +803,7 @@ function Get-AbrVbrBackupProxy {
                                     }
                                 }
                                 catch {
-                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                    Write-PscriboMessage -IsWarning "Hyper-V Backup Proxies Section: $($_.Exception.Message)"
                                 }
                                 #---------------------------------------------------------------------------------------------#
                                 #                    Hyper-V Backup Proxy Service information Section                          #
@@ -855,26 +855,26 @@ function Get-AbrVbrBackupProxy {
                                                     }
                                                 }
                                                 catch {
-                                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                    Write-PscriboMessage -IsWarning "Hyper-V Backup Proxies Services Status Section: $($_.Exception.Message)"
                                                 }
                                             }
                                         }
                                     }
                                     catch {
-                                        Write-PscriboMessage -IsWarning $_.Exception.Message
+                                        Write-PscriboMessage -IsWarning "Hyper-V Backup Proxies Services Status Section: $($_.Exception.Message)"
                                     }
                                 }
                             }
                         }
                     }
                     catch {
-                        Write-PscriboMessage -IsWarning $_.Exception.Message
+                        Write-PscriboMessage -IsWarning "Hyper-V Backup Proxies Section: $($_.Exception.Message)"
                     }
                 }
             }
         }
         catch {
-            Write-PscriboMessage -IsWarning $_.Exception.Message
+            Write-PscriboMessage -IsWarning "Backup Proxies Section: $($_.Exception.Message)"
         }
     }
     end {}

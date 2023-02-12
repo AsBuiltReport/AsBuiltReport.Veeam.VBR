@@ -46,7 +46,7 @@ function Get-AbrVbrBackupjobVMware {
                                     $OutObj += [pscustomobject]$inobj
                                 }
                                 catch {
-                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                    Write-PscriboMessage -IsWarning "VMware Backup Jobs Configuration Section: $($_.Exception.Message)"
                                 }
                             }
 

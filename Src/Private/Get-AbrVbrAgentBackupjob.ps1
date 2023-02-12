@@ -44,7 +44,7 @@ function Get-AbrVbrAgentBackupjob {
                             $OutObj += [pscustomobject]$inobj
                         }
                         catch {
-                            Write-PscriboMessage -IsWarning $_.Exception.Message
+                            Write-PscriboMessage -IsWarning "Agent Backup Jobs $($ABkjob.Name) Section: $($_.Exception.Message)"
                         }
                     }
 
@@ -61,7 +61,7 @@ function Get-AbrVbrAgentBackupjob {
             }
         }
         catch {
-            Write-PscriboMessage -IsWarning $_.Exception.Message
+            Write-PscriboMessage -IsWarning "Agent Backup Jobs Section: $($_.Exception.Message)"
         }
     }
     end {}

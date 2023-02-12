@@ -41,13 +41,13 @@ function Get-AbrVbrWANAccelerator {
                                     $IsWaHasAnyCaches = $WANAccel.IsWaHasAnyCaches()
                                 }
                                 catch {
-                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                    Write-PscriboMessage -IsWarning "Wan Accelerator $($WANAccel.Name) Section: $($_.Exception.Message)"
                                 }
                                 try {
                                     $ServiceIPAddress = $WANAccel.GetWaConnSpec().Endpoints.IP -join ", "
                                 }
                                 catch {
-                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                    Write-PscriboMessage -IsWarning "Wan Accelerator $($WANAccel.Name) Section: $($_.Exception.Message)"
                                 }
                                 $inObj = [ordered] @{
                                     'Name' = $WANAccel.Name
@@ -81,18 +81,18 @@ function Get-AbrVbrWANAccelerator {
                                 $OutObj | Table @TableParams
                             }
                             catch {
-                                Write-PscriboMessage -IsWarning $_.Exception.Message
+                                Write-PscriboMessage -IsWarning "Wan Accelerator Section: $($_.Exception.Message)"
                             }
                         }
                     }
                     catch {
-                        Write-PscriboMessage -IsWarning $_.Exception.Message
+                        Write-PscriboMessage -IsWarning "Wan Accelerator Section: $($_.Exception.Message)"
                     }
                 }
             }
         }
         catch {
-            Write-PscriboMessage -IsWarning $_.Exception.Message
+            Write-PscriboMessage -IsWarning "Wan Accelerator Section: $($_.Exception.Message)"
         }
     }
     end {}

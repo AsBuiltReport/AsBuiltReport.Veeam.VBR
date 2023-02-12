@@ -38,10 +38,10 @@ function Get-AbrVbrBackupServerInfo {
                             Write-PscriboMessage "Collecting Backup Server information from $($BackupServer.Name)."
                             try {
                                 $VeeamVersion = Invoke-Command -Session $PssSession -ErrorAction SilentlyContinue -ScriptBlock { get-childitem -recurse HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall | get-itemproperty | Where-Object { $_.DisplayName  -match 'Veeam Backup & Replication Server' } | Select-Object -Property DisplayVersion }
-                            } catch {Write-PscriboMessage -IsWarning $_.Exception.Message}
+                            } catch {Write-PscriboMessage -IsWarning "Backup Server Inkoke-Command Section: $($_.Exception.Message)"}
                             try {
                                 $VeeamInfo = Invoke-Command -Session $PssSession -ErrorAction SilentlyContinue -ScriptBlock { Get-ItemProperty -Path 'HKLM:\SOFTWARE\Veeam\Veeam Backup and Replication' }
-                            } catch {Write-PscriboMessage -IsWarning $_.Exception.Message}
+                            } catch {Write-PscriboMessage -IsWarning "Backup Server Invoke-Command  Section: $($_.Exception.Message)"}
                             Write-PscriboMessage "Discovered $BackupServer Server."
                             $inObj = [ordered] @{
                                 'Server Name' = $BackupServer.Name
@@ -87,7 +87,7 @@ function Get-AbrVbrBackupServerInfo {
                         }
                     }
                     catch {
-                        Write-PscriboMessage -IsWarning $_.Exception.Message
+                        Write-PscriboMessage -IsWarning "Backup Server Section: $($_.Exception.Message)"
                     }
 
                     if ($HealthCheck.Infrastructure.BackupServer) {
@@ -177,7 +177,7 @@ function Get-AbrVbrBackupServerInfo {
                                                             $LocalDiskReport += $TempLocalDiskReport
                                                         }
                                                         catch {
-                                                            Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                            Write-PscriboMessage -IsWarning "Backup Server Local Disk $($Disk.Number) Section: $($_.Exception.Message)"
                                                         }
                                                     }
                                                     $TableParams = @{
@@ -193,7 +193,7 @@ function Get-AbrVbrBackupServerInfo {
                                             }
                                         }
                                         catch {
-                                            Write-PscriboMessage -IsWarning $_.Exception.Message
+                                            Write-PscriboMessage -IsWarning "Backup Server Local Disk Section: $($_.Exception.Message)"
                                         }
                                         #---------------------------------------------------------------------------------------------#
                                         #                       Backup Server SAN Disk Inventory Section                              #
@@ -215,7 +215,7 @@ function Get-AbrVbrBackupServerInfo {
                                                             $SanDiskReport += $TempSanDiskReport
                                                         }
                                                         catch {
-                                                            Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                            Write-PscriboMessage -IsWarning "Backup Server SAN Disk $($Disk.Number) Section: $($_.Exception.Message)"
                                                         }
                                                     }
                                                     $TableParams = @{
@@ -231,7 +231,7 @@ function Get-AbrVbrBackupServerInfo {
                                             }
                                         }
                                         catch {
-                                            Write-PscriboMessage -IsWarning $_.Exception.Message
+                                            Write-PscriboMessage -IsWarning "Backup Server SAN Disk Section: $($_.Exception.Message)"
                                         }
                                     }
                                     #---------------------------------------------------------------------------------------------#
@@ -255,7 +255,7 @@ function Get-AbrVbrBackupServerInfo {
                                                         $HostVolumeReport += $TempHostVolumeReport
                                                     }
                                                     catch {
-                                                        Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                        Write-PscriboMessage -IsWarning "Backup Server Host Volume $($HostVolume.DriveLetter) Section: $($_.Exception.Message)"
                                                     }
                                                 }
                                                 $TableParams = @{
@@ -271,7 +271,7 @@ function Get-AbrVbrBackupServerInfo {
                                         }
                                     }
                                     catch {
-                                        Write-PscriboMessage -IsWarning $_.Exception.Message
+                                        Write-PscriboMessage -IsWarning "Backup Server Host Volume Section: $($_.Exception.Message)"
                                     }
                                     #---------------------------------------------------------------------------------------------#
                                     #                       Backup Server Network Inventory Section                               #
@@ -293,7 +293,7 @@ function Get-AbrVbrBackupServerInfo {
                                                             $HostAdaptersReport += $TempHostAdaptersReport
                                                         }
                                                         catch {
-                                                            Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                            Write-PscriboMessage -IsWarning "Backup Server Host Volume $($HostAdapter.Name) Section: $($_.Exception.Message)"
                                                         }
                                                     }
                                                     $TableParams = @{
@@ -309,7 +309,7 @@ function Get-AbrVbrBackupServerInfo {
                                             }
                                         }
                                         catch {
-                                            Write-PscriboMessage -IsWarning $_.Exception.Message
+                                            Write-PscriboMessage -IsWarning "Backup Server Host Volume Section: $($_.Exception.Message)"
                                         }
                                         try {
                                             $NetIPs = Invoke-Command -Session $PssSession { Get-NetIPConfiguration | Where-Object -FilterScript { ($_.NetAdapter.Status -Eq "Up") } }
@@ -328,7 +328,7 @@ function Get-AbrVbrBackupServerInfo {
                                                             $NetIpsReport += $TempNetIpsReport
                                                         }
                                                         catch {
-                                                            Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                            Write-PscriboMessage -IsWarning "Backup Server Host Volume $($NetIp.InterfaceAlias) Section: $($_.Exception.Message)"
                                                         }
                                                     }
                                                     $TableParams = @{
@@ -344,7 +344,7 @@ function Get-AbrVbrBackupServerInfo {
                                             }
                                         }
                                         catch {
-                                            Write-PscriboMessage -IsWarning $_.Exception.Message
+                                            Write-PscriboMessage -IsWarning "Backup Server Host Volume Section: $($_.Exception.Message)"
                                         }
                                     }
                                 }
@@ -352,7 +352,7 @@ function Get-AbrVbrBackupServerInfo {
                         }
                     }
                     catch {
-                        Write-PscriboMessage -IsWarning $_.Exception.Message
+                        Write-PscriboMessage -IsWarning "Backup Server Inventory Summary Section: $($_.Exception.Message)"
                     }
                     #---------------------------------------------------------------------------------------------#
                     #                             Backup Server Services Information Section                      #
@@ -396,7 +396,7 @@ function Get-AbrVbrBackupServerInfo {
                             }
                         }
                         catch {
-                            Write-PscriboMessage -IsWarning $_.Exception.Message
+                            Write-PscriboMessage -IsWarning "Backup Server Service Status Section: $($_.Exception.Message)"
                         }
                         try {
                             Write-PScriboMessage "Infrastructure Backup Server InfoLevel set at $($InfoLevel.Infrastructure.BackupServer)."
@@ -474,7 +474,7 @@ function Get-AbrVbrBackupServerInfo {
                             }
                         }
                         catch {
-                            Write-PscriboMessage -IsWarning $_.Exception.Message
+                            Write-PscriboMessage -IsWarning "Backup Server Non-Default Registry Keys Section: $($_.Exception.Message)"
                         }
                         try {
                             Write-PScriboMessage "Infrastructure Backup Server InfoLevel set at $($InfoLevel.Infrastructure.BackupServer)."
@@ -499,7 +499,7 @@ function Get-AbrVbrBackupServerInfo {
                                                 $OutObj += [pscustomobject]$inobj
                                             }
                                             catch {
-                                                Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                Write-PscriboMessage -IsWarning "Backup Server Network Statistics $($NetStat.Protocol) Section: $($_.Exception.Message)"
                                             }
                                         }
 
@@ -517,14 +517,14 @@ function Get-AbrVbrBackupServerInfo {
                             }
                         }
                         catch {
-                            Write-PscriboMessage -IsWarning $_.Exception.Message
+                            Write-PscriboMessage -IsWarning "Backup Server Network Statistics Section: $($_.Exception.Message)"
                         }
                     }
                 }
             }
         }
         catch {
-            Write-PscriboMessage -IsWarning $_.Exception.Message
+            Write-PscriboMessage -IsWarning "Backup Server Section: $($_.Exception.Message)"
         }
     }
     end {
