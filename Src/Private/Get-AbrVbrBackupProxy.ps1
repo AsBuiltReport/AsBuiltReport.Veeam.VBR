@@ -855,7 +855,7 @@ function Get-AbrVbrBackupProxy {
                                                     }
                                                 }
                                                 catch {
-                                                    Write-PscriboMessage -IsWarning "Hyper-V Backup Proxies Services Status Section: $($_.Exception.Message)"
+                                                    Write-PscriboMessage -IsWarning "Hyper-V Backup Proxies Services Status - $($BackupProxy.Host.Name.Split(".")[0]) Section: $($_.Exception.Message)"
                                                 }
                                             }
                                         }

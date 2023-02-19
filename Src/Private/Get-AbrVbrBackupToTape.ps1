@@ -67,7 +67,7 @@ function Get-AbrVbrBackupToTape {
                                         $OutObj | Table @TableParams
                                     }
                                     catch {
-                                        Write-PscriboMessage -IsWarning $_.Exception.Message
+                                        Write-PscriboMessage -IsWarning "Common Information - $($TBkjob.Name) Section: $($_.Exception.Message)"
                                     }
                                 }
                                 if ($TBkjob.Object) {
@@ -97,7 +97,7 @@ function Get-AbrVbrBackupToTape {
                                                     $OutObj += [pscustomobject]$inobj
                                                 }
                                                 catch {
-                                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                    Write-PscriboMessage -IsWarning "Backups Objects - $($TBkjob.Name) Section: $($_.Exception.Message)"
                                                 }
                                             }
 
@@ -113,7 +113,7 @@ function Get-AbrVbrBackupToTape {
                                         }
                                     }
                                     catch {
-                                        Write-PscriboMessage -IsWarning $_.Exception.Message
+                                        Write-PscriboMessage -IsWarning "Backups Objects Section: $($_.Exception.Message)"
                                     }
                                 }
                                 if ($TBkjob.FullBackupMediaPool) {
@@ -239,7 +239,7 @@ function Get-AbrVbrBackupToTape {
                                                     $OutObj += [pscustomobject]$inobj
                                                 }
                                                 catch {
-                                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                    Write-PscriboMessage -IsWarning "Media Pool - $($TBkjob.Name) Section: $($_.Exception.Message)"
                                                 }
                                             }
 
@@ -255,7 +255,7 @@ function Get-AbrVbrBackupToTape {
                                         }
                                     }
                                     catch {
-                                        Write-PscriboMessage -IsWarning $_.Exception.Message
+                                        Write-PscriboMessage -IsWarning "Media Pool Section: $($_.Exception.Message)"
                                     }
                                 }
                                 if ($TBkjob.ProcessIncrementalBackup -and $TBkjob.FullBackupMediaPool.Type -eq 'Custom') {
@@ -368,7 +368,7 @@ function Get-AbrVbrBackupToTape {
                                                     $OutObj += [pscustomobject]$inobj
                                                 }
                                                 catch {
-                                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                    Write-PscriboMessage -IsWarning "Incremental Backup - $($TBkjob.Name) Section: $($_.Exception.Message)"
                                                 }
                                             }
 
@@ -384,7 +384,7 @@ function Get-AbrVbrBackupToTape {
                                         }
                                     }
                                     catch {
-                                        Write-PscriboMessage -IsWarning $_.Exception.Message
+                                        Write-PscriboMessage -IsWarning "Incremental Backup Section: $($_.Exception.Message)"
                                     }
                                 }
                                 try {
@@ -401,7 +401,7 @@ function Get-AbrVbrBackupToTape {
                                             $OutObj += [pscustomobject]$inobj
                                         }
                                         catch {
-                                            Write-PscriboMessage -IsWarning $_.Exception.Message
+                                            Write-PscriboMessage -IsWarning "Options - $($TBkjob.Name) Section: $($_.Exception.Message)"
                                         }
 
                                         $TableParams = @{
@@ -438,7 +438,7 @@ function Get-AbrVbrBackupToTape {
                                                         $OutObj += [pscustomobject]$inobj
                                                     }
                                                     catch {
-                                                        Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                        Write-PscriboMessage -IsWarning "Advanced Settings (Notifications) - $($TBkjob.Name) Section: $($_.Exception.Message)"
                                                     }
 
                                                     $TableParams = @{
@@ -453,7 +453,7 @@ function Get-AbrVbrBackupToTape {
                                                 }
                                             }
                                             catch {
-                                                Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                Write-PscriboMessage -IsWarning "Advanced Settings (Notifications) Section: $($_.Exception.Message)"
                                             }
                                         }
                                         if ($InfoLevel.Jobs.Tape -ge 2 -and $TBkjob.NotificationOptions.EnableAdditionalNotification) {
@@ -492,7 +492,7 @@ function Get-AbrVbrBackupToTape {
                                                         $OutObj += [pscustomobject]$inobj
                                                     }
                                                     catch {
-                                                        Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                        Write-PscriboMessage -IsWarning "Advanced Settings (Advanced) - $($TBkjob.Name) Section: $($_.Exception.Message)"
                                                     }
 
                                                     $TableParams = @{
@@ -507,13 +507,13 @@ function Get-AbrVbrBackupToTape {
                                                 }
                                             }
                                             catch {
-                                                Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                Write-PscriboMessage -IsWarning "Advanced Settings (Advanced) Section: $($_.Exception.Message)"
                                             }
                                         }
                                     }
                                 }
                                 catch {
-                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                    Write-PscriboMessage -IsWarning "Options Section: $($_.Exception.Message)"
                                 }
                                 try {
                                     Section -Style NOTOCHeading5 -ExcludeFromTOC 'Schedule' {
@@ -562,7 +562,7 @@ function Get-AbrVbrBackupToTape {
                                             $OutObj += [pscustomobject]$inobj
                                         }
                                         catch {
-                                            Write-PscriboMessage -IsWarning $_.Exception.Message
+                                            Write-PscriboMessage -IsWarning "Schedule - $($TBkjob.Name) Section: $($_.Exception.Message)"
                                         }
 
                                         $TableParams = @{
@@ -577,7 +577,7 @@ function Get-AbrVbrBackupToTape {
                                     }
                                 }
                                 catch {
-                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                    Write-PscriboMessage -IsWarning "Schedule Section: $($_.Exception.Message)"
                                 }
                             }
                         }
@@ -586,7 +586,7 @@ function Get-AbrVbrBackupToTape {
             }
         }
         catch {
-            Write-PscriboMessage -IsWarning $_.Exception.Message
+            Write-PscriboMessage -IsWarning "Backup To Tape Job Configuration Section: $($_.Exception.Message)"
         }
     }
     end {}

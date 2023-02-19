@@ -81,7 +81,7 @@ function Get-AbrVbrWANAccelerator {
                                 $OutObj | Table @TableParams
                             }
                             catch {
-                                Write-PscriboMessage -IsWarning "Wan Accelerator Section: $($_.Exception.Message)"
+                                Write-PscriboMessage -IsWarning "Wan Accelerator $($WANAccel.Name) Section: $($_.Exception.Message)"
                             }
                         }
                     }
