@@ -1,5 +1,11 @@
 # :arrows_clockwise: Veeam VBR As Built Report Changelog
 
+## [0.7.1] - 2023-02-24
+
+### Changed
+
+- Improved bug and feature request templates.
+
 ## [0.7.0] - 2022-12-03
 
 ### Added
@@ -13,7 +19,6 @@
 - The Infrastructure Security Hardening section has been modified so it is disabled by default.
 - The Executive Summary section has been removed. The summary table has been moved to each corresponding section.
 - The service providers section has been improved.
-
 
 ### Fixed
 
