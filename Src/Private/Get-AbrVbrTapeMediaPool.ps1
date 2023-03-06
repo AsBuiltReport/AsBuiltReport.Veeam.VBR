@@ -6,7 +6,7 @@ function Get-AbrVbrTapeMediaPool {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.6.0
+        Version:        0.7.1
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -57,7 +57,7 @@ function Get-AbrVbrTapeMediaPool {
                                 $OutObj += [pscustomobject]$inobj
                             }
                             catch {
-                                Write-PscriboMessage -IsWarning "Tape Media Pools Table - $($_.Exception.Message)"
+                                Write-PscriboMessage -IsWarning "Tape Media Pools $($PoolObj.Name) Table: $($_.Exception.Message)"
                             }
                         }
 
@@ -73,7 +73,7 @@ function Get-AbrVbrTapeMediaPool {
                         $OutObj | Sort-Object -Property 'Name' | Table @TableParams
                     }
                     catch {
-                        Write-PscriboMessage -IsWarning "Tape Media Pools Section - $($_.Exception.Message)"
+                        Write-PscriboMessage -IsWarning "Tape Media Pools Section: $($_.Exception.Message)"
                     }
                 }
                 #---------------------------------------------------------------------------------------------#
@@ -182,7 +182,7 @@ function Get-AbrVbrTapeMediaPool {
                                                                                 $OutObj += [pscustomobject]$inobj
                                                                             }
                                                                             catch {
-                                                                                Write-PscriboMessage -IsWarning "Tape Medium Table - $($_.Exception.Message)"
+                                                                                Write-PscriboMessage -IsWarning "Tape Medium $($TapeMedium.Name) Table: $($_.Exception.Message)"
                                                                             }
                                                                         }
 
@@ -199,19 +199,20 @@ function Get-AbrVbrTapeMediaPool {
                                                                     }
                                                                 }
                                                             }
-                                                        } Catch {
-                                                            Write-PscriboMessage -IsWarning "Tape Medium Table - $($_.Exception.Message)"
+                                                        }
+                                                        Catch {
+                                                            Write-PscriboMessage -IsWarning "Tape Medium Section: $($_.Exception.Message)"
                                                         }
                                                     }
                                                 }
                                                 catch {
-                                                    Write-PscriboMessage -IsWarning "Tape Library Section - $($_.Exception.Message)"
+                                                    Write-PscriboMessage -IsWarning "Tape Library $($TapeLibraryObj.Name) Section: $($_.Exception.Message)"
                                                 }
                                             }
                                         }
                                     }
                                     catch {
-                                        Write-PscriboMessage -IsWarning "Tape Media Pool Configration Section - $($_.Exception.Message)"
+                                        Write-PscriboMessage -IsWarning "Tape Media Pool Configration Section: $($_.Exception.Message)"
                                     }
                                     #---------------------------------------------------------------------------------------------#
                                     #                          Tape Media Pools - Tape Media Set Sub-Section                      #
@@ -285,8 +286,9 @@ function Get-AbrVbrTapeMediaPool {
                                                 }
                                             }
                                         }
-                                    } Catch {
-                                        Write-PscriboMessage -IsWarning "Tape Media Set Section - $($_.Exception.Message)"
+                                    }
+                                    Catch {
+                                        Write-PscriboMessage -IsWarning "Tape Media Set $($PoolObj.MediaSetName) Section - $($_.Exception.Message)"
                                     }
                                     #---------------------------------------------------------------------------------------------#
                                     #                          Tape Media Pools - Retention Sub-Section                           #
@@ -323,7 +325,7 @@ function Get-AbrVbrTapeMediaPool {
                                                 $OutObj | Sort-Object -Property 'Name' | Table @TableParams
                                             }
                                         } Catch {
-                                            Write-PscriboMessage -IsWarning "Tape Media Set Section - $($_.Exception.Message)"
+                                            Write-PscriboMessage -IsWarning "Tape Media Set $($PoolObj.Name) Retention Section: $($_.Exception.Message)"
                                         }
                                     }
                                     #---------------------------------------------------------------------------------------------#
@@ -356,8 +358,9 @@ function Get-AbrVbrTapeMediaPool {
                                             }
                                             $OutObj | Sort-Object -Property 'Name' | Table @TableParams
                                         }
-                                    } Catch {
-                                        Write-PscriboMessage -IsWarning "Tape Media Set Section - $($_.Exception.Message)"
+                                    }
+                                    Catch {
+                                        Write-PscriboMessage -IsWarning "Tape Media Set $($PoolObj.Name) Options Section: $($_.Exception.Message)"
                                     }
                                 }
                             }
@@ -367,7 +370,7 @@ function Get-AbrVbrTapeMediaPool {
             }
         }
         catch {
-            Write-PscriboMessage -IsWarning $_.Exception.Message
+            Write-PscriboMessage -IsWarning "Tape Media Pools Section: $($_.Exception.Message)"
         }
     }
     end {}
