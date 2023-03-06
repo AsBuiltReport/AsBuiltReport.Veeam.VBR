@@ -39,9 +39,11 @@ function Get-AbrVbrObjectRepository {
                                 'Name' = $ObjectRepo.Name
                                 'Type' = $ObjectRepo.Type
                                 'Connection Type' = $ObjectRepo.ConnectionType
-                            }
-                            if (($ObjectRepo).ConnectionType -eq 'Gateway') {
-                                $inObj.add('Gateway Server', $ObjectRepo.GatewayServer.Name)
+                                'Gateway Server' = Switch ($ObjectRepo.ConnectionType) {
+                                    'Direct' {'Direct Mode'}
+                                    'Gateway' {$ObjectRepo.GatewayServer.Name}
+                                    default {'Unknown'}
+                                }
                             }
 
                             $OutObj += [pscustomobject]$inobj
