@@ -6,7 +6,7 @@ function Get-AbrVbrManagedServer {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.5.1
+        Version:        0.7.1
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -29,9 +29,9 @@ function Get-AbrVbrManagedServer {
             if ((Get-VBRServer).count -gt 0) {
                 Section -Style Heading3 'Virtualization Servers and Hosts' {
                     $OutObj = @()
-                    try {
-                        $ManagedServers = Get-VBRServer
-                        foreach ($ManagedServer in $ManagedServers) {
+                    $ManagedServers = Get-VBRServer
+                    foreach ($ManagedServer in $ManagedServers) {
+                        try {
                             Write-PscriboMessage "Discovered $($ManagedServer.Name) managed server."
                             $inObj = [ordered] @{
                                 'Name' = $ManagedServer.Name
@@ -44,9 +44,9 @@ function Get-AbrVbrManagedServer {
                             }
                             $OutObj += [pscustomobject]$inobj
                         }
-                    }
-                    catch {
-                        Write-PscriboMessage -IsWarning $_.Exception.Message
+                        catch {
+                            Write-PscriboMessage -IsWarning "Virtualization Servers and Hosts $($ManagedServer.Name) Section: $($_.Exception.Message)"
+                        }
                     }
 
                     if ($HealthCheck.Infrastructure.Status) {
@@ -66,7 +66,7 @@ function Get-AbrVbrManagedServer {
             }
         }
         catch {
-            Write-PscriboMessage -IsWarning $_.Exception.Message
+            Write-PscriboMessage -IsWarning "Virtualization Servers and Hosts Section: $($_.Exception.Message)"
         }
     }
     end {}

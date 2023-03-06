@@ -6,7 +6,7 @@ function Get-AbrVbrInfrastructureSummary {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.5.4
+        Version:        0.7.1
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -44,7 +44,7 @@ function Get-AbrVbrInfrastructureSummary {
                     $SureBackupVLs = (Get-VBRVirtualLab).count
                 }
                 Catch {
-                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                    Write-PscriboMessage -IsWarning "Infrastructure SureBackup Summary Section: $($_.Exception.Message)"
                 }
                 $inObj = [ordered] @{
                     'Backup Proxies' = $BackupProxies
@@ -64,7 +64,7 @@ function Get-AbrVbrInfrastructureSummary {
                 $OutObj += [pscustomobject]$inobj
             }
             catch {
-                Write-PscriboMessage -IsWarning $_.Exception.Message
+                Write-PscriboMessage -IsWarning "Infrastructure Summary Section: $($_.Exception.Message)"
             }
 
             $TableParams = @{
@@ -134,7 +134,7 @@ function Get-AbrVbrInfrastructureSummary {
             }
         }
         catch {
-            Write-PscriboMessage -IsWarning $_.Exception.Message
+            Write-PscriboMessage -IsWarning "Infrastructure Summary Section: $($_.Exception.Message)"
         }
     }
     end {}

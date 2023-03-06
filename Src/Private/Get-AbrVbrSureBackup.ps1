@@ -6,7 +6,7 @@ function Get-AbrVbrSureBackup {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.5.5
+        Version:        0.7.1
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -49,7 +49,7 @@ function Get-AbrVbrSureBackup {
                                     }
                                 }
                                 catch {
-                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                    Write-PscriboMessage -IsWarning "SureBackup Configuration $($SureBackupAG.Name) Section: $($_.Exception.Message)"
                                 }
 
                                 $TableParams = @{
@@ -65,7 +65,7 @@ function Get-AbrVbrSureBackup {
                         }
                     }
                     catch {
-                        Write-PscriboMessage -IsWarning $_.Exception.Message
+                        Write-PscriboMessage -IsWarning "SureBackup Configuration Section: $($_.Exception.Message)"
                     }
                     if ((Get-VBRApplicationGroup).count -gt 0) {
                         if ($InfoLevel.Infrastructure.SureBackup -ge 2) {
@@ -74,8 +74,8 @@ function Get-AbrVbrSureBackup {
                                 foreach ($SureBackupAG in $SureBackupAGs) {
                                     if ($SureBackupAG.VM) {
                                         Section -Style Heading5 "$($SureBackupAG.Name) VM Settings" {
-                                            try {
-                                                foreach ($VMSetting in $SureBackupAG.VM) {
+                                            foreach ($VMSetting in $SureBackupAG.VM) {
+                                                try {
                                                     Section -Style NOTOCHeading4 -ExcludeFromTOC $($VMSetting.Name) {
                                                         $OutObj = @()
                                                         Write-PscriboMessage "Discovered $($VMSetting.Name) Application Group VM Setting."
@@ -104,16 +104,17 @@ function Get-AbrVbrSureBackup {
                                                         $OutObj | Table @TableParams
                                                     }
                                                 }
+                                                catch {
+                                                    Write-PscriboMessage -IsWarning "SureBackup Application Group VM Settings $($VMSetting.Name) Section: $($_.Exception.Message)"
+                                                }
                                             }
-                                            catch {
-                                                Write-PscriboMessage -IsWarning $_.Exception.Message
-                                            }
+
                                         }
                                     }
                                 }
                             }
                             catch {
-                                Write-PscriboMessage -IsWarning $_.Exception.Message
+                                Write-PscriboMessage -IsWarning "SureBackup Application Group VM Settings Section: $($_.Exception.Message)"
                             }
                         }
                     }
@@ -137,7 +138,7 @@ function Get-AbrVbrSureBackup {
                                     }
                                 }
                                 catch {
-                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                    Write-PscriboMessage -IsWarning "SureBackup Virtual Labs $($SureBackupVL.Name) Section: $($_.Exception.Message)"
                                 }
 
                                 $TableParams = @{
@@ -157,7 +158,7 @@ function Get-AbrVbrSureBackup {
                                                 try {
                                                     Section -Style Heading6 "$($SureBackupVL.Name) Settings" {
                                                         $OutObj = @()
-                                                        Write-PscriboMessage "Discovered $($SureBackupVL.Name)  Virtual Lab."
+                                                        Write-PscriboMessage "Discovered $($SureBackupVL.Name) Virtual Lab."
                                                         $inObj = [ordered] @{
                                                             'Host' = $SureBackupVL.Server.Name
                                                             'Resource Pool' = $SureBackupVL.DesignatedResourcePoolName
@@ -211,7 +212,7 @@ function Get-AbrVbrSureBackup {
                                                             }
                                                         }
                                                         catch {
-                                                            Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                            Write-PscriboMessage -IsWarning "SureBackup $($SureBackupVL.Name) vNIC Settings Section: $($_.Exception.Message)"
                                                         }
                                                         try {
                                                             if ($SureBackupVL.IpMappingRule) {
@@ -241,31 +242,31 @@ function Get-AbrVbrSureBackup {
                                                             }
                                                         }
                                                         catch {
-                                                            Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                            Write-PscriboMessage -IsWarning "SureBackup $($SureBackupVL.Name) IP Address Mapping Section: $($_.Exception.Message)"
                                                         }
                                                     }
                                                 }
                                                 catch {
-                                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                    Write-PscriboMessage -IsWarning "SureBackup $($SureBackupVL.Name) Settings Section: $($_.Exception.Message)"
                                                 }
                                             }
                                         }
                                     }
                                     catch {
-                                        Write-PscriboMessage -IsWarning $_.Exception.Message
+                                        Write-PscriboMessage -IsWarning "SureBackup Virtual Labs Configuration Section: $($_.Exception.Message)"
                                     }
                                 }
                             }
                         }
                         catch {
-                            Write-PscriboMessage -IsWarning $_.Exception.Message
+                            Write-PscriboMessage -IsWarning "SureBackup Virtual Labs Section: $($_.Exception.Message)"
                         }
                     }
                 }
             }
         }
         catch {
-            Write-PscriboMessage -IsWarning $_.Exception.Message
+            Write-PscriboMessage -IsWarning "SureBackup Configuration Section: $($_.Exception.Message)"
         }
     }
     end {}

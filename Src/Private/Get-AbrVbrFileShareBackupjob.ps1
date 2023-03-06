@@ -6,7 +6,7 @@ function Get-AbrVbrFileShareBackupjob {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.5.4
+        Version:        0.7.1
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -51,7 +51,7 @@ function Get-AbrVbrFileShareBackupjob {
                             $OutObj += [pscustomobject]$inobj
                         }
                         catch {
-                            Write-PscriboMessage -IsWarning $_.Exception.Message
+                            Write-PscriboMessage -IsWarning "File Share Backup Jobs $($FSBkjob.Name) Section: $($_.Exception.Message)"
                         }
                     }
 
@@ -68,7 +68,7 @@ function Get-AbrVbrFileShareBackupjob {
             }
         }
         catch {
-            Write-PscriboMessage -IsWarning $_.Exception.Message
+            Write-PscriboMessage -IsWarning "File Share Backup Jobs Section: $($_.Exception.Message)"
         }
     }
     end {}

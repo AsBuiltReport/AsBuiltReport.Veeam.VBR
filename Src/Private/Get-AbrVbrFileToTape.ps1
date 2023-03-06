@@ -6,7 +6,7 @@ function Get-AbrVbrFileToTape {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.5.5
+        Version:        0.7.1
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -61,7 +61,7 @@ function Get-AbrVbrFileToTape {
                                         $OutObj | Table @TableParams
                                     }
                                     catch {
-                                        Write-PscriboMessage -IsWarning $_.Exception.Message
+                                        Write-PscriboMessage -IsWarning "Common Information $($TBkjob.Name) Section: $($_.Exception.Message)"
                                     }
                                 }
                                 if ($TBkjob.Object) {
@@ -82,7 +82,7 @@ function Get-AbrVbrFileToTape {
                                                     $OutObj += [pscustomobject]$inobj
                                                 }
                                                 catch {
-                                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                    Write-PscriboMessage -IsWarning "Files and Folders $($File.Name) Section: $($_.Exception.Message)"
                                                 }
                                             }
                                             if ($TBkjob.NdmpObject) {
@@ -103,7 +103,7 @@ function Get-AbrVbrFileToTape {
                                                         $OutObj += [pscustomobject]$inobj2
                                                     }
                                                     catch {
-                                                        Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                        Write-PscriboMessage -IsWarning "Files and Folders $($NDMP.Name) Section: $($_.Exception.Message)"
                                                     }
                                                 }
                                             }
@@ -120,7 +120,7 @@ function Get-AbrVbrFileToTape {
                                         }
                                     }
                                     catch {
-                                        Write-PscriboMessage -IsWarning $_.Exception.Message
+                                        Write-PscriboMessage -IsWarning "Files and Folders Section: $($_.Exception.Message)"
                                     }
                                 }
                                 if ($TBkjob.FullBackupMediaPool) {
@@ -158,7 +158,7 @@ function Get-AbrVbrFileToTape {
                                                     $OutObj += [pscustomobject]$inobj
                                                 }
                                                 catch {
-                                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                    Write-PscriboMessage -IsWarning "Full Backup $($BackupMediaPool.Name) Section: $($_.Exception.Message)"
                                                 }
                                             }
 
@@ -174,7 +174,7 @@ function Get-AbrVbrFileToTape {
                                         }
                                     }
                                     catch {
-                                        Write-PscriboMessage -IsWarning $_.Exception.Message
+                                        Write-PscriboMessage -IsWarning "Full Backup Section: $($_.Exception.Message)"
                                     }
                                 }
                                 if ($TBkjob.IncrementalBackupPolicy) {
@@ -212,7 +212,7 @@ function Get-AbrVbrFileToTape {
                                                     $OutObj += [pscustomobject]$inobj
                                                 }
                                                 catch {
-                                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                    Write-PscriboMessage -IsWarning "Incremental Backup $($BackupMediaPool.Name) Section: $($_.Exception.Message)"
                                                 }
                                             }
 
@@ -228,7 +228,7 @@ function Get-AbrVbrFileToTape {
                                         }
                                     }
                                     catch {
-                                        Write-PscriboMessage -IsWarning $_.Exception.Message
+                                        Write-PscriboMessage -IsWarning "Incremental Backup $($TBkjob.Name) Section: $($_.Exception.Message)"
                                     }
                                 }
                                 try {
@@ -244,7 +244,7 @@ function Get-AbrVbrFileToTape {
                                             $OutObj += [pscustomobject]$inobj
                                         }
                                         catch {
-                                            Write-PscriboMessage -IsWarning $_.Exception.Message
+                                            Write-PscriboMessage -IsWarning "Options $($TBkjob.Name) Section: $($_.Exception.Message)"
                                         }
 
                                         $TableParams = @{
@@ -281,7 +281,7 @@ function Get-AbrVbrFileToTape {
                                                         $OutObj += [pscustomobject]$inobj
                                                     }
                                                     catch {
-                                                        Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                        Write-PscriboMessage -IsWarning "Advanced Settings (Notifications) $($TBkjob.Name) Section: $($_.Exception.Message)"
                                                     }
 
                                                     $TableParams = @{
@@ -296,7 +296,7 @@ function Get-AbrVbrFileToTape {
                                                 }
                                             }
                                             catch {
-                                                Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                Write-PscriboMessage -IsWarning "Advanced Settings (Notifications) Section: $($_.Exception.Message)"
                                             }
                                         }
                                         if ($InfoLevel.Jobs.Tape -ge 2 -and $TBkjob.NotificationOptions.EnableAdditionalNotification) {
@@ -334,7 +334,7 @@ function Get-AbrVbrFileToTape {
                                                         $OutObj += [pscustomobject]$inobj
                                                     }
                                                     catch {
-                                                        Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                        Write-PscriboMessage -IsWarning "Advanced Settings (Advanced) $($TBkjob.Name) Section: $($_.Exception.Message)"
                                                     }
 
                                                     $TableParams = @{
@@ -349,13 +349,13 @@ function Get-AbrVbrFileToTape {
                                                 }
                                             }
                                             catch {
-                                                Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                Write-PscriboMessage -IsWarning "Advanced Settings (Advanced) Section: $($_.Exception.Message)"
                                             }
                                         }
                                     }
                                 }
                                 catch {
-                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                    Write-PscriboMessage -IsWarning "Options Section: $($_.Exception.Message)"
                                 }
                             }
                         }
@@ -364,7 +364,7 @@ function Get-AbrVbrFileToTape {
             }
         }
         catch {
-            Write-PscriboMessage -IsWarning $_.Exception.Message
+            Write-PscriboMessage -IsWarning "File To Tape Job Configuration Section: $($_.Exception.Message)"
         }
     }
     end {}

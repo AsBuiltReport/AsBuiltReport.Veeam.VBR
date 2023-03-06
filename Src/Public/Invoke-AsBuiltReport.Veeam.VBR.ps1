@@ -5,7 +5,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.7.0
+        Version:        0.7.1
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -26,7 +26,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
     Write-PScriboMessage -IsWarning "Documentation: https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR"
     Write-PScriboMessage -IsWarning "Issues or bug reporting: https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues"
 
-    # Check the current AsBuiltReport.VMware.ESXi module
+    # Check the current AsBuiltReport.Veeam.VBR module
     Try {
         $InstalledVersion = Get-Module -ListAvailable -Name AsBuiltReport.Veeam.VBR -ErrorAction SilentlyContinue | Sort-Object -Property Version -Descending | Select-Object -First 1 -ExpandProperty Version
 
@@ -217,7 +217,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
             #                                Cloud Connect Section                                        #
             #---------------------------------------------------------------------------------------------#
             if ($InfoLevel.CloudConnect.PSObject.Properties.Value -ne 0) {
-                if (Get-VBRInstalledLicense | Where-Object {$_.CloudConnect -ne "Disabled"}) {
+                if (Get-VBRInstalledLicense | Where-Object {$_.CloudConnect -ne "Disabled" -and $_.Status -ne "Expired"}) {
                     if ((Get-VBRCloudGateway).count -gt 0 -or ((Get-VBRCloudTenant).count -gt 0))  {
                         Section -Style Heading2 'Cloud Connect' {
                             Paragraph "The following section provides information about Cloud Connect components from server $(((Get-VBRServerSession).Server))."

@@ -6,7 +6,7 @@ function Get-AbrVbrPhysicalInfrastructure {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.5.5
+        Version:        0.7.1
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -49,7 +49,7 @@ function Get-AbrVbrPhysicalInfrastructure {
                                         $OutObj += [pscustomobject]$inobj
                                     }
                                     catch {
-                                        Write-PscriboMessage -IsWarning $_.Exception.Message
+                                        Write-PscriboMessage -IsWarning "Protection Groups Summary $($InventObj.Name) Section: $($_.Exception.Message)"
                                     }
                                 }
 
@@ -107,7 +107,7 @@ function Get-AbrVbrPhysicalInfrastructure {
                                                                 }
                                                             }
                                                             catch {
-                                                                Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                                Write-PscriboMessage -IsWarning "Protection Groups Configuration $($InventObj.Name) Section: $($_.Exception.Message)"
                                                             }
                                                         }
                                                         elseif ($InventObj.Type -eq 'ManuallyAdded' -and $InventObj.Container.Type -eq 'IndividualComputers') {
@@ -136,32 +136,32 @@ function Get-AbrVbrPhysicalInfrastructure {
                                                                 }
                                                             }
                                                             catch {
-                                                                Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                                Write-PscriboMessage -IsWarning "Protection Groups Configuration $($InventObj.Name) Section: $($_.Exception.Message)"
                                                             }
                                                         }
                                                     }
                                                     catch {
-                                                        Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                        Write-PscriboMessage -IsWarning "Protection Groups Configuration Section: $($_.Exception.Message)"
                                                     }
                                                 }
                                             }
                                         }
                                     }
                                     catch {
-                                        Write-PscriboMessage -IsWarning $_.Exception.Message
+                                        Write-PscriboMessage -IsWarning "Protection Groups Configuration Section: $($_.Exception.Message)"
                                     }
                                 }
                             }
                         }
                         catch {
-                            Write-PscriboMessage -IsWarning $_.Exception.Message
+                            Write-PscriboMessage -IsWarning "Protection Groups Summary Section: $($_.Exception.Message)"
                         }
                     }
                 }
             }
         }
         catch {
-            Write-PscriboMessage -IsWarning $_.Exception.Message
+            Write-PscriboMessage -IsWarning "Physical Infrastructure Section: $($_.Exception.Message)"
         }
     }
     end {}

@@ -6,7 +6,7 @@ function Get-AbrVbrObjectRepository {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.5.5
+        Version:        0.7.1
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -31,9 +31,9 @@ function Get-AbrVbrObjectRepository {
                     Paragraph "The following section provides a summary about the Veeam Object Storage Repository."
                     BlankLine
                     $OutObj = @()
-                    try {
-                        $ObjectRepos = Get-VBRObjectStorageRepository
-                        foreach ($ObjectRepo in $ObjectRepos) {
+                    $ObjectRepos = Get-VBRObjectStorageRepository
+                    foreach ($ObjectRepo in $ObjectRepos) {
+                        try {
                             Write-PscriboMessage "Discovered $($ObjectRepo.Name) Repository."
                             $inObj = [ordered] @{
                                 'Name' = $ObjectRepo.Name
@@ -47,9 +47,9 @@ function Get-AbrVbrObjectRepository {
                             }
                             $OutObj += [pscustomobject]$inobj
                         }
-                    }
-                    catch {
-                        Write-PscriboMessage -IsWarning $_.Exception.Message
+                        catch {
+                            Write-PscriboMessage -IsWarning "Preferred Networks $($ObjectRepo.Name) Section: $($_.Exception.Message)"
+                        }
                     }
 
                     if ($HealthCheck.Infrastructure.BR) {
@@ -119,14 +119,14 @@ function Get-AbrVbrObjectRepository {
                                             }
                                         }
                                         catch {
-                                            Write-PscriboMessage -IsWarning $_.Exception.Message
+                                            Write-PscriboMessage -IsWarning "Object Storage Repository Configuration $($ObjectRepo.Name) Section: $($_.Exception.Message)"
                                         }
                                     }
                                 }
                             }
                         }
                         catch {
-                            Write-PscriboMessage -IsWarning $_.Exception.Message
+                            Write-PscriboMessage -IsWarning "Object Storage Repository Configuration Section: $($_.Exception.Message)"
                         }
                     }
                 }
@@ -190,19 +190,19 @@ function Get-AbrVbrObjectRepository {
                                     }
                                 }
                                 catch {
-                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                    Write-PscriboMessage -IsWarning "Archive Object Storage Repository $($ObjectRepoArchive.Name) Section: $($_.Exception.Message)"
                                 }
                             }
                         }
                     }
                 }
                 catch {
-                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                    Write-PscriboMessage -IsWarning "Archive Object Storage Repository Section: $($_.Exception.Message)"
                 }
             }
         }
         catch {
-            Write-PscriboMessage -IsWarning $_.Exception.Message
+            Write-PscriboMessage -IsWarning "Object Storage Repository Section: $($_.Exception.Message)"
         }
     }
     end {}

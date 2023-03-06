@@ -41,7 +41,7 @@ function Get-AbrVbrStorageInfraSummary {
                 $OutObj += [pscustomobject]$inobj
             }
             catch {
-                Write-PscriboMessage -IsWarning $_.Exception.Message
+                Write-PscriboMessage -IsWarning "Storage Infrastructure Inventory Section: $($_.Exception.Message)"
             }
 
             $TableParams = @{
@@ -108,7 +108,7 @@ function Get-AbrVbrStorageInfraSummary {
             }
         }
         catch {
-            Write-PscriboMessage -IsWarning $_.Exception.Message
+            Write-PscriboMessage -IsWarning "Storage Infrastructure Summary Section: $($_.Exception.Message)"
         }
     }
     end {}

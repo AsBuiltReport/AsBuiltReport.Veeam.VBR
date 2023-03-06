@@ -6,7 +6,7 @@ function Get-AbrVbrSureBackupjobVMware {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.5.3
+        Version:        0.7.1
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -62,7 +62,7 @@ function Get-AbrVbrSureBackupjobVMware {
                                     }
                                 }
                                 catch {
-                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                    Write-PscriboMessage -IsWarning "SureBackup $($SBkjob.Name) Common Information Section: $($_.Exception.Message)"
                                 }
                                 try {
                                     Section -Style NOTOCHeading5 -ExcludeFromTOC 'Virtual Lab' {
@@ -89,7 +89,7 @@ function Get-AbrVbrSureBackupjobVMware {
                                     }
                                 }
                                 catch {
-                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                    Write-PscriboMessage -IsWarning "SureBackup Virtual Lab $($SBkjob.Name) Section: $($_.Exception.Message)"
                                 }
                                 if ($SBkjob.ApplicationGroup) {
                                     try {
@@ -118,7 +118,7 @@ function Get-AbrVbrSureBackupjobVMware {
                                         }
                                     }
                                     catch {
-                                        Write-PscriboMessage -IsWarning $_.Exception.Message
+                                        Write-PscriboMessage -IsWarning "SureBackup Application Group $($SBkjob.Name) Section: $($_.Exception.Message)"
                                     }
                                 }
                                 if ($SBkjob.LinkToJobs) {
@@ -177,13 +177,13 @@ function Get-AbrVbrSureBackupjobVMware {
                                                     }
                                                 }
                                                 catch {
-                                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                    Write-PscriboMessage -IsWarning "SureBackup Verification Options $($SBkjob.Name) Section: $($_.Exception.Message)"
                                                 }
                                             }
                                         }
                                     }
                                     catch {
-                                        Write-PscriboMessage -IsWarning $_.Exception.Message
+                                        Write-PscriboMessage -IsWarning "SureBackup Linked Jobs $($SBkjob.Name) Section: $($_.Exception.Message)"
                                     }
                                 }
                                 try {
@@ -214,7 +214,7 @@ function Get-AbrVbrSureBackupjobVMware {
                                     }
                                 }
                                 catch {
-                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                    Write-PscriboMessage -IsWarning "SureBackup Settings $($SBkjob.Name) Section: $($_.Exception.Message)"
                                 }
                                 if ($SBkjob.ScheduleEnabled) {
                                     Section -Style NOTOCHeading5 -ExcludeFromTOC 'Schedule' {
@@ -249,7 +249,7 @@ function Get-AbrVbrSureBackupjobVMware {
                                             $OutObj += [pscustomobject]$inobj
                                         }
                                         catch {
-                                            Write-PscriboMessage -IsWarning $_.Exception.Message
+                                            Write-PscriboMessage -IsWarning "SureBackup Schedule $($SBkjob.Name) Section: $($_.Exception.Message)"
                                         }
 
                                         $TableParams = @{
@@ -266,14 +266,14 @@ function Get-AbrVbrSureBackupjobVMware {
                             }
                         }
                         catch {
-                            Write-PscriboMessage -IsWarning $_.Exception.Message
+                            Write-PscriboMessage -IsWarning "SureBackup Job Configuration $($SBkjob.Name) Section: $($_.Exception.Message)"
                         }
                     }
                 }
             }
         }
         catch {
-            Write-PscriboMessage -IsWarning $_.Exception.Message
+            Write-PscriboMessage -IsWarning "SureBackup Job Configuration Section: $($_.Exception.Message)"
         }
     }
     end {}

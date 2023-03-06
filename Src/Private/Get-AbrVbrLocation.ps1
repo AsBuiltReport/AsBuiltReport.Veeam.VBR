@@ -6,7 +6,7 @@ function Get-AbrVbrLocation {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.5.5
+        Version:        0.7.1
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -32,9 +32,10 @@ function Get-AbrVbrLocation {
                     BlankLine
                     try {
                         $OutObj = @()
-                        try {
-                            $Locations = Get-VBRLocation
-                            foreach ($Location in $Locations) {
+
+                        $Locations = Get-VBRLocation
+                        foreach ($Location in $Locations) {
+                            try {
                                 Write-PscriboMessage "Discovered $($Location.Name) location."
                                 $inObj = [ordered] @{
                                     'Name' = $Location.Name
@@ -42,9 +43,9 @@ function Get-AbrVbrLocation {
                                 }
                                 $OutObj += [pscustomobject]$inobj
                             }
-                        }
-                        catch {
-                            Write-PscriboMessage -IsWarning $_.Exception.Message
+                            catch {
+                                Write-PscriboMessage -IsWarning "Geographical Locations $($Location.Name) Section: $($_.Exception.Message)"
+                            }
                         }
 
                         $TableParams = @{
@@ -58,13 +59,13 @@ function Get-AbrVbrLocation {
                         $OutObj | Sort-Object -Property Name | Table @TableParams
                     }
                     catch {
-                        Write-PscriboMessage -IsWarning $_.Exception.Message
+                        Write-PscriboMessage -IsWarning "Geographical Locations Section: $($_.Exception.Message)"
                     }
                 }
             }
         }
         catch {
-            Write-PscriboMessage -IsWarning $_.Exception.Message
+            Write-PscriboMessage -IsWarning "Geographical Locations Section: $($_.Exception.Message)"
         }
     }
     end {}

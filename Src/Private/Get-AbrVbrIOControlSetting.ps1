@@ -6,7 +6,7 @@ function Get-AbrVbrIOControlSetting {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.5.5
+        Version:        0.7.1
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -30,9 +30,9 @@ function Get-AbrVbrIOControlSetting {
                 if ((Get-VBRStorageLatencyControlOptions).count -gt 0) {
                     Section -Style Heading4 'Storage Latency Control' {
                         $OutObj = @()
-                        try {
-                            $StorageLatencyControls = Get-VBRStorageLatencyControlOptions
-                            foreach ($StorageLatencyControl in $StorageLatencyControls) {
+                        $StorageLatencyControls = Get-VBRStorageLatencyControlOptions
+                        foreach ($StorageLatencyControl in $StorageLatencyControls) {
+                            try {
                                 $inObj = [ordered] @{
                                     'Latency Limit' = "$($StorageLatencyControl.LatencyLimitMs)/ms"
                                     'Throttling IO Limit' = "$($StorageLatencyControl.ThrottlingIOLimitMs)/ms"
@@ -40,9 +40,9 @@ function Get-AbrVbrIOControlSetting {
                                 }
                                 $OutObj += [pscustomobject]$inobj
                             }
-                        }
-                        catch {
-                            Write-PscriboMessage -IsWarning $_.Exception.Message
+                            catch {
+                                Write-PscriboMessage -IsWarning "Storage Latency Control Section: $($_.Exception.Message)"
+                            }
                         }
 
                         if ($HealthCheck.Infrastructure.Settings) {
@@ -69,7 +69,7 @@ function Get-AbrVbrIOControlSetting {
                                     foreach ($StorageLatencyControl in $StorageLatencyControls) {
                                         try {
                                             $Datastores = Find-VBRViEntity -DatastoresAndVMs -ErrorAction SilentlyContinue | Where-Object {($_.type -eq "Datastore")}
-                                            $DatastoreName = ($Datastores | Where-Object {$_.Reference -eq $StorageLatencyControl.DatastoreId}).Name
+                                            $DatastoreName = ($Datastores | Where-Object {$_.Reference -eq $StorageLatencyControl.DatastoreId}).Name | Select-Object -Unique
                                             $inObj = [ordered] @{
                                                 'Datastore Name' = Switch ($DatastoreName) {
                                                     $Null {$StorageLatencyControl.DatastoreId}
@@ -81,7 +81,7 @@ function Get-AbrVbrIOControlSetting {
                                             $OutObj += [pscustomobject]$inobj
                                         }
                                         catch {
-                                            Write-PscriboMessage -IsWarning $_.Exception.Message
+                                            Write-PscriboMessage -IsWarning "Per Datastore Latency Control Options Section: $($_.Exception.Message)"
                                         }
                                     }
 
@@ -99,14 +99,14 @@ function Get-AbrVbrIOControlSetting {
                             }
                         }
                         catch {
-                            Write-PscriboMessage -IsWarning $_.Exception.Message
+                            Write-PscriboMessage -IsWarning "Per Datastore Latency Control Options Section: $($_.Exception.Message)"
                         }
                     }
                 }
             }
         }
         catch {
-            Write-PscriboMessage -IsWarning $_.Exception.Message
+            Write-PscriboMessage -IsWarning "Storage Latency Control Section: $($_.Exception.Message)"
         }
     }
     end {}

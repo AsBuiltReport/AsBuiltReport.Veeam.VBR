@@ -6,7 +6,7 @@ function Get-AbrVbrScaleOutRepository {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.5.5
+        Version:        0.7.1
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -51,7 +51,7 @@ function Get-AbrVbrScaleOutRepository {
                         }
                     }
                     catch {
-                        Write-PscriboMessage -IsWarning $_.Exception.Message
+                        Write-PscriboMessage -IsWarning "ScaleOut Backup Repository Table: $($_.Exception.Message)"
                     }
 
                     $TableParams = @{
@@ -120,7 +120,7 @@ function Get-AbrVbrScaleOutRepository {
                                             }
                                         }
                                         catch {
-                                            Write-PscriboMessage -IsWarning $_.Exception.Message
+                                            Write-PscriboMessage -IsWarning "ScaleOut Backup Repository General Settings Table: $($_.Exception.Message)"
                                         }
                                         foreach ($Extent in $BackupRepo.Extent) {
                                             try {
@@ -151,7 +151,7 @@ function Get-AbrVbrScaleOutRepository {
                                                 }
                                             }
                                             catch {
-                                                Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                Write-PscriboMessage -IsWarning "ScaleOut Backup Repository Performance Tier Table: $($_.Exception.Message)"
                                             }
                                         }
                                         #---------------------------------------------------------------------------------------------#
@@ -201,7 +201,7 @@ function Get-AbrVbrScaleOutRepository {
                                                 }
                                             }
                                             catch {
-                                                Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                Write-PscriboMessage -IsWarning "ScaleOut Backup Repository Capacity Tier Table: $($_.Exception.Message)"
                                             }
                                         }
                                         #---------------------------------------------------------------------------------------------#
@@ -242,7 +242,7 @@ function Get-AbrVbrScaleOutRepository {
                                                 }
                                             }
                                             catch {
-                                                Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                Write-PscriboMessage -IsWarning "ScaleOut Backup Repository Archive Tier Table: $($_.Exception.Message)"
                                             }
                                         }
 
@@ -251,14 +251,14 @@ function Get-AbrVbrScaleOutRepository {
                             }
                         }
                         catch {
-                            Write-PscriboMessage -IsWarning $_.Exception.Message
+                            Write-PscriboMessage -IsWarning "ScaleOut Backup Repository Configuration Section: $($_.Exception.Message)"
                         }
                     }
                 }
             }
         }
         catch {
-            Write-PscriboMessage -IsWarning $_.Exception.Message
+            Write-PscriboMessage -IsWarning "ScaleOut Backup Repository Document: $($_.Exception.Message)"
         }
     }
     end {}
