@@ -124,7 +124,7 @@ function Get-AbrVbrFileShareBackupjobConf {
 
                                     if ($Bkjob.Options.NasBackupRetentionPolicy.LongTermEnabled) {
                                         $inObj.add('Keep previous file versions for', "$($Bkjob.Options.NasBackupRetentionPolicy.LongTermRetention) $($Bkjob.Options.NasBackupRetentionPolicy.LongTermRetentionUnit)")
-                                        $inObj.add('Archive repository', (Get-VBRBackupRepository | Where-Object {$_.id -eq $BKjob.FindNasBackupJobInfo().LongTermRepositoryId.Guid}).Name)
+                                        $inObj.add('Archive repository', (Get-VBRNASBackupJob | Where-Object {$_.id -eq $BKjob.id}).LongTermBackupRepository.Name)
                                         $inObj.add('File to Archive', $FiletoArchive)
                                     }
 
