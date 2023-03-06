@@ -38,13 +38,14 @@ function Get-AbrVbrObjectRepository {
                             $inObj = [ordered] @{
                                 'Name' = $ObjectRepo.Name
                                 'Type' = $ObjectRepo.Type
-                                'Use Gateway Server' = ConvertTo-TextYN $ObjectRepo.UseGatewayServer
-                                'Gateway Server' = Switch ($ObjectRepo.GatewayServer.Name) {
-                                    "" {"-"; break}
-                                    $Null {"-"; break}
-                                    default {$ObjectRepo.GatewayServer.Name.split(".")[0]}
+                                'Connection Type' = $ObjectRepo.ConnectionType
+                                'Gateway Server' = Switch ($ObjectRepo.ConnectionType) {
+                                    'Direct' {'Direct Mode'}
+                                    'Gateway' {$ObjectRepo.GatewayServer.Name}
+                                    default {'Unknown'}
                                 }
                             }
+
                             $OutObj += [pscustomobject]$inobj
                         }
                         catch {
@@ -85,14 +86,14 @@ function Get-AbrVbrObjectRepository {
                                                     'Service Point' = ($ObjectRepo).ServicePoint
                                                     'Type' =  ($ObjectRepo).Type
                                                     'Amazon S3 Folder' =  ($ObjectRepo).AmazonS3Folder
-                                                    'Use Gateway Server' = ConvertTo-TextYN ($ObjectRepo).UseGatewayServer
-                                                    'Gateway Server' = Switch ((($ObjectRepo).GatewayServer.Name).length) {
-                                                        0 {"Auto"}
-                                                        default {($ObjectRepo).GatewayServer.Name}
-                                                    }
                                                     'Immutability Period' = $ObjectRepo.ImmutabilityPeriod
                                                     'Size Limit Enabled' = ConvertTo-TextYN ($ObjectRepo).SizeLimitEnabled
                                                     'Size Limit' = ($ObjectRepo).SizeLimit
+                                                    'Connection Type' = $ObjectRepo.ConnectionType
+
+                                                }
+                                                if (($ObjectRepo).ConnectionType -eq 'Gateway') {
+                                                    $inObj.add('Gateway Server', $ObjectRepo.GatewayServer.Name)
                                                 }
                                                 if (($ObjectRepo).Type -eq 'AmazonS3') {
                                                     $inObj.remove('Service Point')
