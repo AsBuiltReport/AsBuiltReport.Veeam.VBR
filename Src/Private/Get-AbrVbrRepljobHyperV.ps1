@@ -177,7 +177,7 @@ function Get-AbrVbrRepljobHyperV {
                                     Section -Style NOTOCHeading5 -ExcludeFromTOC 'Re-IP Rules' {
                                         $OutObj = @()
                                         try {
-                                            foreach ($ReIpRule in $Bkjob.Options.ReIPRulesOptions.Rules) {
+                                            foreach ($ReIpRule in $Bkjob.Options.ReIPRulesOptions.RulesIPv4) {
                                                 try {
                                                     Write-PscriboMessage "Discovered $($Bkjob.Name) re-ip rules $($ReIpRule.Source.IPAddress) information."
                                                     $inObj = [ordered] @{
