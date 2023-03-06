@@ -175,39 +175,78 @@ function Get-AbrVbrRepljobVMware {
                                     }
                                 }
                                 if ($Bkjob.Options.ViReplicaTargetOptions.UseReIP) {
-                                    Section -Style NOTOCHeading5 -ExcludeFromTOC 'Re-IP Rules' {
-                                        $OutObj = @()
-                                        try {
-                                            foreach ($ReIpRule in $Bkjob.Options.ReIPRulesOptions.RulesIPv4) {
-                                                try {
-                                                    Write-PscriboMessage "Discovered $($Bkjob.Name) re-ip rules $($ReIpRule.Source.IPAddress) information."
-                                                    $inObj = [ordered] @{
-                                                        'Source IP Address' = $ReIpRule.Source.IPAddress
-                                                        'Source Subnet Mask' = $ReIpRule.Source.SubnetMask
-                                                        'Target P Address' = $ReIpRule.Target.IPAddress
-                                                        'Target Subnet Mask' = $ReIpRule.Target.SubnetMask
-                                                        'Target Default Gateway' = $ReIpRule.Target.DefaultGateway
-                                                        'Target DNS Addresses' = $ReIpRule.Target.DNSAddresses
+                                    if ($Bkjob.Options.ReIPRulesOptions.Rules) {
+                                        Section -Style NOTOCHeading5 -ExcludeFromTOC 'Re-IP Rules' {
+                                            $OutObj = @()
+                                            try {
+                                                foreach ($ReIpRule in $Bkjob.Options.ReIPRulesOptions.Rules) {
+                                                    try {
+                                                        Write-PscriboMessage "Discovered $($Bkjob.Name) re-ip rules $($ReIpRule.Source.IPAddress) information."
+                                                        $inObj = [ordered] @{
+                                                            'Source IP Address' = $ReIpRule.Source.IPAddress
+                                                            'Source Subnet Mask' = $ReIpRule.Source.SubnetMask
+                                                            'Target P Address' = $ReIpRule.Target.IPAddress
+                                                            'Target Subnet Mask' = $ReIpRule.Target.SubnetMask
+                                                            'Target Default Gateway' = $ReIpRule.Target.DefaultGateway
+                                                            'Target DNS Addresses' = $ReIpRule.Target.DNSAddresses
+                                                        }
+                                                        $OutObj += [pscustomobject]$inobj
                                                     }
-                                                    $OutObj += [pscustomobject]$inobj
+                                                    catch {
+                                                        Write-PscriboMessage -IsWarning "VMware Replication Jobs $($Bkjob.Name) Re-IP Rules Table: $($_.Exception.Message)"
+                                                    }
                                                 }
-                                                catch {
-                                                    Write-PscriboMessage -IsWarning "VMware Replication Jobs $($Bkjob.Name) Re-IP Rules Table: $($_.Exception.Message)"
-                                                }
-                                            }
 
-                                            $TableParams = @{
-                                                Name = "Re-IP Rules - $($Bkjob.Name)"
-                                                List = $false
-                                                ColumnWidths = 17, 17, 17, 17, 16, 16
+                                                $TableParams = @{
+                                                    Name = "Re-IP Rules - $($Bkjob.Name)"
+                                                    List = $false
+                                                    ColumnWidths = 17, 17, 17, 17, 16, 16
+                                                }
+                                                if ($Report.ShowTableCaptions) {
+                                                    $TableParams['Caption'] = "- $($TableParams.Name)"
+                                                }
+                                                $OutObj | Sort-Object -Property 'Source IP Address' | Table @TableParams
                                             }
-                                            if ($Report.ShowTableCaptions) {
-                                                $TableParams['Caption'] = "- $($TableParams.Name)"
+                                            catch {
+                                                Write-PscriboMessage -IsWarning "VMware Replication Jobs $($Bkjob.Name) Re-IP Rules Section: $($_.Exception.Message)"
                                             }
-                                            $OutObj | Sort-Object -Property 'Source IP Address' | Table @TableParams
                                         }
-                                        catch {
-                                            Write-PscriboMessage -IsWarning "VMware Replication Jobs $($Bkjob.Name) Re-IP Rules Section: $($_.Exception.Message)"
+                                    }
+                                    if ($Bkjob.Options.ReIPRulesOptions.RulesIPv4) {
+                                        Section -Style NOTOCHeading5 -ExcludeFromTOC 'Re-IP Rules' {
+                                            $OutObj = @()
+                                            try {
+                                                foreach ($ReIpRule in $Bkjob.Options.ReIPRulesOptions.RulesIPv4) {
+                                                    try {
+                                                        Write-PscriboMessage "Discovered $($Bkjob.Name) re-ip rules $($ReIpRule.Source.IPAddress) information."
+                                                        $inObj = [ordered] @{
+                                                            'Source IP Address' = $ReIpRule.Source.IPAddress
+                                                            'Source Subnet Mask' = $ReIpRule.Source.SubnetMask
+                                                            'Target P Address' = $ReIpRule.Target.IPAddress
+                                                            'Target Subnet Mask' = $ReIpRule.Target.SubnetMask
+                                                            'Target Default Gateway' = $ReIpRule.Target.DefaultGateway
+                                                            'Target DNS Addresses' = $ReIpRule.Target.DNSAddresses
+                                                        }
+                                                        $OutObj += [pscustomobject]$inobj
+                                                    }
+                                                    catch {
+                                                        Write-PscriboMessage -IsWarning "VMware Replication Jobs $($Bkjob.Name) Re-IP Rules Table: $($_.Exception.Message)"
+                                                    }
+                                                }
+
+                                                $TableParams = @{
+                                                    Name = "Re-IP Rules - $($Bkjob.Name)"
+                                                    List = $false
+                                                    ColumnWidths = 17, 17, 17, 17, 16, 16
+                                                }
+                                                if ($Report.ShowTableCaptions) {
+                                                    $TableParams['Caption'] = "- $($TableParams.Name)"
+                                                }
+                                                $OutObj | Sort-Object -Property 'Source IP Address' | Table @TableParams
+                                            }
+                                            catch {
+                                                Write-PscriboMessage -IsWarning "VMware Replication Jobs $($Bkjob.Name) Re-IP Rules Section: $($_.Exception.Message)"
+                                            }
                                         }
                                     }
                                 }
