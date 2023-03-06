@@ -42,7 +42,6 @@ function Get-AbrVbrSureBackup {
                                         Write-PscriboMessage "Discovered $($SureBackupAG.Name) Application Group."
                                         $inObj = [ordered] @{
                                             'Name' = $SureBackupAG.Name
-                                            'Platform' = $SureBackupAG.Platform
                                             'VM List' = $SureBackupAG.VM -join ", "
                                         }
                                         $OutObj += [pscustomobject]$inobj
@@ -55,7 +54,7 @@ function Get-AbrVbrSureBackup {
                                 $TableParams = @{
                                     Name = "Application Group - $VeeamBackupServer"
                                     List = $false
-                                    ColumnWidths = 30, 20, 50
+                                    ColumnWidths = 50, 50
                                 }
                                 if ($Report.ShowTableCaptions) {
                                     $TableParams['Caption'] = "- $($TableParams.Name)"
