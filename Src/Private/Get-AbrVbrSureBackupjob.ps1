@@ -26,27 +26,27 @@ function Get-AbrVbrSureBackupjob {
 
     process {
         try {
-            if ((Get-VSBJob).count -gt 0) {
+            if ((Get-VBRSureBackupJob).count -gt 0) {
                 Section -Style Heading3 'SureBackup Jobs' {
                     Paragraph "The following section list surebackup jobs created in Veeam Backup & Replication."
                     BlankLine
                     $OutObj = @()
-                    $SBkjobs = Get-VSBJob | Sort-Object -Property 'Job Name'
+                    $SBkjobs = Get-VBRSureBackupJob | Sort-Object -Property 'Job Name'
                     foreach ($SBkjob in $SBkjobs) {
                         try {
                             Write-PscriboMessage "Discovered $($SBkjob.Name) location."
                             $inObj = [ordered] @{
                                 'Name' = $SBkjob.Name
-                                'Platform' = Switch ($SBkjob.info.Platform) {
-                                    "EVmware" {"VMware"}
-                                    "EHyperV" {"Hyper-V"}
-                                }
-                                'Status' = Switch ($SBkjob.IsScheduleEnabled) {
+                                'Status' = Switch ($SBkjob.IsEnabled) {
                                     'False' {'Disabled'}
                                     'True' {'Enabled'}
                                 }
-                                'Latest Result' = $SBkjob.GetLastResult()
-                                'Virtual Lab' = Get-VBRVirtualLab -Id $SBkjob.info.VirtualLabId
+                                'Schedule Enabled' = Switch ($SBkjob.ScheduleEnabled) {
+                                    'False' {'Not Scheduled'}
+                                    'True' {'Scheduled'}
+                                }
+                                'Latest Result' = $SBkjob.LastState
+                                'Virtual Lab' = $SBkjob.VirtualLab.Name
                             }
                             $OutObj += [pscustomobject]$inobj
                         }
