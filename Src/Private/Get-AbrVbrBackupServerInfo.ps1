@@ -41,7 +41,13 @@ function Get-AbrVbrBackupServerInfo {
                             } catch {Write-PscriboMessage -IsWarning "Backup Server Inkoke-Command Section: $($_.Exception.Message)"}
                             try {
                                 $VeeamInfo = Invoke-Command -Session $PssSession -ErrorAction SilentlyContinue -ScriptBlock { Get-ItemProperty -Path 'HKLM:\SOFTWARE\Veeam\Veeam Backup and Replication' }
-                            } catch {Write-PscriboMessage -IsWarning "Backup Server Invoke-Command  Section: $($_.Exception.Message)"}
+                            } catch {Write-PscriboMessage -IsWarning "Backup Server Invoke-Command Section: $($_.Exception.Message)"}
+                            try {
+                                $VeeamDBFlavor = Invoke-Command -Session $PssSession -ErrorAction SilentlyContinue -ScriptBlock { Get-ItemProperty -Path 'HKLM:\SOFTWARE\Veeam\Veeam Backup and Replication\DatabaseConfigurations' }
+                            } catch {Write-PscriboMessage -IsWarning "Backup Server Invoke-Command Section: $($_.Exception.Message)"}
+                            try {
+                                $VeeamDBInfo = Invoke-Command -Session $PssSession -ErrorAction SilentlyContinue -ScriptBlock { Get-ItemProperty -Path "HKLM:\SOFTWARE\Veeam\Veeam Backup and Replication\DatabaseConfigurations\$(($Using:VeeamDBFlavor).SqlActiveConfiguration)" }
+                            } catch {Write-PscriboMessage -IsWarning "Backup Server Invoke-Command Section: $($_.Exception.Message)"}
                             Write-PscriboMessage "Discovered $BackupServer Server."
                             $inObj = [ordered] @{
                                 'Server Name' = $BackupServer.Name
@@ -49,17 +55,20 @@ function Get-AbrVbrBackupServerInfo {
                                     0 {"-"}
                                     default {$VeeamVersion.DisplayVersion}
                                 }
-                                'Database Server' = Switch (($VeeamInfo.SqlServerName).count) {
-                                    0 {"-"}
-                                    default {$VeeamInfo.SqlServerName}
+                                'Database Server' = Switch ([string]::IsNullOrEmpty($VeeamDBInfo.SqlServerName)) {
+                                    $true {"-"}
+                                    $false {$VeeamDBInfo.SqlServerName}
+                                    default {'Unknown'}
                                 }
-                                'Database Instance' = Switch (($VeeamInfo.SqlInstanceName).count) {
-                                    0 {"None"}
-                                    default {$VeeamInfo.SqlInstanceName}
+                                'Database Instance' = Switch ([string]::IsNullOrEmpty($VeeamDBInfo.SqlInstanceName)) {
+                                    $true {"-"}
+                                    $false {$VeeamDBInfo.SqlInstanceName}
+                                    default {'Unknown'}
                                 }
-                                'Database Name' = Switch (($VeeamInfo.SqlDatabaseName).count) {
-                                    0 {"-"}
-                                    default {$VeeamInfo.SqlDatabaseName}
+                                'Database Name' = Switch ([string]::IsNullOrEmpty($VeeamDBInfo.SqlDatabaseName)) {
+                                    $true {"-"}
+                                    $false {$VeeamDBInfo.SqlDatabaseName}
+                                    default {'Unknown'}
                                 }
                                 'Connection Ports' = Switch (($VeeamInfo.BackupServerPort).count) {
                                     0 {"-"}
