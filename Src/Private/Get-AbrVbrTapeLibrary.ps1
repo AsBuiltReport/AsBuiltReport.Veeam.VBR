@@ -84,7 +84,11 @@ function Get-AbrVbrTapeLibrary {
                                                             'Name' = $DriveObj.Name
                                                             'Model' = $DriveObj.Model
                                                             'Serial Number' = $DriveObj.SerialNumber
-                                                            'Medium' = $DriveObj.Medium
+                                                            'Medium' = switch ([string]::IsNullOrEmpty($DriveObj.Medium)) {
+                                                                $true {'-' }
+                                                                $false {$DriveObj.Medium}
+                                                                Default {'Unknown'}
+                                                            }
                                                             'Enabled' = ConvertTo-TextYN $DriveObj.Enabled
                                                             'Is Locked' = ConvertTo-TextYN $DriveObj.IsLocked
                                                             'State' = $DriveObj.State

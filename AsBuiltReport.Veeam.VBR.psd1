@@ -27,7 +27,7 @@ Author = 'Jonathan Colon'
 #CompanyName = 'Unknown'
 
 # Copyright statement for this module
-Copyright = '(c) 2022 Jonathan Colon. All rights reserved.'
+Copyright = '(c) 2023 Jonathan Colon. All rights reserved.'
 
 # Description of the functionality provided by this module
 Description = 'A PowerShell module to generate an as built report on the configuration of Veeam VBR.'

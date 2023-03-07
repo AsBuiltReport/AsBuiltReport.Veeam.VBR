@@ -51,6 +51,7 @@ Below are the instructions on how to install, configure and generate a Veeam VBR
 The Veeam VBR As Built Report supports the following Veeam Backup & Replication version;
 
 - Veeam Backup & Replication V11 (Standard, Enterprise & Enterprise Plus Edition)
+- Veeam Backup & Replication V12 (Standard, Enterprise & Enterprise Plus Edition)
 
 ### PowerShell
 

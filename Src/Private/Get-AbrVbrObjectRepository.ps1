@@ -33,25 +33,48 @@ function Get-AbrVbrObjectRepository {
                     $OutObj = @()
                     $ObjectRepos = Get-VBRObjectStorageRepository
                     foreach ($ObjectRepo in $ObjectRepos) {
-                        try {
-                            Write-PscriboMessage "Discovered $($ObjectRepo.Name) Repository."
-                            $inObj = [ordered] @{
-                                'Name' = $ObjectRepo.Name
-                                'Type' = $ObjectRepo.Type
-                                'Connection Type' = $ObjectRepo.ConnectionType
-                                'Gateway Server' = Switch ($ObjectRepo.ConnectionType) {
-                                    'Direct' {'Direct Mode'}
-                                    'Gateway' {$ObjectRepo.GatewayServer.Name}
-                                    default {'Unknown'}
+                        if ($Null -ne $ObjectRepo.ConnectionType) {
+                            try {
+                                Write-PscriboMessage "Discovered $($ObjectRepo.Name) Repository."
+                                $inObj = [ordered] @{
+                                    'Name' = $ObjectRepo.Name
+                                    'Type' = $ObjectRepo.Type
+                                    'Connection Type' = $ObjectRepo.ConnectionType
+                                    'Gateway Server' = Switch ($ObjectRepo.ConnectionType) {
+                                        'Direct' {'Direct Mode'}
+                                        'Gateway' {$ObjectRepo.GatewayServer.Name}
+                                        default {'Unknown'}
+                                    }
                                 }
-                            }
 
-                            $OutObj += [pscustomobject]$inobj
-                        }
-                        catch {
-                            Write-PscriboMessage -IsWarning "Preferred Networks $($ObjectRepo.Name) Section: $($_.Exception.Message)"
+                                $OutObj += [pscustomobject]$inobj
+                            }
+                            catch {
+                                Write-PscriboMessage -IsWarning "Preferred Networks $($ObjectRepo.Name) Section: $($_.Exception.Message)"
+                            }
+                        } else {
+                            try {
+                                Write-PscriboMessage "Discovered $($ObjectRepo.Name) Repository."
+                                $inObj = [ordered] @{
+                                    'Name' = $ObjectRepo.Name
+                                    'Type' = $ObjectRepo.Type
+                                    'Use Gateway Server' = ConvertTo-TextYN $ObjectRepo.UseGatewayServer
+                                    'Gateway Server' = Switch ($ObjectRepo.GatewayServer.Name) {
+                                        "" {"-"; break}
+                                        $Null {"-"; break}
+                                        default {$ObjectRepo.GatewayServer.Name.split(".")[0]}
+                                    }
+                                }
+
+                                $OutObj += [pscustomobject]$inobj
+                            }
+                            catch {
+                                Write-PscriboMessage -IsWarning "Preferred Networks $($ObjectRepo.Name) Section: $($_.Exception.Message)"
+                            }
                         }
                     }
+
+
 
                     if ($HealthCheck.Infrastructure.BR) {
                         $OutObj | Where-Object { $_.'Status' -eq 'Unavailable'} | Set-Style -Style Warning -Property 'Status'
@@ -89,8 +112,15 @@ function Get-AbrVbrObjectRepository {
                                                     'Immutability Period' = $ObjectRepo.ImmutabilityPeriod
                                                     'Size Limit Enabled' = ConvertTo-TextYN ($ObjectRepo).SizeLimitEnabled
                                                     'Size Limit' = ($ObjectRepo).SizeLimit
-                                                    'Connection Type' = $ObjectRepo.ConnectionType
 
+                                                }
+
+                                                if ($Null -ne ($ObjectRepo).UseGatewayServer) {
+                                                    $inObj.add('Use Gateway Server', (ConvertTo-TextYN $ObjectRepo.UseGatewayServer))
+                                                    $inObj.add('Gateway Server', $ObjectRepo.GatewayServer.Name)
+                                                }
+                                                if ($Null -ne $ObjectRepo.ConnectionType) {
+                                                    $inObj.add('Connection Type', $ObjectRepo.ConnectionType)
                                                 }
                                                 if (($ObjectRepo).ConnectionType -eq 'Gateway') {
                                                     $inObj.add('Gateway Server', $ObjectRepo.GatewayServer.Name)

@@ -1,5 +1,5 @@
 
-function Get-AbrVbrSureBackupjobVMware {
+function Get-AbrVbrSureBackupjobconf {
     <#
     .SYNOPSIS
         Used by As Built Report to returns surebackup jobs for vmware created in Veeam Backup & Replication.
@@ -21,7 +21,7 @@ function Get-AbrVbrSureBackupjobVMware {
     )
 
     begin {
-        Write-PscriboMessage "Discovering Veeam VBR VMware SureBackup jobs information from $System."
+        Write-PscriboMessage "Discovering Veeam VBR SureBackup jobs configuration information from $System."
     }
 
     process {
@@ -73,7 +73,12 @@ function Get-AbrVbrSureBackupjobVMware {
                                             'Description' = $SBkjob.VirtualLab.Description
                                             'Physical Host' = $SBkjob.VirtualLab.Server.Name
                                             'Physical Host Version' = $SBkjob.VirtualLab.Server.Info.Info
-                                            'Cache Datastore' = (Get-VBRViVirtualLabConfiguration -Id $SBkjob.VirtualLab.Id).CacheDatastore
+                                        }
+                                        if ($SBkjob.VirtualLab.Platform -eq "HyperV") {
+                                            $inObj.add('Destination', (Get-VBRHvVirtualLabConfiguration -Id $SBkjob.VirtualLab.Id).Path)
+                                        }
+                                        if ($SBkjob.VirtualLab.Platform -eq "VMWare") {
+                                            $inObj.add('Datastore', (Get-VBRViVirtualLabConfiguration -Id $SBkjob.VirtualLab.Id).CacheDatastore)
                                         }
                                         $OutObj = [pscustomobject]$inobj
 
@@ -98,11 +103,9 @@ function Get-AbrVbrSureBackupjobVMware {
                                             Write-PscriboMessage "Discovered $($SBkjob.ApplicationGroup.Name) application group."
                                             $inObj = [ordered] @{
                                                 'Name' = $SBkjob.ApplicationGroup.Name
-                                                'Description' = $SBkjob.ApplicationGroup.Description
-                                                'Platform' = $SBkjob.ApplicationGroup.Platform
                                                 'Virtual Machines' = $SBkjob.ApplicationGroup.VM -join ", "
                                                 'Keep Application Group Running' = ConvertTo-TextYN $SBkjob.KeepApplicationGroupRunning
-
+                                                'Description' = $SBkjob.ApplicationGroup.Description
                                             }
                                             $OutObj = [pscustomobject]$inobj
 
@@ -129,7 +132,11 @@ function Get-AbrVbrSureBackupjobVMware {
                                                 Write-PscriboMessage "Discovered $($LinkedJob.Job.Name) linked job."
                                                 $inObj = [ordered] @{
                                                     'Name' = $LinkedJob.Job.Name
-                                                    'Roles' = $LinkedJob.Role -join ","
+                                                    'Roles' = Switch ([string]::IsNullOrEmpty($LinkedJob.Role)) {
+                                                        $true {'Not Defined'}
+                                                        $false {$LinkedJob.Role -join ","}
+                                                        default {'Unknown'}
+                                                    }
                                                     'Description' =  $LinkedJob.Job.Description
                                                 }
                                                 $OutObj += [pscustomobject]$inobj
