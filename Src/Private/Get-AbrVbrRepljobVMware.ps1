@@ -38,7 +38,7 @@ function Get-AbrVbrRepljobVMware {
                                 Write-PscriboMessage "Discovered $($VMcount.Name) ."
                                 $inObj = [ordered] @{
                                     'Name' = $VMcount.Name
-                                    'Creation Time' = $VMcount.CreationTime
+                                    'Creation Time' = $VMcount.Info.CreationTimeUtc.ToLongDateString()
                                     'VM Count' = (Get-VBRReplica | Where-Object {$_.JobName -eq $VMcount.Name}).VMcount
                                 }
                                 $OutObj += [pscustomobject]$inobj
