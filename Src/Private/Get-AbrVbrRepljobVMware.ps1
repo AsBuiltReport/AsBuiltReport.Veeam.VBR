@@ -6,7 +6,7 @@ function Get-AbrVbrRepljobVMware {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.5.5
+        Version:        0.7.1
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -38,13 +38,13 @@ function Get-AbrVbrRepljobVMware {
                                 Write-PscriboMessage "Discovered $($VMcount.Name) ."
                                 $inObj = [ordered] @{
                                     'Name' = $VMcount.Name
-                                    'Creation Time' = $VMcount.CreationTime
+                                    'Creation Time' = $VMcount.Info.CreationTimeUtc.ToLongDateString()
                                     'VM Count' = (Get-VBRReplica | Where-Object {$_.JobName -eq $VMcount.Name}).VMcount
                                 }
                                 $OutObj += [pscustomobject]$inobj
                             }
                             catch {
-                                Write-PscriboMessage -IsWarning $_.Exception.Message
+                                Write-PscriboMessage -IsWarning "VMware Replication Summary $($VMcount.Name) Table: $($_.Exception.Message)"
                             }
                         }
 
@@ -59,7 +59,7 @@ function Get-AbrVbrRepljobVMware {
                         $OutObj | Sort-Object -Property 'Name' | Table @TableParams
                     }
                     catch {
-                        Write-PscriboMessage -IsWarning $_.Exception.Message
+                        Write-PscriboMessage -IsWarning "VMware Replication Summary Section: $($_.Exception.Message)"
                     }
                     $OutObj = @()
                     foreach ($Bkjob in $Bkjobs) {
@@ -84,7 +84,7 @@ function Get-AbrVbrRepljobVMware {
                                                 $OutObj = [pscustomobject]$inobj
                                             }
                                             catch {
-                                                Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                Write-PscriboMessage -IsWarning "VMware Replication Jobs Common Information $($Bkjob.Name) Table: $($_.Exception.Message)"
                                             }
                                         }
 
@@ -99,7 +99,7 @@ function Get-AbrVbrRepljobVMware {
                                         $OutObj | Table @TableParams
                                     }
                                     catch {
-                                        Write-PscriboMessage -IsWarning $_.Exception.Message
+                                        Write-PscriboMessage -IsWarning "VMware Replication Jobs Common Information Section: $($_.Exception.Message)"
                                     }
                                 }
                                 Section -Style NOTOCHeading5 -ExcludeFromTOC 'Destination' {
@@ -123,7 +123,7 @@ function Get-AbrVbrRepljobVMware {
                                                 $OutObj += [pscustomobject]$inobj
                                             }
                                             catch {
-                                                Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                Write-PscriboMessage -IsWarning "VMware Replication Jobs $($Bkjob.Name) Destination Table: $($_.Exception.Message)"
                                             }
                                         }
 
@@ -138,7 +138,7 @@ function Get-AbrVbrRepljobVMware {
                                         $OutObj | Table @TableParams
                                     }
                                     catch {
-                                        Write-PscriboMessage -IsWarning $_.Exception.Message
+                                        Write-PscriboMessage -IsWarning "VMware Replication Jobs Destination Section: $($_.Exception.Message)"
                                     }
                                 }
                                 if ($Bkjob.ViReplicaTargetOptions.UseNetworkMapping) {
@@ -155,7 +155,7 @@ function Get-AbrVbrRepljobVMware {
                                                     $OutObj += [pscustomobject]$inobj
                                                 }
                                                 catch {
-                                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                    Write-PscriboMessage -IsWarning "VMware Replication Jobs $($Bkjob.Name) Network Table: $($_.Exception.Message)"
                                                 }
                                             }
 
@@ -170,44 +170,83 @@ function Get-AbrVbrRepljobVMware {
                                             $OutObj | Sort-Object -Property 'Source Network' | Table @TableParams
                                         }
                                         catch {
-                                            Write-PscriboMessage -IsWarning $_.Exception.Message
+                                            Write-PscriboMessage -IsWarning "VMware Replication Jobs $($Bkjob.Name) Network Section: $($_.Exception.Message)"
                                         }
                                     }
                                 }
                                 if ($Bkjob.Options.ViReplicaTargetOptions.UseReIP) {
-                                    Section -Style NOTOCHeading5 -ExcludeFromTOC 'Re-IP Rules' {
-                                        $OutObj = @()
-                                        try {
-                                            foreach ($ReIpRule in $Bkjob.Options.ReIPRulesOptions.Rules) {
-                                                try {
-                                                    Write-PscriboMessage "Discovered $($Bkjob.Name) re-ip rules $($ReIpRule.Source.IPAddress) information."
-                                                    $inObj = [ordered] @{
-                                                        'Source IP Address' = $ReIpRule.Source.IPAddress
-                                                        'Source Subnet Mask' = $ReIpRule.Source.SubnetMask
-                                                        'Target P Address' = $ReIpRule.Target.IPAddress
-                                                        'Target Subnet Mask' = $ReIpRule.Target.SubnetMask
-                                                        'Target Default Gateway' = $ReIpRule.Target.DefaultGateway
-                                                        'Target DNS Addresses' = $ReIpRule.Target.DNSAddresses
+                                    if ($Bkjob.Options.ReIPRulesOptions.Rules) {
+                                        Section -Style NOTOCHeading5 -ExcludeFromTOC 'Re-IP Rules' {
+                                            $OutObj = @()
+                                            try {
+                                                foreach ($ReIpRule in $Bkjob.Options.ReIPRulesOptions.Rules) {
+                                                    try {
+                                                        Write-PscriboMessage "Discovered $($Bkjob.Name) re-ip rules $($ReIpRule.Source.IPAddress) information."
+                                                        $inObj = [ordered] @{
+                                                            'Source IP Address' = $ReIpRule.Source.IPAddress
+                                                            'Source Subnet Mask' = $ReIpRule.Source.SubnetMask
+                                                            'Target P Address' = $ReIpRule.Target.IPAddress
+                                                            'Target Subnet Mask' = $ReIpRule.Target.SubnetMask
+                                                            'Target Default Gateway' = $ReIpRule.Target.DefaultGateway
+                                                            'Target DNS Addresses' = $ReIpRule.Target.DNSAddresses
+                                                        }
+                                                        $OutObj += [pscustomobject]$inobj
                                                     }
-                                                    $OutObj += [pscustomobject]$inobj
+                                                    catch {
+                                                        Write-PscriboMessage -IsWarning "VMware Replication Jobs $($Bkjob.Name) Re-IP Rules Table: $($_.Exception.Message)"
+                                                    }
                                                 }
-                                                catch {
-                                                    Write-PscriboMessage -IsWarning $_.Exception.Message
-                                                }
-                                            }
 
-                                            $TableParams = @{
-                                                Name = "Re-IP Rules - $($Bkjob.Name)"
-                                                List = $false
-                                                ColumnWidths = 17, 17, 17, 17, 16, 16
+                                                $TableParams = @{
+                                                    Name = "Re-IP Rules - $($Bkjob.Name)"
+                                                    List = $false
+                                                    ColumnWidths = 17, 17, 17, 17, 16, 16
+                                                }
+                                                if ($Report.ShowTableCaptions) {
+                                                    $TableParams['Caption'] = "- $($TableParams.Name)"
+                                                }
+                                                $OutObj | Sort-Object -Property 'Source IP Address' | Table @TableParams
                                             }
-                                            if ($Report.ShowTableCaptions) {
-                                                $TableParams['Caption'] = "- $($TableParams.Name)"
+                                            catch {
+                                                Write-PscriboMessage -IsWarning "VMware Replication Jobs $($Bkjob.Name) Re-IP Rules Section: $($_.Exception.Message)"
                                             }
-                                            $OutObj | Sort-Object -Property 'Source IP Address' | Table @TableParams
                                         }
-                                        catch {
-                                            Write-PscriboMessage -IsWarning $_.Exception.Message
+                                    }
+                                    if ($Bkjob.Options.ReIPRulesOptions.RulesIPv4) {
+                                        Section -Style NOTOCHeading5 -ExcludeFromTOC 'Re-IP Rules' {
+                                            $OutObj = @()
+                                            try {
+                                                foreach ($ReIpRule in $Bkjob.Options.ReIPRulesOptions.RulesIPv4) {
+                                                    try {
+                                                        Write-PscriboMessage "Discovered $($Bkjob.Name) re-ip rules $($ReIpRule.Source.IPAddress) information."
+                                                        $inObj = [ordered] @{
+                                                            'Source IP Address' = $ReIpRule.Source.IPAddress
+                                                            'Source Subnet Mask' = $ReIpRule.Source.SubnetMask
+                                                            'Target P Address' = $ReIpRule.Target.IPAddress
+                                                            'Target Subnet Mask' = $ReIpRule.Target.SubnetMask
+                                                            'Target Default Gateway' = $ReIpRule.Target.DefaultGateway
+                                                            'Target DNS Addresses' = $ReIpRule.Target.DNSAddresses
+                                                        }
+                                                        $OutObj += [pscustomobject]$inobj
+                                                    }
+                                                    catch {
+                                                        Write-PscriboMessage -IsWarning "VMware Replication Jobs $($Bkjob.Name) Re-IP Rules Table: $($_.Exception.Message)"
+                                                    }
+                                                }
+
+                                                $TableParams = @{
+                                                    Name = "Re-IP Rules - $($Bkjob.Name)"
+                                                    List = $false
+                                                    ColumnWidths = 17, 17, 17, 17, 16, 16
+                                                }
+                                                if ($Report.ShowTableCaptions) {
+                                                    $TableParams['Caption'] = "- $($TableParams.Name)"
+                                                }
+                                                $OutObj | Sort-Object -Property 'Source IP Address' | Table @TableParams
+                                            }
+                                            catch {
+                                                Write-PscriboMessage -IsWarning "VMware Replication Jobs $($Bkjob.Name) Re-IP Rules Section: $($_.Exception.Message)"
+                                            }
                                         }
                                     }
                                 }
@@ -239,7 +278,7 @@ function Get-AbrVbrRepljobVMware {
                                             }
                                         }
                                         catch {
-                                            Write-PscriboMessage -IsWarning $_.Exception.Message
+                                            Write-PscriboMessage -IsWarning "VMware Replication Jobs Virtual Machine Section: $($_.Exception.Message)"
                                         }
                                     }
                                 }
@@ -304,7 +343,7 @@ function Get-AbrVbrRepljobVMware {
                                                     $OutObj | Table @TableParams
                                                 }
                                                 catch {
-                                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                    Write-PscriboMessage -IsWarning "VMware Replication Jobs $($Bkjob.Name) Advanced Settings (Maintenance) Table: $($_.Exception.Message)"
                                                 }
                                             }
                                         }
@@ -351,7 +390,7 @@ function Get-AbrVbrRepljobVMware {
                                                     $OutObj | Table @TableParams
                                                 }
                                                 catch {
-                                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                    Write-PscriboMessage -IsWarning "VMware Replication Jobs $($Bkjob.Name) Advanced Settings (Traffic) Table: $($_.Exception.Message)"
                                                 }
                                             }
                                         }
@@ -388,7 +427,7 @@ function Get-AbrVbrRepljobVMware {
                                                     $OutObj | Table @TableParams
                                                 }
                                                 catch {
-                                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                    Write-PscriboMessage -IsWarning "VMware Replication Jobs $($Bkjob.Name) Advanced Settings (Notification) Table: $($_.Exception.Message)"
                                                 }
                                             }
                                         }
@@ -416,7 +455,7 @@ function Get-AbrVbrRepljobVMware {
                                                     $OutObj | Table @TableParams
                                                 }
                                                 catch {
-                                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                    Write-PscriboMessage -IsWarning "VMware Replication Jobs $($Bkjob.Name) Advanced Settings (vSphere) Table: $($_.Exception.Message)"
                                                 }
                                             }
                                         }
@@ -445,7 +484,7 @@ function Get-AbrVbrRepljobVMware {
                                                     $OutObj | Table @TableParams
                                                 }
                                                 catch {
-                                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                    Write-PscriboMessage -IsWarning "VMware Replication Jobs $($Bkjob.Name) Advanced Settings (Integration) Table: $($_.Exception.Message)"
                                                 }
                                             }
                                         }
@@ -484,7 +523,7 @@ function Get-AbrVbrRepljobVMware {
                                                     $OutObj | Table @TableParams
                                                 }
                                                 catch {
-                                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                    Write-PscriboMessage -IsWarning "VMware Replication Jobs $($Bkjob.Name) Advanced Settings (Script) Table: $($_.Exception.Message)"
                                                 }
                                             }
                                         }
@@ -512,13 +551,13 @@ function Get-AbrVbrRepljobVMware {
                                                     $OutObj | Table @TableParams
                                                 }
                                                 catch {
-                                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                    Write-PscriboMessage -IsWarning "VMware Replication Jobs $($Bkjob.Name) Advanced Settings (RPO Monitor) Table: $($_.Exception.Message)"
                                                 }
                                             }
                                         }
                                     }
                                     catch {
-                                        Write-PscriboMessage -IsWarning $_.Exception.Message
+                                        Write-PscriboMessage -IsWarning "VMware Replication Jobs $($Bkjob.Name) Job Setting Section: $($_.Exception.Message)"
                                     }
                                 }
                                 try {
@@ -544,13 +583,13 @@ function Get-AbrVbrRepljobVMware {
                                                 $TargetWanAccelerator = $Bkjob.GetTargetWanAccelerator().Name
                                             }
                                             catch {
-                                                Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                Write-PscriboMessage -IsWarning "VMware Replication Jobs $($Bkjob.Name) Data Transfer GetTargetWanAccelerator Item: $($_.Exception.Message)"
                                             }
                                             try {
                                                 $SourceWanAccelerator = $Bkjob.GetSourceWanAccelerator().Name
                                             }
                                             catch {
-                                                Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                Write-PscriboMessage -IsWarning "VMware Replication Jobs $($Bkjob.Name) Data Trsnfer GetSourceWanAccelerator Item: $($_.Exception.Message)"
                                             }
                                             $inObj.add('Source Wan accelerator', $SourceWanAccelerator)
                                             $inObj.add('Target Wan accelerator', $TargetWanAccelerator)
@@ -570,7 +609,7 @@ function Get-AbrVbrRepljobVMware {
                                     }
                                 }
                                 catch {
-                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                    Write-PscriboMessage -IsWarning "VMware Replication Jobs $($Bkjob.Name) Data Trsnfer Section: $($_.Exception.Message)"
                                 }
                                 if ($Bkjob.Options.ViReplicaTargetOptions.InitialSeeding) {
                                     try {
@@ -599,7 +638,7 @@ function Get-AbrVbrRepljobVMware {
                                         }
                                     }
                                     catch {
-                                        Write-PscriboMessage -IsWarning $_.Exception.Message
+                                        Write-PscriboMessage -IsWarning "VMware Replication Jobs $($Bkjob.Name) Seeding Section: $($_.Exception.Message)"
                                     }
                                 }
                                 if ($Bkjob.VssOptions.Enabled) {
@@ -710,7 +749,7 @@ function Get-AbrVbrRepljobVMware {
                                             }
                                         }
                                         catch {
-                                            Write-PscriboMessage -IsWarning $_.Exception.Message
+                                            Write-PscriboMessage -IsWarning "VMware Replication Jobs $($Bkjob.Name) Guest Processing Section: $($_.Exception.Message)"e
                                         }
                                     }
                                 }
@@ -834,27 +873,27 @@ function Get-AbrVbrRepljobVMware {
                                                         Table -Hashtable $OutObj @TableParams
                                                     }
                                                     catch {
-                                                        Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                        Write-PscriboMessage -IsWarning "VMware Replication Jobs $($Bkjob.Name) Backup Windows Section: $($_.Exception.Message)"
                                                     }
                                                 }
                                             }
                                         }
                                         catch {
-                                            Write-PscriboMessage -IsWarning $_.Exception.Message
+                                            Write-PscriboMessage -IsWarning "VMware Replication Jobs $($Bkjob.Name) Schedule Section: $($_.Exception.Message)"
                                         }
                                     }
                                 }
                             }
                         }
                         catch {
-                            Write-PscriboMessage -IsWarning $_.Exception.Message
+                            Write-PscriboMessage -IsWarning "VMware Replication Jobs Configuration Section: $($_.Exception.Message)"
                         }
                     }
                 }
             }
         }
         catch {
-            Write-PscriboMessage -IsWarning $_.Exception.Message
+            Write-PscriboMessage -IsWarning "VMware Replication Jobs Configuration Document: $($_.Exception.Message)"
         }
     }
     end {}

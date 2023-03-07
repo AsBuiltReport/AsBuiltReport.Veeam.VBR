@@ -6,7 +6,7 @@ function Get-AbrVbrRepljobHyperV {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.5.5
+        Version:        0.7.1
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -44,7 +44,7 @@ function Get-AbrVbrRepljobHyperV {
                                 $OutObj += [pscustomobject]$inobj
                             }
                             catch {
-                                Write-PscriboMessage -IsWarning $_.Exception.Message
+                                Write-PscriboMessage -IsWarning "Hyper-V Replication Jobs Configuration Table: $($_.Exception.Message)"
                             }
                         }
 
@@ -59,7 +59,7 @@ function Get-AbrVbrRepljobHyperV {
                         $OutObj | Sort-Object -Property 'Name' | Table @TableParams
                     }
                     catch {
-                        Write-PscriboMessage -IsWarning $_.Exception.Message
+                        Write-PscriboMessage -IsWarning "Hyper-V Replication Jobs Configuration Section: $($_.Exception.Message)"
                     }
                     $OutObj = @()
                     foreach ($Bkjob in $Bkjobs) {
@@ -84,7 +84,7 @@ function Get-AbrVbrRepljobHyperV {
                                                 $OutObj = [pscustomobject]$inobj
                                             }
                                             catch {
-                                                Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                Write-PscriboMessage -IsWarning "Hyper-V Replication Jobs Common Information Table: $($_.Exception.Message)"
                                             }
                                         }
 
@@ -99,7 +99,7 @@ function Get-AbrVbrRepljobHyperV {
                                         $OutObj | Table @TableParams
                                     }
                                     catch {
-                                        Write-PscriboMessage -IsWarning $_.Exception.Message
+                                        Write-PscriboMessage -IsWarning "Hyper-V Replication Jobs Common Information Section: $($_.Exception.Message)"
                                     }
                                 }
                                 Section -Style NOTOCHeading5 -ExcludeFromTOC 'Destination' {
@@ -122,7 +122,7 @@ function Get-AbrVbrRepljobHyperV {
                                                 $OutObj += [pscustomobject]$inobj
                                             }
                                             catch {
-                                                Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                Write-PscriboMessage -IsWarning "Hyper-V Replication Jobs $($HostorCluster) Destination Table: $($_.Exception.Message)"
                                             }
                                         }
 
@@ -137,7 +137,7 @@ function Get-AbrVbrRepljobHyperV {
                                         $OutObj | Table @TableParams
                                     }
                                     catch {
-                                        Write-PscriboMessage -IsWarning $_.Exception.Message
+                                        Write-PscriboMessage -IsWarning "Hyper-V Replication Jobs $($Bkjob.Name) Destination Section: $($_.Exception.Message)"
                                     }
                                 }
                                 if ($Bkjob.HvReplicaTargetOptions.UseNetworkMapping) {
@@ -154,7 +154,7 @@ function Get-AbrVbrRepljobHyperV {
                                                     $OutObj += [pscustomobject]$inobj
                                                 }
                                                 catch {
-                                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                    Write-PscriboMessage -IsWarning "Hyper-V Replication Jobs $($Bkjob.Name) Network Table: $($_.Exception.Message)"
                                                 }
                                             }
 
@@ -169,44 +169,83 @@ function Get-AbrVbrRepljobHyperV {
                                             $OutObj | Sort-Object -Property 'Source Network' | Table @TableParams
                                         }
                                         catch {
-                                            Write-PscriboMessage -IsWarning $_.Exception.Message
+                                            Write-PscriboMessage -IsWarning "Hyper-V Replication Jobs $($Bkjob.Name) Network Section: $($_.Exception.Message)"
                                         }
                                     }
                                 }
                                 if ($Bkjob.Options.HvReplicaTargetOptions.UseReIP) {
-                                    Section -Style NOTOCHeading5 -ExcludeFromTOC 'Re-IP Rules' {
-                                        $OutObj = @()
-                                        try {
-                                            foreach ($ReIpRule in $Bkjob.Options.ReIPRulesOptions.Rules) {
-                                                try {
-                                                    Write-PscriboMessage "Discovered $($Bkjob.Name) re-ip rules $($ReIpRule.Source.IPAddress) information."
-                                                    $inObj = [ordered] @{
-                                                        'Source IP Address' = $ReIpRule.Source.IPAddress
-                                                        'Source Subnet Mask' = $ReIpRule.Source.SubnetMask
-                                                        'Target P Address' = $ReIpRule.Target.IPAddress
-                                                        'Target Subnet Mask' = $ReIpRule.Target.SubnetMask
-                                                        'Target Default Gateway' = $ReIpRule.Target.DefaultGateway
-                                                        'Target DNS Addresses' = $ReIpRule.Target.DNSAddresses
+                                    if ($Bkjob.Options.ReIPRulesOptions.Rules) {
+                                        Section -Style NOTOCHeading5 -ExcludeFromTOC 'Re-IP Rules' {
+                                            $OutObj = @()
+                                            try {
+                                                foreach ($ReIpRule in $Bkjob.Options.ReIPRulesOptions.Rules) {
+                                                    try {
+                                                        Write-PscriboMessage "Discovered $($Bkjob.Name) re-ip rules $($ReIpRule.Source.IPAddress) information."
+                                                        $inObj = [ordered] @{
+                                                            'Source IP Address' = $ReIpRule.Source.IPAddress
+                                                            'Source Subnet Mask' = $ReIpRule.Source.SubnetMask
+                                                            'Target P Address' = $ReIpRule.Target.IPAddress
+                                                            'Target Subnet Mask' = $ReIpRule.Target.SubnetMask
+                                                            'Target Default Gateway' = $ReIpRule.Target.DefaultGateway
+                                                            'Target DNS Addresses' = $ReIpRule.Target.DNSAddresses
+                                                        }
+                                                        $OutObj += [pscustomobject]$inobj
                                                     }
-                                                    $OutObj += [pscustomobject]$inobj
+                                                    catch {
+                                                        Write-PscriboMessage -IsWarning "Hyper-V Replication Jobs $($Bkjob.Name) Re-IP Rules Table: $($_.Exception.Message)"
+                                                    }
                                                 }
-                                                catch {
-                                                    Write-PscriboMessage -IsWarning $_.Exception.Message
-                                                }
-                                            }
 
-                                            $TableParams = @{
-                                                Name = "Re-IP Rules - $($Bkjob.Name)"
-                                                List = $false
-                                                ColumnWidths = 17, 17, 17, 17, 16, 16
+                                                $TableParams = @{
+                                                    Name = "Re-IP Rules - $($Bkjob.Name)"
+                                                    List = $false
+                                                    ColumnWidths = 17, 17, 17, 17, 16, 16
+                                                }
+                                                if ($Report.ShowTableCaptions) {
+                                                    $TableParams['Caption'] = "- $($TableParams.Name)"
+                                                }
+                                                $OutObj | Sort-Object -Property 'Source IP Address' | Table @TableParams
                                             }
-                                            if ($Report.ShowTableCaptions) {
-                                                $TableParams['Caption'] = "- $($TableParams.Name)"
+                                            catch {
+                                                Write-PscriboMessage -IsWarning "Hyper-V Replication Jobs $($Bkjob.Name) Re-IP Rules Section: $($_.Exception.Message)"
                                             }
-                                            $OutObj | Sort-Object -Property 'Source IP Address' | Table @TableParams
                                         }
-                                        catch {
-                                            Write-PscriboMessage -IsWarning $_.Exception.Message
+                                    }
+                                    if ($Bkjob.Options.ReIPRulesOptions.RulesIPv4) {
+                                        Section -Style NOTOCHeading5 -ExcludeFromTOC 'Re-IP Rules' {
+                                            $OutObj = @()
+                                            try {
+                                                foreach ($ReIpRule in $Bkjob.Options.ReIPRulesOptions.RulesIPv4) {
+                                                    try {
+                                                        Write-PscriboMessage "Discovered $($Bkjob.Name) re-ip rules $($ReIpRule.Source.IPAddress) information."
+                                                        $inObj = [ordered] @{
+                                                            'Source IP Address' = $ReIpRule.Source.IPAddress
+                                                            'Source Subnet Mask' = $ReIpRule.Source.SubnetMask
+                                                            'Target P Address' = $ReIpRule.Target.IPAddress
+                                                            'Target Subnet Mask' = $ReIpRule.Target.SubnetMask
+                                                            'Target Default Gateway' = $ReIpRule.Target.DefaultGateway
+                                                            'Target DNS Addresses' = $ReIpRule.Target.DNSAddresses
+                                                        }
+                                                        $OutObj += [pscustomobject]$inobj
+                                                    }
+                                                    catch {
+                                                        Write-PscriboMessage -IsWarning "Hyper-V Replication Jobs $($Bkjob.Name) Re-IP Rules Table: $($_.Exception.Message)"
+                                                    }
+                                                }
+
+                                                $TableParams = @{
+                                                    Name = "Re-IP Rules - $($Bkjob.Name)"
+                                                    List = $false
+                                                    ColumnWidths = 17, 17, 17, 17, 16, 16
+                                                }
+                                                if ($Report.ShowTableCaptions) {
+                                                    $TableParams['Caption'] = "- $($TableParams.Name)"
+                                                }
+                                                $OutObj | Sort-Object -Property 'Source IP Address' | Table @TableParams
+                                            }
+                                            catch {
+                                                Write-PscriboMessage -IsWarning "Hyper-V Replication Jobs $($Bkjob.Name) Re-IP Rules Section: $($_.Exception.Message)"
+                                            }
                                         }
                                     }
                                 }
@@ -237,7 +276,7 @@ function Get-AbrVbrRepljobHyperV {
                                             }
                                         }
                                         catch {
-                                            Write-PscriboMessage -IsWarning $_.Exception.Message
+                                            Write-PscriboMessage -IsWarning "Hyper-V Replication Jobs $($Bkjob.Name) Virtual Machine Section: $($_.Exception.Message)"
                                         }
                                     }
                                 }
@@ -302,7 +341,7 @@ function Get-AbrVbrRepljobHyperV {
                                                     $OutObj | Table @TableParams
                                                 }
                                                 catch {
-                                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                    Write-PscriboMessage -IsWarning "Hyper-V Replication Jobs $($Bkjob.Name) Advanced Settings (Maintenance) Section: $($_.Exception.Message)"
                                                 }
                                             }
                                         }
@@ -349,7 +388,7 @@ function Get-AbrVbrRepljobHyperV {
                                                     $OutObj | Table @TableParams
                                                 }
                                                 catch {
-                                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                    Write-PscriboMessage -IsWarning "Hyper-V Replication Jobs $($Bkjob.Name) Advanced Settings (Traffic) Section: $($_.Exception.Message)"
                                                 }
                                             }
                                         }
@@ -386,7 +425,7 @@ function Get-AbrVbrRepljobHyperV {
                                                     $OutObj | Table @TableParams
                                                 }
                                                 catch {
-                                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                    Write-PscriboMessage -IsWarning "Hyper-V Replication Jobs $($Bkjob.Name) Advanced Settings (Notification) Section: $($_.Exception.Message)"
                                                 }
                                             }
                                         }
@@ -414,7 +453,7 @@ function Get-AbrVbrRepljobHyperV {
                                                     $OutObj | Table @TableParams
                                                 }
                                                 catch {
-                                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                    Write-PscriboMessage -IsWarning "Hyper-V Replication Jobs $($Bkjob.Name) Advanced Settings (Hyper-V) Section: $($_.Exception.Message)"
                                                 }
                                             }
                                         }
@@ -443,7 +482,7 @@ function Get-AbrVbrRepljobHyperV {
                                                     $OutObj | Table @TableParams
                                                 }
                                                 catch {
-                                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                    Write-PscriboMessage -IsWarning "Hyper-V Replication Jobs $($Bkjob.Name) Advanced Settings (Integration) Section: $($_.Exception.Message)"
                                                 }
                                             }
                                         }
@@ -482,7 +521,7 @@ function Get-AbrVbrRepljobHyperV {
                                                     $OutObj | Table @TableParams
                                                 }
                                                 catch {
-                                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                    Write-PscriboMessage -IsWarning "Hyper-V Replication Jobs $($Bkjob.Name) Advanced Settings (Script) Section: $($_.Exception.Message)"
                                                 }
                                             }
                                         }
@@ -510,13 +549,13 @@ function Get-AbrVbrRepljobHyperV {
                                                     $OutObj | Table @TableParams
                                                 }
                                                 catch {
-                                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                    Write-PscriboMessage -IsWarning "Hyper-V Replication Jobs $($Bkjob.Name) Advanced Settings (RPO Monitor) Section: $($_.Exception.Message)"
                                                 }
                                             }
                                         }
                                     }
                                     catch {
-                                        Write-PscriboMessage -IsWarning $_.Exception.Message
+                                        Write-PscriboMessage -IsWarning "Hyper-V Replication Jobs $($Bkjob.Name) Settings Section: $($_.Exception.Message)"
                                     }
                                 }
                                 try {
@@ -541,13 +580,13 @@ function Get-AbrVbrRepljobHyperV {
                                                 $TargetWanAccelerator = $Bkjob.GetTargetWanAccelerator().Name
                                             }
                                             catch {
-                                                Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                Write-PscriboMessage -IsWarning "Hyper-V Replication Jobs $($Bkjob.Name) Data Transfer GetTargetWanAccelerator Item: $($_.Exception.Message)"
                                             }
                                             try {
                                                 $SourceWanAccelerator = $Bkjob.GetSourceWanAccelerator().Name
                                             }
                                             catch {
-                                                Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                Write-PscriboMessage -IsWarning "Hyper-V Replication Jobs $($Bkjob.Name) Data Transfer GetSourceWanAccelerator Item: $($_.Exception.Message)"
                                             }
                                             $inObj.add('Source Wan accelerator', $SourceWanAccelerator)
                                             $inObj.add('Target Wan accelerator', $TargetWanAccelerator)
@@ -566,7 +605,7 @@ function Get-AbrVbrRepljobHyperV {
                                     }
                                 }
                                 catch {
-                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                    Write-PscriboMessage -IsWarning "Hyper-V Replication Jobs $($Bkjob.Name) Data Transfer Section: $($_.Exception.Message)"
                                 }
                                 if ($Bkjob.Options.HvReplicaTargetOptions.InitialSeeding) {
                                     try {
@@ -595,7 +634,7 @@ function Get-AbrVbrRepljobHyperV {
                                         }
                                     }
                                     catch {
-                                        Write-PscriboMessage -IsWarning $_.Exception.Message
+                                        Write-PscriboMessage -IsWarning "Hyper-V Replication Jobs $($Bkjob.Name) Seeding Table: $($_.Exception.Message)"
                                     }
                                 }
                                 if ($Bkjob.VssOptions.Enabled) {
@@ -706,7 +745,7 @@ function Get-AbrVbrRepljobHyperV {
                                             }
                                         }
                                         catch {
-                                            Write-PscriboMessage -IsWarning $_.Exception.Message
+                                            Write-PscriboMessage -IsWarning "Hyper-V Replication Jobs $($Bkjob.Name) Guest Proccessing Table: $($_.Exception.Message)"
                                         }
                                     }
                                 }
@@ -830,27 +869,27 @@ function Get-AbrVbrRepljobHyperV {
                                                         Table -Hashtable $OutObj @TableParams
                                                     }
                                                     catch {
-                                                        Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                        Write-PscriboMessage -IsWarning "Hyper-V Replication Jobs $($Bkjob.Name) Backup Window Time Period table: $($_.Exception.Message)"
                                                     }
                                                 }
                                             }
                                         }
                                         catch {
-                                            Write-PscriboMessage -IsWarning $_.Exception.Message
+                                            Write-PscriboMessage -IsWarning "Hyper-V Replication Jobs $($Bkjob.Name) Schedule Table: $($_.Exception.Message)"
                                         }
                                     }
                                 }
                             }
                         }
                         catch {
-                            Write-PscriboMessage -IsWarning $_.Exception.Message
+                            Write-PscriboMessage -IsWarning "Hyper-V Replication Jobs Configuration Section: $($_.Exception.Message)"
                         }
                     }
                 }
             }
         }
         catch {
-            Write-PscriboMessage -IsWarning $_.Exception.Message
+            Write-PscriboMessage -IsWarning "Hyper-V Replication Jobs Configuration Document: $($_.Exception.Message)"
         }
     }
     end {}

@@ -6,7 +6,7 @@ function Get-AbrVbrNetworkTrafficRule {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.5.3
+        Version:        0.7.1
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -61,7 +61,7 @@ function Get-AbrVbrNetworkTrafficRule {
                         }
                     }
                     catch {
-                        Write-PscriboMessage -IsWarning $_.Exception.Message
+                        Write-PscriboMessage -IsWarning "Network Traffic Rules Section: $($_.Exception.Message)"
                     }
                     #---------------------------------------------------------------------------------------------#
                     #                                Preferred Networks                                           #
@@ -70,9 +70,9 @@ function Get-AbrVbrNetworkTrafficRule {
                         if ((Get-VBRPreferredNetwork).count -gt 0) {
                             Section -Style NOTOCHeading5 -ExcludeFromTOC 'Preferred Networks' {
                                 $OutObj = @()
-                                try {
-                                    $PreferedNetworks = Get-VBRPreferredNetwork
-                                    foreach ($PreferedNetwork in $PreferedNetworks) {
+                                $PreferedNetworks = Get-VBRPreferredNetwork
+                                foreach ($PreferedNetwork in $PreferedNetworks) {
+                                    try {
                                         Write-PscriboMessage "Discovered $($PreferedNetwork.CIDRNotation) Prefered Network."
                                         $inObj = [ordered] @{
                                             'IP Address' = $PreferedNetwork.IpAddress
@@ -81,9 +81,9 @@ function Get-AbrVbrNetworkTrafficRule {
                                         }
                                         $OutObj += [pscustomobject]$inobj
                                     }
-                                }
-                                catch {
-                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                    catch {
+                                        Write-PscriboMessage -IsWarning "Preferred Networks $($PreferedNetwork.IpAddress) Section: $($_.Exception.Message)"
+                                    }
                                 }
 
                                 $TableParams = @{
@@ -99,7 +99,7 @@ function Get-AbrVbrNetworkTrafficRule {
                         }
                     }
                     catch {
-                        Write-PscriboMessage -IsWarning $_.Exception.Message
+                        Write-PscriboMessage -IsWarning "Preferred Networks Section: $($_.Exception.Message)"
                     }
                 }
             }

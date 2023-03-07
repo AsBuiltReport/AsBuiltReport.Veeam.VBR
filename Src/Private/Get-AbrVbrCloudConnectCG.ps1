@@ -6,7 +6,7 @@ function Get-AbrVbrCloudConnectCG {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.7.0
+        Version:        0.7.1
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -80,7 +80,7 @@ function Get-AbrVbrCloudConnectCG {
                                     }
                                 }
                                 catch {
-                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                    Write-PscriboMessage -IsWarning "Cloud Gateways $($CloudObject.Name) Section: $($_.Exception.Message)"
                                 }
 
                             }
@@ -99,14 +99,14 @@ function Get-AbrVbrCloudConnectCG {
                             }
                         }
                         catch {
-                            Write-PscriboMessage -IsWarning $_.Exception.Message
+                            Write-PscriboMessage -IsWarning "Cloud Gateways Section: $($_.Exception.Message)"
                         }
                     }
                 }
             }
         }
         catch {
-            Write-PscriboMessage -IsWarning $_.Exception.Message
+            Write-PscriboMessage -IsWarning "Cloud Gateways Section: $($_.Exception.Message)"
         }
     }
     end {}

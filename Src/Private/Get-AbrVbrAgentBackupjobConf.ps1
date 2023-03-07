@@ -6,7 +6,7 @@ function Get-AbrVbrAgentBackupjobConf {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.5.5
+        Version:        0.7.1
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -67,7 +67,7 @@ function Get-AbrVbrAgentBackupjobConf {
                                         $OutObj | Table @TableParams
                                     }
                                     catch {
-                                        Write-PscriboMessage -IsWarning $_.Exception.Message
+                                        Write-PscriboMessage -IsWarning "Agent Backup Jobs Common Information Section: $($_.Exception.Message)"
                                     }
                                 }
                                 try {
@@ -94,7 +94,7 @@ function Get-AbrVbrAgentBackupjobConf {
                                                 $OutObj += [pscustomobject]$inobj
                                             }
                                             catch {
-                                                Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                Write-PscriboMessage -IsWarning "Agent Backup Jobs Protected Computers Section: $($_.Exception.Message)"
                                             }
                                         }
 
@@ -110,7 +110,7 @@ function Get-AbrVbrAgentBackupjobConf {
                                     }
                                 }
                                 catch {
-                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                    Write-PscriboMessage -IsWarning "Agent Backup Jobs Protected Computers Section: $($_.Exception.Message)"
                                 }
                                 try {
                                     Section -Style NOTOCHeading5 -ExcludeFromTOC 'Backup Mode' {
@@ -159,7 +159,7 @@ function Get-AbrVbrAgentBackupjobConf {
                                             $OutObj += [pscustomobject]$inobj
                                             }
                                         catch {
-                                            Write-PscriboMessage -IsWarning $_.Exception.Message
+                                            Write-PscriboMessage -IsWarning "Agent Backup Jobs Backup Mode Section: $($_.Exception.Message)"
                                         }
 
                                         $TableParams = @{
@@ -174,7 +174,7 @@ function Get-AbrVbrAgentBackupjobConf {
                                     }
                                 }
                                 catch {
-                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                    Write-PscriboMessage -IsWarning "Agent Backup Jobs Backup Mode Section: $($_.Exception.Message)"
                                 }
                                 try {
                                     if ($ABkjob.Mode -eq 'ManagedByAgent') {
@@ -245,7 +245,7 @@ function Get-AbrVbrAgentBackupjobConf {
                                                 $OutObj += [pscustomobject]$inobj
                                             }
                                             catch {
-                                                Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                Write-PscriboMessage -IsWarning "Agent Backup Jobs Destination Section: $($_.Exception.Message)"
                                             }
 
                                             $TableParams = @{
@@ -285,7 +285,7 @@ function Get-AbrVbrAgentBackupjobConf {
                                                     }
                                                 }
                                                 catch {
-                                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                    Write-PscriboMessage -IsWarning "Agent Backup Jobs Secondary Target Section: $($_.Exception.Message)"
                                                 }
                                             }
                                         }
@@ -350,7 +350,7 @@ function Get-AbrVbrAgentBackupjobConf {
                                                 $OutObj += [pscustomobject]$inobj
                                             }
                                             catch {
-                                                Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                Write-PscriboMessage -IsWarning "Agent Backup Jobs Destination Section: $($_.Exception.Message)"
                                             }
 
                                             $TableParams = @{
@@ -390,7 +390,7 @@ function Get-AbrVbrAgentBackupjobConf {
                                                     }
                                                 }
                                                 catch {
-                                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                    Write-PscriboMessage -IsWarning "Agent Backup Jobs Secondary Target Section: $($_.Exception.Message)"
                                                 }
                                             }
                                         }
@@ -432,12 +432,12 @@ function Get-AbrVbrAgentBackupjobConf {
                                                         $OutObj | Table @TableParams
                                                     }
                                                     catch {
-                                                        Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                        Write-PscriboMessage -IsWarning "Agent Backup Jobs Advanced Settings (Backup) Section: $($_.Exception.Message)"
                                                     }
                                                 }
                                             }
                                             catch {
-                                                Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                Write-PscriboMessage -IsWarning "Agent Backup Jobs Advanced Settings (Backup) Section: $($_.Exception.Message)"
                                             }
                                             try {
                                                 Section -Style NOTOCHeading6 -ExcludeFromTOC "Advanced Settings (Maintenance)" {
@@ -479,12 +479,12 @@ function Get-AbrVbrAgentBackupjobConf {
                                                         $OutObj | Table @TableParams
                                                     }
                                                     catch {
-                                                        Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                        Write-PscriboMessage -IsWarning "Agent Backup Jobs Advanced Settings (Maintenance) Section: $($_.Exception.Message)"
                                                     }
                                                 }
                                             }
                                             catch {
-                                                Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                Write-PscriboMessage -IsWarning Write-PscriboMessage -IsWarning "Agent Backup Jobs Advanced Settings (Maintenance) Section: $($_.Exception.Message)"
                                             }
                                             try {
                                                 Section -Style NOTOCHeading6 -ExcludeFromTOC "Advanced Settings (Storage)" {
@@ -513,7 +513,7 @@ function Get-AbrVbrAgentBackupjobConf {
                                                 }
                                             }
                                             catch {
-                                                Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                Write-PscriboMessage -IsWarning "Agent Backup Jobs Advanced Settings (Storage) Section: $($_.Exception.Message)"
                                             }
                                             try {
                                                 Section -Style NOTOCHeading6 -ExcludeFromTOC "Advanced Settings (Notification)" {
@@ -546,7 +546,7 @@ function Get-AbrVbrAgentBackupjobConf {
                                                 }
                                             }
                                             catch {
-                                                Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                Write-PscriboMessage -IsWarning "Agent Backup Jobs Advanced Settings (Notification) Section: $($_.Exception.Message)"
                                             }
                                             if ($ABkjob.Mode -eq 'ManagedByBackupServer'-and $ABkjob.OSPlatform -eq 'Windows') {
                                                 try {
@@ -577,7 +577,7 @@ function Get-AbrVbrAgentBackupjobConf {
                                                     }
                                                 }
                                                 catch {
-                                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                    Write-PscriboMessage -IsWarning "Agent Backup Jobs Advanced Settings (Integration) Section: $($_.Exception.Message)"
                                                 }
                                             }
                                             if ($ABkjob.Mode -eq 'ManagedByBackupServer') {
@@ -623,7 +623,7 @@ function Get-AbrVbrAgentBackupjobConf {
                                                     }
                                                 }
                                                 catch {
-                                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                    Write-PscriboMessage -IsWarning "Agent Backup Jobs Advanced Settings (Script) Section: $($_.Exception.Message)"
                                                 }
                                             }
                                         }
@@ -651,7 +651,7 @@ function Get-AbrVbrAgentBackupjobConf {
                                                 $OutObj | Table @TableParams
                                             }
                                             catch {
-                                                Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                Write-PscriboMessage -IsWarning "Agent Backup Jobs Advanced Settings (Guest Processing) Section: $($_.Exception.Message)"
                                             }
                                         }
                                     }
@@ -697,7 +697,7 @@ function Get-AbrVbrAgentBackupjobConf {
                                                     $OutObj | Table @TableParams
                                                 }
                                                 catch {
-                                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                    Write-PscriboMessage -IsWarning "Agent Backup Jobs Advanced Settings (Schedule Options) Section: $($_.Exception.Message)"
                                                 }
                                             }
                                         }
@@ -728,7 +728,7 @@ function Get-AbrVbrAgentBackupjobConf {
                                                 }
                                             }
                                             catch {
-                                                Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                Write-PscriboMessage -IsWarning "Agent Backup Jobs Advanced Settings (Backup Cache) Section: $($_.Exception.Message)"
                                             }
                                         }
                                         if ($ABkjob.Mode -eq 'ManagedByAgent') {
@@ -772,26 +772,26 @@ function Get-AbrVbrAgentBackupjobConf {
                                                     $OutObj | Table @TableParams
                                                 }
                                                 catch {
-                                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                    Write-PscriboMessage -IsWarning "Agent Backup Jobs Advanced Settings (Schedule Options) Section: $($_.Exception.Message)"
                                                 }
                                             }
                                         }
                                     }
                                 }
                                 catch {
-                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                    Write-PscriboMessage -IsWarning "Agent Backup Jobs Advanced Section: $($_.Exception.Message)"
                                 }
                             }
                         }
                         catch {
-                            Write-PscriboMessage -IsWarning $_.Exception.Message
+                            Write-PscriboMessage -IsWarning "Agent Backup Jobs Configuration Section: $($_.Exception.Message)"
                         }
                     }
                 }
             }
         }
         catch {
-            Write-PscriboMessage -IsWarning $_.Exception.Message
+            Write-PscriboMessage -IsWarning "Agent Backup Jobs Configuration Section: $($_.Exception.Message)"
         }
     }
     end {}

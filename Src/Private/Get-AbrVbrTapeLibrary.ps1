@@ -6,7 +6,7 @@ function Get-AbrVbrTapeLibrary {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.5.3
+        Version:        0.7.1
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -84,7 +84,11 @@ function Get-AbrVbrTapeLibrary {
                                                             'Name' = $DriveObj.Name
                                                             'Model' = $DriveObj.Model
                                                             'Serial Number' = $DriveObj.SerialNumber
-                                                            'Medium' = $DriveObj.Medium
+                                                            'Medium' = switch ([string]::IsNullOrEmpty($DriveObj.Medium)) {
+                                                                $true {'-' }
+                                                                $false {$DriveObj.Medium}
+                                                                Default {'Unknown'}
+                                                            }
                                                             'Enabled' = ConvertTo-TextYN $DriveObj.Enabled
                                                             'Is Locked' = ConvertTo-TextYN $DriveObj.IsLocked
                                                             'State' = $DriveObj.State
@@ -108,13 +112,13 @@ function Get-AbrVbrTapeLibrary {
                                                     $OutObj | Sort-Object -Property 'Name' | Table @TableParams
                                                 }
                                                 catch {
-                                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                    Write-PscriboMessage -IsWarning "Tape Drives $($TapeObj.Name) Section: $($_.Exception.Message)"
                                                 }
                                             }
                                         }
                                     }
                                     catch {
-                                        Write-PscriboMessage -IsWarning $_.Exception.Message
+                                        Write-PscriboMessage -IsWarning "Tape Drives Section: $($_.Exception.Message)"
                                     }
                                     #---------------------------------------------------------------------------------------------#
                                     #                                  Tape Medium Section                                        #
@@ -126,8 +130,9 @@ function Get-AbrVbrTapeLibrary {
                                                 Write-PscriboMessage "Collecting $($TapeObj.Name) Tape Medium"
                                                 Section -Style NOTOCHeading5 -ExcludeFromTOC "Tape Mediums" {
                                                     $OutObj = @()
-                                                    try {
-                                                        foreach ($MediumObj in $MediumObjs) {
+                                                    foreach ($MediumObj in $MediumObjs) {
+                                                        try {
+
                                                             Write-PscriboMessage "Discovered $($MediumObj.Name) Type Medium."
                                                             $inObj = [ordered] @{
                                                                 'Name' = $MediumObj.Name
@@ -143,43 +148,43 @@ function Get-AbrVbrTapeLibrary {
                                                             }
                                                             $OutObj += [pscustomobject]$inobj
                                                         }
-
-                                                        $TableParams = @{
-                                                            Name = "Tape Mediums - $($TapeObj.Name)"
-                                                            List = $false
-                                                            ColumnWidths = 30, 16, 12, 12, 10, 10, 10
+                                                        catch {
+                                                            Write-PscriboMessage -IsWarning "Tape Mediums $($MediumObj.Name) Section: $($_.Exception.Message)"
                                                         }
+                                                    }
 
-                                                        if ($Report.ShowTableCaptions) {
-                                                            $TableParams['Caption'] = "- $($TableParams.Name)"
-                                                        }
-                                                        $OutObj | Sort-Object -Property 'Name' | Table @TableParams
+                                                    $TableParams = @{
+                                                        Name = "Tape Mediums - $($TapeObj.Name)"
+                                                        List = $false
+                                                        ColumnWidths = 30, 16, 12, 12, 10, 10, 10
                                                     }
-                                                    catch {
-                                                        Write-PscriboMessage -IsWarning $_.Exception.Message
+
+                                                    if ($Report.ShowTableCaptions) {
+                                                        $TableParams['Caption'] = "- $($TableParams.Name)"
                                                     }
+                                                    $OutObj | Sort-Object -Property 'Name' | Table @TableParams
                                                 }
                                             }
                                         }
                                     }
                                     catch {
-                                        Write-PscriboMessage -IsWarning $_.Exception.Message
+                                        Write-PscriboMessage -IsWarning "Tape Mediums Section: $($_.Exception.Message)"
                                     }
                                 }
                             }
                             catch {
-                                Write-PscriboMessage -IsWarning $_.Exception.Message
+                                Write-PscriboMessage -IsWarning "Tape Library $($TapeObj.Name) Section: $($_.Exception.Message)"
                             }
                         }
                     }
                     catch {
-                        Write-PscriboMessage -IsWarning $_.Exception.Message
+                        Write-PscriboMessage -IsWarning "Tape Libraries Table Section: $($_.Exception.Message)"
                     }
                 }
             }
         }
         catch {
-            Write-PscriboMessage -IsWarning $_.Exception.Message
+            Write-PscriboMessage -IsWarning "Tape Libraries Section: $($_.Exception.Message)"
         }
     }
     end {}

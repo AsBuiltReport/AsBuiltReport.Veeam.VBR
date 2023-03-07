@@ -1,5 +1,25 @@
 # :arrows_clockwise: Veeam VBR As Built Report Changelog
 
+## [0.7.1] - 2023-03-07
+
+### Changed
+
+- Improved bug and feature request templates.
+- Improved support for version 12
+- Changed Required Modules to AsBuiltReport.Core v1.3.0
+- Improved Error Logging
+
+### Fixed
+
+- Fix [#83](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/83)
+- Fix [#84](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/84)
+- Fix [#85](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/83)
+- Fix [#86](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/86)
+- Fix [#88](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/88)
+- Fix [#89](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/89)
+- Fix [#90](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/90)
+- Fix [#96](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/96)
+
 ## [0.7.0] - 2022-12-03
 
 ### Added
@@ -13,7 +33,6 @@
 - The Infrastructure Security Hardening section has been modified so it is disabled by default.
 - The Executive Summary section has been removed. The summary table has been moved to each corresponding section.
 - The service providers section has been improved.
-
 
 ### Fixed
 

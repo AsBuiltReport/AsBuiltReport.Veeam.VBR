@@ -6,7 +6,7 @@ function Get-AbrVbrObjectRepository {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.5.5
+        Version:        0.7.1
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -31,26 +31,50 @@ function Get-AbrVbrObjectRepository {
                     Paragraph "The following section provides a summary about the Veeam Object Storage Repository."
                     BlankLine
                     $OutObj = @()
-                    try {
-                        $ObjectRepos = Get-VBRObjectStorageRepository
-                        foreach ($ObjectRepo in $ObjectRepos) {
-                            Write-PscriboMessage "Discovered $($ObjectRepo.Name) Repository."
-                            $inObj = [ordered] @{
-                                'Name' = $ObjectRepo.Name
-                                'Type' = $ObjectRepo.Type
-                                'Use Gateway Server' = ConvertTo-TextYN $ObjectRepo.UseGatewayServer
-                                'Gateway Server' = Switch ($ObjectRepo.GatewayServer.Name) {
-                                    "" {"-"; break}
-                                    $Null {"-"; break}
-                                    default {$ObjectRepo.GatewayServer.Name.split(".")[0]}
+                    $ObjectRepos = Get-VBRObjectStorageRepository
+                    foreach ($ObjectRepo in $ObjectRepos) {
+                        if ($Null -ne $ObjectRepo.ConnectionType) {
+                            try {
+                                Write-PscriboMessage "Discovered $($ObjectRepo.Name) Repository."
+                                $inObj = [ordered] @{
+                                    'Name' = $ObjectRepo.Name
+                                    'Type' = $ObjectRepo.Type
+                                    'Connection Type' = $ObjectRepo.ConnectionType
+                                    'Gateway Server' = Switch ($ObjectRepo.ConnectionType) {
+                                        'Direct' {'Direct Mode'}
+                                        'Gateway' {$ObjectRepo.GatewayServer.Name}
+                                        default {'Unknown'}
+                                    }
                                 }
+
+                                $OutObj += [pscustomobject]$inobj
                             }
-                            $OutObj += [pscustomobject]$inobj
+                            catch {
+                                Write-PscriboMessage -IsWarning "Preferred Networks $($ObjectRepo.Name) Section: $($_.Exception.Message)"
+                            }
+                        } else {
+                            try {
+                                Write-PscriboMessage "Discovered $($ObjectRepo.Name) Repository."
+                                $inObj = [ordered] @{
+                                    'Name' = $ObjectRepo.Name
+                                    'Type' = $ObjectRepo.Type
+                                    'Use Gateway Server' = ConvertTo-TextYN $ObjectRepo.UseGatewayServer
+                                    'Gateway Server' = Switch ($ObjectRepo.GatewayServer.Name) {
+                                        "" {"-"; break}
+                                        $Null {"-"; break}
+                                        default {$ObjectRepo.GatewayServer.Name.split(".")[0]}
+                                    }
+                                }
+
+                                $OutObj += [pscustomobject]$inobj
+                            }
+                            catch {
+                                Write-PscriboMessage -IsWarning "Preferred Networks $($ObjectRepo.Name) Section: $($_.Exception.Message)"
+                            }
                         }
                     }
-                    catch {
-                        Write-PscriboMessage -IsWarning $_.Exception.Message
-                    }
+
+
 
                     if ($HealthCheck.Infrastructure.BR) {
                         $OutObj | Where-Object { $_.'Status' -eq 'Unavailable'} | Set-Style -Style Warning -Property 'Status'
@@ -85,14 +109,21 @@ function Get-AbrVbrObjectRepository {
                                                     'Service Point' = ($ObjectRepo).ServicePoint
                                                     'Type' =  ($ObjectRepo).Type
                                                     'Amazon S3 Folder' =  ($ObjectRepo).AmazonS3Folder
-                                                    'Use Gateway Server' = ConvertTo-TextYN ($ObjectRepo).UseGatewayServer
-                                                    'Gateway Server' = Switch ((($ObjectRepo).GatewayServer.Name).length) {
-                                                        0 {"Auto"}
-                                                        default {($ObjectRepo).GatewayServer.Name}
-                                                    }
                                                     'Immutability Period' = $ObjectRepo.ImmutabilityPeriod
                                                     'Size Limit Enabled' = ConvertTo-TextYN ($ObjectRepo).SizeLimitEnabled
                                                     'Size Limit' = ($ObjectRepo).SizeLimit
+
+                                                }
+
+                                                if ($Null -ne ($ObjectRepo).UseGatewayServer) {
+                                                    $inObj.add('Use Gateway Server', (ConvertTo-TextYN $ObjectRepo.UseGatewayServer))
+                                                    $inObj.add('Gateway Server', $ObjectRepo.GatewayServer.Name)
+                                                }
+                                                if ($Null -ne $ObjectRepo.ConnectionType) {
+                                                    $inObj.add('Connection Type', $ObjectRepo.ConnectionType)
+                                                }
+                                                if (($ObjectRepo).ConnectionType -eq 'Gateway') {
+                                                    $inObj.add('Gateway Server', $ObjectRepo.GatewayServer.Name)
                                                 }
                                                 if (($ObjectRepo).Type -eq 'AmazonS3') {
                                                     $inObj.remove('Service Point')
@@ -119,14 +150,14 @@ function Get-AbrVbrObjectRepository {
                                             }
                                         }
                                         catch {
-                                            Write-PscriboMessage -IsWarning $_.Exception.Message
+                                            Write-PscriboMessage -IsWarning "Object Storage Repository Configuration $($ObjectRepo.Name) Section: $($_.Exception.Message)"
                                         }
                                     }
                                 }
                             }
                         }
                         catch {
-                            Write-PscriboMessage -IsWarning $_.Exception.Message
+                            Write-PscriboMessage -IsWarning "Object Storage Repository Configuration Section: $($_.Exception.Message)"
                         }
                     }
                 }
@@ -190,19 +221,19 @@ function Get-AbrVbrObjectRepository {
                                     }
                                 }
                                 catch {
-                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                    Write-PscriboMessage -IsWarning "Archive Object Storage Repository $($ObjectRepoArchive.Name) Section: $($_.Exception.Message)"
                                 }
                             }
                         }
                     }
                 }
                 catch {
-                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                    Write-PscriboMessage -IsWarning "Archive Object Storage Repository Section: $($_.Exception.Message)"
                 }
             }
         }
         catch {
-            Write-PscriboMessage -IsWarning $_.Exception.Message
+            Write-PscriboMessage -IsWarning "Object Storage Repository Section: $($_.Exception.Message)"
         }
     }
     end {}

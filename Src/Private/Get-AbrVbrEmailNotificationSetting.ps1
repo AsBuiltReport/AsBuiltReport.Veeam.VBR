@@ -6,7 +6,7 @@ function Get-AbrVbrEmailNotificationSetting {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.5.3
+        Version:        0.7.1
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -29,30 +29,25 @@ function Get-AbrVbrEmailNotificationSetting {
             if ((Get-VBRMailNotificationConfiguration).count -gt 0) {
                 Section -Style Heading4 'Email Notification' {
                     $OutObj = @()
-                    try {
-                        $EmailSettings = Get-VBRMailNotificationConfiguration
-                        foreach ($EmailSetting in $EmailSettings) {
-                            $inObj = [ordered] @{
-                                'Email Recipient' = $EmailSetting.Recipient
-                                'Email Sender' = $EmailSetting.Sender
-                                'SMTP Server' = $EmailSetting.SmtpServer
-                                'Email Subject' = $EmailSetting.Subject
-                                'SSL Enabled' = ConvertTo-TextYN $EmailSetting.SSLEnabled
-                                'Auth Enabled' = ConvertTo-TextYN $EmailSetting.AuthEnabled
-                                'Credentials' = $EmailSetting.Credentials.Name
-                                'Daily Reports Time' = $EmailSetting.DailyReportsTime.ToShortTimeString()
-                                'Enabled' = ConvertTo-TextYN $EmailSetting.Enabled
-                                'Notify On' = Switch ($EmailSetting.NotifyOnSuccess) {
-                                    "" {"-"; break}
-                                    $Null {"-"; break}
-                                    default {"Notify On Success: $(ConvertTo-TextYN $EmailSetting.NotifyOnSuccess)`r`nNotify On Warning: $(ConvertTo-TextYN $EmailSetting.NotifyOnWarning)`r`nNotify On Failure: $(ConvertTo-TextYN $EmailSetting.NotifyOnFailure)`r`nNotify On Last Retry Only: $(ConvertTo-TextYN $EmailSetting.NotifyOnLastRetryOnly)"}
-                                }
+                    $EmailSettings = Get-VBRMailNotificationConfiguration
+                    foreach ($EmailSetting in $EmailSettings) {
+                        $inObj = [ordered] @{
+                            'Email Recipient' = $EmailSetting.Recipient
+                            'Email Sender' = $EmailSetting.Sender
+                            'SMTP Server' = $EmailSetting.SmtpServer
+                            'Email Subject' = $EmailSetting.Subject
+                            'SSL Enabled' = ConvertTo-TextYN $EmailSetting.SSLEnabled
+                            'Auth Enabled' = ConvertTo-TextYN $EmailSetting.AuthEnabled
+                            'Credentials' = $EmailSetting.Credentials.Name
+                            'Daily Reports Time' = $EmailSetting.DailyReportsTime.ToShortTimeString()
+                            'Enabled' = ConvertTo-TextYN $EmailSetting.Enabled
+                            'Notify On' = Switch ($EmailSetting.NotifyOnSuccess) {
+                                "" {"-"; break}
+                                $Null {"-"; break}
+                                default {"Notify On Success: $(ConvertTo-TextYN $EmailSetting.NotifyOnSuccess)`r`nNotify On Warning: $(ConvertTo-TextYN $EmailSetting.NotifyOnWarning)`r`nNotify On Failure: $(ConvertTo-TextYN $EmailSetting.NotifyOnFailure)`r`nNotify On Last Retry Only: $(ConvertTo-TextYN $EmailSetting.NotifyOnLastRetryOnly)"}
                             }
-                            $OutObj += [pscustomobject]$inobj
                         }
-                    }
-                    catch {
-                        Write-PscriboMessage -IsWarning $_.Exception.Message
+                        $OutObj += [pscustomobject]$inobj
                     }
 
                     if ($HealthCheck.Infrastructure.Settings) {
@@ -72,7 +67,7 @@ function Get-AbrVbrEmailNotificationSetting {
             }
         }
         catch {
-            Write-PscriboMessage -IsWarning $_.Exception.Message
+            Write-PscriboMessage -IsWarning "Email Notification Section: $($_.Exception.Message)"
         }
     }
     end {}

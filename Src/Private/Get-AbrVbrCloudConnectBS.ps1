@@ -5,7 +5,7 @@ function Get-AbrVbrCloudConnectBS {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.7.0
+        Version:        0.7.1
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -119,21 +119,21 @@ function Get-AbrVbrCloudConnectBS {
                                                     $OutObj | Sort-Object -Property 'Name' | Table @TableParams
                                                 }
                                                 catch {
-                                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                    Write-PscriboMessage -IsWarning "Tenant Utilization - $($CloudObject.Name) Section: $($_.Exception.Message)"
                                                 }
                                             }
                                         }
                                         catch {
-                                            Write-PscriboMessage -IsWarning $_.Exception.Message
+                                            Write-PscriboMessage -IsWarning "Tenant Utilization Section: $($_.Exception.Message)"
                                         }
                                     }
                                     catch {
-                                        Write-PscriboMessage -IsWarning $_.Exception.Message
+                                        Write-PscriboMessage -IsWarning "Tenant Utilization Section: $($_.Exception.Message)"
                                     }
                                 }
                             }
                             catch {
-                                Write-PscriboMessage -IsWarning $_.Exception.Message
+                                Write-PscriboMessage -IsWarning "$($CloudObject.Name) Cloud Backup Storage Section: $($_.Exception.Message)"
                             }
                         }
                     }
@@ -141,7 +141,7 @@ function Get-AbrVbrCloudConnectBS {
             }
         }
         catch {
-            Write-PscriboMessage -IsWarning $_.Exception.Message
+            Write-PscriboMessage -IsWarning "Cloud Backup Storage Section: $($_.Exception.Message)"
         }
     }
     end {}

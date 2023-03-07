@@ -6,7 +6,7 @@ function Get-AbrVbrServiceProvider {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.7.0
+        Version:        0.7.1
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -36,25 +36,25 @@ function Get-AbrVbrServiceProvider {
                         foreach ($CloudProvider in $CloudProviders) {
                             try {
                                 Write-PscriboMessage "Discovered $($CloudProvider.DNSName) Service Provider summary information."
-                                if ($CloudProvider.ResourcesEnabled -and $CloudProvider.ReplicationResourcesEnabled) {
-                                    $VCCType = 'BaaS & DRaaS'
-                                }
-                                elseif ($CloudProvider.ResourcesEnabled) {
-                                    $VCCType = 'BaaS'
-                                }
-                                elseif ($CloudProvider.ReplicationResourcesEnabled) {
-                                    $VCCType = 'DRaas'
-                                }
-
                                 $inObj = [ordered] @{
                                     'DNS Name' = $CloudProvider.DNSName
-                                    'Cloud Connect Type' = $VCCType
+                                    'Cloud Connect Type' = & {
+                                        if ($CloudProvider.ResourcesEnabled -and $CloudProvider.ReplicationResourcesEnabled) {
+                                            'BaaS & DRaaS'
+                                        }
+                                        elseif ($CloudProvider.ResourcesEnabled) {
+                                            'BaaS'
+                                        }
+                                        elseif ($CloudProvider.ReplicationResourcesEnabled) {
+                                            'DRaas'
+                                        } else {'Unknown'}
+                                    }
                                     'Managed By Provider' = ConvertTo-TextYN $CloudProvider.IsManagedByProvider
                                 }
                                 $OutObj += [pscustomobject]$inobj
                             }
                             catch {
-                                Write-PscriboMessage -IsWarning $_.Exception.Message
+                                Write-PscriboMessage -IsWarning "Service Providers $($CloudProvider.DNSName) Table: $($_.Exception.Message)"
                             }
                         }
 
@@ -102,7 +102,7 @@ function Get-AbrVbrServiceProvider {
                                                 }
                                             }
                                             catch {
-                                                Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                Write-PscriboMessage -IsWarning "Service Providers General Information $($CloudProvider.DNSName) Table: $($_.Exception.Message)"
                                             }
                                             if ($CloudProvider.ResourcesEnabled) {
                                                 try {
@@ -132,7 +132,7 @@ function Get-AbrVbrServiceProvider {
                                                     }
                                                 }
                                                 catch {
-                                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                    Write-PscriboMessage -IsWarning "Service Providers BaaS Resources $($CloudProvider.DNSName) Table: $($_.Exception.Message)"
                                                 }
                                             }
                                             if ($CloudProvider.ReplicationResourcesEnabled) {
@@ -186,15 +186,15 @@ function Get-AbrVbrServiceProvider {
                                                     }
                                                 }
                                                 catch {
-                                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                    Write-PscriboMessage -IsWarning "Service Providers DRaaS Resources $($CloudProvider.DNSName) Table: $($_.Exception.Message)"
                                                 }
                                             }
-                                            try {
-                                                $DefaultGatewayConfig = Get-VBRDefaultGatewayConfiguration | Where-Object {$_.ProviderId -eq $CloudProvider.id}
-                                                if ($DefaultGatewayConfig.DefaultGateway) {
-                                                    Section -ExcludeFromTOC -Style NOTOCHeading6 'Default Gateway' {
-                                                        $OutObj = @()
-                                                        foreach ($Gateway in $DefaultGatewayConfig.DefaultGateway) {
+                                            $DefaultGatewayConfig = Get-VBRDefaultGatewayConfiguration | Where-Object {$_.ProviderId -eq $CloudProvider.id}
+                                            if ($DefaultGatewayConfig.DefaultGateway) {
+                                                Section -ExcludeFromTOC -Style NOTOCHeading6 'Default Gateway' {
+                                                    $OutObj = @()
+                                                    foreach ($Gateway in $DefaultGatewayConfig.DefaultGateway) {
+                                                        try {
                                                             Write-PscriboMessage "Discovered $($Gateway.Name) Service Provider Default Gateway information."
                                                             $inObj = [ordered] @{
                                                                 'Name' = $Gateway.Name
@@ -216,18 +216,18 @@ function Get-AbrVbrServiceProvider {
                                                             }
                                                             $OutObj | Table @TableParams
                                                         }
+                                                        catch {
+                                                            Write-PscriboMessage -IsWarning "Service Providers $($Gateway.Name) Default Gateway Configuration Table: $($_.Exception.Message)"
+                                                        }
                                                     }
                                                 }
                                             }
-                                            catch {
-                                                Write-PscriboMessage -IsWarning $_.Exception.Message
-                                            }
-                                            try {
-                                                $CloudSubUserConfig = Get-VBRCloudSubUser | Where-Object {$_.CloudProviderId -eq $CloudProvider.id}
-                                                if ($CloudSubUserConfig.DefaultGateway) {
-                                                    Section -ExcludeFromTOC -Style NOTOCHeading6 'Default Gateway' {
-                                                        $OutObj = @()
-                                                        foreach ($Gateway in $DefaultGatewayConfig.DefaultGateway) {
+                                            $CloudSubUserConfig = Get-VBRCloudSubUser | Where-Object {$_.CloudProviderId -eq $CloudProvider.id}
+                                            if ($CloudSubUserConfig.DefaultGateway) {
+                                                Section -ExcludeFromTOC -Style NOTOCHeading6 'Default Gateway' {
+                                                    $OutObj = @()
+                                                    foreach ($Gateway in $DefaultGatewayConfig.DefaultGateway) {
+                                                        try {
                                                             Write-PscriboMessage "Discovered $($Gateway.Name) Service Provider Default Gateway information."
                                                             $inObj = [ordered] @{
                                                                 'Name' = $Gateway.Name
@@ -249,29 +249,29 @@ function Get-AbrVbrServiceProvider {
                                                             }
                                                             $OutObj | Table @TableParams
                                                         }
+                                                        catch {
+                                                            Write-PscriboMessage -IsWarning "Service Providers $($Gateway.Name) Cloud SubUser Default Gateway Table: $($_.Exception.Message)"
+                                                        }
                                                     }
                                                 }
-                                            }
-                                            catch {
-                                                Write-PscriboMessage -IsWarning $_.Exception.Message
                                             }
                                         }
                                     }
                                 }
                             }
                             catch {
-                                Write-PscriboMessage -IsWarning $_.Exception.Message
+                                Write-PscriboMessage -IsWarning "Service Providers Configuration Section: $($_.Exception.Message)"
                             }
                         }
                     }
                     catch {
-                        Write-PscriboMessage -IsWarning $_.Exception.Message
+                        Write-PscriboMessage -IsWarning "Service Providers Section: $($_.Exception.Message)"
                     }
                 }
             }
         }
         catch {
-            Write-PscriboMessage -IsWarning $_.Exception.Message
+            Write-PscriboMessage -IsWarning "Service Providers Document: $($_.Exception.Message)"
         }
     }
     end {}

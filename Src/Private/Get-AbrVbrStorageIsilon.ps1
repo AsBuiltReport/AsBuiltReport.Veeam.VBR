@@ -6,7 +6,7 @@ function Get-AbrVbrStorageIsilon {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.5.3
+        Version:        0.7.1
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -25,101 +25,91 @@ function Get-AbrVbrStorageIsilon {
     }
 
     process {
-        try {
-            if ((Get-VBRIsilonHost).count -gt 0) {
-                Section -Style Heading3 'Dell Isilon Storage' {
-                    Paragraph "The following section details information about Dell storage infrastructure."
-                    BlankLine
-                    $OutObj = @()
-                    try {
-                        $IsilonHosts = Get-VBRIsilonHost
-                        foreach ($IsilonHost in $IsilonHosts) {
-                            Section -Style Heading4 $($IsilonHost.Name) {
+        if ((Get-VBRIsilonHost).count -gt 0) {
+            Section -Style Heading3 'Dell Isilon Storage' {
+                Paragraph "The following section details information about Dell storage infrastructure."
+                BlankLine
+                $OutObj = @()
+                $IsilonHosts = Get-VBRIsilonHost
+                foreach ($IsilonHost in $IsilonHosts) {
+                    Section -Style Heading4 $($IsilonHost.Name) {
+                        try {
+                            Write-PscriboMessage "Discovered $($IsilonHost.Name) Isilon Host."
+                            $UsedCred = Get-VBRCredentials | Where-Object { $_.Id -eq $IsilonHost.Info.CredsId}
+                            $IsilonOptions = [xml]$IsilonHost.info.Options
+                            $inObj = [ordered] @{
+                                'DNS Name' = Switch (($IsilonHost.Info.HostInstanceId).count) {
+                                    0 {$IsilonHost.Info.DnsName}
+                                    default {$IsilonHost.Info.HostInstanceId}
+                                }
+                                'Description' = $IsilonHost.Description
+                                'Used Credential' = Switch (($UsedCred).count) {
+                                    0 {"-"}
+                                    default {"$($UsedCred.Name) - ($($UsedCred.Description))"}
+                                }
+                                'Connection Address' = $IsilonOptions.IsilonHostOptions.AdditionalAddresses.IP -join ", "
+                                'Connection Port' =  "$($IsilonOptions.IsilonHostOptions.Port)\TCP"
+                            }
+
+                            $OutObj = [pscustomobject]$inobj
+
+                            $TableParams = @{
+                                Name = "Isilon Host - $($IsilonHost.Name)"
+                                List = $true
+                                ColumnWidths = 40, 60
+                            }
+
+                            if ($Report.ShowTableCaptions) {
+                                $TableParams['Caption'] = "- $($TableParams.Name)"
+                            }
+                            $OutObj | Table @TableParams
+                            if ($InfoLevel.Storage.Isilon -ge 2) {
                                 try {
-                                    Write-PscriboMessage "Discovered $($IsilonHost.Name) Isilon Host."
-                                    $UsedCred = Get-VBRCredentials | Where-Object { $_.Id -eq $IsilonHost.Info.CredsId}
-                                    $IsilonOptions = [xml]$IsilonHost.info.Options
-                                    $inObj = [ordered] @{
-                                        'DNS Name' = Switch (($IsilonHost.Info.HostInstanceId).count) {
-                                            0 {$IsilonHost.Info.DnsName}
-                                            default {$IsilonHost.Info.HostInstanceId}
-                                        }
-                                        'Description' = $IsilonHost.Description
-                                        'Used Credential' = Switch (($UsedCred).count) {
-                                            0 {"-"}
-                                            default {"$($UsedCred.Name) - ($($UsedCred.Description))"}
-                                        }
-                                        'Connection Address' = $IsilonOptions.IsilonHostOptions.AdditionalAddresses.IP -join ", "
-                                        'Connection Port' =  "$($IsilonOptions.IsilonHostOptions.Port)\TCP"
-                                    }
-
-                                    $OutObj = [pscustomobject]$inobj
-
-                                    $TableParams = @{
-                                        Name = "Isilon Host - $($IsilonHost.Name)"
-                                        List = $true
-                                        ColumnWidths = 40, 60
-                                    }
-
-                                    if ($Report.ShowTableCaptions) {
-                                        $TableParams['Caption'] = "- $($TableParams.Name)"
-                                    }
-                                    $OutObj | Table @TableParams
-                                    if ($InfoLevel.Storage.Isilon -ge 2) {
-                                        try {
-                                            $IsilonVols = Get-VBRIsilonVolume -Host $IsilonHost
-                                            if ($IsilonVols) {
-                                                Section -Style NOTOCHeading5 -ExcludeFromTOC 'Volumes' {
-                                                    $OutObj = @()
-                                                    foreach ($IsilonVol in $IsilonVols) {
-                                                        try {
-                                                            Write-PscriboMessage "Discovered $($IsilonVol.Name) NetApp Volume."
-                                                            $inObj = [ordered] @{
-                                                                'Name' = $IsilonVol.Name
-                                                                'Total Space' = ConvertTo-FileSizeString $IsilonVol.Size
-                                                                'Used Space' = ConvertTo-FileSizeString $IsilonVol.ConsumedSpace
-                                                                'Thin Provision' = ConvertTo-TextYN $IsilonVol.IsThinProvision
-                                                            }
-
-                                                            $OutObj += [pscustomobject]$inobj
-                                                        }
-                                                        catch {
-                                                            Write-PscriboMessage -IsWarning $_.Exception.Message
-                                                        }
+                                    $IsilonVols = Get-VBRIsilonVolume -Host $IsilonHost
+                                    if ($IsilonVols) {
+                                        Section -Style NOTOCHeading5 -ExcludeFromTOC 'Volumes' {
+                                            $OutObj = @()
+                                            foreach ($IsilonVol in $IsilonVols) {
+                                                try {
+                                                    Write-PscriboMessage "Discovered $($IsilonVol.Name) NetApp Volume."
+                                                    $inObj = [ordered] @{
+                                                        'Name' = $IsilonVol.Name
+                                                        'Total Space' = ConvertTo-FileSizeString $IsilonVol.Size
+                                                        'Used Space' = ConvertTo-FileSizeString $IsilonVol.ConsumedSpace
+                                                        'Thin Provision' = ConvertTo-TextYN $IsilonVol.IsThinProvision
                                                     }
 
-                                                    $TableParams = @{
-                                                        Name = "Isilon Volumes - $($IsilonHost.Name)"
-                                                        List = $false
-                                                        ColumnWidths = 52, 15, 15, 18
-                                                    }
-
-                                                    if ($Report.ShowTableCaptions) {
-                                                        $TableParams['Caption'] = "- $($TableParams.Name)"
-                                                    }
-                                                    $OutObj | Sort-Object -Property 'Name' | Table @TableParams
+                                                    $OutObj += [pscustomobject]$inobj
+                                                }
+                                                catch {
+                                                    Write-PscriboMessage -IsWarning "Dell Isilon Storage $($IsilonVol.Name) Volumes Section: $($_.Exception.Message)"
                                                 }
                                             }
-                                        }
-                                        catch {
-                                            Write-PscriboMessage -IsWarning $_.Exception.Message
+
+                                            $TableParams = @{
+                                                Name = "Isilon Volumes - $($IsilonHost.Name)"
+                                                List = $false
+                                                ColumnWidths = 52, 15, 15, 18
+                                            }
+
+                                            if ($Report.ShowTableCaptions) {
+                                                $TableParams['Caption'] = "- $($TableParams.Name)"
+                                            }
+                                            $OutObj | Sort-Object -Property 'Name' | Table @TableParams
                                         }
                                     }
                                 }
                                 catch {
-                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                    Write-PscriboMessage -IsWarning "Dell Isilon Storage Volume Section: $($_.Exception.Message)"
                                 }
                             }
                         }
-                    }
-                    catch {
-                        Write-PscriboMessage -IsWarning $_.Exception.Message
+                        catch {
+                            Write-PscriboMessage -IsWarning "Dell Isilon Storage Section: $($_.Exception.Message)"
+                        }
                     }
                 }
             }
-        }
-        catch {
-            Write-PscriboMessage -IsWarning $_.Exception.Message
         }
     }
     end {}

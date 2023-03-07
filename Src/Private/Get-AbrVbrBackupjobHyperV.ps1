@@ -6,7 +6,7 @@ function Get-AbrVbrBackupjobHyperV {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.5.5
+        Version:        0.7.1
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -46,7 +46,7 @@ function Get-AbrVbrBackupjobHyperV {
                                     $OutObj += [pscustomobject]$inobj
                                 }
                                 catch {
-                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                    Write-PscriboMessage -IsWarning "Hyper-V Backup Jobs Configuration Section: $($_.Exception.Message)"
                                 }
                             }
 
@@ -62,7 +62,7 @@ function Get-AbrVbrBackupjobHyperV {
                         }
                     }
                     catch {
-                        Write-PscriboMessage -IsWarning $_.Exception.Message
+                        Write-PscriboMessage -IsWarning "Hyper-V Backup Jobs Configuration Section: $($_.Exception.Message)"
                     }
                     $OutObj = @()
                     foreach ($Bkjob in $Bkjobs) {
@@ -87,7 +87,7 @@ function Get-AbrVbrBackupjobHyperV {
                                                 $OutObj = [pscustomobject]$inobj
                                             }
                                             catch {
-                                                Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                Write-PscriboMessage -IsWarning "Hyper-V Backup Jobs Common Information Section: $($_.Exception.Message)"
                                             }
                                         }
 
@@ -102,7 +102,7 @@ function Get-AbrVbrBackupjobHyperV {
                                         $OutObj | Table @TableParams
                                     }
                                     catch {
-                                        Write-PscriboMessage -IsWarning $_.Exception.Message
+                                        Write-PscriboMessage -IsWarning "Hyper-V Backup Jobs Common Information Section: $($_.Exception.Message)"
                                     }
                                 }
                                 if ($Bkjob.LinkedJobs) {
@@ -122,7 +122,7 @@ function Get-AbrVbrBackupjobHyperV {
                                                     $OutObj += [pscustomobject]$inobj
                                                 }
                                                 catch {
-                                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                    Write-PscriboMessage -IsWarning "Hyper-V Backup Jobs Linked Backup Jobs Section: $($_.Exception.Message)"
                                                 }
                                             }
 
@@ -137,7 +137,7 @@ function Get-AbrVbrBackupjobHyperV {
                                             $OutObj | Sort-Object -Property 'Name' | Table @TableParams
                                         }
                                         catch {
-                                            Write-PscriboMessage -IsWarning $_.Exception.Message
+                                            Write-PscriboMessage -IsWarning "Hyper-V Backup Jobs Linked Backup Jobs Section: $($_.Exception.Message)"
                                         }
                                     }
                                 }
@@ -151,13 +151,13 @@ function Get-AbrVbrBackupjobHyperV {
                                                     $TargetWanAccelerator = $Bkjob.GetTargetWanAccelerator().Name
                                                 }
                                                 catch {
-                                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                    Write-PscriboMessage -IsWarning "Hyper-V Backup Jobs Data Transfer Section: $($_.Exception.Message)"
                                                 }
                                                 try {
                                                     $SourceWanAccelerator = $Bkjob.GetSourceWanAccelerator().Name
                                                 }
                                                 catch {
-                                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                    Write-PscriboMessage -IsWarning "Hyper-V Backup Jobs Data Transfer Section: $($_.Exception.Message)"
                                                 }
                                                 $inObj = [ordered] @{
                                                     'Use Wan accelerator' = ConvertTo-TextYN $Bkjob.IsWanAcceleratorEnabled()
@@ -173,7 +173,7 @@ function Get-AbrVbrBackupjobHyperV {
                                                 $OutObj += [pscustomobject]$inobj
                                             }
                                             catch {
-                                                Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                Write-PscriboMessage -IsWarning "Hyper-V Backup Jobs Data Transfer Section: $($_.Exception.Message)"
                                             }
 
                                             $TableParams = @{
@@ -187,7 +187,7 @@ function Get-AbrVbrBackupjobHyperV {
                                             $OutObj | Table @TableParams
                                         }
                                         catch {
-                                            Write-PscriboMessage -IsWarning $_.Exception.Message
+                                            Write-PscriboMessage -IsWarning "Hyper-V Backup Jobs Data Transfer Section: $($_.Exception.Message)"
                                         }
                                     }
                                 }
@@ -219,7 +219,7 @@ function Get-AbrVbrBackupjobHyperV {
                                             }
                                         }
                                         catch {
-                                            Write-PscriboMessage -IsWarning $_.Exception.Message
+                                            Write-PscriboMessage -IsWarning "Hyper-V Backup Jobs Virtual Machine Section: $($_.Exception.Message)"
                                         }
                                     }
                                 }
@@ -325,7 +325,7 @@ function Get-AbrVbrBackupjobHyperV {
                                                     $OutObj | Table @TableParams
                                                 }
                                                 catch {
-                                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                    Write-PscriboMessage -IsWarning "Hyper-V Backup Jobs Storage Options Section: $($_.Exception.Message)"
                                                 }
                                             }
                                         }
@@ -372,7 +372,7 @@ function Get-AbrVbrBackupjobHyperV {
                                                     $OutObj | Table @TableParams
                                                 }
                                                 catch {
-                                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                    Write-PscriboMessage -IsWarning "Hyper-V Backup Jobs Advanced Settings (Storage) Section: $($_.Exception.Message)"
                                                 }
                                             }
                                         }
@@ -409,7 +409,7 @@ function Get-AbrVbrBackupjobHyperV {
                                                     $OutObj | Table @TableParams
                                                 }
                                                 catch {
-                                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                    Write-PscriboMessage -IsWarning "Hyper-V Backup Jobs Advanced Settings (Notification) Section: $($_.Exception.Message)"
                                                 }
                                             }
                                         }
@@ -437,7 +437,7 @@ function Get-AbrVbrBackupjobHyperV {
                                                     $OutObj | Table @TableParams
                                                 }
                                                 catch {
-                                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                    Write-PscriboMessage -IsWarning "Hyper-V Backup Jobs Advanced Settings (Hyper-V) Section: $($_.Exception.Message)"
                                                 }
                                             }
                                         }
@@ -466,7 +466,7 @@ function Get-AbrVbrBackupjobHyperV {
                                                     $OutObj | Table @TableParams
                                                 }
                                                 catch {
-                                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                    Write-PscriboMessage -IsWarning "Hyper-V Backup Jobs Advanced Settings (Integration) Section: $($_.Exception.Message)"
                                                 }
                                             }
                                         }
@@ -505,7 +505,7 @@ function Get-AbrVbrBackupjobHyperV {
                                                     $OutObj | Table @TableParams
                                                 }
                                                 catch {
-                                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                    Write-PscriboMessage -IsWarning "Hyper-V Backup Jobs Advanced Settings (Script) Section: $($_.Exception.Message)"
                                                 }
                                             }
                                         }
@@ -533,13 +533,13 @@ function Get-AbrVbrBackupjobHyperV {
                                                     $OutObj | Table @TableParams
                                                 }
                                                 catch {
-                                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                    Write-PscriboMessage -IsWarning "Hyper-V Backup Jobs Advanced Settings (RPO Monitor) Section: $($_.Exception.Message)"
                                                 }
                                             }
                                         }
                                     }
                                     catch {
-                                        Write-PscriboMessage -IsWarning $_.Exception.Message
+                                        Write-PscriboMessage -IsWarning "Hyper-V Backup Jobs Storage Options Section: $($_.Exception.Message)"
                                     }
                                 }
                                 $SecondaryTargets = [Veeam.Backup.Core.CBackupJob]::GetSecondDestinationJobs($Bkjob.Id) | Where-Object {$_.JobType -ne 'SimpleBackupCopyWorker'}
@@ -559,7 +559,7 @@ function Get-AbrVbrBackupjobHyperV {
                                                     $OutObj += [pscustomobject]$inobj
                                                 }
                                                 catch {
-                                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                    Write-PscriboMessage -IsWarning "Hyper-V Backup Jobs Secondary Target Section: $($_.Exception.Message)"
                                                 }
                                             }
                                             $TableParams = @{
@@ -573,7 +573,7 @@ function Get-AbrVbrBackupjobHyperV {
                                             $OutObj | Sort-Object -Property 'Job Name' | Table @TableParams
                                         }
                                         catch {
-                                            Write-PscriboMessage -IsWarning $_.Exception.Message
+                                            Write-PscriboMessage -IsWarning "Hyper-V Backup Jobs Secondary Target Section: $($_.Exception.Message)"
                                         }
                                     }
                                 }
@@ -685,7 +685,7 @@ function Get-AbrVbrBackupjobHyperV {
                                             }
                                         }
                                         catch {
-                                            Write-PscriboMessage -IsWarning $_.Exception.Message
+                                            Write-PscriboMessage -IsWarning "Hyper-V Backup Jobs Guest Processing Section: $($_.Exception.Message)"
                                         }
                                     }
                                 }
@@ -812,27 +812,27 @@ function Get-AbrVbrBackupjobHyperV {
                                                         Table -Hashtable $OutObj @TableParams
                                                     }
                                                     catch {
-                                                        Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                        Write-PscriboMessage -IsWarning "Hyper-V Backup Jobs Schedule Section: $($_.Exception.Message)"
                                                     }
                                                 }
                                             }
                                         }
                                         catch {
-                                            Write-PscriboMessage -IsWarning $_.Exception.Message
+                                            Write-PscriboMessage -IsWarning "Hyper-V Backup Jobs Schedule Section: $($_.Exception.Message)"
                                         }
                                     }
                                 }
                             }
                         }
                         catch {
-                            Write-PscriboMessage -IsWarning $_.Exception.Message
+                            Write-PscriboMessage -IsWarning "Hyper-V Backup Jobs Configuration Section: $($_.Exception.Message)"
                         }
                     }
                 }
             }
         }
         catch {
-            Write-PscriboMessage -IsWarning $_.Exception.Message
+            Write-PscriboMessage -IsWarning "Hyper-V Backup Jobs Configuration Section: $($_.Exception.Message)"
         }
     }
     end {}

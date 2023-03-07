@@ -6,7 +6,7 @@ function Get-AbrVbrCloudConnectTenant {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.7.0
+        Version:        0.7.1
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -51,7 +51,7 @@ function Get-AbrVbrCloudConnectTenant {
                                 $OutObj += [pscustomobject]$inobj
                             }
                             catch {
-                                Write-PscriboMessage -IsWarning $_.Exception.Message
+                                Write-PscriboMessage -IsWarning "Tenants $($CloudObject.Name) Section: $($_.Exception.Message)"
                             }
                         }
 
@@ -173,12 +173,12 @@ function Get-AbrVbrCloudConnectTenant {
                                                             $OutObj | Table @TableParams
                                                         }
                                                         catch {
-                                                            Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                            Write-PscriboMessage -IsWarning "Bandwidth $($CloudObject.Name) Section: $($_.Exception.Message)"
                                                         }
                                                     }
                                                 }
                                                 catch {
-                                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                    Write-PscriboMessage -IsWarning "Bandwidth $($CloudObject.Name) Section: $($_.Exception.Message)"
                                                 }
                                                 if ($CloudObject.ResourcesEnabled -and $CloudObject.Resources) {
                                                     try {
@@ -216,13 +216,13 @@ function Get-AbrVbrCloudConnectTenant {
                                                                     $OutObj | Table @TableParams
                                                                 }
                                                                 catch {
-                                                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                                    Write-PscriboMessage -IsWarning "Backup Resources $($CloudBackupRepo.RepositoryFriendlyName) Section: $($_.Exception.Message)"
                                                                 }
                                                             }
                                                         }
                                                     }
                                                     catch {
-                                                        Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                        Write-PscriboMessage -IsWarning "Backup Resources Section: $($_.Exception.Message)"
                                                     }
                                                 }
                                                 if ($CloudObject.ReplicationResourcesEnabled -and $CloudObject.ReplicationResources.HardwarePlanOptions) {
@@ -251,13 +251,13 @@ function Get-AbrVbrCloudConnectTenant {
                                                                     $OutObj | Table @TableParams
                                                                 }
                                                                 catch {
-                                                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                                    Write-PscriboMessage -IsWarning "Replication Resources $($CloudObject.Name) Section: $($_.Exception.Message)"
                                                                 }
                                                             }
                                                         }
                                                     }
                                                     catch {
-                                                        Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                        Write-PscriboMessage -IsWarning "Replication Resources Section: $($_.Exception.Message)"
                                                     }
                                                 }
                                                 if ($CloudObject.vCDReplicationResourcesEnabled) {
@@ -291,13 +291,13 @@ function Get-AbrVbrCloudConnectTenant {
                                                                     $OutObj | Table @TableParams
                                                                 }
                                                                 catch {
-                                                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                                    Write-PscriboMessage -IsWarning "Replication Resources (vCD) $($CloudObject.Name) Section: $($_.Exception.Message)"
                                                                 }
                                                             }
                                                         }
                                                     }
                                                     catch {
-                                                        Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                        Write-PscriboMessage -IsWarning "Replication Resources (vCD) Section: $($_.Exception.Message)"
                                                     }
                                                 }
                                                 if ($CloudObject.ReplicationResources.NetworkFailoverResourcesEnabled -or $CloudObject.vCDReplicationResource.TenantNetworkAppliance) {
@@ -341,14 +341,14 @@ function Get-AbrVbrCloudConnectTenant {
                                                                         $OutObj | Table @TableParams
                                                                     }
                                                                     catch {
-                                                                        Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                                        Write-PscriboMessage -IsWarning "Network Extension $($CloudObject.Name) Section: $($_.Exception.Message)"
                                                                     }
                                                                 }
                                                             }
                                                         }
                                                     }
                                                     catch {
-                                                        Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                        Write-PscriboMessage -IsWarning "Network Extension Section: $($_.Exception.Message)"
                                                     }
                                                 }
                                                 try {
@@ -393,14 +393,14 @@ function Get-AbrVbrCloudConnectTenant {
                                                                     $OutObj | Table @TableParams
                                                                 }
                                                                 catch {
-                                                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                                    Write-PscriboMessage -IsWarning "Subtenant $($CloudSubTenant.Name) Section: $($_.Exception.Message)"
                                                                 }
                                                             }
                                                         }
                                                     }
                                                 }
                                                 catch {
-                                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                    Write-PscriboMessage -IsWarning "Subtenant Section: $($_.Exception.Message)"
                                                 }
                                                 try {
                                                     Section -ExcludeFromTOC -Style NOTOCHeading6 'Licenses Utilization' {
@@ -432,18 +432,18 @@ function Get-AbrVbrCloudConnectTenant {
                                                     }
                                                 }
                                                 catch {
-                                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                    Write-PscriboMessage -IsWarning "Licenses Utilization $($CloudObject.Name) Section: $($_.Exception.Message)"
                                                 }
                                             }
                                             catch {
-                                                Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                Write-PscriboMessage -IsWarning "Licenses Utilization Section: $($_.Exception.Message)"
                                             }
                                         }
                                     }
                                 }
                             }
                             catch {
-                                Write-PscriboMessage -IsWarning $_.Exception.Message
+                                Write-PscriboMessage -IsWarning "Tenants Configuration Section: $($_.Exception.Message)"
                             }
                         }
                     }
@@ -451,7 +451,7 @@ function Get-AbrVbrCloudConnectTenant {
             }
         }
         catch {
-            Write-PscriboMessage -IsWarning $_.Exception.Message
+            Write-PscriboMessage -IsWarning "Tenants Section: $($_.Exception.Message)"
         }
     }
     end {}
