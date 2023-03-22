@@ -69,8 +69,8 @@ function Get-AbrVbrBackupjob {
                     if ((Get-VBRTapeJob -ErrorAction SilentlyContinue).LastResult) {
                         $Alljobs += (Get-VBRTapeJob).LastResult
                     }
-                    if ((Get-VSBJob -ErrorAction SilentlyContinue).GetLastResult()) {
-                        $Alljobs += (Get-VSBJob).GetLastResult()
+                    if ((Get-VBRSureBackupJob -ErrorAction SilentlyContinue).LastResult) {
+                        $Alljobs += (Get-VBRSureBackupJob -ErrorAction SilentlyContinue).LastResult
                     }
                     $sampleData = $Alljobs | Group-Object
                     $exampleChart = New-Chart -Name BackupJobs -Width 600 -Height 400

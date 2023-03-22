@@ -45,7 +45,7 @@ function Get-AbrVbrSureBackupjob {
                                     'False' {'Not Scheduled'}
                                     'True' {'Scheduled'}
                                 }
-                                'Latest Result' = $SBkjob.LastState
+                                'Latest Result' = $SBkjob.LastResult
                                 'Virtual Lab' = $SBkjob.VirtualLab.Name
                             }
                             $OutObj += [pscustomobject]$inobj
