@@ -201,22 +201,21 @@ function Get-AbrVbrBackupjobHyperV {
                                                     'Name' = $OBJ.Object.Name
                                                     'Resource Type' = $OBJ.Object.Info.Type
                                                     'Role' = $OBJ.Type
-                                                    'Location' = $OBJ.Object.Info.Path
                                                     'Approx Size' = $OBJ.ApproxSizeString
                                                     'Disk Filter Mode' = $OBJ.DiskFilterInfo.Mode
                                                 }
-                                                $OutObj = [pscustomobject]$inobj
-
-                                                $TableParams = @{
-                                                    Name = "Virtual Machines - $($OBJ.Name)"
-                                                    List = $true
-                                                    ColumnWidths = 40, 60
-                                                }
-                                                if ($Report.ShowTableCaptions) {
-                                                    $TableParams['Caption'] = "- $($TableParams.Name)"
-                                                }
-                                                $OutObj | Table @TableParams
+                                                $OutObj += [pscustomobject]$inobj
                                             }
+
+                                            $TableParams = @{
+                                                Name = "Virtual Machines - $($Bkjob.Name)"
+                                                List = $false
+                                                ColumnWidths = 20, 20, 20, 20, 20
+                                            }
+                                            if ($Report.ShowTableCaptions) {
+                                                $TableParams['Caption'] = "- $($TableParams.Name)"
+                                            }
+                                            $OutObj | Table @TableParams
                                         }
                                         catch {
                                             Write-PscriboMessage -IsWarning "Hyper-V Backup Jobs Virtual Machine Section: $($_.Exception.Message)"

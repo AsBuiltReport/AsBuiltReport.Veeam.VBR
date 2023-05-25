@@ -263,17 +263,17 @@ function Get-AbrVbrRepljobHyperV {
                                                     'Disk Filter Mode' = $OBJ.DiskFilterInfo.Mode
                                                 }
                                                 $OutObj = [pscustomobject]$inobj
-
-                                                $TableParams = @{
-                                                    Name = "Virtual Machines - $($OBJ.Object.Name)"
-                                                    List = $true
-                                                    ColumnWidths = 40, 60
-                                                }
-                                                if ($Report.ShowTableCaptions) {
-                                                    $TableParams['Caption'] = "- $($TableParams.Name)"
-                                                }
-                                                $OutObj | Table @TableParams
                                             }
+
+                                            $TableParams = @{
+                                                Name = "Virtual Machines - $($Bkjob.Name)"
+                                                List = $false
+                                                ColumnWidths = 20, 20, 20, 20, 20
+                                            }
+                                            if ($Report.ShowTableCaptions) {
+                                                $TableParams['Caption'] = "- $($TableParams.Name)"
+                                            }
+                                            $OutObj | Table @TableParams
                                         }
                                         catch {
                                             Write-PscriboMessage -IsWarning "Hyper-V Replication Jobs $($Bkjob.Name) Virtual Machine Section: $($_.Exception.Message)"
