@@ -26,13 +26,13 @@ function Get-AbrVbrScaleOutRepository {
 
     process {
         try {
-            if ((Get-VBRBackupRepository -ScaleOut).count -gt 0) {
+            $BackupRepos = Get-VBRBackupRepository -ScaleOut
+            if ($BackupRepos) {
                 Section -Style Heading3 'ScaleOut Backup Repository' {
                     Paragraph "The following section provides a summary about ScaleOut Backup Repository"
                     BlankLine
                     $OutObj = @()
                     try {
-                        $BackupRepos = Get-VBRBackupRepository -ScaleOut
                         foreach ($BackupRepo in $BackupRepos) {
                             Write-PscriboMessage "Discovered $($BackupRepo.Name) Repository."
                             $inObj = [ordered] @{
@@ -216,6 +216,92 @@ function Get-AbrVbrScaleOutRepository {
                                                         $TableParams['Caption'] = "- $($TableParams.Name)"
                                                     }
                                                     $OutObj | Table @TableParams
+                                                    if ($BackupRepo.OffloadWindowOptions) {
+                                                        Section -Style NOTOCHeading6 -ExcludeFromTOC "Offload Window Time Period" {
+                                                            Paragraph {
+                                                                Text 'Permited \' -Color 81BC50 -Bold
+                                                                Text ' Denied' -Color dddf62 -Bold
+                                                            }
+                                                            $OutObj = @()
+                                                            try {
+                                                                $Days = 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'
+                                                                $Hours24 = [ordered]@{
+                                                                    0 = 12
+                                                                    1 = 1
+                                                                    2 = 2
+                                                                    3 = 3
+                                                                    4 = 4
+                                                                    5 = 5
+                                                                    6 = 6
+                                                                    7 = 7
+                                                                    8 = 8
+                                                                    9 = 9
+                                                                    10 = 10
+                                                                    11 = 11
+                                                                    12 = 12
+                                                                    13 = 1
+                                                                    14 = 2
+                                                                    15 = 3
+                                                                    16 = 4
+                                                                    17 = 5
+                                                                    18 = 6
+                                                                    19 = 7
+                                                                    20 = 8
+                                                                    21 = 9
+                                                                    22 = 10
+                                                                    23 = 11
+                                                                }
+                                                                $ScheduleTimePeriod = $BackupRepo.OffloadWindowOptions -split '(.{48})' | Where-Object {$_}
+
+                                                                foreach ($OBJ in $Hours24.GetEnumerator()) {
+
+                                                                    $inObj = [ordered] @{
+                                                                        'H' = $OBJ.Value
+                                                                        'Sun' = $ScheduleTimePeriod[0].Split(',')[$OBJ.Key]
+                                                                        'Mon' = $ScheduleTimePeriod[1].Split(',')[$OBJ.Key]
+                                                                        'Tue' = $ScheduleTimePeriod[2].Split(',')[$OBJ.Key]
+                                                                        'Wed' = $ScheduleTimePeriod[3].Split(',')[$OBJ.Key]
+                                                                        'Thu' = $ScheduleTimePeriod[4].Split(',')[$OBJ.Key]
+                                                                        'Fri' = $ScheduleTimePeriod[5].Split(',')[$OBJ.Key]
+                                                                        'Sat' = $ScheduleTimePeriod[6].Split(',')[$OBJ.Key]
+                                                                    }
+                                                                    $OutObj += $inobj
+                                                                }
+
+                                                                $TableParams = @{
+                                                                    Name = "Offload Window - $(($CapacityExtent.Repository).Name)"
+                                                                    List = $true
+                                                                    ColumnWidths = 6,4,3,4,4,4,4,4,4,4,4,4,4,4,3,4,4,4,4,4,4,4,4,4,4
+                                                                    Key = 'H'
+                                                                }
+                                                                if ($Report.ShowTableCaptions) {
+                                                                    $TableParams['Caption'] = "- $($TableParams.Name)"
+                                                                }
+                                                                if ($OutObj) {
+                                                                    $OutObj2 = Table -Hashtable $OutObj @TableParams
+                                                                    $OutObj2.Rows | Where-Object {$_.Sun -eq "0"} | Set-Style -Style OFF -Property "Sun"
+                                                                    $OutObj2.Rows | Where-Object {$_.Mon -eq "0"} | Set-Style -Style OFF -Property "Mon"
+                                                                    $OutObj2.Rows | Where-Object {$_.Tue -eq "0"} | Set-Style -Style OFF -Property "Tue"
+                                                                    $OutObj2.Rows | Where-Object {$_.Wed -eq "0"} | Set-Style -Style OFF -Property "Wed"
+                                                                    $OutObj2.Rows | Where-Object {$_.Thu -eq "0"} | Set-Style -Style OFF -Property "Thu"
+                                                                    $OutObj2.Rows | Where-Object {$_.Fri -eq "0"} | Set-Style -Style OFF -Property "Fri"
+                                                                    $OutObj2.Rows | Where-Object {$_.Sat -eq "0"} | Set-Style -Style OFF -Property "Sat"
+
+                                                                    $OutObj2.Rows | Where-Object {$_.Sun -eq "1"} | Set-Style -Style ON -Property "Sun"
+                                                                    $OutObj2.Rows | Where-Object {$_.Mon -eq "1"} | Set-Style -Style ON -Property "Mon"
+                                                                    $OutObj2.Rows | Where-Object {$_.Tue -eq "1"} | Set-Style -Style ON -Property "Tue"
+                                                                    $OutObj2.Rows | Where-Object {$_.Wed -eq "1"} | Set-Style -Style ON -Property "Wed"
+                                                                    $OutObj2.Rows | Where-Object {$_.Thu -eq "1"} | Set-Style -Style ON -Property "Thu"
+                                                                    $OutObj2.Rows | Where-Object {$_.Fri -eq "1"} | Set-Style -Style ON -Property "Fri"
+                                                                    $OutObj2.Rows | Where-Object {$_.Sat -eq "1"} | Set-Style -Style ON -Property "Sat"
+                                                                    $OutObj2
+                                                                }
+                                                            }
+                                                            catch {
+                                                                Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                            }
+                                                        }
+                                                    }
                                                 }
                                             }
                                             catch {
@@ -238,7 +324,6 @@ function Get-AbrVbrScaleOutRepository {
                                                             0 {"Auto"}
                                                             default {($ArchiveExtent.Repository).GatewayServer.Name}
                                                         }
-                                                        'Immutability Enabled' = ConvertTo-TextYN $ArchiveExtent.Repository.BackupImmutabilityEnabled
                                                     }
                                                     if (($ArchiveExtent.Repository).ArchiveType -eq 'AzureArchive') {
                                                         $inObj.add('Azure Service Type', ($ArchiveExtent.Repository.AzureBlobFolder).ServiceType)
@@ -247,10 +332,6 @@ function Get-AbrVbrScaleOutRepository {
                                                     }
 
                                                     $OutObj += [pscustomobject]$inobj
-
-                                                    if ($HealthCheck.Infrastructure.SOBR) {
-                                                        $OutObj | Where-Object { $_.'Immutability Enabled' -eq 'No' } | Set-Style -Style Warning -Property 'Immutability Enabled'
-                                                    }
 
                                                     $TableParams = @{
                                                         Name = "Archive Tier - $(($ArchiveExtent.Repository).Name)"

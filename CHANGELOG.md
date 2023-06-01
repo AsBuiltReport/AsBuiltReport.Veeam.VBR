@@ -6,6 +6,7 @@
 
 - Added HealthCheck recommendations
 - Added Global Notification options
+- Added SOBR Capacity Tier - Offload Window Time Period information
 
 ### Changed
 

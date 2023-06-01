@@ -832,13 +832,6 @@ function Get-AbrVbrBackupjobVMware {
                                                             $Match = $Regex.Match($BackupWindow)
                                                             if($Match.Success)
                                                             {
-                                                                $ScheduleTimePeriodConverted = @()
-
-                                                                # foreach ($Val in $Match.Value.Split(',')) {
-                                                                #     if ($Val -eq 0) {
-                                                                #         $ScheduleTimePeriodConverted += 'on'
-                                                                #     } else {$ScheduleTimePeriodConverted += 'off'}
-                                                                # }
                                                                 $ScheduleTimePeriod += $Match.Value
                                                             }
                                                         }
