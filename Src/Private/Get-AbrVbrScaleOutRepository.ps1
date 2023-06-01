@@ -6,7 +6,7 @@ function Get-AbrVbrScaleOutRepository {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.7.1
+        Version:        0.7.2
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -89,7 +89,7 @@ function Get-AbrVbrScaleOutRepository {
                                                     'Use Per VM Backup Files' = ConvertTo-TextYN $BackupRepo.UsePerVMBackupFiles
                                                     'Perform Full When Extent Offline' = ConvertTo-TextYN $BackupRepo.PerformFullWhenExtentOffline
                                                     'Use Capacity Tier' = ConvertTo-TextYN $BackupRepo.EnableCapacityTier
-                                                    'Encryption Enabled' = ConvertTo-TextYN $BackupRepo.EncryptionEnabled
+                                                    'Encrypt data uploaded to Object Storage' = ConvertTo-TextYN $BackupRepo.EncryptionEnabled
                                                     'Encryption Key' = Switch ($BackupRepo.EncryptionKey.Description) {
                                                         $null {'Disabled'}
                                                         default {$BackupRepo.EncryptionKey.Description}
@@ -98,13 +98,17 @@ function Get-AbrVbrScaleOutRepository {
                                                     'Override Policy Enabled' = ConvertTo-TextYN $BackupRepo.OverridePolicyEnabled
                                                     'Override Space Threshold' = $BackupRepo.OverrideSpaceThreshold
                                                     'Use Archive GFS Tier' = ConvertTo-TextYN $BackupRepo.ArchiveTierEnabled
-                                                    'Archive GFS Backup older than' = $BackupRepo.ArchivePeriod
+                                                    'Archive GFS Backup older than' = "$($BackupRepo.ArchivePeriod) days"
                                                     'Store archived backup as standalone fulls' = ConvertTo-TextYN $BackupRepo.ArchiveFullBackupModeEnabled
                                                     'Cost Optimized Archive Enabled' = ConvertTo-TextYN $BackupRepo.CostOptimizedArchiveEnabled
                                                     'Description' = $BackupRepo.Description
                                                 }
 
                                                 $OutObj = [pscustomobject]$inobj
+
+                                                if ($HealthCheck.Infrastructure.Settings) {
+                                                    $OutObj | Where-Object { $_.'Encrypt data uploaded to Object Storage' -like 'No'} | Set-Style -Style Warning -Property 'Encrypt data uploaded to Object Storage'
+                                                }
 
                                                 $TableParams = @{
                                                     Name = "General Settings - $($BackupRepo.Name)"
@@ -117,6 +121,10 @@ function Get-AbrVbrScaleOutRepository {
                                                 }
 
                                                 $OutObj | Table @TableParams
+                                                if (($HealthCheck.Infrastructure.BestPractice) -and ($OutObj | Where-Object { $_.'Encrypt data uploaded to Object Storage' -like 'No'})) {
+                                                    Paragraph "Health Check:" -Italic -Bold -Underline
+                                                    Paragraph "Best Practice: Veeam Backup & Replication allows you to encrypt offloaded data. With the Encrypt data uploaded to object storage setting selected, the entire collection of blocks along with the metadata will be encrypted while being offloaded regardless of the jobs encryption settings. This helps you protect the data from an unauthorized access." -Italic -Bold
+                                                }
                                             }
                                         }
                                         catch {
@@ -139,6 +147,11 @@ function Get-AbrVbrScaleOutRepository {
                                                         'Status' = $Extent.Status
                                                     }
                                                     $OutObj += [pscustomobject]$inobj
+
+                                                    if ($HealthCheck.Infrastructure.Settings) {
+                                                        $OutObj | Where-Object { $_.'Status' -ne 'Normal'} | Set-Style -Style Warning -Property 'Status'
+                                                    }
+
                                                     $TableParams = @{
                                                         Name = "Performance Tier - $($Extent.Name)"
                                                         List = $true
@@ -173,6 +186,7 @@ function Get-AbrVbrScaleOutRepository {
                                                             default {($CapacityExtent.Repository).GatewayServer.Name}
                                                         }
                                                         'Immutability Period' = $CapacityExtent.Repository.ImmutabilityPeriod
+                                                        'Immutability Enabled'= ConvertTo-TextYN $CapacityExtent.Repository.BackupImmutabilityEnabled
                                                         'Size Limit Enabled' = ConvertTo-TextYN ($CapacityExtent.Repository).SizeLimitEnabled
                                                         'Size Limit' = ($CapacityExtent.Repository).SizeLimit
                                                     }
@@ -183,12 +197,16 @@ function Get-AbrVbrScaleOutRepository {
                                                     } elseif (($CapacityExtent.Repository).Type -eq 'AzureBlob') {
                                                         $inObj.remove('Service Point')
                                                         $inObj.remove('Amazon S3 Folder')
-                                                        $inObj.remove('Immutability Period')
                                                         $inObj.add('Azure Blob Name', ($CapacityExtent.Repository.AzureBlobFolder).Name)
                                                         $inObj.add('Azure Blob Container', ($CapacityExtent.Repository.AzureBlobFolder).Container)
                                                     }
 
                                                     $OutObj += [pscustomobject]$inobj
+
+                                                    if ($HealthCheck.Infrastructure.SOBR) {
+                                                        $OutObj | Where-Object { $_.'Immutability Enabled' -eq 'No' } | Set-Style -Style Warning -Property 'Immutability Enabled'
+                                                    }
+
                                                     $TableParams = @{
                                                         Name = "Capacity Tier - $(($CapacityExtent.Repository).Name)"
                                                         List = $true
@@ -220,16 +238,20 @@ function Get-AbrVbrScaleOutRepository {
                                                             0 {"Auto"}
                                                             default {($ArchiveExtent.Repository).GatewayServer.Name}
                                                         }
+                                                        'Immutability Enabled' = ConvertTo-TextYN $ArchiveExtent.Repository.BackupImmutabilityEnabled
                                                     }
-                                                    if (($ArchiveExtent.Repository).ArchiveType -eq 'AmazonS3Glacier') {
-                                                        $inObj.add('Backup Immutability Enabled', (ConvertTo-TextYN ($ArchiveExtent.Repository).BackupImmutabilityEnabled))
-                                                    } elseif (($ArchiveExtent.Repository).ArchiveType -eq 'AzureArchive') {
+                                                    if (($ArchiveExtent.Repository).ArchiveType -eq 'AzureArchive') {
                                                         $inObj.add('Azure Service Type', ($ArchiveExtent.Repository.AzureBlobFolder).ServiceType)
                                                         $inObj.add('Azure Blob Name', ($ArchiveExtent.Repository.AzureBlobFolder).Name)
                                                         $inObj.add('Azure Blob Container', ($ArchiveExtent.Repository.AzureBlobFolder).Container)
                                                     }
 
                                                     $OutObj += [pscustomobject]$inobj
+
+                                                    if ($HealthCheck.Infrastructure.SOBR) {
+                                                        $OutObj | Where-Object { $_.'Immutability Enabled' -eq 'No' } | Set-Style -Style Warning -Property 'Immutability Enabled'
+                                                    }
+
                                                     $TableParams = @{
                                                         Name = "Archive Tier - $(($ArchiveExtent.Repository).Name)"
                                                         List = $true

@@ -6,7 +6,7 @@ function Get-AbrVbrBackupjobVMware {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.7.1
+        Version:        0.7.2
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -405,6 +405,10 @@ function Get-AbrVbrBackupjobVMware {
                                                     }
                                                     $OutObj = [pscustomobject]$inobj
 
+                                                    if ($HealthCheck.Jobs.BestPractice) {
+                                                        $OutObj | Where-Object { $_.'Enabled Backup File Encryption' -eq 'No'} | Set-Style -Style Warning -Property 'Enabled Backup File Encryption'
+                                                    }
+
                                                     $TableParams = @{
                                                         Name = "Advanced Settings (Storage) - $($Bkjob.Name)"
                                                         List = $true
@@ -414,6 +418,12 @@ function Get-AbrVbrBackupjobVMware {
                                                         $TableParams['Caption'] = "- $($TableParams.Name)"
                                                     }
                                                     $OutObj | Table @TableParams
+                                                    if ($HealthCheck.Jobs.BestPractice) {
+                                                        if ($OutObj | Where-Object { $_.'Enabled Backup File Encryption' -eq 'No'}) {
+                                                            Paragraph "Health Check:" -Italic -Bold -Underline
+                                                            Paragraph "Best Practice: Backup and replica data is a high potential source of vulnerability. To secure data stored in backups and replicas, use Veeam Backup & Replication inbuilt encryption to protect data in backups" -Italic -Bold
+                                                        }
+                                                    }
                                                 }
                                                 catch {
                                                     Write-PscriboMessage -IsWarning $_.Exception.Message

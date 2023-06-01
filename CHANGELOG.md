@@ -1,5 +1,21 @@
 # :arrows_clockwise: Veeam VBR As Built Report Changelog
 
+## [0.7.2] - 2023-05-30
+
+### Added
+
+- Added HealthCheck recommendations
+- Added Global Notification options
+
+### Changed
+
+- Visually improved the Backup Window Time Period table
+
+### Fixed
+
+- Fix [#99](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/99)
+- Fix [#100](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/100)
+
 ## [0.7.1] - 2023-03-07
 
 ### Changed

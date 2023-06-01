@@ -91,7 +91,9 @@
             "Tenants": true,
             "BackupStorage": true,
             "ReplicaResources": true
+        },
+        "Jobs": {
+            "Status": true
         }
-
     }
 }

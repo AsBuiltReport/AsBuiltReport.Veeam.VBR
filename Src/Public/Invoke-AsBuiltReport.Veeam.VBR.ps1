@@ -5,7 +5,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.7.1
+        Version:        0.7.2
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -65,9 +65,11 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                 Section -Style Heading2 'Backup Infrastructure' {
                     Paragraph "The following section details configuration information about the Backup Server: $($VeeamBackupServer)"
                     BlankLine
-                    Get-AbrVbrInfrastructureSummary
-                    Get-AbrVbrBackupServerInfo
-                    Get-AbrVbrEnterpriseManagerInfo
+                    if ($InfoLevel.Infrastructure.BackupServer -ge 1) {
+                        Get-AbrVbrInfrastructureSummary
+                        Get-AbrVbrBackupServerInfo
+                        Get-AbrVbrEnterpriseManagerInfo
+                    }
                     Write-PScriboMessage "Infrastructure Licenses InfoLevel set at $($InfoLevel.Infrastructure.Licenses)."
                     if ($InfoLevel.Infrastructure.Licenses -ge 1) {
                         Get-AbrVbrInstalledLicense
@@ -79,15 +81,18 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                             BlankLine
                             Get-AbrVbrConfigurationBackupSetting
                             Get-AbrVbrEmailNotificationSetting
+                            Get-AbrVbrGlobalNotificationSetting
                             Get-AbrVbrIOControlSetting
                             Get-AbrVbrBackupServerCertificate
                             Get-AbrVbrNetworkTrafficRule
                         }
                     }
+
                     Get-AbrVbrUserRoleAssignment
                     Get-AbrVbrCredential
                     Get-AbrVbrLocation
                     Get-AbrVbrManagedServer
+
                     Write-PScriboMessage "Infrastructure Backup Proxy InfoLevel set at $($InfoLevel.Infrastructure.Proxy)."
                     if ($InfoLevel.Infrastructure.Proxy -ge 1) {
                         Get-AbrVbrBackupProxy

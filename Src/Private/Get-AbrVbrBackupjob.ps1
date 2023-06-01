@@ -6,7 +6,7 @@ function Get-AbrVbrBackupjob {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.7.1
+        Version:        0.7.2
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -51,6 +51,11 @@ function Get-AbrVbrBackupjob {
                     catch {
                         Write-PscriboMessage -IsWarning "Backup Jobs Section: $($_.Exception.Message)"
                     }
+                }
+
+                if ($HealthCheck.Jobs.Status) {
+                    $OutObj | Where-Object { $_.'Latest Result' -eq 'Failed' } | Set-Style -Style Critical -Property 'Latest Result'
+                    $OutObj | Where-Object { $_.'Latest Result' -eq 'Warning' } | Set-Style -Style Warning -Property 'Latest Result'
                 }
 
                 $TableParams = @{

@@ -45,6 +45,10 @@ function Get-AbrVbrReplFailoverPlan {
                             }
                             $OutObj = [pscustomobject]$inobj
 
+                            if ($HealthCheck.Replication.FailoverPlan) {
+                                $OutObj | Where-Object { $_.'Status' -ne 'Ready' } | Set-Style -Style Warning -Property 'Status'
+                            }
+
                             $TableParams = @{
                                 Name = "Failover Plan - $($FailOverPlan.Name)"
                                 List = $true
