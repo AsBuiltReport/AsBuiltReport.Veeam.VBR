@@ -91,6 +91,11 @@ function Get-AbrVbrBackupjobVMware {
                                             }
                                         }
 
+                                        if ($HealthCheck.Jobs.BestPractice) {
+                                            $OutObj | Where-Object { $Null -like $_.'Description' } | Set-Style -Style Warning -Property 'Description'
+                                            $OutObj | Where-Object { $_.'Description' -match "Created by" } | Set-Style -Style Warning -Property 'Description'
+                                        }
+
                                         $TableParams = @{
                                             Name = "Common Information - $($Bkjob.Name)"
                                             List = $true
@@ -100,6 +105,12 @@ function Get-AbrVbrBackupjobVMware {
                                             $TableParams['Caption'] = "- $($TableParams.Name)"
                                         }
                                         $OutObj | Table @TableParams
+                                        if ($HealthCheck.Jobs.BestPractice) {
+                                            if ($OutObj | Where-Object { $_.'Description' -match 'Created by' -or $Null -like $_.'Description'}) {
+                                                Paragraph "Health Check:" -Italic -Bold -Underline
+                                                Paragraph "Best Practice: It is a general rule of good practice to establish well-defined descriptions. This helps to speed up the fault identification process, as well as enabling better documentation of the environment." -Italic -Bold
+                                            }
+                                        }
                                     }
                                     catch {
                                         Write-PscriboMessage -IsWarning $_.Exception.Message
@@ -340,7 +351,7 @@ function Get-AbrVbrBackupjobVMware {
                                             $TableParams['Caption'] = "- $($TableParams.Name)"
                                         }
                                         $OutObj | Table @TableParams
-                                        if ($InfoLevel.Jobs.Backup -ge 2 -and ($Bkjob.Options.GenerationPolicy.EnableRechek -or $Bkjob.Options.GenerationPolicy.EnableCompactFull)) {
+                                        if ($InfoLevel.Jobs.Backup -ge 2) {
                                             Section -Style NOTOCHeading6 -ExcludeFromTOC "Advanced Settings (Maintenance)" {
                                                 $OutObj = @()
                                                 try {
@@ -358,6 +369,10 @@ function Get-AbrVbrBackupjobVMware {
                                                     }
                                                     $OutObj = [pscustomobject]$inobj
 
+                                                    if ($HealthCheck.Jobs.BestPractice) {
+                                                        $OutObj | Where-Object { $_.'Storage-Level Corruption Guard (SLCG)' -eq "No" } | Set-Style -Style Warning -Property 'Storage-Level Corruption Guard (SLCG)'
+                                                    }
+
                                                     $TableParams = @{
                                                         Name = "Advanced Settings (Maintenance) - $($Bkjob.Name)"
                                                         List = $true
@@ -367,6 +382,12 @@ function Get-AbrVbrBackupjobVMware {
                                                         $TableParams['Caption'] = "- $($TableParams.Name)"
                                                     }
                                                     $OutObj | Table @TableParams
+                                                    if ($HealthCheck.Jobs.BestPractice) {
+                                                        if ($OutObj | Where-Object { $_.'Storage-Level Corruption Guard (SLCG)' -eq 'No' }) {
+                                                            Paragraph "Health Check:" -Italic -Bold -Underline
+                                                            Paragraph "Best Practice: It is recommended to use storage-level corruption guard for any backup job with no active full backups scheduled. Synthetic full backups are still 'incremental forever' and may suffer from corruption over time. Storage-level corruption guard was introduced to provide a greater level of confidence in integrity of the backups." -Italic -Bold
+                                                        }
+                                                    }
                                                 }
                                                 catch {
                                                     Write-PscriboMessage -IsWarning $_.Exception.Message

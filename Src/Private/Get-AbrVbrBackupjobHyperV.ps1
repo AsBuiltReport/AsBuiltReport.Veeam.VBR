@@ -91,6 +91,11 @@ function Get-AbrVbrBackupjobHyperV {
                                             }
                                         }
 
+                                        if ($HealthCheck.Jobs.BestPractice) {
+                                            $OutObj | Where-Object { $Null -like $_.'Description' } | Set-Style -Style Warning -Property 'Description'
+                                            $OutObj | Where-Object { $_.'Description' -match "Created by" } | Set-Style -Style Warning -Property 'Description'
+                                        }
+
                                         $TableParams = @{
                                             Name = "Common Information - $($Bkjob.Name)"
                                             List = $true
@@ -100,6 +105,12 @@ function Get-AbrVbrBackupjobHyperV {
                                             $TableParams['Caption'] = "- $($TableParams.Name)"
                                         }
                                         $OutObj | Table @TableParams
+                                        if ($HealthCheck.Jobs.BestPractice) {
+                                            if ($OutObj | Where-Object { $_.'Description' -match 'Created by' -or $Null -like $_.'Description'}) {
+                                                Paragraph "Health Check:" -Italic -Bold -Underline
+                                                Paragraph "Best Practice: It is a general rule of good practice to establish well-defined descriptions. This helps to speed up the fault identification process, as well as enabling better documentation of the environment." -Italic -Bold
+                                            }
+                                        }
                                     }
                                     catch {
                                         Write-PscriboMessage -IsWarning "Hyper-V Backup Jobs Common Information Section: $($_.Exception.Message)"
@@ -360,6 +371,10 @@ function Get-AbrVbrBackupjobHyperV {
                                                     }
                                                     $OutObj = [pscustomobject]$inobj
 
+                                                    if ($HealthCheck.Jobs.BestPractice) {
+                                                        $OutObj | Where-Object { $_.'Enabled Backup File Encryption' -eq 'No'} | Set-Style -Style Warning -Property 'Enabled Backup File Encryption'
+                                                    }
+
                                                     $TableParams = @{
                                                         Name = "Advanced Settings (Storage) - $($Bkjob.Name)"
                                                         List = $true
@@ -369,6 +384,12 @@ function Get-AbrVbrBackupjobHyperV {
                                                         $TableParams['Caption'] = "- $($TableParams.Name)"
                                                     }
                                                     $OutObj | Table @TableParams
+                                                    if ($HealthCheck.Jobs.BestPractice) {
+                                                        if ($OutObj | Where-Object { $_.'Enabled Backup File Encryption' -eq 'No'}) {
+                                                            Paragraph "Health Check:" -Italic -Bold -Underline
+                                                            Paragraph "Best Practice: Backup and replica data is a high potential source of vulnerability. To secure data stored in backups and replicas, use Veeam Backup & Replication inbuilt encryption to protect data in backups" -Italic -Bold
+                                                        }
+                                                    }
                                                 }
                                                 catch {
                                                     Write-PscriboMessage -IsWarning "Hyper-V Backup Jobs Advanced Settings (Storage) Section: $($_.Exception.Message)"
