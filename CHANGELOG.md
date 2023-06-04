@@ -1,12 +1,13 @@
 # :arrows_clockwise: Veeam VBR As Built Report Changelog
 
-## [0.7.2] - 2023-05-30
+## [0.7.2] - 2023-06-04
 
 ### Added
 
 - Added HealthCheck recommendations
 - Added Global Notification options
 - Added SOBR Capacity Tier - Offload Window Time Period information
+- Updated Report Sample Files
 
 ### Changed
 
