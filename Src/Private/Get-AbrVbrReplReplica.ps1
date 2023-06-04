@@ -6,7 +6,7 @@ function Get-AbrVbrReplReplica {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.7.1
+        Version:        0.7.2
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -39,10 +39,14 @@ function Get-AbrVbrReplReplica {
                                     'VM Name' = $VM.VmName
                                     'Job Name' = $Replica.JobName
                                     'Type' = $Replica.TypeToString
-                                    'Restore Points' = ($VM | Get-VBRRestorePoint).count
+                                    'State' = $VM.State
                                 }
                                 $OutObj += [pscustomobject]$inobj
                             }
+                        }
+
+                        if ($HealthCheck.Replication.Replica) {
+                            $OutObj | Where-Object { $_.'State' -ne 'Ready' } | Set-Style -Style Warning -Property 'State'
                         }
 
                         $TableParams = @{
@@ -78,6 +82,10 @@ function Get-AbrVbrReplReplica {
 
                                         }
                                         $OutObj = [pscustomobject]$inobj
+
+                                        if ($HealthCheck.Replication.Replica) {
+                                            $OutObj | Where-Object { $_.'State' -ne 'Ready' } | Set-Style -Style Warning -Property 'State'
+                                        }
 
                                         $TableParams = @{
                                             Name = "$($Replica.JobName) - $($VM.VmName)"

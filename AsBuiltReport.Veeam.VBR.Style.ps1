@@ -30,6 +30,9 @@ Style -Name 'Critical' -Size 10 -BackgroundColor 'F1655C'
 Style -Name 'Warning' -Size 10 -BackgroundColor 'F4A71C'
 Style -Name 'Info' -Size 10 -BackgroundColor '5AC0ED'
 Style -Name 'OK' -Size 10 -BackgroundColor '81BC50'
+Style -Name 'ON' -Size 8 -BackgroundColor 'C4DD90' -Color C4DD90
+Style -Name 'OFF' -Size 8 -BackgroundColor 'ECEDA7' -Color ECEDA7
+
 
 # Configure Table Styles
 $TableDefaultProperties = @{

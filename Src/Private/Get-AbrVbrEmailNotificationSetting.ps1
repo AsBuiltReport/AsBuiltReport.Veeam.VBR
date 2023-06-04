@@ -6,7 +6,7 @@ function Get-AbrVbrEmailNotificationSetting {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.7.1
+        Version:        0.7.2
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -26,10 +26,10 @@ function Get-AbrVbrEmailNotificationSetting {
 
     process {
         try {
-            if ((Get-VBRMailNotificationConfiguration).count -gt 0) {
+            $EmailSettings = Get-VBRMailNotificationConfiguration
+            if ($EmailSettings) {
                 Section -Style Heading4 'Email Notification' {
                     $OutObj = @()
-                    $EmailSettings = Get-VBRMailNotificationConfiguration
                     foreach ($EmailSetting in $EmailSettings) {
                         $inObj = [ordered] @{
                             'Email Recipient' = $EmailSetting.Recipient
@@ -63,6 +63,10 @@ function Get-AbrVbrEmailNotificationSetting {
                         $TableParams['Caption'] = "- $($TableParams.Name)"
                     }
                     $OutObj | Table @TableParams
+                    if ($HealthCheck.Infrastructure.BestPractice -and ($OutObj | Where-Object { $_.'Enabled' -eq 'No' })) {
+                        Paragraph "Health Check:" -Italic -Bold -Underline
+                        Paragraph "Best Practice: Veeam recommends configuring email notifications to be able to receive alerts with the results of jobs performed on the backup server." -Italic -Bold
+                    }
                 }
             }
         }

@@ -6,7 +6,7 @@ function Get-AbrVbrCloudConnectTenant {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.7.1
+        Version:        0.7.2
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -27,11 +27,11 @@ function Get-AbrVbrCloudConnectTenant {
     process {
         try {
             if (Get-VBRInstalledLicense | Where-Object {$_.CloudConnect -in @("Enterprise")}) {
-                if ((Get-VBRCloudTenant).count -gt 0) {
+                $CloudObjects = Get-VBRCloudTenant | Sort-Object -Property Name
+                if ($CloudObjects) {
                     Section -Style Heading3 'Tenants' {
                         Paragraph "The following table provides status information about Cloud Connect Tenants."
                         BlankLine
-                        $CloudObjects = Get-VBRCloudTenant | Sort-Object -Property Name
                         $OutObj = @()
                         foreach ($CloudObject in $CloudObjects) {
                             try {
@@ -57,6 +57,7 @@ function Get-AbrVbrCloudConnectTenant {
 
                         if ($HealthCheck.CloudConnect.Tenants) {
                             $OutObj | Where-Object { $_.'Last Result' -ne 'Success'} | Set-Style -Style Warning -Property 'Last Result'
+                            $OutObj | Where-Object { $Null -like $_.'Last Active' } | Set-Style -Style Warning -Property 'Last Active'
                         }
 
                         $TableParams = @{
@@ -69,6 +70,12 @@ function Get-AbrVbrCloudConnectTenant {
                             $TableParams['Caption'] = "- $($TableParams.Name)"
                         }
                         $OutObj | Sort-Object -Property 'Name' | Table @TableParams
+                        if ($HealthCheck.CloudConnect.BestPractice) {
+                            if ($OutObj | Where-Object { $Null -like $_.'Last Active' }) {
+                                Paragraph "Health Check:" -Italic -Bold -Underline
+                                Paragraph "Best Practice: Validate if the tenant's resources are being utilized" -Italic -Bold
+                            }
+                        }
                         #---------------------------------------------------------------------------------------------#
                         #                            Tenants Configuration Section                                    #
                         #---------------------------------------------------------------------------------------------#
@@ -117,6 +124,11 @@ function Get-AbrVbrCloudConnectTenant {
 
                                                     $OutObj = [pscustomobject]$inobj
 
+                                                    if ($HealthCheck.Jobs.BestPractice) {
+                                                        $OutObj | Where-Object { $Null -like $_.'Description' } | Set-Style -Style Warning -Property 'Description'
+                                                        $OutObj | Where-Object { $_.'Description' -match "Created by" } | Set-Style -Style Warning -Property 'Description'
+                                                    }
+
                                                     $TableParams = @{
                                                         Name = "Tenant - $($CloudObject.Name)"
                                                         List = $true
@@ -127,6 +139,12 @@ function Get-AbrVbrCloudConnectTenant {
                                                         $TableParams['Caption'] = "- $($TableParams.Name)"
                                                     }
                                                     $OutObj | Sort-Object -Property 'Name' | Table @TableParams
+                                                    if ($HealthCheck.Jobs.BestPractice) {
+                                                        if ($OutObj | Where-Object { $_.'Description' -match 'Created by' -or $Null -like $_.'Description'}) {
+                                                            Paragraph "Health Check:" -Italic -Bold -Underline
+                                                            Paragraph "Best Practice: It is a general rule of good practice to establish well-defined descriptions. This helps to speed up the fault identification process, as well as enabling better documentation of the environment." -Italic -Bold
+                                                        }
+                                                    }
                                                 }
                                                 try {
                                                     Section -ExcludeFromTOC -Style NOTOCHeading6 'Bandwidth' {

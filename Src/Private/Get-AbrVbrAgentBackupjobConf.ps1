@@ -6,7 +6,7 @@ function Get-AbrVbrAgentBackupjobConf {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.7.1
+        Version:        0.7.2
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -56,6 +56,11 @@ function Get-AbrVbrAgentBackupjobConf {
                                         }
                                         $OutObj = [pscustomobject]$inobj
 
+                                        if ($HealthCheck.Jobs.BestPractice) {
+                                            $OutObj | Where-Object { $Null -like $_.'Description' } | Set-Style -Style Warning -Property 'Description'
+                                            $OutObj | Where-Object { $_.'Description' -match "Created by" } | Set-Style -Style Warning -Property 'Description'
+                                        }
+
                                         $TableParams = @{
                                             Name = "Job Mode - $($ABkjob.Name)"
                                             List = $true
@@ -65,6 +70,12 @@ function Get-AbrVbrAgentBackupjobConf {
                                             $TableParams['Caption'] = "- $($TableParams.Name)"
                                         }
                                         $OutObj | Table @TableParams
+                                        if ($HealthCheck.Jobs.BestPractice) {
+                                            if ($OutObj | Where-Object { $_.'Description' -match 'Created by' -or $Null -like $_.'Description'}) {
+                                                Paragraph "Health Check:" -Italic -Bold -Underline
+                                                Paragraph "Best Practice: It is a general rule of good practice to establish well-defined descriptions. This helps to speed up the fault identification process, as well as enabling better documentation of the environment." -Italic -Bold
+                                            }
+                                        }
                                     }
                                     catch {
                                         Write-PscriboMessage -IsWarning "Agent Backup Jobs Common Information Section: $($_.Exception.Message)"
@@ -468,6 +479,10 @@ function Get-AbrVbrAgentBackupjobConf {
                                                         }
                                                         $OutObj += [pscustomobject]$inObj
 
+                                                        if ($HealthCheck.Jobs.BestPractice) {
+                                                            $OutObj | Where-Object { $_.'Storage-Level Corruption Guard (SLCG)' -eq "No" } | Set-Style -Style Warning -Property 'Storage-Level Corruption Guard (SLCG)'
+                                                        }
+
                                                         $TableParams = @{
                                                             Name = "Advanced Settings (Maintenance) - $($ABkjob.Name)"
                                                             List = $true
@@ -477,6 +492,12 @@ function Get-AbrVbrAgentBackupjobConf {
                                                             $TableParams['Caption'] = "- $($TableParams.Name)"
                                                         }
                                                         $OutObj | Table @TableParams
+                                                        if ($HealthCheck.Jobs.BestPractice) {
+                                                            if ($OutObj | Where-Object { $_.'Storage-Level Corruption Guard (SLCG)' -eq 'No' }) {
+                                                                Paragraph "Health Check:" -Italic -Bold -Underline
+                                                                Paragraph "Best Practice: It is recommended to use storage-level corruption guard for any backup job with no active full backups scheduled. Synthetic full backups are still 'incremental forever' and may suffer from corruption over time. Storage-level corruption guard was introduced to provide a greater level of confidence in integrity of the backups." -Italic -Bold
+                                                            }
+                                                        }
                                                     }
                                                     catch {
                                                         Write-PscriboMessage -IsWarning "Agent Backup Jobs Advanced Settings (Maintenance) Section: $($_.Exception.Message)"
@@ -501,6 +522,10 @@ function Get-AbrVbrAgentBackupjobConf {
                                                     }
                                                     $OutObj = [pscustomobject]$inobj
 
+                                                    if ($HealthCheck.Jobs.BestPractice) {
+                                                        $OutObj | Where-Object { $_.'Enabled Backup File Encryption' -eq 'No'} | Set-Style -Style Warning -Property 'Enabled Backup File Encryption'
+                                                    }
+
                                                     $TableParams = @{
                                                         Name = "Advanced Settings (Storage) - $($ABkjob.Name)"
                                                         List = $true
@@ -510,6 +535,12 @@ function Get-AbrVbrAgentBackupjobConf {
                                                         $TableParams['Caption'] = "- $($TableParams.Name)"
                                                     }
                                                     $OutObj | Table @TableParams
+                                                    if ($HealthCheck.Jobs.BestPractice) {
+                                                        if ($OutObj | Where-Object { $_.'Enabled Backup File Encryption' -eq 'No'}) {
+                                                            Paragraph "Health Check:" -Italic -Bold -Underline
+                                                            Paragraph "Best Practice: Backup and replica data is a high potential source of vulnerability. To secure data stored in backups and replicas, use Veeam Backup & Replication inbuilt encryption to protect data in backups" -Italic -Bold
+                                                        }
+                                                    }
                                                 }
                                             }
                                             catch {

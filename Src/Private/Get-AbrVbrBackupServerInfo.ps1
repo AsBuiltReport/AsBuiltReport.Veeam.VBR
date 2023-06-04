@@ -145,14 +145,14 @@ function Get-AbrVbrBackupServerInfo {
                                         'BIOS Version' = $HWBIOS.Version
                                         'Processor Manufacturer' = $HWCPU[0].Manufacturer
                                         'Processor Model' = $HWCPU[0].Name
-                                        'Number of CPU Cores' = $HWCPU[0].NumberOfCores
-                                        'Number of Logical Cores' = $HWCPU[0].NumberOfLogicalProcessors
+                                        'Number of CPU Cores' = ($HWCPU.NumberOfCores | Measure-Object -Sum).Sum
+                                        'Number of Logical Cores' = ($HWCPU.NumberOfLogicalProcessors | Measure-Object -Sum).Sum
                                         'Physical Memory (GB)' = ConvertTo-FileSizeString $HW.CsTotalPhysicalMemory
                                     }
                                     $OutObj += [pscustomobject]$inobj
 
                                     if ($HealthCheck.Infrastructure.Server) {
-                                        $OutObj | Where-Object { $_.'Number of CPU Cores' -lt 4} | Set-Style -Style Warning -Property 'Number of CPU Cores'
+                                        $OutObj | Where-Object { $_.'Number of CPU Cores' -lt 2} | Set-Style -Style Warning -Property 'Number of CPU Cores'
                                         if ([int]([regex]::Matches($OutObj.'Physical Memory (GB)', "\d+(?!.*\d+)").value) -lt 8) { $OutObj | Set-Style -Style Warning -Property 'Physical Memory (GB)' }
                                     }
 
@@ -165,6 +165,12 @@ function Get-AbrVbrBackupServerInfo {
                                         $TableParams['Caption'] = "- $($TableParams.Name)"
                                     }
                                     $OutObj | Table @TableParams
+                                    if ($HealthCheck.Infrastructure.BestPractice) {
+                                        if (([int]([regex]::Matches($OutObj.'Physical Memory (GB)', "\d+(?!.*\d+)").value) -lt 8) -or ($OutObj | Where-Object { $_.'Number of CPU Cores' -lt 2})) {
+                                            Paragraph "Health Check:" -Italic -Bold -Underline
+                                            Paragraph "Best Practice: Recommended Veeam Backup Server minimum configuration is two CPU cores and 8GB RAM." -Italic -Bold
+                                        }
+                                    }
                                     #---------------------------------------------------------------------------------------------#
                                     #                       Backup Server Local Disk Inventory Section                            #
                                     #---------------------------------------------------------------------------------------------#
