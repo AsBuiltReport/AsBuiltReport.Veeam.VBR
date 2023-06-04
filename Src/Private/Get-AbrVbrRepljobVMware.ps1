@@ -329,7 +329,12 @@ function Get-AbrVbrRepljobVMware {
                                                         'DCFB Backup Monthly Schedule' = "Day Of Week: $($Bkjob.Options.GenerationPolicy.CompactFullBackupMonthlyScheduleOptions.DayOfWeek)`r`nDay Number In Month: $($Bkjob.Options.GenerationPolicy.CompactFullBackupMonthlyScheduleOptions.DayNumberInMonth)`r`nDay of Month: $($Bkjob.Options.GenerationPolicy.CompactFullBackupMonthlyScheduleOptions.DayOfMonth)`r`nMonths: $($Bkjob.Options.GenerationPolicy.CompactFullBackupMonthlyScheduleOptions.Months)"
                                                         'Remove deleted item data after' = $Bkjob.Options.BackupStorageOptions.RetainDays
                                                     }
+
                                                     $OutObj = [pscustomobject]$inobj
+
+                                                    if ($HealthCheck.Jobs.BestPractice) {
+                                                        $OutObj | Where-Object { $_.'Storage-Level Corruption Guard (SLCG)' -eq "No" } | Set-Style -Style Warning -Property 'Storage-Level Corruption Guard (SLCG)'
+                                                    }
 
                                                     $TableParams = @{
                                                         Name = "Advanced Settings (Maintenance) - $($Bkjob.Name)"
@@ -339,9 +344,11 @@ function Get-AbrVbrRepljobVMware {
                                                     if ($Report.ShowTableCaptions) {
                                                         $TableParams['Caption'] = "- $($TableParams.Name)"
                                                     }
+
                                                     $OutObj | Table @TableParams
+
                                                     if ($HealthCheck.Jobs.BestPractice) {
-                                                        if ($OutObj | Where-Object { $_.'torage-Level Corruption Guard (SLCG)' -eq 'No' }) {
+                                                        if ($OutObj | Where-Object { $_.'Storage-Level Corruption Guard (SLCG)' -eq 'No' }) {
                                                             Paragraph "Health Check:" -Italic -Bold -Underline
                                                             Paragraph "Best Practice: It is recommended to use storage-level corruption guard for any backup job with no active full backups scheduled. Synthetic full backups are still 'incremental forever' and may suffer from corruption over time. Storage-level corruption guard was introduced to provide a greater level of confidence in integrity of the backups." -Italic -Bold
                                                         }
@@ -384,6 +391,12 @@ function Get-AbrVbrRepljobVMware {
                                                     }
                                                     $OutObj = [pscustomobject]$inobj
 
+                                                    if ($HealthCheck.Jobs.BestPractice) {
+                                                        $OutObj | Where-Object { $_.'Enabled Backup File Encryption' -eq 'No'} | Set-Style -Style Warning -Property 'Enabled Backup File Encryption'
+                                                        $OutObj | Where-Object { $_.'Exclude Swap Files Block' -eq 'No'} | Set-Style -Style Warning -Property 'Exclude Swap Files Block'
+                                                        $OutObj | Where-Object { $_.'Exclude Deleted Files Block' -eq 'No'} | Set-Style -Style Warning -Property 'Exclude Deleted Files Block'
+                                                    }
+
                                                     $TableParams = @{
                                                         Name = "Advanced Settings (Traffic) - $($Bkjob.Name)"
                                                         List = $true
@@ -393,6 +406,12 @@ function Get-AbrVbrRepljobVMware {
                                                         $TableParams['Caption'] = "- $($TableParams.Name)"
                                                     }
                                                     $OutObj | Table @TableParams
+                                                    if ($HealthCheck.Jobs.BestPractice) {
+                                                        if ($OutObj | Where-Object { $_.'Enabled Backup File Encryption' -eq 'No'}) {
+                                                            Paragraph "Health Check:" -Italic -Bold -Underline
+                                                            Paragraph "Best Practice: Backup and replica data is a high potential source of vulnerability. To secure data stored in backups and replicas, use Veeam Backup & Replication inbuilt encryption to protect data in backups" -Italic -Bold
+                                                        }
+                                                    }
                                                 }
                                                 catch {
                                                     Write-PscriboMessage -IsWarning "VMware Replication Jobs $($Bkjob.Name) Advanced Settings (Traffic) Table: $($_.Exception.Message)"

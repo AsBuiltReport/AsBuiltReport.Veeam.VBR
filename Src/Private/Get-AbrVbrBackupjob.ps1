@@ -40,10 +40,9 @@ function Get-AbrVbrBackupjob {
                                 'True' {'Enabled'}
                             }
                             'Latest Result' = $Bkjob.info.LatestStatus
-                            'Target Repository' = Switch ($Bkjob.info.TargetRepositoryId) {
-                                '00000000-0000-0000-0000-000000000000' {$Bkjob.TargetDir}
-                                {$Null -eq (Get-VBRBackupRepository | Where-Object {$_.Id -eq $Bkjob.info.TargetRepositoryId}).Name} {(Get-VBRBackupRepository -ScaleOut | Where-Object {$_.Id -eq $Bkjob.info.TargetRepositoryId}).Name}
-                                default {(Get-VBRBackupRepository | Where-Object {$_.Id -eq $Bkjob.info.TargetRepositoryId}).Name}
+                            'Scheduled?' = Switch ([string]::IsNullOrEmpty($Bkjob.GetScheduleOptions().NextRun)) {
+                                $true {'No'}
+                                default {'Yes'}
                             }
                         }
                         $OutObj += [pscustomobject]$inobj
@@ -56,12 +55,14 @@ function Get-AbrVbrBackupjob {
                 if ($HealthCheck.Jobs.Status) {
                     $OutObj | Where-Object { $_.'Latest Result' -eq 'Failed' } | Set-Style -Style Critical -Property 'Latest Result'
                     $OutObj | Where-Object { $_.'Latest Result' -eq 'Warning' } | Set-Style -Style Warning -Property 'Latest Result'
+                    $OutObj | Where-Object { $_.'Status' -eq 'Disabled' } | Set-Style -Style Warning -Property 'Status'
+                    $OutObj | Where-Object { $_.'Scheduled?' -eq 'No' } | Set-Style -Style Warning -Property 'Scheduled?'
                 }
 
                 $TableParams = @{
                     Name = "Backup Jobs - $VeeamBackupServer"
                     List = $false
-                    ColumnWidths = 25, 20, 15, 15, 25
+                    ColumnWidths = 41, 20, 13, 13, 13
                 }
                 if ($Report.ShowTableCaptions) {
                     $TableParams['Caption'] = "- $($TableParams.Name)"

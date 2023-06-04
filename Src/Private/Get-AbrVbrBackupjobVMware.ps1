@@ -428,6 +428,8 @@ function Get-AbrVbrBackupjobVMware {
 
                                                     if ($HealthCheck.Jobs.BestPractice) {
                                                         $OutObj | Where-Object { $_.'Enabled Backup File Encryption' -eq 'No'} | Set-Style -Style Warning -Property 'Enabled Backup File Encryption'
+                                                        $OutObj | Where-Object { $_.'Exclude Swap Files Block' -eq 'No'} | Set-Style -Style Warning -Property 'Exclude Swap Files Block'
+                                                        $OutObj | Where-Object { $_.'Exclude Deleted Files Block' -eq 'No'} | Set-Style -Style Warning -Property 'Exclude Deleted Files Block'
                                                     }
 
                                                     $TableParams = @{

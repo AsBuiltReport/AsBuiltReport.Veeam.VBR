@@ -230,7 +230,7 @@ function Get-AbrVbrFileShareBackupjobConf {
                                             try {
                                                 Write-PscriboMessage "Discovered $($Bkjob.Name) maintenance options."
                                                 $inObj = [ordered] @{
-                                                    'Storage-Level Corruption Guard(SLCG)' = ConvertTo-TextYN $Bkjob.Options.GenerationPolicy.EnableRechek
+                                                    'Storage-Level Corruption Guard (SLCG)' = ConvertTo-TextYN $Bkjob.Options.GenerationPolicy.EnableRechek
                                                     'SLCG Schedule Type' = $Bkjob.Options.GenerationPolicy.RecheckScheduleKind
                                                 }
 
@@ -256,7 +256,7 @@ function Get-AbrVbrFileShareBackupjobConf {
                                                 }
                                                 $OutObj | Table @TableParams
                                                 if ($HealthCheck.Jobs.BestPractice) {
-                                                    if ($OutObj | Where-Object { $_.'torage-Level Corruption Guard (SLCG)' -eq 'No' }) {
+                                                    if ($OutObj | Where-Object { $_.'Storage-Level Corruption Guard (SLCG)' -eq 'No' }) {
                                                         Paragraph "Health Check:" -Italic -Bold -Underline
                                                         Paragraph "Best Practice: It is recommended to use storage-level corruption guard for any backup job with no active full backups scheduled. Synthetic full backups are still 'incremental forever' and may suffer from corruption over time. Storage-level corruption guard was introduced to provide a greater level of confidence in integrity of the backups." -Italic -Bold
                                                     }
