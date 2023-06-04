@@ -90,7 +90,7 @@ function Get-AbrVbrConfigurationBackupSetting {
                                 Paragraph "Best Practice: It`s a recommended best practice to activate the 'Run job automatically' option of the Backup Configuration job." -Italic -Bold
                             }
                             if ($OutObj | Where-Object { $_.'Enabled' -like 'No'}) {
-                                Paragraph "Best Practice: It`s a recommended best practice to enable the Backup Configuration j ob" -Italic -Bold
+                                Paragraph "Best Practice: It`s a recommended best practice to enable the Backup Configuration job" -Italic -Bold
                             }
                         }
                     }
