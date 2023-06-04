@@ -78,11 +78,16 @@
             "BR": true,
             "SOBR": true,
             "Server": true,
-            "Status": true
-
+            "Status": true,
+            "BestPractice": true
         },
         "Tape": {
-            "Status": true
+            "Status": true,
+            "BestPractice": true
+        },
+        "Replication": {
+            "Status": true,
+            "BestPractice": true
         },
         "Security": {
             "BestPractice": true
@@ -90,8 +95,12 @@
         "CloudConnect": {
             "Tenants": true,
             "BackupStorage": true,
-            "ReplicaResources": true
+            "ReplicaResources": true,
+            "BestPractice": true
+        },
+        "Jobs": {
+            "Status": true,
+            "BestPractice": true
         }
-
     }
 }

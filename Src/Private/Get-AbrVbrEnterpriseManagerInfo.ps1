@@ -54,6 +54,10 @@ function Get-AbrVbrEnterpriseManagerInfo {
 
                         if ($OutObj) {
 
+                            if ($HealthCheck.Infrastructure.BackupServer) {
+                                $OutObj | Where-Object { $_.'Skip License Push' -eq 'Yes' } | Set-Style -Style Warning -Property 'Skip License Push'
+                            }
+
                             $TableParams = @{
                                 Name = "Enterprise Manager - $($BackupServer.Name.Split(".")[0])"
                                 List = $true
@@ -63,6 +67,10 @@ function Get-AbrVbrEnterpriseManagerInfo {
                                 $TableParams['Caption'] = "- $($TableParams.Name)"
                             }
                             $OutObj | Table @TableParams
+                            if ($HealthCheck.Infrastructure.BestPractice -and ($OutObj | Where-Object { $_.'Skip License Push' -eq 'Yes' })) {
+                                Paragraph "Health Check:" -Italic -Bold -Underline
+                                Paragraph "Best Practice: Veeam recommends centralized license management through Enterprise Manager." -Italic -Bold
+                            }
                         }
                     }
                 }

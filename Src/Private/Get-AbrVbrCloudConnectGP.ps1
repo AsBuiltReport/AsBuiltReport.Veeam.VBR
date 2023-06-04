@@ -6,7 +6,7 @@ function Get-AbrVbrCloudConnectGP {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.7.1
+        Version:        0.7.2
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -51,6 +51,11 @@ function Get-AbrVbrCloudConnectGP {
                                 }
                             }
 
+                            if ($HealthCheck.Jobs.BestPractice) {
+                                $OutObj | Where-Object { $Null -like $_.'Description' } | Set-Style -Style Warning -Property 'Description'
+                                $OutObj | Where-Object { $_.'Description' -match "Created by" } | Set-Style -Style Warning -Property 'Description'
+                            }
+
                             $TableParams = @{
                                 Name = "Gateways Pools - $VeeamBackupServer"
                                 List = $false
@@ -61,6 +66,12 @@ function Get-AbrVbrCloudConnectGP {
                                 $TableParams['Caption'] = "- $($TableParams.Name)"
                             }
                             $OutObj | Sort-Object -Property 'Name' | Table @TableParams
+                            if ($HealthCheck.Jobs.BestPractice) {
+                                if ($OutObj | Where-Object { $_.'Description' -match 'Created by' -or $Null -like $_.'Description'}) {
+                                    Paragraph "Health Check:" -Italic -Bold -Underline
+                                    Paragraph "Best Practice: It is a general rule of good practice to establish well-defined descriptions. This helps to speed up the fault identification process, as well as enabling better documentation of the environment." -Italic -Bold
+                                }
+                            }
 
                         }
                         catch {

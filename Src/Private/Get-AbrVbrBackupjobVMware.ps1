@@ -6,7 +6,7 @@ function Get-AbrVbrBackupjobVMware {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.7.1
+        Version:        0.7.2
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -91,6 +91,11 @@ function Get-AbrVbrBackupjobVMware {
                                             }
                                         }
 
+                                        if ($HealthCheck.Jobs.BestPractice) {
+                                            $OutObj | Where-Object { $Null -like $_.'Description' } | Set-Style -Style Warning -Property 'Description'
+                                            $OutObj | Where-Object { $_.'Description' -match "Created by" } | Set-Style -Style Warning -Property 'Description'
+                                        }
+
                                         $TableParams = @{
                                             Name = "Common Information - $($Bkjob.Name)"
                                             List = $true
@@ -100,6 +105,12 @@ function Get-AbrVbrBackupjobVMware {
                                             $TableParams['Caption'] = "- $($TableParams.Name)"
                                         }
                                         $OutObj | Table @TableParams
+                                        if ($HealthCheck.Jobs.BestPractice) {
+                                            if ($OutObj | Where-Object { $_.'Description' -match 'Created by' -or $Null -like $_.'Description'}) {
+                                                Paragraph "Health Check:" -Italic -Bold -Underline
+                                                Paragraph "Best Practice: It is a general rule of good practice to establish well-defined descriptions. This helps to speed up the fault identification process, as well as enabling better documentation of the environment." -Italic -Bold
+                                            }
+                                        }
                                     }
                                     catch {
                                         Write-PscriboMessage -IsWarning $_.Exception.Message
@@ -246,22 +257,21 @@ function Get-AbrVbrBackupjobVMware {
                                                     'Name' = $OBJ.Name
                                                     'Resource Type' = $OBJ.TypeDisplayName
                                                     'Role' = $OBJ.Type
-                                                    'Location' = $OBJ.Location
                                                     'Approx Size' = $OBJ.ApproxSizeString
                                                     'Disk Filter Mode' = $OBJ.DiskFilterInfo.Mode
                                                 }
-                                                $OutObj = [pscustomobject]$inobj
-
-                                                $TableParams = @{
-                                                    Name = "Virtual Machines - $($OBJ.Name)"
-                                                    List = $true
-                                                    ColumnWidths = 40, 60
-                                                }
-                                                if ($Report.ShowTableCaptions) {
-                                                    $TableParams['Caption'] = "- $($TableParams.Name)"
-                                                }
-                                                $OutObj | Table @TableParams
+                                                $OutObj += [pscustomobject]$inobj
                                             }
+
+                                            $TableParams = @{
+                                                Name = "Virtual Machines - $($Bkjob.Name)"
+                                                List = $false
+                                                ColumnWidths = 20, 20, 20, 20, 20
+                                            }
+                                            if ($Report.ShowTableCaptions) {
+                                                $TableParams['Caption'] = "- $($TableParams.Name)"
+                                            }
+                                            $OutObj | Table @TableParams
                                         }
                                         catch {
                                             Write-PscriboMessage -IsWarning $_.Exception.Message
@@ -341,7 +351,7 @@ function Get-AbrVbrBackupjobVMware {
                                             $TableParams['Caption'] = "- $($TableParams.Name)"
                                         }
                                         $OutObj | Table @TableParams
-                                        if ($InfoLevel.Jobs.Backup -ge 2 -and ($Bkjob.Options.GenerationPolicy.EnableRechek -or $Bkjob.Options.GenerationPolicy.EnableCompactFull)) {
+                                        if ($InfoLevel.Jobs.Backup -ge 2) {
                                             Section -Style NOTOCHeading6 -ExcludeFromTOC "Advanced Settings (Maintenance)" {
                                                 $OutObj = @()
                                                 try {
@@ -359,6 +369,10 @@ function Get-AbrVbrBackupjobVMware {
                                                     }
                                                     $OutObj = [pscustomobject]$inobj
 
+                                                    if ($HealthCheck.Jobs.BestPractice) {
+                                                        $OutObj | Where-Object { $_.'Storage-Level Corruption Guard (SLCG)' -eq "No" } | Set-Style -Style Warning -Property 'Storage-Level Corruption Guard (SLCG)'
+                                                    }
+
                                                     $TableParams = @{
                                                         Name = "Advanced Settings (Maintenance) - $($Bkjob.Name)"
                                                         List = $true
@@ -368,6 +382,12 @@ function Get-AbrVbrBackupjobVMware {
                                                         $TableParams['Caption'] = "- $($TableParams.Name)"
                                                     }
                                                     $OutObj | Table @TableParams
+                                                    if ($HealthCheck.Jobs.BestPractice) {
+                                                        if ($OutObj | Where-Object { $_.'Storage-Level Corruption Guard (SLCG)' -eq 'No' }) {
+                                                            Paragraph "Health Check:" -Italic -Bold -Underline
+                                                            Paragraph "Best Practice: It is recommended to use storage-level corruption guard for any backup job with no active full backups scheduled. Synthetic full backups are still 'incremental forever' and may suffer from corruption over time. Storage-level corruption guard was introduced to provide a greater level of confidence in integrity of the backups." -Italic -Bold
+                                                        }
+                                                    }
                                                 }
                                                 catch {
                                                     Write-PscriboMessage -IsWarning $_.Exception.Message
@@ -406,6 +426,12 @@ function Get-AbrVbrBackupjobVMware {
                                                     }
                                                     $OutObj = [pscustomobject]$inobj
 
+                                                    if ($HealthCheck.Jobs.BestPractice) {
+                                                        $OutObj | Where-Object { $_.'Enabled Backup File Encryption' -eq 'No'} | Set-Style -Style Warning -Property 'Enabled Backup File Encryption'
+                                                        $OutObj | Where-Object { $_.'Exclude Swap Files Block' -eq 'No'} | Set-Style -Style Warning -Property 'Exclude Swap Files Block'
+                                                        $OutObj | Where-Object { $_.'Exclude Deleted Files Block' -eq 'No'} | Set-Style -Style Warning -Property 'Exclude Deleted Files Block'
+                                                    }
+
                                                     $TableParams = @{
                                                         Name = "Advanced Settings (Storage) - $($Bkjob.Name)"
                                                         List = $true
@@ -415,6 +441,12 @@ function Get-AbrVbrBackupjobVMware {
                                                         $TableParams['Caption'] = "- $($TableParams.Name)"
                                                     }
                                                     $OutObj | Table @TableParams
+                                                    if ($HealthCheck.Jobs.BestPractice) {
+                                                        if ($OutObj | Where-Object { $_.'Enabled Backup File Encryption' -eq 'No'}) {
+                                                            Paragraph "Health Check:" -Italic -Bold -Underline
+                                                            Paragraph "Best Practice: Backup and replica data is a high potential source of vulnerability. To secure data stored in backups and replicas, use Veeam Backup & Replication inbuilt encryption to protect data in backups" -Italic -Bold
+                                                        }
+                                                    }
                                                 }
                                                 catch {
                                                     Write-PscriboMessage -IsWarning $_.Exception.Message
@@ -780,6 +812,10 @@ function Get-AbrVbrBackupjobVMware {
                                             $OutObj | Table @TableParams
                                             if ($Bkjob.ScheduleOptions.OptionsBackupWindow.IsEnabled -or $Bkjob.ScheduleOptions.OptionsContinuous.Enabled) {
                                                 Section -Style NOTOCHeading6 -ExcludeFromTOC "Backup Window Time Period" {
+                                                    Paragraph {
+                                                        Text 'Permited \' -Color 81BC50 -Bold
+                                                        Text ' Denied' -Color dddf62 -Bold
+                                                    }
                                                     $OutObj = @()
                                                     try {
                                                         $Days = 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'
@@ -819,14 +855,7 @@ function Get-AbrVbrBackupjobVMware {
                                                             $Match = $Regex.Match($BackupWindow)
                                                             if($Match.Success)
                                                             {
-                                                                $ScheduleTimePeriodConverted = @()
-
-                                                                foreach ($Val in $Match.Value.Split(',')) {
-                                                                    if ($Val -eq 0) {
-                                                                        $ScheduleTimePeriodConverted += 'on'
-                                                                    } else {$ScheduleTimePeriodConverted += 'off'}
-                                                                }
-                                                                $ScheduleTimePeriod += $ScheduleTimePeriodConverted -join ","
+                                                                $ScheduleTimePeriod += $Match.Value
                                                             }
                                                         }
 
@@ -834,13 +863,13 @@ function Get-AbrVbrBackupjobVMware {
 
                                                             $inObj = [ordered] @{
                                                                 'H' = $OBJ.Value
-                                                                'Su' = $ScheduleTimePeriod[0].Split(',')[$OBJ.Key]
-                                                                'M' = $ScheduleTimePeriod[1].Split(',')[$OBJ.Key]
-                                                                'Tu' = $ScheduleTimePeriod[2].Split(',')[$OBJ.Key]
-                                                                'W' = $ScheduleTimePeriod[3].Split(',')[$OBJ.Key]
-                                                                'Th' = $ScheduleTimePeriod[4].Split(',')[$OBJ.Key]
-                                                                'F' = $ScheduleTimePeriod[5].Split(',')[$OBJ.Key]
-                                                                'Sa' = $ScheduleTimePeriod[6].Split(',')[$OBJ.Key]
+                                                                'Sun' = $ScheduleTimePeriod[0].Split(',')[$OBJ.Key]
+                                                                'Mon' = $ScheduleTimePeriod[1].Split(',')[$OBJ.Key]
+                                                                'Tue' = $ScheduleTimePeriod[2].Split(',')[$OBJ.Key]
+                                                                'Wed' = $ScheduleTimePeriod[3].Split(',')[$OBJ.Key]
+                                                                'Thu' = $ScheduleTimePeriod[4].Split(',')[$OBJ.Key]
+                                                                'Fri' = $ScheduleTimePeriod[5].Split(',')[$OBJ.Key]
+                                                                'Sat' = $ScheduleTimePeriod[6].Split(',')[$OBJ.Key]
                                                             }
                                                             $OutObj += $inobj
                                                         }
@@ -848,14 +877,30 @@ function Get-AbrVbrBackupjobVMware {
                                                         $TableParams = @{
                                                             Name = "Backup Window - $($Bkjob.Name)"
                                                             List = $true
-                                                            ColumnWidths = 4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4
+                                                            ColumnWidths = 6,4,3,4,4,4,4,4,4,4,4,4,4,4,3,4,4,4,4,4,4,4,4,4,4
                                                             Key = 'H'
                                                         }
                                                         if ($Report.ShowTableCaptions) {
                                                             $TableParams['Caption'] = "- $($TableParams.Name)"
                                                         }
                                                         if ($OutObj) {
-                                                            Table -Hashtable $OutObj @TableParams
+                                                            $OutObj2 = Table -Hashtable $OutObj @TableParams
+                                                            $OutObj2.Rows | Where-Object {$_.Sun -eq "0"} | Set-Style -Style ON -Property "Sun"
+                                                            $OutObj2.Rows | Where-Object {$_.Mon -eq "0"} | Set-Style -Style ON -Property "Mon"
+                                                            $OutObj2.Rows | Where-Object {$_.Tue -eq "0"} | Set-Style -Style ON -Property "Tue"
+                                                            $OutObj2.Rows | Where-Object {$_.Wed -eq "0"} | Set-Style -Style ON -Property "Wed"
+                                                            $OutObj2.Rows | Where-Object {$_.Thu -eq "0"} | Set-Style -Style ON -Property "Thu"
+                                                            $OutObj2.Rows | Where-Object {$_.Fri -eq "0"} | Set-Style -Style ON -Property "Fri"
+                                                            $OutObj2.Rows | Where-Object {$_.Sat -eq "0"} | Set-Style -Style ON -Property "Sat"
+
+                                                            $OutObj2.Rows | Where-Object {$_.Sun -eq "1"} | Set-Style -Style OFF -Property "Sun"
+                                                            $OutObj2.Rows | Where-Object {$_.Mon -eq "1"} | Set-Style -Style OFF -Property "Mon"
+                                                            $OutObj2.Rows | Where-Object {$_.Tue -eq "1"} | Set-Style -Style OFF -Property "Tue"
+                                                            $OutObj2.Rows | Where-Object {$_.Wed -eq "1"} | Set-Style -Style OFF -Property "Wed"
+                                                            $OutObj2.Rows | Where-Object {$_.Thu -eq "1"} | Set-Style -Style OFF -Property "Thu"
+                                                            $OutObj2.Rows | Where-Object {$_.Fri -eq "1"} | Set-Style -Style OFF -Property "Fri"
+                                                            $OutObj2.Rows | Where-Object {$_.Sat -eq "1"} | Set-Style -Style OFF -Property "Sat"
+                                                            $OutObj2
                                                         }
                                                     }
                                                     catch {

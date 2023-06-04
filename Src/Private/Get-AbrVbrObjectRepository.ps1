@@ -6,7 +6,7 @@ function Get-AbrVbrObjectRepository {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.7.1
+        Version:        0.7.2
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -110,6 +110,7 @@ function Get-AbrVbrObjectRepository {
                                                     'Type' =  ($ObjectRepo).Type
                                                     'Amazon S3 Folder' =  ($ObjectRepo).AmazonS3Folder
                                                     'Immutability Period' = $ObjectRepo.ImmutabilityPeriod
+                                                    'Immutability Enabled'= ConvertTo-TextYN $ObjectRepo.BackupImmutabilityEnabled
                                                     'Size Limit Enabled' = ConvertTo-TextYN ($ObjectRepo).SizeLimitEnabled
                                                     'Size Limit' = ($ObjectRepo).SizeLimit
 
@@ -138,6 +139,10 @@ function Get-AbrVbrObjectRepository {
                                                 }
                                                 $OutObj = [pscustomobject]$inobj
 
+                                                if ($HealthCheck.Infrastructure.BR) {
+                                                    $OutObj | Where-Object { $_.'Immutability Enabled' -eq 'No' } | Set-Style -Style Warning -Property 'Immutability Enabled'
+                                                }
+
                                                 $TableParams = @{
                                                     Name = "Object Storage Repository - $($ObjectRepo.Name)"
                                                     List = $true
@@ -147,6 +152,10 @@ function Get-AbrVbrObjectRepository {
                                                     $TableParams['Caption'] = "- $($TableParams.Name)"
                                                 }
                                                 $OutObj | Table @TableParams
+                                                if (($HealthCheck.Infrastructure.BestPractice) -and ($OutObj | Where-Object { $_.'Immutability Enabled' -eq 'No' })) {
+                                                    Paragraph "Health Check:" -Italic -Bold -Underline
+                                                    Paragraph "Best Practice: Veeam recommend to implement Immutability where it is supported. It is done for increased security: immutability protects your data from loss as a result of attacks, malware activity or any other injurious actions." -Italic -Bold
+                                                }
                                             }
                                         }
                                         catch {
@@ -182,32 +191,36 @@ function Get-AbrVbrObjectRepository {
                                                 default {$ObjectRepoArchive.GatewayServer.Name.split(".")[0]}
                                             }
                                             'Gateway Server Enabled' = ConvertTo-TextYN $ObjectRepoArchive.UseGatewayServer
+                                            'Immutability Enabled' = ConvertTo-TextYN $ObjectRepoArchive.BackupImmutabilityEnabled
                                             'Archive Type' = $ObjectRepoArchive.ArchiveType
                                         }
                                         if ($ObjectRepoArchive.ArchiveType -eq 'AmazonS3Glacier') {
-                                            $inObj.add('AWS Deep Archive', (ConvertTo-TextYN $ObjectRepoArchive.UseDeepArchive))
-                                            $inObj.add('AWS Backup Immutability', (ConvertTo-TextYN ($ObjectRepoArchive.BackupImmutabilityEnabled)))
-                                            $inObj.add('AWS Proxy Instance Type', $ObjectRepoArchive.AmazonProxySpec.InstanceType)
-                                            $inObj.add('AWS Proxy Instance vCPU', $ObjectRepoArchive.AmazonProxySpec.InstanceType.vCPUs)
-                                            $inObj.add('AWS Proxy Instance Memory', ([Math]::Round($ObjectRepoArchive.AmazonProxySpec.InstanceType.Memory*1MB/1GB)))
-                                            $inObj.add('AWS Proxy Subnet', $ObjectRepoArchive.AmazonProxySpec.Subnet)
-                                            $inObj.add('AWS Proxy Security Group', $ObjectRepoArchive.AmazonProxySpec.SecurityGroup)
-                                            $inObj.add('AWS Proxy Availability Zone', $ObjectRepoArchive.AmazonProxySpec.Subnet.AvailabilityZone)
+                                            $inObj.add('Deep Archive', (ConvertTo-TextYN $ObjectRepoArchive.UseDeepArchive))
+                                            $inObj.add('Proxy Instance Type', $ObjectRepoArchive.AmazonProxySpec.InstanceType)
+                                            $inObj.add('Proxy Instance vCPU', $ObjectRepoArchive.AmazonProxySpec.InstanceType.vCPUs)
+                                            $inObj.add('Proxy Instance Memory', ([Math]::Round($ObjectRepoArchive.AmazonProxySpec.InstanceType.Memory*1MB/1GB)))
+                                            $inObj.add('Proxy Subnet', $ObjectRepoArchive.AmazonProxySpec.Subnet)
+                                            $inObj.add('Proxy Security Group', $ObjectRepoArchive.AmazonProxySpec.SecurityGroup)
+                                            $inObj.add('Proxy Availability Zone', $ObjectRepoArchive.AmazonProxySpec.Subnet.AvailabilityZone)
 
 
                                         } elseif ($ObjectRepoArchive.ArchiveType -eq 'AzureArchive') {
-                                            $inObj.add('Azure Service Type', $ObjectRepoArchive.AzureBlobFolder.ServiceType)
-                                            $inObj.add('Azure Archive Container', $ObjectRepoArchive.AzureBlobFolder.Container)
-                                            $inObj.add('Azure Archive Folder', $ObjectRepoArchive.AzureBlobFolder.Name)
-                                            $inObj.add('Azure Proxy Resource Group', $ObjectRepoArchive.AzureProxySpec.ResourceGroup)
-                                            $inObj.add('Azure Proxy Network', $ObjectRepoArchive.AzureProxySpec.Network)
-                                            $inObj.add('Azure Proxy VM Size', $ObjectRepoArchive.AzureProxySpec.VMSize)
-                                            $inObj.add('Azure Proxy VM vCPU', $ObjectRepoArchive.AzureProxySpec.VMSize.Cores)
-                                            $inObj.add('Azure Proxy VM Memory', ([Math]::Round($ObjectRepoArchive.AzureProxySpec.VMSize.Memory*1MB/1GB)))
-                                            $inObj.add('Azure Proxy VM Max Disks', $ObjectRepoArchive.AzureProxySpec.VMSize.MaxDisks)
-                                            $inObj.add('Azure Proxy VM Location', $ObjectRepoArchive.AzureProxySpec.VMSize.Location)
+                                            $inObj.add('Service Type', $ObjectRepoArchive.AzureBlobFolder.ServiceType)
+                                            $inObj.add('Archive Container', $ObjectRepoArchive.AzureBlobFolder.Container)
+                                            $inObj.add('Archive Folder', $ObjectRepoArchive.AzureBlobFolder.Name)
+                                            $inObj.add('Proxy Resource Group', $ObjectRepoArchive.AzureProxySpec.ResourceGroup)
+                                            $inObj.add('Proxy Network', $ObjectRepoArchive.AzureProxySpec.Network)
+                                            $inObj.add('Proxy VM Size', $ObjectRepoArchive.AzureProxySpec.VMSize)
+                                            $inObj.add('Proxy VM vCPU', $ObjectRepoArchive.AzureProxySpec.VMSize.Cores)
+                                            $inObj.add('Proxy VM Memory', ([Math]::Round($ObjectRepoArchive.AzureProxySpec.VMSize.Memory*1MB/1GB)))
+                                            $inObj.add('Proxy VM Max Disks', $ObjectRepoArchive.AzureProxySpec.VMSize.MaxDisks)
+                                            $inObj.add('Proxy VM Location', $ObjectRepoArchive.AzureProxySpec.VMSize.Location)
                                         }
                                         $OutObj += [pscustomobject]$inobj
+
+                                        if ($HealthCheck.Infrastructure.BR) {
+                                            $OutObj | Where-Object { $_.'Immutability Enabled' -eq 'No' } | Set-Style -Style Warning -Property 'Immutability Enabled'
+                                        }
 
                                         $TableParams = @{
                                             Name = "Archive Object Storage Repository - $($ObjectRepoArchive.Name)"
@@ -218,6 +231,10 @@ function Get-AbrVbrObjectRepository {
                                             $TableParams['Caption'] = "- $($TableParams.Name)"
                                         }
                                         $OutObj | Table @TableParams
+                                        if (($HealthCheck.Infrastructure.BestPractice) -and ($OutObj | Where-Object { $_.'Immutability Enabled' -eq 'No'})) {
+                                            Paragraph "Health Check:" -Italic -Bold -Underline
+                                            Paragraph "Best Practice: Veeam recommend to implement Immutability where it is supported. It is done for increased security: immutability protects your data from loss as a result of attacks, malware activity or any other injurious actions." -Italic -Bold
+                                        }
                                     }
                                 }
                                 catch {

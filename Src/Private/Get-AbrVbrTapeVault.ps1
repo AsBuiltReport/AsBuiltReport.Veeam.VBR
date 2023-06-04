@@ -6,7 +6,7 @@ function Get-AbrVbrTapeVault {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.7.1
+        Version:        0.7.2
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -48,6 +48,11 @@ function Get-AbrVbrTapeVault {
                                 }
                             }
 
+                            if ($HealthCheck.Tape.BestPractice) {
+                                $OutObj | Where-Object { $Null -like $_.'Description' } | Set-Style -Style Warning -Property 'Description'
+                                $OutObj | Where-Object { $_.'Description' -match "Created by" } | Set-Style -Style Warning -Property 'Description'
+                            }
+
                             $TableParams = @{
                                 Name = "Tape Vault - $VeeamBackupServer"
                                 List = $false
@@ -58,6 +63,12 @@ function Get-AbrVbrTapeVault {
                                 $TableParams['Caption'] = "- $($TableParams.Name)"
                             }
                             $OutObj | Table @TableParams
+                            if ($HealthCheck.Tape.BestPractice) {
+                                if ($OutObj | Where-Object { $_.'Description' -match 'Created by' -or $Null -like $_.'Description'}) {
+                                    Paragraph "Health Check:" -Italic -Bold -Underline
+                                    Paragraph "Best Practice: It is a general rule of good practice to establish well-defined descriptions. This helps to speed up the fault identification process, as well as enabling better documentation of the environment." -Italic -Bold
+                                }
+                            }
                         }
                         catch {
                             Write-PscriboMessage -IsWarning "Tape Vaults Section: $($_.Exception.Message)"

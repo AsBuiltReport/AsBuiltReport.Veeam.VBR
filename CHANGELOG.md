@@ -1,5 +1,23 @@
 # :arrows_clockwise: Veeam VBR As Built Report Changelog
 
+## [0.7.2] - 2023-06-04
+
+### Added
+
+- Added HealthCheck recommendations
+- Added Global Notification options
+- Added SOBR Capacity Tier - Offload Window Time Period information
+- Updated Report Sample Files
+
+### Changed
+
+- Visually improved the Backup Window Time Period table
+
+### Fixed
+
+- Fix [#99](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/99)
+- Fix [#100](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/100)
+
 ## [0.7.1] - 2023-03-07
 
 ### Changed

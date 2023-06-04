@@ -6,7 +6,7 @@ function Get-AbrVbrReplFailoverPlan {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.7.1
+        Version:        0.7.2
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -45,6 +45,15 @@ function Get-AbrVbrReplFailoverPlan {
                             }
                             $OutObj = [pscustomobject]$inobj
 
+                            if ($HealthCheck.Replication.Status) {
+                                $OutObj | Where-Object { $_.'Status' -ne 'Ready' } | Set-Style -Style Warning -Property 'Status'
+                            }
+
+                            if ($HealthCheck.Replication.BestPractice) {
+                                $OutObj | Where-Object { $Null -like $_.'Description' } | Set-Style -Style Warning -Property 'Description'
+                                $OutObj | Where-Object { $_.'Description' -match "Created by" } | Set-Style -Style Warning -Property 'Description'
+                            }
+
                             $TableParams = @{
                                 Name = "Failover Plan - $($FailOverPlan.Name)"
                                 List = $true
@@ -54,6 +63,12 @@ function Get-AbrVbrReplFailoverPlan {
                                 $TableParams['Caption'] = "- $($TableParams.Name)"
                             }
                             $OutObj | Table @TableParams
+                            if ($HealthCheck.Replication.BestPractice) {
+                                if ($OutObj | Where-Object { $_.'Description' -match 'Created by' -or $Null -like $_.'Description'}) {
+                                    Paragraph "Health Check:" -Italic -Bold -Underline
+                                    Paragraph "Best Practice: It is a general rule of good practice to establish well-defined descriptions. This helps to speed up the fault identification process, as well as enabling better documentation of the environment." -Italic -Bold
+                                }
+                            }
                             if ($InfoLevel.Replication.FailoverPlan -ge 2) {
                                 if ($FailOverPlan) {
                                     try {

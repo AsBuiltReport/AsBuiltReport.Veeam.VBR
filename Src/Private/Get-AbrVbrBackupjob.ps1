@@ -6,7 +6,7 @@ function Get-AbrVbrBackupjob {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.7.1
+        Version:        0.7.2
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -40,10 +40,9 @@ function Get-AbrVbrBackupjob {
                                 'True' {'Enabled'}
                             }
                             'Latest Result' = $Bkjob.info.LatestStatus
-                            'Target Repository' = Switch ($Bkjob.info.TargetRepositoryId) {
-                                '00000000-0000-0000-0000-000000000000' {$Bkjob.TargetDir}
-                                {$Null -eq (Get-VBRBackupRepository | Where-Object {$_.Id -eq $Bkjob.info.TargetRepositoryId}).Name} {(Get-VBRBackupRepository -ScaleOut | Where-Object {$_.Id -eq $Bkjob.info.TargetRepositoryId}).Name}
-                                default {(Get-VBRBackupRepository | Where-Object {$_.Id -eq $Bkjob.info.TargetRepositoryId}).Name}
+                            'Scheduled?' = Switch ([string]::IsNullOrEmpty($Bkjob.GetScheduleOptions().NextRun)) {
+                                $true {'No'}
+                                default {'Yes'}
                             }
                         }
                         $OutObj += [pscustomobject]$inobj
@@ -53,10 +52,17 @@ function Get-AbrVbrBackupjob {
                     }
                 }
 
+                if ($HealthCheck.Jobs.Status) {
+                    $OutObj | Where-Object { $_.'Latest Result' -eq 'Failed' } | Set-Style -Style Critical -Property 'Latest Result'
+                    $OutObj | Where-Object { $_.'Latest Result' -eq 'Warning' } | Set-Style -Style Warning -Property 'Latest Result'
+                    $OutObj | Where-Object { $_.'Status' -eq 'Disabled' } | Set-Style -Style Warning -Property 'Status'
+                    $OutObj | Where-Object { $_.'Scheduled?' -eq 'No' } | Set-Style -Style Warning -Property 'Scheduled?'
+                }
+
                 $TableParams = @{
                     Name = "Backup Jobs - $VeeamBackupServer"
                     List = $false
-                    ColumnWidths = 25, 20, 15, 15, 25
+                    ColumnWidths = 41, 20, 13, 13, 13
                 }
                 if ($Report.ShowTableCaptions) {
                     $TableParams['Caption'] = "- $($TableParams.Name)"
@@ -69,8 +75,8 @@ function Get-AbrVbrBackupjob {
                     if ((Get-VBRTapeJob -ErrorAction SilentlyContinue).LastResult) {
                         $Alljobs += (Get-VBRTapeJob).LastResult
                     }
-                    if ((Get-VSBJob -ErrorAction SilentlyContinue).GetLastResult()) {
-                        $Alljobs += (Get-VSBJob).GetLastResult()
+                    if ((Get-VBRSureBackupJob -ErrorAction SilentlyContinue).LastResult) {
+                        $Alljobs += (Get-VBRSureBackupJob -ErrorAction SilentlyContinue).LastResult
                     }
                     $sampleData = $Alljobs | Group-Object
                     $exampleChart = New-Chart -Name BackupJobs -Width 600 -Height 400
