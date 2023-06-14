@@ -35,6 +35,7 @@ function Get-AbrVbrBackupServerInfo {
                             $CimSession = New-CimSession $BackupServer.Name -Credential $Credential -Authentication $Options.PSDefaultAuthentication
                             $PssSession = New-PSSession $BackupServer.Name -Credential $Credential -Authentication $Options.PSDefaultAuthentication
                             $SecurityOptions = Get-VBRSecurityOptions
+                            try {$DomainJoined = Get-CimInstance -Class Win32_ComputerSystem -Property PartOfDomain -CimSession $CimSession} catch {'Unknown'}
                             Write-PscriboMessage "Collecting Backup Server information from $($BackupServer.Name)."
                             try {
                                 $VeeamVersion = Invoke-Command -Session $PssSession -ErrorAction SilentlyContinue -ScriptBlock { get-childitem -recurse HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall | get-itemproperty | Where-Object { $_.DisplayName  -match 'Veeam Backup & Replication Server' } | Select-Object -Property DisplayVersion }
@@ -51,6 +52,7 @@ function Get-AbrVbrBackupServerInfo {
                             Write-PscriboMessage "Discovered $BackupServer Server."
                             $inObj = [ordered] @{
                                 'Server Name' = $BackupServer.Name
+                                'Is Domain Joined?' = ConvertTo-TextYN $DomainJoined.PartOfDomain
                                 'Version' = Switch (($VeeamVersion).count) {
                                     0 {"-"}
                                     default {$VeeamVersion.DisplayVersion}
@@ -101,6 +103,7 @@ function Get-AbrVbrBackupServerInfo {
 
                     if ($HealthCheck.Infrastructure.BackupServer) {
                         $OutObj | Where-Object { $_.'Logging Level' -gt 4} | Set-Style -Style Warning -Property 'Logging Level'
+                        $OutObj | Where-Object { $_.'Is Domain Joined?' -eq 'Yes'} | Set-Style -Style Warning -Property 'Is Domain Joined?'
                     }
 
                     $TableParams = @{
@@ -112,6 +115,30 @@ function Get-AbrVbrBackupServerInfo {
                         $TableParams['Caption'] = "- $($TableParams.Name)"
                     }
                     $OutObj | Table @TableParams
+                    if ($HealthCheck.Infrastructure.BestPractice) {
+                        if ($OutObj | Where-Object { $_.'Is Domain Joined?' -eq 'Yes'}) {
+                            Paragraph "Health Check:" -Italic -Bold -Underline
+                            Paragraph 'Best Practice: For the most secure deployment, Veeam recommend three options:' -Italic -Bold
+
+                            BlankLine
+
+                            Paragraph '1. Add the Veeam components to a management domain that resides in a separate Active Directory Forest and protect the administrative accounts with two-factor authentication mechanics.' -Italic -Bold
+
+                            BlankLine
+
+                            Paragraph '2. Add the Veeam components to a separate workgroup and place the components on a separate network where applicable.' -Italic -Bold
+
+                            BlankLine
+
+                            Paragraph '3. Add the Veeam components to the production domain but make sure the accounts with administrative privileges are protected with two-factor authentication.' -Italic -Bold
+
+                            BlankLine
+
+                            Paragraph 'Reference:' -Bold
+                            Paragraph 'https://bp.veeam.com/vbr/Security/Security_domains.html' -Bold -Underline
+
+                        }
+                    }
                     #---------------------------------------------------------------------------------------------#
                     #                       Backup Server Inventory Summary Section                               #
                     #---------------------------------------------------------------------------------------------#

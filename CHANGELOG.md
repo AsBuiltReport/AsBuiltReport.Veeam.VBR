@@ -1,5 +1,12 @@
 # :arrows_clockwise: Veeam VBR As Built Report Changelog
 
+## [0.7.3] - 2023-06-13
+
+### Added
+
+- Added Network Traffic Rules - Throttling Windows Time Period information
+- Added Backup Server Domain Joined health check
+
 ## [0.7.2] - 2023-06-04
 
 ### Added
