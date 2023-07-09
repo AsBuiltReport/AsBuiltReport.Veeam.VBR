@@ -243,8 +243,12 @@ function Get-AbrVbrSureBackup {
                                                                         $OutObj | Sort-Object -Property 'Production Network' | Table @TableParams
                                                                         if ($HealthCheck.Infrastructure.BestPractice) {
                                                                             if ($OutObj | Where-Object { $Null -like $_.'Notes' }) {
-                                                                                Paragraph "Health Check:" -Italic -Bold -Underline
-                                                                                Paragraph "Best Practice: It is a general rule of good practice to establish well-defined notes. This helps to speed up the fault identification process, as well as enabling better documentation of the environment." -Italic -Bold
+                                                                                Paragraph "Health Check:" -Bold -Underline
+                                                                                BlankLine
+                                                                                Paragraph {
+                                                                                    Text "Best Practice:" -Bold
+                                                                                    Text "It is a general rule of good practice to establish well-defined notes. This helps to speed up the fault identification process, as well as enabling better documentation of the environment."
+                                                                                }
                                                                             }
                                                                         }
                                                                     }
@@ -266,7 +270,7 @@ function Get-AbrVbrSureBackup {
                                         Write-PscriboMessage -IsWarning "SureBackup vSphere Virtual Labs Configuration Section: $($_.Exception.Message)"
                                     }
                                     try {
-                                        $SureBackupVLs = Get-VBRHvVirtualLabConfiguration | Sort-Object -Property Name
+                                        $SureBackupVLs = try {Get-VBRHvVirtualLabConfiguration | Sort-Object -Property Name} catch {$Null}
                                         if ($SureBackupVLs) {
                                             Section -Style Heading5 "Hyper-V Virtual Labs Configuration" {
                                                 foreach ($SureBackupVL in $SureBackupVLs) {
@@ -353,8 +357,12 @@ function Get-AbrVbrSureBackup {
                                                                         $OutObj | Sort-Object -Property 'Production Network' | Table @TableParams
                                                                         if ($HealthCheck.Infrastructure.BestPractice) {
                                                                             if ($OutObj | Where-Object { $Null -like $_.'Notes' }) {
-                                                                                Paragraph "Health Check:" -Italic -Bold -Underline
-                                                                                Paragraph "Best Practice: It is a general rule of good practice to establish well-defined notes. This helps to speed up the fault identification process, as well as enabling better documentation of the environment." -Italic -Bold
+                                                                                Paragraph "Health Check:" -Bold -Underline
+                                                                                BlankLine
+                                                                                Paragraph {
+                                                                                    Text "Best Practice:" -Bold
+                                                                                    Text "It is a general rule of good practice to establish well-defined notes. This helps to speed up the fault identification process, as well as enabling better documentation of the environment."
+                                                                                }
                                                                             }
                                                                         }
                                                                     }

@@ -72,8 +72,12 @@ function Get-AbrVbrAgentBackupjobConf {
                                         $OutObj | Table @TableParams
                                         if ($HealthCheck.Jobs.BestPractice) {
                                             if ($OutObj | Where-Object { $_.'Description' -match 'Created by' -or $Null -like $_.'Description'}) {
-                                                Paragraph "Health Check:" -Italic -Bold -Underline
-                                                Paragraph "Best Practice: It is a general rule of good practice to establish well-defined descriptions. This helps to speed up the fault identification process, as well as enabling better documentation of the environment." -Italic -Bold
+                                                Paragraph "Health Check:" -Bold -Underline
+                                                BlankLine
+                                                Paragraph {
+                                                    Text "Best Practice:" -Bold
+                                                    Text "It is a general rule of good practice to establish well-defined descriptions. This helps to speed up the fault identification process, as well as enabling better documentation of the environment."
+                                                }
                                             }
                                         }
                                     }
@@ -494,8 +498,12 @@ function Get-AbrVbrAgentBackupjobConf {
                                                         $OutObj | Table @TableParams
                                                         if ($HealthCheck.Jobs.BestPractice) {
                                                             if ($OutObj | Where-Object { $_.'Storage-Level Corruption Guard (SLCG)' -eq 'No' }) {
-                                                                Paragraph "Health Check:" -Italic -Bold -Underline
-                                                                Paragraph "Best Practice: It is recommended to use storage-level corruption guard for any backup job with no active full backups scheduled. Synthetic full backups are still 'incremental forever' and may suffer from corruption over time. Storage-level corruption guard was introduced to provide a greater level of confidence in integrity of the backups." -Italic -Bold
+                                                                Paragraph "Health Check:" -Bold -Underline
+                                                                BlankLine
+                                                                Paragraph {
+                                                                    Text "Best Practice:" -Bold
+                                                                    Text "It is recommended to use storage-level corruption guard for any backup job with no active full backups scheduled. Synthetic full backups are still 'incremental forever' and may suffer from corruption over time. Storage-level corruption guard was introduced to provide a greater level of confidence in integrity of the backups."
+                                                                }
                                                             }
                                                         }
                                                     }
@@ -537,8 +545,12 @@ function Get-AbrVbrAgentBackupjobConf {
                                                     $OutObj | Table @TableParams
                                                     if ($HealthCheck.Jobs.BestPractice) {
                                                         if ($OutObj | Where-Object { $_.'Enabled Backup File Encryption' -eq 'No'}) {
-                                                            Paragraph "Health Check:" -Italic -Bold -Underline
-                                                            Paragraph "Best Practice: Backup and replica data is a high potential source of vulnerability. To secure data stored in backups and replicas, use Veeam Backup & Replication inbuilt encryption to protect data in backups" -Italic -Bold
+                                                            Paragraph "Health Check:" -Bold -Underline
+                                                            Blankline
+                                                            Paragraph {
+                                                                Text "Best Practice:" -Bold
+                                                                Text "Backup and replica data is a high potential source of vulnerability. To secure data stored in backups and replicas, use Veeam Backup & Replication inbuilt encryption to protect data in backups"
+                                                            }
                                                         }
                                                     }
                                                 }

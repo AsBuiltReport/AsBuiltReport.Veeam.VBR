@@ -68,8 +68,12 @@ function Get-AbrVbrCloudConnectGP {
                             $OutObj | Sort-Object -Property 'Name' | Table @TableParams
                             if ($HealthCheck.Jobs.BestPractice) {
                                 if ($OutObj | Where-Object { $_.'Description' -match 'Created by' -or $Null -like $_.'Description'}) {
-                                    Paragraph "Health Check:" -Italic -Bold -Underline
-                                    Paragraph "Best Practice: It is a general rule of good practice to establish well-defined descriptions. This helps to speed up the fault identification process, as well as enabling better documentation of the environment." -Italic -Bold
+                                    Paragraph "Health Check:" -Bold -Underline
+                                    BlankLine
+                                    Paragraph {
+                                        Text "Best Practice:" -Bold
+                                        Text "It is a general rule of good practice to establish well-defined descriptions. This helps to speed up the fault identification process, as well as enabling better documentation of the environment."
+                                    }
                                 }
                             }
 

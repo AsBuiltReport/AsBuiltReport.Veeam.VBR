@@ -117,26 +117,24 @@ function Get-AbrVbrBackupServerInfo {
                     $OutObj | Table @TableParams
                     if ($HealthCheck.Infrastructure.BestPractice) {
                         if ($OutObj | Where-Object { $_.'Is Domain Joined?' -eq 'Yes'}) {
-                            Paragraph "Health Check:" -Italic -Bold -Underline
-                            Paragraph 'Best Practice: For the most secure deployment, Veeam recommend three options:' -Italic -Bold
-
+                            Paragraph "Health Check:" -Bold -Underline
                             BlankLine
+                            Paragraph {
+                                Text 'Best Practice:' -Bold
 
-                            Paragraph '1. Add the Veeam components to a management domain that resides in a separate Active Directory Forest and protect the administrative accounts with two-factor authentication mechanics.' -Italic -Bold
-
+                                Text 'For the most secure deployment, Veeam recommend three options:'
+                            }
                             BlankLine
+                            Paragraph '1. Add the Veeam components to a management domain that resides in a separate Active Directory Forest and protect the administrative accounts with two-factor authentication mechanics.'
 
-                            Paragraph '2. Add the Veeam components to a separate workgroup and place the components on a separate network where applicable.' -Italic -Bold
+                            Paragraph '2. Add the Veeam components to a separate workgroup and place the components on a separate network where applicable.'
 
+                            Paragraph '3. Add the Veeam components to the production domain but make sure the accounts with administrative privileges are protected with two-factor authentication.'
                             BlankLine
-
-                            Paragraph '3. Add the Veeam components to the production domain but make sure the accounts with administrative privileges are protected with two-factor authentication.' -Italic -Bold
-
-                            BlankLine
-
-                            Paragraph 'Reference:' -Bold
-                            Paragraph 'https://bp.veeam.com/vbr/Security/Security_domains.html' -Bold -Underline
-
+                            Paragraph {
+                                Text 'Reference:' -Bold
+                                Text 'https://bp.veeam.com/vbr/Security/Security_domains.html'
+                            }
                         }
                     }
                     #---------------------------------------------------------------------------------------------#
@@ -194,8 +192,12 @@ function Get-AbrVbrBackupServerInfo {
                                     $OutObj | Table @TableParams
                                     if ($HealthCheck.Infrastructure.BestPractice) {
                                         if (([int]([regex]::Matches($OutObj.'Physical Memory (GB)', "\d+(?!.*\d+)").value) -lt 8) -or ($OutObj | Where-Object { $_.'Number of CPU Cores' -lt 2})) {
-                                            Paragraph "Health Check:" -Italic -Bold -Underline
-                                            Paragraph "Best Practice: Recommended Veeam Backup Server minimum configuration is two CPU cores and 8GB RAM." -Italic -Bold
+                                            Paragraph "Health Check:" -Bold -Underline
+                                            Blankline
+                                            Paragraph {
+                                                Text "Best Practice:" -Bold
+                                                Text "Recommended Veeam Backup Server minimum configuration is two CPU cores and 8GB of RAM."
+                                            }
                                         }
                                     }
                                     #---------------------------------------------------------------------------------------------#

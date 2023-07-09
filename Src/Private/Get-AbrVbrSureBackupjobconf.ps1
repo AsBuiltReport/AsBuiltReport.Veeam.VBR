@@ -66,8 +66,12 @@ function Get-AbrVbrSureBackupjobconf {
                                         $OutObj | Table @TableParams
                                         if ($HealthCheck.Jobs.BestPractice) {
                                             if ($OutObj | Where-Object { $_.'Description' -match 'Created by' -or $Null -like $_.'Description'}) {
-                                                Paragraph "Health Check:" -Italic -Bold -Underline
-                                                Paragraph "Best Practice: It is a general rule of good practice to establish well-defined descriptions. This helps to speed up the fault identification process, as well as enabling better documentation of the environment." -Italic -Bold
+                                                Paragraph "Health Check:" -Bold -Underline
+                                                BlankLine
+                                                Paragraph {
+                                                    Text "Best Practice:" -Bold
+                                                    Text "It is a general rule of good practice to establish well-defined descriptions. This helps to speed up the fault identification process, as well as enabling better documentation of the environment."
+                                                }
                                             }
                                         }
                                     }
@@ -85,7 +89,7 @@ function Get-AbrVbrSureBackupjobconf {
                                             'Physical Host' = $SBkjob.VirtualLab.Server.Name
                                             'Physical Host Version' = $SBkjob.VirtualLab.Server.Info.Info
                                         }
-                                        if ($SBkjob.VirtualLab.Platform -eq "HyperV") {
+                                        if ($SBkjob.VirtualLab.Platform -eq "HyperV" -and (Get-VBRHvVirtualLabConfiguration)) {
                                             $inObj.add('Destination', (Get-VBRHvVirtualLabConfiguration -Id $SBkjob.VirtualLab.Id).Path)
                                         }
                                         if ($SBkjob.VirtualLab.Platform -eq "VMWare") {

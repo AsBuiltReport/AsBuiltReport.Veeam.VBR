@@ -82,15 +82,27 @@ function Get-AbrVbrConfigurationBackupSetting {
                     $OutObj | Table @TableParams
                     if ($HealthCheck.Infrastructure.BestPractice) {
                         if ($OutObj | Where-Object { $_.'Encryption Enabled' -like 'No' -or $_.'Run Job Automatically' -like 'No' -or  $_.'Enabled' -like 'No' }) {
-                            Paragraph "Health Check:" -Italic -Bold -Underline
+                            Paragraph "Health Check:" -Bold -Underline
+                            BlankLine
                             if ($OutObj | Where-Object { $_.'Encryption Enabled' -like 'No'} ) {
-                                Paragraph "Best Practice: Whenever possible, enable configuration backup encryption." -Italic -Bold
+                                Paragraph {
+                                    Text "Best Practice:" - Bold
+                                    Text "Whenever possible, enable configuration backup encryption."
+                                }
+                                BlankLine
                             }
                             if ($OutObj | Where-Object { $_.'Run Job Automatically' -like 'No'}) {
-                                Paragraph "Best Practice: It`s a recommended best practice to activate the 'Run job automatically' option of the Backup Configuration job." -Italic -Bold
+                                Paragraph {
+                                    Text "Best Practice:" - Bold
+                                    Text "It`s a recommended best practice to activate the 'Run job automatically' option of the Backup Configuration job."
+                                }
+                                BlankLine
                             }
                             if ($OutObj | Where-Object { $_.'Enabled' -like 'No'}) {
-                                Paragraph "Best Practice: It`s a recommended best practice to enable the Backup Configuration job" -Italic -Bold
+                                Paragraph {
+                                    Text "Best Practice:" -Bold
+                                    Text "It`s a recommended best practice to enable the Backup Configuration job"
+                                }
                             }
                         }
                     }
