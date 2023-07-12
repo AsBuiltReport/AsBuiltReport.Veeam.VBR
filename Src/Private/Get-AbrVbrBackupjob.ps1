@@ -40,9 +40,10 @@ function Get-AbrVbrBackupjob {
                                 'True' {'Enabled'}
                             }
                             'Latest Result' = $Bkjob.info.LatestStatus
-                            'Scheduled?' = Switch ([string]::IsNullOrEmpty($Bkjob.GetScheduleOptions().NextRun)) {
-                                $true {'No'}
-                                default {'Yes'}
+                            'Scheduled?' = Switch ($Bkjob.IsScheduleEnabled) {
+                                'True' {'Yes'}
+                                'False' {'No'}
+                                default {'Unknown'}
                             }
                         }
                         $OutObj += [pscustomobject]$inobj

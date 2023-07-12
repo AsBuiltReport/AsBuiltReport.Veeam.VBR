@@ -55,6 +55,13 @@ function Get-AbrVbrFileShareBackupjob {
                         }
                     }
 
+                    if ($HealthCheck.Jobs.Status) {
+                        $OutObj | Where-Object { $_.'Latest Result' -eq 'Failed' } | Set-Style -Style Critical -Property 'Latest Result'
+                        $OutObj | Where-Object { $_.'Latest Result' -eq 'Warning' } | Set-Style -Style Warning -Property 'Latest Result'
+                        $OutObj | Where-Object { $_.'Status' -eq 'Disabled' } | Set-Style -Style Warning -Property 'Status'
+                        $OutObj | Where-Object { $_.'Scheduled?' -eq 'No' } | Set-Style -Style Warning -Property 'Scheduled?'
+                    }
+
                     $TableParams = @{
                         Name = "File Share Backup Jobs - $VeeamBackupServer"
                         List = $false

@@ -1,5 +1,15 @@
 # :arrows_clockwise: Veeam VBR As Built Report Changelog
 
+## [0.8.0] - 2023-07-13
+
+### Added
+
+- Added a separated Backup Copy Job section for v12 edition
+
+### Changed
+
+- Improved Health Check recommendation text
+
 ## [0.7.3] - 2023-06-13
 
 ### Added
