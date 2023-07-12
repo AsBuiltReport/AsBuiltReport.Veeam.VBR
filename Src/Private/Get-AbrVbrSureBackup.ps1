@@ -222,7 +222,7 @@ function Get-AbrVbrSureBackup {
                                                                                 'Production Network' = $NetworkOption.ProductionNetwork.Name
                                                                                 'Isolated IP Address' = $NetworkOption.IsolatedIPAddress
                                                                                 'Access IP Address' = $NetworkOption.AccessIPAddress
-                                                                                'Notes' = $NetworkOption.Note
+                                                                                'Notes' = ConvertTo-EmptyToFiller $NetworkOption.Note
                                                                             }
 
                                                                             $OutObj += [pscustomobject]$inobj

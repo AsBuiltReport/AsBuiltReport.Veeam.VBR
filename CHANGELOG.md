@@ -8,7 +8,11 @@
 
 ### Changed
 
-- Improved Health Check recommendation text
+- Improved Health Check recommendations
+
+### Fixed
+
+- Fix [#104](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/104)
 
 ## [0.7.3] - 2023-06-13
 
