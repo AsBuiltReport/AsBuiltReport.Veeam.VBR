@@ -60,6 +60,7 @@
         },
         "Jobs": {
             "Backup": 1,
+            "BackupCopy": 1,
             "Tape": 1,
             "Surebackup": 1,
             "Agent": 1,

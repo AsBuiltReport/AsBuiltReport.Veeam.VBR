@@ -6,7 +6,7 @@ function Get-AbrVbrObjectRepository {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.7.2
+        Version:        0.8.0
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -153,8 +153,12 @@ function Get-AbrVbrObjectRepository {
                                                 }
                                                 $OutObj | Table @TableParams
                                                 if (($HealthCheck.Infrastructure.BestPractice) -and ($OutObj | Where-Object { $_.'Immutability Enabled' -eq 'No' })) {
-                                                    Paragraph "Health Check:" -Italic -Bold -Underline
-                                                    Paragraph "Best Practice: Veeam recommend to implement Immutability where it is supported. It is done for increased security: immutability protects your data from loss as a result of attacks, malware activity or any other injurious actions." -Italic -Bold
+                                                    Paragraph "Health Check:" -Bold -Underline
+                                                    BlankLine
+                                                    Paragraph {
+                                                        Text "Best Practice:" -Bold
+                                                        Text "Veeam recommend to implement Immutability where it is supported. It is done for increased security: immutability protects your data from loss as a result of attacks, malware activity or any other injurious actions."
+                                                    }
                                                 }
                                             }
                                         }
@@ -232,8 +236,12 @@ function Get-AbrVbrObjectRepository {
                                         }
                                         $OutObj | Table @TableParams
                                         if (($HealthCheck.Infrastructure.BestPractice) -and ($OutObj | Where-Object { $_.'Immutability Enabled' -eq 'No'})) {
-                                            Paragraph "Health Check:" -Italic -Bold -Underline
-                                            Paragraph "Best Practice: Veeam recommend to implement Immutability where it is supported. It is done for increased security: immutability protects your data from loss as a result of attacks, malware activity or any other injurious actions." -Italic -Bold
+                                            Paragraph "Health Check:" -Bold -Underline
+                                            BlankLine
+                                            Paragraph {
+                                                Text "Best Practice:" -Bold
+                                                Text "Veeam recommend to implement Immutability where it is supported. It is done for increased security: immutability protects your data from loss as a result of attacks, malware activity or any other injurious actions."
+                                        }
                                         }
                                     }
                                 }

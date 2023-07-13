@@ -6,7 +6,7 @@ function Get-AbrVbrRepljobVMware {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.7.2
+        Version:        0.8.0
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -349,8 +349,12 @@ function Get-AbrVbrRepljobVMware {
 
                                                     if ($HealthCheck.Jobs.BestPractice) {
                                                         if ($OutObj | Where-Object { $_.'Storage-Level Corruption Guard (SLCG)' -eq 'No' }) {
-                                                            Paragraph "Health Check:" -Italic -Bold -Underline
-                                                            Paragraph "Best Practice: It is recommended to use storage-level corruption guard for any backup job with no active full backups scheduled. Synthetic full backups are still 'incremental forever' and may suffer from corruption over time. Storage-level corruption guard was introduced to provide a greater level of confidence in integrity of the backups." -Italic -Bold
+                                                            Paragraph "Health Check:" -Bold -Underline
+                                                            BlankLine
+                                                            Paragraph {
+                                                                Text "Best Practice:" -Bold
+                                                                Text "It is recommended to use storage-level corruption guard for any backup job with no active full backups scheduled. Synthetic full backups are still 'incremental forever' and may suffer from corruption over time. Storage-level corruption guard was introduced to provide a greater level of confidence in integrity of the backups."
+                                                            }
                                                         }
                                                     }
                                                 }
@@ -408,8 +412,12 @@ function Get-AbrVbrRepljobVMware {
                                                     $OutObj | Table @TableParams
                                                     if ($HealthCheck.Jobs.BestPractice) {
                                                         if ($OutObj | Where-Object { $_.'Enabled Backup File Encryption' -eq 'No'}) {
-                                                            Paragraph "Health Check:" -Italic -Bold -Underline
-                                                            Paragraph "Best Practice: Backup and replica data is a high potential source of vulnerability. To secure data stored in backups and replicas, use Veeam Backup & Replication inbuilt encryption to protect data in backups" -Italic -Bold
+                                                            Paragraph "Health Check:" -Bold -Underline
+                                                            Blankline
+                                                            Paragraph {
+                                                                Text "Best Practice:" -Bold
+                                                                Text "Backup and replica data is a high potential source of vulnerability. To secure data stored in backups and replicas, use Veeam Backup & Replication inbuilt encryption to protect data in backups"
+                                                            }
                                                         }
                                                     }
                                                 }
@@ -777,7 +785,7 @@ function Get-AbrVbrRepljobVMware {
                                         }
                                     }
                                 }
-                                if ($Bkjob.GetScheduleOptions().NextRun) {
+                                if ($Bkjob.IsScheduleEnabled) {
                                     Section -Style NOTOCHeading5 -ExcludeFromTOC "Schedule" {
                                         $OutObj = @()
                                         try {

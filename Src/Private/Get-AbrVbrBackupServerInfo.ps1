@@ -6,7 +6,7 @@ function Get-AbrVbrBackupServerInfo {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.7.1
+        Version:        0.8.0
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -35,6 +35,7 @@ function Get-AbrVbrBackupServerInfo {
                             $CimSession = New-CimSession $BackupServer.Name -Credential $Credential -Authentication $Options.PSDefaultAuthentication
                             $PssSession = New-PSSession $BackupServer.Name -Credential $Credential -Authentication $Options.PSDefaultAuthentication
                             $SecurityOptions = Get-VBRSecurityOptions
+                            try {$DomainJoined = Get-CimInstance -Class Win32_ComputerSystem -Property PartOfDomain -CimSession $CimSession} catch {'Unknown'}
                             Write-PscriboMessage "Collecting Backup Server information from $($BackupServer.Name)."
                             try {
                                 $VeeamVersion = Invoke-Command -Session $PssSession -ErrorAction SilentlyContinue -ScriptBlock { get-childitem -recurse HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall | get-itemproperty | Where-Object { $_.DisplayName  -match 'Veeam Backup & Replication Server' } | Select-Object -Property DisplayVersion }
@@ -51,6 +52,7 @@ function Get-AbrVbrBackupServerInfo {
                             Write-PscriboMessage "Discovered $BackupServer Server."
                             $inObj = [ordered] @{
                                 'Server Name' = $BackupServer.Name
+                                'Is Domain Joined?' = ConvertTo-TextYN $DomainJoined.PartOfDomain
                                 'Version' = Switch (($VeeamVersion).count) {
                                     0 {"-"}
                                     default {$VeeamVersion.DisplayVersion}
@@ -101,6 +103,7 @@ function Get-AbrVbrBackupServerInfo {
 
                     if ($HealthCheck.Infrastructure.BackupServer) {
                         $OutObj | Where-Object { $_.'Logging Level' -gt 4} | Set-Style -Style Warning -Property 'Logging Level'
+                        $OutObj | Where-Object { $_.'Is Domain Joined?' -eq 'Yes'} | Set-Style -Style Warning -Property 'Is Domain Joined?'
                     }
 
                     $TableParams = @{
@@ -112,6 +115,28 @@ function Get-AbrVbrBackupServerInfo {
                         $TableParams['Caption'] = "- $($TableParams.Name)"
                     }
                     $OutObj | Table @TableParams
+                    if ($HealthCheck.Infrastructure.BestPractice) {
+                        if ($OutObj | Where-Object { $_.'Is Domain Joined?' -eq 'Yes'}) {
+                            Paragraph "Health Check:" -Bold -Underline
+                            BlankLine
+                            Paragraph {
+                                Text 'Best Practice:' -Bold
+
+                                Text 'For the most secure deployment, Veeam recommend three options:'
+                            }
+                            BlankLine
+                            Paragraph '1. Add the Veeam components to a management domain that resides in a separate Active Directory Forest and protect the administrative accounts with two-factor authentication mechanics.'
+
+                            Paragraph '2. Add the Veeam components to a separate workgroup and place the components on a separate network where applicable.'
+
+                            Paragraph '3. Add the Veeam components to the production domain but make sure the accounts with administrative privileges are protected with two-factor authentication.'
+                            BlankLine
+                            Paragraph {
+                                Text 'Reference:' -Bold
+                                Text 'https://bp.veeam.com/vbr/Security/Security_domains.html'
+                            }
+                        }
+                    }
                     #---------------------------------------------------------------------------------------------#
                     #                       Backup Server Inventory Summary Section                               #
                     #---------------------------------------------------------------------------------------------#
@@ -167,8 +192,12 @@ function Get-AbrVbrBackupServerInfo {
                                     $OutObj | Table @TableParams
                                     if ($HealthCheck.Infrastructure.BestPractice) {
                                         if (([int]([regex]::Matches($OutObj.'Physical Memory (GB)', "\d+(?!.*\d+)").value) -lt 8) -or ($OutObj | Where-Object { $_.'Number of CPU Cores' -lt 2})) {
-                                            Paragraph "Health Check:" -Italic -Bold -Underline
-                                            Paragraph "Best Practice: Recommended Veeam Backup Server minimum configuration is two CPU cores and 8GB RAM." -Italic -Bold
+                                            Paragraph "Health Check:" -Bold -Underline
+                                            Blankline
+                                            Paragraph {
+                                                Text "Best Practice:" -Bold
+                                                Text "Recommended Veeam Backup Server minimum configuration is two CPU cores and 8GB of RAM."
+                                            }
                                         }
                                     }
                                     #---------------------------------------------------------------------------------------------#
@@ -490,49 +519,6 @@ function Get-AbrVbrBackupServerInfo {
                         }
                         catch {
                             Write-PscriboMessage -IsWarning "Backup Server Service Status Section: $($_.Exception.Message)"
-                        }
-                        try {
-                            Write-PScriboMessage "Infrastructure Backup Server InfoLevel set at $($InfoLevel.Infrastructure.BackupServer)."
-                            if ($InfoLevel.Infrastructure.BackupServer -ge 3) {
-                                $NetStats = Get-VeeamNetStat -Session $PssSession | Where-Object { $_.ProcessName -Like "*veeam*" } | Sort-Object -Property State,LocalPort
-                                Write-PscriboMessage "Collecting Backup Server Network Statistics from $($BackupServer.Name)."
-                                if ($NetStats) {
-                                    Section -Style Heading4 "HealthCheck - Network Statistics" {
-                                        $OutObj = @()
-                                        foreach ($NetStat in $NetStats) {
-                                            try {
-                                                $inObj = [ordered] @{
-                                                    'Proto' = $NetStat.Protocol
-                                                    'Local IP' = $NetStat.LocalAddress
-                                                    'Local Port' = $NetStat.LocalPort
-                                                    'Remote IP' = $NetStat.RemoteAddress
-                                                    'Remote Port' = $NetStat.RemotePort
-                                                    'State' = $NetStat.State
-                                                    'Process Name' = $NetStat.ProcessName
-                                                    'PID' = $NetStat.PID
-                                                }
-                                                $OutObj += [pscustomobject]$inobj
-                                            }
-                                            catch {
-                                                Write-PscriboMessage -IsWarning "Backup Server Network Statistics $($NetStat.Protocol) Section: $($_.Exception.Message)"
-                                            }
-                                        }
-
-                                        $TableParams = @{
-                                            Name = "HealthCheck - Network Statistics - $($BackupServer.Name.Split(".")[0])"
-                                            List = $false
-                                            ColumnWidths = 8, 16, 8, 16, 9, 16, 19, 8
-                                        }
-                                        if ($Report.ShowTableCaptions) {
-                                            $TableParams['Caption'] = "- $($TableParams.Name)"
-                                        }
-                                        $OutObj | Table @TableParams
-                                    }
-                                }
-                            }
-                        }
-                        catch {
-                            Write-PscriboMessage -IsWarning "Backup Server Network Statistics Section: $($_.Exception.Message)"
                         }
                     }
                 }
