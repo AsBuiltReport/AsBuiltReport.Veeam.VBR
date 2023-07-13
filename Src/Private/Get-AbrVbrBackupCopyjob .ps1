@@ -1,12 +1,12 @@
 
-function Get-AbrVbrFileShareBackupjob {
+function Get-AbrVbrBackupCopyjob  {
     <#
     .SYNOPSIS
-        Used by As Built Report to returns file share jobs created in Veeam Backup & Replication.
+        Used by As Built Report to returns backup copy jobs created in Veeam Backup & Replication.
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.7.1
+        Version:        0.8.0
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -21,37 +21,34 @@ function Get-AbrVbrFileShareBackupjob {
     )
 
     begin {
-        Write-PscriboMessage "Discovering Veeam VBR File Share Backup jobs information from $System."
+        Write-PscriboMessage "Discovering Veeam VBR Backup Copy jobs information from $System."
     }
 
     process {
         try {
-            $FSBkjobs = Get-VBRJob -WarningAction SilentlyContinue | Where-Object {$_.TypeToString -like 'File Backup'}
-            if ($FSBkjobs.count -gt 0) {
-                Section -Style Heading3 'File Share Backup Jobs' {
-                    Paragraph "The following section list file share backup jobs created in Veeam Backup & Replication."
+            $BkCopyjobs = Get-VBRBackupCopyJob -WarningAction SilentlyContinue
+            if ($BkCopyjobs) {
+                Section -Style Heading3 'Backup Copy Jobs' {
+                    Paragraph "The following section list backup copy jobs created within Veeam Backup & Replication."
                     BlankLine
                     $OutObj = @()
-                    foreach ($FSBkjob in $FSBkjobs) {
+                    foreach ($BkCopyjob in $BkCopyjobs) {
                         try {
-                            Write-PscriboMessage "Discovered $($FSBkjob.Name) file share."
+                            Write-PscriboMessage "Discovered $($BkCopyjob.Name) backup copy."
                             $inObj = [ordered] @{
-                                'Name' = $FSBkjob.Name
-                                'Type' = $FSBkjob.TypeToString
-                                'Status' = Switch ($FSBkjob.IsScheduleEnabled) {
+                                'Name' = $BkCopyjob.Name
+                                'Copy Mode' = $BkCopyjob.Mode
+                                'Status' = Switch ($BkCopyjob.JobEnabled) {
                                     'False' {'Disabled'}
                                     'True' {'Enabled'}
                                 }
-                                'Latest Result' = $FSBkjob.info.LatestStatus
-                                'Last Run' = Switch ($FSBkjob.FindLastSession()) {
-                                    $Null {'Unknown'}
-                                    default {$FSBkjob.FindLastSession().EndTimeUTC}
-                                }
+                                'Latest Result' = $BkCopyjob.LastResult
+                                'Scheduled?' = $BkCopyjob.ScheduleOptions.Type
                             }
                             $OutObj += [pscustomobject]$inobj
                         }
                         catch {
-                            Write-PscriboMessage -IsWarning "File Share Backup Jobs $($FSBkjob.Name) Section: $($_.Exception.Message)"
+                            Write-PscriboMessage -IsWarning "Backup Copy Jobs $($BkCopyjob.Name) Section: $($_.Exception.Message)"
                         }
                     }
 
@@ -59,13 +56,12 @@ function Get-AbrVbrFileShareBackupjob {
                         $OutObj | Where-Object { $_.'Latest Result' -eq 'Failed' } | Set-Style -Style Critical -Property 'Latest Result'
                         $OutObj | Where-Object { $_.'Latest Result' -eq 'Warning' } | Set-Style -Style Warning -Property 'Latest Result'
                         $OutObj | Where-Object { $_.'Status' -eq 'Disabled' } | Set-Style -Style Warning -Property 'Status'
-                        $OutObj | Where-Object { $_.'Scheduled?' -eq 'No' } | Set-Style -Style Warning -Property 'Scheduled?'
                     }
 
                     $TableParams = @{
-                        Name = "File Share Backup Jobs - $VeeamBackupServer"
+                        Name = "Backup Copy Jobs - $VeeamBackupServer"
                         List = $false
-                        ColumnWidths = 25, 20, 15, 15, 25
+                        ColumnWidths = 40, 15, 15, 15, 15
                     }
                     if ($Report.ShowTableCaptions) {
                         $TableParams['Caption'] = "- $($TableParams.Name)"
@@ -75,7 +71,7 @@ function Get-AbrVbrFileShareBackupjob {
             }
         }
         catch {
-            Write-PscriboMessage -IsWarning "File Share Backup Jobs Section: $($_.Exception.Message)"
+            Write-PscriboMessage -IsWarning "Backup Copy Jobs Section: $($_.Exception.Message)"
         }
     }
     end {}

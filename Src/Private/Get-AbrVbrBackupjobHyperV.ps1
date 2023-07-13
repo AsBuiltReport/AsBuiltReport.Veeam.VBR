@@ -6,7 +6,7 @@ function Get-AbrVbrBackupjobHyperV {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.7.2
+        Version:        0.8.0
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -107,8 +107,12 @@ function Get-AbrVbrBackupjobHyperV {
                                         $OutObj | Table @TableParams
                                         if ($HealthCheck.Jobs.BestPractice) {
                                             if ($OutObj | Where-Object { $_.'Description' -match 'Created by' -or $Null -like $_.'Description'}) {
-                                                Paragraph "Health Check:" -Italic -Bold -Underline
-                                                Paragraph "Best Practice: It is a general rule of good practice to establish well-defined descriptions. This helps to speed up the fault identification process, as well as enabling better documentation of the environment." -Italic -Bold
+                                                Paragraph "Health Check:" -Bold -Underline
+                                                BlankLine
+                                                Paragraph {
+                                                    Text "Best Practice:" -Bold
+                                                    Text "It is a general rule of good practice to establish well-defined descriptions. This helps to speed up the fault identification process, as well as enabling better documentation of the environment."
+                                                }
                                             }
                                         }
                                     }
@@ -158,27 +162,31 @@ function Get-AbrVbrBackupjobHyperV {
                                         try {
                                             try {
                                                 Write-PscriboMessage "Discovered $($Bkjob.Name) data transfer."
-                                                try {
-                                                    $TargetWanAccelerator = $Bkjob.GetTargetWanAccelerator().Name
-                                                }
-                                                catch {
-                                                    Write-PscriboMessage -IsWarning "Hyper-V Backup Jobs Data Transfer Section: $($_.Exception.Message)"
-                                                }
-                                                try {
-                                                    $SourceWanAccelerator = $Bkjob.GetSourceWanAccelerator().Name
-                                                }
-                                                catch {
-                                                    Write-PscriboMessage -IsWarning "Hyper-V Backup Jobs Data Transfer Section: $($_.Exception.Message)"
+                                                if ($Bkjob.IsWanAcceleratorEnabled()) {
+                                                    try {
+                                                        $TargetWanAccelerator = $Bkjob.GetTargetWanAccelerator().Name
+                                                    }
+                                                    catch {
+                                                        Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                    }
+                                                    try {
+                                                        $SourceWanAccelerator = $Bkjob.GetSourceWanAccelerator().Name
+                                                    }
+                                                    catch {
+                                                        Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                    }
                                                 }
                                                 $inObj = [ordered] @{
                                                     'Use Wan accelerator' = ConvertTo-TextYN $Bkjob.IsWanAcceleratorEnabled()
-                                                    'Source Wan accelerator' = Switch ($SourceWanAccelerator) {
-                                                        $null {'Unknown'}
-                                                        default {$SourceWanAccelerator}
+                                                    'Source Wan accelerator' = Switch ($Bkjob.IsWanAcceleratorEnabled()) {
+                                                        'False' {'Direct Mode'}
+                                                        'True' {$SourceWanAccelerator}
+                                                        default {'Unknown'}
                                                     }
-                                                    'Target Wan accelerator' = Switch ($TargetWanAccelerator) {
-                                                        $null {'Unknown'}
-                                                        default {$TargetWanAccelerator}
+                                                    'Target Wan accelerator' = Switch ($Bkjob.IsWanAcceleratorEnabled()) {
+                                                        'False' {'Direct Mode'}
+                                                        'True' {$TargetWanAccelerator}
+                                                        default {'Unknown'}
                                                     }
                                                 }
                                                 $OutObj += [pscustomobject]$inobj
@@ -339,8 +347,12 @@ function Get-AbrVbrBackupjobHyperV {
                                                     $OutObj | Table @TableParams
                                                     if ($HealthCheck.Jobs.BestPractice) {
                                                         if ($OutObj | Where-Object { $_.'Storage-Level Corruption Guard (SLCG)' -eq 'No' }) {
-                                                            Paragraph "Health Check:" -Italic -Bold -Underline
-                                                            Paragraph "Best Practice: It is recommended to use storage-level corruption guard for any backup job with no active full backups scheduled. Synthetic full backups are still 'incremental forever' and may suffer from corruption over time. Storage-level corruption guard was introduced to provide a greater level of confidence in integrity of the backups." -Italic -Bold
+                                                            Paragraph "Health Check:" -Bold -Underline
+                                                            BlankLine
+                                                            Paragraph {
+                                                                Text "Best Practice:" -Bold
+                                                                Text "It is recommended to use storage-level corruption guard for any backup job with no active full backups scheduled. Synthetic full backups are still 'incremental forever' and may suffer from corruption over time. Storage-level corruption guard was introduced to provide a greater level of confidence in integrity of the backups."
+                                                            }
                                                         }
                                                     }
                                                 }
@@ -398,8 +410,12 @@ function Get-AbrVbrBackupjobHyperV {
                                                     $OutObj | Table @TableParams
                                                     if ($HealthCheck.Jobs.BestPractice) {
                                                         if ($OutObj | Where-Object { $_.'Enabled Backup File Encryption' -eq 'No'}) {
-                                                            Paragraph "Health Check:" -Italic -Bold -Underline
-                                                            Paragraph "Best Practice: Backup and replica data is a high potential source of vulnerability. To secure data stored in backups and replicas, use Veeam Backup & Replication inbuilt encryption to protect data in backups" -Italic -Bold
+                                                            Paragraph "Health Check:" -Bold -Underline
+                                                            Blankline
+                                                            Paragraph {
+                                                                Text "Best Practice:" -Bold
+                                                                Text "Backup and replica data is a high potential source of vulnerability. To secure data stored in backups and replicas, use Veeam Backup & Replication inbuilt encryption to protect data in backups"
+                                                            }
                                                         }
                                                     }
                                                 }
@@ -721,7 +737,7 @@ function Get-AbrVbrBackupjobHyperV {
                                         }
                                     }
                                 }
-                                if ($Bkjob.GetScheduleOptions().NextRun) {
+                                if ($Bkjob.IsScheduleEnabled) {
                                     Section -Style NOTOCHeading5 -ExcludeFromTOC "Schedule" {
                                         $OutObj = @()
                                         try {

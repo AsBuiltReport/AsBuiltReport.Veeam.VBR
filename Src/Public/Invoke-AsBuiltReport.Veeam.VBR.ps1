@@ -5,7 +5,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.7.2
+        Version:        0.8.0
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -301,6 +301,11 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                         if ($InfoLevel.Jobs.FileShare -ge 1) {
                             Get-AbrVbrFileShareBackupjob
                             Get-AbrVbrFileShareBackupjobConf
+                        }
+                        Write-PScriboMessage "Backup Copy Jobs InfoLevel set at $($InfoLevel.Jobs.BackupCopy)."
+                        if ($InfoLevel.Jobs.BackupCopy -ge 1 -and ((Get-Item "C:\Program Files\Veeam\Backup and Replication\Console\Veeam.Backup.PowerShell.dll").VersionInfo.ProductVersion -ge 12)) {
+                            Get-AbrVbrBackupCopyjob
+                            Get-AbrVbrBackupCopyjobConf
                         }
                     }
                 }

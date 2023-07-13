@@ -1,5 +1,26 @@
 # :arrows_clockwise: Veeam VBR As Built Report Changelog
 
+## [0.8.0] - 2023-07-13
+
+### Added
+
+- Added a separated Backup Copy Job section for v12 edition
+
+### Changed
+
+- Improved Health Check recommendations
+
+### Fixed
+
+- Fix [#104](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/104)
+
+## [0.7.3] - 2023-06-13
+
+### Added
+
+- Added Network Traffic Rules - Throttling Windows Time Period information
+- Added Backup Server Domain Joined health check
+
 ## [0.7.2] - 2023-06-04
 
 ### Added

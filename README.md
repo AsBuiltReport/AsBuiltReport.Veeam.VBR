@@ -53,6 +53,8 @@ The Veeam VBR As Built Report supports the following Veeam Backup & Replication 
 - Veeam Backup & Replication V11 (Standard, Enterprise & Enterprise Plus Edition)
 - Veeam Backup & Replication V12 (Standard, Enterprise & Enterprise Plus Edition)
 
+:exclamation: Community Edition is not supported :exclamation:
+
 ### PowerShell
 
 This report is compatible with the following PowerShell versions;
@@ -197,6 +199,7 @@ The table below outlines the default and maximum **InfoLevel** settings for each
 | Sub-Schema   | Default Setting | Maximum Setting |
 |--------------|:---------------:|:---------------:|
 | Backup       |        1        |        2        |
+| BackupCopy       |        1        |        2        |
 | Tape          |        1        |        2        |
 | Surebackup          |        1        |        2        |
 | Agent          |        1        |        2        |
@@ -254,5 +257,5 @@ PS C:\> New-AsBuiltReport -Report Veeam.VBR -Target veeam-vbr.pharmax.local -Use
 
 ## :x: Known Issues
 
-- Since many of Veeam's features depend on the Standard+ license, the Community edition will not be supported.
-- If the Veeam Backup Server is not joined to an Active Directory domain (WorkGroup Auth), the PSDefaultAuthentication option must be set to Negotiate. If it is not, some of the report sections will be missing
+- Since many of Veeam's features depend on the Standard+ license, the Community edition is not supported.
+- If the Veeam Backup Server is not joined to an Active Directory domain (WorkGroup Auth), the PSDefaultAuthentication option must be set to Negotiate. If it is not, some of the report sections will be missing.

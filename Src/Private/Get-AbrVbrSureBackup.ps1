@@ -6,7 +6,7 @@ function Get-AbrVbrSureBackup {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.7.2
+        Version:        0.8.0
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -222,7 +222,7 @@ function Get-AbrVbrSureBackup {
                                                                                 'Production Network' = $NetworkOption.ProductionNetwork.Name
                                                                                 'Isolated IP Address' = $NetworkOption.IsolatedIPAddress
                                                                                 'Access IP Address' = $NetworkOption.AccessIPAddress
-                                                                                'Notes' = $NetworkOption.Note
+                                                                                'Notes' = ConvertTo-EmptyToFiller $NetworkOption.Note
                                                                             }
 
                                                                             $OutObj += [pscustomobject]$inobj
@@ -243,8 +243,12 @@ function Get-AbrVbrSureBackup {
                                                                         $OutObj | Sort-Object -Property 'Production Network' | Table @TableParams
                                                                         if ($HealthCheck.Infrastructure.BestPractice) {
                                                                             if ($OutObj | Where-Object { $Null -like $_.'Notes' }) {
-                                                                                Paragraph "Health Check:" -Italic -Bold -Underline
-                                                                                Paragraph "Best Practice: It is a general rule of good practice to establish well-defined notes. This helps to speed up the fault identification process, as well as enabling better documentation of the environment." -Italic -Bold
+                                                                                Paragraph "Health Check:" -Bold -Underline
+                                                                                BlankLine
+                                                                                Paragraph {
+                                                                                    Text "Best Practice:" -Bold
+                                                                                    Text "It is a general rule of good practice to establish well-defined notes. This helps to speed up the fault identification process, as well as enabling better documentation of the environment."
+                                                                                }
                                                                             }
                                                                         }
                                                                     }
@@ -266,7 +270,7 @@ function Get-AbrVbrSureBackup {
                                         Write-PscriboMessage -IsWarning "SureBackup vSphere Virtual Labs Configuration Section: $($_.Exception.Message)"
                                     }
                                     try {
-                                        $SureBackupVLs = Get-VBRHvVirtualLabConfiguration | Sort-Object -Property Name
+                                        $SureBackupVLs = try {Get-VBRHvVirtualLabConfiguration | Sort-Object -Property Name} catch {$Null}
                                         if ($SureBackupVLs) {
                                             Section -Style Heading5 "Hyper-V Virtual Labs Configuration" {
                                                 foreach ($SureBackupVL in $SureBackupVLs) {
@@ -353,8 +357,12 @@ function Get-AbrVbrSureBackup {
                                                                         $OutObj | Sort-Object -Property 'Production Network' | Table @TableParams
                                                                         if ($HealthCheck.Infrastructure.BestPractice) {
                                                                             if ($OutObj | Where-Object { $Null -like $_.'Notes' }) {
-                                                                                Paragraph "Health Check:" -Italic -Bold -Underline
-                                                                                Paragraph "Best Practice: It is a general rule of good practice to establish well-defined notes. This helps to speed up the fault identification process, as well as enabling better documentation of the environment." -Italic -Bold
+                                                                                Paragraph "Health Check:" -Bold -Underline
+                                                                                BlankLine
+                                                                                Paragraph {
+                                                                                    Text "Best Practice:" -Bold
+                                                                                    Text "It is a general rule of good practice to establish well-defined notes. This helps to speed up the fault identification process, as well as enabling better documentation of the environment."
+                                                                                }
                                                                             }
                                                                         }
                                                                     }

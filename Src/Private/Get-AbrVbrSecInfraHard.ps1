@@ -6,7 +6,7 @@ function Get-AbrVbrSecInfraHard {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.6.0
+        Version:        0.8.0
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -75,7 +75,10 @@ function Get-AbrVbrSecInfraHard {
                                 Paragraph "Remove all non-essential software programs and utilities from the deployed Veeam components. While these programs may offer useful features to the administrator, if they provide 'back-door' access to the system, they must be removed during the hardening process. Think about additional software like web browsers, java, adobe reader and such. All parts which do not belong to the operating system or to active Veeam components, remove it. It will make maintaining an up-to-date patch level much easier."
                                 BlankLine
                                 $Unused
-                                Paragraph 'Reference: https://bp.veeam.com/vbr/Security/infrastructure_hardening.html#remove-unused-components' -Bold
+                                Paragraph {
+                                    Text 'Reference:' -Bold
+                                    Text 'https://bp.veeam.com/vbr/Security/infrastructure_hardening.html#remove-unused-components'
+                                }
                             }
                         }
                     }
@@ -113,7 +116,10 @@ function Get-AbrVbrSecInfraHard {
                                 Paragraph "Remove the Veeam Backup & Replication Console from the Veeam Backup & Replication server. The console is installed locally on the backup server by default."
                                 BlankLine
                                 $Console
-                                Paragraph 'Reference: https://bp.veeam.com/vbr/Security/infrastructure_hardening.html#how-to-remove-the-veeam-backup--replication-console' -Bold
+                                Paragraph {
+                                    Text 'Reference:' -Bold
+                                    Text 'https://bp.veeam.com/vbr/Security/infrastructure_hardening.html#how-to-remove-the-veeam-backup--replication-console'
+                                }
                             }
                         }
                     }
@@ -155,7 +161,10 @@ function Get-AbrVbrSecInfraHard {
                                 Paragraph "Stop the Veeam vPower NFS Service if you do not plan on using the following Veeam features: SureBackup, Instant Recovery, or Other-OS File Level Recovery (FLR) operations."
                                 BlankLine
                                 $vPowerNFS
-                                Paragraph 'Reference: https://bp.veeam.com/vbr/Security/infrastructure_hardening.html#remove-unused-components' -Bold
+                                Paragraph {
+                                    Text 'Reference:' -Bold
+                                    Text 'https://bp.veeam.com/vbr/Security/infrastructure_hardening.html#remove-unused-components'
+                                }
                             }
                         }
                     }
@@ -276,7 +285,10 @@ function Get-AbrVbrSecInfraHard {
                             $TableParams['Caption'] = "- $($TableParams.Name)"
                         }
                         $OutObj | Table @TableParams
-                        Paragraph 'Reference: https://bp.veeam.com/vbr/Security/infrastructure_hardening.html#password-management-policy' -Bold
+                        Paragraph {
+                            Text 'Reference:' -Bold
+                            Text 'https://bp.veeam.com/vbr/Security/infrastructure_hardening.html#password-management-policy'
+                        }
                     }
                 }
                 $LockpolicyConfiObj = if ($policyConfigHash) {
@@ -309,7 +321,10 @@ function Get-AbrVbrSecInfraHard {
                             $TableParams['Caption'] = "- $($TableParams.Name)"
                         }
                         $OutObj | Table @TableParams
-                        Paragraph 'Reference: https://bp.veeam.com/vbr/Security/infrastructure_hardening.html#lockout-policy' -Bold
+                        Paragraph {
+                            Text 'Reference:' -Bold
+                            Text 'https://bp.veeam.com/vbr/Security/infrastructure_hardening.html#lockout-policy'
+                        }
                     }
                 }
                 if ($PasswordPolicyConfiObj -or $LockpolicyConfiObj) {
@@ -354,7 +369,11 @@ function Get-AbrVbrSecInfraHard {
                                 $TableParams['Caption'] = "- $($TableParams.Name)"
                             }
                             $OutObj | Sort-Object -Property 'Name' | Table @TableParams
-                            Paragraph 'Reference: https://bp.veeam.com/vbr/Security/infrastructure_hardening.html#roles-and-users' -Bold
+                            $OutObj | Table @TableParams
+                            Paragraph {
+                                Text 'Reference:' -Bold
+                                Text 'https://bp.veeam.com/vbr/Security/infrastructure_hardening.html#roles-and-users'
+                            }
                         }
                         catch {
                             Write-PscriboMessage -IsWarning $_.Exception.Message
@@ -454,7 +473,11 @@ function Get-AbrVbrSecInfraHard {
                         Blankline
                         Paragraph "Backup proxies must be considered the target for compromise. During backup, proxies obtain from the backup server credentials required to access virtual infrastructure servers. A person having administrator privileges on a backup proxy can intercept the credentials and use them to access the virtual infrastructure."
                         $vSphereCredObj
-                        Paragraph "Reference: https://helpcenter.veeam.com/docs/backup/permissions/installation.html?ver=110" -Bold
+                        Blankline
+                        Paragraph {
+                            Text 'Reference:' -Bold
+                            Text 'https://helpcenter.veeam.com/docs/backup/permissions/installation.html?ver=110'
+                        }
                     }
                 }
             }
@@ -747,7 +770,11 @@ function Get-AbrVbrSecInfraHard {
                 if ($UpdatesObj) {
                     Section -Style Heading3 'Patching and Updates' {
                         Paragraph "Patch operating systems, software, and firmware on Veeam components. Most hacks succeed because there is already vulnerable software in use which is not up-to-date with current patch levels. So make sure all software and hardware where Veeam components are running are up-to-date. One of the most possible causes of a credential theft are missing guest OS updates and use of outdated authentication protocols."
-                        Paragraph 'Reference: https://bp.veeam.com/vbr/Security/infrastructure_hardening.html#patching-and-updates' -Bold
+                        BlankLine
+                        Paragraph {
+                            Text 'Reference:' -Bold
+                            Text 'https://bp.veeam.com/vbr/Security/infrastructure_hardening.html#patching-and-updates'
+                        }
                         $UpdatesObj
                     }
                 }
@@ -939,7 +966,10 @@ function Get-AbrVbrSecInfraHard {
                         Paragraph "* Restrict user access to backups and replicas. Check that only authorized users have permissions to access backups and replicas on target servers."
                         Paragraph "* Encrypt data in backups. Use Veeam Backup & Replication inbuilt encryption to protect data in backups. To guarantee security of data in backups, follow Encryption Best Practices."
                         BlankLine
-                        Paragraph "Reference: https://bp.veeam.com/vbr/Security/infrastructure_hardening.html#encryption" -Bold
+                        Paragraph {
+                            Text 'Reference:' -Bold
+                            Text 'https://bp.veeam.com/vbr/Security/infrastructure_hardening.html#encryption'
+                        }
                         $BKJobsEncObj
                         $EncryptNetworkTraffic
                     }
@@ -954,7 +984,10 @@ function Get-AbrVbrSecInfraHard {
                     Section -Style Heading4 'Encrypt Data in Configuration Backups' {
                         Paragraph 'Enable data encryption for configuration backup to secure sensitive data stored in the configuration database.'
                         BlankLine
-                        Paragraph "Reference: https://helpcenter.veeam.com/docs/backup/vsphere/config_backup_encrypted.html?ver=110" -Bold
+                        Paragraph {
+                            Text 'Reference:' -Bold
+                            Text 'https://helpcenter.veeam.com/docs/backup/vsphere/config_backup_encrypted.html?ver=110'
+                        }
                         BlankLine
                         $OutObj = @()
                         try {
@@ -1013,7 +1046,10 @@ function Get-AbrVbrSecInfraHard {
                     Section -Style Heading3 'Backup and Replication Database' {
                         Paragraph "The Backup & Replication configuration database stores credentials to connect to virtual servers and other systems in the backup & replication infrastructure. All passwords stored in the database are encrypted. However, a user with administrator privileges on the backup server can decrypt the passwords, which presents a potential threat."
                         BlankLine
-                        Paragraph "Reference: https://bp.veeam.com/vbr/Security/infrastructure_hardening.html#backup-and-replication-database" -Bold
+                        Paragraph {
+                            Text 'Reference:' -Bold
+                            Text 'https://bp.veeam.com/vbr/Security/infrastructure_hardening.html#backup-and-replication-database'
+                        }
                         $BKPConf
                     }
                 }
