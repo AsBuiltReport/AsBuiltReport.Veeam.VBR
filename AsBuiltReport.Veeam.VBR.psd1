@@ -114,7 +114,7 @@ PrivateData = @{
         ProjectUri = 'https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR'
 
         # A URL to an icon representing this module.
-        IconUri = 'https://raw.githubusercontent.com/AsBuiltReport/AsBuiltReport/master/AsBuiltReport.png'
+        IconUri = 'https://github.com/AsBuiltReport.png'
 
         # ReleaseNotes of this module
         ReleaseNotes = 'https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/blob/master/CHANGELOG.md'
