@@ -1,6 +1,6 @@
 <p align="center">
     <a href="https://www.asbuiltreport.com/" alt="AsBuiltReport"></a>
-            <img src='https://raw.githubusercontent.com/AsBuiltReport/AsBuiltReport/master/AsBuiltReport.png' width="8%" height="8%" /></a>
+            <img src='https://avatars.githubusercontent.com/u/42958564' width="8%" height="8%" /></a>
 </p>
 <p align="center">
     <a href="https://www.powershellgallery.com/packages/AsBuiltReport.Veeam.VBR/" alt="PowerShell Gallery Version">
@@ -53,7 +53,7 @@ The Veeam VBR As Built Report supports the following Veeam Backup & Replication 
 - Veeam Backup & Replication V11 (Standard, Enterprise & Enterprise Plus Edition)
 - Veeam Backup & Replication V12 (Standard, Enterprise & Enterprise Plus Edition)
 
-:exclamation: Community Edition is not supported :exclamation:
+:exclamation:Community Edition is not supported:exclamation:
 
 ### PowerShell
 
@@ -224,12 +224,6 @@ The table below outlines the default and maximum **InfoLevel** settings for each
 | Tenants          |        1        |        2        |
 | BackupStorage          |        1        |        1        |
 | ReplicaResources          |        1        |        2        |
-
-The table below outlines the default and maximum **InfoLevel** settings for each Security section (Disabled by Default).
-
-| Sub-Schema   | Default Setting | Maximum Setting |
-|--------------|:---------------:|:---------------:|
-| Infrastructure       |        0        |        1       |
 
 ### Healthcheck
 

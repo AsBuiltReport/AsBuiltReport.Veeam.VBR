@@ -12,7 +12,7 @@
 RootModule = 'AsBuiltReport.Veeam.VBR.psm1'
 
 # Version number of this module.
-ModuleVersion = '0.8.0'
+ModuleVersion = '0.8.1'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -114,7 +114,7 @@ PrivateData = @{
         ProjectUri = 'https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR'
 
         # A URL to an icon representing this module.
-        IconUri = 'https://raw.githubusercontent.com/AsBuiltReport/AsBuiltReport/master/AsBuiltReport.png'
+        IconUri = 'https://github.com/AsBuiltReport.png'
 
         # ReleaseNotes of this module
         ReleaseNotes = 'https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/blob/master/CHANGELOG.md'
