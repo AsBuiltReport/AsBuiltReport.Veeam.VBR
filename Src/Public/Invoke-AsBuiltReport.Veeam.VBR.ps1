@@ -5,7 +5,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.0
+        Version:        0.8.1
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -53,7 +53,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
     #region foreach loop
     foreach ($System in $Target) {
         Get-AbrVbrRequiredModule -Name 'Veeam.Backup.PowerShell' -Version '1.0'
-        Get-AbrVbrServerConnection
+        Get-AbrVbrServerConnections
         $VeeamBackupServer = ((Get-VBRServerSession).Server).ToString().ToUpper().Split(".")[0]
         Section -Style Heading1 $($VeeamBackupServer) {
             Paragraph "The following section provides an overview of the implemented components of Veeam Backup & Replication."
