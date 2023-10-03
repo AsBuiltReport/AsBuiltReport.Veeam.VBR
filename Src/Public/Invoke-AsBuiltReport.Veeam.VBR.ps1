@@ -5,7 +5,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.0
+        Version:        0.8.1
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -53,7 +53,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
     #region foreach loop
     foreach ($System in $Target) {
         Get-AbrVbrRequiredModule -Name 'Veeam.Backup.PowerShell' -Version '1.0'
-        Get-AbrVbrServerConnection
+        Get-AbrVbrServerConnections
         $VeeamBackupServer = ((Get-VBRServerSession).Server).ToString().ToUpper().Split(".")[0]
         Section -Style Heading1 $($VeeamBackupServer) {
             Paragraph "The following section provides an overview of the implemented components of Veeam Backup & Replication."
@@ -307,25 +307,6 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                             Get-AbrVbrBackupCopyjob
                             Get-AbrVbrBackupCopyjobConf
                         }
-                    }
-                }
-            }
-            #---------------------------------------------------------------------------------------------#
-            #                      Infrastructure Security Hardening Section                              #
-            #---------------------------------------------------------------------------------------------#
-            if ($InfoLevel.Security.PSObject.Properties.Value -ne 0) {
-                Section -Style Heading2 'Infrastructure Security Hardening' {
-                    Paragraph 'Protecting your infrastructure successfully is all about understanding the current attack vectors; what and whom you are protecting, your Veeam infrastructure, against. If you know what and whom you are protecting against, makes it easier to take the correct countermeasures. One of those countermeasures is hardening.'
-                    BlankLine
-                    Paragraph 'Looking at the different Veeam Backup & Replication components you have to protect the following components:'
-                    BlankLine
-                    Paragraph '* Veeam Backup server'
-                    Paragraph '* User Accounts'
-                    Paragraph '* Backup repositories'
-                    Paragraph '* Backup data flows'
-
-                    if ($InfoLevel.Security.Infrastructure -ge 1) {
-                        Get-AbrVbrSecInfraHard
                     }
                 }
             }
