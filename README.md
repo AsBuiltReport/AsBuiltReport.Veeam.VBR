@@ -225,12 +225,6 @@ The table below outlines the default and maximum **InfoLevel** settings for each
 | BackupStorage          |        1        |        1        |
 | ReplicaResources          |        1        |        2        |
 
-The table below outlines the default and maximum **InfoLevel** settings for each Security section (Disabled by Default).
-
-| Sub-Schema   | Default Setting | Maximum Setting |
-|--------------|:---------------:|:---------------:|
-| Infrastructure       |        0        |        1       |
-
 ### Healthcheck
 
 The **Healthcheck** schema is used to toggle health checks on or off.

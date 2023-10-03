@@ -1,5 +1,11 @@
 # :arrows_clockwise: Veeam VBR As Built Report Changelog
 
+## [0.8.1] - 2023-10-03
+
+### Removed
+
+- Removed Infrastructure Hardening section
+
 ## [0.8.0] - 2023-07-13
 
 ### Added
