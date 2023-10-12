@@ -53,7 +53,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
     #region foreach loop
     foreach ($System in $Target) {
         Get-AbrVbrRequiredModule -Name 'Veeam.Backup.PowerShell' -Version '1.0'
-        Get-AbrVbrServerConnections
+        Get-AbrVbrServerConnection
         $VeeamBackupServer = ((Get-VBRServerSession).Server).ToString().ToUpper().Split(".")[0]
         Section -Style Heading1 $($VeeamBackupServer) {
             Paragraph "The following section provides an overview of the implemented components of Veeam Backup & Replication."
