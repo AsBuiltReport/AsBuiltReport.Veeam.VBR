@@ -1,5 +1,11 @@
 # :arrows_clockwise: Veeam VBR As Built Report Changelog
 
+## [0.8.2] - 2023-10-12
+
+### Fixed
+
+- Fixed misspelled module name in file /Src/Public/Invoke-AsBuiltReport.Veeam.VBR.ps1. Fix #110
+  
 ## [0.8.1] - 2023-10-03
 
 ### Removed
