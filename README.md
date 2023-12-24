@@ -60,9 +60,9 @@ The Veeam VBR As Built Report supports the following Veeam Backup & Replication 
 This report is compatible with the following PowerShell versions;
 
 <!-- ********** Update supported PowerShell versions ********** -->
-| Windows PowerShell 5.1 |     PowerShell 7    |
+| Windows PowerShell 5.1 |     PowerShell 7     |
 |:----------------------:|:--------------------:|
-|   :white_check_mark:   | :x: |
+|   :white_check_mark:   |         :x:          |
 
 ## :wrench: System Requirements
 
@@ -135,12 +135,13 @@ The **Report** schema provides configuration of the Veeam VBR report information
 
 The **Options** schema allows certain options within the report to be toggled on or off.
 
-| Sub-Schema      | Setting      | Default | Description                                                                                                                                                                                 |
-|-----------------|--------------|---------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| BackupServerPort | TCP Port  | 9392    | Used to specify the backup service's custom port.
-| PSDefaultAuthentication | Negotiate/Kerberos  | Default    | Allow to set the value of the PSRemoting authentication method. For Workgroup authentication Negotiate value is required.
-| EnableCharts | true/false  | false    | Used to manipulate the creation of charts.
-| EnableHardwareInventory | true/false  | false    | Enable the extraction of Hardware information from the Backup Server/Proxy servers (Windows OS only).
+| Sub-Schema              | Setting            | Default                        | Description                                        |
+|-------------------------|--------------------|--------------------------------|----------------------------------------------------|
+| BackupServerPort        | TCP Port           | 9392                           | Set the backup server service's custom port.       |
+| PSDefaultAuthentication | Negotiate/Kerberos | Default                        | Set the PSRemoting authentication method           |
+| EnableCharts            | true/false         | false                          | Toggle to enable/disable creation of charts.       |
+| EnableHardwareInventory | true / false       | false                          | Toggle to enable/disable of Hardware information   |
+| EnableDiagrams          | true / false       | false                          | Toggle to enable/disable of Diagrams               |
 
 ### InfoLevel
 
@@ -148,82 +149,82 @@ The **InfoLevel** schema allows configuration of each section of the report at a
 
 There are 4 levels (0-3) of detail granularity for each section as follows;
 
-| Setting | InfoLevel         | Description                                                                                                                                |
-|:-------:|-------------------|--------------------------------------------------------------------------------------------------------------------------------------------|
-|    0    | Disabled          | Does not collect or display any information                                                                                                |
-|    1    | Enabled | Provides summarised information for a collection of objects                                                                                |
-|    2    | Adv Summary       | Provides condensed, detailed information for a collection of objects                                                                       |
-|    3    | Detailed          | Provides detailed information for individual objects                                                                                       |
+| Setting | InfoLevel         | Description                                                                                           |
+|:-------:|-------------------|-------------------------------------------------------------------------------------------------------|
+|    0    | Disabled          | Does not collect or display any information                                                           |
+|    1    | Enabled | Provides summarised information for a collection of objects                                                     |
+|    2    | Adv Summary       | Provides condensed, detailed information for a collection of objects                                  |
+|    3    | Detailed          | Provides detailed information for individual objects                                                  |
 
 The table below outlines the default and maximum **InfoLevel** settings for each Backup Infrastructure section.
 
-| Sub-Schema   | Default Setting | Maximum Setting |
-|--------------|:---------------:|:---------------:|
-| BackupServer       |        1        |        3        |
+| Sub-Schema     | Default Setting | Maximum Setting |
+|----------------|:---------------:|:---------------:|
+| BackupServe    |        1        |        3        |
 | Proxy          |        1        |        3        |
-| Settings         |        1        |        2        |
-| BR           |        1        |        2        |
-| Licenses           |        1        |        1        |
+| Settings       |        1        |        2        |
+| BR             |        1        |        2        |
+| Licenses       |        1        |        1        |
 | SOBR           |        1        |        2        |
-| WANAccel           |        1        |        1        |
-| ServiceProvider           |        1        |        2        |
-| SureBackup           |        1        |        2        |
+| WANAccel       |        1        |        1        |
+| ServiceProvider|        1        |        2        |
+| SureBackup     |        1        |        2        |
 
 The table below outlines the default and maximum **InfoLevel** settings for each Tape Infrastructure section.
 
 | Sub-Schema   | Default Setting | Maximum Setting |
 |--------------|:---------------:|:---------------:|
 | Server       |        1        |        1        |
-| Library          |        1        |        2        |
-| MediaPool          |        1        |        2        |
-| Vault          |        1        |        1        |
-| NDMP          |        1        |        1        |
+| Library      |        1        |        2        |
+| MediaPool    |        1        |        2        |
+| Vault        |        1        |        1        |
+| NDMP         |        1        |        1        |
 
 The table below outlines the default and maximum **InfoLevel** settings for each Inventory section.
 
 | Sub-Schema   | Default Setting | Maximum Setting |
 |--------------|:---------------:|:---------------:|
-| VI       |        1        |        1        |
+| VI           |        1        |        1        |
 | PHY          |        1        |        2        |
-| FileShare          |        1        |        1        |
+| FileShare    |        1        |        1        |
 
 The table below outlines the default and maximum **InfoLevel** settings for each Storage Infrastructure section.
 
 | Sub-Schema   | Default Setting | Maximum Setting |
 |--------------|:---------------:|:---------------:|
-| ONTAP       |        1        |        2        |
-| ISILON          |        1        |        2        |
+| ONTAP        |        1        |        2        |
+| ISILON       |        1        |        2        |
 
 The table below outlines the default and maximum **InfoLevel** settings for each Backup Jobs section.
 
 | Sub-Schema   | Default Setting | Maximum Setting |
 |--------------|:---------------:|:---------------:|
 | Backup       |        1        |        2        |
-| BackupCopy       |        1        |        2        |
-| Tape          |        1        |        2        |
-| Surebackup          |        1        |        2        |
-| Agent          |        1        |        2        |
-| FileShare          |        1        |        2        |
-| Replication          |        1        |        2        |
+| BackupCopy   |        1        |        2        |
+| Tape         |        1        |        2        |
+| Surebackup   |        1        |        2        |
+| Agent        |        1        |        2        |
+| FileShare    |        1        |        2        |
+| Replication  |        1        |        2        |
 
 The table below outlines the default and maximum **InfoLevel** settings for each Replication section.
 
 | Sub-Schema   | Default Setting | Maximum Setting |
 |--------------|:---------------:|:---------------:|
-| Replica       |        1        |        2        |
-| FailoverPlan          |        1        |        1        |
+| Replica      |        1        |        2        |
+| FailoverPlan |        1        |        1        |
 
 The table below outlines the default and maximum **InfoLevel** settings for each Cloud Connect section.
 
-| Sub-Schema   | Default Setting | Maximum Setting |
-|--------------|:---------------:|:---------------:|
-| Certificate       |        1        |        1        |
-| PublicIP       |        1        |        1        |
-| CloudGateway          |        1        |        2        |
-| GatewayPools          |        1        |        1        |
-| Tenants          |        1        |        2        |
-| BackupStorage          |        1        |        1        |
-| ReplicaResources          |        1        |        2        |
+| Sub-Schema      | Default Setting | Maximum Setting |
+|-----------------|:---------------:|:---------------:|
+| Certificate     |        1        |        1        |
+| PublicIP        |        1        |        1        |
+| CloudGateway    |        1        |        2        |
+| GatewayPools    |        1        |        1        |
+| Tenants         |        1        |        2        |
+| BackupStorage   |        1        |        1        |
+| ReplicaResources|        1        |        2        |
 
 ### Healthcheck
 

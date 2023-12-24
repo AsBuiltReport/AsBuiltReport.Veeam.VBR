@@ -6,7 +6,7 @@ function Get-AbrVbrBackupProxy {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.7.1
+        Version:        0.8.3
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -440,6 +440,20 @@ function Get-AbrVbrBackupProxy {
                                     Write-PscriboMessage -IsWarning "VMware Backup Proxies Services Status Section: $($_.Exception.Message)"
                                 }
                             }
+                            if ($Options.EnableDiagrams) {
+                                Try {
+                                    $Graph = New-VeeamDiagram -Target $System -Credential $Credential -Format base64 -Direction top-to-bottom -DiagramType "Backup-to-vSphere-Proxy"
+                                } Catch {
+                                    Write-PscriboMessage -IsWarning "VMware Backup Proxy Diagram: $($_.Exception.Message)"
+                                }
+                                if ($Graph) {
+                                    PageBreak
+                                    Section -Style Heading3 "VMware Backup Proxy Diagram." {
+                                        Image -Base64 $Graph -Text "VMware Backup Proxy Diagram" -Percent 20 -Align Center
+                                        Paragraph "Image preview: Opens the image in a new tab to view it at full resolution." -Tabs 2
+                                    }
+                                }
+                            }
                         }
                     }
                     #---------------------------------------------------------------------------------------------#
@@ -862,6 +876,20 @@ function Get-AbrVbrBackupProxy {
                                     }
                                     catch {
                                         Write-PscriboMessage -IsWarning "Hyper-V Backup Proxies Services Status Section: $($_.Exception.Message)"
+                                    }
+                                }
+                                if ($Options.EnableDiagrams) {
+                                    Try {
+                                        $Graph = New-VeeamDiagram -Target $System -Credential $Credential -Format base64 -Direction top-to-bottom -DiagramType "Backup-to-HyperV-Proxy"
+                                    } Catch {
+                                        Write-PscriboMessage -IsWarning "HyperV Backup Proxy Diagram: $($_.Exception.Message)"
+                                    }
+                                    if ($Graph) {
+                                        PageBreak
+                                        Section -Style Heading3 "HyperV Backup Proxy Diagram." {
+                                            Image -Base64 $Graph -Text "HyperV Backup Proxy Diagram" -Percent 20 -Align Center
+                                            Paragraph "Image preview: Opens the image in a new tab to view it at full resolution." -Tabs 2
+                                        }
                                     }
                                 }
                             }

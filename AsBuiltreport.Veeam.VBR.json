@@ -12,7 +12,8 @@
         "BackupServerPort": 9392,
         "PSDefaultAuthentication": "Default",
         "EnableCharts": false,
-        "EnableHardwareInventory": false
+        "EnableHardwareInventory": false,
+        "EnableDiagrams": false
     },
     "InfoLevel": {
 		"_comment_": "Please refer to the AsBuiltReport project contributing guide for information about how to define InfoLevels.",
