@@ -71,6 +71,8 @@ PowerShell 5.1 and the following PowerShell modules are required for generating 
 - [Veeam.Backup.PowerShell Module](https://helpcenter.veeam.com/docs/backup/powershell/getting_started.html?ver=110)
 - [PScriboCharts Module](https://github.com/iainbrighton/PScriboCharts)
 - [AsBuiltReport.Core Module](https://github.com/AsBuiltReport/AsBuiltReport.Core)
+- [Veeam.Diagrammer Module](https://github.com/rebelinux/Veeam.Diagrammer)
+
 
 ### :closed_lock_with_key: Required Privileges
 
@@ -254,3 +256,4 @@ PS C:\> New-AsBuiltReport -Report Veeam.VBR -Target veeam-vbr.pharmax.local -Use
 
 - Since many of Veeam's features depend on the Standard+ license, the Community edition is not supported.
 - If the Veeam Backup Server is not joined to an Active Directory domain (WorkGroup Auth), the PSDefaultAuthentication option must be set to Negotiate. If it is not, some of the report sections will be missing.
+- In order to generate the infrastructure diagram it is required to install [Graphviz](https://graphviz.org/download/) on the machine where the report is generated.
