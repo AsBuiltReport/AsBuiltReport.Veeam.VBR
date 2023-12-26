@@ -2,7 +2,7 @@
 
 ## [0.8.3] - 2023-12-23
 
-### Fixed
+### Added
 
 - Initial diagramming support
 
