@@ -29,6 +29,7 @@ function Get-AbrVbrGlobalExclusion {
             $VMExclusions = Get-VBRVMExclusion
             Section -Style Heading4 'Global Exclusions' {
                 try {
+                    Write-PscriboMessage "Discovering Veeam VBR Malware Detection Exclusions settings information from $System."
                     Section -ExcludeFromTOC -Style Heading5 'Malware Detection Exclusions' {
                         foreach ($MalwareDetectionExclusion in $MalwareDetectionExclusions) {
                             $OutObj = @()
@@ -55,6 +56,7 @@ function Get-AbrVbrGlobalExclusion {
                     Write-PscriboMessage -IsWarning "Malware Detection Exclusions Section: $($_.Exception.Message)"
                 }
                 try {
+                    Write-PscriboMessage "Discovering Veeam VBR VM Exclusions settings information from $System."
                     Section -ExcludeFromTOC -Style Heading5 'VM Exclusions' {
                         foreach ($VMExclusion in $VMExclusions) {
                             $OutObj = @()
@@ -68,7 +70,7 @@ function Get-AbrVbrGlobalExclusion {
                         }
 
                         $TableParams = @{
-                            Name = "VM Exclusion - $VeeamBackupServer"
+                            Name = "VM Exclusions - $VeeamBackupServer"
                             List = $false
                             ColumnWidths = 33, 33, 34
                         }
