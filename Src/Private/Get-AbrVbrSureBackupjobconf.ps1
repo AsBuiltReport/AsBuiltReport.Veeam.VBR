@@ -263,6 +263,7 @@ function Get-AbrVbrSureBackupjobconf {
                                             'Send SNMP trap' = ConvertTo-TextYN $SBkjob.VerificationOptions.EnableSNMPNotification
                                             'Send Email notification' = ConvertTo-TextYN $SBkjob.VerificationOptions.EnableEmailNotification
                                             'Email recipients' = $SBkjob.VerificationOptions.Address
+                                            'Use custom notification settings' = $SBkjob.VerificationOptions.UseCustomEmailSettings
                                         }
 
                                         if ($SBkjob.VerificationOptions.UseCustomEmailSettings) {
