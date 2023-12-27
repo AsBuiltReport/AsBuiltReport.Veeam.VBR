@@ -42,12 +42,12 @@ function Get-AbrVbrCloudConnectRR {
                                     'CPU' = Switch ([string]::IsNullOrEmpty($CloudObject.CPU)) {
                                         $true {'Unlimited'}
                                         $false {"$([math]::Round($CloudObject.CPU / 1000, 1)) Ghz"}
-                                        default {'-'}
+                                        default {'--'}
                                     }
                                     'Memory' = Switch ([string]::IsNullOrEmpty($CloudObject.Memory)) {
                                         $true {'Unlimited'}
                                         $false {"$([math]::Round($CloudObject.Memory / 1Kb, 2)) GB"}
-                                        default {'-'}
+                                        default {'--'}
                                     }
                                     'Storage Quota' = "$(($CloudObject.Datastore.Quota | Measure-Object -Sum).Sum) GB"
                                     'Network Count' = $CloudObject.NumberOfNetWithInternet + $CloudObject.NumberOfNetWithoutInternet
@@ -94,12 +94,12 @@ function Get-AbrVbrCloudConnectRR {
                                                             'CPU' = Switch ([string]::IsNullOrEmpty($CloudObject.CPU)) {
                                                                 $true {'Unlimited'}
                                                                 $false {"$([math]::Round($CloudObject.CPU / 1000, 1)) Ghz"}
-                                                                default {'-'}
+                                                                default {'--'}
                                                             }
                                                             'Memory' = Switch ([string]::IsNullOrEmpty($CloudObject.Memory)) {
                                                                 $true {'Unlimited'}
                                                                 $false {"$([math]::Round($CloudObject.Memory / 1Kb, 2)) GB"}
-                                                                default {'-'}
+                                                                default {'--'}
                                                             }
                                                             'Network Count' = $CloudObject.NumberOfNetWithInternet + $CloudObject.NumberOfNetWithoutInternet
                                                             'Subscribed Tenant' = Switch ([string]::IsNullOrEmpty($CloudObject.SubscribedTenantId)) {
@@ -142,7 +142,7 @@ function Get-AbrVbrCloudConnectRR {
                                                                 'Platform' = $Storage.Platform
                                                                 'Storage Quota' = "$($Storage.Quota) GB"
                                                                 'Storage Policy' = Switch ([string]::IsNullOrEmpty($Storage.StoragePolicy.Name)) {
-                                                                    $true {'-'}
+                                                                    $true {'--'}
                                                                     $false {$Storage.StoragePolicy.Name}
                                                                     default {'Unknown'}
                                                                 }

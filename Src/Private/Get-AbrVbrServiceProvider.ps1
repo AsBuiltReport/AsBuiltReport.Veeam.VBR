@@ -142,12 +142,12 @@ function Get-AbrVbrServiceProvider {
                                                         $CPU = Switch ([string]::IsNullOrEmpty($CloudProvider.ReplicationResources.CPU)) {
                                                             $true {'Unlimited'}
                                                             $false {"$([math]::Round($CloudProvider.ReplicationResources.CPU / 1000, 1)) Ghz"}
-                                                            default {'-'}
+                                                            default {'--'}
                                                         }
                                                         $Memory = Switch ([string]::IsNullOrEmpty($CloudProvider.ReplicationResources.Memory)) {
                                                             $true {'Unlimited'}
                                                             $false {"$([math]::Round($CloudProvider.ReplicationResources.Memory / 1Kb, 2)) GB"}
-                                                            default {'-'}
+                                                            default {'--'}
                                                         }
                                                         Write-PscriboMessage "Discovered $($CloudProvider.DNSName) Service Provider DRaaS Resources information."
                                                         $inObj = [ordered] @{
@@ -164,7 +164,7 @@ function Get-AbrVbrServiceProvider {
 
                                                         if ($CloudProvider.ReplicationResources.PublicIpEnabled) {
                                                             $PublicIP = Switch ([string]::IsNullOrEmpty($CloudProvider.ReplicationResources.PublicIp)) {
-                                                                $true {'-'}
+                                                                $true {'--'}
                                                                 $false {$CloudProvider.ReplicationResources.PublicIp}
                                                                 default {'Unknown'}
                                                             }

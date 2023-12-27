@@ -110,13 +110,13 @@ function Get-AbrVbrCloudConnectTenant {
                                                         'Expiration Date' = Switch ([string]::IsNullOrEmpty($CloudObject.LeaseExpirationDate)) {
                                                             $true {'Never'}
                                                             $false {$CloudObject.LeaseExpirationDate.ToLongDateString()}
-                                                            default {'-'}
+                                                            default {'--'}
                                                         }
                                                         'Backup Storage (Cloud Backup Repository)' = ConvertTo-TextYN $CloudObject.ResourcesEnabled
                                                         'Replication Resource (Cloud Host)' = Switch ($CloudObject.ReplicationResourcesEnabled -or $CloudObject.vCDReplicationResourcesEnabled) {
                                                             'True' {'Yes'}
                                                             'False' {'No'}
-                                                            default {'-'}
+                                                            default {'--'}
                                                         }
                                                         'Description' = $CloudObject.Description
                                                     }
@@ -176,7 +176,7 @@ function Get-AbrVbrCloudConnectTenant {
                                                                 $inObj.add('Gateway Pool', 'Automatic')
                                                             } else {
                                                                 $GatewayPool = Switch ([string]::IsNullOrEmpty($CloudObject.GatewayPool.Name)) {
-                                                                    $true {'-'}
+                                                                    $true {'--'}
                                                                     $false {$CloudObject.GatewayPool.Name}
                                                                     default {'Unknown'}
                                                                 }
@@ -396,7 +396,7 @@ function Get-AbrVbrCloudConnectTenant {
                                                                         'Status' = Switch ($CloudSubTenant.Enabled) {
                                                                             'True' {'Enabled'}
                                                                             'False' {'Disabled'}
-                                                                            default {'-'}
+                                                                            default {'--'}
                                                                         }
                                                                     }
 

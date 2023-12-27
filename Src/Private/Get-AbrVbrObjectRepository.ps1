@@ -60,8 +60,8 @@ function Get-AbrVbrObjectRepository {
                                     'Type' = $ObjectRepo.Type
                                     'Use Gateway Server' = ConvertTo-TextYN $ObjectRepo.UseGatewayServer
                                     'Gateway Server' = Switch ($ObjectRepo.GatewayServer.Name) {
-                                        "" {"-"; break}
-                                        $Null {"-"; break}
+                                        "" {"--"; break}
+                                        $Null {"--"; break}
                                         default {$ObjectRepo.GatewayServer.Name.split(".")[0]}
                                     }
                                 }

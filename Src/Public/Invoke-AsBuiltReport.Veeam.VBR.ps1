@@ -81,7 +81,9 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                             BlankLine
                             Get-AbrVbrConfigurationBackupSetting
                             Get-AbrVbrEmailNotificationSetting
-                            Get-AbrVbrEventForwarding
+                            if ($VbrVersion -ge 12.1) {
+                                Get-AbrVbrEventForwarding
+                            }
                             Get-AbrVbrGlobalNotificationSetting
                             Get-AbrVbrIOControlSetting
                             Get-AbrVbrBackupServerCertificate

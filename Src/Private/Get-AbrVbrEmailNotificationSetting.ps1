@@ -42,8 +42,8 @@ function Get-AbrVbrEmailNotificationSetting {
                             'Daily Reports Time' = $EmailSetting.DailyReportsTime.ToShortTimeString()
                             'Enabled' = ConvertTo-TextYN $EmailSetting.Enabled
                             'Notify On' = Switch ($EmailSetting.NotifyOnSuccess) {
-                                "" {"-"; break}
-                                $Null {"-"; break}
+                                "" {"--"; break}
+                                $Null {"--"; break}
                                 default {"Notify On Success: $(ConvertTo-TextYN $EmailSetting.NotifyOnSuccess)`r`nNotify On Warning: $(ConvertTo-TextYN $EmailSetting.NotifyOnWarning)`r`nNotify On Failure: $(ConvertTo-TextYN $EmailSetting.NotifyOnFailure)`r`nNotify On Last Retry Only: $(ConvertTo-TextYN $EmailSetting.NotifyOnLastRetryOnly)"}
                             }
                         }

@@ -57,7 +57,7 @@ function Get-AbrVbrEventForwarding {
                     $TableParams['Caption'] = "- $($TableParams.Name)"
                 }
                 $OutObj | Table @TableParams
-                if ($HealthCheck.Infrastructure.BestPractice -and ($OutObj | Where-Object { $_.'Syslog Servers' -eq '--' })) {
+                if ($HealthCheck.Infrastructure.BestPractice -and ($OutObj | Where-Object { $_.'Syslog Servers' -eq '--'})) {
                     Paragraph "Health Check:" -Bold -Underline
                     BlankLine
                     Paragraph {

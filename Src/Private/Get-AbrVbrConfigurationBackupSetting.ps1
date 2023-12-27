@@ -48,8 +48,8 @@ function Get-AbrVbrConfigurationBackupSetting {
                             'Additional Address' = $BackupSettings.NotificationOptions.AdditionalAddress
                             'Email Subject' = $BackupSettings.NotificationOptions.NotificationSubject
                             'Notify On' = Switch ($BackupSettings.NotificationOptions.EnableAdditionalNotification) {
-                                "" {"-"; break}
-                                $Null {"-"; break}
+                                "" {"--"; break}
+                                $Null {"--"; break}
                                 default {"Notify On Success: $(ConvertTo-TextYN $BackupSettings.NotificationOptions.NotifyOnSuccess)`r`nNotify On Warning: $(ConvertTo-TextYN $BackupSettings.NotificationOptions.NotifyOnWarning)`r`nNotify On Error: $(ConvertTo-TextYN $BackupSettings.NotificationOptions.NotifyOnError)`r`nNotify On Last Retry Only: $(ConvertTo-TextYN $BackupSettings.NotificationOptions.NotifyOnLastRetryOnly)"}
                             }
                             'NextRun' = $BackupSettings.NextRun
@@ -94,14 +94,14 @@ function Get-AbrVbrConfigurationBackupSetting {
                             if ($OutObj | Where-Object { $_.'Run Job Automatically' -like 'No'}) {
                                 Paragraph {
                                     Text "Best Practice:" - Bold
-                                    Text "It`s a recommended best practice to activate the 'Run job automatically' option of the Backup Configuration job."
+                                    Text "It's a recommended best practice to activate the 'Run job automatically' option of the Backup Configuration job."
                                 }
                                 BlankLine
                             }
                             if ($OutObj | Where-Object { $_.'Enabled' -like 'No'}) {
                                 Paragraph {
                                     Text "Best Practice:" -Bold
-                                    Text "It`s a recommended best practice to enable the Backup Configuration job"
+                                    Text "It's a recommended best practice to enable the Backup Configuration job"
                                 }
                             }
                         }

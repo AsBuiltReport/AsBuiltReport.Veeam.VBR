@@ -188,7 +188,7 @@ function Get-AbrVbrTapeMediaPool {
                                                                                     'Total Space' = ConvertTo-FileSizeString $TapeMedium.Capacity
                                                                                     'Free Space' = ConvertTo-FileSizeString $TapeMedium.Free
                                                                                     'Tape Library' = Switch ($TapeMedium.LibraryId) {
-                                                                                        $Null {'-'}
+                                                                                        $Null {'--'}
                                                                                         '00000000-0000-0000-0000-000000000000' {'Unknown'}
                                                                                         default {(Get-VBRTapeLibrary -Id $TapeMedium.LibraryId).Name}
                                                                                     }

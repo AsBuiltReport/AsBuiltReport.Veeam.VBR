@@ -38,8 +38,8 @@ function Get-AbrVbrCredential {
                             $inObj = [ordered] @{
                                 'Name' = $Credential.Name
                                 'Change Time' = Switch ($Credential.ChangeTimeUtc) {
-                                    "" {"-"; break}
-                                    $Null {'-'; break}
+                                    "" {"--"; break}
+                                    $Null {'--'; break}
                                     default {$Credential.ChangeTimeUtc.ToShortDateString()}
                                 }
                                 'Description' = $Credential.Description

@@ -112,8 +112,8 @@ function Get-AbrVbrFileToTape {
                                                             'Type' = 'NDMP'
                                                             'Selection Type' = 'Directory'
                                                             'Path' = $NDMP.Name
-                                                            'Include Filter' = '-'
-                                                            'Exclude Filter' = '-'
+                                                            'Include Filter' = '--'
+                                                            'Exclude Filter' = '--'
                                                         }
                                                         $OutObj += [pscustomobject]$inobj2
                                                     }

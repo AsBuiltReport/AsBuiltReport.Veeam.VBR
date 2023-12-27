@@ -44,7 +44,7 @@ function Get-AbrVbrStorageIsilon {
                                 }
                                 'Description' = $IsilonHost.Description
                                 'Used Credential' = Switch (($UsedCred).count) {
-                                    0 {"-"}
+                                    0 {"--"}
                                     default {"$($UsedCred.Name) - ($($UsedCred.Description))"}
                                 }
                                 'Connection Address' = $IsilonOptions.IsilonHostOptions.AdditionalAddresses.IP -join ", "

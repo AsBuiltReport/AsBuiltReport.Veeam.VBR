@@ -38,7 +38,7 @@ function Get-AbrVbrCloudConnectPublicIP {
                                 $inObj = [ordered] @{
                                     'IP Address' = $CloudObject.IpAddress
                                     'Assigned Tenant' = Switch ([string]::IsNullOrEmpty($CloudObject.TenantId)) {
-                                        $true {'-'}
+                                        $true {'--'}
                                         $false {(Get-VBRCloudTenant -Id $CloudObject.TenantId).Name}
                                         default {'Unknown'}
                                     }
