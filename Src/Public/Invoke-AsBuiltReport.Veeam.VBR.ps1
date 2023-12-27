@@ -88,6 +88,9 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                             Get-AbrVbrIOControlSetting
                             Get-AbrVbrBackupServerCertificate
                             Get-AbrVbrNetworkTrafficRule
+                            if ($VbrVersion -ge 12.1) {
+                                Get-AbrVbrMalwareDetectionOption
+                            }
                         }
                     }
 
