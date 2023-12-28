@@ -33,15 +33,31 @@ function Get-AbrVbrInventorySummary {
                 $HvCluster = Get-VBRServer | Where-Object {$_.Type -eq 'HvCluster'}
                 $HvServer = Get-VBRServer | Where-Object {$_.Type -eq 'HvServer'}
                 $ProtectionGroups = Get-VBRProtectionGroup
-                $Shares = Get-VBRNASServer
+                if ($VbrVersion -lt 12.1) {
+                    $Shares = Get-VBRNASServer -WarningAction SilentlyContinue
+                } else {
+                    $FileServers = Get-VBRUnstructuredServer | Where-Object {$_.Type -eq "FileServer"}
+                    $NASFillers = Get-VBRUnstructuredServer | Where-Object {$_.Type -eq "SANSMB"}
+                    $FileShares = Get-VBRUnstructuredServer | Where-Object {$_.Type -eq "SMB" -or $_.Type -eq "NFS"}
+                    $ObjectStorage = Get-VBRUnstructuredServer | Where-Object {$_.Type -eq "AzureBlobServer" -or $_.Type -eq "AmazonS3Server" -or $_.Type -eq "S3CompatibleServer"}
+                }
                 $inObj = [ordered] @{
                     'vCenter Servers' = $vCenter.Count
                     'ESXi Servers' = $ESXi.Count
                     'Hyper-V Clusters' = $HvCluster.Count
                     'Hyper-V Servers' = $HvServer.Count
                     'Protection Groups' = $ProtectionGroups.Count
-                    'File Shares' = $Shares.Count
                 }
+
+                if ($VbrVersion -lt 12.1) {
+                    $inObj.add('File Shares',$Shares.Count)
+                } else {
+                    $inObj.add('File Server',$FileServers.Count)
+                    $inObj.add('NAS Fillers',$NASFillers.Count)
+                    $inObj.add('File Shares',$FileShares.Count)
+                    $inObj.add('Object Storage',$ObjectStorage.Count)
+                }
+
                 $OutObj += [pscustomobject]$inobj
             }
             catch {
