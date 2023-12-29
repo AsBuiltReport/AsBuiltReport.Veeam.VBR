@@ -63,7 +63,7 @@ RequiredModules = @(
     }
     @{
         ModuleName = 'Veeam.Diagrammer';
-        ModuleVersion = '0.5.3'
+        ModuleVersion = '0.5.4'
     }
 )
 
