@@ -13,6 +13,7 @@
   - Malware Detection information
   - SureBackup Job content analisys (Malware Detection)
   - Event Forwarding (Syslog)
+  - Linux host authentication setting
 
 ### Fixed
 
