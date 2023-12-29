@@ -22,8 +22,8 @@ function ConvertTo-TextYN {
         )
 
     switch ($TEXT) {
-        "" {"-"}
-        $Null {"-"}
+        "" {"--"}
+        $Null {"--"}
         "True" {"Yes"; break}
         "False" {"No"; break}
         default {$TEXT}
@@ -45,7 +45,7 @@ function Get-UnixDate ($UnixDate) {
 function ConvertTo-EmptyToFiller {
     <#
     .SYNOPSIS
-    Used by As Built Report to convert empty culumns to "-".
+    Used by As Built Report to convert empty culumns to "--".
     .DESCRIPTION
     .NOTES
         Version:        0.5.0
@@ -65,8 +65,8 @@ function ConvertTo-EmptyToFiller {
         )
 
     switch ($TEXT) {
-        "" {"-"; break}
-        $Null {"-"; break}
+        "" {"--"; break}
+        $Null {"--"; break}
         default {$TEXT}
     }
 } # end

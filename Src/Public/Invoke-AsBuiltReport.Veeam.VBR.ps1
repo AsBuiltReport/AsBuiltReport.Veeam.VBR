@@ -81,10 +81,17 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                             BlankLine
                             Get-AbrVbrConfigurationBackupSetting
                             Get-AbrVbrEmailNotificationSetting
+                            if ($VbrVersion -ge 12.1) {
+                                Get-AbrVbrEventForwarding
+                            }
                             Get-AbrVbrGlobalNotificationSetting
                             Get-AbrVbrIOControlSetting
                             Get-AbrVbrBackupServerCertificate
                             Get-AbrVbrNetworkTrafficRule
+                            if ($VbrVersion -ge 12.1) {
+                                Get-AbrVbrMalwareDetectionOption
+                                Get-AbrVbrGlobalExclusion
+                            }
                         }
                     }
 
@@ -229,8 +236,11 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                         }
                         Write-PScriboMessage "File Shares Inventory InfoLevel set at $($InfoLevel.Inventory.FileShare)."
                         if ($InfoLevel.Inventory.FileShare -ge 1) {
-                            Get-AbrVbrFileSharesInfo
-
+                            if ($VbrVersion -lt 12.1) {
+                                Get-AbrVbrFileSharesInfo
+                            } else {
+                                Get-AbrVbrUnstructuredDataInfo
+                            }
                         }
                     }
                 }

@@ -85,7 +85,7 @@ function Get-AbrVbrTapeLibrary {
                                                             'Model' = $DriveObj.Model
                                                             'Serial Number' = $DriveObj.SerialNumber
                                                             'Medium' = switch ([string]::IsNullOrEmpty($DriveObj.Medium)) {
-                                                                $true {'-' }
+                                                                $true {'--'}
                                                                 $false {$DriveObj.Medium}
                                                                 Default {'Unknown'}
                                                             }
@@ -137,7 +137,7 @@ function Get-AbrVbrTapeLibrary {
                                                             $inObj = [ordered] @{
                                                                 'Name' = $MediumObj.Name
                                                                 'Expiration Date' = Switch (($MediumObj.ExpirationDate).count) {
-                                                                    0 {"-"}
+                                                                    0 {"--"}
                                                                     default {$MediumObj.ExpirationDate.ToShortDateString()}
                                                                 }
                                                                 'Total Space' = ConvertTo-FileSizeString $MediumObj.Capacity

@@ -44,14 +44,14 @@ function Get-AbrVbrInstalledLicense {
                                         'Type' = $License.Type
                                         'Status' = $License.Status
                                         'Expiration Date' = Switch ($License.ExpirationDate) {
-                                            "" {"-"; break}
-                                            $Null {'-'; break}
+                                            "" {"--"; break}
+                                            $Null {'--'; break}
                                             default {$License.ExpirationDate.ToLongDateString()}
                                         }
                                         'Support Id' = $License.SupportId
                                         'Support Expiration Date' = Switch ($License.SupportExpirationDate) {
-                                            "" {"-"; break}
-                                            $Null {'-'; break}
+                                            "" {"--"; break}
+                                            $Null {'--'; break}
                                             default {$License.SupportExpirationDate.ToLongDateString()}
                                         }
                                         'Auto Update Enabled' = ConvertTo-TextYN $License.AutoUpdateEnabled

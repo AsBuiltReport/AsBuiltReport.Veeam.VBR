@@ -54,30 +54,30 @@ function Get-AbrVbrBackupServerInfo {
                                 'Server Name' = $BackupServer.Name
                                 'Is Domain Joined?' = ConvertTo-TextYN $DomainJoined.PartOfDomain
                                 'Version' = Switch (($VeeamVersion).count) {
-                                    0 {"-"}
+                                    0 {"--"}
                                     default {$VeeamVersion.DisplayVersion}
                                 }
                                 'Database Server' = Switch ([string]::IsNullOrEmpty($VeeamDBInfo.SqlServerName)) {
-                                    $true {"-"}
+                                    $true {"--"}
                                     $false {$VeeamDBInfo.SqlServerName}
                                     default {'Unknown'}
                                 }
                                 'Database Instance' = Switch ([string]::IsNullOrEmpty($VeeamDBInfo.SqlInstanceName)) {
-                                    $true {"-"}
+                                    $true {"--"}
                                     $false {$VeeamDBInfo.SqlInstanceName}
                                     default {'Unknown'}
                                 }
                                 'Database Name' = Switch ([string]::IsNullOrEmpty($VeeamDBInfo.SqlDatabaseName)) {
-                                    $true {"-"}
+                                    $true {"--"}
                                     $false {$VeeamDBInfo.SqlDatabaseName}
                                     default {'Unknown'}
                                 }
                                 'Connection Ports' = Switch (($VeeamInfo.BackupServerPort).count) {
-                                    0 {"-"}
+                                    0 {"--"}
                                     default {"Backup Server Port: $($VeeamInfo.BackupServerPort)`r`nSecure Connections Port: $($VeeamInfo.SecureConnectionsPort)`r`nCloud Server Port: $($VeeamInfo.CloudServerPort)`r`nCloud Service Port: $($VeeamInfo.CloudSvcPort)"}
                                 }
                                 'Install Path' = Switch (($VeeamInfo.CorePath).count) {
-                                    0 {"-"}
+                                    0 {"--"}
                                     default {$VeeamInfo.CorePath}
                                 }
                                 'Audit Logs Path' = $SecurityOptions.AuditLogsPath
@@ -447,7 +447,7 @@ function Get-AbrVbrBackupServerInfo {
                                         $inObj = [ordered] @{
                                             'Registry Key' = $Registry.Key
                                             'Registry Value' = Switch (($Registry.Value).count) {
-                                                0 {'-'}
+                                                0 {'--'}
                                                 1 {$Registry.Value}
                                                 default {$Registry.Value -Join ', '}
 
