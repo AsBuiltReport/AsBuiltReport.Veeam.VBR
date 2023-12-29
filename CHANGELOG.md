@@ -13,17 +13,18 @@
   - Malware Detection information
   - SureBackup Job content analisys (Malware Detection)
   - Event Forwarding (Syslog)
+  - Linux host authentication setting
 
 ### Fixed
 
-- [#114](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/114)
-- [#115](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/115)
-- [#116](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/116)
-- [#117](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/117)
-- [#118](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/118)
-- [#119](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/119)
-- [#120](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/120)
-- [#121](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/121) @carceneaux
+- Close [#114](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/114)
+- Close [#115](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/115)
+- Close [#116](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/116)
+- Close [#117](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/117)
+- Close [#118](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/118)
+- Close [#119](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/119)
+- Close [#120](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/120)
+- Fix [#121](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/121) @carceneaux
 
 ## [0.8.2] - 2023-10-12
 
