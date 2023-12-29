@@ -23,7 +23,7 @@
 - [#118](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/118)
 - [#119](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/119)
 - [#120](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/120)
-- [#121](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/121)
+- [#121](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/121) @carceneaux
 
 ## [0.8.2] - 2023-10-12
 
