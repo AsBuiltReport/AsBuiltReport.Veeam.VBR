@@ -26,7 +26,7 @@ function Get-AbrVbrCloudConnectTenant {
 
     process {
         try {
-            if (Get-VBRInstalledLicense | Where-Object {$_.CloudConnect -in @("Enterprise")}) {
+            if (Get-VBRInstalledLicense | Where-Object {$_.CloudConnect -ne "Disabled"}) {
                 $CloudObjects = Get-VBRCloudTenant | Sort-Object -Property Name
                 if ($CloudObjects) {
                     Section -Style Heading3 'Tenants' {

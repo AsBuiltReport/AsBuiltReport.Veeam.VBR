@@ -25,7 +25,7 @@ function Get-AbrVbrCloudConnectPublicIP {
     }
 
     process {
-        if (Get-VBRInstalledLicense | Where-Object {$_.CloudConnect -in @("Enterprise")}) {
+        if (Get-VBRInstalledLicense | Where-Object {$_.CloudConnect -ne "Disabled"}) {
             if ((Get-VBRCloudGatewayPool).count -gt 0) {
                 Section -Style Heading3 'Public IP' {
                     Paragraph "The following section provides information about Cloud Public IP."

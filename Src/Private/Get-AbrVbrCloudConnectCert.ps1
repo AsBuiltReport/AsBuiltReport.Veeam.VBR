@@ -26,7 +26,7 @@ function Get-AbrVbrCloudConnectCert {
 
     process {
         try {
-            if (Get-VBRInstalledLicense | Where-Object {$_.CloudConnect -in @("Enterprise")}) {
+            if (Get-VBRInstalledLicense | Where-Object {$_.CloudConnect -ne "Disabled"}) {
                 if ((Get-VBRCloudGatewayCertificate).count -gt 0) {
                     Section -Style Heading3 'Gateway Certificate' {
                         Paragraph "The following section provides information about Cloud Gateways SSL Certificate."

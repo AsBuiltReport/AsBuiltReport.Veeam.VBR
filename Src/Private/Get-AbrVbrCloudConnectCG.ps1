@@ -26,7 +26,7 @@ function Get-AbrVbrCloudConnectCG {
 
     process {
         try {
-            if (Get-VBRInstalledLicense | Where-Object {$_.CloudConnect -in @("Enterprise")}) {
+            if (Get-VBRInstalledLicense | Where-Object {$_.CloudConnect -ne "Disabled"}) {
                 if ((Get-VBRCloudGateway).count -gt 0) {
                     Section -Style Heading3 'Cloud Gateways' {
                         Paragraph "The following section provides summary information about configured Cloud Gateways."

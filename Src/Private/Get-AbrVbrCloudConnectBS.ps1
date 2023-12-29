@@ -25,7 +25,7 @@ function Get-AbrVbrCloudConnectBS {
 
     process {
         try {
-            if (Get-VBRInstalledLicense | Where-Object {$_.CloudConnect -in @("Enterprise")}) {
+            if (Get-VBRInstalledLicense | Where-Object {$_.CloudConnect -ne "Disabled"}) {
                 if (((Get-VBRCloudTenant).Resources.Repository).count -gt 0) {
                     $CloudObjects = (Get-VBRCloudTenant).Resources
                     Section -Style Heading3 'Backup Storage' {

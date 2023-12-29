@@ -25,7 +25,7 @@ function Get-AbrVbrCloudConnectStatus {
     }
 
     process {
-        if (Get-VBRInstalledLicense | Where-Object {$_.CloudConnect -in @("Enterprise")}) {
+        if (Get-VBRInstalledLicense | Where-Object {$_.CloudConnect -ne "Disabled"}) {
             if ((Get-VBRCloudInfrastructureState).count -gt 0) {
                 Section -Style Heading3 'Service Status' {
                     Paragraph "The following section provides information about Cloud Gateways SSL Certificate."
