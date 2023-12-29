@@ -250,6 +250,35 @@ function Get-AbrVbrFileShareBackupjobConf {
                                             }
                                         }
                                     }
+                                    if ($InfoLevel.Jobs.FileShare -ge 2 -and ($Bkjob.TypeToString -ne "Object Storage Backup")) {
+                                        Section -Style NOTOCHeading6 -ExcludeFromTOC "Advanced Settings (ACL Handling)" {
+                                            $OutObj = @()
+                                            try {
+                                                Write-PscriboMessage "Discovered $($Bkjob.Name) acl handling options."
+                                                $inObj = [ordered] @{
+                                                    'Permissions and attribute backup' = Switch ($Bkjob.Options.NasBackupOptions.FileAttributesChangeTrackingMode) {
+                                                        'TrackOnlyFolderAttributesChanges' {'Folder-level only (recommended)'}
+                                                        'TrackEverythingAttributesChanges' {'File and folders (slower)'}
+                                                        default {"--"}
+                                                    }
+                                                }
+                                                $OutObj = [pscustomobject]$inobj
+
+                                                $TableParams = @{
+                                                    Name = "Advanced Settings (acl handling) - $($Bkjob.Name)"
+                                                    List = $true
+                                                    ColumnWidths = 40, 60
+                                                }
+                                                if ($Report.ShowTableCaptions) {
+                                                    $TableParams['Caption'] = "- $($TableParams.Name)"
+                                                }
+                                                $OutObj | Table @TableParams
+                                            }
+                                            catch {
+                                                Write-PscriboMessage -IsWarning "Advanced Settings (acl handling) $($Bkjob.Name) Section: $($_.Exception.Message)"
+                                            }
+                                        }
+                                    }
                                     if ($InfoLevel.Jobs.FileShare -ge 2) {
                                         Section -Style NOTOCHeading6 -ExcludeFromTOC "Advanced Settings (Storage)" {
                                             $OutObj = @()
