@@ -86,6 +86,10 @@ function Get-AbrVbrBackupServerInfo {
                                     'True' {"Enabled"}
                                     'False' {"Disabled"}
                                 }
+                                'Linux host authentication' = Switch ($SecurityOptions.HostPolicy.Type) {
+                                    'All' {"Add all discovered host to the list automatically"}
+                                    'KnownHosts' {"Add unknown host to the list manually"}
+                                }
                                 'Logging Level' = $VeeamInfo.LoggingLevel
 
                             }
