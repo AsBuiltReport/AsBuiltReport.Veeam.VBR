@@ -6,7 +6,7 @@ function Get-AbrVbrFileShareBackupjobConf {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.0
+        Version:        0.8.3
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -25,10 +25,15 @@ function Get-AbrVbrFileShareBackupjobConf {
     }
 
     process {
-        $Bkjobs = Get-VBRJob -WarningAction SilentlyContinue | Where-Object {$_.TypeToString -like 'File Backup'} | Sort-Object -Property Name
+        $Bkjobs = Get-VBRJob -WarningAction SilentlyContinue | Where-Object {$_.TypeToString -like 'File Backup' -or $_.TypeToString -like 'Object Storage Backup'}
         if (($Bkjobs).count -gt 0) {
-            Section -Style Heading3 'File Share Backup Jobs Configuration' {
-                Paragraph "The following section details the configuration of File Share type backup jobs."
+            if ($VbrVersion -lt 12.1) {
+                $BSName = 'File Share Backup Jobs Configuration'
+            } else {
+                $BSName = 'Unstructured Data Backup Jobs Configuration'
+            }
+            Section -Style Heading3 $BSName {
+                Paragraph "The following section details the information of $($BSName.ToLower())."
                 BlankLine
                 foreach ($Bkjob in $Bkjobs) {
                     try {
@@ -78,6 +83,7 @@ function Get-AbrVbrFileShareBackupjobConf {
                                                 Text "Best Practice:" -Bold
                                                 Text "It is a general rule of good practice to establish well-defined descriptions. This helps to speed up the fault identification process, as well as enabling better documentation of the environment."
                                             }
+                                            BlankLine
                                         }
                                     }
                                 }
@@ -85,36 +91,85 @@ function Get-AbrVbrFileShareBackupjobConf {
                                     Write-PscriboMessage -IsWarning "Common Information Section: $($_.Exception.Message)"
                                 }
                             }
-                            if ($Bkjob.GetObjectsInJob()) {
-                                Section -Style NOTOCHeading5 -ExcludeFromTOC "Files and Folders" {
-                                    $OutObj = @()
-                                    try {
-                                        foreach ($OBJ in ($Bkjob.GetObjectsInJob() | Where-Object {$_.Type -eq "Include" -or $_.Type -eq "Exclude"} )) {
-                                            Write-PscriboMessage "Discovered $($OBJ.Name) object to backup."
-                                            $inObj = [ordered] @{
-                                                'Name' = $OBJ.Name
-                                                'Resource Type' = $OBJ.TypeDisplayName
-                                                'Role' = $OBJ.Type
-                                                'Location' = $OBJ.Location
-                                                'Approx Size' = $OBJ.ApproxSizeString
-                                                'File Filter Include Masks' = $OBJ.ExtendedOptions.FileSourceOptions.IncludeMasks
-                                                'File Filter Exclude Masks' = $OBJ.ExtendedOptions.FileSourceOptions.ExcludeMasks
-                                            }
-                                            $OutObj = [pscustomobject]$inobj
+                            if ($Bkjob.TypeToString -ne "Object Storage Backup") {
+                                if ($Bkjob.GetObjectsInJob()) {
+                                    Section -Style NOTOCHeading5 -ExcludeFromTOC "Files and Folders" {
+                                        $OutObj = @()
+                                        try {
+                                            foreach ($OBJ in ($Bkjob.GetObjectsInJob() | Where-Object {$_.Type -eq "Include" -or $_.Type -eq "Exclude"})) {
+                                                Write-PscriboMessage "Discovered $($OBJ.Name) files and folders to backup."
+                                                $inObj = [ordered] @{
+                                                    'Name' = $OBJ.Name
+                                                    'Resource Type' = $OBJ.TypeDisplayName
+                                                    'Role' = $OBJ.Type
+                                                    'Location' = $OBJ.Location
+                                                    'Approx Size' = $OBJ.ApproxSizeString
+                                                    'File Filter Include Masks' = $OBJ.ExtendedOptions.FileSourceOptions.IncludeMasks
+                                                    'File Filter Exclude Masks' = $OBJ.ExtendedOptions.FileSourceOptions.ExcludeMasks
+                                                }
+                                                $OutObj = [pscustomobject]$inobj
 
+                                                $TableParams = @{
+                                                    Name = "Files and Folders - $($OBJ.Name)"
+                                                    List = $true
+                                                    ColumnWidths = 40, 60
+                                                }
+                                                if ($Report.ShowTableCaptions) {
+                                                    $TableParams['Caption'] = "- $($TableParams.Name)"
+                                                }
+                                                $OutObj | Table @TableParams
+                                            }
+                                        }
+                                        catch {
+                                            Write-PscriboMessage -IsWarning "Files and Folders Section: $($_.Exception.Message)"
+                                        }
+                                    }
+                                }
+                            } else {
+                                if ((Get-VBRUnstructuredBackupJob -id $Bkjob.Id).BackupObject) {
+                                    Section -Style NOTOCHeading5 -ExcludeFromTOC "Objects" {
+                                        $OutObj = @()
+                                        try {
+                                            foreach ($OBJ in ((Get-VBRUnstructuredBackupJob -id $Bkjob.Id).BackupObject)) {
+                                                Write-PscriboMessage "Discovered $($OBJ.Name) object to backup."
+                                                $inObj = [ordered] @{
+                                                    'Name' = $OBJ.Server.FriendlyName
+                                                    'Path' = Switch ([string]::IsNullOrEmpty($OBJ.Path)) {
+                                                        $true {"--"}
+                                                        $false {$OBJ.Path}
+                                                        default {"Unknown"}
+                                                    }
+                                                    'Container' = Switch ([string]::IsNullOrEmpty($OBJ.Container)) {
+                                                        $true {"--"}
+                                                        $false {$OBJ.Container}
+                                                        default {"Unknown"}
+                                                    }
+                                                    'Inclusion Mask' = Switch ([string]::IsNullOrEmpty($OBJ.InclusionMask)) {
+                                                        $true {"--"}
+                                                        $false {$OBJ.InclusionMask}
+                                                        default {"Unknown"}
+                                                    }
+                                                    'Exclusion Mask' = Switch ([string]::IsNullOrEmpty($OBJ.ExclusionMask)) {
+                                                        $true {"--"}
+                                                        $false {$OBJ.ExclusionMask}
+                                                        default {"Unknown"}
+                                                    }
+                                                }
+                                                $OutObj += [pscustomobject]$inobj
+                                            }
                                             $TableParams = @{
-                                                Name = "Files and Folders - $($OBJ.Name)"
-                                                List = $true
-                                                ColumnWidths = 40, 60
+                                                Name = "Objects - $($OBJ.Name)"
+                                                List = $false
+                                                ColumnWidths = 20, 20, 20, 20, 20
                                             }
                                             if ($Report.ShowTableCaptions) {
                                                 $TableParams['Caption'] = "- $($TableParams.Name)"
                                             }
                                             $OutObj | Table @TableParams
                                         }
-                                    }
-                                    catch {
-                                        Write-PscriboMessage -IsWarning "Files and Folders Section: $($_.Exception.Message)"
+                                        catch {
+                                            Write-PscriboMessage -IsWarning "Objects Section: $($_.Exception.Message)"
+                                        }
                                     }
                                 }
                             }
@@ -137,9 +192,9 @@ function Get-AbrVbrFileShareBackupjobConf {
                                         'Specified' {"File with the following extension only: $($Bkjob.Options.NasBackupRetentionPolicy.IncludedFileExtensions)"}
                                     }
 
-                                    if ($Bkjob.Options.NasBackupRetentionPolicy.LongTermEnabled) {
+                                    if ($Bkjob.Options.NasBackupRetentionPolicy.LongTermEnabled -and ($VbrVersion -lt 12.1)) {
                                         $inObj.add('Keep previous file versions for', "$($Bkjob.Options.NasBackupRetentionPolicy.LongTermRetention) $($Bkjob.Options.NasBackupRetentionPolicy.LongTermRetentionUnit)")
-                                        $inObj.add('Archive repository', (Get-VBRNASBackupJob | Where-Object {$_.id -eq $BKjob.id}).LongTermBackupRepository.Name)
+                                        $inObj.add('Archive repository', (Get-VBRNASBackupJob -WarningAction SilentlyContinue | Where-Object {$_.id -eq $BKjob.id}).LongTermBackupRepository.Name)
                                         $inObj.add('File to Archive', $FiletoArchive)
                                     }
 
@@ -155,7 +210,12 @@ function Get-AbrVbrFileShareBackupjobConf {
                                     }
                                     $OutObj | Table @TableParams
                                     if ($InfoLevel.Jobs.FileShare -ge 2) {
-                                        Section -Style NOTOCHeading6 -ExcludeFromTOC "Advanced Settings (File Version)" {
+                                        if ($VbrVersion -lt 12.1) {
+                                            $FLVersion = "File Version"
+                                        } else {
+                                            $FLVersion = "Object Version"
+                                        }
+                                        Section -Style NOTOCHeading6 -ExcludeFromTOC "Advanced Settings ($FLVersion)" {
                                             $OutObj = @()
                                             try {
                                                 Write-PscriboMessage "Discovered $($Bkjob.Name) File Version options."
@@ -176,7 +236,7 @@ function Get-AbrVbrFileShareBackupjobConf {
                                                 $OutObj = [pscustomobject]$inobj
 
                                                 $TableParams = @{
-                                                    Name = "Advanced Settings (File Version) - $($Bkjob.Name)"
+                                                    Name = "Advanced Settings ($FLVersion) - $($Bkjob.Name)"
                                                     List = $true
                                                     ColumnWidths = 40, 60
                                                 }
@@ -186,7 +246,36 @@ function Get-AbrVbrFileShareBackupjobConf {
                                                 $OutObj | Table @TableParams
                                             }
                                             catch {
-                                                Write-PscriboMessage -IsWarning "Advanced Settings (File Version) $($Bkjob.Name) Section: $($_.Exception.Message)"
+                                                Write-PscriboMessage -IsWarning "Advanced Settings ($FLVersion) $($Bkjob.Name) Section: $($_.Exception.Message)"
+                                            }
+                                        }
+                                    }
+                                    if ($InfoLevel.Jobs.FileShare -ge 2 -and ($Bkjob.TypeToString -ne "Object Storage Backup")) {
+                                        Section -Style NOTOCHeading6 -ExcludeFromTOC "Advanced Settings (ACL Handling)" {
+                                            $OutObj = @()
+                                            try {
+                                                Write-PscriboMessage "Discovered $($Bkjob.Name) acl handling options."
+                                                $inObj = [ordered] @{
+                                                    'Permissions and attribute backup' = Switch ($Bkjob.Options.NasBackupOptions.FileAttributesChangeTrackingMode) {
+                                                        'TrackOnlyFolderAttributesChanges' {'Folder-level only (recommended)'}
+                                                        'TrackEverythingAttributesChanges' {'File and folders (slower)'}
+                                                        default {"--"}
+                                                    }
+                                                }
+                                                $OutObj = [pscustomobject]$inobj
+
+                                                $TableParams = @{
+                                                    Name = "Advanced Settings (acl handling) - $($Bkjob.Name)"
+                                                    List = $true
+                                                    ColumnWidths = 40, 60
+                                                }
+                                                if ($Report.ShowTableCaptions) {
+                                                    $TableParams['Caption'] = "- $($TableParams.Name)"
+                                                }
+                                                $OutObj | Table @TableParams
+                                            }
+                                            catch {
+                                                Write-PscriboMessage -IsWarning "Advanced Settings (acl handling) $($Bkjob.Name) Section: $($_.Exception.Message)"
                                             }
                                         }
                                     }
@@ -354,6 +443,48 @@ function Get-AbrVbrFileShareBackupjobConf {
                                 }
                                 catch {
                                     Write-PscriboMessage -IsWarning "Storage Options Section: $($_.Exception.Message)"
+                                }
+                            }
+                            $ArchiveRepoTarget = Get-VBRUnstructuredBackupJob -id $Bkjob.Id
+                            if ($ArchiveRepoTarget.LongTermRetentionPeriodEnabled) {
+                                Section -Style NOTOCHeading5 -ExcludeFromTOC "Archive Repository" {
+                                    $OutObj = @()
+                                    try {
+                                        Write-PscriboMessage "Discovered $($Bkjob.Name) archive repository."
+                                        try {
+                                            $inObj = [ordered] @{
+                                                'Backup Repository	' = $ArchiveRepoTarget.LongTermBackupRepository.Name
+                                                'Type' = $ArchiveRepoTarget.LongTermBackupRepository.Type
+                                                'FriendlyPath' = $ArchiveRepoTarget.LongTermBackupRepository.FriendlyPath
+                                                'Archive previus version for' = "$($ArchiveRepoTarget.LongTermRetentionPeriod) $($ArchiveRepoTarget.LongTermRetentionType)"
+                                                'File to archive' = $ArchiveRepoTarget.BackupArchivalOptions.ArchivalType
+                                            }
+
+                                            if ($ArchiveRepoTarget.BackupArchivalOptions.ArchivalType -eq 'ExclusionMask') {
+                                                $inObj.add("Exclusion Mask", $ArchiveRepoTarget.BackupArchivalOptions.ExclusionMask -join ",")
+                                            } elseif ($ArchiveRepoTarget.BackupArchivalOptions.ArchivalType -eq 'InclusionMask') {
+                                                $inObj.add("Inclusion Mask", $ArchiveRepoTarget.BackupArchivalOptions.InclusionMask -join ",")
+                                            }
+                                            $inObj.add("Description", $ArchiveRepoTarget.LongTermBackupRepository.Description)
+
+                                            $OutObj += [pscustomobject]$inobj
+                                        }
+                                        catch {
+                                            Write-PscriboMessage -IsWarning "Archive Repository $($ArchiveRepoTarget.Name) Section: $($_.Exception.Message)"
+                                        }
+                                        $TableParams = @{
+                                            Name = "Archive Repository - $($Bkjob.Name)"
+                                            List = $true
+                                            ColumnWidths = 40, 60
+                                        }
+                                        if ($Report.ShowTableCaptions) {
+                                            $TableParams['Caption'] = "- $($TableParams.Name)"
+                                        }
+                                        $OutObj | Sort-Object -Property 'Job Name' | Table @TableParams
+                                    }
+                                    catch {
+                                        Write-PscriboMessage -IsWarning "Archive Repository Section: $($_.Exception.Message)"
+                                    }
                                 }
                             }
                             $SecondaryTargets = [Veeam.Backup.Core.CBackupJob]::GetSecondDestinationJobs($Bkjob.Id) | Where-Object {$_.JobType -ne 'SimpleBackupCopyWorker'}
@@ -549,7 +680,7 @@ function Get-AbrVbrFileShareBackupjobConf {
                         }
                     }
                     catch {
-                        Write-PscriboMessage -IsWarning "File Share Backup Jobs Configuration Section: $($_.Exception.Message)"
+                        Write-PscriboMessage -IsWarning "$($BSName) Section: $($_.Exception.Message)"
                     }
                 }
             }

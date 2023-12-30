@@ -59,7 +59,7 @@ function Get-AbrVbrBackupCopyjobConf {
                                         }
 
                                         if ($HealthCheck.Jobs.BestPractice) {
-                                            $OutObj | Where-Object { $Null -like $_.'Description' -or $_.'Description' -eq "-" } | Set-Style -Style Warning -Property 'Description'
+                                            $OutObj | Where-Object { $Null -like $_.'Description' -or $_.'Description' -eq "--" } | Set-Style -Style Warning -Property 'Description'
                                             $OutObj | Where-Object { $_.'Description' -match "Created by" } | Set-Style -Style Warning -Property 'Description'
                                             $OutObj | Where-Object { $_.'Latest Result' -eq 'Failed' } | Set-Style -Style Critical -Property 'Latest Result'
                                             $OutObj | Where-Object { $_.'Latest Result' -eq 'Warning' } | Set-Style -Style Warning -Property 'Latest Result'
@@ -76,7 +76,7 @@ function Get-AbrVbrBackupCopyjobConf {
                                         }
                                         $OutObj | Table @TableParams
                                         if ($HealthCheck.Jobs.BestPractice) {
-                                            if ($OutObj | Where-Object { $_.'Description' -match 'Created by' -or $_.'Description' -eq '-'}) {
+                                            if ($OutObj | Where-Object { $_.'Description' -match 'Created by' -or $_.'Description' -eq '--'}) {
                                                 Paragraph "Health Check:" -Bold -Underline
                                                 BlankLine
                                                 Paragraph {

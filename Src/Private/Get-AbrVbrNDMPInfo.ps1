@@ -6,7 +6,7 @@ function Get-AbrVbrNDMPInfo {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.7.1
+        Version:        0.8.3
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -27,11 +27,11 @@ function Get-AbrVbrNDMPInfo {
     process {
         try {
             if (Get-VBRInstalledLicense | Where-Object {$_.Edition -in @("EnterprisePlus","Enterprise") -and $_.Status -ne "Expired"}) {
-                if ((Get-VBRNDMPServer).count -gt 0) {
+                $NDMPObjs = Get-VBRNDMPServer
+                if ($NDMPObjs) {
                     Section -Style Heading3 'NDMP Servers' {
                         $OutObj = @()
                         try {
-                            $NDMPObjs = Get-VBRNDMPServer | Where-Object {$_.Port -ne 0}
                             foreach ($NDMPObj in $NDMPObjs) {
                                 try {
                                     Write-PscriboMessage "Discovered $($NDMPObj.Name) NDMP Server."

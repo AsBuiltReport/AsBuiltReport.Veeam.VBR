@@ -6,7 +6,7 @@ function Get-AbrVbrCloudConnectRR {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.7.1
+        Version:        0.8.3
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -25,7 +25,7 @@ function Get-AbrVbrCloudConnectRR {
     }
 
     process {
-        if (Get-VBRInstalledLicense | Where-Object {$_.CloudConnect -in @("Enterprise")}) {
+        if (Get-VBRInstalledLicense | Where-Object {$_.CloudConnect -ne "Disabled"}) {
             if ((Get-VBRCloudHardwarePlan).count -gt 0) {
                 Section -Style Heading3 'Replica Resources' {
                     Paragraph "The following table provides a summary of Replica Resources."
@@ -42,12 +42,12 @@ function Get-AbrVbrCloudConnectRR {
                                     'CPU' = Switch ([string]::IsNullOrEmpty($CloudObject.CPU)) {
                                         $true {'Unlimited'}
                                         $false {"$([math]::Round($CloudObject.CPU / 1000, 1)) Ghz"}
-                                        default {'-'}
+                                        default {'--'}
                                     }
                                     'Memory' = Switch ([string]::IsNullOrEmpty($CloudObject.Memory)) {
                                         $true {'Unlimited'}
                                         $false {"$([math]::Round($CloudObject.Memory / 1Kb, 2)) GB"}
-                                        default {'-'}
+                                        default {'--'}
                                     }
                                     'Storage Quota' = "$(($CloudObject.Datastore.Quota | Measure-Object -Sum).Sum) GB"
                                     'Network Count' = $CloudObject.NumberOfNetWithInternet + $CloudObject.NumberOfNetWithoutInternet
@@ -94,12 +94,12 @@ function Get-AbrVbrCloudConnectRR {
                                                             'CPU' = Switch ([string]::IsNullOrEmpty($CloudObject.CPU)) {
                                                                 $true {'Unlimited'}
                                                                 $false {"$([math]::Round($CloudObject.CPU / 1000, 1)) Ghz"}
-                                                                default {'-'}
+                                                                default {'--'}
                                                             }
                                                             'Memory' = Switch ([string]::IsNullOrEmpty($CloudObject.Memory)) {
                                                                 $true {'Unlimited'}
                                                                 $false {"$([math]::Round($CloudObject.Memory / 1Kb, 2)) GB"}
-                                                                default {'-'}
+                                                                default {'--'}
                                                             }
                                                             'Network Count' = $CloudObject.NumberOfNetWithInternet + $CloudObject.NumberOfNetWithoutInternet
                                                             'Subscribed Tenant' = Switch ([string]::IsNullOrEmpty($CloudObject.SubscribedTenantId)) {
@@ -142,7 +142,7 @@ function Get-AbrVbrCloudConnectRR {
                                                                 'Platform' = $Storage.Platform
                                                                 'Storage Quota' = "$($Storage.Quota) GB"
                                                                 'Storage Policy' = Switch ([string]::IsNullOrEmpty($Storage.StoragePolicy.Name)) {
-                                                                    $true {'-'}
+                                                                    $true {'--'}
                                                                     $false {$Storage.StoragePolicy.Name}
                                                                     default {'Unknown'}
                                                                 }

@@ -45,6 +45,8 @@ function Get-AbrVbrInfrastructureSummary {
                 }
                 Catch {
                     Write-PscriboMessage -IsWarning "Infrastructure SureBackup Summary Section: $($_.Exception.Message)"
+                    $SureBackupAGs = 0
+                    $SureBackupVLs = 0
                 }
                 $inObj = [ordered] @{
                     'Backup Proxies' = $BackupProxies

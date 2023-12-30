@@ -46,7 +46,7 @@ function Get-AbrVbrStorageOntap {
                                     'Description' = $OntapHost.Description
                                     'Storage Type' = $OntapHost.NaOptions.HostType
                                     'Used Credential' = Switch (($UsedCred).count) {
-                                        0 {"-"}
+                                        0 {"--"}
                                         default {"$($UsedCred.Name) - ($($UsedCred.Description))"}
                                     }
                                     'Connection Address' = $OntapHost.ConnPoints -join ", "

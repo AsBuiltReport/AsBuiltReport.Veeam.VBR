@@ -80,32 +80,34 @@ function Get-AbrVbrSureBackupjobconf {
                                     Write-PscriboMessage -IsWarning "SureBackup $($SBkjob.Name) Common Information Section: $($_.Exception.Message)"
                                 }
                                 try {
-                                    Section -Style NOTOCHeading5 -ExcludeFromTOC 'Virtual Lab' {
-                                        $OutObj = @()
-                                        Write-PscriboMessage "Discovered $($SBkjob.VirtualLab.Name) virtual lab."
-                                        $inObj = [ordered] @{
-                                            'Name' = $SBkjob.VirtualLab.Name
-                                            'Description' = $SBkjob.VirtualLab.Description
-                                            'Physical Host' = $SBkjob.VirtualLab.Server.Name
-                                            'Physical Host Version' = $SBkjob.VirtualLab.Server.Info.Info
-                                        }
-                                        if ($SBkjob.VirtualLab.Platform -eq "HyperV" -and (Get-VBRHvVirtualLabConfiguration)) {
-                                            $inObj.add('Destination', (Get-VBRHvVirtualLabConfiguration -Id $SBkjob.VirtualLab.Id).Path)
-                                        }
-                                        if ($SBkjob.VirtualLab.Platform -eq "VMWare") {
-                                            $inObj.add('Datastore', (Get-VBRViVirtualLabConfiguration -Id $SBkjob.VirtualLab.Id).CacheDatastore)
-                                        }
-                                        $OutObj = [pscustomobject]$inobj
+                                    if ($SBkjob.VirtualLab) {
+                                        Section -Style NOTOCHeading5 -ExcludeFromTOC 'Virtual Lab' {
+                                            $OutObj = @()
+                                            Write-PscriboMessage "Discovered $($SBkjob.VirtualLab.Name) virtual lab."
+                                            $inObj = [ordered] @{
+                                                'Name' = $SBkjob.VirtualLab.Name
+                                                'Description' = $SBkjob.VirtualLab.Description
+                                                'Physical Host' = $SBkjob.VirtualLab.Server.Name
+                                                'Physical Host Version' = $SBkjob.VirtualLab.Server.Info.Info
+                                            }
+                                            if ($SBkjob.VirtualLab.Platform -eq "HyperV" -and (Get-VBRHvVirtualLabConfiguration)) {
+                                                $inObj.add('Destination', (Get-VBRHvVirtualLabConfiguration -Id $SBkjob.VirtualLab.Id).Path)
+                                            }
+                                            if ($SBkjob.VirtualLab.Platform -eq "VMWare") {
+                                                $inObj.add('Datastore', (Get-VBRViVirtualLabConfiguration -Id $SBkjob.VirtualLab.Id).CacheDatastore)
+                                            }
+                                            $OutObj = [pscustomobject]$inobj
 
-                                        $TableParams = @{
-                                            Name = "Virtual Lab - $($SBkjob.Name)"
-                                            List = $true
-                                            ColumnWidths = 40, 60
+                                            $TableParams = @{
+                                                Name = "Virtual Lab - $($SBkjob.Name)"
+                                                List = $true
+                                                ColumnWidths = 40, 60
+                                            }
+                                            if ($Report.ShowTableCaptions) {
+                                                $TableParams['Caption'] = "- $($TableParams.Name)"
+                                            }
+                                            $OutObj | Table @TableParams
                                         }
-                                        if ($Report.ShowTableCaptions) {
-                                            $TableParams['Caption'] = "- $($TableParams.Name)"
-                                        }
-                                        $OutObj | Table @TableParams
                                     }
                                 }
                                 catch {
@@ -178,7 +180,12 @@ function Get-AbrVbrSureBackupjobconf {
                                                                 'Application Initialization Timeout' = "$($LinkedJob.StartupOptions.ApplicationInitializationTimeout) sec"
                                                                 'VM heartbeat is present' = ConvertTo-TextYN $LinkedJob.StartupOptions.VMHeartBeatCheckEnabled
                                                                 'VM respond to ping on any interface' = ConvertTo-TextYN $LinkedJob.StartupOptions.VMPingCheckEnabled
-                                                                'VM Test Script' = $LinkedJob.ScriptOptions.PredefinedApplication -join ","
+                                                                'VM Role' = ConvertTo-EmptyToFiller ($LinkedJob.ScriptOptions.PredefinedApplication -join ", ")
+                                                                'VM Test Script' = Switch ([string]::IsNullOrEmpty(($LinkedJob.ScriptOptions | ForEach-Object {if ($_.Name) {$_.Name}}))) {
+                                                                    $true {'--'}
+                                                                    $false {($LinkedJob.ScriptOptions) | ForEach-Object {if ($_.Name) {"Name: $($_.Name), Path: $($_.Path), Argument: $($_.Argument)"}}}
+                                                                    default {"Uknown"}
+                                                                }
                                                                 'Credentials' = Switch ($LinkedJob.Credentials.Description) {
                                                                     $Null {'None'}
                                                                     default {$LinkedJob.Credentials.Description}
@@ -195,6 +202,39 @@ function Get-AbrVbrSureBackupjobconf {
                                                                 $TableParams['Caption'] = "- $($TableParams.Name)"
                                                             }
                                                             $OutObj | Table @TableParams
+                                                        }
+                                                    }
+                                                    if ($SBkjob.LinkedJob.VM) {
+                                                        Section -Style NOTOCHeading6 -ExcludeFromTOC 'Per VM Verification Rules' {
+                                                            $OutObj = @()
+                                                            foreach ($LinkedJobVM in $SBkjob.LinkedJob.VM) {
+                                                                Write-PscriboMessage "Discovered $($LinkedJobVM.Name) verification rules."
+                                                                $inObj = [ordered] @{
+                                                                    'VM Name' = $LinkedJobVM.Name
+                                                                    'Excluded' = ConvertTo-TextYN $LinkedJobVM.IsExcluded
+                                                                    'VM Role' = ConvertTo-EmptyToFiller ($LinkedJobVM.Role -join ", ")
+                                                                    'VM Test Script' = Switch ([string]::IsNullOrEmpty(($LinkedJobVM.TestScript | ForEach-Object {if ($_.Name) {$_.Name}}))) {
+                                                                        $true {'--'}
+                                                                        $false {($LinkedJobVM.TestScript) | ForEach-Object {if ($_.Name) {"Name: $($_.Name),Path: $($_.Path),Argument: $($_.Argument)"}}}
+                                                                        default {"Uknown"}
+                                                                    }
+                                                                    'Credentials' = Switch ($LinkedJobVM.Credentials.Description) {
+                                                                        $Null {'None'}
+                                                                        default {$LinkedJobVM.Credentials.Description}
+                                                                    }
+                                                                }
+                                                                $OutObj += [pscustomobject]$inobj
+                                                            }
+
+                                                            $TableParams = @{
+                                                                Name = "Per VM Verification Rules - $($SBkjob.Name)"
+                                                                List = $false
+                                                                ColumnWidths = 21, 11, 20, 28, 20
+                                                            }
+                                                            if ($Report.ShowTableCaptions) {
+                                                                $TableParams['Caption'] = "- $($TableParams.Name)"
+                                                            }
+                                                            $OutObj | Sort-Object -Property 'VM Name' | Table @TableParams
                                                         }
                                                     }
                                                 }
@@ -216,12 +256,23 @@ function Get-AbrVbrSureBackupjobconf {
                                             'Backup file integrity scan' = ConvertTo-TextYN $SBkjob.VerificationOptions.EnableDiskContentValidation
                                             'Skip validation for application group VM' = ConvertTo-TextYN $SBkjob.VerificationOptions.DisableApplicationGroupValidation
                                             'Malware Scan' = ConvertTo-TextYN $SBkjob.VerificationOptions.EnableMalwareScan
+                                            'YARA Scan' = ConvertTo-TextYN $SBkjob.VerificationOptions.EnableYARAScan
+                                            'YARA Rules' = ConvertTo-EmptyToFiller $SBkjob.VerificationOptions.YARAScanRule
                                             'Scan the entire image' = ConvertTo-TextYN $SBkjob.VerificationOptions.EnableEntireImageScan
                                             'Skip application group machine from malware scan' = ConvertTo-TextYN $SBkjob.VerificationOptions.DisableApplicationGroupMalwareScan
                                             'Send SNMP trap' = ConvertTo-TextYN $SBkjob.VerificationOptions.EnableSNMPNotification
                                             'Send Email notification' = ConvertTo-TextYN $SBkjob.VerificationOptions.EnableEmailNotification
                                             'Email recipients' = $SBkjob.VerificationOptions.Address
+                                            'Use custom notification settings' = $SBkjob.VerificationOptions.UseCustomEmailSettings
                                         }
+
+                                        if ($SBkjob.VerificationOptions.UseCustomEmailSettings) {
+                                            $inObj.Add("Custom Subject", $SBkjob.VerificationOptions.Subject)
+                                            $inObj.Add("Notify On Success", $SBkjob.VerificationOptions.NotifyOnSuccess)
+                                            $inObj.Add("Notify On Warning", $SBkjob.VerificationOptions.NotifyOnWarning)
+                                            $inObj.Add("Notify On Error", $SBkjob.VerificationOptions.NotifyOnError)
+                                        }
+
                                         $OutObj = [pscustomobject]$inobj
 
                                         $TableParams = @{

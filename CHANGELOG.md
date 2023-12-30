@@ -1,11 +1,37 @@
 # :arrows_clockwise: Veeam VBR As Built Report Changelog
 
+## [0.8.3] - 2023-12-29
+
+### Added
+
+- Initial diagramming support
+- v12.1 support:
+  - File Backup Advanced Setting (ACL Handling) collection
+  - Object Storage Backup Jobs
+  - Object Storage data source (Unstructured Data) collection
+  - Global Exclusions information
+  - Malware Detection information
+  - SureBackup Job content analisys (Malware Detection)
+  - Event Forwarding (Syslog)
+  - Linux host authentication setting
+
+### Fixed
+
+- Close [#114](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/114)
+- Close [#115](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/115)
+- Close [#116](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/116)
+- Close [#117](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/117)
+- Close [#118](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/118)
+- Close [#119](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/119)
+- Close [#120](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/120)
+- Fix [#121](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/121) @carceneaux
+
 ## [0.8.2] - 2023-10-12
 
 ### Fixed
 
 - Fixed misspelled module name in file /Src/Public/Invoke-AsBuiltReport.Veeam.VBR.ps1. Fix #110
-  
+
 ## [0.8.1] - 2023-10-03
 
 ### Removed

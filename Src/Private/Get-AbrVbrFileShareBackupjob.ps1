@@ -6,7 +6,7 @@ function Get-AbrVbrFileShareBackupjob {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.7.1
+        Version:        0.8.3
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -26,15 +26,20 @@ function Get-AbrVbrFileShareBackupjob {
 
     process {
         try {
-            $FSBkjobs = Get-VBRJob -WarningAction SilentlyContinue | Where-Object {$_.TypeToString -like 'File Backup'}
+            $FSBkjobs = Get-VBRJob -WarningAction SilentlyContinue | Where-Object {$_.TypeToString -like 'File Backup' -or $_.TypeToString -like 'Object Storage Backup'}
             if ($FSBkjobs.count -gt 0) {
-                Section -Style Heading3 'File Share Backup Jobs' {
-                    Paragraph "The following section list file share backup jobs created in Veeam Backup & Replication."
+                if ($VbrVersion -lt 12.1) {
+                    $BSName = 'File Share Backup Jobs'
+                } else {
+                    $BSName = 'Unstructured Data Backup Jobs'
+                }
+                Section -Style Heading3 $BSName {
+                    Paragraph "The following section list $($BSName.ToLower()) created in Veeam Backup & Replication."
                     BlankLine
                     $OutObj = @()
                     foreach ($FSBkjob in $FSBkjobs) {
                         try {
-                            Write-PscriboMessage "Discovered $($FSBkjob.Name) file share."
+                            Write-PscriboMessage "Discovered $($FSBkjob.Name) $($BSName.ToLower())."
                             $inObj = [ordered] @{
                                 'Name' = $FSBkjob.Name
                                 'Type' = $FSBkjob.TypeToString
@@ -51,7 +56,7 @@ function Get-AbrVbrFileShareBackupjob {
                             $OutObj += [pscustomobject]$inobj
                         }
                         catch {
-                            Write-PscriboMessage -IsWarning "File Share Backup Jobs $($FSBkjob.Name) Section: $($_.Exception.Message)"
+                            Write-PscriboMessage -IsWarning "$($BSName.ToLower()) $($FSBkjob.Name) Section: $($_.Exception.Message)"
                         }
                     }
 
@@ -63,7 +68,7 @@ function Get-AbrVbrFileShareBackupjob {
                     }
 
                     $TableParams = @{
-                        Name = "File Share Backup Jobs - $VeeamBackupServer"
+                        Name = "$BSName - $VeeamBackupServer"
                         List = $false
                         ColumnWidths = 25, 20, 15, 15, 25
                     }
@@ -75,7 +80,7 @@ function Get-AbrVbrFileShareBackupjob {
             }
         }
         catch {
-            Write-PscriboMessage -IsWarning "File Share Backup Jobs Section: $($_.Exception.Message)"
+            Write-PscriboMessage -IsWarning "$($BSName.ToLower()) Section: $($_.Exception.Message)"
         }
     }
     end {}
