@@ -73,7 +73,6 @@ PowerShell 5.1 and the following PowerShell modules are required for generating 
 - [AsBuiltReport.Core Module](https://github.com/AsBuiltReport/AsBuiltReport.Core)
 - [Veeam.Diagrammer Module](https://github.com/rebelinux/Veeam.Diagrammer)
 
-
 ### :closed_lock_with_key: Required Privileges
 
 Only users with Veeam Backup Administrator role assigned can generate a Veeam VBR As Built Report.
@@ -143,7 +142,9 @@ The **Options** schema allows certain options within the report to be toggled on
 | PSDefaultAuthentication | Negotiate/Kerberos | Default                        | Set the PSRemoting authentication method           |
 | EnableCharts            | true/false         | false                          | Toggle to enable/disable creation of charts.       |
 | EnableHardwareInventory | true / false       | false                          | Toggle to enable/disable of Hardware information   |
-| EnableDiagrams          | true / false       | false                          | Toggle to enable/disable of Diagrams               |
+| EnableDiagrams          | true / false       | false                          | Toggle to enable/disable of Infrastructure Diagrams|
+
+###### * Note: In order to generate the infrastructure diagram, the Veeam.Diagrammer module requires the following windows application [Graphviz](https://graphviz.org/download/#windows) >= v9.0
 
 ### InfoLevel
 
