@@ -38,7 +38,12 @@ function Get-AbrVbrInfrastructureSummary {
                 $SocketLicenses = (Get-VBRInstalledLicense).SocketLicenseSummary
                 $CapacityLicenses = (Get-VBRInstalledLicense).CapacityLicenseSummary
                 $WANAccels = (Get-VBRWANAccelerator).count
-                $ServiceProviders = (Get-VBRCloudProvider).count
+                try {
+                    $ServiceProviders = (Get-VBRCloudProvider).count
+                } Catch {
+                    Write-PscriboMessage -IsWarning "Infrastructure Service Providers Summary Section: $($_.Exception.Message)"
+                    $ServiceProviders = 0
+                }
                 try {
                     $SureBackupAGs = (Get-VBRApplicationGroup).count
                     $SureBackupVLs = (Get-VBRVirtualLab).count
