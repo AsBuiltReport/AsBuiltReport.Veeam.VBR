@@ -5,7 +5,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.3
+        Version:        0.8.4
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -67,6 +67,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                     BlankLine
                     if ($InfoLevel.Infrastructure.BackupServer -ge 1) {
                         Get-AbrVbrInfrastructureSummary
+                        Get-AbrVbrSecurityCompliance
                         Get-AbrVbrBackupServerInfo
                         Get-AbrVbrEnterpriseManagerInfo
                     }
@@ -97,6 +98,9 @@ function Invoke-AsBuiltReport.Veeam.VBR {
 
                     Get-AbrVbrUserRoleAssignment
                     Get-AbrVbrCredential
+                    if ($VbrVersion -ge 12.1) {
+                        Get-AbrVbrKMSInfo
+                    }
                     Get-AbrVbrLocation
                     Get-AbrVbrManagedServer
 
