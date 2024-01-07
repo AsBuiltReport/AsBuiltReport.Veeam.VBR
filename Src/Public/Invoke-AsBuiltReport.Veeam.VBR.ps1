@@ -98,6 +98,9 @@ function Invoke-AsBuiltReport.Veeam.VBR {
 
                     Get-AbrVbrUserRoleAssignment
                     Get-AbrVbrCredential
+                    if ($VbrVersion -ge 12.1) {
+                        Get-AbrVbrKMSInfo
+                    }
                     Get-AbrVbrLocation
                     Get-AbrVbrManagedServer
 
