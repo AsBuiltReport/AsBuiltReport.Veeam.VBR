@@ -55,6 +55,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
         Get-AbrVbrRequiredModule -Name 'Veeam.Backup.PowerShell' -Version '1.0'
         Get-AbrVbrServerConnection
         $VeeamBackupServer = ((Get-VBRServerSession).Server).ToString().ToUpper().Split(".")[0]
+        $script:VbrLicenses = Get-VBRInstalledLicense
         Section -Style Heading1 $($VeeamBackupServer) {
             Paragraph "The following section provides an overview of the implemented components of Veeam Backup & Replication."
             BlankLine
@@ -293,7 +294,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
             #                                Cloud Connect Section                                        #
             #---------------------------------------------------------------------------------------------#
             if ($InfoLevel.CloudConnect.PSObject.Properties.Value -ne 0) {
-                if (Get-VBRInstalledLicense | Where-Object {$_.CloudConnect -ne "Disabled" -and $_.Status -ne "Expired"}) {
+                if ($VbrLicenses | Where-Object {$_.CloudConnect -ne "Disabled" -and $_.Status -ne "Expired"}) {
                     if ((Get-VBRCloudGateway).count -gt 0 -or ((Get-VBRCloudTenant).count -gt 0))  {
                         Section -Style Heading2 'Cloud Connect' {
                             Paragraph "The following section provides information about Cloud Connect components from server $(((Get-VBRServerSession).Server))."

@@ -6,7 +6,7 @@ function Get-AbrVbrPhysicalInfrastructure {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.7.1
+        Version:        0.8.4
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -26,15 +26,15 @@ function Get-AbrVbrPhysicalInfrastructure {
 
     process {
         try {
-            if (Get-VBRInstalledLicense | Where-Object {$_.Status -ne "Expired"}) {
-                if ((Get-VBRProtectionGroup).count -gt 0) {
+            if ($VbrLicenses | Where-Object {$_.Status -ne "Expired"}) {
+                $InventObjs = Get-VBRProtectionGroup | Sort-Object -Property Name
+                if ($InventObjs) {
                     Section -Style Heading3 'Physical Infrastructure' {
                         Paragraph "The following sections detail configuration information about managed physical infrastructure."
                         BlankLine
                         try {
                             Section -Style Heading4 'Protection Groups Summary' {
                                 $OutObj = @()
-                                $InventObjs = Get-VBRProtectionGroup
                                 foreach ($InventObj in $InventObjs) {
                                     try {
                                         Write-PscriboMessage "Discovered $($InventObj.Name) Protection Group."
@@ -69,8 +69,7 @@ function Get-AbrVbrPhysicalInfrastructure {
                                 if ($InfoLevel.Inventory.PHY -ge 2) {
                                     try {
                                         $OutObj = @()
-                                        $InventObjs = Get-VBRProtectionGroup | Sort-Object -Property Name
-                                        if (($InventObjs).count -gt 0) {
+                                        if ($InventObjs) {
                                             Section -Style Heading5 "Protection Group Configuration" {
                                                 foreach ($InventObj in $InventObjs) {
                                                     try {

@@ -6,7 +6,7 @@ function Get-AbrVbrObjectRepository {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.0
+        Version:        0.8.4
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -26,12 +26,12 @@ function Get-AbrVbrObjectRepository {
 
     process {
         try {
-            if ((Get-VBRObjectStorageRepository).count -gt 0) {
+            $ObjectRepos = Get-VBRObjectStorageRepository | Sort-Object -Property Name
+            if ($ObjectRepos) {
                 Section -Style Heading3 'Object Storage Repository' {
                     Paragraph "The following section provides a summary about the Veeam Object Storage Repository."
                     BlankLine
                     $OutObj = @()
-                    $ObjectRepos = Get-VBRObjectStorageRepository
                     foreach ($ObjectRepo in $ObjectRepos) {
                         if ($Null -ne $ObjectRepo.ConnectionType) {
                             try {
@@ -94,11 +94,10 @@ function Get-AbrVbrObjectRepository {
                     #---------------------------------------------------------------------------------------------#
                     if ($InfoLevel.Infrastructure.BR -ge 2) {
                         try {
-                            if ((Get-VBRObjectStorageRepository).count -gt 0) {
+                            if ($ObjectRepos) {
                                 Section -Style Heading4 "Object Storage Repository Configuration" {
                                     Paragraph "The following section provides detailed information about Object Storage Backup Repository"
                                     BlankLine
-                                    $ObjectRepos = Get-VBRObjectStorageRepository | Sort-Object -Property Name
                                     foreach ($ObjectRepo in $ObjectRepos) {
                                         try {
                                             Section -Style NOTOCHeading4 -ExcludeFromTOC "$($ObjectRepo.Name)" {
@@ -178,11 +177,11 @@ function Get-AbrVbrObjectRepository {
                 #                            Archive Object Storage Repository Section                        #
                 #---------------------------------------------------------------------------------------------#
                 try {
-                    if ((Get-VBRArchiveObjectStorageRepository).count -gt 0) {
+                    $ObjectRepoArchives = Get-VBRArchiveObjectStorageRepository | Sort-Object -Property Name
+                    if ($ObjectRepoArchives) {
                         Section -Style Heading3 "Archive Object Storage Repository" {
                             Paragraph "The following section provides detailed information about Archive Object Storage Backup Repository"
                             BlankLine
-                            $ObjectRepoArchives = Get-VBRArchiveObjectStorageRepository | Sort-Object -Property Name
                             foreach ($ObjectRepoArchive in $ObjectRepoArchives) {
                                 try {
                                     Section -Style NOTOCHeading4 -ExcludeFromTOC "$($ObjectRepoArchive.Name)" {

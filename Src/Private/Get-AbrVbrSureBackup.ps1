@@ -6,7 +6,7 @@ function Get-AbrVbrSureBackup {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.0
+        Version:        0.8.4
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -26,18 +26,19 @@ function Get-AbrVbrSureBackup {
 
     process {
         try {
-            if (((Get-VBRApplicationGroup).count -gt 0) -or ((Get-VBRVirtualLab).count -gt 0)) {
+            $SureBackupAGs = Get-VBRApplicationGroup | Sort-Object -Property Name
+            $SureBackupVLs = Get-VBRVirtualLab  | Sort-Object -Property Name
+            if ($SureBackupAGs -or $SureBackupVLs) {
                 Section -Style Heading3 'SureBackup Configuration' {
                     Paragraph "The following section provides configuration information about SureBackup."
                     BlankLine
                     try {
-                        if ((Get-VBRApplicationGroup).count -gt 0) {
+                        if ($SureBackupAGs) {
                             Section -Style Heading4 'Application Groups' {
                                 Paragraph "The following section provides a summary about Application Groups."
                                 BlankLine
                                 $OutObj = @()
                                 try {
-                                    $SureBackupAGs = Get-VBRApplicationGroup
                                     foreach ($SureBackupAG in $SureBackupAGs) {
                                         Write-PscriboMessage "Discovered $($SureBackupAG.Name) Application Group."
                                         $inObj = [ordered] @{
@@ -66,10 +67,9 @@ function Get-AbrVbrSureBackup {
                     catch {
                         Write-PscriboMessage -IsWarning "SureBackup Configuration Section: $($_.Exception.Message)"
                     }
-                    if ((Get-VBRApplicationGroup).count -gt 0) {
+                    if ($SureBackupAGs) {
                         if ($InfoLevel.Infrastructure.SureBackup -ge 2) {
                             try {
-                                $SureBackupAGs = Get-VBRApplicationGroup | Sort-Object -Property Name
                                 foreach ($SureBackupAG in $SureBackupAGs) {
                                     if ($SureBackupAG.VM) {
                                         Section -Style Heading5 "$($SureBackupAG.Name) VM Settings" {
@@ -117,14 +117,13 @@ function Get-AbrVbrSureBackup {
                             }
                         }
                     }
-                    if ((Get-VBRVirtualLab).count -gt 0) {
+                    if ($SureBackupVL) {
                         try {
                             Section -Style Heading4 'Virtual Labs' {
                                 Paragraph "The following section provides a summary about SureBackup Virtual Lab."
                                 BlankLine
                                 $OutObj = @()
                                 try {
-                                    $SureBackupVLs = Get-VBRVirtualLab
                                     foreach ($SureBackupVL in $SureBackupVLs) {
                                         Write-PscriboMessage "Discovered $($SureBackupVL.Name) Virtual Lab."
                                         $inObj = [ordered] @{
@@ -151,33 +150,33 @@ function Get-AbrVbrSureBackup {
                                 $OutObj | Sort-Object -Property 'Name' | Table @TableParams
                                 if ($InfoLevel.Infrastructure.SureBackup -ge 2) {
                                     try {
-                                        $SureBackupVLs = Get-VBRViVirtualLabConfiguration | Sort-Object -Property Name
-                                        if ($SureBackupVLs) {
+                                        $SureBackupVLCs = Get-VBRViVirtualLabConfiguration | Sort-Object -Property Name
+                                        if ($SureBackupVLCs) {
                                             Section -Style Heading5 "vSphere Virtual Labs Configuration" {
-                                                foreach ($SureBackupVL in $SureBackupVLs) {
+                                                foreach ($SureBackupVLC in $SureBackupVLCs) {
                                                     try {
-                                                        Section -Style Heading6 "$($SureBackupVL.Name) Settings" {
+                                                        Section -Style Heading6 "$($SureBackupVLC.Name) Settings" {
                                                             $OutObj = @()
-                                                            Write-PscriboMessage "Discovered $($SureBackupVL.Name) Virtual Lab."
+                                                            Write-PscriboMessage "Discovered $($SureBackupVLC.Name) Virtual Lab."
                                                             $inObj = [ordered] @{
-                                                                'Host' = $SureBackupVL.Server.Name
-                                                                'Resource Pool' = $SureBackupVL.DesignatedResourcePoolName
-                                                                'VM Folder' =  $SureBackupVL.DesignatedVMFolderName
-                                                                'Cache Datastore' = $SureBackupVL.CacheDatastore
-                                                                'Proxy Appliance Enabled' = ConvertTo-TextYN $SureBackupVL.ProxyApplianceEnabled
-                                                                'Proxy Appliance' = $SureBackupVL.ProxyAppliance
-                                                                'Networking Type' = $SureBackupVL.Type
-                                                                'Production Network' = $SureBackupVL.NetworkMapping.ProductionNetwork.NetworkName
-                                                                'Isolated Network' = $SureBackupVL.NetworkMapping.IsolatedNetworkName
-                                                                'Routing Between vNics' = ConvertTo-TextYN $SureBackupVL.RoutingBetweenvNicsEnabled
-                                                                'Multi Host' = ConvertTo-TextYN $SureBackupVL.IsMultiHost
-                                                                'Static IP Mapping' = ConvertTo-TextYN $SureBackupVL.StaticIPMappingEnabled
+                                                                'Host' = $SureBackupVLC.Server.Name
+                                                                'Resource Pool' = $SureBackupVLC.DesignatedResourcePoolName
+                                                                'VM Folder' =  $SureBackupVLC.DesignatedVMFolderName
+                                                                'Cache Datastore' = $SureBackupVLC.CacheDatastore
+                                                                'Proxy Appliance Enabled' = ConvertTo-TextYN $SureBackupVLC.ProxyApplianceEnabled
+                                                                'Proxy Appliance' = $SureBackupVLC.ProxyAppliance
+                                                                'Networking Type' = $SureBackupVLC.Type
+                                                                'Production Network' = $SureBackupVLC.NetworkMapping.ProductionNetwork.NetworkName
+                                                                'Isolated Network' = $SureBackupVLC.NetworkMapping.IsolatedNetworkName
+                                                                'Routing Between vNics' = ConvertTo-TextYN $SureBackupVLC.RoutingBetweenvNicsEnabled
+                                                                'Multi Host' = ConvertTo-TextYN $SureBackupVLC.IsMultiHost
+                                                                'Static IP Mapping' = ConvertTo-TextYN $SureBackupVLC.StaticIPMappingEnabled
                                                             }
 
                                                             $OutObj += [pscustomobject]$inobj
 
                                                             $TableParams = @{
-                                                                Name = "Virtual Lab Settings - $($SureBackupVL.Name)"
+                                                                Name = "Virtual Lab Settings - $($SureBackupVLC.Name)"
                                                                 List = $true
                                                                 ColumnWidths = 40, 60
                                                             }
@@ -188,7 +187,7 @@ function Get-AbrVbrSureBackup {
                                                             try {
                                                                 Section -Style NOTOCHeading6 -ExcludeFromTOC "vNIC Settings" {
                                                                     $OutObj = @()
-                                                                    foreach ($NetworkOption in $SureBackupVL.NetworkOptions) {
+                                                                    foreach ($NetworkOption in $SureBackupVLC.NetworkOptions) {
                                                                         $inObj = [ordered] @{
                                                                             'Isolated Network' = $NetworkOption.NetworkMappingRule.IsolatedNetworkName
                                                                             'VLAN ID' = $NetworkOption.NetworkMappingRule.VLANID
@@ -200,7 +199,7 @@ function Get-AbrVbrSureBackup {
                                                                     }
 
                                                                     $TableParams = @{
-                                                                        Name = "vNIC Settings - $($SureBackupVL.Name)"
+                                                                        Name = "vNIC Settings - $($SureBackupVLC.Name)"
                                                                         List = $false
                                                                         ColumnWidths = 45, 10, 10, 35
                                                                     }
@@ -211,13 +210,13 @@ function Get-AbrVbrSureBackup {
                                                                 }
                                                             }
                                                             catch {
-                                                                Write-PscriboMessage -IsWarning "SureBackup vSphere $($SureBackupVL.Name) vNIC Settings Section: $($_.Exception.Message)"
+                                                                Write-PscriboMessage -IsWarning "SureBackup vSphere $($SureBackupVLC.Name) vNIC Settings Section: $($_.Exception.Message)"
                                                             }
                                                             try {
-                                                                if ($SureBackupVL.IpMappingRule) {
+                                                                if ($SureBackupVLC.IpMappingRule) {
                                                                     Section -Style NOTOCHeading6 -ExcludeFromTOC "IP Address Mapping" {
                                                                         $OutObj = @()
-                                                                        foreach ($NetworkOption in $SureBackupVL.IpMappingRule) {
+                                                                        foreach ($NetworkOption in $SureBackupVLC.IpMappingRule) {
                                                                             $inObj = [ordered] @{
                                                                                 'Production Network' = $NetworkOption.ProductionNetwork.Name
                                                                                 'Isolated IP Address' = $NetworkOption.IsolatedIPAddress
@@ -233,7 +232,7 @@ function Get-AbrVbrSureBackup {
                                                                         }
 
                                                                         $TableParams = @{
-                                                                            Name = "IP Address Mapping - $($SureBackupVL.Name)"
+                                                                            Name = "IP Address Mapping - $($SureBackupVLC.Name)"
                                                                             List = $false
                                                                             ColumnWidths = 30, 15, 15, 40
                                                                         }
@@ -255,12 +254,12 @@ function Get-AbrVbrSureBackup {
                                                                 }
                                                             }
                                                             catch {
-                                                                Write-PscriboMessage -IsWarning "SureBackup vSphere $($SureBackupVL.Name) IP Address Mapping Section: $($_.Exception.Message)"
+                                                                Write-PscriboMessage -IsWarning "SureBackup vSphere $($SureBackupVLC.Name) IP Address Mapping Section: $($_.Exception.Message)"
                                                             }
                                                         }
                                                     }
                                                     catch {
-                                                        Write-PscriboMessage -IsWarning "SureBackup vSphere $($SureBackupVL.Name) Settings Section: $($_.Exception.Message)"
+                                                        Write-PscriboMessage -IsWarning "SureBackup vSphere $($SureBackupVLC.Name) Settings Section: $($_.Exception.Message)"
                                                     }
                                                 }
                                             }
@@ -270,28 +269,28 @@ function Get-AbrVbrSureBackup {
                                         Write-PscriboMessage -IsWarning "SureBackup vSphere Virtual Labs Configuration Section: $($_.Exception.Message)"
                                     }
                                     try {
-                                        $SureBackupVLs = try {Get-VBRHvVirtualLabConfiguration | Sort-Object -Property Name} catch {$Null}
-                                        if ($SureBackupVLs) {
+                                        $SureBackupHvVLCs = try {Get-VBRHvVirtualLabConfiguration | Sort-Object -Property Name} catch {$Null}
+                                        if ($SureBackupHvVLCs) {
                                             Section -Style Heading5 "Hyper-V Virtual Labs Configuration" {
-                                                foreach ($SureBackupVL in $SureBackupVLs) {
+                                                foreach ($SureBackupHvVLC in $SureBackupHvVLCs) {
                                                     try {
-                                                        Section -Style Heading6 "$($SureBackupVL.Name) Settings" {
+                                                        Section -Style Heading6 "$($SureBackupHvVLC.Name) Settings" {
                                                             $OutObj = @()
-                                                            Write-PscriboMessage "Discovered $($SureBackupVL.Name) Virtual Lab."
+                                                            Write-PscriboMessage "Discovered $($SureBackupHvVLC.Name) Virtual Lab."
                                                             $inObj = [ordered] @{
-                                                                'Host' = $SureBackupVL.Server.Info.DNSName
-                                                                'Path' =  $SureBackupVL.Path
-                                                                'Proxy Appliance Enabled' = ConvertTo-TextYN $SureBackupVL.ProxyApplianceEnabled
-                                                                'Proxy Appliance' = $SureBackupVL.ProxyAppliance
-                                                                'Networking Type' = $SureBackupVL.Type
-                                                                'Isolated Network' = $SureBackupVL.IsolatedNetworkOptions.IsolatedNetworkName
-                                                                'Static IP Mapping' = ConvertTo-TextYN $SureBackupVL.StaticIPMappingEnabled
+                                                                'Host' = $SureBackupHvVLC.Server.Info.DNSName
+                                                                'Path' =  $SureBackupHvVLC.Path
+                                                                'Proxy Appliance Enabled' = ConvertTo-TextYN $SureBackupHvVLC.ProxyApplianceEnabled
+                                                                'Proxy Appliance' = $SureBackupHvVLC.ProxyAppliance
+                                                                'Networking Type' = $SureBackupHvVLC.Type
+                                                                'Isolated Network' = $SureBackupHvVLC.IsolatedNetworkOptions.IsolatedNetworkName
+                                                                'Static IP Mapping' = ConvertTo-TextYN $SureBackupHvVLC.StaticIPMappingEnabled
                                                             }
 
                                                             $OutObj += [pscustomobject]$inobj
 
                                                             $TableParams = @{
-                                                                Name = "Virtual Lab Settings - $($SureBackupVL.Name)"
+                                                                Name = "Virtual Lab Settings - $($SureBackupHvVLC.Name)"
                                                                 List = $true
                                                                 ColumnWidths = 40, 60
                                                             }
@@ -314,7 +313,7 @@ function Get-AbrVbrSureBackup {
                                                                     }
 
                                                                     $TableParams = @{
-                                                                        Name = "vNIC Settings - $($SureBackupVL.Name)"
+                                                                        Name = "vNIC Settings - $($SureBackupHvVLC.Name)"
                                                                         List = $false
                                                                         ColumnWidths = 45, 10, 10, 35
                                                                     }
@@ -325,13 +324,13 @@ function Get-AbrVbrSureBackup {
                                                                 }
                                                             }
                                                             catch {
-                                                                Write-PscriboMessage -IsWarning "SureBackup Hyper-V $($SureBackupVL.Name) vNIC Settings Section: $($_.Exception.Message)"
+                                                                Write-PscriboMessage -IsWarning "SureBackup Hyper-V $($SureBackupHvVLC.Name) vNIC Settings Section: $($_.Exception.Message)"
                                                             }
                                                             try {
-                                                                if ($SureBackupVL.StaticIPMappingEnabled) {
+                                                                if ($SureBackupHvVLC.StaticIPMappingEnabled) {
                                                                     Section -Style NOTOCHeading6 -ExcludeFromTOC "IP Address Mapping" {
                                                                         $OutObj = @()
-                                                                        foreach ($NetworkOption in $SureBackupVL.StaticIPMappingRule) {
+                                                                        foreach ($NetworkOption in $SureBackupHvVLC.StaticIPMappingRule) {
                                                                             $inObj = [ordered] @{
                                                                                 'Production Network' = $NetworkOption.ProductionNetwork.NetworkName
                                                                                 'Isolated IP Address' = $NetworkOption.IsolatedIPAddress
@@ -347,7 +346,7 @@ function Get-AbrVbrSureBackup {
                                                                         }
 
                                                                         $TableParams = @{
-                                                                            Name = "IP Address Mapping - $($SureBackupVL.Name)"
+                                                                            Name = "IP Address Mapping - $($SureBackupHvVLC.Name)"
                                                                             List = $false
                                                                             ColumnWidths = 30, 15, 15, 40
                                                                         }
@@ -369,12 +368,12 @@ function Get-AbrVbrSureBackup {
                                                                 }
                                                             }
                                                             catch {
-                                                                Write-PscriboMessage -IsWarning "SureBackup Hyper-V $($SureBackupVL.Name) IP Address Mapping Section: $($_.Exception.Message)"
+                                                                Write-PscriboMessage -IsWarning "SureBackup Hyper-V $($SureBackupHvVLC.Name) IP Address Mapping Section: $($_.Exception.Message)"
                                                             }
                                                         }
                                                     }
                                                     catch {
-                                                        Write-PscriboMessage -IsWarning "SureBackup $($SureBackupVL.Name) Settings Section: $($_.Exception.Message)"
+                                                        Write-PscriboMessage -IsWarning "SureBackup $($SureBackupHvVLC.Name) Settings Section: $($_.Exception.Message)"
                                                     }
                                                 }
                                             }

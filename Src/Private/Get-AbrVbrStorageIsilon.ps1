@@ -6,7 +6,7 @@ function Get-AbrVbrStorageIsilon {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.7.1
+        Version:        0.8.4
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -25,12 +25,12 @@ function Get-AbrVbrStorageIsilon {
     }
 
     process {
-        if ((Get-VBRIsilonHost).count -gt 0) {
+        $IsilonHosts = Get-VBRIsilonHost
+        if ($IsilonHosts) {
             Section -Style Heading3 'Dell Isilon Storage' {
                 Paragraph "The following section details information about Dell storage infrastructure."
                 BlankLine
                 $OutObj = @()
-                $IsilonHosts = Get-VBRIsilonHost
                 foreach ($IsilonHost in $IsilonHosts) {
                     Section -Style Heading4 $($IsilonHost.Name) {
                         try {

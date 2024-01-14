@@ -6,7 +6,7 @@ function Get-AbrVbrBackupjob {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.7.2
+        Version:        0.8.4
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -26,9 +26,8 @@ function Get-AbrVbrBackupjob {
 
     process {
         try {
-            if ((Get-VBRJob -WarningAction SilentlyContinue).count -gt 0) {
+            if (($Bkjobs = Get-VBRJob -WarningAction SilentlyContinue | Where-object {$_.TypeToString -ne 'Windows Agent Backup' -and $_.TypeToString -ne 'Hyper-V Replication' -and $_.TypeToString -ne 'VMware Replication'} | Sort-Object -Property Name).count -gt 0) {
                 $OutObj = @()
-                $Bkjobs = Get-VBRJob -WarningAction SilentlyContinue | Where-object {$_.TypeToString -ne 'Windows Agent Backup' -and $_.TypeToString -ne 'Hyper-V Replication' -and $_.TypeToString -ne 'VMware Replication'} | Sort-Object -Property Name
                 foreach ($Bkjob in $Bkjobs) {
                     try {
                         Write-PscriboMessage "Discovered $($Bkjob.Name) backup job."

@@ -6,7 +6,7 @@ function Get-AbrVbrEnterpriseManagerInfo {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.0
+        Version:        0.8.4
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -26,12 +26,12 @@ function Get-AbrVbrEnterpriseManagerInfo {
 
     process {
         try {
-            if ((Get-VBRServer -Type Local).count -gt 0) {
+            $BackupServers = Get-VBRServer -Type Local
+            if ($BackupServers) {
                 Section -Style Heading3 'Enterprise Manager Information' {
                     Paragraph "The following table details information about Veeam Enterprise Manager configuration status"
                     BlankLine
                     $OutObj = @()
-                    $BackupServers = Get-VBRServer -Type Local
                     foreach ($BackupServer in $BackupServers) {
                     Write-PscriboMessage "Collecting Enterprise Manager information from $($BackupServer.Name)."
                     $EMInfo = [Veeam.Backup.Core.SBackupOptions]::GetEnterpriseServerInfo()

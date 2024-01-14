@@ -6,7 +6,7 @@ function Get-AbrVbrNetworkTrafficRule {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.0
+        Version:        0.8.4
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -26,13 +26,13 @@ function Get-AbrVbrNetworkTrafficRule {
 
     process {
         try {
-            if ((Get-VBRNetworkTrafficRule).count -gt 0) {
+            $TrafficRules = Get-VBRNetworkTrafficRule
+            if ($TrafficRules) {
                 Section -Style Heading4 'Network Traffic Rules' {
                     Paragraph "The following section details network traffic rules settings configured on Veeam Backup & Replication."
                     BlankLine
                     $OutObj = @()
                     try {
-                        $TrafficRules = Get-VBRNetworkTrafficRule
                         foreach ($TrafficRule in $TrafficRules) {
                             $inObj = [ordered] @{
                                 'Name' = $TrafficRule.Name

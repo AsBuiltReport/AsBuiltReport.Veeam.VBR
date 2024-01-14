@@ -7,6 +7,10 @@
 - Added Veeam Best Practice Analyzer support
 - Added support for Key Management Server configuration
 
+### Changed
+
+- Improved report total processing time
+
 ## [0.8.3] - 2023-12-29
 
 ### Added

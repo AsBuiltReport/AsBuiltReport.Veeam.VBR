@@ -6,7 +6,7 @@ function Get-AbrVbrWANAccelerator {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.7.1
+        Version:        0.8.4
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -26,13 +26,13 @@ function Get-AbrVbrWANAccelerator {
 
     process {
         try {
-            if ((Get-VBRInstalledLicense | Where-Object {$_.Edition -in @("EnterprisePlus")}) -and (Get-VBRWANAccelerator).count -gt 0) {
+            $WANAccels = Get-VBRWANAccelerator | Sort-Object -Property Name
+            if (($VbrLicenses | Where-Object {$_.Edition -in @("EnterprisePlus")}) -and $WANAccels) {
                 Section -Style Heading3 'WAN Accelerators' {
                     Paragraph "The following section provides information about WAN Accelerator. WAN accelerators are responsible for global data caching and data deduplication."
                     BlankLine
                     $OutObj = @()
                     try {
-                        $WANAccels = Get-VBRWANAccelerator | Sort-Object -Property Name
                         foreach ($WANAccel in $WANAccels) {
                             $IsWaHasAnyCaches = 'Unknown'
                             try {
