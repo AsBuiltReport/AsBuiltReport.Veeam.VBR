@@ -784,15 +784,34 @@ function Get-AbrVbrAgentBackupjobConf {
                                                         $Schedule = "Recurrence: $($ABkjob.ScheduleOptions.DailyOptions.Type),`r`nDays: $($ABkjob.ScheduleOptions.DailyOptions.DayOfWeek)r`nAt: $($ABkjob.ScheduleOptions.DailyOptions.Period)"
                                                     }
 
+                                                    if ($ABkjob.ScheduleOptions.Type -eq "Daily") {
+                                                        $ScheduleType = "Daily"
+                                                        $Schedule = "Recurrence: $($ABkjob.ScheduleOptions.DailyOptions.Type),`r`nDays: $($ABkjob.ScheduleOptions.DailyOptions.DayOfWeek)`r`nAt: $($ABkjob.ScheduleOptions.DailyOptions.Period)"
+                                                    }
+                                                    elseif ($ABkjob.ScheduleOptions.Type -eq "Monthly") {
+                                                        $ScheduleType = "Monthly"
+                                                        $Schedule = "Day Of Month: $($ABkjob.ScheduleOptions.MonthlyOptions.DayOfMonth),`r`nDay Number In Month: $($ABkjob.ScheduleOptions.MonthlyOptions.DayNumberInMonth),`r`nDay Of Week: $($ABkjob.ScheduleOptions.MonthlyOptions.DayOfWeek)`r`nAt: $($ABkjob.ScheduleOptions.DailyOptions.Period)"
+                                                    }
+                                                    elseif ($ABkjob.ScheduleOptions.Type -eq "Periodically") {
+                                                        $ScheduleType = $ABkjob.ScheduleOptions.PeriodicallyOptions.PeriodicallyKind
+                                                        $Schedule = "Full Period: $($ABkjob.ScheduleOptions.PeriodicallyOptions.FullPeriod),`r`nHourly Offset: $($ABkjob.ScheduleOptions.PeriodicallyOptions.HourlyOffset)"
+                                                    }
+                                                    elseif ($ABkjob.ScheduleOptions.Type -eq "AfterJob") {
+                                                        $ScheduleType = 'After Job'
+                                                        $Schedule = $ABkjob.ScheduleOptions.Job.Name
+                                                    }
+
                                                     $inObj = [ordered] @{
                                                         'Schedule type' = $ScheduleType
                                                         'Schedule Options' = $Schedule
                                                         'If Computer is Power Off Action' = SWitch ($ABkjob.ScheduleOptions.PowerOffAction) {
+                                                            $null {'--'}
                                                             'SkipBackup' {'Skip Backup'}
                                                             'BackupAtPowerOn' {'Backup At Power On'}
                                                             default {$ABkjob.ScheduleOptions.PowerOffAction}
                                                         }
                                                         'Once Backup is Taken' = Switch ($ABkjob.ScheduleOptions.PostBackupAction) {
+                                                            $null {'--'}
                                                             'KeepRunning' {'Keep Running'}
                                                             default {$ABkjob.ScheduleOptions.PostBackupAction}
                                                         }
@@ -800,7 +819,11 @@ function Get-AbrVbrAgentBackupjobConf {
                                                         'Backup At Lock' =  ConvertTo-TextYN $ABkjob.ScheduleOptions.BackupAtLock
                                                         'Backup At Target Connection' = ConvertTo-TextYN $ABkjob.ScheduleOptions.BackupAtTargetConnection
                                                         'Eject Storage After Backup' = ConvertTo-TextYN $ABkjob.ScheduleOptions.EjectStorageAfterBackup
-                                                        'Backup Timeout' = "$($ABkjob.ScheduleOptions.BackupTimeout) $($ABkjob.ScheduleOptions.BackupTimeoutType)"
+                                                        'Backup Timeout' = Switch ([string]::IsNullOrEmpty($ABkjob.ScheduleOptions.BackupTimeout)) {
+                                                            $true {'--'}
+                                                            $false {"$($ABkjob.ScheduleOptions.BackupTimeout) $($ABkjob.ScheduleOptions.BackupTimeoutType)"}
+                                                            default {"Unknown"}
+                                                        }
                                                     }
                                                     $OutObj = [pscustomobject]$inobj
 
