@@ -15,6 +15,11 @@
 
 - Improved report total processing time
 
+### Fixed
+
+- Fix [#134](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/134)
+- Fix [#131](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/131)
+
 ## [0.8.3] - 2023-12-29
 
 ### Added
