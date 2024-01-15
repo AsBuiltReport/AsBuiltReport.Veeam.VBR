@@ -80,7 +80,7 @@ function Get-AbrVbrInstalledLicense {
                         #                                  Instance Section                                           #
                         #---------------------------------------------------------------------------------------------#
                         try {
-                            $Licenses = Get-VBRInstalledLicense | Select-Object -ExpandProperty InstanceLicenseSummary
+                            $Licenses = $VbrLicenses | Select-Object -ExpandProperty InstanceLicenseSummary
                             if ($Licenses.LicensedInstancesNumber -gt 0) {
                                 $OutObj = @()
                                 try {
@@ -163,7 +163,7 @@ function Get-AbrVbrInstalledLicense {
                                         #                                  Per Instance Section                                       #
                                         #---------------------------------------------------------------------------------------------#
                                         try {
-                                            $Licenses = (Get-VBRInstalledLicense | Select-Object -ExpandProperty InstanceLicenseSummary).Object
+                                            $Licenses = ($VbrLicenses | Select-Object -ExpandProperty InstanceLicenseSummary).Object
                                             if ($Licenses) {
                                                 Section -Style NOTOCHeading5 -ExcludeFromTOC 'Per Instance Type License Usage' {
                                                     $OutObj = @()
@@ -209,7 +209,7 @@ function Get-AbrVbrInstalledLicense {
                         #                                  CPU Socket License Section                                 #
                         #---------------------------------------------------------------------------------------------#
                         try {
-                            $Licenses = Get-VBRInstalledLicense | Select-Object -ExpandProperty SocketLicenseSummary
+                            $Licenses = $VbrLicenses | Select-Object -ExpandProperty SocketLicenseSummary
                             if ($Licenses.LicensedSocketsNumber -gt 0) {
                                 $OutObj = @()
                                 try {
@@ -295,7 +295,7 @@ function Get-AbrVbrInstalledLicense {
                         #                                  Capacity License Section                                   #
                         #---------------------------------------------------------------------------------------------#
                         try {
-                            $Licenses = Get-VBRInstalledLicense | Select-Object -ExpandProperty CapacityLicenseSummary
+                            $Licenses = $VbrLicenses | Select-Object -ExpandProperty CapacityLicenseSummary
                             if ($Licenses.LicensedCapacityTb -gt 0) {
                                 $OutObj = @()
                                 try {
