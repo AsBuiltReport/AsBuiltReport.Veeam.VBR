@@ -6,7 +6,7 @@ function Get-AbrVbrTapeVault {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.0
+        Version:        0.8.4
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -26,12 +26,12 @@ function Get-AbrVbrTapeVault {
 
     process {
         try {
-            if (Get-VBRInstalledLicense | Where-Object {$_.Edition -in @("EnterprisePlus","Enterprise") -and $_.Status -ne "Expired"}) {
-                if ((Get-VBRTapeVault).count -gt 0) {
+            if ($VbrLicenses | Where-Object {$_.Edition -in @("EnterprisePlus","Enterprise") -and $_.Status -ne "Expired"}) {
+                $TapeObjs = Get-VBRTapeVault
+                if ($TapeObjs) {
                     Section -Style Heading3 'Tape Vaults' {
                         $OutObj = @()
                         try {
-                            $TapeObjs = Get-VBRTapeVault
                             foreach ($TapeObj in $TapeObjs) {
                                 try {
                                     Write-PscriboMessage "Discovered $($TapeObj.Name) Type Vault."

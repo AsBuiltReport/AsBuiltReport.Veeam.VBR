@@ -27,7 +27,7 @@ function Get-AbrVbrRepljobVMware {
     process {
         try {
             $Bkjobs = Get-VBRJob -WarningAction SilentlyContinue | Where-object {$_.TypeToString -eq 'VMware Replication'} | Sort-Object -Property Name
-            if (($Bkjobs).count -gt 0) {
+            if ($Bkjobs) {
                 Section -Style Heading3 'VMware Replication Jobs Configuration' {
                     Paragraph "The following section details the configuration abut VMware type backup jobs."
                     BlankLine

@@ -6,7 +6,7 @@ function Get-AbrVbrCredential {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.7.1
+        Version:        0.8.4
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -26,12 +26,12 @@ function Get-AbrVbrCredential {
 
     process {
         try {
-            if ((Get-VBRCredentials).count -gt 0) {
+            $Credentials = Get-VBRCredentials
+            if ($Credentials) {
                 Section -Style Heading3 'Security Credentials' {
                     Paragraph "The following table provide information about the credentials managed by Veeam Backup & Replication."
                     BlankLine
                     $OutObj = @()
-                    $Credentials = Get-VBRCredentials
                     foreach ($Credential in $Credentials) {
                         try {
                             Write-PscriboMessage "Discovered $($Credential.Name) Server."

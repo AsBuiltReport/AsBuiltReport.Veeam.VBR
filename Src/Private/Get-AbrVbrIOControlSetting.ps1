@@ -6,7 +6,7 @@ function Get-AbrVbrIOControlSetting {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.7.1
+        Version:        0.8.4
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -26,11 +26,11 @@ function Get-AbrVbrIOControlSetting {
 
     process {
         try {
-            if (Get-VBRInstalledLicense | Where-Object {$_.Edition -in @("EnterprisePlus","Enterprise") -and $_.Status -ne "Expired"}) {
-                if ((Get-VBRStorageLatencyControlOptions).count -gt 0) {
+            if ($VbrLicenses | Where-Object {$_.Edition -in @("EnterprisePlus","Enterprise") -and $_.Status -ne "Expired"}) {
+                $StorageLatencyControls = Get-VBRStorageLatencyControlOptions
+                if ($StorageLatencyControls) {
                     Section -Style Heading4 'Storage Latency Control' {
                         $OutObj = @()
-                        $StorageLatencyControls = Get-VBRStorageLatencyControlOptions
                         foreach ($StorageLatencyControl in $StorageLatencyControls) {
                             try {
                                 $inObj = [ordered] @{
@@ -62,10 +62,10 @@ function Get-AbrVbrIOControlSetting {
                         #                          Per Datastore Latency Control Options                              #
                         #---------------------------------------------------------------------------------------------#
                         try {
-                            if ((Get-VBRInstalledLicense | Where-Object {$_.Edition -eq "EnterprisePlus"}) -and ((Get-VBRAdvancedLatencyOptions).count -gt 0)) {
+                            $StorageLatencyControls = Get-VBRAdvancedLatencyOptions
+                            if (($VbrLicenses | Where-Object {$_.Edition -eq "EnterprisePlus"}) -and $StorageLatencyControls) {
                                 Section -Style NOTOCHeading5 -ExcludeFromTOC 'Per Datastore Latency Control Options' {
                                     $OutObj = @()
-                                    $StorageLatencyControls = Get-VBRAdvancedLatencyOptions
                                     foreach ($StorageLatencyControl in $StorageLatencyControls) {
                                         try {
                                             $Datastores = Find-VBRViEntity -DatastoresAndVMs -ErrorAction SilentlyContinue | Where-Object {($_.type -eq "Datastore")}

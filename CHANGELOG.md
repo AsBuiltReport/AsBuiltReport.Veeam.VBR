@@ -1,11 +1,24 @@
 # :arrows_clockwise: Veeam VBR As Built Report Changelog
 
-## [0.8.4] - 2024-01-07
+## [0.8.4] - 2024-01-0?
 
 ### Added
 
 - Added Veeam Best Practice Analyzer support
 - Added support for Key Management Server configuration
+- Added Protection Group diagram support
+- Added support for more Backup Repository:
+  - Wasabi
+  - BackBlaze
+
+### Changed
+
+- Improved report total processing time
+
+### Fixed
+
+- Fix [#134](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/134)
+- Fix [#131](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/131)
 
 ## [0.8.3] - 2023-12-29
 
