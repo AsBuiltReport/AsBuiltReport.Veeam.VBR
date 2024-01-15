@@ -1,11 +1,12 @@
 # :arrows_clockwise: Veeam VBR As Built Report Changelog
 
-## [0.8.4] - 2024-01-07
+## [0.8.4] - 2024-01-0?
 
 ### Added
 
 - Added Veeam Best Practice Analyzer support
 - Added support for Key Management Server configuration
+- Added Protection Group diagram support
 
 ### Changed
 

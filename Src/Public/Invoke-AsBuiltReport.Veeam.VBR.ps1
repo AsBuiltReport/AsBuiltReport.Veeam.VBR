@@ -240,8 +240,25 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                         }
                         Write-PScriboMessage "Physical Inventory InfoLevel set at $($InfoLevel.Inventory.PHY)."
                         if ($InfoLevel.Inventory.PHY -ge 1) {
+                            $InventObjs = Get-VBRProtectionGroup | Sort-Object -Property Name
+
                             Get-AbrVbrPhysicalInfrastructure
 
+                            if ($Options.EnableDiagrams -and $InventObjs) {
+                                Try {
+                                    $Graph = New-VeeamDiagram -Target $System -Credential $Credential -Format base64 -Direction top-to-bottom -DiagramType "Backup-to-ProtectedGroup"
+                                } Catch {
+                                    Write-PscriboMessage -IsWarning "Physical Infrastructure Diagram: $($_.Exception.Message)"
+                                }
+                                if ($Graph) {
+                                    PageBreak
+                                    Section -Style Heading3 "Physical Infrastructure Diagram." {
+                                        Image -Base64 $Graph -Text "Physical Infrastructure Diagram" -Percent (Get-ImagePercent -Graph $Graph) -Align Center
+                                        Paragraph "Image preview: Opens the image in a new tab to view it at full resolution." -Tabs 2
+                                    }
+                                    BlankLine
+                                }
+                            }
                         }
                         Write-PScriboMessage "File Shares Inventory InfoLevel set at $($InfoLevel.Inventory.FileShare)."
                         if ($InfoLevel.Inventory.FileShare -ge 1) {
