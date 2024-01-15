@@ -121,7 +121,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                             if ($Graph) {
                                 PageBreak
                                 Section -Style Heading3 "Wan Accelerator Diagram." {
-                                    Image -Base64 $Graph -Text "Wan Accelerator Diagram" (Get-ImagePercent -Graph $Graph) -Align Center
+                                    Image -Base64 $Graph -Text "Wan Accelerator Diagram" -Percent (Get-ImagePercent -Graph $Graph) -Align Center
                                     Paragraph "Image preview: Opens the image in a new tab to view it at full resolution." -Tabs 2
                                 }
                                 BlankLine
@@ -164,7 +164,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                             if ($Graph) {
                                 PageBreak
                                 Section -Style Heading3 "ScaleOut Backup Repository Diagram." {
-                                    Image -Base64 $Graph -Text "ScaleOut Backup Repository Diagram" (Get-ImagePercent -Graph $Graph) -Align Center
+                                    Image -Base64 $Graph -Text "ScaleOut Backup Repository Diagram" -Percent (Get-ImagePercent -Graph $Graph) -Align Center
                                     Paragraph "Image preview: Opens the image in a new tab to view it at full resolution." -Tabs 2
                                 }
                                 BlankLine
