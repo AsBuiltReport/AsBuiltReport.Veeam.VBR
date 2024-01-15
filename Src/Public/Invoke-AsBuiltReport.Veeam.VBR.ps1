@@ -119,7 +119,6 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                                 Write-PscriboMessage -IsWarning "Wan Accelerator Diagram: $($_.Exception.Message)"
                             }
                             if ($Graph) {
-                                PageBreak
                                 Section -Style Heading3 "Wan Accelerator Diagram." {
                                     Image -Base64 $Graph -Text "Wan Accelerator Diagram" -Percent (Get-ImagePercent -Graph $Graph) -Align Center
                                     Paragraph "Image preview: Opens the image in a new tab to view it at full resolution." -Tabs 2
@@ -143,7 +142,6 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                                 Write-PscriboMessage -IsWarning "Backup Repository Diagram: $($_.Exception.Message)"
                             }
                             if ($Graph) {
-                                PageBreak
                                 Section -Style Heading3 "Backup Repository Diagram." {
                                     Image -Base64 $Graph -Text "Backup Repository Diagram" -Percent (Get-ImagePercent -Graph $Graph) -Align Center
                                     Paragraph "Image preview: Opens the image in a new tab to view it at full resolution." -Tabs 2
@@ -162,7 +160,6 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                                 Write-PscriboMessage -IsWarning "ScaleOut Backup Repository Diagram: $($_.Exception.Message)"
                             }
                             if ($Graph) {
-                                PageBreak
                                 Section -Style Heading3 "ScaleOut Backup Repository Diagram." {
                                     Image -Base64 $Graph -Text "ScaleOut Backup Repository Diagram" -Percent (Get-ImagePercent -Graph $Graph) -Align Center
                                     Paragraph "Image preview: Opens the image in a new tab to view it at full resolution." -Tabs 2
@@ -214,7 +211,6 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                                 Write-PscriboMessage -IsWarning "Tape Infrastructure Diagram: $($_.Exception.Message)"
                             }
                             if ($Graph) {
-                                PageBreak
                                 Section -Style Heading3 "Tape Infrastructure Diagram." {
                                     Image -Base64 $Graph -Text "Tape Infrastructure Diagram" -Percent (Get-ImagePercent -Graph $Graph) -Align Center
                                     Paragraph "Image preview: Opens the image in a new tab to view it at full resolution." -Tabs 2
@@ -251,7 +247,6 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                                     Write-PscriboMessage -IsWarning "Physical Infrastructure Diagram: $($_.Exception.Message)"
                                 }
                                 if ($Graph) {
-                                    PageBreak
                                     Section -Style Heading3 "Physical Infrastructure Diagram." {
                                         Image -Base64 $Graph -Text "Physical Infrastructure Diagram" -Percent (Get-ImagePercent -Graph $Graph) -Align Center
                                         Paragraph "Image preview: Opens the image in a new tab to view it at full resolution." -Tabs 2
