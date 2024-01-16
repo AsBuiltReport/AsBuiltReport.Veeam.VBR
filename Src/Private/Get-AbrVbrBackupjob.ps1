@@ -79,51 +79,15 @@ function Get-AbrVbrBackupjob {
                         $Alljobs += (Get-VBRSureBackupJob -ErrorAction SilentlyContinue).LastResult
                     }
                     $sampleData = $Alljobs | Group-Object
-                    $exampleChart = New-Chart -Name BackupJobs -Width 600 -Height 400
 
-                    $addChartAreaParams = @{
-                        Chart                 = $exampleChart
-                        Name                  = 'BackupJobs'
-                        AxisXTitle            = 'Status'
-                        AxisYTitle            = 'Count'
-                        NoAxisXMajorGridLines = $true
-                        NoAxisYMajorGridLines = $true
-                    }
-                    $exampleChartArea = Add-ChartArea @addChartAreaParams -PassThru
+                    $chartFileItem = Get-ColumnChart -SampleData $sampleData -ChartName 'BackupJobs' -XField 'Name' -YField 'Count' -ChartAreaName 'Infrastructure' -AxisXTitle 'Status' -AxisYTitle 'Count' -ChartTitleName 'BackupJobs' -ChartTitleText 'Jobs Latest Result'
 
-                    $addChartSeriesParams = @{
-                        Chart             = $exampleChart
-                        ChartArea         = $exampleChartArea
-                        Name              = 'exampleChartSeries'
-                        XField            = 'Name'
-                        YField            = 'Count'
-                        Palette           = 'Green'
-                        ColorPerDataPoint = $true
-                    }
-                    $sampleData | Add-ColumnChartSeries @addChartSeriesParams
-
-                    $addChartTitleParams = @{
-                        Chart     = $exampleChart
-                        ChartArea = $exampleChartArea
-                        Name      = 'BackupJob'
-                        Text      = 'Jobs Latest Result'
-                        Font      = New-Object -TypeName 'System.Drawing.Font' -ArgumentList @('Arial', '12', [System.Drawing.FontStyle]::Bold)
-                    }
-                    Add-ChartTitle @addChartTitleParams
-
-                    $chartFileItem = Export-Chart -Chart $exampleChart -Path (Get-Location).Path -Format "PNG" -PassThru
-
-                    if ($PassThru)
-                    {
-                        Write-Output -InputObject $chartFileItem
-                    }
-                }
-                catch {
-                    Write-PscriboMessage -IsWarning "$($_.Exception.Message) (Account Security Assessment Table)"
+                } catch {
+                    Write-PscriboMessage -IsWarning "Backup Jobs chart section: $($_.Exception.Message)"
                 }
                 if ($OutObj) {
                     if ($chartFileItem) {
-                        Image -Text 'Backup Repository - Diagram' -Align 'Center' -Percent 100 -Path $chartFileItem
+                        Image -Text 'Backup Repository - Diagram' -Align 'Center' -Percent 100 -Base64 $chartFileItem
                     }
                     Section -Style Heading3 'Backup Jobs' {
                         Paragraph "The following section list backup jobs created in Veeam Backup & Replication."
