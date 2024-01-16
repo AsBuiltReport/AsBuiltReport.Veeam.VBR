@@ -262,3 +262,247 @@ function Get-ImagePercent {
         return 20
     }
 } # end
+
+function Get-PieChart {
+    <#
+    .SYNOPSIS
+    Used by As Built Report to generate PScriboChart pie charts.
+    .DESCRIPTION
+    .NOTES
+        Version:        0.1.0
+        Author:         Jonathan Colon
+    .EXAMPLE
+    .LINK
+    #>
+    [CmdletBinding()]
+    [OutputType([System.String])]
+    Param
+        (
+        [Parameter (
+            Position = 0,
+            Mandatory)]
+            [System.Array]
+            $SampleData,
+            [String]
+            $ChartName,
+            [String]
+            $XField,
+            [String]
+            $YField,
+            [String]
+            $ChartLegendName,
+            [String]
+            $ChartLegendAlignment = 'Center',
+            [String]
+            $ChartTitleName = ' ',
+            [String]
+            $ChartTitleText = ' ',
+            [int]
+            $Width = 600,
+            [int]
+            $Height = 400
+        )
+
+    $exampleChart = New-Chart -Name $ChartName -Width $Width -Height $Height
+
+    $addChartAreaParams = @{
+        Chart = $exampleChart
+        Name  = 'exampleChartArea'
+    }
+    $exampleChartArea = Add-ChartArea @addChartAreaParams -PassThru
+
+    $addChartSeriesParams = @{
+        Chart             = $exampleChart
+        ChartArea         = $exampleChartArea
+        Name              = 'exampleChartSeries'
+        XField            = $XField
+        YField            = $YField
+        Palette           = 'Green'
+        ColorPerDataPoint = $true
+    }
+    $exampleChartSeries = $sampleData | Add-PieChartSeries @addChartSeriesParams -PassThru
+
+    $addChartLegendParams = @{
+        Chart             = $exampleChart
+        Name              = $ChartLegendName
+        TitleAlignment    = $ChartLegendAlignment
+    }
+    Add-ChartLegend @addChartLegendParams
+
+    $addChartTitleParams = @{
+        Chart     = $exampleChart
+        ChartArea = $exampleChartArea
+        Name      = $ChartTitleName
+        Text      = $ChartTitleText
+        Font      = New-Object -TypeName 'System.Drawing.Font' -ArgumentList @('Arial', '12', [System.Drawing.FontStyle]::Bold)
+    }
+    Add-ChartTitle @addChartTitleParams
+
+    $ChartImage = Export-Chart -Chart $exampleChart -Path (Get-Location).Path -Format "PNG" -PassThru
+
+    $Base64Image = [convert]::ToBase64String((get-content $ChartImage -encoding byte))
+
+    Remove-Item -Path $ChartImage.FullName
+
+    return $Base64Image
+
+} # end
+
+function Get-ColumnChart {
+    <#
+    .SYNOPSIS
+    Used by As Built Report to generate PScriboChart column charts.
+    .DESCRIPTION
+    .NOTES
+        Version:        0.1.0
+        Author:         Jonathan Colon
+    .EXAMPLE
+    .LINK
+    #>
+    [CmdletBinding()]
+    [OutputType([System.String])]
+    Param
+        (
+        [Parameter (
+            Position = 0,
+            Mandatory)]
+            [System.Array]
+            $SampleData,
+            [String]
+            $ChartName,
+            [String]
+            $AxisXTitle,
+            [String]
+            $AxisYTitle,
+            [String]
+            $XField,
+            [String]
+            $YField,
+            [String]
+            $ChartAreaName,
+            [String]
+            $ChartTitleName = ' ',
+            [String]
+            $ChartTitleText = ' ',
+            [int]
+            $Width = 600,
+            [int]
+            $Height = 400
+        )
+
+    $exampleChart = New-Chart -Name $ChartName -Width $Width -Height $Height
+
+    $addChartAreaParams = @{
+        Chart                 = $exampleChart
+        Name                  = $ChartAreaName
+        AxisXTitle            = $AxisXTitle
+        AxisYTitle            = $AxisYTitle
+        NoAxisXMajorGridLines = $true
+        NoAxisYMajorGridLines = $true
+    }
+    $exampleChartArea = Add-ChartArea @addChartAreaParams -PassThru
+
+    $addChartSeriesParams = @{
+        Chart             = $exampleChart
+        ChartArea         = $exampleChartArea
+        Name              = 'exampleChartSeries'
+        XField            = $XField
+        YField            = $YField
+        Palette           = 'Green'
+        ColorPerDataPoint = $true
+    }
+    $sampleData | Add-ColumnChartSeries @addChartSeriesParams
+
+    $addChartTitleParams = @{
+        Chart     = $exampleChart
+        ChartArea = $exampleChartArea
+        Name      = $ChartTitleName
+        Text      = $ChartTitleText
+        Font      = New-Object -TypeName 'System.Drawing.Font' -ArgumentList @('Arial', '12', [System.Drawing.FontStyle]::Bold)
+    }
+    Add-ChartTitle @addChartTitleParams
+
+    $ChartImage = Export-Chart -Chart $exampleChart -Path (Get-Location).Path -Format "PNG" -PassThru
+
+    if ($PassThru)
+    {
+        Write-Output -InputObject $chartFileItem
+    }
+
+    $Base64Image = [convert]::ToBase64String((get-content $ChartImage -encoding byte))
+
+    Remove-Item -Path $ChartImage.FullName
+
+    return $Base64Image
+
+} # end
+
+function Get-WindowsTimePeriod {
+    <#
+    .SYNOPSIS
+    Used by As Built Report to generate time period table.
+    .DESCRIPTION
+    .NOTES
+        Version:        0.1.0
+        Author:         Jonathan Colon
+    .EXAMPLE
+    .LINK
+    #>
+    [CmdletBinding()]
+    Param
+        (
+        [Parameter (
+            Position = 0,
+            Mandatory)]
+            [System.Array]
+            $InputTimePeriod
+        )
+
+    $OutObj = @()
+    $Days = 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'
+    $Hours24 = [ordered]@{
+        0 = 12
+        1 = 1
+        2 = 2
+        3 = 3
+        4 = 4
+        5 = 5
+        6 = 6
+        7 = 7
+        8 = 8
+        9 = 9
+        10 = 10
+        11 = 11
+        12 = 12
+        13 = 1
+        14 = 2
+        15 = 3
+        16 = 4
+        17 = 5
+        18 = 6
+        19 = 7
+        20 = 8
+        21 = 9
+        22 = 10
+        23 = 11
+    }
+    $ScheduleTimePeriod = $InputTimePeriod -split '(.{48})' | Where-Object {$_}
+
+    foreach ($OBJ in $Hours24.GetEnumerator()) {
+
+        $inObj = [ordered] @{
+            'H' = $OBJ.Value
+            'Sun' = $ScheduleTimePeriod[0].Split(',')[$OBJ.Key]
+            'Mon' = $ScheduleTimePeriod[1].Split(',')[$OBJ.Key]
+            'Tue' = $ScheduleTimePeriod[2].Split(',')[$OBJ.Key]
+            'Wed' = $ScheduleTimePeriod[3].Split(',')[$OBJ.Key]
+            'Thu' = $ScheduleTimePeriod[4].Split(',')[$OBJ.Key]
+            'Fri' = $ScheduleTimePeriod[5].Split(',')[$OBJ.Key]
+            'Sat' = $ScheduleTimePeriod[6].Split(',')[$OBJ.Key]
+        }
+        $OutObj += $inobj
+    }
+
+    return $OutObj
+
+} # end

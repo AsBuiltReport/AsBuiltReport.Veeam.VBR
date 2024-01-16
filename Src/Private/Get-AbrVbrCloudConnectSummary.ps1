@@ -5,7 +5,7 @@ function Get-AbrVbrCloudConnectSummary {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.7.1
+        Version:        0.8.4
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -60,51 +60,16 @@ function Get-AbrVbrCloudConnectSummary {
                 try {
                     $sampleData = $inObj.GetEnumerator() | Select-Object @{ Name = 'Category';  Expression = {$_.key}},@{ Name = 'Value';  Expression = {$_.value}} | Sort-Object -Property 'Category'
 
-                    $exampleChart = New-Chart -Name TapeInfrastructure -Width 600 -Height 400
-
-                    $addChartAreaParams = @{
-                        Chart = $exampleChart
-                        Name  = 'exampleChartArea'
-                    }
-                    $exampleChartArea = Add-ChartArea @addChartAreaParams -PassThru
-
-                    $addChartSeriesParams = @{
-                        Chart             = $exampleChart
-                        ChartArea         = $exampleChartArea
-                        Name              = 'exampleChartSeries'
-                        XField            = 'Category'
-                        YField            = 'Value'
-                        Palette           = 'Green'
-                        ColorPerDataPoint = $true
-                    }
-                    $exampleChartSeries = $sampleData | Add-PieChartSeries @addChartSeriesParams -PassThru
-
-                    $addChartLegendParams = @{
-                        Chart             = $exampleChart
-                        Name              = 'Infrastructure'
-                        TitleAlignment    = 'Center'
-                    }
-                    Add-ChartLegend @addChartLegendParams
-
-                    $addChartTitleParams = @{
-                        Chart     = $exampleChart
-                        ChartArea = $exampleChartArea
-                        Name      = ' '
-                        Text      = ' '
-                        Font      = New-Object -TypeName 'System.Drawing.Font' -ArgumentList @('Arial', '12', [System.Drawing.FontStyle]::Bold)
-                    }
-                    Add-ChartTitle @addChartTitleParams
-
-                    $chartFileItem = Export-Chart -Chart $exampleChart -Path (Get-Location).Path -Format "PNG" -PassThru
-                }
-                catch {
-                    Write-PscriboMessage -IsWarning $($_.Exception.Message)
+                    $chartFileItem = Get-PieChart -SampleData $sampleData -ChartName 'CloudConnectInventory' -XField 'Category' -YField 'Value' -ChartLegendName 'Infrastructure'
+                } catch {
+                    Write-PscriboMessage -IsWarning "Cloud Connect Inventory chart section: $($_.Exception.Message)"
                 }
             }
+
             if ($OutObj) {
                 Section -Style NOTOCHeading3 -ExcludeFromTOC 'Cloud Connect Infrastructure' {
                     if ($Options.EnableCharts -and $chartFileItem -and ($inObj.Values | Measure-Object -Sum).Sum -ne 0) {
-                        Image -Text 'Cloud Connect Infrastructure - Diagram' -Align 'Center' -Percent 100 -Path $chartFileItem
+                        Image -Text 'Cloud Connect Infrastructure - Diagram' -Align 'Center' -Percent 100 -Base64 $chartFileItem
                     }
                     BlankLine
                     $OutObj | Table @TableParams

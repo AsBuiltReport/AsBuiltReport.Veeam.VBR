@@ -80,53 +80,18 @@ function Get-AbrVbrBackupRepository {
                     try {
                         $sampleData = $OutObj | Select-Object -Property 'Name','Used Space %'
 
-                        $exampleChart = New-Chart -Name BackupRepository -Width 600 -Height 400
-
-                        $addChartAreaParams = @{
-                            Chart = $exampleChart
-                            Name  = 'exampleChartArea'
-                        }
-                        $exampleChartArea = Add-ChartArea @addChartAreaParams -PassThru
-
-                        $addChartSeriesParams = @{
-                            Chart             = $exampleChart
-                            ChartArea         = $exampleChartArea
-                            Name              = 'exampleChartSeries'
-                            XField            = 'Name'
-                            YField            = 'Used Space %'
-                            Palette           = 'Green'
-                            ColorPerDataPoint = $true
-                        }
-                        $exampleChartSeries = $sampleData | Add-PieChartSeries @addChartSeriesParams -PassThru
-
-                        $addChartLegendParams = @{
-                            Chart             = $exampleChart
-                            Name              = 'Backup Repository'
-                            TitleAlignment    = 'Center'
-                        }
-                        Add-ChartLegend @addChartLegendParams
-
-                        $addChartTitleParams = @{
-                            Chart     = $exampleChart
-                            ChartArea = $exampleChartArea
-                            Name      = 'UsedSpace'
-                            Text      = 'Percentage of Used Space'
-                            Font      = New-Object -TypeName 'System.Drawing.Font' -ArgumentList @('Arial', '12', [System.Drawing.FontStyle]::Bold)
-                        }
-                        Add-ChartTitle @addChartTitleParams
-
-                        $chartFileItem = Export-Chart -Chart $exampleChart -Path (Get-Location).Path -Format "PNG" -PassThru
-                    }
-                    catch {
-                        Write-PscriboMessage -IsWarning "Backup Repository graph Section: $($_.Exception.Message)"
+                        $chartFileItem = Get-PieChart -SampleData $sampleData -ChartName 'BackupRepository' -XField 'Name' -YField 'Used Space %' -ChartLegendName 'Backup Repository' -ChartTitleName 'UsedSpace' -ChartTitleText 'Percentage of Used Space'
+                    } catch {
+                        Write-PscriboMessage -IsWarning "Backup Repository chart section: $($_.Exception.Message)"
                     }
                 }
+
                 if ($OutObj) {
                     Section -Style Heading3 'Backup Repository' {
                         Paragraph "The following section provides Backup Repository summary information."
                         BlankLine
                         if ($Options.EnableCharts -and $chartFileItem) {
-                            Image -Text 'Backup Repository - Diagram' -Align 'Center' -Percent 100 -Path $chartFileItem
+                            Image -Text 'Backup Repository - Diagram' -Align 'Center' -Percent 100 -Base64 $chartFileItem
                         }
                         BlankLine
                         $OutObj | Sort-Object -Property 'Name' | Table @TableParams

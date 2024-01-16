@@ -89,51 +89,16 @@ function Get-AbrVbrInfrastructureSummary {
                     $inObj.Remove('Capacity Licenses (Total/Used)')
                     $sampleData = $inObj.GetEnumerator() | Select-Object @{ Name = 'Category';  Expression = {$_.key}},@{ Name = 'Value';  Expression = {$_.value}} | Sort-Object -Property 'Category'
 
-                    $exampleChart = New-Chart -Name BackupInfrastructure -Width 600 -Height 400
-
-                    $addChartAreaParams = @{
-                        Chart = $exampleChart
-                        Name  = 'exampleChartArea'
-                    }
-                    $exampleChartArea = Add-ChartArea @addChartAreaParams -PassThru
-
-                    $addChartSeriesParams = @{
-                        Chart             = $exampleChart
-                        ChartArea         = $exampleChartArea
-                        Name              = 'exampleChartSeries'
-                        XField            = 'Category'
-                        YField            = 'Value'
-                        Palette           = 'Green'
-                        ColorPerDataPoint = $true
-                    }
-                    $exampleChartSeries = $sampleData | Add-PieChartSeries @addChartSeriesParams -PassThru
-
-                    $addChartLegendParams = @{
-                        Chart             = $exampleChart
-                        Name              = 'Infrastructure'
-                        TitleAlignment    = 'Center'
-                    }
-                    Add-ChartLegend @addChartLegendParams
-
-                    $addChartTitleParams = @{
-                        Chart     = $exampleChart
-                        ChartArea = $exampleChartArea
-                        Name      = ' '
-                        Text      = ' '
-                        Font      = New-Object -TypeName 'System.Drawing.Font' -ArgumentList @('Arial', '12', [System.Drawing.FontStyle]::Bold)
-                    }
-                    Add-ChartTitle @addChartTitleParams
-
-                    $chartFileItem = Export-Chart -Chart $exampleChart -Path (Get-Location).Path -Format "PNG" -PassThru
-                }
-                catch {
-                    Write-PscriboMessage -IsWarning $($_.Exception.Message)
+                    $chartFileItem = Get-PieChart -SampleData $sampleData -ChartName 'BackupInfrastructure' -XField 'Category' -YField 'Value' -ChartLegendName 'Infrastructure'
+                } catch {
+                    Write-PscriboMessage -IsWarning "Backup Infrastructure chart section: $($_.Exception.Message)"
                 }
             }
+
             if ($OutObj) {
                 Section -Style NOTOCHeading3 -ExcludeFromTOC 'Backup Infrastructure Inventory' {
                     if ($Options.EnableCharts -and $chartFileItem -and ($inObj.Values | Measure-Object -Sum).Sum -ne 0) {
-                        Image -Text 'Backup Infrastructure - Diagram' -Align 'Center' -Percent 100 -Path $chartFileItem
+                        Image -Text 'Backup Infrastructure - Diagram' -Align 'Center' -Percent 100 -Base64 $chartFileItem
                     }
                     BlankLine
                     $OutObj | Table @TableParams
