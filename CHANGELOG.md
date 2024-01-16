@@ -7,13 +7,13 @@
 - Added Veeam Best Practice Analyzer support
 - Added support for Key Management Server configuration
 - Added Protection Group diagram support
-- Added support for more Backup Repository:
+- Added support for more Backup Repository types:
   - Wasabi
   - BackBlaze
 
 ### Changed
 
-- Improved report total processing time
+- Improved the total processing timeof the report
 
 ### Fixed
 
