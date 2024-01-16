@@ -6,7 +6,7 @@ function Get-AbrVbrServiceProvider {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.7.1
+        Version:        0.8.4
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -26,12 +26,12 @@ function Get-AbrVbrServiceProvider {
 
     process {
         try {
-            if ((Get-VBRInstalledLicense | Where-Object {$_.Edition -in @("EnterprisePlus")}) -and (Get-VBRCloudProvider).count -gt 0) {
+            $CloudProviders = Get-VBRCloudProvider
+            if (($VbrLicenses | Where-Object {$_.Edition -in @("EnterprisePlus")}) -and $CloudProviders) {
                 Section -Style Heading3 'Service Providers' {
                     Paragraph "The following section provides a summary about configured Veeam Cloud Service Providers."
                     BlankLine
                     try {
-                        $CloudProviders = Get-VBRCloudProvider
                         $OutObj = @()
                         foreach ($CloudProvider in $CloudProviders) {
                             try {

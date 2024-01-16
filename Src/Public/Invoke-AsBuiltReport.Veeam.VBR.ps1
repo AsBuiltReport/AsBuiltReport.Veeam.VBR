@@ -5,7 +5,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.3
+        Version:        0.8.4
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -55,6 +55,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
         Get-AbrVbrRequiredModule -Name 'Veeam.Backup.PowerShell' -Version '1.0'
         Get-AbrVbrServerConnection
         $VeeamBackupServer = ((Get-VBRServerSession).Server).ToString().ToUpper().Split(".")[0]
+        $script:VbrLicenses = Get-VBRInstalledLicense
         Section -Style Heading1 $($VeeamBackupServer) {
             Paragraph "The following section provides an overview of the implemented components of Veeam Backup & Replication."
             BlankLine
@@ -67,6 +68,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                     BlankLine
                     if ($InfoLevel.Infrastructure.BackupServer -ge 1) {
                         Get-AbrVbrInfrastructureSummary
+                        Get-AbrVbrSecurityCompliance
                         Get-AbrVbrBackupServerInfo
                         Get-AbrVbrEnterpriseManagerInfo
                     }
@@ -97,6 +99,9 @@ function Invoke-AsBuiltReport.Veeam.VBR {
 
                     Get-AbrVbrUserRoleAssignment
                     Get-AbrVbrCredential
+                    if ($VbrVersion -ge 12.1) {
+                        Get-AbrVbrKMSInfo
+                    }
                     Get-AbrVbrLocation
                     Get-AbrVbrManagedServer
 
@@ -114,11 +119,11 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                                 Write-PscriboMessage -IsWarning "Wan Accelerator Diagram: $($_.Exception.Message)"
                             }
                             if ($Graph) {
-                                PageBreak
                                 Section -Style Heading3 "Wan Accelerator Diagram." {
-                                    Image -Base64 $Graph -Text "Wan Accelerator Diagram" -Percent 20 -Align Center
+                                    Image -Base64 $Graph -Text "Wan Accelerator Diagram" -Percent (Get-ImagePercent -Graph $Graph) -Align Center
                                     Paragraph "Image preview: Opens the image in a new tab to view it at full resolution." -Tabs 2
                                 }
+                                BlankLine
                             }
                         }
                     }
@@ -137,11 +142,11 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                                 Write-PscriboMessage -IsWarning "Backup Repository Diagram: $($_.Exception.Message)"
                             }
                             if ($Graph) {
-                                PageBreak
                                 Section -Style Heading3 "Backup Repository Diagram." {
-                                    Image -Base64 $Graph -Text "Backup Repository Diagram" -Percent 20 -Align Center
+                                    Image -Base64 $Graph -Text "Backup Repository Diagram" -Percent (Get-ImagePercent -Graph $Graph) -Align Center
                                     Paragraph "Image preview: Opens the image in a new tab to view it at full resolution." -Tabs 2
                                 }
+                                BlankLine
                             }
                         }
                     }
@@ -155,11 +160,11 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                                 Write-PscriboMessage -IsWarning "ScaleOut Backup Repository Diagram: $($_.Exception.Message)"
                             }
                             if ($Graph) {
-                                PageBreak
                                 Section -Style Heading3 "ScaleOut Backup Repository Diagram." {
-                                    Image -Base64 $Graph -Text "ScaleOut Backup Repository Diagram" -Percent 20 -Align Center
+                                    Image -Base64 $Graph -Text "ScaleOut Backup Repository Diagram" -Percent (Get-ImagePercent -Graph $Graph) -Align Center
                                     Paragraph "Image preview: Opens the image in a new tab to view it at full resolution." -Tabs 2
                                 }
+                                BlankLine
                             }
                         }
                     }
@@ -206,11 +211,11 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                                 Write-PscriboMessage -IsWarning "Tape Infrastructure Diagram: $($_.Exception.Message)"
                             }
                             if ($Graph) {
-                                PageBreak
                                 Section -Style Heading3 "Tape Infrastructure Diagram." {
-                                    Image -Base64 $Graph -Text "Tape Infrastructure Diagram" -Percent 20 -Align Center
+                                    Image -Base64 $Graph -Text "Tape Infrastructure Diagram" -Percent (Get-ImagePercent -Graph $Graph) -Align Center
                                     Paragraph "Image preview: Opens the image in a new tab to view it at full resolution." -Tabs 2
                                 }
+                                BlankLine
                             }
                         }
                     }
@@ -231,8 +236,24 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                         }
                         Write-PScriboMessage "Physical Inventory InfoLevel set at $($InfoLevel.Inventory.PHY)."
                         if ($InfoLevel.Inventory.PHY -ge 1) {
+                            $InventObjs = Get-VBRProtectionGroup | Sort-Object -Property Name
+
                             Get-AbrVbrPhysicalInfrastructure
 
+                            if ($Options.EnableDiagrams -and $InventObjs) {
+                                Try {
+                                    $Graph = New-VeeamDiagram -Target $System -Credential $Credential -Format base64 -Direction top-to-bottom -DiagramType "Backup-to-ProtectedGroup"
+                                } Catch {
+                                    Write-PscriboMessage -IsWarning "Physical Infrastructure Diagram: $($_.Exception.Message)"
+                                }
+                                if ($Graph) {
+                                    Section -Style Heading3 "Physical Infrastructure Diagram." {
+                                        Image -Base64 $Graph -Text "Physical Infrastructure Diagram" -Percent (Get-ImagePercent -Graph $Graph) -Align Center
+                                        Paragraph "Image preview: Opens the image in a new tab to view it at full resolution." -Tabs 2
+                                    }
+                                    BlankLine
+                                }
+                            }
                         }
                         Write-PScriboMessage "File Shares Inventory InfoLevel set at $($InfoLevel.Inventory.FileShare)."
                         if ($InfoLevel.Inventory.FileShare -ge 1) {
@@ -289,7 +310,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
             #                                Cloud Connect Section                                        #
             #---------------------------------------------------------------------------------------------#
             if ($InfoLevel.CloudConnect.PSObject.Properties.Value -ne 0) {
-                if (Get-VBRInstalledLicense | Where-Object {$_.CloudConnect -ne "Disabled" -and $_.Status -ne "Expired"}) {
+                if ($VbrLicenses | Where-Object {$_.CloudConnect -ne "Disabled" -and $_.Status -ne "Expired"}) {
                     if ((Get-VBRCloudGateway).count -gt 0 -or ((Get-VBRCloudTenant).count -gt 0))  {
                         Section -Style Heading2 'Cloud Connect' {
                             Paragraph "The following section provides information about Cloud Connect components from server $(((Get-VBRServerSession).Server))."

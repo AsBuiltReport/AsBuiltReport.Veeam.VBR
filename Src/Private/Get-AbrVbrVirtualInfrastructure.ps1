@@ -6,7 +6,7 @@ function Get-AbrVbrVirtualInfrastructure {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.7.1
+        Version:        0.8.4
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -26,7 +26,8 @@ function Get-AbrVbrVirtualInfrastructure {
 
     process {
         try {
-            if ((Get-VBRServer).count -gt 0) {
+            $VbrServer = Get-VBRServer
+            if ($VbrServer) {
                 Section -Style Heading3 'Virtual Infrastructure' {
                     Paragraph "The following sections detail the configuration about managed virtual servers backed-up by Veeam Server $(((Get-VBRServerSession).Server))."
                     BlankLine
@@ -34,11 +35,11 @@ function Get-AbrVbrVirtualInfrastructure {
                     #                            VMware vSphere information Section                               #
                     #---------------------------------------------------------------------------------------------#
                     try {
-                        if (Get-VBRServer | Where-Object {$_.Type -eq 'VC' -or $_.Type -eq 'ESXi'}) {
+                        if ($VbrServer | Where-Object {$_.Type -eq 'VC' -or $_.Type -eq 'ESXi'}) {
                             Section -Style Heading4 'VMware vSphere' {
                                 Paragraph "The following section details information about VMware Virtual Infrastructure backed-up by Veeam Server $(((Get-VBRServerSession).Server))."
                                 BlankLine
-                                $InventObjs = Get-VBRServer | Where-Object {$_.Type -eq 'VC'}
+                                $InventObjs = $VbrServer | Where-Object {$_.Type -eq 'VC'}
                                 if ($InventObjs) {
                                     Section -Style NOTOCHeading5 -ExcludeFromTOC 'VMware vCenter' {
                                         $OutObj = @()
@@ -74,7 +75,7 @@ function Get-AbrVbrVirtualInfrastructure {
                                 #                            VMware Esxi information Section                                  #
                                 #---------------------------------------------------------------------------------------------#
                                 try {
-                                    $InventObjs = Get-VBRServer | Where-Object {$_.Type -eq 'ESXi'}
+                                    $InventObjs = $VbrServer | Where-Object {$_.Type -eq 'ESXi'}
                                     if ($InventObjs) {
                                         Section -Style NOTOCHeading6 -ExcludeFromTOC 'Esxi Host' {
                                             $OutObj = @()
@@ -120,9 +121,9 @@ function Get-AbrVbrVirtualInfrastructure {
                     #                         Microsoft Hyper-V Cluster information Section                       #
                     #---------------------------------------------------------------------------------------------#
                     try {
-                        if (Get-VBRServer | Where-Object {$_.Type -eq 'HvCluster' -or $_.Type -eq 'HvServer'}) {
+                        if ($VbrServer | Where-Object {$_.Type -eq 'HvCluster' -or $_.Type -eq 'HvServer'}) {
                             Section -Style Heading4 'Microsoft Hyper-V' {
-                                $InventObjs = Get-VBRServer | Where-Object {$_.Type -eq 'HvCluster'}
+                                $InventObjs = $VbrServer | Where-Object {$_.Type -eq 'HvCluster'}
                                 if ($InventObjs) {
                                     Section -Style NOTOCHeading5 -ExcludeFromTOC 'Hyper-V Clusters' {
                                         $OutObj = @()
@@ -158,7 +159,7 @@ function Get-AbrVbrVirtualInfrastructure {
                                 #                         Microsoft Hyper-V Host information Section                          #
                                 #---------------------------------------------------------------------------------------------#
                                 try {
-                                    $InventObjs = Get-VBRServer | Where-Object {$_.Type -eq 'HvServer'}
+                                    $InventObjs = $VbrServer | Where-Object {$_.Type -eq 'HvServer'}
                                     if ($InventObjs) {
                                         Section -Style NOTOCHeading6 -ExcludeFromTOC 'Hyper-V Host' {
                                             $OutObj = @()

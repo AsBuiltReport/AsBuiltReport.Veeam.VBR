@@ -6,7 +6,7 @@ function Get-AbrVbrConfigurationBackupSetting {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.0
+        Version:        0.8.4
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -26,11 +26,11 @@ function Get-AbrVbrConfigurationBackupSetting {
 
     process {
         try {
-            if ((Get-VBRConfigurationBackupJob).count -gt 0) {
+            $BackupSettings = Get-VBRConfigurationBackupJob
+            if ($BackupSettings) {
                 Section -Style Heading4 'Configuration Backup' {
                     $OutObj = @()
                     try {
-                        $BackupSettings = Get-VBRConfigurationBackupJob
                         if ($BackupSettings.ScheduleOptions.Type -like "Daily") {
                             $ScheduleOptions = "Type: $($BackupSettings.ScheduleOptions.DailyOptions.Type)`r`nPeriod: $($BackupSettings.ScheduleOptions.DailyOptions.Period)`r`nDay Of Week: $($BackupSettings.ScheduleOptions.DailyOptions.DayOfWeek)"
                         }

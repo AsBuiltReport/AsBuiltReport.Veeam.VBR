@@ -6,7 +6,7 @@ function Get-AbrVbrTapeMediaPool {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.0
+        Version:        0.8.4
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -26,14 +26,14 @@ function Get-AbrVbrTapeMediaPool {
 
     process {
         try {
-            if ((Get-VBRTapeMediaPool).count -gt 0) {
+            $PoolObjs = Get-VBRTapeMediaPool
+            if ($PoolObjs) {
             #---------------------------------------------------------------------------------------------#
             #                            Tape Media Pools Section                                         #
             #---------------------------------------------------------------------------------------------#
                 Section -Style Heading3 'Tape Media Pools' {
                     $OutObj = @()
                     try {
-                        $PoolObjs = Get-VBRTapeMediaPool
                         foreach ($PoolObj in $PoolObjs) {
                             try {
                                 if ($PoolObj.Type -ne "Custom") {
@@ -82,7 +82,6 @@ function Get-AbrVbrTapeMediaPool {
                 Write-PScriboMessage "Tape MediaPool Configuration InfoLevel set at $($InfoLevel.Tape.MediaPool)."
                 if ($InfoLevel.Tape.MediaPool -ge 2) {
                     Write-PScriboMessage "Discovering Per Tape Media Pools Configuration."
-                    $PoolObjs = Get-VBRTapeMediaPool
                     if ($PoolObjs) {
                         Section -Style Heading3 'Tape Media Pools Configuration' {
                             foreach ($PoolObj in ($PoolObjs | Where-Object {$_.Type -eq 'Gfs' -or $_.Type -eq 'Custom'} | Sort-Object -Property 'Name')) {

@@ -6,7 +6,7 @@ function Get-AbrVbrNetworkTrafficRule {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.0
+        Version:        0.8.4
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -26,13 +26,13 @@ function Get-AbrVbrNetworkTrafficRule {
 
     process {
         try {
-            if ((Get-VBRNetworkTrafficRule).count -gt 0) {
+            $TrafficRules = Get-VBRNetworkTrafficRule
+            if ($TrafficRules) {
                 Section -Style Heading4 'Network Traffic Rules' {
                     Paragraph "The following section details network traffic rules settings configured on Veeam Backup & Replication."
                     BlankLine
                     $OutObj = @()
                     try {
-                        $TrafficRules = Get-VBRNetworkTrafficRule
                         foreach ($TrafficRule in $TrafficRules) {
                             $inObj = [ordered] @{
                                 'Name' = $TrafficRule.Name
@@ -64,51 +64,10 @@ function Get-AbrVbrNetworkTrafficRule {
                                         Text 'Permited \' -Color 81BC50 -Bold
                                         Text ' Denied' -Color dddf62 -Bold
                                     }
-                                    $OutObj = @()
+
                                     try {
-                                        $Days = 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'
-                                        $Hours24 = [ordered]@{
-                                            0 = 12
-                                            1 = 1
-                                            2 = 2
-                                            3 = 3
-                                            4 = 4
-                                            5 = 5
-                                            6 = 6
-                                            7 = 7
-                                            8 = 8
-                                            9 = 9
-                                            10 = 10
-                                            11 = 11
-                                            12 = 12
-                                            13 = 1
-                                            14 = 2
-                                            15 = 3
-                                            16 = 4
-                                            17 = 5
-                                            18 = 6
-                                            19 = 7
-                                            20 = 8
-                                            21 = 9
-                                            22 = 10
-                                            23 = 11
-                                        }
-                                        $ScheduleTimePeriod = $TrafficRule.ThrottlingWindowOptions -split '(.{48})' | Where-Object {$_}
 
-                                        foreach ($OBJ in $Hours24.GetEnumerator()) {
-
-                                            $inObj = [ordered] @{
-                                                'H' = $OBJ.Value
-                                                'Sun' = $ScheduleTimePeriod[0].Split(',')[$OBJ.Key]
-                                                'Mon' = $ScheduleTimePeriod[1].Split(',')[$OBJ.Key]
-                                                'Tue' = $ScheduleTimePeriod[2].Split(',')[$OBJ.Key]
-                                                'Wed' = $ScheduleTimePeriod[3].Split(',')[$OBJ.Key]
-                                                'Thu' = $ScheduleTimePeriod[4].Split(',')[$OBJ.Key]
-                                                'Fri' = $ScheduleTimePeriod[5].Split(',')[$OBJ.Key]
-                                                'Sat' = $ScheduleTimePeriod[6].Split(',')[$OBJ.Key]
-                                            }
-                                            $OutObj += $inobj
-                                        }
+                                        $OutObj = Get-WindowsTimePeriod -InputTimePeriod $TrafficRule.ThrottlingWindowOptions
 
                                         $TableParams = @{
                                             Name = "Throttling Windows - $($TrafficRule.Name)"

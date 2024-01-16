@@ -6,7 +6,7 @@ function Get-AbrVbrInfrastructureSummary {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.7.1
+        Version:        0.8.4
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -34,11 +34,16 @@ function Get-AbrVbrInfrastructureSummary {
                 $SOBRRepo = (Get-VBRBackupRepository -ScaleOut).count
                 $ObjectStorageRepo = (Get-VBRObjectStorageRepository).count
                 $Locations = (Get-VBRLocation).count
-                $InstanceLicenses = (Get-VBRInstalledLicense).InstanceLicenseSummary
-                $SocketLicenses = (Get-VBRInstalledLicense).SocketLicenseSummary
-                $CapacityLicenses = (Get-VBRInstalledLicense).CapacityLicenseSummary
+                $InstanceLicenses = ($VbrLicenses).InstanceLicenseSummary
+                $SocketLicenses = ($VbrLicenses).SocketLicenseSummary
+                $CapacityLicenses = ($VbrLicenses).CapacityLicenseSummary
                 $WANAccels = (Get-VBRWANAccelerator).count
-                $ServiceProviders = (Get-VBRCloudProvider).count
+                try {
+                    $ServiceProviders = (Get-VBRCloudProvider).count
+                } Catch {
+                    Write-PscriboMessage -IsWarning "Infrastructure Service Providers Summary Section: $($_.Exception.Message)"
+                    $ServiceProviders = 0
+                }
                 try {
                     $SureBackupAGs = (Get-VBRApplicationGroup).count
                     $SureBackupVLs = (Get-VBRVirtualLab).count
@@ -84,51 +89,16 @@ function Get-AbrVbrInfrastructureSummary {
                     $inObj.Remove('Capacity Licenses (Total/Used)')
                     $sampleData = $inObj.GetEnumerator() | Select-Object @{ Name = 'Category';  Expression = {$_.key}},@{ Name = 'Value';  Expression = {$_.value}} | Sort-Object -Property 'Category'
 
-                    $exampleChart = New-Chart -Name BackupInfrastructure -Width 600 -Height 400
-
-                    $addChartAreaParams = @{
-                        Chart = $exampleChart
-                        Name  = 'exampleChartArea'
-                    }
-                    $exampleChartArea = Add-ChartArea @addChartAreaParams -PassThru
-
-                    $addChartSeriesParams = @{
-                        Chart             = $exampleChart
-                        ChartArea         = $exampleChartArea
-                        Name              = 'exampleChartSeries'
-                        XField            = 'Category'
-                        YField            = 'Value'
-                        Palette           = 'Green'
-                        ColorPerDataPoint = $true
-                    }
-                    $exampleChartSeries = $sampleData | Add-PieChartSeries @addChartSeriesParams -PassThru
-
-                    $addChartLegendParams = @{
-                        Chart             = $exampleChart
-                        Name              = 'Infrastructure'
-                        TitleAlignment    = 'Center'
-                    }
-                    Add-ChartLegend @addChartLegendParams
-
-                    $addChartTitleParams = @{
-                        Chart     = $exampleChart
-                        ChartArea = $exampleChartArea
-                        Name      = ' '
-                        Text      = ' '
-                        Font      = New-Object -TypeName 'System.Drawing.Font' -ArgumentList @('Arial', '12', [System.Drawing.FontStyle]::Bold)
-                    }
-                    Add-ChartTitle @addChartTitleParams
-
-                    $chartFileItem = Export-Chart -Chart $exampleChart -Path (Get-Location).Path -Format "PNG" -PassThru
-                }
-                catch {
-                    Write-PscriboMessage -IsWarning $($_.Exception.Message)
+                    $chartFileItem = Get-PieChart -SampleData $sampleData -ChartName 'BackupInfrastructure' -XField 'Category' -YField 'Value' -ChartLegendName 'Infrastructure'
+                } catch {
+                    Write-PscriboMessage -IsWarning "Backup Infrastructure chart section: $($_.Exception.Message)"
                 }
             }
+
             if ($OutObj) {
                 Section -Style NOTOCHeading3 -ExcludeFromTOC 'Backup Infrastructure Inventory' {
                     if ($Options.EnableCharts -and $chartFileItem -and ($inObj.Values | Measure-Object -Sum).Sum -ne 0) {
-                        Image -Text 'Backup Infrastructure - Diagram' -Align 'Center' -Percent 100 -Path $chartFileItem
+                        Image -Text 'Backup Infrastructure - Diagram' -Align 'Center' -Percent 100 -Base64 $chartFileItem
                     }
                     BlankLine
                     $OutObj | Table @TableParams

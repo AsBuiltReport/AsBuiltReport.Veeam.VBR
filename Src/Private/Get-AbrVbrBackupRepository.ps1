@@ -6,7 +6,7 @@ function Get-AbrVbrBackupRepository {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.0
+        Version:        0.8.4
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -26,15 +26,15 @@ function Get-AbrVbrBackupRepository {
 
     process {
         try {
-            if ((Get-VBRBackupRepository).count -gt 0) {
+            [Array]$BackupRepos = Get-VBRBackupRepository | Where-Object {$_.Type -ne "SanSnapshotOnly"} | Sort-Object -Property Name
+            [Array]$ScaleOuts = Get-VBRBackupRepository -ScaleOut | Sort-Object -Property Name
+            if ($ScaleOuts) {
+                $Extents = Get-VBRRepositoryExtent -Repository $ScaleOuts | Sort-Object -Property Name
+                $BackupRepos += $Extents.Repository
+            }
+            if ($BackupRepos) {
                 $OutObj = @()
                 try {
-                    [Array]$BackupRepos = Get-VBRBackupRepository | Where-Object {$_.Type -ne "SanSnapshotOnly"} | Sort-Object -Property Name
-                    [Array]$ScaleOuts = Get-VBRBackupRepository -ScaleOut | Sort-Object -Property Name
-                    if ($ScaleOuts) {
-                        $Extents = Get-VBRRepositoryExtent -Repository $ScaleOuts | Sort-Object -Property Name
-                        $BackupRepos += $Extents.Repository
-                    }
                     foreach ($BackupRepo in $BackupRepos) {
                         Write-PscriboMessage "Discovered $($BackupRepo.Name) Repository."
                         $PercentFree = 0
@@ -80,53 +80,18 @@ function Get-AbrVbrBackupRepository {
                     try {
                         $sampleData = $OutObj | Select-Object -Property 'Name','Used Space %'
 
-                        $exampleChart = New-Chart -Name BackupRepository -Width 600 -Height 400
-
-                        $addChartAreaParams = @{
-                            Chart = $exampleChart
-                            Name  = 'exampleChartArea'
-                        }
-                        $exampleChartArea = Add-ChartArea @addChartAreaParams -PassThru
-
-                        $addChartSeriesParams = @{
-                            Chart             = $exampleChart
-                            ChartArea         = $exampleChartArea
-                            Name              = 'exampleChartSeries'
-                            XField            = 'Name'
-                            YField            = 'Used Space %'
-                            Palette           = 'Green'
-                            ColorPerDataPoint = $true
-                        }
-                        $exampleChartSeries = $sampleData | Add-PieChartSeries @addChartSeriesParams -PassThru
-
-                        $addChartLegendParams = @{
-                            Chart             = $exampleChart
-                            Name              = 'Backup Repository'
-                            TitleAlignment    = 'Center'
-                        }
-                        Add-ChartLegend @addChartLegendParams
-
-                        $addChartTitleParams = @{
-                            Chart     = $exampleChart
-                            ChartArea = $exampleChartArea
-                            Name      = 'UsedSpace'
-                            Text      = 'Percentage of Used Space'
-                            Font      = New-Object -TypeName 'System.Drawing.Font' -ArgumentList @('Arial', '12', [System.Drawing.FontStyle]::Bold)
-                        }
-                        Add-ChartTitle @addChartTitleParams
-
-                        $chartFileItem = Export-Chart -Chart $exampleChart -Path (Get-Location).Path -Format "PNG" -PassThru
-                    }
-                    catch {
-                        Write-PscriboMessage -IsWarning "Backup Repository graph Section: $($_.Exception.Message)"
+                        $chartFileItem = Get-PieChart -SampleData $sampleData -ChartName 'BackupRepository' -XField 'Name' -YField 'Used Space %' -ChartLegendName 'Backup Repository' -ChartTitleName 'UsedSpace' -ChartTitleText 'Percentage of Used Space'
+                    } catch {
+                        Write-PscriboMessage -IsWarning "Backup Repository chart section: $($_.Exception.Message)"
                     }
                 }
+
                 if ($OutObj) {
                     Section -Style Heading3 'Backup Repository' {
                         Paragraph "The following section provides Backup Repository summary information."
                         BlankLine
                         if ($Options.EnableCharts -and $chartFileItem) {
-                            Image -Text 'Backup Repository - Diagram' -Align 'Center' -Percent 100 -Path $chartFileItem
+                            Image -Text 'Backup Repository - Diagram' -Align 'Center' -Percent 100 -Base64 $chartFileItem
                         }
                         BlankLine
                         $OutObj | Sort-Object -Property 'Name' | Table @TableParams
@@ -145,11 +110,29 @@ function Get-AbrVbrBackupRepository {
                                                 Write-PscriboMessage "Discovered $($BackupRepo.Name) Backup Repository."
                                                 $inObj = [ordered] @{
                                                     'Extent of ScaleOut Backup Repository' = (($ScaleOuts | Where-Object {($Extents | Where-Object {$_.name -eq $BackupRepo.Name}).ParentId -eq $_.Id}).Name)
-                                                    'Backup Proxy' = ($BackupRepo.Host).Name
+                                                    'Backup Proxy' = Switch ([string]::IsNullOrEmpty(($BackupRepo.Host).Name)) {
+                                                        $true {'--'}
+                                                        $false {($BackupRepo.Host).Name}
+                                                        default {'Unknown'}
+                                                    }
                                                     'Integration Type' = $BackupRepo.TypeDisplay
-                                                    'Path' = $BackupRepo.Path
+                                                    'Path' = Switch ([string]::IsNullOrEmpty($BackupRepo.FriendlyPath)) {
+                                                        $true {'--'}
+                                                        $false {$BackupRepo.FriendlyPath}
+                                                        default {'Unknown'}
+                                                    }
                                                     'Connection Type' = $BackupRepo.Type
-                                                    'Max Task Count' = $BackupRepo.Options.MaxTaskCount
+                                                    'Max Task Count' = Switch ([string]::IsNullOrEmpty($BackupRepo.Options.MaxTaskCount)) {
+                                                        $true {
+                                                            Switch ([string]::IsNullOrEmpty($BackupRepo.Options.MaxTasksCount)) {
+                                                                $true {'--'}
+                                                                $false {$BackupRepo.Options.MaxTasksCount}
+                                                                default {'Unknown'}
+                                                            }
+                                                        }
+                                                        $false {$BackupRepo.Options.MaxTaskCount}
+                                                        default {'Unknown'}
+                                                    }
                                                     'Use Nfs On Mount Host' = ConvertTo-TextYN $BackupRepo.UseNfsOnMountHost
                                                     'San Snapshot Only' = ConvertTo-TextYN $BackupRepo.IsSanSnapshotOnly
                                                     'Dedup Storage' = ConvertTo-TextYN $BackupRepo.IsDedupStorage
@@ -163,6 +146,15 @@ function Get-AbrVbrBackupRepository {
                                                 if ($null -eq $inObj.'Extent of ScaleOut Backup Repository') {
                                                     $inObj.Remove('Extent of ScaleOut Backup Repository')
                                                 }
+
+                                                if ($BackupRepo.Type -in @('AmazonS3Compatible','WasabiS3')) {
+                                                    $inObj.Add('Object Lock Enabled', (ConvertTo-TextYN $BackupRepo.ObjectLockEnabled))
+                                                }
+
+                                                if ($BackupRepo.Type -in @('AmazonS3Compatible','WasabiS3')) {
+                                                    $inObj.Add('Mount Server', (Get-VBRServer | Where-Object {$_.id -eq $BackupRepo.MountHostId.Guid}).Name)
+                                                }
+
                                                 $OutObj += [pscustomobject]$inobj
 
                                                 if ($HealthCheck.Infrastructure.BR) {

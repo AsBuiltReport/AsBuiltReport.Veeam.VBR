@@ -6,7 +6,7 @@ function Get-AbrVbrAgentBackupjobConf {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.0
+        Version:        0.8.4
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -26,12 +26,12 @@ function Get-AbrVbrAgentBackupjobConf {
 
     process {
         try {
-            if ((Get-VBRComputerBackupJob).count -gt 0) {
+            $ABkjobs = Get-VBRComputerBackupJob | Sort-Object -Property Name
+            if (($ABkjobs).count -gt 0) {
                 Section -Style Heading3 'Agent Backup Jobs Configuration' {
                     Paragraph "The following section details agent backup jobs configuration created in Veeam Backup & Replication."
                     BlankLine
                     $OutObj = @()
-                    $ABkjobs = Get-VBRComputerBackupJob | Sort-Object -Property Name
                     foreach ($ABkjob in $ABkjobs) {
                         try {
                             Section -Style Heading4 $($ABkjob.Name) {
@@ -738,6 +738,49 @@ function Get-AbrVbrAgentBackupjobConf {
                                                         $TableParams['Caption'] = "- $($TableParams.Name)"
                                                     }
                                                     $OutObj | Table @TableParams
+                                                    if ($ABkjob.ScheduleOptions.BackupTerminationWindowEnabled) {
+                                                        try {
+                                                            Section -Style NOTOCHeading6 -ExcludeFromTOC "Backup Window Time Period" {
+                                                                Paragraph {
+                                                                    Text 'Permited \' -Color 81BC50 -Bold
+                                                                    Text ' Denied' -Color dddf62 -Bold
+                                                                }
+
+                                                                $OutObj = Get-WindowsTimePeriod -InputTimePeriod $ABkjob.ScheduleOptions.TerminationWindow
+
+                                                                $TableParams = @{
+                                                                    Name = "Backup Window - $($ABkjob.Name)"
+                                                                    List = $true
+                                                                    ColumnWidths = 6,4,3,4,4,4,4,4,4,4,4,4,4,4,3,4,4,4,4,4,4,4,4,4,4
+                                                                    Key = 'H'
+                                                                }
+                                                                if ($Report.ShowTableCaptions) {
+                                                                    $TableParams['Caption'] = "- $($TableParams.Name)"
+                                                                }
+                                                                if ($OutObj) {
+                                                                    $OutObj2 = Table -Hashtable $OutObj @TableParams
+                                                                    $OutObj2.Rows | Where-Object {$_.Sun -eq "0"} | Set-Style -Style OFF -Property "Sun"
+                                                                    $OutObj2.Rows | Where-Object {$_.Mon -eq "0"} | Set-Style -Style OFF -Property "Mon"
+                                                                    $OutObj2.Rows | Where-Object {$_.Tue -eq "0"} | Set-Style -Style OFF -Property "Tue"
+                                                                    $OutObj2.Rows | Where-Object {$_.Wed -eq "0"} | Set-Style -Style OFF -Property "Wed"
+                                                                    $OutObj2.Rows | Where-Object {$_.Thu -eq "0"} | Set-Style -Style OFF -Property "Thu"
+                                                                    $OutObj2.Rows | Where-Object {$_.Fri -eq "0"} | Set-Style -Style OFF -Property "Fri"
+                                                                    $OutObj2.Rows | Where-Object {$_.Sat -eq "0"} | Set-Style -Style OFF -Property "Sat"
+
+                                                                    $OutObj2.Rows | Where-Object {$_.Sun -eq "1"} | Set-Style -Style ON -Property "Sun"
+                                                                    $OutObj2.Rows | Where-Object {$_.Mon -eq "1"} | Set-Style -Style ON -Property "Mon"
+                                                                    $OutObj2.Rows | Where-Object {$_.Tue -eq "1"} | Set-Style -Style ON -Property "Tue"
+                                                                    $OutObj2.Rows | Where-Object {$_.Wed -eq "1"} | Set-Style -Style ON -Property "Wed"
+                                                                    $OutObj2.Rows | Where-Object {$_.Thu -eq "1"} | Set-Style -Style ON -Property "Thu"
+                                                                    $OutObj2.Rows | Where-Object {$_.Fri -eq "1"} | Set-Style -Style ON -Property "Fri"
+                                                                    $OutObj2.Rows | Where-Object {$_.Sat -eq "1"} | Set-Style -Style ON -Property "Sat"
+                                                                    $OutObj2
+                                                                }
+                                                            }
+                                                        } catch {
+                                                            Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                        }
+                                                    }
                                                 }
                                                 catch {
                                                     Write-PscriboMessage -IsWarning "Agent Backup Jobs Advanced Settings (Schedule Options) Section: $($_.Exception.Message)"
@@ -784,15 +827,34 @@ function Get-AbrVbrAgentBackupjobConf {
                                                         $Schedule = "Recurrence: $($ABkjob.ScheduleOptions.DailyOptions.Type),`r`nDays: $($ABkjob.ScheduleOptions.DailyOptions.DayOfWeek)r`nAt: $($ABkjob.ScheduleOptions.DailyOptions.Period)"
                                                     }
 
+                                                    if ($ABkjob.ScheduleOptions.Type -eq "Daily") {
+                                                        $ScheduleType = "Daily"
+                                                        $Schedule = "Recurrence: $($ABkjob.ScheduleOptions.DailyOptions.Type),`r`nDays: $($ABkjob.ScheduleOptions.DailyOptions.DayOfWeek)`r`nAt: $($ABkjob.ScheduleOptions.DailyOptions.Period)"
+                                                    }
+                                                    elseif ($ABkjob.ScheduleOptions.Type -eq "Monthly") {
+                                                        $ScheduleType = "Monthly"
+                                                        $Schedule = "Day Of Month: $($ABkjob.ScheduleOptions.MonthlyOptions.DayOfMonth),`r`nDay Number In Month: $($ABkjob.ScheduleOptions.MonthlyOptions.DayNumberInMonth),`r`nDay Of Week: $($ABkjob.ScheduleOptions.MonthlyOptions.DayOfWeek)`r`nAt: $($ABkjob.ScheduleOptions.DailyOptions.Period)"
+                                                    }
+                                                    elseif ($ABkjob.ScheduleOptions.Type -eq "Periodically") {
+                                                        $ScheduleType = $ABkjob.ScheduleOptions.PeriodicallyOptions.PeriodicallyKind
+                                                        $Schedule = "Full Period: $($ABkjob.ScheduleOptions.PeriodicallyOptions.FullPeriod),`r`nHourly Offset: $($ABkjob.ScheduleOptions.PeriodicallyOptions.HourlyOffset)"
+                                                    }
+                                                    elseif ($ABkjob.ScheduleOptions.Type -eq "AfterJob") {
+                                                        $ScheduleType = 'After Job'
+                                                        $Schedule = $ABkjob.ScheduleOptions.Job.Name
+                                                    }
+
                                                     $inObj = [ordered] @{
                                                         'Schedule type' = $ScheduleType
                                                         'Schedule Options' = $Schedule
                                                         'If Computer is Power Off Action' = SWitch ($ABkjob.ScheduleOptions.PowerOffAction) {
+                                                            $null {'--'}
                                                             'SkipBackup' {'Skip Backup'}
                                                             'BackupAtPowerOn' {'Backup At Power On'}
                                                             default {$ABkjob.ScheduleOptions.PowerOffAction}
                                                         }
                                                         'Once Backup is Taken' = Switch ($ABkjob.ScheduleOptions.PostBackupAction) {
+                                                            $null {'--'}
                                                             'KeepRunning' {'Keep Running'}
                                                             default {$ABkjob.ScheduleOptions.PostBackupAction}
                                                         }
@@ -800,7 +862,11 @@ function Get-AbrVbrAgentBackupjobConf {
                                                         'Backup At Lock' =  ConvertTo-TextYN $ABkjob.ScheduleOptions.BackupAtLock
                                                         'Backup At Target Connection' = ConvertTo-TextYN $ABkjob.ScheduleOptions.BackupAtTargetConnection
                                                         'Eject Storage After Backup' = ConvertTo-TextYN $ABkjob.ScheduleOptions.EjectStorageAfterBackup
-                                                        'Backup Timeout' = "$($ABkjob.ScheduleOptions.BackupTimeout) $($ABkjob.ScheduleOptions.BackupTimeoutType)"
+                                                        'Backup Timeout' = Switch ([string]::IsNullOrEmpty($ABkjob.ScheduleOptions.BackupTimeout)) {
+                                                            $true {'--'}
+                                                            $false {"$($ABkjob.ScheduleOptions.BackupTimeout) $($ABkjob.ScheduleOptions.BackupTimeoutType)"}
+                                                            default {"Unknown"}
+                                                        }
                                                     }
                                                     $OutObj = [pscustomobject]$inobj
 

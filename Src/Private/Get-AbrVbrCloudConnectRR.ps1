@@ -6,7 +6,7 @@ function Get-AbrVbrCloudConnectRR {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.3
+        Version:        0.8.4
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -25,13 +25,13 @@ function Get-AbrVbrCloudConnectRR {
     }
 
     process {
-        if (Get-VBRInstalledLicense | Where-Object {$_.CloudConnect -ne "Disabled"}) {
-            if ((Get-VBRCloudHardwarePlan).count -gt 0) {
+        if ($VbrLicenses | Where-Object {$_.CloudConnect -ne "Disabled"}) {
+            $CloudObjects = Get-VBRCloudHardwarePlan
+            if ($CloudObjects) {
                 Section -Style Heading3 'Replica Resources' {
                     Paragraph "The following table provides a summary of Replica Resources."
                     BlankLine
                     try {
-                        $CloudObjects = Get-VBRCloudHardwarePlan
                         $OutObj = @()
                         foreach ($CloudObject in $CloudObjects) {
                             try {

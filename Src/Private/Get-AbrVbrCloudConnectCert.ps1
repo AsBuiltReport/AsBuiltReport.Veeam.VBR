@@ -6,7 +6,7 @@ function Get-AbrVbrCloudConnectCert {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.3
+        Version:        0.8.4
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -26,13 +26,13 @@ function Get-AbrVbrCloudConnectCert {
 
     process {
         try {
-            if (Get-VBRInstalledLicense | Where-Object {$_.CloudConnect -ne "Disabled"}) {
-                if ((Get-VBRCloudGatewayCertificate).count -gt 0) {
+            if ($VbrLicenses | Where-Object {$_.CloudConnect -ne "Disabled"}) {
+                $CloudObjects = Get-VBRCloudGatewayCertificate
+                if ($CloudObjects) {
                     Section -Style Heading3 'Gateway Certificate' {
                         Paragraph "The following section provides information about Cloud Gateways SSL Certificate."
                         BlankLine
                         try {
-                            $CloudObjects = Get-VBRCloudGatewayCertificate
                             $OutObj = @()
                             foreach ($CloudObject in $CloudObjects) {
                                 try {
