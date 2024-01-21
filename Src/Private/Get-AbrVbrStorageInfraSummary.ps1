@@ -29,7 +29,6 @@ function Get-AbrVbrStorageInfraSummary {
             $OutObj = @()
             try {
                 $OntapHosts = Get-NetAppHost
-                $OntapVols = Get-NetAppVolume
                 $IsilonHosts = Get-VBRIsilonHost
                 $IsilonVols = Get-VBRIsilonVolume
                 $inObj = [ordered] @{
