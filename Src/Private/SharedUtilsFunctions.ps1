@@ -320,7 +320,7 @@ function Get-PieChart {
         Palette           = 'Green'
         ColorPerDataPoint = $true
     }
-    $exampleChartSeries = $sampleData | Add-PieChartSeries @addChartSeriesParams -PassThru
+    $sampleData | Add-PieChartSeries @addChartSeriesParams
 
     $addChartLegendParams = @{
         Chart             = $exampleChart
