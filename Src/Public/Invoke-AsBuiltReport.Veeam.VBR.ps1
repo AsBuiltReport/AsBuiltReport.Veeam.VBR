@@ -40,7 +40,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
         }
     } Catch {
             Write-PscriboMessage -IsWarning $_.Exception.Message
-        }
+    }
 
     # Import Report Configuration
     $script:Report = $ReportConfig.Report
@@ -399,7 +399,10 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                 }
             }
         }
-        #Disconnect-VBRServer
+        if ((Get-VBRServerSession).Server) {
+            Write-PScriboMessage "Disconecting section from $((Get-VBRServerSession).Server)"
+            Disconnect-VBRServer
+        }
 	}
 	#endregion foreach loop
 }
