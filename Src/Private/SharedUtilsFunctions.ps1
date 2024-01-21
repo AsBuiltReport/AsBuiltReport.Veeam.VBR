@@ -459,7 +459,6 @@ function Get-WindowsTimePeriod {
         )
 
     $OutObj = @()
-    $Days = 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'
     $Hours24 = [ordered]@{
         0 = 12
         1 = 1
