@@ -1,5 +1,16 @@
 # :arrows_clockwise: Veeam VBR As Built Report Changelog
 
+## [0.8.5] - 2024-01-25
+
+### Changed
+
+- Removed Graphviz install check code.
+
+### Fixed
+
+- Improved error handling on Diagram section.
+- Fixed issue with Veeam.Diagrammer module.
+
 ## [0.8.4] - 2024-01-16
 
 ### Added
