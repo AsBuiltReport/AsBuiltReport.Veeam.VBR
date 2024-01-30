@@ -46,6 +46,10 @@ function Get-AbrVbrUserRoleAssignment {
                     Write-PscriboMessage -IsWarning "Roles and Users Table: $($_.Exception.Message)"
                 }
 
+                if ($HealthCheck.Infrastructure.Settings) {
+                    $OutObj | Where-Object { $_.'Name' -eq 'BUILTIN\Administrators'} | Set-Style -Style Warning -Property 'Name'
+                }
+
                 $TableParams = @{
                     Name = "Roles and Users - $VeeamBackupServer"
                     List = $false
@@ -55,6 +59,26 @@ function Get-AbrVbrUserRoleAssignment {
                     $TableParams['Caption'] = "- $($TableParams.Name)"
                 }
                 $OutObj | Sort-Object -Property 'Name' | Table @TableParams
+                if ($HealthCheck.Infrastructure.BestPractice -and ($OutObj | Where-Object {$_.'Name' -eq 'BUILTIN\Administrators'})) {
+                    Paragraph "Health Check:" -Bold -Underline
+                    BlankLine
+                    Paragraph "Security Best Practice:" -Bold
+                    BlankLine
+                    if ($OutObj | Where-Object { $_.'Name' -eq 'BUILTIN\Administrators' }) {
+                        Paragraph {
+                            Text "Veeam recommends to give every Veeam admin his own admin account or add their admin account to the appropriate security group within Veeam and to remove the default 'Veeam Backup Administrator' role from local Administrators group, for traceability and easy adding and removal"
+                        }
+                        BlankLine
+                        Paragraph {
+                            Text -Bold "Reference:"
+                        }
+                        BlankLine
+                        Paragraph {
+                            Text "https://bp.veeam.com/security/Design-and-implementation/Roles_And_Users.html#roles-and-users"
+                        }
+                        BlankLine
+                    }
+                }
                 try {
                     Section -ExcludeFromTOC -Style NOTOCHeading4 'Roles and Users Settings' {
                         BlankLine
