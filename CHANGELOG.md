@@ -2,14 +2,23 @@
 
 ## [0.8.5] - 2024-01-25
 
+### Added
+
+- Added Option => History section
+- Improved Role & Users section
+  - Added Global MFA settings
+  - Added Auto logoff on inactivity setting
+  - Added Four-eye Authorization setting
+  - Added HealthCheck conditions
+
 ### Changed
 
 - Removed Graphviz install check code.
 
 ### Fixed
 
-- Improved error handling on Diagram section.
-- Fixed issue with Veeam.Diagrammer module.
+- Improved error handling on the Diagram section.
+- Fixed issue with the Veeam.Diagrammer module.
 
 ## [0.8.4] - 2024-01-16
 
