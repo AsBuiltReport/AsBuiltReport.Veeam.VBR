@@ -13,7 +13,7 @@
 
 ### Changed
 
-- Removed Graphviz install check code.
+- Removed Graphviz install check code. (No need to manually install Graphviz)
 
 ### Fixed
 
