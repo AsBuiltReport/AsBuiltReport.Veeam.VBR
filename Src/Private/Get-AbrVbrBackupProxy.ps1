@@ -449,7 +449,7 @@ function Get-AbrVbrBackupProxy {
                                     }
                                     if ($Graph) {
                                         Section -Style Heading3 "VMware Backup Proxy Diagram." {
-                                            Image -Base64 $Graph -Text "VMware Backup Proxy Diagram" -Percent 20 -Align Center
+                                            Image -Base64 $Graph -Text "VMware Backup Proxy Diagram" -Percent (Get-ImagePercent -Graph $Graph) -Align Center
                                             Paragraph "Image preview: Opens the image in a new tab to view it at full resolution." -Tabs 2
                                         }
                                         BlankLine
@@ -891,7 +891,7 @@ function Get-AbrVbrBackupProxy {
                                         }
                                         if ($Graph) {
                                             Section -Style Heading3 "HyperV Backup Proxy Diagram." {
-                                                Image -Base64 $Graph -Text "HyperV Backup Proxy Diagram" -Percent 20 -Align Center
+                                                Image -Base64 $Graph -Text "HyperV Backup Proxy Diagram" -Percent (Get-ImagePercent -Graph $Graph) -Align Center
                                                 Paragraph "Image preview: Opens the image in a new tab to view it at full resolution." -Tabs 2
                                             }
                                             BlankLine

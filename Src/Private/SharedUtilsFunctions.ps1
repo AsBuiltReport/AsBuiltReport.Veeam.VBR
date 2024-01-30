@@ -259,7 +259,7 @@ function Get-ImagePercent {
     If ($Image_FromStream.Width -gt 1500) {
         return 10
     } else {
-        return 20
+        return 30
     }
 } # end
 

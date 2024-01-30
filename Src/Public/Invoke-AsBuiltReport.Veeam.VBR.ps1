@@ -87,6 +87,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                                 Get-AbrVbrEventForwarding
                             }
                             Get-AbrVbrGlobalNotificationSetting
+                            Get-AbrVbrHistorySetting
                             Get-AbrVbrIOControlSetting
                             Get-AbrVbrBackupServerCertificate
                             Get-AbrVbrNetworkTrafficRule
