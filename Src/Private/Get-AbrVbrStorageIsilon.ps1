@@ -6,7 +6,7 @@ function Get-AbrVbrStorageIsilon {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.4
+        Version:        0.8.5
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -21,7 +21,7 @@ function Get-AbrVbrStorageIsilon {
     )
 
     begin {
-        Write-PscriboMessage "Discovering Dell Isilon Storage information connected to $System."
+        Write-PScriboMessage "Discovering Dell Isilon Storage information connected to $System."
     }
 
     process {
@@ -34,21 +34,21 @@ function Get-AbrVbrStorageIsilon {
                 foreach ($IsilonHost in $IsilonHosts) {
                     Section -Style Heading4 $($IsilonHost.Name) {
                         try {
-                            Write-PscriboMessage "Discovered $($IsilonHost.Name) Isilon Host."
-                            $UsedCred = Get-VBRCredentials | Where-Object { $_.Id -eq $IsilonHost.Info.CredsId}
+                            Write-PScriboMessage "Discovered $($IsilonHost.Name) Isilon Host."
+                            $UsedCred = Get-VBRCredentials | Where-Object { $_.Id -eq $IsilonHost.Info.CredsId }
                             $IsilonOptions = [xml]$IsilonHost.info.Options
                             $inObj = [ordered] @{
                                 'DNS Name' = Switch (($IsilonHost.Info.HostInstanceId).count) {
-                                    0 {$IsilonHost.Info.DnsName}
-                                    default {$IsilonHost.Info.HostInstanceId}
+                                    0 { $IsilonHost.Info.DnsName }
+                                    default { $IsilonHost.Info.HostInstanceId }
                                 }
                                 'Description' = $IsilonHost.Description
                                 'Used Credential' = Switch (($UsedCred).count) {
-                                    0 {"--"}
-                                    default {"$($UsedCred.Name) - ($($UsedCred.Description))"}
+                                    0 { "--" }
+                                    default { "$($UsedCred.Name) - ($($UsedCred.Description))" }
                                 }
                                 'Connection Address' = $IsilonOptions.IsilonHostOptions.AdditionalAddresses.IP -join ", "
-                                'Connection Port' =  "$($IsilonOptions.IsilonHostOptions.Port)\TCP"
+                                'Connection Port' = "$($IsilonOptions.IsilonHostOptions.Port)\TCP"
                             }
 
                             $OutObj = [pscustomobject]$inobj
@@ -71,7 +71,7 @@ function Get-AbrVbrStorageIsilon {
                                             $OutObj = @()
                                             foreach ($IsilonVol in $IsilonVols) {
                                                 try {
-                                                    Write-PscriboMessage "Discovered $($IsilonVol.Name) NetApp Volume."
+                                                    Write-PScriboMessage "Discovered $($IsilonVol.Name) NetApp Volume."
                                                     $inObj = [ordered] @{
                                                         'Name' = $IsilonVol.Name
                                                         'Total Space' = ConvertTo-FileSizeString $IsilonVol.Size
@@ -80,9 +80,8 @@ function Get-AbrVbrStorageIsilon {
                                                     }
 
                                                     $OutObj += [pscustomobject]$inobj
-                                                }
-                                                catch {
-                                                    Write-PscriboMessage -IsWarning "Dell Isilon Storage $($IsilonVol.Name) Volumes Section: $($_.Exception.Message)"
+                                                } catch {
+                                                    Write-PScriboMessage -IsWarning "Dell Isilon Storage $($IsilonVol.Name) Volumes Section: $($_.Exception.Message)"
                                                 }
                                             }
 
@@ -98,14 +97,12 @@ function Get-AbrVbrStorageIsilon {
                                             $OutObj | Sort-Object -Property 'Name' | Table @TableParams
                                         }
                                     }
-                                }
-                                catch {
-                                    Write-PscriboMessage -IsWarning "Dell Isilon Storage Volume Section: $($_.Exception.Message)"
+                                } catch {
+                                    Write-PScriboMessage -IsWarning "Dell Isilon Storage Volume Section: $($_.Exception.Message)"
                                 }
                             }
-                        }
-                        catch {
-                            Write-PscriboMessage -IsWarning "Dell Isilon Storage Section: $($_.Exception.Message)"
+                        } catch {
+                            Write-PScriboMessage -IsWarning "Dell Isilon Storage Section: $($_.Exception.Message)"
                         }
                     }
                 }

@@ -6,7 +6,7 @@ function Get-AbrVbrCloudConnectCert {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.4
+        Version:        0.8.5
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -21,12 +21,12 @@ function Get-AbrVbrCloudConnectCert {
     )
 
     begin {
-        Write-PscriboMessage "Discovering Veeam VBR Cloud SSL Certificate information from $System."
+        Write-PScriboMessage "Discovering Veeam VBR Cloud SSL Certificate information from $System."
     }
 
     process {
         try {
-            if ($VbrLicenses | Where-Object {$_.CloudConnect -ne "Disabled"}) {
+            if ($VbrLicenses | Where-Object { $_.CloudConnect -ne "Disabled" }) {
                 $CloudObjects = Get-VBRCloudGatewayCertificate
                 if ($CloudObjects) {
                     Section -Style Heading3 'Gateway Certificate' {
@@ -36,7 +36,7 @@ function Get-AbrVbrCloudConnectCert {
                             $OutObj = @()
                             foreach ($CloudObject in $CloudObjects) {
                                 try {
-                                    Write-PscriboMessage "Discovered $($CloudObject.DisplayName) Cloud Gateway SSL Certificate information."
+                                    Write-PScriboMessage "Discovered $($CloudObject.DisplayName) Cloud Gateway SSL Certificate information."
 
                                     $inObj = [ordered] @{
                                         'Name' = $CloudObject.DisplayName
@@ -50,9 +50,8 @@ function Get-AbrVbrCloudConnectCert {
 
                                     $OutObj += [pscustomobject]$inobj
 
-                                }
-                                catch {
-                                    Write-PscriboMessage -IsWarning "$($CloudObject.DisplayName) Gateway SSL Certificate Section: $($_.Exception.Message)"
+                                } catch {
+                                    Write-PScriboMessage -IsWarning "$($CloudObject.DisplayName) Gateway SSL Certificate Section: $($_.Exception.Message)"
                                 }
                             }
 
@@ -66,16 +65,14 @@ function Get-AbrVbrCloudConnectCert {
                                 $TableParams['Caption'] = "- $($TableParams.Name)"
                             }
                             $OutObj | Table @TableParams
-                        }
-                        catch {
-                            Write-PscriboMessage -IsWarning "Gateway SSL Certificate Section: $($_.Exception.Message)"
+                        } catch {
+                            Write-PScriboMessage -IsWarning "Gateway SSL Certificate Section: $($_.Exception.Message)"
                         }
                     }
                 }
             }
-        }
-        catch {
-            Write-PscriboMessage -IsWarning "Gateway Certificate Section: $($_.Exception.Message)"
+        } catch {
+            Write-PScriboMessage -IsWarning "Gateway Certificate Section: $($_.Exception.Message)"
         }
     }
     end {}

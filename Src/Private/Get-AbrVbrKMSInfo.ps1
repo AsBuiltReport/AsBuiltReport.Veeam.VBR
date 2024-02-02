@@ -6,7 +6,7 @@ function Get-AbrVbrKMSInfo {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.4
+        Version:        0.8.5
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -21,7 +21,7 @@ function Get-AbrVbrKMSInfo {
     )
 
     begin {
-        Write-PscriboMessage "Discovering Veeam VBR Key Management Server information from $System."
+        Write-PScriboMessage "Discovering Veeam VBR Key Management Server information from $System."
     }
 
     process {
@@ -34,7 +34,7 @@ function Get-AbrVbrKMSInfo {
                     $OutObj = @()
                     foreach ($KMSServer in $KMSServers) {
                         try {
-                            Write-PscriboMessage "Discovered $($KMSServer.Name) KMS Server."
+                            Write-PScriboMessage "Discovered $($KMSServer.Name) KMS Server."
                             $inObj = [ordered] @{
                                 'Name' = $KMSServer.Name
                                 'CA Certificate' = $KMSServer.CACertificate
@@ -43,9 +43,8 @@ function Get-AbrVbrKMSInfo {
                                 'Description' = ConvertTo-EmptyToFiller $KMSServer.Description
                             }
                             $OutObj += [pscustomobject]$inobj
-                        }
-                        catch {
-                            Write-PscriboMessage -IsWarning "Key Management Server $($KMSServer.Name) Section: $($_.Exception.Message)"
+                        } catch {
+                            Write-PScriboMessage -IsWarning "Key Management Server $($KMSServer.Name) Section: $($_.Exception.Message)"
                         }
                         $TableParams = @{
                             Name = "Key Management Server - $($KMSServer.Name)"
@@ -59,9 +58,8 @@ function Get-AbrVbrKMSInfo {
                     }
                 }
             }
-        }
-        catch {
-            Write-PscriboMessage -IsWarning "Key Management Server Section: $($_.Exception.Message)"
+        } catch {
+            Write-PScriboMessage -IsWarning "Key Management Server Section: $($_.Exception.Message)"
         }
     }
     end {}

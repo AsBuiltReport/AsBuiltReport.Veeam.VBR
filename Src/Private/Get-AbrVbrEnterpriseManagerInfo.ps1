@@ -6,7 +6,7 @@ function Get-AbrVbrEnterpriseManagerInfo {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.4
+        Version:        0.8.5
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -21,7 +21,7 @@ function Get-AbrVbrEnterpriseManagerInfo {
     )
 
     begin {
-        Write-PscriboMessage "Discovering Enterprise Manager information from $System."
+        Write-PScriboMessage "Discovering Enterprise Manager information from $System."
     }
 
     process {
@@ -33,17 +33,17 @@ function Get-AbrVbrEnterpriseManagerInfo {
                     BlankLine
                     $OutObj = @()
                     foreach ($BackupServer in $BackupServers) {
-                    Write-PscriboMessage "Collecting Enterprise Manager information from $($BackupServer.Name)."
-                    $EMInfo = [Veeam.Backup.Core.SBackupOptions]::GetEnterpriseServerInfo()
+                        Write-PScriboMessage "Collecting Enterprise Manager information from $($BackupServer.Name)."
+                        $EMInfo = [Veeam.Backup.Core.SBackupOptions]::GetEnterpriseServerInfo()
                         if ($EMInfo) {
                             $inObj = [ordered] @{
                                 'Server Name' = Switch ([string]::IsNullOrEmpty($EMInfo.ServerName)) {
-                                    $true {'Not Connected'}
-                                    default {$EMInfo.ServerName}
+                                    $true { 'Not Connected' }
+                                    default { $EMInfo.ServerName }
                                 }
                                 'Server URL' = Switch ([string]::IsNullOrEmpty($EMInfo.URL)) {
-                                    $true {'Not Connected'}
-                                    default {$EMInfo.URL}
+                                    $true { 'Not Connected' }
+                                    default { $EMInfo.URL }
                                 }
                                 'Skip License Push' = ConvertTo-TextYN $EMInfo.SkipLicensePush
                                 'Is Connected' = ConvertTo-TextYN $EMInfo.IsConnected
@@ -79,9 +79,8 @@ function Get-AbrVbrEnterpriseManagerInfo {
                     }
                 }
             }
-        }
-        catch {
-            Write-PscriboMessage -IsWarning "Enterprise Manager Information Section: $($_.Exception.Message)"
+        } catch {
+            Write-PScriboMessage -IsWarning "Enterprise Manager Information Section: $($_.Exception.Message)"
         }
     }
     end {}

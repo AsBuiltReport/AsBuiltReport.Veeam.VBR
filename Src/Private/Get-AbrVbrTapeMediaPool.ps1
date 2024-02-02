@@ -6,7 +6,7 @@ function Get-AbrVbrTapeMediaPool {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.4
+        Version:        0.8.5
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -21,16 +21,16 @@ function Get-AbrVbrTapeMediaPool {
     )
 
     begin {
-        Write-PscriboMessage "Discovering Veeam VBR Tape Media Pools information from $System."
+        Write-PScriboMessage "Discovering Veeam VBR Tape Media Pools information from $System."
     }
 
     process {
         try {
             $PoolObjs = Get-VBRTapeMediaPool
             if ($PoolObjs) {
-            #---------------------------------------------------------------------------------------------#
-            #                            Tape Media Pools Section                                         #
-            #---------------------------------------------------------------------------------------------#
+                #---------------------------------------------------------------------------------------------#
+                #                            Tape Media Pools Section                                         #
+                #---------------------------------------------------------------------------------------------#
                 Section -Style Heading3 'Tape Media Pools' {
                     $OutObj = @()
                     try {
@@ -39,25 +39,23 @@ function Get-AbrVbrTapeMediaPool {
                                 if ($PoolObj.Type -ne "Custom") {
                                     $Capacity = ((Get-VBRTapeMedium -MediaPool $PoolObj.Name).Capacity | Measure-Object -Sum).Sum
                                     $FreeSpace = ((Get-VBRTapeMedium -MediaPool $PoolObj.Name).Free | Measure-Object -Sum).Sum
-                                }
-                                else {
+                                } else {
                                     $Capacity = $PoolObj.Capacity
                                     $FreeSpace = $PoolObj.FreeSpace
                                 }
-                                Write-PscriboMessage "Discovered $($PoolObj.Name) Media Pool."
+                                Write-PScriboMessage "Discovered $($PoolObj.Name) Media Pool."
                                 $inObj = [ordered] @{
                                     'Name' = $PoolObj.Name
                                     'Type' = $PoolObj.Type
                                     'Tape Count' = ((Get-VBRTapeMediaPool -Id $PoolObj.Id).Medium).count
                                     'Total Space' = ConvertTo-FileSizeString $Capacity
                                     'Free Space' = ConvertTo-FileSizeString $FreeSpace
-                                    'Tape Library' = ($PoolObj.GlobalOptions.LibraryId | ForEach-Object {Get-VBRTapeLibrary -Id $_}).Name
+                                    'Tape Library' = ($PoolObj.GlobalOptions.LibraryId | ForEach-Object { Get-VBRTapeLibrary -Id $_ }).Name
                                 }
 
                                 $OutObj += [pscustomobject]$inobj
-                            }
-                            catch {
-                                Write-PscriboMessage -IsWarning "Tape Media Pools $($PoolObj.Name) Table: $($_.Exception.Message)"
+                            } catch {
+                                Write-PScriboMessage -IsWarning "Tape Media Pools $($PoolObj.Name) Table: $($_.Exception.Message)"
                             }
                         }
 
@@ -71,9 +69,8 @@ function Get-AbrVbrTapeMediaPool {
                             $TableParams['Caption'] = "- $($TableParams.Name)"
                         }
                         $OutObj | Sort-Object -Property 'Name' | Table @TableParams
-                    }
-                    catch {
-                        Write-PscriboMessage -IsWarning "Tape Media Pools Section: $($_.Exception.Message)"
+                    } catch {
+                        Write-PScriboMessage -IsWarning "Tape Media Pools Section: $($_.Exception.Message)"
                     }
                 }
                 #---------------------------------------------------------------------------------------------#
@@ -84,7 +81,7 @@ function Get-AbrVbrTapeMediaPool {
                     Write-PScriboMessage "Discovering Per Tape Media Pools Configuration."
                     if ($PoolObjs) {
                         Section -Style Heading3 'Tape Media Pools Configuration' {
-                            foreach ($PoolObj in ($PoolObjs | Where-Object {$_.Type -eq 'Gfs' -or $_.Type -eq 'Custom'} | Sort-Object -Property 'Name')) {
+                            foreach ($PoolObj in ($PoolObjs | Where-Object { $_.Type -eq 'Gfs' -or $_.Type -eq 'Custom' } | Sort-Object -Property 'Name')) {
                                 Write-PScriboMessage "Discovering $($PoolObj.Name) Tape Media Pools Configuration."
                                 #---------------------------------------------------------------------------------------------#
                                 #                            Tape Media Pools - Tape Library Sub-Section                      #
@@ -99,10 +96,9 @@ function Get-AbrVbrTapeMediaPool {
                                                     $TapeLibraryObj = Get-VBRTapeLibrary -Id $TapeLibrary.Guid
                                                     if ($TapeLibraryObj) {
                                                         if ($PoolObj.Type -ne "Custom") {
-                                                            $Capacity = ((Get-VBRTapeMedium -MediaPool $PoolObj.Id | Where-Object { $_.LibraryId -eq $TapeLibrary.Guid}).Capacity | Measure-Object -Sum).Sum
-                                                            $FreeSpace = ((Get-VBRTapeMedium -MediaPool $PoolObj.Id | Where-Object { $_.LibraryId -eq $TapeLibrary.Guid}).Free | Measure-Object -Sum).Sum
-                                                        }
-                                                        else {
+                                                            $Capacity = ((Get-VBRTapeMedium -MediaPool $PoolObj.Id | Where-Object { $_.LibraryId -eq $TapeLibrary.Guid }).Capacity | Measure-Object -Sum).Sum
+                                                            $FreeSpace = ((Get-VBRTapeMedium -MediaPool $PoolObj.Id | Where-Object { $_.LibraryId -eq $TapeLibrary.Guid }).Free | Measure-Object -Sum).Sum
+                                                        } else {
                                                             $Capacity = $PoolObj.Capacity
                                                             $FreeSpace = $PoolObj.FreeSpace
                                                         }
@@ -110,7 +106,7 @@ function Get-AbrVbrTapeMediaPool {
                                                         foreach ($Drive in $TapeLibraryObj.Drives) {
                                                             $TapeDrives += "Drive $($Drive.Address + 1)"
                                                         }
-                                                        Write-PscriboMessage "Discovered $($TapeLibraryObj.Name) Tape Library Configuration."
+                                                        Write-PScriboMessage "Discovered $($TapeLibraryObj.Name) Tape Library Configuration."
                                                         $inObj = [ordered] @{
                                                             'Library Name' = $TapeLibraryObj.Name
                                                             'Library Id' = $TapeLibraryObj.Id
@@ -125,8 +121,8 @@ function Get-AbrVbrTapeMediaPool {
                                                             'Add Tape from Free Media Pool Automatically when more Tape are Required' = ConvertTo-TextYN $PoolObj.MoveFromFreePool
                                                             'Description' = $TapeLibraryObj.Description
                                                             'Library Mode' = Switch ($PoolObj.GlobalOptions.Mode) {
-                                                                'CrossLibraryParalleing' {'Active (Used Always)'}
-                                                                'Failover' {'Passive (Used for Failover Only)'}
+                                                                'CrossLibraryParalleing' { 'Active (Used Always)' }
+                                                                'Failover' { 'Passive (Used for Failover Only)' }
                                                             }
                                                         }
 
@@ -160,7 +156,7 @@ function Get-AbrVbrTapeMediaPool {
                                                         }
                                                         $OutObj | Sort-Object -Property 'Name' | Table @TableParams
                                                         if ($HealthCheck.Tape.BestPractice) {
-                                                            if ($OutObj | Where-Object { $_.'Description' -match 'Created by' -or $Null -like $_.'Description'}) {
+                                                            if ($OutObj | Where-Object { $_.'Description' -match 'Created by' -or $Null -like $_.'Description' }) {
                                                                 Paragraph "Health Check:" -Bold -Underline
                                                                 BlankLine
                                                                 Paragraph {
@@ -173,30 +169,29 @@ function Get-AbrVbrTapeMediaPool {
                                                         #                          Tape Media Pools - Tape Medium Sub-Section                         #
                                                         #---------------------------------------------------------------------------------------------#
                                                         try {
-                                                            $TapeMediums = Get-VBRTapeMedium -MediaPool $PoolObj.Id | Where-Object {$_.LibraryId -eq $TapeLibraryObj.Id}
+                                                            $TapeMediums = Get-VBRTapeMedium -MediaPool $PoolObj.Id | Where-Object { $_.LibraryId -eq $TapeLibraryObj.Id }
                                                             if ($TapeMediums) {
                                                                 Section -ExcludeFromTOC -Style NOTOCHeading6 'Tape Mediums' {
                                                                     $OutObj = @()
                                                                     if ($TapeMediums) {
                                                                         foreach ($TapeMedium in $TapeMediums) {
                                                                             try {
-                                                                                Write-PscriboMessage "Discovered $($TapeMedium.Name) Medium."
+                                                                                Write-PScriboMessage "Discovered $($TapeMedium.Name) Medium."
                                                                                 $inObj = [ordered] @{
                                                                                     'Name' = $TapeMedium.Name
                                                                                     'Is Worm?' = ConvertTo-TextYN $TapeMedium.IsWorm
                                                                                     'Total Space' = ConvertTo-FileSizeString $TapeMedium.Capacity
                                                                                     'Free Space' = ConvertTo-FileSizeString $TapeMedium.Free
                                                                                     'Tape Library' = Switch ($TapeMedium.LibraryId) {
-                                                                                        $Null {'--'}
-                                                                                        '00000000-0000-0000-0000-000000000000' {'Unknown'}
-                                                                                        default {(Get-VBRTapeLibrary -Id $TapeMedium.LibraryId).Name}
+                                                                                        $Null { '--' }
+                                                                                        '00000000-0000-0000-0000-000000000000' { 'Unknown' }
+                                                                                        default { (Get-VBRTapeLibrary -Id $TapeMedium.LibraryId).Name }
                                                                                     }
                                                                                 }
 
                                                                                 $OutObj += [pscustomobject]$inobj
-                                                                            }
-                                                                            catch {
-                                                                                Write-PscriboMessage -IsWarning "Tape Medium $($TapeMedium.Name) Table: $($_.Exception.Message)"
+                                                                            } catch {
+                                                                                Write-PScriboMessage -IsWarning "Tape Medium $($TapeMedium.Name) Table: $($_.Exception.Message)"
                                                                             }
                                                                         }
 
@@ -213,20 +208,17 @@ function Get-AbrVbrTapeMediaPool {
                                                                     }
                                                                 }
                                                             }
-                                                        }
-                                                        Catch {
-                                                            Write-PscriboMessage -IsWarning "Tape Medium Section: $($_.Exception.Message)"
+                                                        } Catch {
+                                                            Write-PScriboMessage -IsWarning "Tape Medium Section: $($_.Exception.Message)"
                                                         }
                                                     }
-                                                }
-                                                catch {
-                                                    Write-PscriboMessage -IsWarning "Tape Library $($TapeLibraryObj.Name) Section: $($_.Exception.Message)"
+                                                } catch {
+                                                    Write-PScriboMessage -IsWarning "Tape Library $($TapeLibraryObj.Name) Section: $($_.Exception.Message)"
                                                 }
                                             }
                                         }
-                                    }
-                                    catch {
-                                        Write-PscriboMessage -IsWarning "Tape Media Pool Configration Section: $($_.Exception.Message)"
+                                    } catch {
+                                        Write-PScriboMessage -IsWarning "Tape Media Pool Configration Section: $($_.Exception.Message)"
                                     }
                                     #---------------------------------------------------------------------------------------------#
                                     #                          Tape Media Pools - Tape Media Set Sub-Section                      #
@@ -238,16 +230,16 @@ function Get-AbrVbrTapeMediaPool {
                                                 $inObj = [ordered] @{
                                                     'Name' = $PoolObj.MediaSetName
                                                     'Automatically Create New Media Set' = Switch ($PoolObj.MediaSetCreationPolicy.Type) {
-                                                        'Never' {'Do not Create, Always continue using current Media Set'}
-                                                        'Always' {'Create new Media Set for every backup session'}
-                                                        'Daily'  {
+                                                        'Never' { 'Do not Create, Always continue using current Media Set' }
+                                                        'Always' { 'Create new Media Set for every backup session' }
+                                                        'Daily' {
                                                             Switch ($PoolObj.MediaSetCreationPolicy.DailyOptions.Type) {
-                                                                'Everyday' {"Daily at $($PoolObj.MediaSetCreationPolicy.DailyOptions.Period.ToString()) Everyday"}
-                                                                'SelectedDays' {"Daily at $($PoolObj.MediaSetCreationPolicy.DailyOptions.Period.ToString()), on these days [$($PoolObj.MediaSetCreationPolicy.DailyOptions.DayOfWeek)]"}
-                                                                default {'Unknown'}
+                                                                'Everyday' { "Daily at $($PoolObj.MediaSetCreationPolicy.DailyOptions.Period.ToString()) Everyday" }
+                                                                'SelectedDays' { "Daily at $($PoolObj.MediaSetCreationPolicy.DailyOptions.Period.ToString()), on these days [$($PoolObj.MediaSetCreationPolicy.DailyOptions.DayOfWeek)]" }
+                                                                default { 'Unknown' }
                                                             }
                                                         }
-                                                        default {'Unknown'}
+                                                        default { 'Unknown' }
                                                     }
                                                 }
 
@@ -269,7 +261,7 @@ function Get-AbrVbrTapeMediaPool {
                                             $MediaSetOptions = @('DailyMediaSetOptions', 'WeeklyMediaSetOptions', 'MonthlyMediaSetOptions', 'QuarterlyMediaSetOptions', 'YearlyMediaSetOptions')
                                             Section -ExcludeFromTOC -Style NOTOCHeading5 'Gfs Media Set' {
                                                 foreach ($MediaSetOption in $MediaSetOptions) {
-                                                    $SectionTitle = ($MediaSetOption -creplace  '([A-Z\W_]|\d+)(?<![a-z])',' $&').trim()
+                                                    $SectionTitle = ($MediaSetOption -creplace '([A-Z\W_]|\d+)(?<![a-z])', ' $&').trim()
                                                     Section -ExcludeFromTOC -Style NOTOCHeading6 $SectionTitle {
                                                         $OutObj = @()
                                                         $inObj = [ordered] @{
@@ -300,9 +292,8 @@ function Get-AbrVbrTapeMediaPool {
                                                 }
                                             }
                                         }
-                                    }
-                                    Catch {
-                                        Write-PscriboMessage -IsWarning "Tape Media Set $($PoolObj.MediaSetName) Section - $($_.Exception.Message)"
+                                    } Catch {
+                                        Write-PScriboMessage -IsWarning "Tape Media Set $($PoolObj.MediaSetName) Section - $($_.Exception.Message)"
                                     }
                                     #---------------------------------------------------------------------------------------------#
                                     #                          Tape Media Pools - Retention Sub-Section                           #
@@ -313,10 +304,10 @@ function Get-AbrVbrTapeMediaPool {
                                                 $OutObj = @()
                                                 $inObj = [ordered] @{
                                                     'Data Retention Policy' = Switch ($PoolObj.RetentionPolicy.Type) {
-                                                        'Never' {'Never Overwrite Data'}
-                                                        'Cyclic' {'Do not Protect Data (Cyclically Overwrite Tape as Required)'}
-                                                        'Period'  {"Protect Data for $($PoolObj.RetentionPolicy.Value) $($PoolObj.RetentionPolicy.Period)"}
-                                                        default {'Unknown'}
+                                                        'Never' { 'Never Overwrite Data' }
+                                                        'Cyclic' { 'Do not Protect Data (Cyclically Overwrite Tape as Required)' }
+                                                        'Period' { "Protect Data for $($PoolObj.RetentionPolicy.Value) $($PoolObj.RetentionPolicy.Period)" }
+                                                        default { 'Unknown' }
                                                     }
                                                     'Offline Media Tracking' = ConvertTo-TextYN $PoolObj.MoveOfflineToVault
                                                 }
@@ -339,7 +330,7 @@ function Get-AbrVbrTapeMediaPool {
                                                 $OutObj | Sort-Object -Property 'Name' | Table @TableParams
                                             }
                                         } Catch {
-                                            Write-PscriboMessage -IsWarning "Tape Media Set $($PoolObj.Name) Retention Section: $($_.Exception.Message)"
+                                            Write-PScriboMessage -IsWarning "Tape Media Set $($PoolObj.Name) Retention Section: $($_.Exception.Message)"
                                         }
                                     }
                                     #---------------------------------------------------------------------------------------------#
@@ -356,7 +347,7 @@ function Get-AbrVbrTapeMediaPool {
                                             }
 
                                             if ($PoolObj.EncryptionOptions.Enabled) {
-                                                $inobj.add('Encryption Password', (Get-VBREncryptionKey | Where-Object {$_.Id -eq $PoolObj.EncryptionOptions.Key.Id}).Description)
+                                                $inobj.add('Encryption Password', (Get-VBREncryptionKey | Where-Object { $_.Id -eq $PoolObj.EncryptionOptions.Key.Id }).Description)
                                             }
 
                                             $OutObj += [pscustomobject]$inobj
@@ -372,9 +363,8 @@ function Get-AbrVbrTapeMediaPool {
                                             }
                                             $OutObj | Sort-Object -Property 'Name' | Table @TableParams
                                         }
-                                    }
-                                    Catch {
-                                        Write-PscriboMessage -IsWarning "Tape Media Set $($PoolObj.Name) Options Section: $($_.Exception.Message)"
+                                    } Catch {
+                                        Write-PScriboMessage -IsWarning "Tape Media Set $($PoolObj.Name) Options Section: $($_.Exception.Message)"
                                     }
                                 }
                             }
@@ -382,9 +372,8 @@ function Get-AbrVbrTapeMediaPool {
                     }
                 }
             }
-        }
-        catch {
-            Write-PscriboMessage -IsWarning "Tape Media Pools Section: $($_.Exception.Message)"
+        } catch {
+            Write-PScriboMessage -IsWarning "Tape Media Pools Section: $($_.Exception.Message)"
         }
     }
     end {}

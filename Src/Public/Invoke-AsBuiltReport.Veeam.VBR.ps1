@@ -15,7 +15,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
         https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR
     #>
 
-	# Do not remove or add to these parameters
+    # Do not remove or add to these parameters
     param (
         [String[]] $Target,
         [PSCredential] $Credential
@@ -39,7 +39,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
             }
         }
     } Catch {
-            Write-PscriboMessage -IsWarning $_.Exception.Message
+        Write-PScriboMessage -IsWarning $_.Exception.Message
     }
 
     # Import Report Configuration
@@ -118,7 +118,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                                 Try {
                                     $Graph = New-VeeamDiagram -Target $System -Credential $Credential -Format base64 -Direction top-to-bottom -DiagramType "Backup-to-WanAccelerator"
                                 } Catch {
-                                    Write-PscriboMessage -IsWarning "Wan Accelerator Diagram: $($_.Exception.Message)"
+                                    Write-PScriboMessage -IsWarning "Wan Accelerator Diagram: $($_.Exception.Message)"
                                 }
                                 if ($Graph) {
                                     Section -Style Heading3 "Wan Accelerator Diagram." {
@@ -128,7 +128,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                                     BlankLine
                                 }
                             } Catch {
-                                Write-PscriboMessage -IsWarning "Wan Accelerator Diagram Section: $($_.Exception.Message)"
+                                Write-PScriboMessage -IsWarning "Wan Accelerator Diagram Section: $($_.Exception.Message)"
                             }
                         }
                     }
@@ -145,7 +145,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                                 Try {
                                     $Graph = New-VeeamDiagram -Target $System -Credential $Credential -Format base64 -Direction top-to-bottom -DiagramType "Backup-to-Repository"
                                 } Catch {
-                                    Write-PscriboMessage -IsWarning "Backup Repository Diagram: $($_.Exception.Message)"
+                                    Write-PScriboMessage -IsWarning "Backup Repository Diagram: $($_.Exception.Message)"
                                 }
                                 if ($Graph) {
                                     Section -Style Heading3 "Backup Repository Diagram." {
@@ -155,7 +155,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                                     BlankLine
                                 }
                             } Catch {
-                                Write-PscriboMessage -IsWarning "Backup Repository Diagram Section: $($_.Exception.Message)"
+                                Write-PScriboMessage -IsWarning "Backup Repository Diagram Section: $($_.Exception.Message)"
                             }
                         }
                     }
@@ -167,7 +167,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                                 Try {
                                     $Graph = New-VeeamDiagram -Target $System -Credential $Credential -Format base64 -Direction top-to-bottom -DiagramType "Backup-to-Sobr"
                                 } Catch {
-                                    Write-PscriboMessage -IsWarning "ScaleOut Backup Repository Diagram: $($_.Exception.Message)"
+                                    Write-PScriboMessage -IsWarning "ScaleOut Backup Repository Diagram: $($_.Exception.Message)"
                                 }
                                 if ($Graph) {
                                     Section -Style Heading3 "ScaleOut Backup Repository Diagram." {
@@ -177,7 +177,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                                     BlankLine
                                 }
                             } Catch {
-                                Write-PscriboMessage -IsWarning "ScaleOut Backup Repository Diagram Section: $($_.Exception.Message)"
+                                Write-PScriboMessage -IsWarning "ScaleOut Backup Repository Diagram Section: $($_.Exception.Message)"
                             }
                         }
                     }
@@ -222,7 +222,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                                 Try {
                                     $Graph = New-VeeamDiagram -Target $System -Credential $Credential -Format base64 -Direction top-to-bottom -DiagramType "Backup-to-Tape"
                                 } Catch {
-                                    Write-PscriboMessage -IsWarning "Tape Infrastructure Diagram: $($_.Exception.Message)"
+                                    Write-PScriboMessage -IsWarning "Tape Infrastructure Diagram: $($_.Exception.Message)"
                                 }
                                 if ($Graph) {
                                     Section -Style Heading3 "Tape Infrastructure Diagram." {
@@ -232,7 +232,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                                     BlankLine
                                 }
                             } Catch {
-                                Write-PscriboMessage -IsWarning "Tape Infrastructure Diagram Section: $($_.Exception.Message)"
+                                Write-PScriboMessage -IsWarning "Tape Infrastructure Diagram Section: $($_.Exception.Message)"
                             }
                         }
                     }
@@ -262,7 +262,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                                     Try {
                                         $Graph = New-VeeamDiagram -Target $System -Credential $Credential -Format base64 -Direction top-to-bottom -DiagramType "Backup-to-ProtectedGroup"
                                     } Catch {
-                                        Write-PscriboMessage -IsWarning "Physical Infrastructure Diagram: $($_.Exception.Message)"
+                                        Write-PScriboMessage -IsWarning "Physical Infrastructure Diagram: $($_.Exception.Message)"
                                     }
                                     if ($Graph) {
                                         Section -Style Heading3 "Physical Infrastructure Diagram." {
@@ -272,7 +272,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                                         BlankLine
                                     }
                                 } Catch {
-                                    Write-PscriboMessage -IsWarning "Physical Infrastructure Diagram Section: $($_.Exception.Message)"
+                                    Write-PScriboMessage -IsWarning "Physical Infrastructure Diagram Section: $($_.Exception.Message)"
                                 }
                             }
                         }
@@ -311,7 +311,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
             #                                   Replication Section                                       #
             #---------------------------------------------------------------------------------------------#
             if ($InfoLevel.Replication.PSObject.Properties.Value -ne 0) {
-                if ((Get-VBRReplica).count -gt 0 -or ((Get-VBRFailoverPlan).count -gt 0))  {
+                if ((Get-VBRReplica).count -gt 0 -or ((Get-VBRFailoverPlan).count -gt 0)) {
                     Section -Style Heading2 'Replication' {
                         Paragraph "The following section provides information about the replications managed by Veeam Server $(((Get-VBRServerSession).Server))."
                         BlankLine
@@ -331,8 +331,8 @@ function Invoke-AsBuiltReport.Veeam.VBR {
             #                                Cloud Connect Section                                        #
             #---------------------------------------------------------------------------------------------#
             if ($InfoLevel.CloudConnect.PSObject.Properties.Value -ne 0) {
-                if ($VbrLicenses | Where-Object {$_.CloudConnect -ne "Disabled" -and $_.Status -ne "Expired"}) {
-                    if ((Get-VBRCloudGateway).count -gt 0 -or ((Get-VBRCloudTenant).count -gt 0))  {
+                if ($VbrLicenses | Where-Object { $_.CloudConnect -ne "Disabled" -and $_.Status -ne "Expired" }) {
+                    if ((Get-VBRCloudGateway).count -gt 0 -or ((Get-VBRCloudTenant).count -gt 0)) {
                         Section -Style Heading2 'Cloud Connect' {
                             Paragraph "The following section provides information about Cloud Connect components from server $(((Get-VBRServerSession).Server))."
                             BlankLine
@@ -424,6 +424,6 @@ function Invoke-AsBuiltReport.Veeam.VBR {
             Write-PScriboMessage "Disconecting section from $((Get-VBRServerSession).Server)"
             Disconnect-VBRServer
         }
-	}
-	#endregion foreach loop
+    }
+    #endregion foreach loop
 }

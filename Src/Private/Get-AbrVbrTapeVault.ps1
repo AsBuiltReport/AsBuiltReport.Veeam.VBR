@@ -6,7 +6,7 @@ function Get-AbrVbrTapeVault {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.4
+        Version:        0.8.5
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -21,12 +21,12 @@ function Get-AbrVbrTapeVault {
     )
 
     begin {
-        Write-PscriboMessage "Discovering Veeam VBR Tape Vault information from $System."
+        Write-PScriboMessage "Discovering Veeam VBR Tape Vault information from $System."
     }
 
     process {
         try {
-            if ($VbrLicenses | Where-Object {$_.Edition -in @("EnterprisePlus","Enterprise") -and $_.Status -ne "Expired"}) {
+            if ($VbrLicenses | Where-Object { $_.Edition -in @("EnterprisePlus", "Enterprise") -and $_.Status -ne "Expired" }) {
                 $TapeObjs = Get-VBRTapeVault
                 if ($TapeObjs) {
                     Section -Style Heading3 'Tape Vaults' {
@@ -34,7 +34,7 @@ function Get-AbrVbrTapeVault {
                         try {
                             foreach ($TapeObj in $TapeObjs) {
                                 try {
-                                    Write-PscriboMessage "Discovered $($TapeObj.Name) Type Vault."
+                                    Write-PScriboMessage "Discovered $($TapeObj.Name) Type Vault."
                                     $inObj = [ordered] @{
                                         'Name' = $TapeObj.Name
                                         'Description' = $TapeObj.Description
@@ -42,9 +42,8 @@ function Get-AbrVbrTapeVault {
                                         'Location' = ConvertTo-EmptyToFiller (Get-VBRLocation -Object $TapeObj -ErrorAction SilentlyContinue)
                                     }
                                     $OutObj += [pscustomobject]$inobj
-                                }
-                                catch {
-                                    Write-PscriboMessage -IsWarning "Tape Vaults $($TapeObj.Name) Table: $($_.Exception.Message)"
+                                } catch {
+                                    Write-PScriboMessage -IsWarning "Tape Vaults $($TapeObj.Name) Table: $($_.Exception.Message)"
                                 }
                             }
 
@@ -64,7 +63,7 @@ function Get-AbrVbrTapeVault {
                             }
                             $OutObj | Table @TableParams
                             if ($HealthCheck.Tape.BestPractice) {
-                                if ($OutObj | Where-Object { $_.'Description' -match 'Created by' -or $Null -like $_.'Description'}) {
+                                if ($OutObj | Where-Object { $_.'Description' -match 'Created by' -or $Null -like $_.'Description' }) {
                                     Paragraph "Health Check:" -Bold -Underline
                                     BlankLine
                                     Paragraph {
@@ -73,16 +72,14 @@ function Get-AbrVbrTapeVault {
                                     }
                                 }
                             }
-                        }
-                        catch {
-                            Write-PscriboMessage -IsWarning "Tape Vaults Section: $($_.Exception.Message)"
+                        } catch {
+                            Write-PScriboMessage -IsWarning "Tape Vaults Section: $($_.Exception.Message)"
                         }
                     }
                 }
             }
-        }
-        catch {
-            Write-PscriboMessage -IsWarning "Tape Vaults Document: $($_.Exception.Message)"
+        } catch {
+            Write-PScriboMessage -IsWarning "Tape Vaults Document: $($_.Exception.Message)"
         }
     }
     end {}

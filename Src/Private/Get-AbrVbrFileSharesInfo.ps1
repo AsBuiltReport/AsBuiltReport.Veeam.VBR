@@ -21,7 +21,7 @@ function Get-AbrVbrFileSharesInfo {
     )
 
     begin {
-        Write-PscriboMessage "Discovering Veeam VBR File Share information from $System."
+        Write-PScriboMessage "Discovering Veeam VBR File Share information from $System."
     }
 
     process {
@@ -42,29 +42,28 @@ function Get-AbrVbrFileSharesInfo {
                                 $Path = Get-VBRNASServerPath -Server $ShareObj
                                 $AccessCredentials = $ShareObj.AccessCredentials
                             }
-                            Write-PscriboMessage "Discovered $($Path) Share."
+                            Write-PScriboMessage "Discovered $($Path) Share."
                             $inObj = [ordered] @{
                                 'Path' = $Path
                                 'Type' = switch ($ShareObj.Type) {
-                                    "FileServer" {"File Server"}
-                                    "SANSMB" {"NAS Filler"}
-                                    "SMB" {"SMB Share"}
-                                    "NFS" {"NFS Share"}
-                                    "SANNFS" {"NAS Filler"}
-                                    Default {$ShareObj.Type}
+                                    "FileServer" { "File Server" }
+                                    "SANSMB" { "NAS Filler" }
+                                    "SMB" { "SMB Share" }
+                                    "NFS" { "NFS Share" }
+                                    "SANNFS" { "NAS Filler" }
+                                    Default { $ShareObj.Type }
                                 }
                                 'Backup IO Control' = $ShareObj.BackupIOControlLevel
                                 'Credentials' = Switch (($AccessCredentials).count) {
-                                    0 {"None"}
-                                    default {$AccessCredentials}
+                                    0 { "None" }
+                                    default { $AccessCredentials }
                                 }
                                 'Cache Repository' = $ShareObj.CacheRepository.Name
                             }
 
                             $OutObj += [pscustomobject]$inobj
-                        }
-                        catch {
-                            Write-PscriboMessage -IsWarning "File Shares $($Path) Section: $($_.Exception.Message)"
+                        } catch {
+                            Write-PScriboMessage -IsWarning "File Shares $($Path) Section: $($_.Exception.Message)"
                         }
                     }
 
@@ -77,10 +76,9 @@ function Get-AbrVbrFileSharesInfo {
                     if ($Report.ShowTableCaptions) {
                         $TableParams['Caption'] = "- $($TableParams.Name)"
                     }
-                    $OutObj | Sort-object -Property 'Path' | Table @TableParams
-                }
-                catch {
-                    Write-PscriboMessage -IsWarning "File Shares Section: $($_.Exception.Message)"
+                    $OutObj | Sort-Object -Property 'Path' | Table @TableParams
+                } catch {
+                    Write-PScriboMessage -IsWarning "File Shares Section: $($_.Exception.Message)"
                 }
             }
         }

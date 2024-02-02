@@ -1,5 +1,5 @@
 
-function Get-AbrVbrBackupCopyjob  {
+function Get-AbrVbrBackupCopyjob {
     <#
     .SYNOPSIS
         Used by As Built Report to returns backup copy jobs created in Veeam Backup & Replication.
@@ -21,7 +21,7 @@ function Get-AbrVbrBackupCopyjob  {
     )
 
     begin {
-        Write-PscriboMessage "Discovering Veeam VBR Backup Copy jobs information from $System."
+        Write-PScriboMessage "Discovering Veeam VBR Backup Copy jobs information from $System."
     }
 
     process {
@@ -34,21 +34,20 @@ function Get-AbrVbrBackupCopyjob  {
                     $OutObj = @()
                     foreach ($BkCopyjob in $BkCopyjobs) {
                         try {
-                            Write-PscriboMessage "Discovered $($BkCopyjob.Name) backup copy."
+                            Write-PScriboMessage "Discovered $($BkCopyjob.Name) backup copy."
                             $inObj = [ordered] @{
                                 'Name' = $BkCopyjob.Name
                                 'Copy Mode' = $BkCopyjob.Mode
                                 'Status' = Switch ($BkCopyjob.JobEnabled) {
-                                    'False' {'Disabled'}
-                                    'True' {'Enabled'}
+                                    'False' { 'Disabled' }
+                                    'True' { 'Enabled' }
                                 }
                                 'Latest Result' = $BkCopyjob.LastResult
                                 'Scheduled?' = $BkCopyjob.ScheduleOptions.Type
                             }
                             $OutObj += [pscustomobject]$inobj
-                        }
-                        catch {
-                            Write-PscriboMessage -IsWarning "Backup Copy Jobs $($BkCopyjob.Name) Section: $($_.Exception.Message)"
+                        } catch {
+                            Write-PScriboMessage -IsWarning "Backup Copy Jobs $($BkCopyjob.Name) Section: $($_.Exception.Message)"
                         }
                     }
 
@@ -66,12 +65,11 @@ function Get-AbrVbrBackupCopyjob  {
                     if ($Report.ShowTableCaptions) {
                         $TableParams['Caption'] = "- $($TableParams.Name)"
                     }
-                    $OutObj | Sort-Object -Property 'Name' |Table @TableParams
+                    $OutObj | Sort-Object -Property 'Name' | Table @TableParams
                 }
             }
-        }
-        catch {
-            Write-PscriboMessage -IsWarning "Backup Copy Jobs Section: $($_.Exception.Message)"
+        } catch {
+            Write-PScriboMessage -IsWarning "Backup Copy Jobs Section: $($_.Exception.Message)"
         }
     }
     end {}

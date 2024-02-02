@@ -6,7 +6,7 @@ function Get-AbrVbrBackupRepository {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.4
+        Version:        0.8.5
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -21,12 +21,12 @@ function Get-AbrVbrBackupRepository {
     )
 
     begin {
-        Write-PscriboMessage "Discovering Veeam VBR Backup Repository information from $System."
+        Write-PScriboMessage "Discovering Veeam VBR Backup Repository information from $System."
     }
 
     process {
         try {
-            [Array]$BackupRepos = Get-VBRBackupRepository | Where-Object {$_.Type -ne "SanSnapshotOnly"} | Sort-Object -Property Name
+            [Array]$BackupRepos = Get-VBRBackupRepository | Where-Object { $_.Type -ne "SanSnapshotOnly" } | Sort-Object -Property Name
             [Array]$ScaleOuts = Get-VBRBackupRepository -ScaleOut | Sort-Object -Property Name
             if ($ScaleOuts) {
                 $Extents = Get-VBRRepositoryExtent -Repository $ScaleOuts | Sort-Object -Property Name
@@ -36,12 +36,12 @@ function Get-AbrVbrBackupRepository {
                 $OutObj = @()
                 try {
                     foreach ($BackupRepo in $BackupRepos) {
-                        Write-PscriboMessage "Discovered $($BackupRepo.Name) Repository."
+                        Write-PScriboMessage "Discovered $($BackupRepo.Name) Repository."
                         $PercentFree = 0
-                        if (@($($BackupRepo.GetContainer().CachedTotalSpace.InGigabytes),$($BackupRepo.GetContainer().CachedFreeSpace.InGigabytes)) -ne 0) {
-                            $UsedSpace = ($($BackupRepo.GetContainer().CachedTotalSpace.InGigabytes-$($BackupRepo.GetContainer().CachedFreeSpace.InGigabytes)))
+                        if (@($($BackupRepo.GetContainer().CachedTotalSpace.InGigabytes), $($BackupRepo.GetContainer().CachedFreeSpace.InGigabytes)) -ne 0) {
+                            $UsedSpace = ($($BackupRepo.GetContainer().CachedTotalSpace.InGigabytes - $($BackupRepo.GetContainer().CachedFreeSpace.InGigabytes)))
                             if ($UsedSpace -ne 0) {
-                                $PercentFree = $([Math]::Round($UsedSpace/$($BackupRepo.GetContainer().CachedTotalSpace.InGigabytes) * 100))
+                                $PercentFree = $([Math]::Round($UsedSpace / $($BackupRepo.GetContainer().CachedTotalSpace.InGigabytes) * 100))
                             }
                         }
                         $inObj = [ordered] @{
@@ -50,22 +50,21 @@ function Get-AbrVbrBackupRepository {
                             'Free Space' = "$($BackupRepo.GetContainer().CachedFreeSpace.InGigabytes) Gb"
                             'Used Space %' = $PercentFree
                             'Status' = Switch ($BackupRepo.IsUnavailable) {
-                                'False' {'Available'}
-                                'True' {'Unavailable'}
-                                default {$BackupRepo.IsUnavailable}
+                                'False' { 'Available' }
+                                'True' { 'Unavailable' }
+                                default { $BackupRepo.IsUnavailable }
                             }
                         }
                         $OutObj += [pscustomobject]$inobj
                     }
-                }
-                catch {
-                    Write-PscriboMessage -IsWarning "Backup Repository Section: $($_.Exception.Message)"
+                } catch {
+                    Write-PScriboMessage -IsWarning "Backup Repository Section: $($_.Exception.Message)"
                 }
 
                 if ($HealthCheck.Infrastructure.BR) {
-                    $OutObj | Where-Object { $_.'Status' -eq 'Unavailable'} | Set-Style -Style Warning -Property 'Status'
-                    $OutObj | Where-Object { $_.'Used Space %' -ge 75} | Set-Style -Style Warning -Property 'Used Space %'
-                    $OutObj | Where-Object { $_.'Used Space %' -ge 90} | Set-Style -Style Critical -Property 'Used Space %'
+                    $OutObj | Where-Object { $_.'Status' -eq 'Unavailable' } | Set-Style -Style Warning -Property 'Status'
+                    $OutObj | Where-Object { $_.'Used Space %' -ge 75 } | Set-Style -Style Warning -Property 'Used Space %'
+                    $OutObj | Where-Object { $_.'Used Space %' -ge 90 } | Set-Style -Style Critical -Property 'Used Space %'
                 }
 
                 $TableParams = @{
@@ -78,11 +77,11 @@ function Get-AbrVbrBackupRepository {
                 }
                 if ($Options.EnableCharts) {
                     try {
-                        $sampleData = $OutObj | Select-Object -Property 'Name','Used Space %'
+                        $sampleData = $OutObj | Select-Object -Property 'Name', 'Used Space %'
 
                         $chartFileItem = Get-PieChart -SampleData $sampleData -ChartName 'BackupRepository' -XField 'Name' -YField 'Used Space %' -ChartLegendName 'Backup Repository' -ChartTitleName 'UsedSpace' -ChartTitleText 'Percentage of Used Space'
                     } catch {
-                        Write-PscriboMessage -IsWarning "Backup Repository chart section: $($_.Exception.Message)"
+                        Write-PScriboMessage -IsWarning "Backup Repository chart section: $($_.Exception.Message)"
                     }
                 }
 
@@ -107,31 +106,31 @@ function Get-AbrVbrBackupRepository {
                                         try {
                                             Section -Style NOTOCHeading5 -ExcludeFromTOC $($BackupRepo.Name) {
                                                 $OutObj = @()
-                                                Write-PscriboMessage "Discovered $($BackupRepo.Name) Backup Repository."
+                                                Write-PScriboMessage "Discovered $($BackupRepo.Name) Backup Repository."
                                                 $inObj = [ordered] @{
-                                                    'Extent of ScaleOut Backup Repository' = (($ScaleOuts | Where-Object {($Extents | Where-Object {$_.name -eq $BackupRepo.Name}).ParentId -eq $_.Id}).Name)
+                                                    'Extent of ScaleOut Backup Repository' = (($ScaleOuts | Where-Object { ($Extents | Where-Object { $_.name -eq $BackupRepo.Name }).ParentId -eq $_.Id }).Name)
                                                     'Backup Proxy' = Switch ([string]::IsNullOrEmpty(($BackupRepo.Host).Name)) {
-                                                        $true {'--'}
-                                                        $false {($BackupRepo.Host).Name}
-                                                        default {'Unknown'}
+                                                        $true { '--' }
+                                                        $false { ($BackupRepo.Host).Name }
+                                                        default { 'Unknown' }
                                                     }
                                                     'Integration Type' = $BackupRepo.TypeDisplay
                                                     'Path' = Switch ([string]::IsNullOrEmpty($BackupRepo.FriendlyPath)) {
-                                                        $true {'--'}
-                                                        $false {$BackupRepo.FriendlyPath}
-                                                        default {'Unknown'}
+                                                        $true { '--' }
+                                                        $false { $BackupRepo.FriendlyPath }
+                                                        default { 'Unknown' }
                                                     }
                                                     'Connection Type' = $BackupRepo.Type
                                                     'Max Task Count' = Switch ([string]::IsNullOrEmpty($BackupRepo.Options.MaxTaskCount)) {
                                                         $true {
                                                             Switch ([string]::IsNullOrEmpty($BackupRepo.Options.MaxTasksCount)) {
-                                                                $true {'--'}
-                                                                $false {$BackupRepo.Options.MaxTasksCount}
-                                                                default {'Unknown'}
+                                                                $true { '--' }
+                                                                $false { $BackupRepo.Options.MaxTasksCount }
+                                                                default { 'Unknown' }
                                                             }
                                                         }
-                                                        $false {$BackupRepo.Options.MaxTaskCount}
-                                                        default {'Unknown'}
+                                                        $false { $BackupRepo.Options.MaxTaskCount }
+                                                        default { 'Unknown' }
                                                     }
                                                     'Use Nfs On Mount Host' = ConvertTo-TextYN $BackupRepo.UseNfsOnMountHost
                                                     'San Snapshot Only' = ConvertTo-TextYN $BackupRepo.IsSanSnapshotOnly
@@ -147,12 +146,12 @@ function Get-AbrVbrBackupRepository {
                                                     $inObj.Remove('Extent of ScaleOut Backup Repository')
                                                 }
 
-                                                if ($BackupRepo.Type -in @('AmazonS3Compatible','WasabiS3')) {
+                                                if ($BackupRepo.Type -in @('AmazonS3Compatible', 'WasabiS3')) {
                                                     $inObj.Add('Object Lock Enabled', (ConvertTo-TextYN $BackupRepo.ObjectLockEnabled))
                                                 }
 
-                                                if ($BackupRepo.Type -in @('AmazonS3Compatible','WasabiS3')) {
-                                                    $inObj.Add('Mount Server', (Get-VBRServer | Where-Object {$_.id -eq $BackupRepo.MountHostId.Guid}).Name)
+                                                if ($BackupRepo.Type -in @('AmazonS3Compatible', 'WasabiS3')) {
+                                                    $inObj.Add('Mount Server', (Get-VBRServer | Where-Object { $_.id -eq $BackupRepo.MountHostId.Guid }).Name)
                                                 }
 
                                                 $OutObj += [pscustomobject]$inobj
@@ -181,23 +180,20 @@ function Get-AbrVbrBackupRepository {
                                                     }
                                                 }
                                             }
-                                        }
-                                        catch {
-                                            Write-PscriboMessage -IsWarning "Backup Repository Configuration $($BackupRepo.Name) Section: $($_.Exception.Message)"
+                                        } catch {
+                                            Write-PScriboMessage -IsWarning "Backup Repository Configuration $($BackupRepo.Name) Section: $($_.Exception.Message)"
                                         }
                                     }
                                 }
-                            }
-                            catch {
-                                Write-PscriboMessage -IsWarning "Backup Repository Configuration Section: $($_.Exception.Message)"
+                            } catch {
+                                Write-PScriboMessage -IsWarning "Backup Repository Configuration Section: $($_.Exception.Message)"
                             }
                         }
                     }
                 }
             }
-        }
-        catch {
-            Write-PscriboMessage -IsWarning "Backup Repository Section: $($_.Exception.Message)"
+        } catch {
+            Write-PScriboMessage -IsWarning "Backup Repository Section: $($_.Exception.Message)"
         }
     }
     end {}

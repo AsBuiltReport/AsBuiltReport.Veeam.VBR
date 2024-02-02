@@ -21,12 +21,12 @@ function Get-AbrVbrFileShareBackupjob {
     )
 
     begin {
-        Write-PscriboMessage "Discovering Veeam VBR File Share Backup jobs information from $System."
+        Write-PScriboMessage "Discovering Veeam VBR File Share Backup jobs information from $System."
     }
 
     process {
         try {
-            $FSBkjobs = Get-VBRJob -WarningAction SilentlyContinue | Where-Object {$_.TypeToString -like 'File Backup' -or $_.TypeToString -like 'Object Storage Backup'}
+            $FSBkjobs = Get-VBRJob -WarningAction SilentlyContinue | Where-Object { $_.TypeToString -like 'File Backup' -or $_.TypeToString -like 'Object Storage Backup' }
             if ($FSBkjobs.count -gt 0) {
                 if ($VbrVersion -lt 12.1) {
                     $BSName = 'File Share Backup Jobs'
@@ -39,24 +39,23 @@ function Get-AbrVbrFileShareBackupjob {
                     $OutObj = @()
                     foreach ($FSBkjob in $FSBkjobs) {
                         try {
-                            Write-PscriboMessage "Discovered $($FSBkjob.Name) $($BSName.ToLower())."
+                            Write-PScriboMessage "Discovered $($FSBkjob.Name) $($BSName.ToLower())."
                             $inObj = [ordered] @{
                                 'Name' = $FSBkjob.Name
                                 'Type' = $FSBkjob.TypeToString
                                 'Status' = Switch ($FSBkjob.IsScheduleEnabled) {
-                                    'False' {'Disabled'}
-                                    'True' {'Enabled'}
+                                    'False' { 'Disabled' }
+                                    'True' { 'Enabled' }
                                 }
                                 'Latest Result' = $FSBkjob.info.LatestStatus
                                 'Last Run' = Switch ($FSBkjob.FindLastSession()) {
-                                    $Null {'Unknown'}
-                                    default {$FSBkjob.FindLastSession().EndTimeUTC}
+                                    $Null { 'Unknown' }
+                                    default { $FSBkjob.FindLastSession().EndTimeUTC }
                                 }
                             }
                             $OutObj += [pscustomobject]$inobj
-                        }
-                        catch {
-                            Write-PscriboMessage -IsWarning "$($BSName.ToLower()) $($FSBkjob.Name) Section: $($_.Exception.Message)"
+                        } catch {
+                            Write-PScriboMessage -IsWarning "$($BSName.ToLower()) $($FSBkjob.Name) Section: $($_.Exception.Message)"
                         }
                     }
 
@@ -75,12 +74,11 @@ function Get-AbrVbrFileShareBackupjob {
                     if ($Report.ShowTableCaptions) {
                         $TableParams['Caption'] = "- $($TableParams.Name)"
                     }
-                    $OutObj | Sort-Object -Property 'Name' |Table @TableParams
+                    $OutObj | Sort-Object -Property 'Name' | Table @TableParams
                 }
             }
-        }
-        catch {
-            Write-PscriboMessage -IsWarning "$($BSName.ToLower()) Section: $($_.Exception.Message)"
+        } catch {
+            Write-PScriboMessage -IsWarning "$($BSName.ToLower()) Section: $($_.Exception.Message)"
         }
     }
     end {}

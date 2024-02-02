@@ -12,25 +12,25 @@ function ConvertTo-TextYN {
     [CmdletBinding()]
     [OutputType([String])]
     Param
-        (
+    (
         [Parameter (
             Position = 0,
             Mandatory)]
-            [AllowEmptyString()]
-            [string]
-            $TEXT
-        )
+        [AllowEmptyString()]
+        [string]
+        $TEXT
+    )
 
     switch ($TEXT) {
-        "" {"--"}
-        $Null {"--"}
-        "True" {"Yes"; break}
-        "False" {"No"; break}
-        default {$TEXT}
+        "" { "--" }
+        $Null { "--" }
+        "True" { "Yes"; break }
+        "False" { "No"; break }
+        default { $TEXT }
     }
 } # end
 function Get-UnixDate ($UnixDate) {
-        <#
+    <#
     .SYNOPSIS
     Used by As Built Report to convert Date to a more nice format.
     .DESCRIPTION
@@ -56,18 +56,18 @@ function ConvertTo-EmptyToFiller {
     [CmdletBinding()]
     [OutputType([String])]
     Param
-        (
+    (
         [Parameter (
             Position = 0,
             Mandatory)]
-            [AllowEmptyString()]
-            [string]$TEXT
-        )
+        [AllowEmptyString()]
+        [string]$TEXT
+    )
 
     switch ($TEXT) {
-        "" {"--"; break}
-        $Null {"--"; break}
-        default {$TEXT}
+        "" { "--"; break }
+        $Null { "--"; break }
+        default { $TEXT }
     }
 } # end
 
@@ -85,18 +85,17 @@ function ConvertTo-VIobject {
     [CmdletBinding()]
     [OutputType([String])]
     Param
-        (
+    (
         [Parameter (
             Position = 0,
             Mandatory)]
-            [AllowEmptyString()]
-            $OBJECT
-        )
+        [AllowEmptyString()]
+        $OBJECT
+    )
 
-    if (get-view $OBJECT -ErrorAction SilentlyContinue| Select-Object -ExpandProperty Name -Unique) {
-        return get-view $OBJECT -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Name -Unique
-    }
-    else {
+    if (Get-View $OBJECT -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Name -Unique) {
+        return Get-View $OBJECT -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Name -Unique
+    } else {
         return $OBJECT
     }
 } # end
@@ -114,29 +113,29 @@ function ConvertTo-FileSizeString {
     [CmdletBinding()]
     [OutputType([String])]
     Param
-        (
+    (
         [Parameter (
             Position = 0,
             Mandatory)]
-            [int64]
-            $Size
-        )
+        [int64]
+        $Size
+    )
 
     switch ($Size) {
-        {$_ -gt 1TB}
-            {[string]::Format("{0:0} TB", $Size / 1TB); break}
-        {$_ -gt 1GB}
-            {[string]::Format("{0:0} GB", $Size / 1GB); break}
-        {$_ -gt 1MB}
-            {[string]::Format("{0:0} MB", $Size / 1MB); break}
-        {$_ -gt 1KB}
-            {[string]::Format("{0:0} KB", $Size / 1KB); break}
-        {$_ -gt 0}
-            {[string]::Format("{0} B", $Size); break}
-        {$_ -eq 0}
-            {"0 KB"; break}
+        { $_ -gt 1TB }
+        { [string]::Format("{0:0} TB", $Size / 1TB); break }
+        { $_ -gt 1GB }
+        { [string]::Format("{0:0} GB", $Size / 1GB); break }
+        { $_ -gt 1MB }
+        { [string]::Format("{0:0} MB", $Size / 1MB); break }
+        { $_ -gt 1KB }
+        { [string]::Format("{0:0} KB", $Size / 1KB); break }
+        { $_ -gt 0 }
+        { [string]::Format("{0} B", $Size); break }
+        { $_ -eq 0 }
+        { "0 KB"; break }
         default
-            {"0 KB"}
+        { "0 KB" }
     }
 } # end
 function Get-VeeamNetStat {
@@ -161,20 +160,19 @@ function Get-VeeamNetStat {
         $Session
     )
 
-    $properties = 'Protocol','LocalAddress','LocalPort'
-    $properties += 'RemoteAddress','RemotePort','State','ProcessName','PID'
+    $properties = 'Protocol', 'LocalAddress', 'LocalPort'
+    $properties += 'RemoteAddress', 'RemotePort', 'State', 'ProcessName', 'PID'
 
-    invoke-command -Session $Session -ScriptBlock { netstat -ano } | Select-String -Pattern '\s+(TCP|UDP)' | ForEach-Object {
+    Invoke-Command -Session $Session -ScriptBlock { netstat -ano } | Select-String -Pattern '\s+(TCP|UDP)' | ForEach-Object {
 
-        $item = $_.Line.Split(  " ",[System.StringSplitOptions]::RemoveEmptyEntries )
+        $item = $_.Line.Split(  " ", [System.StringSplitOptions]::RemoveEmptyEntries )
 
         if ( $item[1] -NotMatch '^\[::' ) {
 
             if ( ( $la -eq $item[1] -As [ipaddress] ).AddressFamily -Eq 'InterNetworkV6' ) {
                 $localAddress = $la.IPAddressToString
                 $localPort = $item[1].Split( '\]:' )[-1]
-            }
-            else {
+            } else {
                 $localAddress = $item[1].Split( ':' )[0]
                 $localPort = $item[1].Split( ':' )[-1]
             }
@@ -182,15 +180,14 @@ function Get-VeeamNetStat {
             if ( ( $ra -eq $item[2] -As [ipaddress] ).AddressFamily -Eq 'InterNetworkV6' ) {
                 $remoteAddress = $ra.IPAddressToString
                 $remotePort = $item[2].Split( '\]:' )[-1]
-            }
-            else {
+            } else {
                 $remoteAddress = $item[2].Split( ':' )[0]
                 $remotePort = $item[2].Split( ':' )[-1]
             }
 
             New-Object PSObject -Property @{
                 PID = $item[-1]
-                ProcessName = ( invoke-command  -Session $Session -ScriptBlock { Get-Process -Id ($using:item)[-1] -ErrorAction SilentlyContinue }).Name
+                ProcessName = ( Invoke-Command  -Session $Session -ScriptBlock { Get-Process -Id ($using:item)[-1] -ErrorAction SilentlyContinue }).Name
                 Protocol = $item[0]
                 LocalAddress = $localAddress
                 LocalPort = $localPort
@@ -205,32 +202,32 @@ function Get-VeeamNetStat {
 function Convert-Size {
     [cmdletbinding()]
     param(
-        [validateset("Bytes","KB","MB","GB","TB")]
+        [validateset("Bytes", "KB", "MB", "GB", "TB")]
         [string]$From,
-        [validateset("Bytes","KB","MB","GB","TB")]
+        [validateset("Bytes", "KB", "MB", "GB", "TB")]
         [string]$To,
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [double]$Value,
         [int]$Precision = 4
     )
-    switch($From) {
-        "Bytes" {$value = $Value }
-        "KB" {$value = $Value * 1024 }
-        "MB" {$value = $Value * 1024 * 1024}
-        "GB" {$value = $Value * 1024 * 1024 * 1024}
-        "TB" {$value = $Value * 1024 * 1024 * 1024 * 1024}
+    switch ($From) {
+        "Bytes" { $value = $Value }
+        "KB" { $value = $Value * 1024 }
+        "MB" { $value = $Value * 1024 * 1024 }
+        "GB" { $value = $Value * 1024 * 1024 * 1024 }
+        "TB" { $value = $Value * 1024 * 1024 * 1024 * 1024 }
     }
 
     switch ($To) {
-        "Bytes" {return $value}
-        "KB" {$Value = $Value/1KB}
-        "MB" {$Value = $Value/1MB}
-        "GB" {$Value = $Value/1GB}
-        "TB" {$Value = $Value/1TB}
+        "Bytes" { return $value }
+        "KB" { $Value = $Value / 1KB }
+        "MB" { $Value = $Value / 1MB }
+        "GB" { $Value = $Value / 1GB }
+        "TB" { $Value = $Value / 1TB }
 
     }
 
-    return [Math]::Round($value,$Precision,[MidPointRounding]::AwayFromZero)
+    return [Math]::Round($value, $Precision, [MidPointRounding]::AwayFromZero)
 }
 
 function Get-ImagePercent {
@@ -248,14 +245,14 @@ function Get-ImagePercent {
     [CmdletBinding()]
     [OutputType([System.Int32])]
     Param
-        (
+    (
         [Parameter (
             Position = 0,
             Mandatory)]
-            [string]
-            $Graph
-        )
-    $Image_FromStream = [System.Drawing.Image]::FromStream((new-object System.IO.MemoryStream(,[convert]::FromBase64String($Graph))))
+        [string]
+        $Graph
+    )
+    $Image_FromStream = [System.Drawing.Image]::FromStream((New-Object System.IO.MemoryStream(, [convert]::FromBase64String($Graph))))
     If ($Image_FromStream.Width -gt 1500) {
         return 10
     } else {
@@ -277,70 +274,70 @@ function Get-PieChart {
     [CmdletBinding()]
     [OutputType([System.String])]
     Param
-        (
+    (
         [Parameter (
             Position = 0,
             Mandatory)]
-            [System.Array]
-            $SampleData,
-            [String]
-            $ChartName,
-            [String]
-            $XField,
-            [String]
-            $YField,
-            [String]
-            $ChartLegendName,
-            [String]
-            $ChartLegendAlignment = 'Center',
-            [String]
-            $ChartTitleName = ' ',
-            [String]
-            $ChartTitleText = ' ',
-            [int]
-            $Width = 600,
-            [int]
-            $Height = 400
-        )
+        [System.Array]
+        $SampleData,
+        [String]
+        $ChartName,
+        [String]
+        $XField,
+        [String]
+        $YField,
+        [String]
+        $ChartLegendName,
+        [String]
+        $ChartLegendAlignment = 'Center',
+        [String]
+        $ChartTitleName = ' ',
+        [String]
+        $ChartTitleText = ' ',
+        [int]
+        $Width = 600,
+        [int]
+        $Height = 400
+    )
 
     $exampleChart = New-Chart -Name $ChartName -Width $Width -Height $Height
 
     $addChartAreaParams = @{
         Chart = $exampleChart
-        Name  = 'exampleChartArea'
+        Name = 'exampleChartArea'
     }
     $exampleChartArea = Add-ChartArea @addChartAreaParams -PassThru
 
     $addChartSeriesParams = @{
-        Chart             = $exampleChart
-        ChartArea         = $exampleChartArea
-        Name              = 'exampleChartSeries'
-        XField            = $XField
-        YField            = $YField
-        Palette           = 'Green'
+        Chart = $exampleChart
+        ChartArea = $exampleChartArea
+        Name = 'exampleChartSeries'
+        XField = $XField
+        YField = $YField
+        Palette = 'Green'
         ColorPerDataPoint = $true
     }
     $sampleData | Add-PieChartSeries @addChartSeriesParams
 
     $addChartLegendParams = @{
-        Chart             = $exampleChart
-        Name              = $ChartLegendName
-        TitleAlignment    = $ChartLegendAlignment
+        Chart = $exampleChart
+        Name = $ChartLegendName
+        TitleAlignment = $ChartLegendAlignment
     }
     Add-ChartLegend @addChartLegendParams
 
     $addChartTitleParams = @{
-        Chart     = $exampleChart
+        Chart = $exampleChart
         ChartArea = $exampleChartArea
-        Name      = $ChartTitleName
-        Text      = $ChartTitleText
-        Font      = New-Object -TypeName 'System.Drawing.Font' -ArgumentList @('Arial', '12', [System.Drawing.FontStyle]::Bold)
+        Name = $ChartTitleName
+        Text = $ChartTitleText
+        Font = New-Object -TypeName 'System.Drawing.Font' -ArgumentList @('Arial', '12', [System.Drawing.FontStyle]::Bold)
     }
     Add-ChartTitle @addChartTitleParams
 
     $ChartImage = Export-Chart -Chart $exampleChart -Path (Get-Location).Path -Format "PNG" -PassThru
 
-    $Base64Image = [convert]::ToBase64String((get-content $ChartImage -encoding byte))
+    $Base64Image = [convert]::ToBase64String((Get-Content $ChartImage -Encoding byte))
 
     Remove-Item -Path $ChartImage.FullName
 
@@ -362,74 +359,73 @@ function Get-ColumnChart {
     [CmdletBinding()]
     [OutputType([System.String])]
     Param
-        (
+    (
         [Parameter (
             Position = 0,
             Mandatory)]
-            [System.Array]
-            $SampleData,
-            [String]
-            $ChartName,
-            [String]
-            $AxisXTitle,
-            [String]
-            $AxisYTitle,
-            [String]
-            $XField,
-            [String]
-            $YField,
-            [String]
-            $ChartAreaName,
-            [String]
-            $ChartTitleName = ' ',
-            [String]
-            $ChartTitleText = ' ',
-            [int]
-            $Width = 600,
-            [int]
-            $Height = 400
-        )
+        [System.Array]
+        $SampleData,
+        [String]
+        $ChartName,
+        [String]
+        $AxisXTitle,
+        [String]
+        $AxisYTitle,
+        [String]
+        $XField,
+        [String]
+        $YField,
+        [String]
+        $ChartAreaName,
+        [String]
+        $ChartTitleName = ' ',
+        [String]
+        $ChartTitleText = ' ',
+        [int]
+        $Width = 600,
+        [int]
+        $Height = 400
+    )
 
     $exampleChart = New-Chart -Name $ChartName -Width $Width -Height $Height
 
     $addChartAreaParams = @{
-        Chart                 = $exampleChart
-        Name                  = $ChartAreaName
-        AxisXTitle            = $AxisXTitle
-        AxisYTitle            = $AxisYTitle
+        Chart = $exampleChart
+        Name = $ChartAreaName
+        AxisXTitle = $AxisXTitle
+        AxisYTitle = $AxisYTitle
         NoAxisXMajorGridLines = $true
         NoAxisYMajorGridLines = $true
     }
     $exampleChartArea = Add-ChartArea @addChartAreaParams -PassThru
 
     $addChartSeriesParams = @{
-        Chart             = $exampleChart
-        ChartArea         = $exampleChartArea
-        Name              = 'exampleChartSeries'
-        XField            = $XField
-        YField            = $YField
-        Palette           = 'Green'
+        Chart = $exampleChart
+        ChartArea = $exampleChartArea
+        Name = 'exampleChartSeries'
+        XField = $XField
+        YField = $YField
+        Palette = 'Green'
         ColorPerDataPoint = $true
     }
     $sampleData | Add-ColumnChartSeries @addChartSeriesParams
 
     $addChartTitleParams = @{
-        Chart     = $exampleChart
+        Chart = $exampleChart
         ChartArea = $exampleChartArea
-        Name      = $ChartTitleName
-        Text      = $ChartTitleText
-        Font      = New-Object -TypeName 'System.Drawing.Font' -ArgumentList @('Arial', '12', [System.Drawing.FontStyle]::Bold)
+        Name = $ChartTitleName
+        Text = $ChartTitleText
+        Font = New-Object -TypeName 'System.Drawing.Font' -ArgumentList @('Arial', '12', [System.Drawing.FontStyle]::Bold)
     }
     Add-ChartTitle @addChartTitleParams
 
     $ChartImage = Export-Chart -Chart $exampleChart -Path (Get-Location).Path -Format "PNG" -PassThru
 
-    if ($PassThru)
-    {
+    if ($PassThru) {
         Write-Output -InputObject $chartFileItem
     }
 
-    $Base64Image = [convert]::ToBase64String((get-content $ChartImage -encoding byte))
+    $Base64Image = [convert]::ToBase64String((Get-Content $ChartImage -Encoding byte))
 
     Remove-Item -Path $ChartImage.FullName
 
@@ -450,13 +446,13 @@ function Get-WindowsTimePeriod {
     #>
     [CmdletBinding()]
     Param
-        (
+    (
         [Parameter (
             Position = 0,
             Mandatory)]
-            [System.Array]
-            $InputTimePeriod
-        )
+        [System.Array]
+        $InputTimePeriod
+    )
 
     $OutObj = @()
     $Hours24 = [ordered]@{
@@ -485,7 +481,7 @@ function Get-WindowsTimePeriod {
         22 = 10
         23 = 11
     }
-    $ScheduleTimePeriod = $InputTimePeriod -split '(.{48})' | Where-Object {$_}
+    $ScheduleTimePeriod = $InputTimePeriod -split '(.{48})' | Where-Object { $_ }
 
     foreach ($OBJ in $Hours24.GetEnumerator()) {
 

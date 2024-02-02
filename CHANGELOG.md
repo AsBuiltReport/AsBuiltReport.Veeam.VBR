@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Removed Graphviz install check code. (No need to manually install Graphviz)
+- Code Cleanup
 
 ### Fixed
 

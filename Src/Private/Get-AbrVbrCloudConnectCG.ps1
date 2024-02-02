@@ -6,7 +6,7 @@ function Get-AbrVbrCloudConnectCG {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.4
+        Version:        0.8.5
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -21,12 +21,12 @@ function Get-AbrVbrCloudConnectCG {
     )
 
     begin {
-        Write-PscriboMessage "Discovering Veeam VBR Cloud Gateway information from $System."
+        Write-PScriboMessage "Discovering Veeam VBR Cloud Gateway information from $System."
     }
 
     process {
         try {
-            if ($VbrLicenses | Where-Object {$_.CloudConnect -ne "Disabled"}) {
+            if ($VbrLicenses | Where-Object { $_.CloudConnect -ne "Disabled" }) {
                 $CloudObjects = Get-VBRCloudGateway | Sort-Object -Property Name
                 if ($CloudObjects) {
                     Section -Style Heading3 'Cloud Gateways' {
@@ -36,7 +36,7 @@ function Get-AbrVbrCloudConnectCG {
                             $OutObj = @()
                             foreach ($CloudObject in $CloudObjects) {
                                 try {
-                                    Write-PscriboMessage "Discovered $($CloudObject.Name) Cloud Gateway information."
+                                    Write-PScriboMessage "Discovered $($CloudObject.Name) Cloud Gateway information."
 
                                     $inObj = [ordered] @{
                                         'Name' = $CloudObject.Name
@@ -49,10 +49,10 @@ function Get-AbrVbrCloudConnectCG {
 
                                     if ($InfoLevel.CloudConnect.CloudGateway -ge 2) {
                                         $CloudGPObjects = Get-VBRCloudGatewayPool
-                                        $CGPool = Switch ([string]::IsNullOrEmpty(($CloudGPObjects | where-Object {$CloudObject.Name -in $_.CloudGateways.Name}).Name)) {
-                                            $true {'--'}
-                                            $false {($CloudGPObjects | where-Object {$CloudObject.Name -in $_.CloudGateways.Name}).Name}
-                                            default {'--'}
+                                        $CGPool = Switch ([string]::IsNullOrEmpty(($CloudGPObjects | Where-Object { $CloudObject.Name -in $_.CloudGateways.Name }).Name)) {
+                                            $true { '--' }
+                                            $false { ($CloudGPObjects | Where-Object { $CloudObject.Name -in $_.CloudGateways.Name }).Name }
+                                            default { '--' }
                                         }
                                         $inObj.add('Cloud Gateway Pool', $CGPool)
                                         $inObj.add('Description', $CloudObject.Description)
@@ -82,7 +82,7 @@ function Get-AbrVbrCloudConnectCG {
                                         }
                                         $OutObj | Sort-Object -Property 'Name' | Table @TableParams
                                         if ($HealthCheck.Jobs.BestPractice) {
-                                            if ($OutObj | Where-Object { $_.'Description' -match 'Created by' -or $Null -like $_.'Description'}) {
+                                            if ($OutObj | Where-Object { $_.'Description' -match 'Created by' -or $Null -like $_.'Description' }) {
                                                 Paragraph "Health Check:" -Bold -Underline
                                                 BlankLine
                                                 Paragraph {
@@ -93,9 +93,8 @@ function Get-AbrVbrCloudConnectCG {
                                         }
 
                                     }
-                                }
-                                catch {
-                                    Write-PscriboMessage -IsWarning "Cloud Gateways $($CloudObject.Name) Section: $($_.Exception.Message)"
+                                } catch {
+                                    Write-PScriboMessage -IsWarning "Cloud Gateways $($CloudObject.Name) Section: $($_.Exception.Message)"
                                 }
 
                             }
@@ -112,16 +111,14 @@ function Get-AbrVbrCloudConnectCG {
                                 }
                                 $OutObj | Sort-Object -Property 'Name' | Table @TableParams
                             }
-                        }
-                        catch {
-                            Write-PscriboMessage -IsWarning "Cloud Gateways Section: $($_.Exception.Message)"
+                        } catch {
+                            Write-PScriboMessage -IsWarning "Cloud Gateways Section: $($_.Exception.Message)"
                         }
                     }
                 }
             }
-        }
-        catch {
-            Write-PscriboMessage -IsWarning "Cloud Gateways Section: $($_.Exception.Message)"
+        } catch {
+            Write-PScriboMessage -IsWarning "Cloud Gateways Section: $($_.Exception.Message)"
         }
     }
     end {}

@@ -6,7 +6,7 @@ function Get-AbrVbrCredential {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.4
+        Version:        0.8.5
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -21,7 +21,7 @@ function Get-AbrVbrCredential {
     )
 
     begin {
-        Write-PscriboMessage "Discovering Veeam VBR credential information from $System."
+        Write-PScriboMessage "Discovering Veeam VBR credential information from $System."
     }
 
     process {
@@ -34,20 +34,19 @@ function Get-AbrVbrCredential {
                     $OutObj = @()
                     foreach ($Credential in $Credentials) {
                         try {
-                            Write-PscriboMessage "Discovered $($Credential.Name) Server."
+                            Write-PScriboMessage "Discovered $($Credential.Name) Server."
                             $inObj = [ordered] @{
                                 'Name' = $Credential.Name
                                 'Change Time' = Switch ($Credential.ChangeTimeUtc) {
-                                    "" {"--"; break}
-                                    $Null {'--'; break}
-                                    default {$Credential.ChangeTimeUtc.ToShortDateString()}
+                                    "" { "--"; break }
+                                    $Null { '--'; break }
+                                    default { $Credential.ChangeTimeUtc.ToShortDateString() }
                                 }
                                 'Description' = $Credential.Description
                             }
                             $OutObj += [pscustomobject]$inobj
-                        }
-                        catch {
-                            Write-PscriboMessage -IsWarning "Security Credentials $($Credential.Name) Section: $($_.Exception.Message)"
+                        } catch {
+                            Write-PScriboMessage -IsWarning "Security Credentials $($Credential.Name) Section: $($_.Exception.Message)"
                         }
                     }
 
@@ -69,15 +68,14 @@ function Get-AbrVbrCredential {
                                 $OutObj = @()
                                 foreach ($CloudCredential in $CloudCredentials) {
                                     try {
-                                        Write-PscriboMessage "Discovered $($CloudCredential.Name) Server."
+                                        Write-PScriboMessage "Discovered $($CloudCredential.Name) Server."
                                         $inObj = [ordered] @{
                                             'Name' = $CloudCredential.Name
                                             'Description' = $CloudCredential.Description
                                         }
                                         $OutObj += [pscustomobject]$inobj
-                                    }
-                                    catch {
-                                        Write-PscriboMessage -IsWarning "Service Provider Credentials $($CloudCredential.Name) Section: $($_.Exception.Message)"
+                                    } catch {
+                                        Write-PScriboMessage -IsWarning "Service Provider Credentials $($CloudCredential.Name) Section: $($_.Exception.Message)"
                                     }
                                 }
 
@@ -92,15 +90,13 @@ function Get-AbrVbrCredential {
                                 $OutObj | Sort-Object -Property 'Name' | Table @TableParams
                             }
                         }
-                    }
-                    catch {
-                        Write-PscriboMessage -IsWarning "Service Provider Credentials Section: $($_.Exception.Message)"
+                    } catch {
+                        Write-PScriboMessage -IsWarning "Service Provider Credentials Section: $($_.Exception.Message)"
                     }
                 }
             }
-        }
-        catch {
-            Write-PscriboMessage -IsWarning "Security Credentials Section: $($_.Exception.Message)"
+        } catch {
+            Write-PScriboMessage -IsWarning "Security Credentials Section: $($_.Exception.Message)"
         }
     }
     end {}

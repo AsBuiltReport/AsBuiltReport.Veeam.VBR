@@ -6,7 +6,7 @@ function Get-AbrVbrStorageOntap {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.4
+        Version:        0.8.5
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -21,7 +21,7 @@ function Get-AbrVbrStorageOntap {
     )
 
     begin {
-        Write-PscriboMessage "Discovering NetApp Ontap Storage information connected to $System."
+        Write-PScriboMessage "Discovering NetApp Ontap Storage information connected to $System."
     }
 
     process {
@@ -35,22 +35,22 @@ function Get-AbrVbrStorageOntap {
                     foreach ($OntapHost in $OntapHosts) {
                         Section -Style Heading4 $($OntapHost.Name) {
                             try {
-                                Write-PscriboMessage "Discovered $($OntapHost.Name) NetApp Host."
-                                $UsedCred = Get-VBRCredentials | Where-Object { $_.Id -eq $OntapHost.Info.CredsId}
+                                Write-PScriboMessage "Discovered $($OntapHost.Name) NetApp Host."
+                                $UsedCred = Get-VBRCredentials | Where-Object { $_.Id -eq $OntapHost.Info.CredsId }
                                 $OntapOptions = [xml]$OntapHost.info.Options
                                 $inObj = [ordered] @{
                                     'DNS Name' = Switch (($OntapHost.Info.HostInstanceId).count) {
-                                        0 {$OntapHost.Info.DnsName}
-                                        default {$OntapHost.Info.HostInstanceId}
+                                        0 { $OntapHost.Info.DnsName }
+                                        default { $OntapHost.Info.HostInstanceId }
                                     }
                                     'Description' = $OntapHost.Description
                                     'Storage Type' = $OntapHost.NaOptions.HostType
                                     'Used Credential' = Switch (($UsedCred).count) {
-                                        0 {"--"}
-                                        default {"$($UsedCred.Name) - ($($UsedCred.Description))"}
+                                        0 { "--" }
+                                        default { "$($UsedCred.Name) - ($($UsedCred.Description))" }
                                     }
                                     'Connection Address' = $OntapHost.ConnPoints -join ", "
-                                    'Connection Port' =  "$($OntapOptions.NaHostOptions.NaHostOptions.NaHostConnectionOptions.Port)\TCP"
+                                    'Connection Port' = "$($OntapOptions.NaHostOptions.NaHostOptions.NaHostConnectionOptions.Port)\TCP"
                                     'Installed Licenses' = $OntapHost.NaOptions.License
                                 }
 
@@ -74,7 +74,7 @@ function Get-AbrVbrStorageOntap {
                                                 $OutObj = @()
                                                 foreach ($OntapVol in $OntapVols) {
                                                     try {
-                                                        Write-PscriboMessage "Discovered $($OntapVol.Name) NetApp Volume."
+                                                        Write-PScriboMessage "Discovered $($OntapVol.Name) NetApp Volume."
                                                         $inObj = [ordered] @{
                                                             'Name' = $OntapVol.Name
                                                             'Total Space' = ConvertTo-FileSizeString $OntapVol.Size
@@ -83,9 +83,8 @@ function Get-AbrVbrStorageOntap {
                                                         }
 
                                                         $OutObj += [pscustomobject]$inobj
-                                                    }
-                                                    catch {
-                                                        Write-PscriboMessage -IsWarning "NetApp Ontap Storage $($OntapVol.Name) Volumes Section: $($_.Exception.Message)"
+                                                    } catch {
+                                                        Write-PScriboMessage -IsWarning "NetApp Ontap Storage $($OntapVol.Name) Volumes Section: $($_.Exception.Message)"
                                                     }
                                                 }
 
@@ -101,20 +100,17 @@ function Get-AbrVbrStorageOntap {
                                                 $OutObj | Sort-Object -Property 'Name' | Table @TableParams
                                             }
                                         }
-                                    }
-                                    catch {
-                                        Write-PscriboMessage -IsWarning "NetApp Ontap Storage Volumes Section: $($_.Exception.Message)"
+                                    } catch {
+                                        Write-PScriboMessage -IsWarning "NetApp Ontap Storage Volumes Section: $($_.Exception.Message)"
                                     }
                                 }
-                            }
-                            catch {
-                                Write-PscriboMessage -IsWarning "NetApp Ontap Storage Section: $($_.Exception.Message)"
+                            } catch {
+                                Write-PScriboMessage -IsWarning "NetApp Ontap Storage Section: $($_.Exception.Message)"
                             }
                         }
                     }
-                }
-                catch {
-                    Write-PscriboMessage -IsWarning "NetApp Ontap Section: $($_.Exception.Message)"
+                } catch {
+                    Write-PScriboMessage -IsWarning "NetApp Ontap Section: $($_.Exception.Message)"
                 }
             }
         }
