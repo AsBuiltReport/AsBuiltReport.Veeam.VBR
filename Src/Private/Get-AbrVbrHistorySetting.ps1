@@ -21,7 +21,7 @@ function Get-AbrVbrHistorySetting {
     )
 
     begin {
-        Write-PscriboMessage "Discovering Veeam VBR History settings information from $System."
+        Write-PScriboMessage "Discovering Veeam VBR History settings information from $System."
     }
 
     process {
@@ -47,9 +47,8 @@ function Get-AbrVbrHistorySetting {
                     $OutObj | Table @TableParams
                 }
             }
-        }
-        catch {
-            Write-PscriboMessage -IsWarning "History Setting Section: $($_.Exception.Message)"
+        } catch {
+            Write-PScriboMessage -IsWarning "History Setting Section: $($_.Exception.Message)"
         }
     }
     end {}

@@ -21,7 +21,7 @@ function Get-AbrVbrEmailNotificationSetting {
     )
 
     begin {
-        Write-PscriboMessage "Discovering Veeam VBR Email Notification settings information from $System."
+        Write-PScriboMessage "Discovering Veeam VBR Email Notification settings information from $System."
     }
 
     process {
@@ -42,16 +42,16 @@ function Get-AbrVbrEmailNotificationSetting {
                             'Daily Reports Time' = $EmailSetting.DailyReportsTime.ToShortTimeString()
                             'Enabled' = ConvertTo-TextYN $EmailSetting.Enabled
                             'Notify On' = Switch ($EmailSetting.NotifyOnSuccess) {
-                                "" {"--"; break}
-                                $Null {"--"; break}
-                                default {"Notify On Success: $(ConvertTo-TextYN $EmailSetting.NotifyOnSuccess)`r`nNotify On Warning: $(ConvertTo-TextYN $EmailSetting.NotifyOnWarning)`r`nNotify On Failure: $(ConvertTo-TextYN $EmailSetting.NotifyOnFailure)`r`nNotify On Last Retry Only: $(ConvertTo-TextYN $EmailSetting.NotifyOnLastRetryOnly)"}
+                                "" { "--"; break }
+                                $Null { "--"; break }
+                                default { "Notify On Success: $(ConvertTo-TextYN $EmailSetting.NotifyOnSuccess)`r`nNotify On Warning: $(ConvertTo-TextYN $EmailSetting.NotifyOnWarning)`r`nNotify On Failure: $(ConvertTo-TextYN $EmailSetting.NotifyOnFailure)`r`nNotify On Last Retry Only: $(ConvertTo-TextYN $EmailSetting.NotifyOnLastRetryOnly)" }
                             }
                         }
                         $OutObj += [pscustomobject]$inobj
                     }
 
                     if ($HealthCheck.Infrastructure.Settings) {
-                        $OutObj | Where-Object { $_.'Enabled' -like 'No'} | Set-Style -Style Warning -Property 'Enabled'
+                        $OutObj | Where-Object { $_.'Enabled' -like 'No' } | Set-Style -Style Warning -Property 'Enabled'
                     }
 
                     $TableParams = @{
@@ -73,9 +73,8 @@ function Get-AbrVbrEmailNotificationSetting {
                     }
                 }
             }
-        }
-        catch {
-            Write-PscriboMessage -IsWarning "Email Notification Section: $($_.Exception.Message)"
+        } catch {
+            Write-PScriboMessage -IsWarning "Email Notification Section: $($_.Exception.Message)"
         }
     }
     end {}

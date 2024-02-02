@@ -6,7 +6,7 @@ function Get-AbrVbrTapeServer {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.4
+        Version:        0.8.5
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -21,7 +21,7 @@ function Get-AbrVbrTapeServer {
     )
 
     begin {
-        Write-PscriboMessage "Discovering Veeam VBR Tape Server information from $System."
+        Write-PScriboMessage "Discovering Veeam VBR Tape Server information from $System."
     }
 
     process {
@@ -32,21 +32,21 @@ function Get-AbrVbrTapeServer {
                     $OutObj = @()
                     try {
                         foreach ($TapeObj in $TapeObjs) {
-                            Write-PscriboMessage "Discovered $($TapeObj.Name) Type Server."
+                            Write-PScriboMessage "Discovered $($TapeObj.Name) Type Server."
                             $inObj = [ordered] @{
                                 'Name' = $TapeObj.Name
                                 'Description' = $TapeObj.Description
                                 'Status' = Switch ($TapeObj.IsAvailable) {
-                                    'True' {'Available'}
-                                    'False' {'Unavailable'}
-                                    default {$TapeObj.IsUnavailable}
+                                    'True' { 'Available' }
+                                    'False' { 'Unavailable' }
+                                    default { $TapeObj.IsUnavailable }
                                 }
                             }
                             $OutObj += [pscustomobject]$inobj
                         }
 
                         if ($HealthCheck.Tape.Status) {
-                            $OutObj | Where-Object { $_.'Status' -eq 'Unavailable'} | Set-Style -Style Warning -Property 'Status'
+                            $OutObj | Where-Object { $_.'Status' -eq 'Unavailable' } | Set-Style -Style Warning -Property 'Status'
                         }
 
                         if ($HealthCheck.Tape.BestPractice) {
@@ -65,7 +65,7 @@ function Get-AbrVbrTapeServer {
                         }
                         $OutObj | Sort-Object -Property 'Name' | Table @TableParams
                         if ($HealthCheck.Tape.BestPractice) {
-                            if ($OutObj | Where-Object { $_.'Description' -match 'Created by' -or $Null -like $_.'Description'}) {
+                            if ($OutObj | Where-Object { $_.'Description' -match 'Created by' -or $Null -like $_.'Description' }) {
                                 Paragraph "Health Check:" -Bold -Underline
                                 BlankLine
                                 Paragraph {
@@ -74,15 +74,13 @@ function Get-AbrVbrTapeServer {
                                 }
                             }
                         }
-                    }
-                    catch {
-                        Write-PscriboMessage -IsWarning "Tape Servers Table: $($_.Exception.Message)"
+                    } catch {
+                        Write-PScriboMessage -IsWarning "Tape Servers Table: $($_.Exception.Message)"
                     }
                 }
             }
-        }
-        catch {
-            Write-PscriboMessage -IsWarning "Tape Servers Section: $($_.Exception.Message)"
+        } catch {
+            Write-PScriboMessage -IsWarning "Tape Servers Section: $($_.Exception.Message)"
         }
     }
     end {}

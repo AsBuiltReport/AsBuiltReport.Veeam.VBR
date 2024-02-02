@@ -6,7 +6,7 @@ function Get-AbrVbrSecurityCompliance {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.4
+        Version:        0.8.5
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -21,7 +21,7 @@ function Get-AbrVbrSecurityCompliance {
     )
 
     begin {
-        Write-PscriboMessage "Discovering Veeam VBR Security & Compliance Summary from $System."
+        Write-PScriboMessage "Discovering Veeam VBR Security & Compliance Summary from $System."
     }
 
     process {
@@ -29,12 +29,12 @@ function Get-AbrVbrSecurityCompliance {
             try {
                 try {
                     # Force new scan
-                    start-VBRSecurityComplianceAnalyzer -ErrorAction SilentlyContinue -WarningAction SilentlyContinue -InformationAction SilentlyContinue
+                    Start-VBRSecurityComplianceAnalyzer -ErrorAction SilentlyContinue -WarningAction SilentlyContinue -InformationAction SilentlyContinue
                     Start-Sleep -Seconds 15
                     # Capture scanner results
                     $SecurityCompliances = [Veeam.Backup.DBManager.CDBManager]::Instance.BestPractices.GetAll()
                 } Catch {
-                    Write-PscriboMessage -IsWarning "Security & Compliance summary command: $($_.Exception.Message)"
+                    Write-PScriboMessage -IsWarning "Security & Compliance summary command: $($_.Exception.Message)"
                 }
                 $RuleTypes = @{
                     'WindowsScriptHostDisabled' = 'Windows Script Host is disabled'
@@ -67,7 +67,7 @@ function Get-AbrVbrSecurityCompliance {
                     'WindowsFirewallEnabled' = 'Windows firewall is enabled'
                     'ConfigurationBackupEnabledAndEncrypted' = 'Configuration backup is enabled and use encryption'
                     'HardenedRepositoryNotVirtual' = 'Hardened repositories are not hosted in virtual machines'
-                    'ConfigurationBackupRepositoryNotLocal' ='The configuration backup is not stored on the backup server'
+                    'ConfigurationBackupRepositoryNotLocal' = 'The configuration backup is not stored on the backup server'
                     'LossProtectionEnabled' = 'Password loss protection is enabled'
                     'TrafficEncryptionEnabled' = 'Encryption network rules added for LAN traffic'
                 }
@@ -87,16 +87,15 @@ function Get-AbrVbrSecurityCompliance {
                         }
                         $OutObj += [pscustomobject]$inobj
                     } catch {
-                        Write-PscriboMessage -IsWarning "Security & Compliance summary table: $($_.Exception.Message)"
+                        Write-PScriboMessage -IsWarning "Security & Compliance summary table: $($_.Exception.Message)"
                     }
                 }
-            }
-            catch {
-                Write-PscriboMessage -IsWarning "Security & Compliance summary section: $($_.Exception.Message)"
+            } catch {
+                Write-PScriboMessage -IsWarning "Security & Compliance summary section: $($_.Exception.Message)"
             }
 
             if ($HealthCheck.Security.BestPractice) {
-                $OutObj | Where-Object { $_.'Status' -eq 'Not Implemented'} | Set-Style -Style Critical -Property 'Status'
+                $OutObj | Where-Object { $_.'Status' -eq 'Not Implemented' } | Set-Style -Style Critical -Property 'Status'
             }
 
             $TableParams = @{
@@ -113,7 +112,7 @@ function Get-AbrVbrSecurityCompliance {
 
                 $chartFileItem = Get-ColumnChart -SampleData $sampleData -ChartName 'SecurityCompliance' -XField 'Name' -YField 'Count' -ChartAreaName 'Infrastructure' -AxisXTitle 'Status' -AxisYTitle 'Count' -ChartTitleName 'SecurityCompliance' -ChartTitleText 'Best Practices'
             } catch {
-                Write-PscriboMessage -IsWarning "Security & Compliance chart section: $($_.Exception.Message)"
+                Write-PScriboMessage -IsWarning "Security & Compliance chart section: $($_.Exception.Message)"
             }
 
             if ($OutObj) {
@@ -125,9 +124,8 @@ function Get-AbrVbrSecurityCompliance {
                     $OutObj | Sort-Object -Property 'Best Practice' | Table @TableParams
                 }
             }
-        }
-        catch {
-            Write-PscriboMessage -IsWarning "Infrastructure Summary Section: $($_.Exception.Message)"
+        } catch {
+            Write-PScriboMessage -IsWarning "Infrastructure Summary Section: $($_.Exception.Message)"
         }
     }
     end {}

@@ -6,7 +6,7 @@ function Get-AbrVbrBackupServerCertificate {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.4
+        Version:        0.8.5
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -21,7 +21,7 @@ function Get-AbrVbrBackupServerCertificate {
     )
 
     begin {
-        Write-PscriboMessage "Discovering Veeam VBR TLS certificates information from $System."
+        Write-PScriboMessage "Discovering Veeam VBR TLS certificates information from $System."
     }
 
     process {
@@ -43,13 +43,12 @@ function Get-AbrVbrBackupServerCertificate {
                             }
                             $OutObj += [pscustomobject]$inobj
                         }
-                    }
-                    catch {
-                        Write-PscriboMessage -IsWarning "Backup Server TLS Certificate Section: $($_.Exception.Message)"
+                    } catch {
+                        Write-PScriboMessage -IsWarning "Backup Server TLS Certificate Section: $($_.Exception.Message)"
                     }
 
                     if ($HealthCheck.Infrastructure.Settings) {
-                        $OutObj | Where-Object { $_.'Enabled' -like 'No'} | Set-Style -Style Warning -Property 'Enabled'
+                        $OutObj | Where-Object { $_.'Enabled' -like 'No' } | Set-Style -Style Warning -Property 'Enabled'
                     }
 
                     $TableParams = @{
@@ -63,9 +62,8 @@ function Get-AbrVbrBackupServerCertificate {
                     $OutObj | Table @TableParams
                 }
             }
-        }
-        catch {
-            Write-PscriboMessage -IsWarning "Backup Server TLS Certificate Section: $($_.Exception.Message)"
+        } catch {
+            Write-PScriboMessage -IsWarning "Backup Server TLS Certificate Section: $($_.Exception.Message)"
         }
     }
     end {}

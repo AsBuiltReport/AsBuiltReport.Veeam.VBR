@@ -6,7 +6,7 @@ function Get-AbrVbrCloudConnectRR {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.4
+        Version:        0.8.5
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -21,11 +21,11 @@ function Get-AbrVbrCloudConnectRR {
     )
 
     begin {
-        Write-PscriboMessage "Discovering Veeam VBR Cloud Connect Replica Resources information from $System."
+        Write-PScriboMessage "Discovering Veeam VBR Cloud Connect Replica Resources information from $System."
     }
 
     process {
-        if ($VbrLicenses | Where-Object {$_.CloudConnect -ne "Disabled"}) {
+        if ($VbrLicenses | Where-Object { $_.CloudConnect -ne "Disabled" }) {
             $CloudObjects = Get-VBRCloudHardwarePlan
             if ($CloudObjects) {
                 Section -Style Heading3 'Replica Resources' {
@@ -35,19 +35,19 @@ function Get-AbrVbrCloudConnectRR {
                         $OutObj = @()
                         foreach ($CloudObject in $CloudObjects) {
                             try {
-                                Write-PscriboMessage "Discovered $($CloudObject.Name) Cloud Connect Replica Resources information."
+                                Write-PScriboMessage "Discovered $($CloudObject.Name) Cloud Connect Replica Resources information."
                                 $inObj = [ordered] @{
                                     'Name' = $CloudObject.Name
                                     'Platform' = $CloudObject.Platform
                                     'CPU' = Switch ([string]::IsNullOrEmpty($CloudObject.CPU)) {
-                                        $true {'Unlimited'}
-                                        $false {"$([math]::Round($CloudObject.CPU / 1000, 1)) Ghz"}
-                                        default {'--'}
+                                        $true { 'Unlimited' }
+                                        $false { "$([math]::Round($CloudObject.CPU / 1000, 1)) Ghz" }
+                                        default { '--' }
                                     }
                                     'Memory' = Switch ([string]::IsNullOrEmpty($CloudObject.Memory)) {
-                                        $true {'Unlimited'}
-                                        $false {"$([math]::Round($CloudObject.Memory / 1Kb, 2)) GB"}
-                                        default {'--'}
+                                        $true { 'Unlimited' }
+                                        $false { "$([math]::Round($CloudObject.Memory / 1Kb, 2)) GB" }
+                                        default { '--' }
                                     }
                                     'Storage Quota' = "$(($CloudObject.Datastore.Quota | Measure-Object -Sum).Sum) GB"
                                     'Network Count' = $CloudObject.NumberOfNetWithInternet + $CloudObject.NumberOfNetWithoutInternet
@@ -55,14 +55,13 @@ function Get-AbrVbrCloudConnectRR {
                                 }
 
                                 $OutObj += [pscustomobject]$inobj
-                            }
-                            catch {
-                                Write-PscriboMessage -IsWarning "Replica Resources $($CloudObject.Name) Section: $($_.Exception.Message)"
+                            } catch {
+                                Write-PScriboMessage -IsWarning "Replica Resources $($CloudObject.Name) Section: $($_.Exception.Message)"
                             }
                         }
 
                         if ($HealthCheck.CloudConnect.ReplicaResources) {
-                            $OutObj | Where-Object { $_.'Subscribers Count' -eq 0} | Set-Style -Style Warning -Property 'Subscribers Count'
+                            $OutObj | Where-Object { $_.'Subscribers Count' -eq 0 } | Set-Style -Style Warning -Property 'Subscribers Count'
                         }
 
                         $TableParams = @{
@@ -87,25 +86,25 @@ function Get-AbrVbrCloudConnectRR {
                                             Section -Style Heading5 $CloudObject.Name {
                                                 try {
                                                     Section -ExcludeFromTOC -Style NOTOCHeading6 'Host Hardware Quota' {
-                                                        Write-PscriboMessage "Discovered $($CloudObject.Name) Cloud Connect Hardware Quota information."
+                                                        Write-PScriboMessage "Discovered $($CloudObject.Name) Cloud Connect Hardware Quota information."
                                                         $inObj = [ordered] @{
                                                             'Host or Cluster' = "$($CloudObject.Host.Name) ($($CloudObject.Host.Type))"
                                                             'Platform' = $CloudObject.Platform
                                                             'CPU' = Switch ([string]::IsNullOrEmpty($CloudObject.CPU)) {
-                                                                $true {'Unlimited'}
-                                                                $false {"$([math]::Round($CloudObject.CPU / 1000, 1)) Ghz"}
-                                                                default {'--'}
+                                                                $true { 'Unlimited' }
+                                                                $false { "$([math]::Round($CloudObject.CPU / 1000, 1)) Ghz" }
+                                                                default { '--' }
                                                             }
                                                             'Memory' = Switch ([string]::IsNullOrEmpty($CloudObject.Memory)) {
-                                                                $true {'Unlimited'}
-                                                                $false {"$([math]::Round($CloudObject.Memory / 1Kb, 2)) GB"}
-                                                                default {'--'}
+                                                                $true { 'Unlimited' }
+                                                                $false { "$([math]::Round($CloudObject.Memory / 1Kb, 2)) GB" }
+                                                                default { '--' }
                                                             }
                                                             'Network Count' = $CloudObject.NumberOfNetWithInternet + $CloudObject.NumberOfNetWithoutInternet
                                                             'Subscribed Tenant' = Switch ([string]::IsNullOrEmpty($CloudObject.SubscribedTenantId)) {
-                                                                $true {'None'}
-                                                                $false {($CloudObject.SubscribedTenantId | ForEach-Object {Get-VBRCloudTenant -Id $_}).Name -join ", "}
-                                                                default {'Unknown'}
+                                                                $true { 'None' }
+                                                                $false { ($CloudObject.SubscribedTenantId | ForEach-Object { Get-VBRCloudTenant -Id $_ }).Name -join ", " }
+                                                                default { 'Unknown' }
                                                             }
                                                             'Description' = $CloudObject.Description
                                                         }
@@ -113,7 +112,7 @@ function Get-AbrVbrCloudConnectRR {
                                                         $OutObj += [pscustomobject]$inobj
 
                                                         if ($HealthCheck.CloudConnect.ReplicaResources) {
-                                                            $OutObj | Where-Object {$_.'Subscribed Tenant' -eq 'None'} | Set-Style -Style Warning -Property 'Subscribed Tenant'
+                                                            $OutObj | Where-Object { $_.'Subscribed Tenant' -eq 'None' } | Set-Style -Style Warning -Property 'Subscribed Tenant'
                                                         }
 
                                                         $TableParams = @{
@@ -127,14 +126,13 @@ function Get-AbrVbrCloudConnectRR {
                                                         }
                                                         $OutObj | Sort-Object -Property 'Name' | Table @TableParams
                                                     }
-                                                }
-                                                catch {
-                                                    Write-PscriboMessage -IsWarning "Host Hardware Quota $($CloudObject.Host.Name) Section: $($_.Exception.Message)"
+                                                } catch {
+                                                    Write-PScriboMessage -IsWarning "Host Hardware Quota $($CloudObject.Host.Name) Section: $($_.Exception.Message)"
                                                 }
                                                 try {
                                                     Section -ExcludeFromTOC -Style NOTOCHeading6 'Storage Quota' {
                                                         $OutObj = @()
-                                                        Write-PscriboMessage "Discovered $($CloudObject.Name) Cloud Connect Storage Quota information."
+                                                        Write-PScriboMessage "Discovered $($CloudObject.Name) Cloud Connect Storage Quota information."
                                                         foreach ($Storage in $CloudObject.Datastore) {
                                                             $inObj = [ordered] @{
                                                                 'Datastore Name' = $Storage.Datastore
@@ -142,9 +140,9 @@ function Get-AbrVbrCloudConnectRR {
                                                                 'Platform' = $Storage.Platform
                                                                 'Storage Quota' = "$($Storage.Quota) GB"
                                                                 'Storage Policy' = Switch ([string]::IsNullOrEmpty($Storage.StoragePolicy.Name)) {
-                                                                    $true {'--'}
-                                                                    $false {$Storage.StoragePolicy.Name}
-                                                                    default {'Unknown'}
+                                                                    $true { '--' }
+                                                                    $false { $Storage.StoragePolicy.Name }
+                                                                    default { 'Unknown' }
                                                                 }
                                                             }
 
@@ -162,15 +160,14 @@ function Get-AbrVbrCloudConnectRR {
                                                             $OutObj | Sort-Object -Property 'Name' | Table @TableParams
                                                         }
                                                     }
-                                                }
-                                                catch {
-                                                    Write-PscriboMessage -IsWarning "Storage Quota $($CloudObject.Name) Section: $($_.Exception.Message)"
+                                                } catch {
+                                                    Write-PScriboMessage -IsWarning "Storage Quota $($CloudObject.Name) Section: $($_.Exception.Message)"
                                                 }
                                                 try {
                                                     Section -ExcludeFromTOC -Style NOTOCHeading6 'Network Quota' {
                                                         $OutObj = @()
-                                                        $VlanConfiguration = Get-VBRCloudVLANConfiguration | Where-Object {$_.Host.Name -eq $CloudObject.Host.Name}
-                                                        Write-PscriboMessage "Discovered $($CloudObject.Name) Cloud Connect Network Quota information."
+                                                        $VlanConfiguration = Get-VBRCloudVLANConfiguration | Where-Object { $_.Host.Name -eq $CloudObject.Host.Name }
+                                                        Write-PScriboMessage "Discovered $($CloudObject.Name) Cloud Connect Network Quota information."
                                                         $inObj = [ordered] @{
                                                             'Specify number of networks with Internet Access' = $CloudObject.NumberOfNetWithInternet + $CloudObject.NumberOfNetWithoutInternet
                                                             'Specify number of internal networks' = $CloudObject.NumberOfNetWithoutInternet
@@ -197,16 +194,15 @@ function Get-AbrVbrCloudConnectRR {
                                                         }
                                                         $OutObj | Sort-Object -Property 'Name' | Table @TableParams
                                                     }
-                                                }
-                                                catch {
-                                                    Write-PscriboMessage -IsWarning "Network Quota $($CloudObject.Name) Section: $($_.Exception.Message)"
+                                                } catch {
+                                                    Write-PScriboMessage -IsWarning "Network Quota $($CloudObject.Name) Section: $($_.Exception.Message)"
                                                 }
                                                 try {
-                                                    $Tenants = Get-VBRCloudTenant | where-Object {$_.ReplicationResources.HardwarePlanOptions.HardwarePlanId -eq $CloudObject.Id}
+                                                    $Tenants = Get-VBRCloudTenant | Where-Object { $_.ReplicationResources.HardwarePlanOptions.HardwarePlanId -eq $CloudObject.Id }
                                                     $TenantHardwarePlan = @()
                                                     foreach ($Tenant in $Tenants) {
-                                                        $planOption = $Tenant.ReplicationResources.HardwarePlanOptions | Where-Object {$_.HardwarePlanId -eq $CloudObject.Id}
-                                                        $TenantHardwarePlan += $Tenant | Select-Object Name, @{n='CPUUsage';e={$planOption.UsedCPU}}, @{n='MemoryUsage';e={$planOption.UsedMemory}}, @{n='StorageUsage';e={$planOption.DatastoreQuota}}
+                                                        $planOption = $Tenant.ReplicationResources.HardwarePlanOptions | Where-Object { $_.HardwarePlanId -eq $CloudObject.Id }
+                                                        $TenantHardwarePlan += $Tenant | Select-Object Name, @{n = 'CPUUsage'; e = { $planOption.UsedCPU } }, @{n = 'MemoryUsage'; e = { $planOption.UsedMemory } }, @{n = 'StorageUsage'; e = { $planOption.DatastoreQuota } }
                                                     }
                                                     if ($TenantHardwarePlan) {
                                                         Section -ExcludeFromTOC -Style NOTOCHeading6 'Tenant Utilization' {
@@ -216,7 +212,7 @@ function Get-AbrVbrCloudConnectRR {
                                                                     'Name' = $TenantUtil.Name
                                                                     'CPU Usage' = $TenantUtil.CPUUsage
                                                                     'Memory Usage' = $TenantUtil.MemoryUsage
-                                                                    'Storage Usage' =  $TenantUtil.StorageUsage | ForEach-Object {"$($_.UsedSpace) GB ($($_.FriendlyName))"}
+                                                                    'Storage Usage' = $TenantUtil.StorageUsage | ForEach-Object { "$($_.UsedSpace) GB ($($_.FriendlyName))" }
                                                                 }
 
                                                                 $OutObj += [pscustomobject]$inobj
@@ -234,25 +230,21 @@ function Get-AbrVbrCloudConnectRR {
                                                             $OutObj | Sort-Object -Property 'Name' | Table @TableParams
                                                         }
                                                     }
-                                                }
-                                                catch {
-                                                    Write-PscriboMessage -IsWarning "Tenant Utilization $($CloudObject.Name) Section: $($_.Exception.Message)"
+                                                } catch {
+                                                    Write-PScriboMessage -IsWarning "Tenant Utilization $($CloudObject.Name) Section: $($_.Exception.Message)"
                                                 }
                                             }
-                                        }
-                                        catch {
-                                            Write-PscriboMessage -IsWarning "Replica Resources Configuration $($CloudObject.Name) Section: $($_.Exception.Message)"
+                                        } catch {
+                                            Write-PScriboMessage -IsWarning "Replica Resources Configuration $($CloudObject.Name) Section: $($_.Exception.Message)"
                                         }
                                     }
-                                }
-                                catch {
-                                    Write-PscriboMessage -IsWarning "Replica Resources Configuration Section: $($_.Exception.Message)"
+                                } catch {
+                                    Write-PScriboMessage -IsWarning "Replica Resources Configuration Section: $($_.Exception.Message)"
                                 }
                             }
                         }
-                    }
-                    catch {
-                        Write-PscriboMessage -IsWarning "Replica Resources Section: $($_.Exception.Message)"
+                    } catch {
+                        Write-PScriboMessage -IsWarning "Replica Resources Section: $($_.Exception.Message)"
                     }
                 }
             }

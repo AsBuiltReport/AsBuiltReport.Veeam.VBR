@@ -20,7 +20,7 @@ function Get-AbrVbrGlobalExclusion {
     )
 
     begin {
-        Write-PscriboMessage "Discovering Veeam VBR Global Exclusion settings information from $System."
+        Write-PScriboMessage "Discovering Veeam VBR Global Exclusion settings information from $System."
     }
 
     process {
@@ -29,7 +29,7 @@ function Get-AbrVbrGlobalExclusion {
             $VMExclusions = Get-VBRVMExclusion
             Section -Style Heading4 'Global Exclusions' {
                 try {
-                    Write-PscriboMessage "Discovering Veeam VBR Malware Detection Exclusions settings information from $System."
+                    Write-PScriboMessage "Discovering Veeam VBR Malware Detection Exclusions settings information from $System."
                     Section -ExcludeFromTOC -Style Heading5 'Malware Detection Exclusions' {
                         foreach ($MalwareDetectionExclusion in $MalwareDetectionExclusions) {
                             $OutObj = @()
@@ -53,10 +53,10 @@ function Get-AbrVbrGlobalExclusion {
                         $OutObj | Sort-Object -Property Name | Table @TableParams
                     }
                 } catch {
-                    Write-PscriboMessage -IsWarning "Malware Detection Exclusions Section: $($_.Exception.Message)"
+                    Write-PScriboMessage -IsWarning "Malware Detection Exclusions Section: $($_.Exception.Message)"
                 }
                 try {
-                    Write-PscriboMessage "Discovering Veeam VBR VM Exclusions settings information from $System."
+                    Write-PScriboMessage "Discovering Veeam VBR VM Exclusions settings information from $System."
                     Section -ExcludeFromTOC -Style Heading5 'VM Exclusions' {
                         foreach ($VMExclusion in $VMExclusions) {
                             $OutObj = @()
@@ -80,12 +80,11 @@ function Get-AbrVbrGlobalExclusion {
                         $OutObj | Sort-Object -Property Name | Table @TableParams
                     }
                 } catch {
-                    Write-PscriboMessage -IsWarning "VM Exclusions Section: $($_.Exception.Message)"
+                    Write-PScriboMessage -IsWarning "VM Exclusions Section: $($_.Exception.Message)"
                 }
             }
-        }
-        catch {
-            Write-PscriboMessage -IsWarning "Global Exclusions Section: $($_.Exception.Message)"
+        } catch {
+            Write-PScriboMessage -IsWarning "Global Exclusions Section: $($_.Exception.Message)"
         }
     }
     end {}

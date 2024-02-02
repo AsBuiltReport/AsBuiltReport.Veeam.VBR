@@ -6,7 +6,7 @@ function Get-AbrVbrReplReplica {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.7.2
+        Version:        0.8.5
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -21,7 +21,7 @@ function Get-AbrVbrReplReplica {
     )
 
     begin {
-        Write-PscriboMessage "Discovering Veeam VBR Replicas from $System."
+        Write-PScriboMessage "Discovering Veeam VBR Replicas from $System."
     }
 
     process {
@@ -97,21 +97,18 @@ function Get-AbrVbrReplReplica {
                                         }
                                         $OutObj | Table @TableParams
                                     }
-                                }
-                                catch {
-                                    Write-PscriboMessage -IsWarning "Replica $($Replica.JobName) Section: $($_.Exception.Message)"
+                                } catch {
+                                    Write-PScriboMessage -IsWarning "Replica $($Replica.JobName) Section: $($_.Exception.Message)"
                                 }
                             }
                         }
-                    }
-                    catch {
-                        Write-PscriboMessage -IsWarning "Replica Section: $($_.Exception.Message)"
+                    } catch {
+                        Write-PScriboMessage -IsWarning "Replica Section: $($_.Exception.Message)"
                     }
                 }
             }
-        }
-        catch {
-            Write-PscriboMessage -IsWarning "Replica Section: $($_.Exception.Message)"
+        } catch {
+            Write-PScriboMessage -IsWarning "Replica Section: $($_.Exception.Message)"
         }
     }
     end {}

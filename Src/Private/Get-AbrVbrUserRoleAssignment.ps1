@@ -21,7 +21,7 @@ function Get-AbrVbrUserRoleAssignment {
     )
 
     begin {
-        Write-PscriboMessage "Discovering Veeam VBR Roles information from $System."
+        Write-PScriboMessage "Discovering Veeam VBR Roles information from $System."
     }
 
     process {
@@ -33,7 +33,7 @@ function Get-AbrVbrUserRoleAssignment {
                 try {
                     $RoleAssignments = Get-VBRUserRoleAssignment
                     foreach ($RoleAssignment in $RoleAssignments) {
-                        Write-PscriboMessage "Discovered $($RoleAssignment.Name) Server."
+                        Write-PScriboMessage "Discovered $($RoleAssignment.Name) Server."
                         $inObj = [ordered] @{
                             'Name' = $RoleAssignment.Name
                             'Type' = $RoleAssignment.Type
@@ -41,13 +41,12 @@ function Get-AbrVbrUserRoleAssignment {
                         }
                         $OutObj += [pscustomobject]$inobj
                     }
-                }
-                catch {
-                    Write-PscriboMessage -IsWarning "Roles and Users Table: $($_.Exception.Message)"
+                } catch {
+                    Write-PScriboMessage -IsWarning "Roles and Users Table: $($_.Exception.Message)"
                 }
 
                 if ($HealthCheck.Infrastructure.Settings) {
-                    $OutObj | Where-Object { $_.'Name' -eq 'BUILTIN\Administrators'} | Set-Style -Style Warning -Property 'Name'
+                    $OutObj | Where-Object { $_.'Name' -eq 'BUILTIN\Administrators' } | Set-Style -Style Warning -Property 'Name'
                 }
 
                 $TableParams = @{
@@ -59,7 +58,7 @@ function Get-AbrVbrUserRoleAssignment {
                     $TableParams['Caption'] = "- $($TableParams.Name)"
                 }
                 $OutObj | Sort-Object -Property 'Name' | Table @TableParams
-                if ($HealthCheck.Infrastructure.BestPractice -and ($OutObj | Where-Object {$_.'Name' -eq 'BUILTIN\Administrators'})) {
+                if ($HealthCheck.Infrastructure.BestPractice -and ($OutObj | Where-Object { $_.'Name' -eq 'BUILTIN\Administrators' })) {
                     Paragraph "Health Check:" -Bold -Underline
                     BlankLine
                     Paragraph "Security Best Practice:" -Bold
@@ -84,13 +83,13 @@ function Get-AbrVbrUserRoleAssignment {
                         BlankLine
                         $OutObj = @()
                         try {
-                            try {$MFAGlobalSetting = [Veeam.Backup.Core.SBackupOptions]::get_GlobalMFA()} catch {Out-Null}
-                            try {$AutoTerminateSession = [Veeam.Backup.Core.SBackupOptions]::get_AutomaticallyTerminateSession()} catch {Out-Null}
-                            try {$AutoTerminateSessionMin = [Veeam.Backup.Core.SBackupOptions]::get_AutomaticallyTerminateSessionTimeoutMinutes()} catch {Out-Null}
-                            try {$UserActionNotification = [Veeam.Backup.Core.SBackupOptions]::get_UserActionNotification()} catch {Out-Null}
-                            try {$UserActionRetention = [Veeam.Backup.Core.SBackupOptions]::get_UserActionRetention()} catch {Out-Null}
+                            try { $MFAGlobalSetting = [Veeam.Backup.Core.SBackupOptions]::get_GlobalMFA() } catch { Out-Null }
+                            try { $AutoTerminateSession = [Veeam.Backup.Core.SBackupOptions]::get_AutomaticallyTerminateSession() } catch { Out-Null }
+                            try { $AutoTerminateSessionMin = [Veeam.Backup.Core.SBackupOptions]::get_AutomaticallyTerminateSessionTimeoutMinutes() } catch { Out-Null }
+                            try { $UserActionNotification = [Veeam.Backup.Core.SBackupOptions]::get_UserActionNotification() } catch { Out-Null }
+                            try { $UserActionRetention = [Veeam.Backup.Core.SBackupOptions]::get_UserActionRetention() } catch { Out-Null }
                             foreach ($RoleAssignment in $RoleAssignments) {
-                                Write-PscriboMessage "Discovered Roles and Users Settings."
+                                Write-PScriboMessage "Discovered Roles and Users Settings."
                                 $inObj = [ordered] @{
                                     'Is MFA globally enabled?' = ConvertTo-TextYN $MFAGlobalSetting
                                     'Is auto logoff on inactivity enabled?' = ConvertTo-TextYN $AutoTerminateSession
@@ -100,21 +99,20 @@ function Get-AbrVbrUserRoleAssignment {
                                 }
                                 $OutObj = [pscustomobject]$inobj
                             }
-                        }
-                        catch {
-                            Write-PscriboMessage -IsWarning "Roles and Users Settings Table: $($_.Exception.Message)"
+                        } catch {
+                            Write-PScriboMessage -IsWarning "Roles and Users Settings Table: $($_.Exception.Message)"
                         }
 
                         if ($HealthCheck.Infrastructure.Settings) {
-                            $OutObj | Where-Object { $_.'Is MFA globally enabled?' -like 'No'} | Set-Style -Style Warning -Property 'Is MFA globally enabled?'
+                            $OutObj | Where-Object { $_.'Is MFA globally enabled?' -like 'No' } | Set-Style -Style Warning -Property 'Is MFA globally enabled?'
                             foreach ( $OBJ in ($OutObj | Where-Object { $_.'Is MFA globally enabled?' -eq 'No' })) {
                                 $OBJ.'Is MFA globally enabled?' = "* " + $OBJ.'Is MFA globally enabled?'
                             }
-                            $OutObj | Where-Object { $_.'Is auto logoff on inactivity enabled?' -like 'No'} | Set-Style -Style Warning -Property 'Is auto logoff on inactivity enabled?'
+                            $OutObj | Where-Object { $_.'Is auto logoff on inactivity enabled?' -like 'No' } | Set-Style -Style Warning -Property 'Is auto logoff on inactivity enabled?'
                             foreach ( $OBJ in ($OutObj | Where-Object { $_.'Is auto logoff on inactivity enabled?' -eq 'No' })) {
                                 $OBJ.'Is auto logoff on inactivity enabled?' = "** " + $OBJ.'Is auto logoff on inactivity enabled?'
                             }
-                            $OutObj | Where-Object { $_.'Is Four-eye Authorization enabled?' -like 'No'} | Set-Style -Style Warning -Property 'Is Four-eye Authorization enabled?'
+                            $OutObj | Where-Object { $_.'Is Four-eye Authorization enabled?' -like 'No' } | Set-Style -Style Warning -Property 'Is Four-eye Authorization enabled?'
                             foreach ( $OBJ in ($OutObj | Where-Object { $_.'Is Four-eye Authorization enabled?' -eq 'No' })) {
                                 $OBJ.'Is Four-eye Authorization enabled?' = "*** " + $OBJ.'Is Four-eye Authorization enabled?'
                             }
@@ -129,7 +127,7 @@ function Get-AbrVbrUserRoleAssignment {
                             $TableParams['Caption'] = "- $($TableParams.Name)"
                         }
                         $OutObj | Table @TableParams
-                        if ($HealthCheck.Infrastructure.BestPractice -and ($OutObj | Where-Object { $_.'Is MFA globally enabled?' -eq '* No' -or $_.'Is auto logoff on inactivity enabled?' -eq '** No' -or $_.'Is Four-eye Authorization enabled?' -eq '*** No'})) {
+                        if ($HealthCheck.Infrastructure.BestPractice -and ($OutObj | Where-Object { $_.'Is MFA globally enabled?' -eq '* No' -or $_.'Is auto logoff on inactivity enabled?' -eq '** No' -or $_.'Is Four-eye Authorization enabled?' -eq '*** No' })) {
                             Paragraph "Health Check:" -Bold -Underline
                             BlankLine
                             Paragraph "Security Best Practice:" -Bold
@@ -153,14 +151,12 @@ function Get-AbrVbrUserRoleAssignment {
                             }
                         }
                     }
-                }
-                catch {
-                    Write-PscriboMessage -IsWarning "Roles and Users Settings Section: $($_.Exception.Message)"
+                } catch {
+                    Write-PScriboMessage -IsWarning "Roles and Users Settings Section: $($_.Exception.Message)"
                 }
             }
-        }
-        catch {
-            Write-PscriboMessage -IsWarning "Roles and Users Section: $($_.Exception.Message)"
+        } catch {
+            Write-PScriboMessage -IsWarning "Roles and Users Section: $($_.Exception.Message)"
         }
     }
     end {}

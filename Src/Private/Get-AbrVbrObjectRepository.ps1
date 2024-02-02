@@ -6,7 +6,7 @@ function Get-AbrVbrObjectRepository {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.4
+        Version:        0.8.5
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -21,7 +21,7 @@ function Get-AbrVbrObjectRepository {
     )
 
     begin {
-        Write-PscriboMessage "Discovering Veeam V&R Object Storage Repository information from $System."
+        Write-PScriboMessage "Discovering Veeam V&R Object Storage Repository information from $System."
     }
 
     process {
@@ -35,41 +35,39 @@ function Get-AbrVbrObjectRepository {
                     foreach ($ObjectRepo in $ObjectRepos) {
                         if ($Null -ne $ObjectRepo.ConnectionType) {
                             try {
-                                Write-PscriboMessage "Discovered $($ObjectRepo.Name) Repository."
+                                Write-PScriboMessage "Discovered $($ObjectRepo.Name) Repository."
                                 $inObj = [ordered] @{
                                     'Name' = $ObjectRepo.Name
                                     'Type' = $ObjectRepo.Type
                                     'Connection Type' = $ObjectRepo.ConnectionType
                                     'Gateway Server' = Switch ($ObjectRepo.ConnectionType) {
-                                        'Direct' {'Direct Mode'}
-                                        'Gateway' {$ObjectRepo.GatewayServer.Name}
-                                        default {'Unknown'}
+                                        'Direct' { 'Direct Mode' }
+                                        'Gateway' { $ObjectRepo.GatewayServer.Name }
+                                        default { 'Unknown' }
                                     }
                                 }
 
                                 $OutObj += [pscustomobject]$inobj
-                            }
-                            catch {
-                                Write-PscriboMessage -IsWarning "Preferred Networks $($ObjectRepo.Name) Section: $($_.Exception.Message)"
+                            } catch {
+                                Write-PScriboMessage -IsWarning "Preferred Networks $($ObjectRepo.Name) Section: $($_.Exception.Message)"
                             }
                         } else {
                             try {
-                                Write-PscriboMessage "Discovered $($ObjectRepo.Name) Repository."
+                                Write-PScriboMessage "Discovered $($ObjectRepo.Name) Repository."
                                 $inObj = [ordered] @{
                                     'Name' = $ObjectRepo.Name
                                     'Type' = $ObjectRepo.Type
                                     'Use Gateway Server' = ConvertTo-TextYN $ObjectRepo.UseGatewayServer
                                     'Gateway Server' = Switch ($ObjectRepo.GatewayServer.Name) {
-                                        "" {"--"; break}
-                                        $Null {"--"; break}
-                                        default {$ObjectRepo.GatewayServer.Name.split(".")[0]}
+                                        "" { "--"; break }
+                                        $Null { "--"; break }
+                                        default { $ObjectRepo.GatewayServer.Name.split(".")[0] }
                                     }
                                 }
 
                                 $OutObj += [pscustomobject]$inobj
-                            }
-                            catch {
-                                Write-PscriboMessage -IsWarning "Preferred Networks $($ObjectRepo.Name) Section: $($_.Exception.Message)"
+                            } catch {
+                                Write-PScriboMessage -IsWarning "Preferred Networks $($ObjectRepo.Name) Section: $($_.Exception.Message)"
                             }
                         }
                     }
@@ -77,7 +75,7 @@ function Get-AbrVbrObjectRepository {
 
 
                     if ($HealthCheck.Infrastructure.BR) {
-                        $OutObj | Where-Object { $_.'Status' -eq 'Unavailable'} | Set-Style -Style Warning -Property 'Status'
+                        $OutObj | Where-Object { $_.'Status' -eq 'Unavailable' } | Set-Style -Style Warning -Property 'Status'
                     }
 
                     $TableParams = @{
@@ -102,14 +100,14 @@ function Get-AbrVbrObjectRepository {
                                         try {
                                             Section -Style NOTOCHeading4 -ExcludeFromTOC "$($ObjectRepo.Name)" {
                                                 $OutObj = @()
-                                                Write-PscriboMessage "Discovered $($ObjectRepo.Name) Object Backup Repository."
+                                                Write-PScriboMessage "Discovered $($ObjectRepo.Name) Object Backup Repository."
                                                 $inObj = [ordered] @{
                                                     'Name' = ($ObjectRepo).Name
                                                     'Service Point' = ($ObjectRepo).ServicePoint
-                                                    'Type' =  ($ObjectRepo).Type
-                                                    'Amazon S3 Folder' =  ($ObjectRepo).AmazonS3Folder
+                                                    'Type' = ($ObjectRepo).Type
+                                                    'Amazon S3 Folder' = ($ObjectRepo).AmazonS3Folder
                                                     'Immutability Period' = $ObjectRepo.ImmutabilityPeriod
-                                                    'Immutability Enabled'= ConvertTo-TextYN $ObjectRepo.BackupImmutabilityEnabled
+                                                    'Immutability Enabled' = ConvertTo-TextYN $ObjectRepo.BackupImmutabilityEnabled
                                                     'Size Limit Enabled' = ConvertTo-TextYN ($ObjectRepo).SizeLimitEnabled
                                                     'Size Limit' = ($ObjectRepo).SizeLimit
 
@@ -160,16 +158,14 @@ function Get-AbrVbrObjectRepository {
                                                     }
                                                 }
                                             }
-                                        }
-                                        catch {
-                                            Write-PscriboMessage -IsWarning "Object Storage Repository Configuration $($ObjectRepo.Name) Section: $($_.Exception.Message)"
+                                        } catch {
+                                            Write-PScriboMessage -IsWarning "Object Storage Repository Configuration $($ObjectRepo.Name) Section: $($_.Exception.Message)"
                                         }
                                     }
                                 }
                             }
-                        }
-                        catch {
-                            Write-PscriboMessage -IsWarning "Object Storage Repository Configuration Section: $($_.Exception.Message)"
+                        } catch {
+                            Write-PScriboMessage -IsWarning "Object Storage Repository Configuration Section: $($_.Exception.Message)"
                         }
                     }
                 }
@@ -186,12 +182,12 @@ function Get-AbrVbrObjectRepository {
                                 try {
                                     Section -Style NOTOCHeading4 -ExcludeFromTOC "$($ObjectRepoArchive.Name)" {
                                         $OutObj = @()
-                                        Write-PscriboMessage "Discovered $($ObjectRepoArchive.Name) Backup Repository."
+                                        Write-PScriboMessage "Discovered $($ObjectRepoArchive.Name) Backup Repository."
                                         $inObj = [ordered] @{
                                             'Gateway Server' = Switch ($ObjectRepoArchive.GatewayServer.Name) {
-                                                "" {"Auto Selected"; break}
-                                                $Null {"Auto Selected"; break}
-                                                default {$ObjectRepoArchive.GatewayServer.Name.split(".")[0]}
+                                                "" { "Auto Selected"; break }
+                                                $Null { "Auto Selected"; break }
+                                                default { $ObjectRepoArchive.GatewayServer.Name.split(".")[0] }
                                             }
                                             'Gateway Server Enabled' = ConvertTo-TextYN $ObjectRepoArchive.UseGatewayServer
                                             'Immutability Enabled' = ConvertTo-TextYN $ObjectRepoArchive.BackupImmutabilityEnabled
@@ -201,7 +197,7 @@ function Get-AbrVbrObjectRepository {
                                             $inObj.add('Deep Archive', (ConvertTo-TextYN $ObjectRepoArchive.UseDeepArchive))
                                             $inObj.add('Proxy Instance Type', $ObjectRepoArchive.AmazonProxySpec.InstanceType)
                                             $inObj.add('Proxy Instance vCPU', $ObjectRepoArchive.AmazonProxySpec.InstanceType.vCPUs)
-                                            $inObj.add('Proxy Instance Memory', ([Math]::Round($ObjectRepoArchive.AmazonProxySpec.InstanceType.Memory*1MB/1GB)))
+                                            $inObj.add('Proxy Instance Memory', ([Math]::Round($ObjectRepoArchive.AmazonProxySpec.InstanceType.Memory * 1MB / 1GB)))
                                             $inObj.add('Proxy Subnet', $ObjectRepoArchive.AmazonProxySpec.Subnet)
                                             $inObj.add('Proxy Security Group', $ObjectRepoArchive.AmazonProxySpec.SecurityGroup)
                                             $inObj.add('Proxy Availability Zone', $ObjectRepoArchive.AmazonProxySpec.Subnet.AvailabilityZone)
@@ -215,7 +211,7 @@ function Get-AbrVbrObjectRepository {
                                             $inObj.add('Proxy Network', $ObjectRepoArchive.AzureProxySpec.Network)
                                             $inObj.add('Proxy VM Size', $ObjectRepoArchive.AzureProxySpec.VMSize)
                                             $inObj.add('Proxy VM vCPU', $ObjectRepoArchive.AzureProxySpec.VMSize.Cores)
-                                            $inObj.add('Proxy VM Memory', ([Math]::Round($ObjectRepoArchive.AzureProxySpec.VMSize.Memory*1MB/1GB)))
+                                            $inObj.add('Proxy VM Memory', ([Math]::Round($ObjectRepoArchive.AzureProxySpec.VMSize.Memory * 1MB / 1GB)))
                                             $inObj.add('Proxy VM Max Disks', $ObjectRepoArchive.AzureProxySpec.VMSize.MaxDisks)
                                             $inObj.add('Proxy VM Location', $ObjectRepoArchive.AzureProxySpec.VMSize.Location)
                                         }
@@ -234,30 +230,27 @@ function Get-AbrVbrObjectRepository {
                                             $TableParams['Caption'] = "- $($TableParams.Name)"
                                         }
                                         $OutObj | Table @TableParams
-                                        if (($HealthCheck.Infrastructure.BestPractice) -and ($OutObj | Where-Object { $_.'Immutability Enabled' -eq 'No'})) {
+                                        if (($HealthCheck.Infrastructure.BestPractice) -and ($OutObj | Where-Object { $_.'Immutability Enabled' -eq 'No' })) {
                                             Paragraph "Health Check:" -Bold -Underline
                                             BlankLine
                                             Paragraph {
                                                 Text "Best Practice:" -Bold
                                                 Text "Veeam recommend to implement Immutability where it is supported. It is done for increased security: immutability protects your data from loss as a result of attacks, malware activity or any other injurious actions."
-                                        }
+                                            }
                                         }
                                     }
-                                }
-                                catch {
-                                    Write-PscriboMessage -IsWarning "Archive Object Storage Repository $($ObjectRepoArchive.Name) Section: $($_.Exception.Message)"
+                                } catch {
+                                    Write-PScriboMessage -IsWarning "Archive Object Storage Repository $($ObjectRepoArchive.Name) Section: $($_.Exception.Message)"
                                 }
                             }
                         }
                     }
-                }
-                catch {
-                    Write-PscriboMessage -IsWarning "Archive Object Storage Repository Section: $($_.Exception.Message)"
+                } catch {
+                    Write-PScriboMessage -IsWarning "Archive Object Storage Repository Section: $($_.Exception.Message)"
                 }
             }
-        }
-        catch {
-            Write-PscriboMessage -IsWarning "Object Storage Repository Section: $($_.Exception.Message)"
+        } catch {
+            Write-PScriboMessage -IsWarning "Object Storage Repository Section: $($_.Exception.Message)"
         }
     }
     end {}

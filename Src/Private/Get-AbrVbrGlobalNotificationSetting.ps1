@@ -21,7 +21,7 @@ function Get-AbrVbrGlobalNotificationSetting {
     )
 
     begin {
-        Write-PscriboMessage "Discovering Veeam VBR Global Notification option information from $System."
+        Write-PScriboMessage "Discovering Veeam VBR Global Notification option information from $System."
     }
 
     process {
@@ -33,15 +33,15 @@ function Get-AbrVbrGlobalNotificationSetting {
                         $OutObj = @()
                         $inObj = [ordered] @{
                             'Warn me when free disk space is below' = Switch ($GlobalNotifications.StorageSpaceThresholdEnabled) {
-                                $true {"$($GlobalNotifications.StorageSpaceThreshold)%"}
-                                $false {'Disabled'}
-                                default {'Unknown'}
+                                $true { "$($GlobalNotifications.StorageSpaceThreshold)%" }
+                                $false { 'Disabled' }
+                                default { 'Unknown' }
                             }
                         }
                         $OutObj += [pscustomobject]$inobj
 
                         if ($HealthCheck.Infrastructure.Settings) {
-                            $OutObj | Where-Object { $_.'Warn me when free disk space is below' -eq "Disabled"} | Set-Style -Style Warning -Property 'Warn me when free disk space is below'
+                            $OutObj | Where-Object { $_.'Warn me when free disk space is below' -eq "Disabled" } | Set-Style -Style Warning -Property 'Warn me when free disk space is below'
                         }
 
                         $TableParams = @{
@@ -66,21 +66,21 @@ function Get-AbrVbrGlobalNotificationSetting {
                         $OutObj = @()
                         $inObj = [ordered] @{
                             'Warn me when free disk space is below' = Switch ($GlobalNotifications.DatastoreSpaceThresholdEnabled) {
-                                $true {"$($GlobalNotifications.DatastoreSpaceThreshold)%"}
-                                $false {'Disabled'}
-                                default {'Unknown'}
+                                $true { "$($GlobalNotifications.DatastoreSpaceThreshold)%" }
+                                $false { 'Disabled' }
+                                default { 'Unknown' }
                             }
                             'Skip VM processig when free disk space is below' = Switch ($GlobalNotifications.SkipVMSpaceThresholdEnabled) {
-                                $true {"$($GlobalNotifications.SkipVMSpaceThreshold)%"}
-                                $false {'Disabled'}
-                                default {'Unknown'}
+                                $true { "$($GlobalNotifications.SkipVMSpaceThreshold)%" }
+                                $false { 'Disabled' }
+                                default { 'Unknown' }
                             }
                         }
                         $OutObj += [pscustomobject]$inobj
 
                         if ($HealthCheck.Infrastructure.Settings) {
-                            $OutObj | Where-Object { $_.'Is (Warn me when free disk space is below) Enabled' -eq 'No'} | Set-Style -Style Warning -Property 'Is (Warn me when free disk space is below) Enabled'
-                            $OutObj | Where-Object { $_.'Is (Skip VM processig when free disk space is below) Enabled' -eq 'No'} | Set-Style -Style Warning -Property 'Is (Skip VM processig when free disk space is below) Enabled'
+                            $OutObj | Where-Object { $_.'Is (Warn me when free disk space is below) Enabled' -eq 'No' } | Set-Style -Style Warning -Property 'Is (Warn me when free disk space is below) Enabled'
+                            $OutObj | Where-Object { $_.'Is (Skip VM processig when free disk space is below) Enabled' -eq 'No' } | Set-Style -Style Warning -Property 'Is (Skip VM processig when free disk space is below) Enabled'
                         }
 
                         $TableParams = @{
@@ -109,7 +109,7 @@ function Get-AbrVbrGlobalNotificationSetting {
                         $OutObj += [pscustomobject]$inobj
 
                         if ($HealthCheck.Infrastructure.Settings) {
-                            $OutObj | Where-Object { $_.'Is (Enable notification about support contract expiration) Enabled' -eq 'No'} | Set-Style -Style Warning -Property 'Enabled'
+                            $OutObj | Where-Object { $_.'Is (Enable notification about support contract expiration) Enabled' -eq 'No' } | Set-Style -Style Warning -Property 'Enabled'
                         }
 
                         $TableParams = @{
@@ -157,9 +157,8 @@ function Get-AbrVbrGlobalNotificationSetting {
                     }
                 }
             }
-        }
-        catch {
-            Write-PscriboMessage -IsWarning "Global Notifications Section: $($_.Exception.Message)"
+        } catch {
+            Write-PScriboMessage -IsWarning "Global Notifications Section: $($_.Exception.Message)"
         }
     }
     end {}

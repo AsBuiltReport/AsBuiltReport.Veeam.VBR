@@ -6,7 +6,7 @@ function Get-AbrVbrPhysicalInfrastructure {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.4
+        Version:        0.8.5
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -21,12 +21,12 @@ function Get-AbrVbrPhysicalInfrastructure {
     )
 
     begin {
-        Write-PscriboMessage "Discovering Veeam VBR Physical Infrastructure inventory from $System."
+        Write-PScriboMessage "Discovering Veeam VBR Physical Infrastructure inventory from $System."
     }
 
     process {
         try {
-            if (($VbrLicenses | Where-Object {$_.Status -ne "Expired"}) -and $InventObjs) {
+            if (($VbrLicenses | Where-Object { $_.Status -ne "Expired" }) -and $InventObjs) {
                 Section -Style Heading3 'Physical Infrastructure' {
                     Paragraph "The following sections detail configuration information about managed physical infrastructure."
                     BlankLine
@@ -35,7 +35,7 @@ function Get-AbrVbrPhysicalInfrastructure {
                             $OutObj = @()
                             foreach ($InventObj in $InventObjs) {
                                 try {
-                                    Write-PscriboMessage "Discovered $($InventObj.Name) Protection Group."
+                                    Write-PScriboMessage "Discovered $($InventObj.Name) Protection Group."
                                     $inObj = [ordered] @{
                                         'Name' = $InventObj.Name
                                         'Type' = $InventObj.Type
@@ -45,9 +45,8 @@ function Get-AbrVbrPhysicalInfrastructure {
                                     }
 
                                     $OutObj += [pscustomobject]$inobj
-                                }
-                                catch {
-                                    Write-PscriboMessage -IsWarning "Protection Groups Summary $($InventObj.Name) Section: $($_.Exception.Message)"
+                                } catch {
+                                    Write-PScriboMessage -IsWarning "Protection Groups Summary $($InventObj.Name) Section: $($_.Exception.Message)"
                                 }
                             }
 
@@ -73,10 +72,10 @@ function Get-AbrVbrPhysicalInfrastructure {
                                                 if ($InventObj.Type -eq 'Custom' -and $InventObj.Container.Type -eq 'ActiveDirectory') {
                                                     try {
                                                         Section -Style NOTOCHeading6 -ExcludeFromTOC "$($InventObj.Name)" {
-                                                            Write-PscriboMessage "Discovered $($InventObj.Name) Protection Group Setting."
+                                                            Write-PScriboMessage "Discovered $($InventObj.Name) Protection Group Setting."
                                                             $inObj = [ordered] @{
                                                                 'Domain' = ($InventObj).Container.Domain
-                                                                'Backup Objects' =  $InventObj.Container.Entity | ForEach-Object {"Name: $(($_).Name)`r`nType: $(($_).Type)`r`nDistinguished Name: $(($_).DistinguishedName)`r`n"}
+                                                                'Backup Objects' = $InventObj.Container.Entity | ForEach-Object { "Name: $(($_).Name)`r`nType: $(($_).Type)`r`nDistinguished Name: $(($_).DistinguishedName)`r`n" }
                                                                 'Exclude VM' = ConvertTo-TextYN ($InventObj).Container.ExcludeVMs
                                                                 'Exclude Computers' = ConvertTo-TextYN ($InventObj).Container.ExcludeComputers
                                                                 'Exclude Offline Computers' = ConvertTo-TextYN ($InventObj).Container.ExcludeOfflineComputers
@@ -101,15 +100,13 @@ function Get-AbrVbrPhysicalInfrastructure {
                                                             }
                                                             $OutObj | Table @TableParams
                                                         }
+                                                    } catch {
+                                                        Write-PScriboMessage -IsWarning "Protection Groups Configuration $($InventObj.Name) Section: $($_.Exception.Message)"
                                                     }
-                                                    catch {
-                                                        Write-PscriboMessage -IsWarning "Protection Groups Configuration $($InventObj.Name) Section: $($_.Exception.Message)"
-                                                    }
-                                                }
-                                                elseif ($InventObj.Type -eq 'ManuallyAdded' -and $InventObj.Container.Type -eq 'IndividualComputers') {
+                                                } elseif ($InventObj.Type -eq 'ManuallyAdded' -and $InventObj.Container.Type -eq 'IndividualComputers') {
                                                     try {
                                                         Section -Style NOTOCHeading6 -ExcludeFromTOC "$($InventObj.Name)" {
-                                                            Write-PscriboMessage "Discovered $($InventObj.Name) Protection Group Setting."
+                                                            Write-PScriboMessage "Discovered $($InventObj.Name) Protection Group Setting."
                                                             $inObj = [ordered] @{
                                                                 'Deployment Options' = "Install Agent: $(ConvertTo-TextYN $InventObj.DeploymentOptions.InstallAgent)`r`nUpgrade Automatically: $(ConvertTo-TextYN $InventObj.DeploymentOptions.UpgradeAutomatically)`r`nInstall Driver: $(ConvertTo-TextYN $InventObj.DeploymentOptions.InstallDriver)`r`nReboot If Required: $(ConvertTo-TextYN $InventObj.DeploymentOptions.RebootIfRequired)"
                                                             }
@@ -130,32 +127,27 @@ function Get-AbrVbrPhysicalInfrastructure {
                                                             }
                                                             $OutObj | Table @TableParams
                                                         }
-                                                    }
-                                                    catch {
-                                                        Write-PscriboMessage -IsWarning "Protection Groups Configuration $($InventObj.Name) Section: $($_.Exception.Message)"
+                                                    } catch {
+                                                        Write-PScriboMessage -IsWarning "Protection Groups Configuration $($InventObj.Name) Section: $($_.Exception.Message)"
                                                     }
                                                 }
-                                            }
-                                            catch {
-                                                Write-PscriboMessage -IsWarning "Protection Groups Configuration Section: $($_.Exception.Message)"
+                                            } catch {
+                                                Write-PScriboMessage -IsWarning "Protection Groups Configuration Section: $($_.Exception.Message)"
                                             }
                                         }
                                     }
-                                }
-                                catch {
-                                    Write-PscriboMessage -IsWarning "Protection Groups Configuration Section: $($_.Exception.Message)"
+                                } catch {
+                                    Write-PScriboMessage -IsWarning "Protection Groups Configuration Section: $($_.Exception.Message)"
                                 }
                             }
                         }
-                    }
-                    catch {
-                        Write-PscriboMessage -IsWarning "Protection Groups Summary Section: $($_.Exception.Message)"
+                    } catch {
+                        Write-PScriboMessage -IsWarning "Protection Groups Summary Section: $($_.Exception.Message)"
                     }
                 }
             }
-        }
-        catch {
-            Write-PscriboMessage -IsWarning "Physical Infrastructure Section: $($_.Exception.Message)"
+        } catch {
+            Write-PScriboMessage -IsWarning "Physical Infrastructure Section: $($_.Exception.Message)"
         }
     }
     end {}

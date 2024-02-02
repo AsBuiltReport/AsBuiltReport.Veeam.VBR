@@ -6,7 +6,7 @@ function Get-AbrVbrNDMPInfo {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.4
+        Version:        0.8.5
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -21,12 +21,12 @@ function Get-AbrVbrNDMPInfo {
     )
 
     begin {
-        Write-PscriboMessage "Discovering Veeam VBR NDMP Servers information from $System."
+        Write-PScriboMessage "Discovering Veeam VBR NDMP Servers information from $System."
     }
 
     process {
         try {
-            if ($VbrLicenses | Where-Object {$_.Edition -in @("EnterprisePlus","Enterprise") -and $_.Status -ne "Expired"}) {
+            if ($VbrLicenses | Where-Object { $_.Edition -in @("EnterprisePlus", "Enterprise") -and $_.Status -ne "Expired" }) {
                 $NDMPObjs = Get-VBRNDMPServer
                 if ($NDMPObjs) {
                     Section -Style Heading3 'NDMP Servers' {
@@ -34,21 +34,20 @@ function Get-AbrVbrNDMPInfo {
                         try {
                             foreach ($NDMPObj in $NDMPObjs) {
                                 try {
-                                    Write-PscriboMessage "Discovered $($NDMPObj.Name) NDMP Server."
+                                    Write-PScriboMessage "Discovered $($NDMPObj.Name) NDMP Server."
                                     $inObj = [ordered] @{
                                         'Name' = $NDMPObj.Name
                                         'Credentials' = $NDMPObj.Credentials
                                         'Port' = $NDMPObj.Port
                                         'Gateway' = switch ($NDMPObj.SelectedGatewayId) {
-                                            "00000000-0000-0000-0000-000000000000" {"Automatic"}
-                                            Default {(Get-VBRServer | Where-Object {$_.Id -eq $NDMPObj.SelectedGatewayId}).Name}
+                                            "00000000-0000-0000-0000-000000000000" { "Automatic" }
+                                            Default { (Get-VBRServer | Where-Object { $_.Id -eq $NDMPObj.SelectedGatewayId }).Name }
                                         }
                                     }
 
                                     $OutObj += [pscustomobject]$inobj
-                                }
-                                catch {
-                                    Write-PscriboMessage -IsWarning "NDMP Servers $($NDMPObj.Name) Section: $($_.Exception.Message)"
+                                } catch {
+                                    Write-PScriboMessage -IsWarning "NDMP Servers $($NDMPObj.Name) Section: $($_.Exception.Message)"
                                 }
                             }
 
@@ -62,16 +61,14 @@ function Get-AbrVbrNDMPInfo {
                                 $TableParams['Caption'] = "- $($TableParams.Name)"
                             }
                             $OutObj | Table @TableParams
-                        }
-                        catch {
-                            Write-PscriboMessage -IsWarning "NDMP Servers Section: $($_.Exception.Message)"
+                        } catch {
+                            Write-PScriboMessage -IsWarning "NDMP Servers Section: $($_.Exception.Message)"
                         }
                     }
                 }
             }
-        }
-        catch {
-            Write-PscriboMessage -IsWarning "NDMP Servers Section: $($_.Exception.Message)"
+        } catch {
+            Write-PScriboMessage -IsWarning "NDMP Servers Section: $($_.Exception.Message)"
         }
     }
     end {}

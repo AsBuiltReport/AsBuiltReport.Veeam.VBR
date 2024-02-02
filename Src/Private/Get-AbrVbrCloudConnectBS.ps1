@@ -5,7 +5,7 @@ function Get-AbrVbrCloudConnectBS {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.4
+        Version:        0.8.5
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -20,12 +20,12 @@ function Get-AbrVbrCloudConnectBS {
     )
 
     begin {
-        Write-PscriboMessage "Discovering Veeam VBR Cloud Backup Storage information from $System."
+        Write-PScriboMessage "Discovering Veeam VBR Cloud Backup Storage information from $System."
     }
 
     process {
         try {
-            if ($VbrLicenses | Where-Object {$_.CloudConnect -ne "Disabled"}) {
+            if ($VbrLicenses | Where-Object { $_.CloudConnect -ne "Disabled" }) {
                 if (((Get-VBRCloudTenant).Resources.Repository).count -gt 0) {
                     $CloudObjects = (Get-VBRCloudTenant).Resources
                     Section -Style Heading3 'Backup Storage' {
@@ -34,31 +34,31 @@ function Get-AbrVbrCloudConnectBS {
                         foreach ($CloudObject in ($CloudObjects.Repository | Sort-Object -Property Name -Unique)) {
                             try {
                                 $PercentFree = 0
-                                if (@($($CloudObject.GetContainer().CachedTotalSpace.InGigabytes),$($CloudObject.GetContainer().CachedFreeSpace.InGigabytes)) -ne 0) {
-                                    $UsedSpace = ($($CloudObject.GetContainer().CachedTotalSpace.InGigabytes-$($CloudObject.GetContainer().CachedFreeSpace.InGigabytes)))
+                                if (@($($CloudObject.GetContainer().CachedTotalSpace.InGigabytes), $($CloudObject.GetContainer().CachedFreeSpace.InGigabytes)) -ne 0) {
+                                    $UsedSpace = ($($CloudObject.GetContainer().CachedTotalSpace.InGigabytes - $($CloudObject.GetContainer().CachedFreeSpace.InGigabytes)))
                                     if ($UsedSpace -ne 0) {
-                                        $PercentFree = $([Math]::Round($UsedSpace/$($CloudObject.GetContainer().CachedTotalSpace.InGigabytes) * 100))
+                                        $PercentFree = $([Math]::Round($UsedSpace / $($CloudObject.GetContainer().CachedTotalSpace.InGigabytes) * 100))
                                     }
                                 }
                                 Section -Style Heading4 $CloudObject.Name {
                                     $OutObj = @()
                                     try {
-                                        Write-PscriboMessage "Discovered $($CloudObject.Name) Cloud Backup Storage information."
+                                        Write-PScriboMessage "Discovered $($CloudObject.Name) Cloud Backup Storage information."
 
                                         $inObj = [ordered] @{
                                             'Type' = $CloudObject.TypeDisplay
                                             'Path' = Switch ([string]::IsNullOrEmpty($CloudObject.FriendlyPath)) {
-                                                $true {'--'}
-                                                $false {$CloudObject.FriendlyPath}
-                                                default {'Unknown'}
+                                                $true { '--' }
+                                                $false { $CloudObject.FriendlyPath }
+                                                default { 'Unknown' }
                                             }
                                             'Total Space' = "$($CloudObject.GetContainer().CachedTotalSpace.InGigabytes) GB"
                                             'Free Space' = "$($CloudObject.GetContainer().CachedFreeSpace.InGigabytes) GB"
                                             'Used Space %' = $PercentFree
                                             'Status' = Switch ($CloudObject.IsUnavailable) {
-                                                'False' {'Available'}
-                                                'True' {'Unavailable'}
-                                                default {$CloudObject.IsUnavailable}
+                                                'False' { 'Available' }
+                                                'True' { 'Unavailable' }
+                                                default { $CloudObject.IsUnavailable }
                                             }
                                             'Description' = $CloudObject.Description
                                         }
@@ -80,22 +80,22 @@ function Get-AbrVbrCloudConnectBS {
                                             Section -ExcludeFromTOC -Style NOTOCHeading5 'Tenant Utilization' {
                                                 $OutObj = @()
                                                 try {
-                                                    foreach ($Tenant in ($CloutTenant | Where-Object {$_.Resources.Repository.Name -eq $CloudObject.Name})) {
-                                                        Write-PscriboMessage "Discovered $($CloudObject.Name) Cloud Tenant utilization."
-                                                        foreach ($Storage in ($Tenant.Resources | Where-Object {$_.Repository.Name -eq $CloudObject.Name})) {
+                                                    foreach ($Tenant in ($CloutTenant | Where-Object { $_.Resources.Repository.Name -eq $CloudObject.Name })) {
+                                                        Write-PScriboMessage "Discovered $($CloudObject.Name) Cloud Tenant utilization."
+                                                        foreach ($Storage in ($Tenant.Resources | Where-Object { $_.Repository.Name -eq $CloudObject.Name })) {
                                                             $inObj = [ordered] @{
                                                                 'Name' = $Tenant.Name
                                                                 'Quota' = "$([math]::Round($Storage.RepositoryQuota / 1Kb, 2)) GB"
                                                                 'Used Space' = Switch ([string]::IsNullOrEmpty($Storage.UsedSpace)) {
-                                                                    $true {'--'}
-                                                                    $false {"$(Convert-Size -From MB -To GB -Value $Storage.UsedSpace) GB"}
-                                                                    default {'Unknown'}
+                                                                    $true { '--' }
+                                                                    $false { "$(Convert-Size -From MB -To GB -Value $Storage.UsedSpace) GB" }
+                                                                    default { 'Unknown' }
                                                                 }
                                                                 'Used Space %' = $Storage.UsedSpacePercentage
                                                                 'Path' = Switch ([string]::IsNullOrEmpty($Storage.RepositoryQuotaPath)) {
-                                                                    $true {'--'}
-                                                                    $false {$Storage.RepositoryQuotaPath}
-                                                                    default {'Unknown'}
+                                                                    $true { '--' }
+                                                                    $false { $Storage.RepositoryQuotaPath }
+                                                                    default { 'Unknown' }
                                                                 }
                                                             }
 
@@ -104,7 +104,7 @@ function Get-AbrVbrCloudConnectBS {
                                                     }
 
                                                     if ($HealthCheck.CloudConnect.BackupStorage) {
-                                                        $OutObj | Where-Object { $_.'Used Space %' -gt 85} | Set-Style -Style Warning -Property 'Used Space %'
+                                                        $OutObj | Where-Object { $_.'Used Space %' -gt 85 } | Set-Style -Style Warning -Property 'Used Space %'
                                                     }
 
                                                     $TableParams = @{
@@ -117,31 +117,26 @@ function Get-AbrVbrCloudConnectBS {
                                                         $TableParams['Caption'] = "- $($TableParams.Name)"
                                                     }
                                                     $OutObj | Sort-Object -Property 'Name' | Table @TableParams
-                                                }
-                                                catch {
-                                                    Write-PscriboMessage -IsWarning "Tenant Utilization - $($CloudObject.Name) Section: $($_.Exception.Message)"
+                                                } catch {
+                                                    Write-PScriboMessage -IsWarning "Tenant Utilization - $($CloudObject.Name) Section: $($_.Exception.Message)"
                                                 }
                                             }
+                                        } catch {
+                                            Write-PScriboMessage -IsWarning "Tenant Utilization Section: $($_.Exception.Message)"
                                         }
-                                        catch {
-                                            Write-PscriboMessage -IsWarning "Tenant Utilization Section: $($_.Exception.Message)"
-                                        }
-                                    }
-                                    catch {
-                                        Write-PscriboMessage -IsWarning "Tenant Utilization Section: $($_.Exception.Message)"
+                                    } catch {
+                                        Write-PScriboMessage -IsWarning "Tenant Utilization Section: $($_.Exception.Message)"
                                     }
                                 }
-                            }
-                            catch {
-                                Write-PscriboMessage -IsWarning "$($CloudObject.Name) Cloud Backup Storage Section: $($_.Exception.Message)"
+                            } catch {
+                                Write-PScriboMessage -IsWarning "$($CloudObject.Name) Cloud Backup Storage Section: $($_.Exception.Message)"
                             }
                         }
                     }
                 }
             }
-        }
-        catch {
-            Write-PscriboMessage -IsWarning "Cloud Backup Storage Section: $($_.Exception.Message)"
+        } catch {
+            Write-PScriboMessage -IsWarning "Cloud Backup Storage Section: $($_.Exception.Message)"
         }
     }
     end {}

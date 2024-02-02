@@ -6,7 +6,7 @@ function Get-AbrVbrReplInfraSummary {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.4
+        Version:        0.8.5
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -21,7 +21,7 @@ function Get-AbrVbrReplInfraSummary {
     )
 
     begin {
-        Write-PscriboMessage "Discovering Veeam VBR Replication Summary from $System."
+        Write-PScriboMessage "Discovering Veeam VBR Replication Summary from $System."
     }
 
     process {
@@ -45,11 +45,11 @@ function Get-AbrVbrReplInfraSummary {
             }
             if ($Options.EnableCharts) {
                 try {
-                    $sampleData = $inObj.GetEnumerator() | Select-Object @{ Name = 'Category';  Expression = {$_.key}},@{ Name = 'Value';  Expression = {$_.value}} | Sort-Object -Property 'Category'
+                    $sampleData = $inObj.GetEnumerator() | Select-Object @{ Name = 'Category'; Expression = { $_.key } }, @{ Name = 'Value'; Expression = { $_.value } } | Sort-Object -Property 'Category'
 
                     $chartFileItem = Get-PieChart -SampleData $sampleData -ChartName 'ReplicationInventory' -XField 'Category' -YField 'Value' -ChartLegendName 'Infrastructure'
                 } catch {
-                    Write-PscriboMessage -IsWarning "Replication Inventory chart section: $($_.Exception.Message)"
+                    Write-PScriboMessage -IsWarning "Replication Inventory chart section: $($_.Exception.Message)"
                 }
             }
 
@@ -62,9 +62,8 @@ function Get-AbrVbrReplInfraSummary {
                     $OutObj | Table @TableParams
                 }
             }
-        }
-        catch {
-            Write-PscriboMessage -IsWarning "Replication Summary Section: $($_.Exception.Message)"
+        } catch {
+            Write-PScriboMessage -IsWarning "Replication Summary Section: $($_.Exception.Message)"
         }
     }
     end {}

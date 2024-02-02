@@ -6,7 +6,7 @@ function Get-AbrVbrScaleOutRepository {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.4
+        Version:        0.8.5
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -21,7 +21,7 @@ function Get-AbrVbrScaleOutRepository {
     )
 
     begin {
-        Write-PscriboMessage "Discovering Veeam V&R ScaleOut Backup Repository information from $System."
+        Write-PScriboMessage "Discovering Veeam V&R ScaleOut Backup Repository information from $System."
     }
 
     process {
@@ -34,24 +34,23 @@ function Get-AbrVbrScaleOutRepository {
                     $OutObj = @()
                     try {
                         foreach ($BackupRepo in $BackupRepos) {
-                            Write-PscriboMessage "Discovered $($BackupRepo.Name) Repository."
+                            Write-PScriboMessage "Discovered $($BackupRepo.Name) Repository."
                             $inObj = [ordered] @{
                                 'Name' = $BackupRepo.Name
                                 'Performance Tier' = $BackupRepo.Extent.Name
                                 'Capacity Tier' = Switch ($BackupRepo.CapacityExtent.Repository.Name) {
-                                    $null {'Not configured'}
-                                    default {$BackupRepo.CapacityExtent.Repository.Name}
+                                    $null { 'Not configured' }
+                                    default { $BackupRepo.CapacityExtent.Repository.Name }
                                 }
                                 'Archive Tier' = Switch ($BackupRepo.ArchiveExtent.Repository.Name) {
-                                    $null {'Not configured'}
-                                    default {$BackupRepo.ArchiveExtent.Repository.Name}
+                                    $null { 'Not configured' }
+                                    default { $BackupRepo.ArchiveExtent.Repository.Name }
                                 }
                             }
                             $OutObj += [pscustomobject]$inobj
                         }
-                    }
-                    catch {
-                        Write-PscriboMessage -IsWarning "ScaleOut Backup Repository Table: $($_.Exception.Message)"
+                    } catch {
+                        Write-PScriboMessage -IsWarning "ScaleOut Backup Repository Table: $($_.Exception.Message)"
                     }
 
                     $TableParams = @{
@@ -82,16 +81,16 @@ function Get-AbrVbrScaleOutRepository {
                                             #---------------------------------------------------------------------------------------------#
                                             Section -Style NOTOCHeading6 -ExcludeFromTOC "General Settings" {
                                                 $OutObj = @()
-                                                Write-PscriboMessage "Discovered $($BackupRepo.Name) General Settings."
+                                                Write-PScriboMessage "Discovered $($BackupRepo.Name) General Settings."
                                                 $inObj = [ordered] @{
-                                                    'Placement Policy' = ($BackupRepo.PolicyType -creplace  '([A-Z\W_]|\d+)(?<![a-z])',' $&').trim()
+                                                    'Placement Policy' = ($BackupRepo.PolicyType -creplace '([A-Z\W_]|\d+)(?<![a-z])', ' $&').trim()
                                                     'Use Per VM Backup Files' = ConvertTo-TextYN $BackupRepo.UsePerVMBackupFiles
                                                     'Perform Full When Extent Offline' = ConvertTo-TextYN $BackupRepo.PerformFullWhenExtentOffline
                                                     'Use Capacity Tier' = ConvertTo-TextYN $BackupRepo.EnableCapacityTier
                                                     'Encrypt data uploaded to Object Storage' = ConvertTo-TextYN $BackupRepo.EncryptionEnabled
                                                     'Encryption Key' = Switch ($BackupRepo.EncryptionKey.Description) {
-                                                        $null {'Disabled'}
-                                                        default {$BackupRepo.EncryptionKey.Description}
+                                                        $null { 'Disabled' }
+                                                        default { $BackupRepo.EncryptionKey.Description }
                                                     }
                                                     'Move backup file older than' = $BackupRepo.OperationalRestorePeriod
                                                     'Override Policy Enabled' = ConvertTo-TextYN $BackupRepo.OverridePolicyEnabled
@@ -106,7 +105,7 @@ function Get-AbrVbrScaleOutRepository {
                                                 $OutObj = [pscustomobject]$inobj
 
                                                 if ($HealthCheck.Infrastructure.Settings) {
-                                                    $OutObj | Where-Object { $_.'Encrypt data uploaded to Object Storage' -like 'No'} | Set-Style -Style Warning -Property 'Encrypt data uploaded to Object Storage'
+                                                    $OutObj | Where-Object { $_.'Encrypt data uploaded to Object Storage' -like 'No' } | Set-Style -Style Warning -Property 'Encrypt data uploaded to Object Storage'
                                                 }
 
                                                 $TableParams = @{
@@ -120,7 +119,7 @@ function Get-AbrVbrScaleOutRepository {
                                                 }
 
                                                 $OutObj | Table @TableParams
-                                                if (($HealthCheck.Infrastructure.BestPractice) -and ($OutObj | Where-Object { $_.'Encrypt data uploaded to Object Storage' -like 'No'})) {
+                                                if (($HealthCheck.Infrastructure.BestPractice) -and ($OutObj | Where-Object { $_.'Encrypt data uploaded to Object Storage' -like 'No' })) {
                                                     Paragraph "Health Check:" -Bold -Underline
                                                     BlankLine
                                                     Paragraph {
@@ -129,9 +128,8 @@ function Get-AbrVbrScaleOutRepository {
                                                     }
                                                 }
                                             }
-                                        }
-                                        catch {
-                                            Write-PscriboMessage -IsWarning "ScaleOut Backup Repository General Settings Table: $($_.Exception.Message)"
+                                        } catch {
+                                            Write-PScriboMessage -IsWarning "ScaleOut Backup Repository General Settings Table: $($_.Exception.Message)"
                                         }
                                         foreach ($Extent in $BackupRepo.Extent) {
                                             try {
@@ -140,7 +138,7 @@ function Get-AbrVbrScaleOutRepository {
                                                 #---------------------------------------------------------------------------------------------#
                                                 Section -Style NOTOCHeading6 -ExcludeFromTOC "Performance Tier" {
                                                     $OutObj = @()
-                                                    Write-PscriboMessage "Discovered $($Extent.Name) Performance Tier."
+                                                    Write-PScriboMessage "Discovered $($Extent.Name) Performance Tier."
                                                     $inObj = [ordered] @{
                                                         'Name' = $Extent.Name
                                                         'Repository' = $Extent.Repository.Name
@@ -152,7 +150,7 @@ function Get-AbrVbrScaleOutRepository {
                                                     $OutObj += [pscustomobject]$inobj
 
                                                     if ($HealthCheck.Infrastructure.Settings) {
-                                                        $OutObj | Where-Object { $_.'Status' -ne 'Normal'} | Set-Style -Style Warning -Property 'Status'
+                                                        $OutObj | Where-Object { $_.'Status' -ne 'Normal' } | Set-Style -Style Warning -Property 'Status'
                                                     }
 
                                                     $TableParams = @{
@@ -165,9 +163,8 @@ function Get-AbrVbrScaleOutRepository {
                                                     }
                                                     $OutObj | Table @TableParams
                                                 }
-                                            }
-                                            catch {
-                                                Write-PscriboMessage -IsWarning "ScaleOut Backup Repository Performance Tier Table: $($_.Exception.Message)"
+                                            } catch {
+                                                Write-PScriboMessage -IsWarning "ScaleOut Backup Repository Performance Tier Table: $($_.Exception.Message)"
                                             }
                                         }
                                         #---------------------------------------------------------------------------------------------#
@@ -177,19 +174,19 @@ function Get-AbrVbrScaleOutRepository {
                                             try {
                                                 Section -Style NOTOCHeading6 -ExcludeFromTOC "Capacity Tier" {
                                                     $OutObj = @()
-                                                    Write-PscriboMessage "Discovered $(($CapacityExtent.Repository).Name) Capacity Tier."
+                                                    Write-PScriboMessage "Discovered $(($CapacityExtent.Repository).Name) Capacity Tier."
                                                     $inObj = [ordered] @{
                                                         'Name' = ($CapacityExtent.Repository).Name
                                                         'Service Point' = ($CapacityExtent.Repository).ServicePoint
-                                                        'Type' =  ($CapacityExtent.Repository).Type
-                                                        'Amazon S3 Folder' =  ($CapacityExtent.Repository).AmazonS3Folder
+                                                        'Type' = ($CapacityExtent.Repository).Type
+                                                        'Amazon S3 Folder' = ($CapacityExtent.Repository).AmazonS3Folder
                                                         'Use Gateway Server' = ConvertTo-TextYN ($CapacityExtent.Repository).UseGatewayServer
                                                         'Gateway Server' = Switch ((($CapacityExtent.Repository).GatewayServer.Name).length) {
-                                                            0 {"Auto"}
-                                                            default {($CapacityExtent.Repository).GatewayServer.Name}
+                                                            0 { "Auto" }
+                                                            default { ($CapacityExtent.Repository).GatewayServer.Name }
                                                         }
                                                         'Immutability Period' = $CapacityExtent.Repository.ImmutabilityPeriod
-                                                        'Immutability Enabled'= ConvertTo-TextYN $CapacityExtent.Repository.BackupImmutabilityEnabled
+                                                        'Immutability Enabled' = ConvertTo-TextYN $CapacityExtent.Repository.BackupImmutabilityEnabled
                                                         'Size Limit Enabled' = ConvertTo-TextYN ($CapacityExtent.Repository).SizeLimitEnabled
                                                         'Size Limit' = ($CapacityExtent.Repository).SizeLimit
                                                     }
@@ -232,7 +229,7 @@ function Get-AbrVbrScaleOutRepository {
                                                                 $TableParams = @{
                                                                     Name = "Offload Window - $(($CapacityExtent.Repository).Name)"
                                                                     List = $true
-                                                                    ColumnWidths = 6,4,3,4,4,4,4,4,4,4,4,4,4,4,3,4,4,4,4,4,4,4,4,4,4
+                                                                    ColumnWidths = 6, 4, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4
                                                                     Key = 'H'
                                                                 }
                                                                 if ($Report.ShowTableCaptions) {
@@ -240,33 +237,31 @@ function Get-AbrVbrScaleOutRepository {
                                                                 }
                                                                 if ($OutObj) {
                                                                     $OutObj2 = Table -Hashtable $OutObj @TableParams
-                                                                    $OutObj2.Rows | Where-Object {$_.Sun -eq "0"} | Set-Style -Style OFF -Property "Sun"
-                                                                    $OutObj2.Rows | Where-Object {$_.Mon -eq "0"} | Set-Style -Style OFF -Property "Mon"
-                                                                    $OutObj2.Rows | Where-Object {$_.Tue -eq "0"} | Set-Style -Style OFF -Property "Tue"
-                                                                    $OutObj2.Rows | Where-Object {$_.Wed -eq "0"} | Set-Style -Style OFF -Property "Wed"
-                                                                    $OutObj2.Rows | Where-Object {$_.Thu -eq "0"} | Set-Style -Style OFF -Property "Thu"
-                                                                    $OutObj2.Rows | Where-Object {$_.Fri -eq "0"} | Set-Style -Style OFF -Property "Fri"
-                                                                    $OutObj2.Rows | Where-Object {$_.Sat -eq "0"} | Set-Style -Style OFF -Property "Sat"
+                                                                    $OutObj2.Rows | Where-Object { $_.Sun -eq "0" } | Set-Style -Style OFF -Property "Sun"
+                                                                    $OutObj2.Rows | Where-Object { $_.Mon -eq "0" } | Set-Style -Style OFF -Property "Mon"
+                                                                    $OutObj2.Rows | Where-Object { $_.Tue -eq "0" } | Set-Style -Style OFF -Property "Tue"
+                                                                    $OutObj2.Rows | Where-Object { $_.Wed -eq "0" } | Set-Style -Style OFF -Property "Wed"
+                                                                    $OutObj2.Rows | Where-Object { $_.Thu -eq "0" } | Set-Style -Style OFF -Property "Thu"
+                                                                    $OutObj2.Rows | Where-Object { $_.Fri -eq "0" } | Set-Style -Style OFF -Property "Fri"
+                                                                    $OutObj2.Rows | Where-Object { $_.Sat -eq "0" } | Set-Style -Style OFF -Property "Sat"
 
-                                                                    $OutObj2.Rows | Where-Object {$_.Sun -eq "1"} | Set-Style -Style ON -Property "Sun"
-                                                                    $OutObj2.Rows | Where-Object {$_.Mon -eq "1"} | Set-Style -Style ON -Property "Mon"
-                                                                    $OutObj2.Rows | Where-Object {$_.Tue -eq "1"} | Set-Style -Style ON -Property "Tue"
-                                                                    $OutObj2.Rows | Where-Object {$_.Wed -eq "1"} | Set-Style -Style ON -Property "Wed"
-                                                                    $OutObj2.Rows | Where-Object {$_.Thu -eq "1"} | Set-Style -Style ON -Property "Thu"
-                                                                    $OutObj2.Rows | Where-Object {$_.Fri -eq "1"} | Set-Style -Style ON -Property "Fri"
-                                                                    $OutObj2.Rows | Where-Object {$_.Sat -eq "1"} | Set-Style -Style ON -Property "Sat"
+                                                                    $OutObj2.Rows | Where-Object { $_.Sun -eq "1" } | Set-Style -Style ON -Property "Sun"
+                                                                    $OutObj2.Rows | Where-Object { $_.Mon -eq "1" } | Set-Style -Style ON -Property "Mon"
+                                                                    $OutObj2.Rows | Where-Object { $_.Tue -eq "1" } | Set-Style -Style ON -Property "Tue"
+                                                                    $OutObj2.Rows | Where-Object { $_.Wed -eq "1" } | Set-Style -Style ON -Property "Wed"
+                                                                    $OutObj2.Rows | Where-Object { $_.Thu -eq "1" } | Set-Style -Style ON -Property "Thu"
+                                                                    $OutObj2.Rows | Where-Object { $_.Fri -eq "1" } | Set-Style -Style ON -Property "Fri"
+                                                                    $OutObj2.Rows | Where-Object { $_.Sat -eq "1" } | Set-Style -Style ON -Property "Sat"
                                                                     $OutObj2
                                                                 }
-                                                            }
-                                                            catch {
-                                                                Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                            } catch {
+                                                                Write-PScriboMessage -IsWarning $_.Exception.Message
                                                             }
                                                         }
                                                     }
                                                 }
-                                            }
-                                            catch {
-                                                Write-PscriboMessage -IsWarning "ScaleOut Backup Repository Capacity Tier Table: $($_.Exception.Message)"
+                                            } catch {
+                                                Write-PScriboMessage -IsWarning "ScaleOut Backup Repository Capacity Tier Table: $($_.Exception.Message)"
                                             }
                                         }
                                         #---------------------------------------------------------------------------------------------#
@@ -276,14 +271,14 @@ function Get-AbrVbrScaleOutRepository {
                                             try {
                                                 Section -Style NOTOCHeading6 -ExcludeFromTOC "Archive Tier" {
                                                     $OutObj = @()
-                                                    Write-PscriboMessage "Discovered $(($ArchiveExtent.Repository).Name) Archive Tier."
+                                                    Write-PScriboMessage "Discovered $(($ArchiveExtent.Repository).Name) Archive Tier."
                                                     $inObj = [ordered] @{
                                                         'Name' = ($ArchiveExtent.Repository).Name
-                                                        'Type' =  ($ArchiveExtent.Repository).ArchiveType
+                                                        'Type' = ($ArchiveExtent.Repository).ArchiveType
                                                         'Use Gateway Server' = ConvertTo-TextYN ($ArchiveExtent.Repository).UseGatewayServer
                                                         'Gateway Server' = Switch ((($ArchiveExtent.Repository).GatewayServer.Name).length) {
-                                                            0 {"Auto"}
-                                                            default {($ArchiveExtent.Repository).GatewayServer.Name}
+                                                            0 { "Auto" }
+                                                            default { ($ArchiveExtent.Repository).GatewayServer.Name }
                                                         }
                                                     }
                                                     if (($ArchiveExtent.Repository).ArchiveType -eq 'AzureArchive') {
@@ -304,25 +299,22 @@ function Get-AbrVbrScaleOutRepository {
                                                     }
                                                     $OutObj | Table @TableParams
                                                 }
-                                            }
-                                            catch {
-                                                Write-PscriboMessage -IsWarning "ScaleOut Backup Repository Archive Tier Table: $($_.Exception.Message)"
+                                            } catch {
+                                                Write-PScriboMessage -IsWarning "ScaleOut Backup Repository Archive Tier Table: $($_.Exception.Message)"
                                             }
                                         }
 
                                     }
                                 }
                             }
-                        }
-                        catch {
-                            Write-PscriboMessage -IsWarning "ScaleOut Backup Repository Configuration Section: $($_.Exception.Message)"
+                        } catch {
+                            Write-PScriboMessage -IsWarning "ScaleOut Backup Repository Configuration Section: $($_.Exception.Message)"
                         }
                     }
                 }
             }
-        }
-        catch {
-            Write-PscriboMessage -IsWarning "ScaleOut Backup Repository Document: $($_.Exception.Message)"
+        } catch {
+            Write-PScriboMessage -IsWarning "ScaleOut Backup Repository Document: $($_.Exception.Message)"
         }
     }
     end {}

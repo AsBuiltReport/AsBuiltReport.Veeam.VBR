@@ -6,7 +6,7 @@ function Get-AbrVbrWANAccelerator {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.4
+        Version:        0.8.5
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -21,13 +21,13 @@ function Get-AbrVbrWANAccelerator {
     )
 
     begin {
-        Write-PscriboMessage "Discovering Veeam VBR WAN Accelerator information from $System."
+        Write-PScriboMessage "Discovering Veeam VBR WAN Accelerator information from $System."
     }
 
     process {
         try {
             $WANAccels = Get-VBRWANAccelerator | Sort-Object -Property Name
-            if (($VbrLicenses | Where-Object {$_.Edition -in @("EnterprisePlus")}) -and $WANAccels) {
+            if (($VbrLicenses | Where-Object { $_.Edition -in @("EnterprisePlus") }) -and $WANAccels) {
                 Section -Style Heading3 'WAN Accelerators' {
                     Paragraph "The following section provides information about WAN Accelerator. WAN accelerators are responsible for global data caching and data deduplication."
                     BlankLine
@@ -36,18 +36,16 @@ function Get-AbrVbrWANAccelerator {
                         foreach ($WANAccel in $WANAccels) {
                             $IsWaHasAnyCaches = 'Unknown'
                             try {
-                                Write-PscriboMessage "Discovered $($WANAccel.Name) Wan Accelerator."
+                                Write-PScriboMessage "Discovered $($WANAccel.Name) Wan Accelerator."
                                 try {
                                     $IsWaHasAnyCaches = $WANAccel.IsWaHasAnyCaches()
-                                }
-                                catch {
-                                    Write-PscriboMessage -IsWarning "Wan Accelerator $($WANAccel.Name) IsWaHasAnyCaches() Item: $($_.Exception.Message)"
+                                } catch {
+                                    Write-PScriboMessage -IsWarning "Wan Accelerator $($WANAccel.Name) IsWaHasAnyCaches() Item: $($_.Exception.Message)"
                                 }
                                 try {
                                     $ServiceIPAddress = $WANAccel.GetWaConnSpec().Endpoints.IP -join ", "
-                                }
-                                catch {
-                                    Write-PscriboMessage -IsWarning "Wan Accelerator $($WANAccel.Name) GetWaConnSpec() Item: $($_.Exception.Message)"
+                                } catch {
+                                    Write-PScriboMessage -IsWarning "Wan Accelerator $($WANAccel.Name) GetWaConnSpec() Item: $($_.Exception.Message)"
                                 }
                                 $inObj = [ordered] @{
                                     'Name' = $WANAccel.Name
@@ -66,7 +64,7 @@ function Get-AbrVbrWANAccelerator {
                                 $OutObj = [pscustomobject]$inobj
 
                                 if ($HealthCheck.Infrastructure.Proxy) {
-                                    $OutObj | Where-Object { $_.'Status' -eq 'Unavailable'} | Set-Style -Style Warning -Property 'Status'
+                                    $OutObj | Where-Object { $_.'Status' -eq 'Unavailable' } | Set-Style -Style Warning -Property 'Status'
                                 }
 
                                 $TableParams = @{
@@ -79,20 +77,17 @@ function Get-AbrVbrWANAccelerator {
                                     $TableParams['Caption'] = "- $($TableParams.Name)"
                                 }
                                 $OutObj | Table @TableParams
-                            }
-                            catch {
-                                Write-PscriboMessage -IsWarning "Wan Accelerator $($WANAccel.Name) Table: $($_.Exception.Message)"
+                            } catch {
+                                Write-PScriboMessage -IsWarning "Wan Accelerator $($WANAccel.Name) Table: $($_.Exception.Message)"
                             }
                         }
-                    }
-                    catch {
-                        Write-PscriboMessage -IsWarning "Wan Accelerator Section: $($_.Exception.Message)"
+                    } catch {
+                        Write-PScriboMessage -IsWarning "Wan Accelerator Section: $($_.Exception.Message)"
                     }
                 }
             }
-        }
-        catch {
-            Write-PscriboMessage -IsWarning "Wan Accelerator Document: $($_.Exception.Message)"
+        } catch {
+            Write-PScriboMessage -IsWarning "Wan Accelerator Document: $($_.Exception.Message)"
         }
     }
     end {}

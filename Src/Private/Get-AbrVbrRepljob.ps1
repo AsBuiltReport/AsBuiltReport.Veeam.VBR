@@ -6,7 +6,7 @@ function Get-AbrVbrRepljob {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.7.1
+        Version:        0.8.5
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -21,12 +21,12 @@ function Get-AbrVbrRepljob {
     )
 
     begin {
-        Write-PscriboMessage "Discovering Veeam VBR Replication jobs information from $System."
+        Write-PScriboMessage "Discovering Veeam VBR Replication jobs information from $System."
     }
 
     process {
         try {
-            $Bkjobs = Get-VBRJob -WarningAction SilentlyContinue | Where-object {$_.TypeToString -eq 'VMware Replication' -or $_.TypeToString -eq 'Hyper-V Replication'} | Sort-Object -Property Name
+            $Bkjobs = Get-VBRJob -WarningAction SilentlyContinue | Where-Object { $_.TypeToString -eq 'VMware Replication' -or $_.TypeToString -eq 'Hyper-V Replication' } | Sort-Object -Property Name
             if (($Bkjobs).count -gt 0) {
                 Section -Style Heading3 'Replication Jobs' {
                     Paragraph "The following section provide a summary about replication jobs"
@@ -34,21 +34,20 @@ function Get-AbrVbrRepljob {
                     $OutObj = @()
                     foreach ($Bkjob in $Bkjobs) {
                         try {
-                            Write-PscriboMessage "Discovered $($Bkjob.Name) replication job."
+                            Write-PScriboMessage "Discovered $($Bkjob.Name) replication job."
                             $inObj = [ordered] @{
                                 'Name' = $Bkjob.Name
                                 'Type' = $Bkjob.TypeToString
                                 'Status' = Switch ($Bkjob.IsScheduleEnabled) {
-                                    'False' {'Disabled'}
-                                    'True' {'Enabled'}
+                                    'False' { 'Disabled' }
+                                    'True' { 'Enabled' }
                                 }
                                 'Latest Result' = $Bkjob.info.LatestStatus
                                 'Last Run' = $Bkjob.FindLastSession().EndTimeUTC
                             }
                             $OutObj += [pscustomobject]$inobj
-                        }
-                        catch {
-                            Write-PscriboMessage -IsWarning "Replication Jobs $($Bkjob.Name) Section: $($_.Exception.Message)"
+                        } catch {
+                            Write-PScriboMessage -IsWarning "Replication Jobs $($Bkjob.Name) Section: $($_.Exception.Message)"
                         }
                     }
 
@@ -60,12 +59,11 @@ function Get-AbrVbrRepljob {
                     if ($Report.ShowTableCaptions) {
                         $TableParams['Caption'] = "- $($TableParams.Name)"
                     }
-                    $OutObj | Sort-Object -Property Name |Table @TableParams
+                    $OutObj | Sort-Object -Property Name | Table @TableParams
                 }
             }
-        }
-        catch {
-            Write-PscriboMessage -IsWarning "Replication Jobs Section: $($_.Exception.Message)"
+        } catch {
+            Write-PScriboMessage -IsWarning "Replication Jobs Section: $($_.Exception.Message)"
         }
     }
     end {}

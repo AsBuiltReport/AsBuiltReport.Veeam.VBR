@@ -6,7 +6,7 @@ function Get-AbrVbrInventorySummary {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.4
+        Version:        0.8.5
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -21,25 +21,25 @@ function Get-AbrVbrInventorySummary {
     )
 
     begin {
-        Write-PscriboMessage "Discovering Veeam VBR Inventory Summary from $System."
+        Write-PScriboMessage "Discovering Veeam VBR Inventory Summary from $System."
     }
 
     process {
         try {
             $OutObj = @()
             try {
-                $vCenter = Get-VBRServer | Where-Object {$_.Type -eq 'VC'}
-                $ESXi = Get-VBRServer | Where-Object {$_.Type -eq 'ESXi'}
-                $HvCluster = Get-VBRServer | Where-Object {$_.Type -eq 'HvCluster'}
-                $HvServer = Get-VBRServer | Where-Object {$_.Type -eq 'HvServer'}
+                $vCenter = Get-VBRServer | Where-Object { $_.Type -eq 'VC' }
+                $ESXi = Get-VBRServer | Where-Object { $_.Type -eq 'ESXi' }
+                $HvCluster = Get-VBRServer | Where-Object { $_.Type -eq 'HvCluster' }
+                $HvServer = Get-VBRServer | Where-Object { $_.Type -eq 'HvServer' }
                 $ProtectionGroups = Get-VBRProtectionGroup
                 if ($VbrVersion -lt 12.1) {
                     $Shares = Get-VBRNASServer -WarningAction SilentlyContinue
                 } else {
-                    $FileServers = Get-VBRUnstructuredServer | Where-Object {$_.Type -eq "FileServer"}
-                    $NASFillers = Get-VBRUnstructuredServer | Where-Object {$_.Type -eq "SANSMB"}
-                    $FileShares = Get-VBRUnstructuredServer | Where-Object {$_.Type -eq "SMB" -or $_.Type -eq "NFS"}
-                    $ObjectStorage = Get-VBRUnstructuredServer | Where-Object {$_.Type -eq "AzureBlobServer" -or $_.Type -eq "AmazonS3Server" -or $_.Type -eq "S3CompatibleServer"}
+                    $FileServers = Get-VBRUnstructuredServer | Where-Object { $_.Type -eq "FileServer" }
+                    $NASFillers = Get-VBRUnstructuredServer | Where-Object { $_.Type -eq "SANSMB" }
+                    $FileShares = Get-VBRUnstructuredServer | Where-Object { $_.Type -eq "SMB" -or $_.Type -eq "NFS" }
+                    $ObjectStorage = Get-VBRUnstructuredServer | Where-Object { $_.Type -eq "AzureBlobServer" -or $_.Type -eq "AmazonS3Server" -or $_.Type -eq "S3CompatibleServer" }
                 }
                 $inObj = [ordered] @{
                     'vCenter Servers' = $vCenter.Count
@@ -50,18 +50,17 @@ function Get-AbrVbrInventorySummary {
                 }
 
                 if ($VbrVersion -lt 12.1) {
-                    $inObj.add('File Shares',$Shares.Count)
+                    $inObj.add('File Shares', $Shares.Count)
                 } else {
-                    $inObj.add('File Server',$FileServers.Count)
-                    $inObj.add('NAS Fillers',$NASFillers.Count)
-                    $inObj.add('File Shares',$FileShares.Count)
-                    $inObj.add('Object Storage',$ObjectStorage.Count)
+                    $inObj.add('File Server', $FileServers.Count)
+                    $inObj.add('NAS Fillers', $NASFillers.Count)
+                    $inObj.add('File Shares', $FileShares.Count)
+                    $inObj.add('Object Storage', $ObjectStorage.Count)
                 }
 
                 $OutObj += [pscustomobject]$inobj
-            }
-            catch {
-                Write-PscriboMessage -IsWarning "Inventory Summary Section: $($_.Exception.Message)"
+            } catch {
+                Write-PScriboMessage -IsWarning "Inventory Summary Section: $($_.Exception.Message)"
             }
 
             $TableParams = @{
@@ -74,11 +73,11 @@ function Get-AbrVbrInventorySummary {
             }
             if ($Options.EnableCharts) {
                 try {
-                    $sampleData = $inObj.GetEnumerator() | Select-Object @{ Name = 'Category';  Expression = {$_.key}},@{ Name = 'Value';  Expression = {$_.value}} | Sort-Object -Property 'Category'
+                    $sampleData = $inObj.GetEnumerator() | Select-Object @{ Name = 'Category'; Expression = { $_.key } }, @{ Name = 'Value'; Expression = { $_.value } } | Sort-Object -Property 'Category'
 
                     $chartFileItem = Get-PieChart -SampleData $sampleData -ChartName 'Inventory' -XField 'Category' -YField 'Value' -ChartLegendName 'Infrastructure'
                 } catch {
-                    Write-PscriboMessage -IsWarning "Inventory chart section: $($_.Exception.Message)"
+                    Write-PScriboMessage -IsWarning "Inventory chart section: $($_.Exception.Message)"
                 }
             }
 
@@ -91,9 +90,8 @@ function Get-AbrVbrInventorySummary {
                     $OutObj | Table @TableParams
                 }
             }
-        }
-        catch {
-            Write-PscriboMessage -IsWarning "Inventory Summary Section: $($_.Exception.Message)"s
+        } catch {
+            Write-PScriboMessage -IsWarning "Inventory Summary Section: $($_.Exception.Message)"s
         }
     }
     end {}

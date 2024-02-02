@@ -6,7 +6,7 @@ function Get-AbrVbrAgentBackupjob {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.4
+        Version:        0.8.5
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -21,7 +21,7 @@ function Get-AbrVbrAgentBackupjob {
     )
 
     begin {
-        Write-PscriboMessage "Discovering Veeam VBR Agent Backup jobs information from $System."
+        Write-PScriboMessage "Discovering Veeam VBR Agent Backup jobs information from $System."
     }
 
     process {
@@ -34,7 +34,7 @@ function Get-AbrVbrAgentBackupjob {
                     $OutObj = @()
                     foreach ($ABkjob in $ABkjobs) {
                         try {
-                            Write-PscriboMessage "Discovered $($ABkjob.Name) location."
+                            Write-PScriboMessage "Discovered $($ABkjob.Name) location."
                             $inObj = [ordered] @{
                                 'Name' = $ABkjob.Name
                                 'Type' = $ABkjob.Type
@@ -42,9 +42,8 @@ function Get-AbrVbrAgentBackupjob {
                                 'Backup Object' = $ABkjob.BackupObject
                             }
                             $OutObj += [pscustomobject]$inobj
-                        }
-                        catch {
-                            Write-PscriboMessage -IsWarning "Agent Backup Jobs $($ABkjob.Name) Section: $($_.Exception.Message)"
+                        } catch {
+                            Write-PScriboMessage -IsWarning "Agent Backup Jobs $($ABkjob.Name) Section: $($_.Exception.Message)"
                         }
                     }
 
@@ -56,12 +55,11 @@ function Get-AbrVbrAgentBackupjob {
                     if ($Report.ShowTableCaptions) {
                         $TableParams['Caption'] = "- $($TableParams.Name)"
                     }
-                    $OutObj | Sort-Object -Property 'Name' |Table @TableParams
+                    $OutObj | Sort-Object -Property 'Name' | Table @TableParams
                 }
             }
-        }
-        catch {
-            Write-PscriboMessage -IsWarning "Agent Backup Jobs Section: $($_.Exception.Message)"
+        } catch {
+            Write-PScriboMessage -IsWarning "Agent Backup Jobs Section: $($_.Exception.Message)"
         }
     }
     end {}
