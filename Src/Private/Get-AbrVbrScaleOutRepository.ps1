@@ -126,6 +126,7 @@ function Get-AbrVbrScaleOutRepository {
                                                         Text "Best Practice:" -Bold
                                                         Text "Veeam Backup & Replication allows you to encrypt offloaded data. With the Encrypt data uploaded to object storage setting selected, the entire collection of blocks along with the metadata will be encrypted while being offloaded regardless of the jobs encryption settings. This helps you protect the data from an unauthorized access."
                                                     }
+                                                    BlankLine
                                                 }
                                             }
                                         } catch {

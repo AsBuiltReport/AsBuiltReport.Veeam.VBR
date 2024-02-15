@@ -242,6 +242,7 @@ function Get-AbrVbrSureBackup {
                                                                                     Text "Best Practice:" -Bold
                                                                                     Text "It is a general rule of good practice to establish well-defined notes. This helps to speed up the fault identification process, as well as enabling better documentation of the environment."
                                                                                 }
+                                                                                BlankLine
                                                                             }
                                                                         }
                                                                     }
@@ -352,6 +353,7 @@ function Get-AbrVbrSureBackup {
                                                                                     Text "Best Practice:" -Bold
                                                                                     Text "It is a general rule of good practice to establish well-defined notes. This helps to speed up the fault identification process, as well as enabling better documentation of the environment."
                                                                                 }
+                                                                                BlankLine
                                                                             }
                                                                         }
                                                                     }

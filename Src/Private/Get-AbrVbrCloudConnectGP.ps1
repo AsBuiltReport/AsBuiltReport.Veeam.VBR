@@ -73,6 +73,7 @@ function Get-AbrVbrCloudConnectGP {
                                         Text "Best Practice:" -Bold
                                         Text "It is a general rule of good practice to establish well-defined descriptions. This helps to speed up the fault identification process, as well as enabling better documentation of the environment."
                                     }
+                                    BlankLine
                                 }
                             }
 

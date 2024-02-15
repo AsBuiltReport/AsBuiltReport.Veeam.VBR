@@ -138,6 +138,7 @@ function Get-AbrVbrBackupServerInfo {
                                 Text 'Reference:' -Bold
                                 Text 'https://bp.veeam.com/vbr/Security/Security_domains.html'
                             }
+                            BlankLine
                         }
                     }
                     #---------------------------------------------------------------------------------------------#
@@ -201,6 +202,7 @@ function Get-AbrVbrBackupServerInfo {
                                                 Text "Best Practice:" -Bold
                                                 Text "Recommended Veeam Backup Server minimum configuration is two CPU cores and 8GB of RAM."
                                             }
+                                            BlankLine
                                         }
                                     }
                                     #---------------------------------------------------------------------------------------------#

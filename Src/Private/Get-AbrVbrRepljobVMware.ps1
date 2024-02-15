@@ -76,7 +76,7 @@ function Get-AbrVbrRepljobVMware {
                                                     'Total Backup Size' = ConvertTo-FileSizeString $CommonInfo.IncludedSize
                                                     'Target Address' = $CommonInfo.TargetDir
                                                     'Target File' = $CommonInfo.TargetFile
-                                                    'Description' = $CommonInfo.CommonInfo.Description
+                                                    'Description' = ConvertTo-EmptyToFiller $CommonInfo.CommonInfo.Description
                                                     'Modified By' = $CommonInfo.CommonInfo.ModifiedBy.FullName
                                                 }
                                                 $OutObj = [pscustomobject]$inobj
@@ -341,6 +341,7 @@ function Get-AbrVbrRepljobVMware {
                                                                 Text "Best Practice:" -Bold
                                                                 Text "It is recommended to use storage-level corruption guard for any backup job with no active full backups scheduled. Synthetic full backups are still 'incremental forever' and may suffer from corruption over time. Storage-level corruption guard was introduced to provide a greater level of confidence in integrity of the backups."
                                                             }
+                                                            BlankLine
                                                         }
                                                     }
                                                 } catch {
@@ -403,6 +404,7 @@ function Get-AbrVbrRepljobVMware {
                                                                 Text "Best Practice:" -Bold
                                                                 Text "Backup and replica data is a high potential source of vulnerability. To secure data stored in backups and replicas, use Veeam Backup & Replication inbuilt encryption to protect data in backups"
                                                             }
+                                                            BlankLine
                                                         }
                                                     }
                                                 } catch {

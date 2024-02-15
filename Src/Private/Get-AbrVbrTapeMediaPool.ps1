@@ -119,7 +119,11 @@ function Get-AbrVbrTapeMediaPool {
                                                             'Total Space' = ConvertTo-FileSizeString $Capacity
                                                             'Free Space' = ConvertTo-FileSizeString $FreeSpace
                                                             'Add Tape from Free Media Pool Automatically when more Tape are Required' = ConvertTo-TextYN $PoolObj.MoveFromFreePool
-                                                            'Description' = $TapeLibraryObj.Description
+                                                            'Description' = Switch ([string]::IsNullOrEmpty($TapeLibraryObj.Description)) {
+                                                                $true { "--" }
+                                                                $false { $TapeLibraryObj.Description }
+                                                                default { "Unknown" }
+                                                            }
                                                             'Library Mode' = Switch ($PoolObj.GlobalOptions.Mode) {
                                                                 'CrossLibraryParalleing' { 'Active (Used Always)' }
                                                                 'Failover' { 'Passive (Used for Failover Only)' }
@@ -141,7 +145,7 @@ function Get-AbrVbrTapeMediaPool {
                                                         $OutObj = [pscustomobject]$inobj
 
                                                         if ($HealthCheck.Tape.BestPractice) {
-                                                            $OutObj | Where-Object { $Null -like $_.'Description' } | Set-Style -Style Warning -Property 'Description'
+                                                            $OutObj | Where-Object { $_.'Description' -eq "--" } | Set-Style -Style Warning -Property 'Description'
                                                             $OutObj | Where-Object { $_.'Description' -match "Created by" } | Set-Style -Style Warning -Property 'Description'
                                                         }
 
@@ -163,6 +167,7 @@ function Get-AbrVbrTapeMediaPool {
                                                                     Text "Best Practice:" -Bold
                                                                     Text "It is a general rule of good practice to establish well-defined descriptions. This helps to speed up the fault identification process, as well as enabling better documentation of the environment."
                                                                 }
+                                                                BlankLine
                                                             }
                                                         }
                                                         #---------------------------------------------------------------------------------------------#

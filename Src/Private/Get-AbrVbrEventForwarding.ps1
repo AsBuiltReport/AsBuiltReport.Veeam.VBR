@@ -64,6 +64,7 @@ function Get-AbrVbrEventForwarding {
                         Text "Security Best Practice:" -Bold
                         Text "It is a recommends best practice to configure Event Forwarding to an external SIEM or Log Collector to increase the organization security posture."
                     }
+                    BlankLine
                 }
             }
         } catch {

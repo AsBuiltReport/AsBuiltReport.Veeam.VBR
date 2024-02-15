@@ -70,6 +70,7 @@ function Get-AbrVbrEmailNotificationSetting {
                             Text "Best Practice:" -Bold
                             Text "Veeam recommends configuring email notifications to be able to receive alerts with the results of jobs performed on the backup server."
                         }
+                        BlankLine
                     }
                 }
             }

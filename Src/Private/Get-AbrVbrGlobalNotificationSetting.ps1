@@ -60,6 +60,7 @@ function Get-AbrVbrGlobalNotificationSetting {
                                 Text "Best Practice:" -Bold
                                 Text "Veeam recommends configuring email notifications to be able to receive alerts with the results of jobs performed on the backup server."
                             }
+                            BlankLine
                         }
                     }
                     Section -ExcludeFromTOC -Style NOTOCHeading5 'Production Datastore' {
@@ -99,6 +100,7 @@ function Get-AbrVbrGlobalNotificationSetting {
                                 Text "Best Practice:" -Bold
                                 Text "Veeam recommends configuring email notifications to be able to receive alerts with the results of jobs performed on the backup server."
                             }
+                            BlankLine
                         }
                     }
                     Section -ExcludeFromTOC -Style NOTOCHeading5 'Support Expiration' {
@@ -128,6 +130,7 @@ function Get-AbrVbrGlobalNotificationSetting {
                                 Text "Best Practice:" -Bold
                                 Text "Veeam recommends configuring email notifications to be able to receive alerts with the results of jobs performed on the backup server."
                             }
+                            BlankLine
                         }
                     }
                     Section -ExcludeFromTOC -Style NOTOCHeading5 'Update Notification' {
@@ -153,6 +156,7 @@ function Get-AbrVbrGlobalNotificationSetting {
                                 Text "Best Practice:" -Bold
                                 Text "Veeam recommends configuring email notifications to be able to receive alerts with the results of jobs performed on the backup server."
                             }
+                            BlankLine
                         }
                     }
                 }

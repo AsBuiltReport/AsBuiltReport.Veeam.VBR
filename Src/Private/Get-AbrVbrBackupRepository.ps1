@@ -178,6 +178,7 @@ function Get-AbrVbrBackupRepository {
                                                         Text "Best Practice:" -Bold
                                                         Text "Veeam recommend to implement Immutability where it is supported. It is done for increased security: immutability protects your data from loss as a result of attacks, malware activity or any other injurious actions."
                                                     }
+                                                    BlankLine
                                                 }
                                             }
                                         } catch {

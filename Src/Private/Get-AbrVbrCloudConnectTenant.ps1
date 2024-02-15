@@ -77,6 +77,7 @@ function Get-AbrVbrCloudConnectTenant {
                                     Text "Best Practice:" -Bold
                                     Text "Validate if the tenant's resources are being utilized"
                                 }
+                                BlankLine
                             }
                         }
                         #---------------------------------------------------------------------------------------------#
@@ -150,6 +151,7 @@ function Get-AbrVbrCloudConnectTenant {
                                                                 Text "Best Practice:" -Bold
                                                                 Text "It is a general rule of good practice to establish well-defined descriptions. This helps to speed up the fault identification process, as well as enabling better documentation of the environment."
                                                             }
+                                                            BlankLine
                                                         }
                                                     }
                                                 }
