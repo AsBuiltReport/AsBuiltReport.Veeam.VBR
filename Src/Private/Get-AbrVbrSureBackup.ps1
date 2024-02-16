@@ -113,7 +113,7 @@ function Get-AbrVbrSureBackup {
                             }
                         }
                     }
-                    if ($SureBackupVL) {
+                    if ($SureBackupVLs) {
                         try {
                             Section -Style Heading4 'Virtual Labs' {
                                 Paragraph "The following section provides a summary about SureBackup Virtual Lab."
