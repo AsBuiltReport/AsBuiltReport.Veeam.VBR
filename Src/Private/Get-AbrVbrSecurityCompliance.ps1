@@ -108,9 +108,18 @@ function Get-AbrVbrSecurityCompliance {
             }
 
             try {
-                $sampleData = $OutObj.status | Group-Object
 
-                $chartFileItem = Get-ColumnChart -SampleData $sampleData -ChartName 'SecurityCompliance' -XField 'Name' -YField 'Count' -ChartAreaName 'Infrastructure' -AxisXTitle 'Status' -AxisYTitle 'Count' -ChartTitleName 'SecurityCompliance' -ChartTitleText 'Best Practices'
+                $sampleData = @{
+                    'Passed' = ($OutObj.status | Where-Object { $_ -eq "Passed" } | Measure-Object).Count
+                    'Not Implemented' = ($OutObj.status | Where-Object { $_ -eq "Not Implemented" } | Measure-Object).Count
+                    'Unable to detect' = ($OutObj.status | Where-Object { $_ -eq "Unable to detect" } | Measure-Object).Count
+                    'Suppressed' = ($OutObj.status | Where-Object { $_ -eq "Suppressed" } | Measure-Object).Count
+                }
+
+                $sampleDataObj = $sampleData.GetEnumerator() | Select-Object @{ Name = 'Category'; Expression = { $_.key } }, @{ Name = 'Value'; Expression = { $_.value } } | Sort-Object -Property 'Category'
+
+                $chartFileItem = Get-ColumnChart -SampleData $sampleDataObj -ChartName 'SecurityCompliance' -XField 'Category' -YField 'Value' -ChartAreaName 'Infrastructure' -AxisXTitle 'Status' -AxisYTitle 'Count' -ChartTitleName 'SecurityCompliance' -ChartTitleText 'Best Practices'
+
             } catch {
                 Write-PScriboMessage -IsWarning "Security & Compliance chart section: $($_.Exception.Message)"
             }
