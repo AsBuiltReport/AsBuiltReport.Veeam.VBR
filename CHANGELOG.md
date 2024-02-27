@@ -27,6 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved error handling on the Diagram section.
 - Fixed issue with the Veeam.Diagrammer module.
 - Resolved issue that prevented SureBackup Virtual Lab information to be collected. Fix [#142](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/142)
+- Resolved issue in the Malware Global Exclusions section. Fix [#145](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/145)
 
 ## [0.8.4] - 2024-01-16
 
