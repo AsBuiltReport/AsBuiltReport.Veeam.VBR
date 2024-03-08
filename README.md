@@ -52,13 +52,13 @@ The Veeam VBR As Built Report supports the following Veeam Backup & Replication 
 
 - Veeam Backup & Replication v12+ (Standard, Enterprise & Enterprise Plus Edition)
 
+:exclamation:Community Edition is not supported:exclamation:
+
 ## :no_entry_sign: Unsupported Versions
 
 The versions 10 and 11 are no longer supported by Veeam. So I will not be performing compatibility tests with those versions. The report may work on previous versions but I do not guarantee and will not address issues related to pre-v12. 
 
 [Veeam Product Lifecycle Policy](https://www.veeam.com/product-lifecycle.html)
-
-:exclamation:Community Edition is not supported:exclamation:
 
 ### PowerShell
 
