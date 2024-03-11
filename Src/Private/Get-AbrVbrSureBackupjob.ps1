@@ -47,9 +47,9 @@ function Get-AbrVbrSureBackupjob {
                                 }
                                 'Latest Result' = $SBkjob.LastResult
                                 'Virtual Lab' = Switch ($SBkjob.VirtualLab.Name) {
-                                    $true {"Not applicable​​​​"}
-                                    $false {$SBkjob.VirtualLab.Name}
-                                    default {"--"}
+                                    $true { "Not applicable" }
+                                    $false { $SBkjob.VirtualLab.Name }
+                                    default { "--" }
                                 }
                             }
                             $OutObj += [pscustomobject]$inobj
