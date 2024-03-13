@@ -118,7 +118,7 @@ function Get-AbrVbrInstalledLicense {
                                 if ($OutObj) {
                                     Section -Style NOTOCHeading5 -ExcludeFromTOC 'Instance License Usage' {
                                         if ($Options.EnableCharts -and $chartFileItem -and ($inObj.Values | Measure-Object -Sum).Sum -ne 0) {
-                                            Image -Text 'Instance License Usage - Diagram' -Align 'Center' -Percent 100 -Base64 $chartFileItem
+                                            Image -Text 'Instance License Usage - Chart' -Align 'Center' -Percent 100 -Base64 $chartFileItem
                                         }
                                         BlankLine
                                         $OutObj | Table @TableParams
@@ -206,7 +206,7 @@ function Get-AbrVbrInstalledLicense {
                                 if ($OutObj) {
                                     Section -Style NOTOCHeading5 -ExcludeFromTOC 'CPU Socket License Usage' {
                                         if ($chartFileItem -and ($inObj.Values | Measure-Object -Sum).Sum -ne 0) {
-                                            Image -Text 'CPU Socket License Usage - Diagram' -Align 'Center' -Percent 100 -Base64 $chartFileItem
+                                            Image -Text 'CPU Socket License Usage - Chart' -Align 'Center' -Percent 100 -Base64 $chartFileItem
                                         }
                                         $OutObj | Table @TableParams
                                     }
@@ -258,7 +258,7 @@ function Get-AbrVbrInstalledLicense {
                                 if ($OutObj) {
                                     Section -Style NOTOCHeading5 -ExcludeFromTOC 'Capacity License Usage' {
                                         if ($chartFileItem -and ($inObj.Values | Measure-Object -Sum).Sum -ne 0) {
-                                            Image -Text 'Capacity License Usage - Diagram' -Align 'Center' -Percent 100 -Base64 $chartFileItem
+                                            Image -Text 'Capacity License Usage - Chart' -Align 'Center' -Percent 100 -Base64 $chartFileItem
                                         }
                                         $OutObj | Table @TableParams
                                     }

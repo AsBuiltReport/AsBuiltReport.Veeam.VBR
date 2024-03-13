@@ -505,3 +505,67 @@ function Get-WindowsTimePeriod {
     return $OutObj
 
 } # end
+
+function Get-TimeDuration {
+    <#
+    .SYNOPSIS
+        Used by As Built Report to convert job session Duration time to TimeFormat.
+    .DESCRIPTION
+    .NOTES
+        Version:        0.1.0
+        Author:         Jonathan Colon
+    .EXAMPLE
+        Get-TimeDuration -$JobTimeSpan
+    .LINK
+    #>
+
+    [CmdletBinding()]
+    Param
+    (
+        [Parameter (
+            Position = 0,
+            Mandatory
+        )]
+        [TimeSpan] $JobTimeSpan
+    )
+
+    if ($JobTimeSpan.Days -gt 0) {
+        $JobTimeSpan.ToString("dd\.hh\:mm\:ss")
+    } else {
+        $JobTimeSpan.ToString("hh\:mm\:ss")
+    }
+}
+
+function Get-AvgTimeDuration {
+    <#
+    .SYNOPSIS
+        Used by As Built Report to convert jobs session Duration time to AVG TimeFormat.
+    .DESCRIPTION
+    .NOTES
+        Version:        0.1.0
+        Author:         Jonathan Colon
+    .EXAMPLE
+        Get-TimeDuration -$JobTimeSpan
+    .LINK
+    #>
+
+    [CmdletBinding()]
+    Param
+    (
+        [Parameter (
+            Position = 0,
+            Mandatory
+        )]
+        $JobSessions
+    )
+
+    $TimeDurationObj = @()
+    foreach ($JobSession in $JobSessions) {
+        $TimeDurationObj += New-TimeSpan -Start $JobSession.CreationTime -End $JobSession.EndTime
+    }
+
+    # Calculate AVG TimeDuration of job sessions
+    $AverageTimeSpan = New-TimeSpan -Seconds (($TimeDurationObj.TotalSeconds | Measure-Object -Sum).Sum / $JobSessions.Count)
+
+    return (Get-TimeDuration -JobTimeSpan $AverageTimeSpan)
+}

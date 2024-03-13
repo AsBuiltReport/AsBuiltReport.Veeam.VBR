@@ -90,7 +90,7 @@ function Get-AbrVbrBackupRepository {
                         Paragraph "The following section provides Backup Repository summary information."
                         BlankLine
                         if ($Options.EnableCharts -and $chartFileItem) {
-                            Image -Text 'Backup Repository - Diagram' -Align 'Center' -Percent 100 -Base64 $chartFileItem
+                            Image -Text 'Backup Repository - Chart' -Align 'Center' -Percent 100 -Base64 $chartFileItem
                         }
                         BlankLine
                         $OutObj | Sort-Object -Property 'Name' | Table @TableParams

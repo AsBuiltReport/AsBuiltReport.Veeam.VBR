@@ -63,7 +63,7 @@ function Get-AbrVbrStorageInfraSummary {
             if ($OutObj) {
                 Section -Style NOTOCHeading3 -ExcludeFromTOC 'Storage Infrastructure Inventory' {
                     if ($Options.EnableCharts -and $chartFileItem -and ($inObj.Values | Measure-Object -Sum).Sum -ne 0) {
-                        Image -Text 'Storage Infrastructure Inventory - Diagram' -Align 'Center' -Percent 100 -Base64 $chartFileItem
+                        Image -Text 'Storage Infrastructure Inventory - Chart' -Align 'Center' -Percent 100 -Base64 $chartFileItem
                     }
                     BlankLine
                     $OutObj | Table @TableParams

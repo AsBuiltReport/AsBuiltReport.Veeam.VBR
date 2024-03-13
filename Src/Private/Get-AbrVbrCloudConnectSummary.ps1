@@ -68,7 +68,7 @@ function Get-AbrVbrCloudConnectSummary {
             if ($OutObj) {
                 Section -Style NOTOCHeading3 -ExcludeFromTOC 'Cloud Connect Infrastructure' {
                     if ($Options.EnableCharts -and $chartFileItem -and ($inObj.Values | Measure-Object -Sum).Sum -ne 0) {
-                        Image -Text 'Cloud Connect Infrastructure - Diagram' -Align 'Center' -Percent 100 -Base64 $chartFileItem
+                        Image -Text 'Cloud Connect Infrastructure - Chart' -Align 'Center' -Percent 100 -Base64 $chartFileItem
                     }
                     BlankLine
                     $OutObj | Table @TableParams

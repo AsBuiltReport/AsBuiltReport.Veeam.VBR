@@ -88,7 +88,7 @@ function Get-AbrVbrInventorySummary {
             if ($OutObj) {
                 Section -Style NOTOCHeading3 -ExcludeFromTOC 'Inventory' {
                     if ($Options.EnableCharts -and $chartFileItem -and ($inObj.Values | Measure-Object -Sum).Sum -ne 0) {
-                        Image -Text 'Inventory - Diagram' -Align 'Center' -Percent 100 -Base64 $chartFileItem
+                        Image -Text 'Inventory - Chart' -Align 'Center' -Percent 100 -Base64 $chartFileItem
                     }
                     BlankLine
                     $OutObj | Table @TableParams

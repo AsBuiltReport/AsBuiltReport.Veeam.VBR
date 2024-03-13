@@ -56,7 +56,7 @@ function Get-AbrVbrReplInfraSummary {
             if ($OutObj) {
                 Section -Style NOTOCHeading3 -ExcludeFromTOC 'Replication Inventory' {
                     if ($Options.EnableCharts -and $chartFileItem -and ($inObj.Values | Measure-Object -Sum).Sum -ne 0) {
-                        Image -Text 'Replication Inventory - Diagram' -Align 'Center' -Percent 100 -Base64 $chartFileItem
+                        Image -Text 'Replication Inventory - Chart' -Align 'Center' -Percent 100 -Base64 $chartFileItem
                     }
                     BlankLine
                     $OutObj | Table @TableParams
