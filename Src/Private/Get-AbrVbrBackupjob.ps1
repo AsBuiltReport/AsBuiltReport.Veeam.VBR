@@ -110,6 +110,7 @@ function Get-AbrVbrBackupjob {
                                         try {
                                             $BKJobSession = Get-VBRSession -Job $Bkjob | Select-Object -First 10
                                             $Duration = $Null
+                                            $StandardDeviation = $Null
                                             if ($BKJobSession) {
                                                 try {
                                                     $Duration = Get-AvgTimeDuration -JobSessions $BKJobSession
@@ -117,16 +118,15 @@ function Get-AbrVbrBackupjob {
                                                     Out-Null
                                                 }
                                             }
+                                            if ($BKJobSession) {
+                                                try {
+                                                    $StandardDeviation = (Get-StrdDevDuration -JobSessions $BKJobSession).StandardDeviation
+                                                } catch {
+                                                    Out-Null
+                                                }
+                                            }
                                             $inObj = [ordered] @{
                                                 'Name' = $Bkjob.Name
-                                                'Last Backup Start Time' = Switch ([string]::IsNullOrEmpty($BKJobSession)) {
-                                                    $true { '--' }
-                                                    $false { $BKJobSession[0].CreationTime }
-                                                }
-                                                'Last Backup End Time' = Switch ([string]::IsNullOrEmpty($BKJobSession)) {
-                                                    $true { '--' }
-                                                    $false { $BKJobSession[0].EndTime }
-                                                }
                                                 'Last Backup Duration' = Switch ([string]::IsNullOrEmpty($BKJobSession)) {
                                                     $true { '--' }
                                                     $false { Get-TimeDuration -JobTimeSpan (New-TimeSpan -Start $BKJobSession[0].CreationTime -End $BKJobSession[0].EndTime) }
@@ -136,7 +136,11 @@ function Get-AbrVbrBackupjob {
                                                     $false { $Duration }
                                                     default { 'Unknown' }
                                                 }
-                                                # '% Deviation' = 0
+                                                'Standard Deviation' = Switch ([string]::IsNullOrEmpty($StandardDeviation)) {
+                                                    $true { '--' }
+                                                    $false { $StandardDeviation }
+                                                    default { 'Unknown' }
+                                                }
                                             }
                                             $OutObj += [pscustomobject]$inObj
                                         } catch {
@@ -147,7 +151,7 @@ function Get-AbrVbrBackupjob {
                                     $TableParams = @{
                                         Name = "Backup Jobs Time - $VeeamBackupServer"
                                         List = $false
-                                        ColumnWidths = 36, 16, 16, 16, 16
+                                        ColumnWidths = 40, 20, 20, 20
                                     }
                                     if ($Report.ShowTableCaptions) {
                                         $TableParams['Caption'] = "- $($TableParams.Name)"

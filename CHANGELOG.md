@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.8.5] - 2024-01-30
+## [0.8.5] - 2024-03-15
 
 ### Added
 
@@ -15,6 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Added Auto logoff on inactivity setting
   - Added Four-eye Authorization setting
   - Added HealthCheck conditions
+- Added Backup Time Duration table to the Jobs Summary. Close [#144](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/144)
+- Added Restore point reporting. Close [#143](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/143)
 
 ### Changed
 
@@ -28,6 +30,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed issue with the Veeam.Diagrammer module.
 - Resolved issue that prevented SureBackup Virtual Lab information to be collected. Fix [#142](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/142)
 - Resolved issue in the Malware Global Exclusions section. Fix [#145](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/145)
+- Resolved an issue related to Protection Group licensing. Fix [#146](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/146)
 
 ## [0.8.4] - 2024-01-16
 
