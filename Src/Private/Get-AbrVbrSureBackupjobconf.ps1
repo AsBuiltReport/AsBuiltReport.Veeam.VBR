@@ -46,12 +46,12 @@ function Get-AbrVbrSureBackupjobconf {
                                                 'False' { 'Disabled' }
                                                 default { $SBkjob.NextRun }
                                             }
-                                            'Description' = $SBkjob.Description
+                                            'Description' = ConvertTo-EmptyToFiller $SBkjob.Description
                                         }
                                         $OutObj = [pscustomobject]$inobj
 
                                         if ($HealthCheck.Jobs.BestPractice) {
-                                            $OutObj | Where-Object { $Null -like $_.'Description' } | Set-Style -Style Warning -Property 'Description'
+                                            $OutObj | Where-Object { $_.'Description' -eq "--" } | Set-Style -Style Warning -Property 'Description'
                                             $OutObj | Where-Object { $_.'Description' -match "Created by" } | Set-Style -Style Warning -Property 'Description'
                                         }
 
@@ -65,13 +65,14 @@ function Get-AbrVbrSureBackupjobconf {
                                         }
                                         $OutObj | Table @TableParams
                                         if ($HealthCheck.Jobs.BestPractice) {
-                                            if ($OutObj | Where-Object { $_.'Description' -match 'Created by' -or $Null -like $_.'Description' }) {
+                                            if ($OutObj | Where-Object { $_.'Description' -match 'Created by' -or $_.'Description' -eq "--" }) {
                                                 Paragraph "Health Check:" -Bold -Underline
                                                 BlankLine
                                                 Paragraph {
                                                     Text "Best Practice:" -Bold
                                                     Text "It is a general rule of good practice to establish well-defined descriptions. This helps to speed up the fault identification process, as well as enabling better documentation of the environment."
                                                 }
+                                                BlankLine
                                             }
                                         }
                                     }
@@ -177,6 +178,7 @@ function Get-AbrVbrSureBackupjobconf {
                                                                 'Application Initialization Timeout' = "$($LinkedJob.StartupOptions.ApplicationInitializationTimeout) sec"
                                                                 'VM heartbeat is present' = ConvertTo-TextYN $LinkedJob.StartupOptions.VMHeartBeatCheckEnabled
                                                                 'VM respond to ping on any interface' = ConvertTo-TextYN $LinkedJob.StartupOptions.VMPingCheckEnabled
+                                                                'Automatically disable Windows Firewall' = ConvertTo-TextYN $LinkedJob.StartupOptions.WindowsFirewallDisabled
                                                                 'VM Role' = ConvertTo-EmptyToFiller ($LinkedJob.ScriptOptions.PredefinedApplication -join ", ")
                                                                 'VM Test Script' = Switch ([string]::IsNullOrEmpty(($LinkedJob.ScriptOptions | ForEach-Object { if ($_.Name) { $_.Name } }))) {
                                                                     $true { '--' }

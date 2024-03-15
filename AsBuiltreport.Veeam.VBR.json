@@ -10,63 +10,64 @@
     },
     "Options": {
         "BackupServerPort": 9392,
-        "PSDefaultAuthentication": "Default",
         "EnableCharts": false,
         "EnableHardwareInventory": false,
-        "EnableDiagrams": false
+        "EnableDiagrams": false,
+        "PSDefaultAuthentication": "Default"
     },
     "InfoLevel": {
 		"_comment_": "Please refer to the AsBuiltReport project contributing guide for information about how to define InfoLevels.",
         "_comment_": "0 = Disabled, 1 = Enabled, 2 = Adv Summary, 3 = Detailed",
         "Infrastructure": {
             "BackupServer": 1,
-            "Proxy": 1,
-            "Settings": 1,
             "BR": 1,
             "Licenses": 1,
+            "Proxy": 1,
+            "Settings": 1,
             "SOBR": 1,
-            "WANAccel": 1,
             "ServiceProvider": 1,
-            "SureBackup": 1
+            "SureBackup": 1,
+            "WANAccel": 1
 
         },
         "Tape": {
-            "Server": 1,
             "Library": 1,
             "MediaPool": 1,
-            "Vault": 1,
-            "NDMP": 1
+            "NDMP": 1,
+            "Server": 1,
+            "Vault": 1
         },
         "Inventory": {
-            "VI": 1,
+            "FileShare": 1,
             "PHY": 1,
-            "FileShare": 1
+            "VI": 1
         },
         "Storage": {
-            "ONTAP": 1,
-            "ISILON": 1
+            "ISILON": 1,
+            "ONTAP": 1
         },
         "Replication": {
             "FailoverPlan": 1,
             "Replica": 1
         },
         "CloudConnect": {
+            "BackupStorage": 1,
             "Certificate": 1,
-            "PublicIP": 1,
             "CloudGateway": 1,
             "GatewayPools": 1,
-            "Tenants": 1,
-            "BackupStorage": 1,
-            "ReplicaResources": 1
+            "PublicIP": 1,
+            "ReplicaResources": 1,
+            "Tenants": 1
         },
         "Jobs": {
+            "Agent": 1,
             "Backup": 1,
             "BackupCopy": 1,
-            "Tape": 1,
-            "Surebackup": 1,
-            "Agent": 1,
             "FileShare": 1,
-            "Replication": 1
+            "Surebackup": 1,
+            "Replication": 1,
+            "Restores": 1,
+            "Tape": 1
         }
     },
     "HealthCheck": {

@@ -335,7 +335,9 @@ function Get-PieChart {
     }
     Add-ChartTitle @addChartTitleParams
 
-    $ChartImage = Export-Chart -Chart $exampleChart -Path (Get-Location).Path -Format "PNG" -PassThru
+    $TempPath = Resolve-Path ([System.IO.Path]::GetTempPath())
+
+    $ChartImage = Export-Chart -Chart $exampleChart -Path $TempPath.Path -Format "PNG" -PassThru
 
     $Base64Image = [convert]::ToBase64String((Get-Content $ChartImage -Encoding byte))
 
@@ -419,7 +421,9 @@ function Get-ColumnChart {
     }
     Add-ChartTitle @addChartTitleParams
 
-    $ChartImage = Export-Chart -Chart $exampleChart -Path (Get-Location).Path -Format "PNG" -PassThru
+    $TempPath = Resolve-Path ([System.IO.Path]::GetTempPath())
+
+    $ChartImage = Export-Chart -Chart $exampleChart -Path $TempPath.Path -Format "PNG" -PassThru
 
     if ($PassThru) {
         Write-Output -InputObject $chartFileItem
@@ -501,3 +505,222 @@ function Get-WindowsTimePeriod {
     return $OutObj
 
 } # end
+
+function Get-TimeDuration {
+    <#
+    .SYNOPSIS
+        Used by As Built Report to convert job session Duration time to TimeFormat.
+    .DESCRIPTION
+    .NOTES
+        Version:        0.1.0
+        Author:         Jonathan Colon
+    .EXAMPLE
+        Get-TimeDuration -$TimeSpan
+    .LINK
+    #>
+
+    [CmdletBinding()]
+    Param
+    (
+        [Parameter (
+            Position = 0,
+            Mandatory
+        )]
+        [TimeSpan] $TimeSpan
+    )
+
+    if ($TimeSpan.Days -gt 0) {
+        $TimeSpan.ToString("dd\.hh\:mm\:ss")
+    } else {
+        $TimeSpan.ToString("hh\:mm\:ss")
+    }
+}
+
+function Get-TimeDurationSum {
+    <#
+    .SYNOPSIS
+        Used by As Built Report to convert inputobject Duration time to TimeFormat.
+    .DESCRIPTION
+    .NOTES
+        Version:        0.1.0
+        Author:         Jonathan Colon
+    .EXAMPLE
+        Get-TimeDurationSum -$InputObject $Variable -StartTime $StartObjct -EndTime $EndObject
+    .LINK
+    #>
+
+    [CmdletBinding()]
+    Param
+    (
+        [Parameter (
+            Position = 0,
+            Mandatory
+        )]
+        [Object[]] $InputObject,
+        [String] $StartTime,
+        [String] $EndTime
+
+    )
+
+    $TimeDurationObj = @()
+    foreach ($Object in $InputObject) {
+        $TimeDurationObj += (New-TimeSpan -Start $Object.$StartTime -End $Object.$EndTime).TotalSeconds
+    }
+
+    return ($TimeDurationObj | Measure-Object -Sum).Sum
+}
+function Get-AvgTimeDuration {
+    <#
+    .SYNOPSIS
+        Used by As Built Report to convert jobs session Duration time to AVG TimeFormat.
+    .DESCRIPTION
+    .NOTES
+        Version:        0.1.0
+        Author:         Jonathan Colon
+    .EXAMPLE
+        Get-AvgTimeDuration -$InputObject $Variable -StartTime $StartObjct -EndTime $EndObject
+    .LINK
+    #>
+
+    [CmdletBinding()]
+    Param
+    (
+        [Parameter (
+            Position = 0,
+            Mandatory
+        )]
+        [Object[]] $InputObject,
+        [String] $StartTime,
+        [String] $EndTime
+
+    )
+
+    $TimeDurationObj = @()
+    foreach ($Object in $InputObject) {
+        $TimeDurationObj += New-TimeSpan -Start $Object.$StartTime -End $Object.$EndTime
+    }
+
+    # Calculate AVG TimeDuration of job sessions
+    $AverageTimeSpan = New-TimeSpan -Seconds (($TimeDurationObj.TotalSeconds | Measure-Object -Average).Average)
+
+    return (Get-TimeDuration -TimeSpan $AverageTimeSpan)
+}
+
+function Get-StrdDevDuration {
+    <#
+    .SYNOPSIS
+        Used by As Built Report to convert jobs session Duration time to Standard Deviation TimeFormat.
+    .DESCRIPTION
+    .NOTES
+        Version:        0.1.0
+        Author:         Jonathan Colon
+    .EXAMPLE
+        Get-StrdDevDuration -$JobTimeSpan
+    .LINK
+    #>
+
+    [CmdletBinding()]
+    Param
+    (
+        [Parameter (
+            Position = 0,
+            Mandatory
+        )]
+        $JobSessions
+    )
+
+    $TimeDurationObj = @()
+    foreach ($JobSession in $JobSessions) {
+        $TimeDurationObj += (New-TimeSpan -Start $JobSession.CreationTime -End $JobSession.EndTime).TotalSeconds
+    }
+
+    # Calculate AVG TimeDuration of job sessions
+    $StrdDevDuration = Get-StandardDeviation -value $TimeDurationObj
+
+    return $StrdDevDuration
+}
+
+
+function Get-StandardDeviation {
+    <#
+        .Synopsis
+            This script will find the standard deviation, given a set of numbers.
+        .DESCRIPTION
+            This script will find the standard deviation, given a set of numbers.
+
+            Written by Mike Roberts (Ginger Ninja)
+            Version: 0.5
+        .EXAMPLE
+            .\Get-StandardDeviation.ps1
+
+            Using this method you will need to input numbers one line at a time, and then hit enter twice when done.
+            --------------------------------------------------------------------------------------------------------
+            PS > .\Get-StandardDeviation.ps1
+
+                cmdlet Get-StandardDeviation at command pipeline position 1
+                Supply values for the following parameters:
+                value[0]: 12345
+                value[1]: 0
+                value[2]:
+
+
+                Original Numbers           : 12345,0
+                Standard Deviation         : 8729.23321374793
+                Rounded Number (2 decimal) : 8729.23
+                Rounded Number (3 decimal) : 8729.233
+                --------------------------------------------------------------------------------------------------------
+        .EXAMPLE
+            .\Get-StandardDeviation.ps1 -value 12345,0
+        .LINK
+            http://www.gngrninja.com/script-ninja/2016/5/1/powershell-calculating-standard-deviation
+        .NOTES
+            Be sure to enter at least 2 numbers, separated by a comma if using the -value parameter.
+    #>
+    #Begin function Get-StandardDeviation
+    [cmdletbinding()]
+    param(
+        [Parameter(Mandatory = $true)]
+        [decimal[]] $value
+    )
+
+    #Simple if to see if the value matches digits, and also that there is more than one number.
+    if ($value -match '\d+' -and $value.Count -gt 1) {
+
+        #Variables used later
+        [decimal]$newNumbers = $Null
+        [decimal]$stdDev = $null
+
+        #Get the average and count via Measure-Object
+        $avgCount = $value | Measure-Object -Average | Select-Object Average, Count
+
+        #Iterate through each of the numbers and get part of the variance via some PowerShell math.
+        ForEach ($number in $value) {
+
+            $newNumbers += [Math]::Pow(($number - $avgCount.Average), 2)
+
+        }
+
+        #Finish the variance calculation, and get the square root to finally get the standard deviation.
+        $stdDev = [math]::Sqrt($($newNumbers / ($avgCount.Count - 1)))
+
+        #Create an array so we can add the object we create to it. This is incase we want to perhaps add some more math functions later.
+        [System.Collections.ArrayList]$formattedObjectArray = @()
+
+        #Create a hashtable collection for the properties of the object
+        $formattedProperty = @{'StandardDeviation' = [Math]::Round($stdDev, 2) }
+
+        #Create the object we'll add to the array, with the properties set above
+        $fpO = New-Object psobject -Property $formattedProperty
+
+        #Add that object to this array
+        $formattedObjectArray.Add($fpO) | Out-Null
+
+        #Return the array object with the selected objects defined, as well as formatting.
+        Return $formattedObjectArray
+
+    } else {
+
+        #Display an error if there are not enough numbers
+        Write-PScriboMessage "You did not enter enough numbers!"
+    }
+} #End function Get-StandardDeviation

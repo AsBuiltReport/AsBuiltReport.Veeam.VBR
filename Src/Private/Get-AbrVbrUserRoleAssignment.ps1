@@ -148,6 +148,7 @@ function Get-AbrVbrUserRoleAssignment {
                                 Paragraph {
                                     Text "*** Veeam recommends configuring Four-eye Authorization to be able to protect against accidental deletion of backup and repositories by requiring an approval from another Backup Administrator."
                                 }
+                                BlankLine
                             }
                         }
                     }

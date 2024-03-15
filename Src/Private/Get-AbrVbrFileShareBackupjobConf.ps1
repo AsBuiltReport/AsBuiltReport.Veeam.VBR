@@ -51,7 +51,7 @@ function Get-AbrVbrFileShareBackupjobConf {
                                                 'Total Backup Size' = ConvertTo-FileSizeString $CommonInfo.IncludedSize
                                                 'Target Address' = $CommonInfo.TargetDir
                                                 'Target File' = $CommonInfo.TargetFile
-                                                'Description' = $CommonInfo.CommonInfo.Description
+                                                'Description' = ConvertTo-EmptyToFiller $CommonInfo.CommonInfo.Description
                                                 'Modified By' = $CommonInfo.CommonInfo.ModifiedBy.FullName
                                             }
                                             $OutObj = [pscustomobject]$inobj
@@ -61,7 +61,7 @@ function Get-AbrVbrFileShareBackupjobConf {
                                     }
 
                                     if ($HealthCheck.Jobs.BestPractice) {
-                                        $OutObj | Where-Object { $Null -like $_.'Description' } | Set-Style -Style Warning -Property 'Description'
+                                        $OutObj | Where-Object { $_.'Description' -eq "--" } | Set-Style -Style Warning -Property 'Description'
                                         $OutObj | Where-Object { $_.'Description' -match "Created by" } | Set-Style -Style Warning -Property 'Description'
                                     }
 
@@ -75,7 +75,7 @@ function Get-AbrVbrFileShareBackupjobConf {
                                     }
                                     $OutObj | Table @TableParams
                                     if ($HealthCheck.Jobs.BestPractice) {
-                                        if ($OutObj | Where-Object { $_.'Description' -match 'Created by' -or $Null -like $_.'Description' }) {
+                                        if ($OutObj | Where-Object { $_.'Description' -match 'Created by' -or $_.'Description' -eq "--" }) {
                                             Paragraph "Health Check:" -Bold -Underline
                                             BlankLine
                                             Paragraph {
@@ -349,6 +349,7 @@ function Get-AbrVbrFileShareBackupjobConf {
                                                             Text "Best Practice:" -Bold
                                                             Text "It is recommended to use storage-level corruption guard for any backup job with no active full backups scheduled. Synthetic full backups are still 'incremental forever' and may suffer from corruption over time. Storage-level corruption guard was introduced to provide a greater level of confidence in integrity of the backups."
                                                         }
+                                                        BlankLine
                                                     }
                                                 }
                                             } catch {

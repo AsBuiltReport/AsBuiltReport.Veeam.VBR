@@ -101,6 +101,7 @@ function Get-AbrVbrConfigurationBackupSetting {
                                     Text "Best Practice:" -Bold
                                     Text "It's a recommended best practice to enable the Backup Configuration job"
                                 }
+                                BlankLine
                             }
                         }
                     }

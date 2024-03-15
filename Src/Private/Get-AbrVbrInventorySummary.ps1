@@ -32,7 +32,11 @@ function Get-AbrVbrInventorySummary {
                 $ESXi = Get-VBRServer | Where-Object { $_.Type -eq 'ESXi' }
                 $HvCluster = Get-VBRServer | Where-Object { $_.Type -eq 'HvCluster' }
                 $HvServer = Get-VBRServer | Where-Object { $_.Type -eq 'HvServer' }
-                $ProtectionGroups = Get-VBRProtectionGroup
+                $ProtectionGroups = try {
+                    Get-VBRProtectionGroup | Sort-Object -Property Name
+                } catch {
+                    Write-PScriboMessage -IsWarning "Physical Infrastructure Inventory Summary Cmdlet: $($_.Exception.Message)"
+                }
                 if ($VbrVersion -lt 12.1) {
                     $Shares = Get-VBRNASServer -WarningAction SilentlyContinue
                 } else {
@@ -42,25 +46,25 @@ function Get-AbrVbrInventorySummary {
                     $ObjectStorage = Get-VBRUnstructuredServer | Where-Object { $_.Type -eq "AzureBlobServer" -or $_.Type -eq "AmazonS3Server" -or $_.Type -eq "S3CompatibleServer" }
                 }
                 $inObj = [ordered] @{
-                    'vCenter Servers' = $vCenter.Count
-                    'ESXi Servers' = $ESXi.Count
-                    'Hyper-V Clusters' = $HvCluster.Count
-                    'Hyper-V Servers' = $HvServer.Count
-                    'Protection Groups' = $ProtectionGroups.Count
+                    'vCenter Servers' = ($vCenter | Measure-Object).Count
+                    'ESXi Servers' = ($ESXi | Measure-Object).Count
+                    'Hyper-V Clusters' = ($HvCluster | Measure-Object).Count
+                    'Hyper-V Servers' = ($HvServer | Measure-Object).Count
+                    'Protection Groups' = ($ProtectionGroups | Measure-Object).Count
                 }
 
                 if ($VbrVersion -lt 12.1) {
-                    $inObj.add('File Shares', $Shares.Count)
+                    $inObj.add('File Shares', ($Shares | Measure-Object).Count)
                 } else {
-                    $inObj.add('File Server', $FileServers.Count)
-                    $inObj.add('NAS Fillers', $NASFillers.Count)
-                    $inObj.add('File Shares', $FileShares.Count)
-                    $inObj.add('Object Storage', $ObjectStorage.Count)
+                    $inObj.add('File Server', ($FileServers | Measure-Object).Count)
+                    $inObj.add('NAS Fillers', ($NASFillers | Measure-Object).Count)
+                    $inObj.add('File Shares', ($FileShares | Measure-Object).Count)
+                    $inObj.add('Object Storage', ($ObjectStorage | Measure-Object).Count)
                 }
 
                 $OutObj += [pscustomobject]$inobj
             } catch {
-                Write-PScriboMessage -IsWarning "Inventory Summary Section: $($_.Exception.Message)"
+                Write-PScriboMessage -IsWarning "Inventory Summary Table: $($_.Exception.Message)"
             }
 
             $TableParams = @{
@@ -84,7 +88,7 @@ function Get-AbrVbrInventorySummary {
             if ($OutObj) {
                 Section -Style NOTOCHeading3 -ExcludeFromTOC 'Inventory' {
                     if ($Options.EnableCharts -and $chartFileItem -and ($inObj.Values | Measure-Object -Sum).Sum -ne 0) {
-                        Image -Text 'Inventory - Diagram' -Align 'Center' -Percent 100 -Base64 $chartFileItem
+                        Image -Text 'Inventory - Chart' -Align 'Center' -Percent 100 -Base64 $chartFileItem
                     }
                     BlankLine
                     $OutObj | Table @TableParams

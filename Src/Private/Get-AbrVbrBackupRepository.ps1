@@ -90,7 +90,7 @@ function Get-AbrVbrBackupRepository {
                         Paragraph "The following section provides Backup Repository summary information."
                         BlankLine
                         if ($Options.EnableCharts -and $chartFileItem) {
-                            Image -Text 'Backup Repository - Diagram' -Align 'Center' -Percent 100 -Base64 $chartFileItem
+                            Image -Text 'Backup Repository - Chart' -Align 'Center' -Percent 100 -Base64 $chartFileItem
                         }
                         BlankLine
                         $OutObj | Sort-Object -Property 'Name' | Table @TableParams
@@ -178,6 +178,7 @@ function Get-AbrVbrBackupRepository {
                                                         Text "Best Practice:" -Bold
                                                         Text "Veeam recommend to implement Immutability where it is supported. It is done for increased security: immutability protects your data from loss as a result of attacks, malware activity or any other injurious actions."
                                                     }
+                                                    BlankLine
                                                 }
                                             }
                                         } catch {

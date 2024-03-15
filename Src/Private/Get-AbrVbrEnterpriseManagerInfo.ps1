@@ -74,6 +74,7 @@ function Get-AbrVbrEnterpriseManagerInfo {
                                     Text "Best Practice:" -Bold
                                     Text "Veeam recommends centralized license management through Enterprise Manager."
                                 }
+                                BlankLine
                             }
                         }
                     }

@@ -82,6 +82,7 @@ function Get-AbrVbrBackupCopyjobConf {
                                                     Text "Best Practice:" -Bold
                                                     Text "It is a general rule of good practice to establish well-defined descriptions. This helps to speed up the fault identification process, as well as enabling better documentation of the environment."
                                                 }
+                                                BlankLine
                                             }
                                         }
                                     } catch {
@@ -251,6 +252,7 @@ function Get-AbrVbrBackupCopyjobConf {
                                                                 Text "Best Practice:" -Bold
                                                                 Text "It is recommended to use storage-level corruption guard for any backup job with no active full backups scheduled. Synthetic full backups are still 'incremental forever' and may suffer from corruption over time. Storage-level corruption guard was introduced to provide a greater level of confidence in integrity of the backups."
                                                             }
+                                                            BlankLine
                                                         }
                                                     }
                                                 } catch {
@@ -292,6 +294,7 @@ function Get-AbrVbrBackupCopyjobConf {
                                                                 Text "Best Practice:" -Bold
                                                                 Text "Backup and replica data is a high potential source of vulnerability. To secure data stored in backups and replicas, use Veeam Backup & Replication inbuilt encryption to protect data in backups"
                                                             }
+                                                            BlankLine
                                                         }
                                                     }
                                                 } catch {
