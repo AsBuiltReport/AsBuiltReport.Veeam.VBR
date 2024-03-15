@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Added HealthCheck conditions
 - Added Backup Time Duration table to the Jobs Summary. Close [#144](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/144)
 - Added Restore point reporting. Close [#143](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/143)
+- Added Automatically disable Windows Firewall option to the SureBackup verification option section
 
 ### Changed
 

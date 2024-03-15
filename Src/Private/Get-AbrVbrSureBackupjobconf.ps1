@@ -178,6 +178,7 @@ function Get-AbrVbrSureBackupjobconf {
                                                                 'Application Initialization Timeout' = "$($LinkedJob.StartupOptions.ApplicationInitializationTimeout) sec"
                                                                 'VM heartbeat is present' = ConvertTo-TextYN $LinkedJob.StartupOptions.VMHeartBeatCheckEnabled
                                                                 'VM respond to ping on any interface' = ConvertTo-TextYN $LinkedJob.StartupOptions.VMPingCheckEnabled
+                                                                'Automatically disable Windows Firewall' = ConvertTo-TextYN $LinkedJob.StartupOptions.WindowsFirewallDisabled
                                                                 'VM Role' = ConvertTo-EmptyToFiller ($LinkedJob.ScriptOptions.PredefinedApplication -join ", ")
                                                                 'VM Test Script' = Switch ([string]::IsNullOrEmpty(($LinkedJob.ScriptOptions | ForEach-Object { if ($_.Name) { $_.Name } }))) {
                                                                     $true { '--' }
