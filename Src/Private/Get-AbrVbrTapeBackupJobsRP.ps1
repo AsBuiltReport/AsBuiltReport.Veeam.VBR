@@ -27,13 +27,13 @@ function Get-AbrVbrTapeBackupJobsRP {
             $BackupJobs = Get-VBRTapeBackup -WarningAction SilentlyContinue | Sort-Object -Property Name
             if ($BackupJobs) {
                 Write-PScriboMessage "Collecting Veeam VBR Tape Restore Point."
-                Section -Style Heading3 'Tape Backup Jobs ' {
-                    Paragraph "The following section summarizes the tape backup jobs restore points."
+                Section -Style Heading3 'Tape Backup Restore Points ' {
+                    Paragraph "The following section details per Tape Backup Job restore points."
                     BlankLine
                     foreach ($BackupJob in $BackupJobs) {
                         $BackupJobRestorePoints = Get-VBRRestorePoint -Backup $BackupJob | Sort-Object -Property VMName, CreationTimeUt, Type
                         if ($BackupJobRestorePoints) {
-                            Section -Style Heading4  $BackupJob.Name {
+                            Section -ExcludeFromTOC -Style NOTOCHeading4  $BackupJob.Name {
                                 $RestorePointInfo = @()
                                 foreach ($RestorePoint in $BackupJobRestorePoints) {
                                     try {
@@ -58,7 +58,7 @@ function Get-AbrVbrTapeBackupJobsRP {
                                 $TableParams = @{
                                     Name = "Tape Restore Points - $($BackupJob.Name)"
                                     List = $false
-                                    ColumnWidths = 20, 16, 16, 16, 16, 16
+                                    ColumnWidths = 40, 12, 12, 12, 12, 12
                                 }
                                 if ($Report.ShowTableCaptions) {
                                     $TableParams['Caption'] = "- $($TableParams.Name)"

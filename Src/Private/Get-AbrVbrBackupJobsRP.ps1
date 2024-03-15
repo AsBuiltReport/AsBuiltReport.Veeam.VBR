@@ -27,13 +27,13 @@ function Get-AbrVbrBackupJobsRP {
             $BackupJobs = Get-VBRBackup | Sort-Object -Property Name
             if ($BackupJobs) {
                 Write-PScriboMessage "Collecting Veeam VBR Restore Point."
-                Section -Style Heading3 'Backup Jobs' {
-                    Paragraph "The following section summarizes the backup jobs restore points."
+                Section -Style Heading3 'Backup Restore Points' {
+                    Paragraph "The following section details per Backup Job restore points."
                     BlankLine
                     foreach ($BackupJob in $BackupJobs) {
                         $BackupJobRestorePoints = Get-VBRRestorePoint -Backup $BackupJob | Sort-Object -Property VMName, CreationTimeUt, Type
                         if ($BackupJobRestorePoints) {
-                            Section -Style Heading4  $BackupJob.Name {
+                            Section -ExcludeFromTOC -Style NOTOCHeading4  $BackupJob.Name {
                                 $RestorePointInfo = @()
                                 foreach ($RestorePoint in $BackupJobRestorePoints) {
                                     try {
@@ -41,6 +41,7 @@ function Get-AbrVbrBackupJobsRP {
                                         $CompressRatio = $RestorePoint.GetStorage().stats.CompressRatio
                                         if ($DedupRatio -gt 1) { $DedupRatio = 100 / $DedupRatio } else { $DedupRatio = 1 }
                                         if ($CompressRatio -gt 1) { $CompressRatio = 100 / $CompressRatio } else { $CompressRatio = 1 }
+
                                         $inObj = [ordered] @{
                                             'VM Name' = $RestorePoint.VMName
                                             'Backup Type' = $RestorePoint.Algorithm
@@ -58,7 +59,7 @@ function Get-AbrVbrBackupJobsRP {
                                 $TableParams = @{
                                     Name = "Restore Points - $($BackupJob.Name)"
                                     List = $false
-                                    ColumnWidths = 20, 16, 16, 16, 16, 16
+                                    ColumnWidths = 40, 12, 12, 12, 12, 12
                                 }
                                 if ($Report.ShowTableCaptions) {
                                     $TableParams['Caption'] = "- $($TableParams.Name)"

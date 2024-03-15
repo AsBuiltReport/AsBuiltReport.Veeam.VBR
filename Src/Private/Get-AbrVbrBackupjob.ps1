@@ -113,7 +113,7 @@ function Get-AbrVbrBackupjob {
                                             $StandardDeviation = $Null
                                             if ($BKJobSession) {
                                                 try {
-                                                    $Duration = Get-AvgTimeDuration -JobSessions $BKJobSession
+                                                    $Duration = Get-AvgTimeDuration -InputObject $BKJobSession -StartTime 'CreationTime' -EndTime 'EndTime'
                                                 } catch {
                                                     Out-Null
                                                 }
@@ -129,7 +129,7 @@ function Get-AbrVbrBackupjob {
                                                 'Name' = $Bkjob.Name
                                                 'Last Backup Duration' = Switch ([string]::IsNullOrEmpty($BKJobSession)) {
                                                     $true { '--' }
-                                                    $false { Get-TimeDuration -JobTimeSpan (New-TimeSpan -Start $BKJobSession[0].CreationTime -End $BKJobSession[0].EndTime) }
+                                                    $false { Get-TimeDuration -TimeSpan (New-TimeSpan -Start $BKJobSession[0].CreationTime -End $BKJobSession[0].EndTime) }
                                                 }
                                                 'Last 10 Backup AVG Duration' = Switch ([string]::IsNullOrEmpty($Duration)) {
                                                     $true { '--' }

@@ -515,7 +515,7 @@ function Get-TimeDuration {
         Version:        0.1.0
         Author:         Jonathan Colon
     .EXAMPLE
-        Get-TimeDuration -$JobTimeSpan
+        Get-TimeDuration -$TimeSpan
     .LINK
     #>
 
@@ -526,16 +526,49 @@ function Get-TimeDuration {
             Position = 0,
             Mandatory
         )]
-        [TimeSpan] $JobTimeSpan
+        [TimeSpan] $TimeSpan
     )
 
-    if ($JobTimeSpan.Days -gt 0) {
-        $JobTimeSpan.ToString("dd\.hh\:mm\:ss")
+    if ($TimeSpan.Days -gt 0) {
+        $TimeSpan.ToString("dd\.hh\:mm\:ss")
     } else {
-        $JobTimeSpan.ToString("hh\:mm\:ss")
+        $TimeSpan.ToString("hh\:mm\:ss")
     }
 }
 
+function Get-TimeDurationSum {
+    <#
+    .SYNOPSIS
+        Used by As Built Report to convert inputobject Duration time to TimeFormat.
+    .DESCRIPTION
+    .NOTES
+        Version:        0.1.0
+        Author:         Jonathan Colon
+    .EXAMPLE
+        Get-TimeDurationSum -$InputObject $Variable -StartTime $StartObjct -EndTime $EndObject
+    .LINK
+    #>
+
+    [CmdletBinding()]
+    Param
+    (
+        [Parameter (
+            Position = 0,
+            Mandatory
+        )]
+        [Object[]] $InputObject,
+        [String] $StartTime,
+        [String] $EndTime
+
+    )
+
+    $TimeDurationObj = @()
+    foreach ($Object in $InputObject) {
+        $TimeDurationObj += (New-TimeSpan -Start $Object.$StartTime -End $Object.$EndTime).TotalSeconds
+    }
+
+    return ($TimeDurationObj | Measure-Object -Sum).Sum
+}
 function Get-AvgTimeDuration {
     <#
     .SYNOPSIS
@@ -545,7 +578,7 @@ function Get-AvgTimeDuration {
         Version:        0.1.0
         Author:         Jonathan Colon
     .EXAMPLE
-        Get-TimeDuration -$JobTimeSpan
+        Get-AvgTimeDuration -$InputObject $Variable -StartTime $StartObjct -EndTime $EndObject
     .LINK
     #>
 
@@ -556,18 +589,21 @@ function Get-AvgTimeDuration {
             Position = 0,
             Mandatory
         )]
-        $JobSessions
+        [Object[]] $InputObject,
+        [String] $StartTime,
+        [String] $EndTime
+
     )
 
     $TimeDurationObj = @()
-    foreach ($JobSession in $JobSessions) {
-        $TimeDurationObj += New-TimeSpan -Start $JobSession.CreationTime -End $JobSession.EndTime
+    foreach ($Object in $InputObject) {
+        $TimeDurationObj += New-TimeSpan -Start $Object.$StartTime -End $Object.$EndTime
     }
 
     # Calculate AVG TimeDuration of job sessions
     $AverageTimeSpan = New-TimeSpan -Seconds (($TimeDurationObj.TotalSeconds | Measure-Object -Average).Average)
 
-    return (Get-TimeDuration -JobTimeSpan $AverageTimeSpan)
+    return (Get-TimeDuration -TimeSpan $AverageTimeSpan)
 }
 
 function Get-StrdDevDuration {
