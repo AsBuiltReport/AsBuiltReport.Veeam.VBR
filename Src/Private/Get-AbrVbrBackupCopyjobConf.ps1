@@ -6,7 +6,7 @@ function Get-AbrVbrBackupCopyjobConf {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.4
+        Version:        0.8.5
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -21,7 +21,7 @@ function Get-AbrVbrBackupCopyjobConf {
     )
 
     begin {
-        Write-PscriboMessage "Discovering Veeam VBR backup copy jobs information from $System."
+        Write-PScriboMessage "Discovering Veeam VBR backup copy jobs information from $System."
     }
 
     process {
@@ -39,7 +39,7 @@ function Get-AbrVbrBackupCopyjobConf {
                                     $OutObj = @()
                                     try {
                                         try {
-                                            Write-PscriboMessage "Discovered $($Bkjob.Name) common information."
+                                            Write-PScriboMessage "Discovered $($Bkjob.Name) common information."
                                             $inObj = [ordered] @{
                                                 'Name' = $Bkjob.Name
                                                 'Id' = $Bkjob.Id
@@ -50,12 +50,11 @@ function Get-AbrVbrBackupCopyjobConf {
                                                 'Next Run' = ConvertTo-EmptyToFiller $Bkjob.NextRun
                                                 'Include database transaction log backup' = ConvertTo-TextYN $Bkjob.TransactionLogCopyEnabled
                                                 'Description' = ConvertTo-EmptyToFiller $Bkjob.Description
-                                                'Modified By' = (get-VBRJob -WarningAction SilentlyContinue -ErrorAction SilentlyContinue | Where-Object {$_.id -eq $Bkjob.Id}).Info.CommonInfo.ModifiedBy.FullName
+                                                'Modified By' = (Get-VBRJob -WarningAction SilentlyContinue -ErrorAction SilentlyContinue | Where-Object { $_.id -eq $Bkjob.Id }).Info.CommonInfo.ModifiedBy.FullName
                                             }
                                             $OutObj = [pscustomobject]$inobj
-                                        }
-                                        catch {
-                                            Write-PscriboMessage -IsWarning $_.Exception.Message
+                                        } catch {
+                                            Write-PScriboMessage -IsWarning $_.Exception.Message
                                         }
 
                                         if ($HealthCheck.Jobs.BestPractice) {
@@ -76,18 +75,18 @@ function Get-AbrVbrBackupCopyjobConf {
                                         }
                                         $OutObj | Table @TableParams
                                         if ($HealthCheck.Jobs.BestPractice) {
-                                            if ($OutObj | Where-Object { $_.'Description' -match 'Created by' -or $_.'Description' -eq '--'}) {
+                                            if ($OutObj | Where-Object { $_.'Description' -match 'Created by' -or $_.'Description' -eq '--' }) {
                                                 Paragraph "Health Check:" -Bold -Underline
                                                 BlankLine
                                                 Paragraph {
                                                     Text "Best Practice:" -Bold
                                                     Text "It is a general rule of good practice to establish well-defined descriptions. This helps to speed up the fault identification process, as well as enabling better documentation of the environment."
                                                 }
+                                                BlankLine
                                             }
                                         }
-                                    }
-                                    catch {
-                                        Write-PscriboMessage -IsWarning $_.Exception.Message
+                                    } catch {
+                                        Write-PScriboMessage -IsWarning $_.Exception.Message
                                     }
                                 }
                                 if ($Bkjob.BackupJob) {
@@ -96,7 +95,7 @@ function Get-AbrVbrBackupCopyjobConf {
                                         try {
                                             foreach ($LinkedBkJob in $Bkjob.BackupJob) {
                                                 try {
-                                                    Write-PscriboMessage "Discovered $($LinkedBkJob.Name) linked backup job objects."
+                                                    Write-PScriboMessage "Discovered $($LinkedBkJob.Name) linked backup job objects."
                                                     $inObj = [ordered] @{
                                                         'Name' = $LinkedBkJob.Name
                                                         'Type' = $LinkedBkJob.TypeToString
@@ -104,9 +103,8 @@ function Get-AbrVbrBackupCopyjobConf {
                                                         'Repository' = $LinkedBkJob.GetTargetRepository().Name
                                                     }
                                                     $OutObj += [pscustomobject]$inobj
-                                                }
-                                                catch {
-                                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                } catch {
+                                                    Write-PScriboMessage -IsWarning $_.Exception.Message
                                                 }
                                             }
 
@@ -119,9 +117,8 @@ function Get-AbrVbrBackupCopyjobConf {
                                                 $TableParams['Caption'] = "- $($TableParams.Name)"
                                             }
                                             $OutObj | Sort-Object -Property 'Name' | Table @TableParams
-                                        }
-                                        catch {
-                                            Write-PscriboMessage -IsWarning $_.Exception.Message
+                                        } catch {
+                                            Write-PScriboMessage -IsWarning $_.Exception.Message
                                         }
                                     }
                                 }
@@ -131,7 +128,7 @@ function Get-AbrVbrBackupCopyjobConf {
                                         try {
                                             foreach ($LinkedRepository in $Bkjob.SourceRepository) {
                                                 try {
-                                                    Write-PscriboMessage "Discovered $($LinkedRepository.Name) linked repository objects."
+                                                    Write-PScriboMessage "Discovered $($LinkedRepository.Name) linked repository objects."
                                                     if ($LinkedRepository.Type -eq "ExtendableRepository") {
                                                         $inObj = [ordered] @{
                                                             'Name' = $LinkedRepository.Name
@@ -146,9 +143,8 @@ function Get-AbrVbrBackupCopyjobConf {
                                                         }
                                                     }
                                                     $OutObj += [pscustomobject]$inobj
-                                                }
-                                                catch {
-                                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                } catch {
+                                                    Write-PScriboMessage -IsWarning $_.Exception.Message
                                                 }
                                             }
 
@@ -161,30 +157,28 @@ function Get-AbrVbrBackupCopyjobConf {
                                                 $TableParams['Caption'] = "- $($TableParams.Name)"
                                             }
                                             $OutObj | Sort-Object -Property 'Name' | Table @TableParams
-                                        }
-                                        catch {
-                                            Write-PscriboMessage -IsWarning $_.Exception.Message
+                                        } catch {
+                                            Write-PScriboMessage -IsWarning $_.Exception.Message
                                         }
                                     }
                                 }
                                 Section -Style NOTOCHeading5 -ExcludeFromTOC 'Target' {
                                     $OutObj = @()
                                     try {
-                                        Write-PscriboMessage "Discovered $($Bkjob.Name) Target options."
+                                        Write-PScriboMessage "Discovered $($Bkjob.Name) Target options."
                                         if ($Bkjob.RetentionType -eq "RestoreDays") {
                                             $RetainString = 'Retain Days To Keep'
                                             $Retains = $Bkjob.RetentionNumber
-                                        }
-                                        elseif ($Bkjob.RetentionType -eq "RestorePoints") {
+                                        } elseif ($Bkjob.RetentionType -eq "RestorePoints") {
                                             $RetainString = 'Restore Points'
                                             $Retains = $Bkjob.RetentionNumber
                                         }
                                         $inObj = [ordered] @{
                                             'Backup Repository' = $Bkjob.Target
                                             'Retention Type' = SWitch ($Bkjob.RetentionType) {
-                                                'RestoreDays' {'Restore Days'}
-                                                'RestorePoints' {'Restore Points'}
-                                                default {'Unknown'}
+                                                'RestoreDays' { 'Restore Days' }
+                                                'RestorePoints' { 'Restore Points' }
+                                                default { 'Unknown' }
                                             }
                                             $RetainString = $Retains
                                         }
@@ -221,7 +215,7 @@ function Get-AbrVbrBackupCopyjobConf {
                                             Section -Style NOTOCHeading6 -ExcludeFromTOC "Advanced Settings (Maintenance)" {
                                                 $OutObj = @()
                                                 try {
-                                                    Write-PscriboMessage "Discovered $($Bkjob.Name) maintenance options."
+                                                    Write-PScriboMessage "Discovered $($Bkjob.Name) maintenance options."
                                                     $inObj = [ordered] @{
                                                         'Storage-Level Corruption Guard (SLCG)' = ConvertTo-TextYN $Bkjob.HealthCheckOptions.Enabled
                                                         'SLCG Schedule Type' = $Bkjob.HealthCheckOptions.ScheduleType
@@ -258,11 +252,11 @@ function Get-AbrVbrBackupCopyjobConf {
                                                                 Text "Best Practice:" -Bold
                                                                 Text "It is recommended to use storage-level corruption guard for any backup job with no active full backups scheduled. Synthetic full backups are still 'incremental forever' and may suffer from corruption over time. Storage-level corruption guard was introduced to provide a greater level of confidence in integrity of the backups."
                                                             }
+                                                            BlankLine
                                                         }
                                                     }
-                                                }
-                                                catch {
-                                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                } catch {
+                                                    Write-PScriboMessage -IsWarning $_.Exception.Message
                                                 }
                                             }
                                         }
@@ -270,7 +264,7 @@ function Get-AbrVbrBackupCopyjobConf {
                                             Section -Style NOTOCHeading6 -ExcludeFromTOC "Advanced Settings (Storage)" {
                                                 $OutObj = @()
                                                 try {
-                                                    Write-PscriboMessage "Discovered $($Bkjob.Name) storage options."
+                                                    Write-PScriboMessage "Discovered $($Bkjob.Name) storage options."
                                                     $inObj = [ordered] @{
                                                         'Inline Data Deduplication' = ConvertTo-TextYN $Bkjob.StorageOptions.DataDeduplicationEnabled
                                                         'Compression Level' = $Bkjob.StorageOptions.CompressionLevel
@@ -280,7 +274,7 @@ function Get-AbrVbrBackupCopyjobConf {
                                                     $OutObj = [pscustomobject]$inobj
 
                                                     if ($HealthCheck.Jobs.BestPractice) {
-                                                        $OutObj | Where-Object { $_.'Enabled Backup File Encryption' -eq 'No'} | Set-Style -Style Warning -Property 'Enabled Backup File Encryption'
+                                                        $OutObj | Where-Object { $_.'Enabled Backup File Encryption' -eq 'No' } | Set-Style -Style Warning -Property 'Enabled Backup File Encryption'
                                                     }
 
                                                     $TableParams = @{
@@ -293,18 +287,18 @@ function Get-AbrVbrBackupCopyjobConf {
                                                     }
                                                     $OutObj | Table @TableParams
                                                     if ($HealthCheck.Jobs.BestPractice) {
-                                                        if ($OutObj | Where-Object { $_.'Enabled Backup File Encryption' -eq 'No'}) {
+                                                        if ($OutObj | Where-Object { $_.'Enabled Backup File Encryption' -eq 'No' }) {
                                                             Paragraph "Health Check:" -Bold -Underline
-                                                            Blankline
+                                                            BlankLine
                                                             Paragraph {
                                                                 Text "Best Practice:" -Bold
                                                                 Text "Backup and replica data is a high potential source of vulnerability. To secure data stored in backups and replicas, use Veeam Backup & Replication inbuilt encryption to protect data in backups"
                                                             }
+                                                            BlankLine
                                                         }
                                                     }
-                                                }
-                                                catch {
-                                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                } catch {
+                                                    Write-PScriboMessage -IsWarning $_.Exception.Message
                                                 }
                                             }
                                         }
@@ -313,9 +307,9 @@ function Get-AbrVbrBackupCopyjobConf {
                                             Section -Style NOTOCHeading6 -ExcludeFromTOC "Advanced Settings (RPO Monitor)" {
                                                 $OutObj = @()
                                                 try {
-                                                    Write-PscriboMessage "Discovered $($Bkjob.Name) rpo monitor options."
-                                                    $BackupJob = $Bkjob.RpoWarningOptions | Where-Object {$_.RpoType -eq 'BackupJob'}
-                                                    $BackupLogJob = $Bkjob.RpoWarningOptions | Where-Object {$_.RpoType -eq 'BackupLogJob'}
+                                                    Write-PScriboMessage "Discovered $($Bkjob.Name) rpo monitor options."
+                                                    $BackupJob = $Bkjob.RpoWarningOptions | Where-Object { $_.RpoType -eq 'BackupJob' }
+                                                    $BackupLogJob = $Bkjob.RpoWarningOptions | Where-Object { $_.RpoType -eq 'BackupLogJob' }
 
                                                     $inObj = [ordered] @{
                                                         'Alert me when new backup is not copied within' = "$($BackupJob.Value) $($BackupJob.TimeUnit)`r`nEnable:$(ConvertTo-TextYN $BackupJob.EnableRpoWarning)"
@@ -333,9 +327,8 @@ function Get-AbrVbrBackupCopyjobConf {
                                                         $TableParams['Caption'] = "- $($TableParams.Name)"
                                                     }
                                                     $OutObj | Table @TableParams
-                                                }
-                                                catch {
-                                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                } catch {
+                                                    Write-PScriboMessage -IsWarning $_.Exception.Message
                                                 }
                                             }
                                         }
@@ -344,13 +337,13 @@ function Get-AbrVbrBackupCopyjobConf {
                                             Section -Style NOTOCHeading6 -ExcludeFromTOC "Advanced Settings (Notification)" {
                                                 $OutObj = @()
                                                 try {
-                                                    Write-PscriboMessage "Discovered $($Bkjob.Name) notification options."
+                                                    Write-PScriboMessage "Discovered $($Bkjob.Name) notification options."
                                                     $inObj = [ordered] @{
                                                         'Send Snmp Notification' = ConvertTo-TextYN $Bkjob.NotificationOptions.EnableSnmpNotification
                                                         'Send Email Notification' = ConvertTo-TextYN $Bkjob.NotificationOptions.EnableAdditionalNotification
                                                         'Email Notification Additional Addresses' = Switch ($Bkjob.NotificationOptions.AdditionalAddress) {
-                                                            $Null {'--'}
-                                                            default {$Bkjob.NotificationOptions.AdditionalAddress}
+                                                            $Null { '--' }
+                                                            default { $Bkjob.NotificationOptions.AdditionalAddress }
                                                         }
                                                         'Email Notify Time' = $Bkjob.NotificationOptions.SendTime
                                                         'Use Custom Email Notification Options' = ConvertTo-TextYN $Bkjob.NotificationOptions.UseNotificationOptions
@@ -359,9 +352,9 @@ function Get-AbrVbrBackupCopyjobConf {
                                                         'Notify On Warning' = ConvertTo-TextYN $Bkjob.NotificationOptions.NotifyOnWarning
                                                         'Notify On Error' = ConvertTo-TextYN $Bkjob.NotificationOptions.NotifyOnError
                                                         'Send notification' = Switch ($Bkjob.NotificationOptions.EnableDailyNotification) {
-                                                            'False' {'Immediately after each copied backup'}
-                                                            'True' {'Daily as a summary'}
-                                                            default {'Unknown'}
+                                                            'False' { 'Immediately after each copied backup' }
+                                                            'True' { 'Daily as a summary' }
+                                                            default { 'Unknown' }
                                                         }
                                                     }
                                                     $OutObj = [pscustomobject]$inobj
@@ -375,9 +368,8 @@ function Get-AbrVbrBackupCopyjobConf {
                                                         $TableParams['Caption'] = "- $($TableParams.Name)"
                                                     }
                                                     $OutObj | Table @TableParams
-                                                }
-                                                catch {
-                                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                } catch {
+                                                    Write-PScriboMessage -IsWarning $_.Exception.Message
                                                 }
                                             }
                                         }
@@ -389,12 +381,11 @@ function Get-AbrVbrBackupCopyjobConf {
                                                     if ($Bkjob.ScriptOptions.Periodicity -eq 'Days') {
                                                         $FrequencyValue = $Bkjob.ScriptOptions.Days -join ","
                                                         $FrequencyText = 'Run Script on the Selected Days'
-                                                    }
-                                                    elseif ($Bkjob.ScriptOptions.Periodicity -eq 'Cycles') {
+                                                    } elseif ($Bkjob.ScriptOptions.Periodicity -eq 'Cycles') {
                                                         $FrequencyValue = $Bkjob.ScriptOptions.Frequency
                                                         $FrequencyText = 'Run Script Every Backup Session'
                                                     }
-                                                    Write-PscriboMessage "Discovered $($Bkjob.Name) script options."
+                                                    Write-PScriboMessage "Discovered $($Bkjob.Name) script options."
                                                     $inObj = [ordered] @{
                                                         'Run the Following Script Before' = ConvertTo-TextYN $Bkjob.ScriptOptions.PreScriptEnabled
                                                         'Run Script Before the Job' = ConvertTo-EmptyToFiller $Bkjob.ScriptOptions.PreCommand
@@ -415,35 +406,32 @@ function Get-AbrVbrBackupCopyjobConf {
                                                         $TableParams['Caption'] = "- $($TableParams.Name)"
                                                     }
                                                     $OutObj | Table @TableParams
-                                                }
-                                                catch {
-                                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                } catch {
+                                                    Write-PScriboMessage -IsWarning $_.Exception.Message
                                                 }
                                             }
                                         }
-                                    }
-                                    catch {
-                                        Write-PscriboMessage -IsWarning $_.Exception.Message
+                                    } catch {
+                                        Write-PScriboMessage -IsWarning $_.Exception.Message
                                     }
                                 }
                                 Section -Style NOTOCHeading5 -ExcludeFromTOC 'Data Transfer' {
                                     $OutObj = @()
                                     try {
                                         try {
-                                            Write-PscriboMessage "Discovered $($Bkjob.Name) data transfer."
+                                            Write-PScriboMessage "Discovered $($Bkjob.Name) data transfer."
                                             $inObj = [ordered] @{
                                                 'Use Wan accelerator' = Switch ($Bkjob.DataTransferMode) {
-                                                    'ThroughWanAccelerators' {'Yes'}
-                                                    'Direct' {'No'}
-                                                    default {'Unkwnown'}
+                                                    'ThroughWanAccelerators' { 'Yes' }
+                                                    'Direct' { 'No' }
+                                                    default { 'Unkwnown' }
                                                 }
                                                 'Source Wan accelerator' = ConvertTo-EmptyToFiller $Bkjob.SourceAccelerator.Name
                                                 'Target Wan accelerator' = ConvertTo-EmptyToFiller $Bkjob.TargetAccelerator.Name
                                             }
                                             $OutObj += [pscustomobject]$inobj
-                                        }
-                                        catch {
-                                            Write-PscriboMessage -IsWarning $_.Exception.Message
+                                        } catch {
+                                            Write-PScriboMessage -IsWarning $_.Exception.Message
                                         }
 
                                         $TableParams = @{
@@ -455,29 +443,25 @@ function Get-AbrVbrBackupCopyjobConf {
                                             $TableParams['Caption'] = "- $($TableParams.Name)"
                                         }
                                         $OutObj | Table @TableParams
-                                    }
-                                    catch {
-                                        Write-PscriboMessage -IsWarning $_.Exception.Message
+                                    } catch {
+                                        Write-PScriboMessage -IsWarning $_.Exception.Message
                                     }
                                 }
                                 if ($Bkjob.Mode -eq 'Periodic') {
                                     Section -Style NOTOCHeading5 -ExcludeFromTOC "Schedule" {
                                         $OutObj = @()
                                         try {
-                                            Write-PscriboMessage "Discovered $($Bkjob.Name) schedule options."
+                                            Write-PScriboMessage "Discovered $($Bkjob.Name) schedule options."
                                             if ($Bkjob.ScheduleOptions.Type -eq "Daily") {
                                                 $ScheduleType = "Daily"
                                                 $Schedule = "Kind: $($Bkjob.ScheduleOptions.DailyOptions.Type) at $($Bkjob.ScheduleOptions.DailyOptions.Period.ToString()), Days of Week: $($Bkjob.ScheduleOptions.DailyOptions.DayOfWeek)"
-                                            }
-                                            elseif ($Bkjob.ScheduleOptions.Type -eq "Monthly") {
+                                            } elseif ($Bkjob.ScheduleOptions.Type -eq "Monthly") {
                                                 $ScheduleType = "Monthly"
                                                 $Schedule = "Day Of Month: $($Bkjob.ScheduleOptions.MonthlyOptions.DayOfMonth),`r`nDay Number In Month: $($Bkjob.ScheduleOptions.MonthlyOptions.DayNumberInMonth),`r`nDay Of Week: $($Bkjob.ScheduleOptions.MonthlyOptions.DayOfWeek),`r`nAt $($Bkjob.ScheduleOptions.MonthlyOptions.Period.ToString()),"
-                                            }
-                                            elseif ($Bkjob.ScheduleOptions.Type -eq "Periodically") {
+                                            } elseif ($Bkjob.ScheduleOptions.Type -eq "Periodically") {
                                                 $ScheduleType = $Bkjob.ScheduleOptions.PeriodicallyOptions.PeriodicallyKind
                                                 $Schedule = "Full Period: $($Bkjob.ScheduleOptions.PeriodicallyOptions.FullPeriod),`r`nHourly Offset: $($Bkjob.ScheduleOptions.PeriodicallyOptions.HourlyOffset),`r`nUnit: $($Bkjob.ScheduleOptions.PeriodicallyOptions.Unit)"
-                                            }
-                                            elseif ($Bkjob.ScheduleOptions.Type -eq "AfterJob") {
+                                            } elseif ($Bkjob.ScheduleOptions.Type -eq "AfterJob") {
                                                 $ScheduleType = 'AfterJob'
                                                 $Schedule = "After Job: $($BKjob.ScheduleOptions.Job.Name)"
                                             }
@@ -513,7 +497,7 @@ function Get-AbrVbrBackupCopyjobConf {
                                                         $TableParams = @{
                                                             Name = "Backup Window - $($Bkjob.Name)"
                                                             List = $true
-                                                            ColumnWidths = 6,4,3,4,4,4,4,4,4,4,4,4,4,4,3,4,4,4,4,4,4,4,4,4,4
+                                                            ColumnWidths = 6, 4, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4
                                                             Key = 'H'
                                                         }
                                                         if ($Report.ShowTableCaptions) {
@@ -521,31 +505,30 @@ function Get-AbrVbrBackupCopyjobConf {
                                                         }
                                                         if ($OutObj) {
                                                             $OutObj2 = Table -Hashtable $OutObj @TableParams
-                                                            $OutObj2.Rows | Where-Object {$_.Sun -eq "0"} | Set-Style -Style OFF -Property "Sun"
-                                                            $OutObj2.Rows | Where-Object {$_.Mon -eq "0"} | Set-Style -Style OFF -Property "Mon"
-                                                            $OutObj2.Rows | Where-Object {$_.Tue -eq "0"} | Set-Style -Style OFF -Property "Tue"
-                                                            $OutObj2.Rows | Where-Object {$_.Wed -eq "0"} | Set-Style -Style OFF -Property "Wed"
-                                                            $OutObj2.Rows | Where-Object {$_.Thu -eq "0"} | Set-Style -Style OFF -Property "Thu"
-                                                            $OutObj2.Rows | Where-Object {$_.Fri -eq "0"} | Set-Style -Style OFF -Property "Fri"
-                                                            $OutObj2.Rows | Where-Object {$_.Sat -eq "0"} | Set-Style -Style OFF -Property "Sat"
+                                                            $OutObj2.Rows | Where-Object { $_.Sun -eq "0" } | Set-Style -Style OFF -Property "Sun"
+                                                            $OutObj2.Rows | Where-Object { $_.Mon -eq "0" } | Set-Style -Style OFF -Property "Mon"
+                                                            $OutObj2.Rows | Where-Object { $_.Tue -eq "0" } | Set-Style -Style OFF -Property "Tue"
+                                                            $OutObj2.Rows | Where-Object { $_.Wed -eq "0" } | Set-Style -Style OFF -Property "Wed"
+                                                            $OutObj2.Rows | Where-Object { $_.Thu -eq "0" } | Set-Style -Style OFF -Property "Thu"
+                                                            $OutObj2.Rows | Where-Object { $_.Fri -eq "0" } | Set-Style -Style OFF -Property "Fri"
+                                                            $OutObj2.Rows | Where-Object { $_.Sat -eq "0" } | Set-Style -Style OFF -Property "Sat"
 
-                                                            $OutObj2.Rows | Where-Object {$_.Sun -eq "1"} | Set-Style -Style ON -Property "Sun"
-                                                            $OutObj2.Rows | Where-Object {$_.Mon -eq "1"} | Set-Style -Style ON -Property "Mon"
-                                                            $OutObj2.Rows | Where-Object {$_.Tue -eq "1"} | Set-Style -Style ON -Property "Tue"
-                                                            $OutObj2.Rows | Where-Object {$_.Wed -eq "1"} | Set-Style -Style ON -Property "Wed"
-                                                            $OutObj2.Rows | Where-Object {$_.Thu -eq "1"} | Set-Style -Style ON -Property "Thu"
-                                                            $OutObj2.Rows | Where-Object {$_.Fri -eq "1"} | Set-Style -Style ON -Property "Fri"
-                                                            $OutObj2.Rows | Where-Object {$_.Sat -eq "1"} | Set-Style -Style ON -Property "Sat"
+                                                            $OutObj2.Rows | Where-Object { $_.Sun -eq "1" } | Set-Style -Style ON -Property "Sun"
+                                                            $OutObj2.Rows | Where-Object { $_.Mon -eq "1" } | Set-Style -Style ON -Property "Mon"
+                                                            $OutObj2.Rows | Where-Object { $_.Tue -eq "1" } | Set-Style -Style ON -Property "Tue"
+                                                            $OutObj2.Rows | Where-Object { $_.Wed -eq "1" } | Set-Style -Style ON -Property "Wed"
+                                                            $OutObj2.Rows | Where-Object { $_.Thu -eq "1" } | Set-Style -Style ON -Property "Thu"
+                                                            $OutObj2.Rows | Where-Object { $_.Fri -eq "1" } | Set-Style -Style ON -Property "Fri"
+                                                            $OutObj2.Rows | Where-Object { $_.Sat -eq "1" } | Set-Style -Style ON -Property "Sat"
                                                             $OutObj2
                                                         }
                                                     }
                                                 } catch {
-                                                    Write-PscriboMessage -IsWarning $_.Exception.Message
+                                                    Write-PScriboMessage -IsWarning $_.Exception.Message
                                                 }
                                             }
-                                        }
-                                        catch {
-                                            Write-PscriboMessage -IsWarning $_.Exception.Message
+                                        } catch {
+                                            Write-PScriboMessage -IsWarning $_.Exception.Message
                                         }
                                     }
                                 }
@@ -553,7 +536,7 @@ function Get-AbrVbrBackupCopyjobConf {
                                     Section -Style NOTOCHeading5 -ExcludeFromTOC "Schedule" {
                                         $OutObj = @()
                                         try {
-                                            Write-PscriboMessage "Discovered $($Bkjob.Name) schedule options."
+                                            Write-PScriboMessage "Discovered $($Bkjob.Name) schedule options."
                                             $inObj = [ordered] @{
                                                 'Retry Failed Enabled?' = ConvertTo-TextYN $Bkjob.ScheduleOptions.RetryEnabled
                                                 'Retry Failed item processing' = $Bkjob.ScheduleOptions.RetryCount
@@ -573,23 +556,20 @@ function Get-AbrVbrBackupCopyjobConf {
                                                 $TableParams['Caption'] = "- $($TableParams.Name)"
                                             }
                                             $OutObj | Table @TableParams
-                                        }
-                                        catch {
-                                            Write-PscriboMessage -IsWarning $_.Exception.Message
+                                        } catch {
+                                            Write-PScriboMessage -IsWarning $_.Exception.Message
                                         }
                                     }
                                 }
                             }
-                        }
-                        catch {
-                            Write-PscriboMessage -IsWarning $_.Exception.Message
+                        } catch {
+                            Write-PScriboMessage -IsWarning $_.Exception.Message
                         }
                     }
                 }
             }
-        }
-        catch {
-            Write-PscriboMessage -IsWarning $_.Exception.Message
+        } catch {
+            Write-PScriboMessage -IsWarning $_.Exception.Message
         }
     }
     end {}

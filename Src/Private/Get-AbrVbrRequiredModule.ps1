@@ -5,7 +5,7 @@ function Get-AbrVbrRequiredModule {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.3
+        Version:        0.8.5
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -39,17 +39,14 @@ function Get-AbrVbrRequiredModule {
             try {
                 Write-PScriboMessage "Trying to import Veeam B&R modules."
                 $Modules | Import-Module -WarningAction SilentlyContinue
-            }
-            catch {
+            } catch {
                 Write-PScriboMessage -IsWarning "Failed to load Veeam Modules"
             }
-        }
-        else {
+        } else {
             try {
                 Write-PScriboMessage "No Veeam Modules found, Fallback to SnapIn."
                 Add-PSSnapin -Name VeeamPSSnapIn -PassThru -ErrorAction Stop | Out-Null
-            }
-            catch {
+            } catch {
                 Write-PScriboMessage -IsWarning "Failed to load VeeamPSSnapIn and no Modules found"
             }
         }
@@ -58,27 +55,24 @@ function Get-AbrVbrRequiredModule {
             try {
                 $script:VbrVersion = $Module.Version.ToString()
                 Write-PScriboMessage "Using Veeam Powershell module version $($VbrVersion)."
-            }
-            catch {
+            } catch {
                 Write-PScriboMessage -IsWarning "Failed to get Version from Module"
             }
-        }
-        else {
+        } else {
             try {
                 Write-PScriboMessage "No Veeam Modules found, Fallback to SnapIn."
                 $script:VbrVersion = (Get-PSSnapin VeeamPSSnapin -ErrorAction SilentlyContinue).PSVersion.ToString()
                 if ($VbrVersion) {
                     Write-PScriboMessage "Using Veeam Powershell module version $($VbrVersion)."
                 }
-            }
-            catch {
+            } catch {
                 Write-PScriboMessage -IsWarning "Failed to get Version from Module or SnapIn"
             }
         }
         # Check if the required version of VMware PowerCLI is installed
         $RequiredModule = Get-Module -ListAvailable -Name $Name
         $ModuleVersion = "$($RequiredModule.Version.Major)" + "." + "$($RequiredModule.Version.Minor)"
-        if ($ModuleVersion -eq ".")  {
+        if ($ModuleVersion -eq ".") {
             throw "$Name $Version or higher is required to run the Veeam VBR As Built Report. Install the Veeam Backup & Replication console that provide the required modules."
         }
         if ($ModuleVersion -lt $Version) {

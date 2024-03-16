@@ -6,7 +6,7 @@ function Get-AbrVbrIOControlSetting {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.4
+        Version:        0.8.5
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -21,12 +21,12 @@ function Get-AbrVbrIOControlSetting {
     )
 
     begin {
-        Write-PscriboMessage "Discovering Veeam VBR storage latency control settings information from $System."
+        Write-PScriboMessage "Discovering Veeam VBR storage latency control settings information from $System."
     }
 
     process {
         try {
-            if ($VbrLicenses | Where-Object {$_.Edition -in @("EnterprisePlus","Enterprise") -and $_.Status -ne "Expired"}) {
+            if ($VbrLicenses | Where-Object { $_.Edition -in @("EnterprisePlus", "Enterprise") -and $_.Status -ne "Expired" }) {
                 $StorageLatencyControls = Get-VBRStorageLatencyControlOptions
                 if ($StorageLatencyControls) {
                     Section -Style Heading4 'Storage Latency Control' {
@@ -39,14 +39,13 @@ function Get-AbrVbrIOControlSetting {
                                     'Enabled' = ConvertTo-TextYN $StorageLatencyControl.Enabled
                                 }
                                 $OutObj += [pscustomobject]$inobj
-                            }
-                            catch {
-                                Write-PscriboMessage -IsWarning "Storage Latency Control Section: $($_.Exception.Message)"
+                            } catch {
+                                Write-PScriboMessage -IsWarning "Storage Latency Control Section: $($_.Exception.Message)"
                             }
                         }
 
                         if ($HealthCheck.Infrastructure.Settings) {
-                            $OutObj | Where-Object { $_.'Enabled' -like 'No'} | Set-Style -Style Warning -Property 'Enabled'
+                            $OutObj | Where-Object { $_.'Enabled' -like 'No' } | Set-Style -Style Warning -Property 'Enabled'
                         }
 
                         $TableParams = @{
@@ -63,25 +62,24 @@ function Get-AbrVbrIOControlSetting {
                         #---------------------------------------------------------------------------------------------#
                         try {
                             $StorageLatencyControls = Get-VBRAdvancedLatencyOptions
-                            if (($VbrLicenses | Where-Object {$_.Edition -eq "EnterprisePlus"}) -and $StorageLatencyControls) {
+                            if (($VbrLicenses | Where-Object { $_.Edition -eq "EnterprisePlus" }) -and $StorageLatencyControls) {
                                 Section -Style NOTOCHeading5 -ExcludeFromTOC 'Per Datastore Latency Control Options' {
                                     $OutObj = @()
                                     foreach ($StorageLatencyControl in $StorageLatencyControls) {
                                         try {
-                                            $Datastores = Find-VBRViEntity -DatastoresAndVMs -ErrorAction SilentlyContinue | Where-Object {($_.type -eq "Datastore")}
-                                            $DatastoreName = ($Datastores | Where-Object {$_.Reference -eq $StorageLatencyControl.DatastoreId}).Name | Select-Object -Unique
+                                            $Datastores = Find-VBRViEntity -DatastoresAndVMs -ErrorAction SilentlyContinue | Where-Object { ($_.type -eq "Datastore") }
+                                            $DatastoreName = ($Datastores | Where-Object { $_.Reference -eq $StorageLatencyControl.DatastoreId }).Name | Select-Object -Unique
                                             $inObj = [ordered] @{
                                                 'Datastore Name' = Switch ($DatastoreName) {
-                                                    $Null {$StorageLatencyControl.DatastoreId}
-                                                    default {$DatastoreName}
+                                                    $Null { $StorageLatencyControl.DatastoreId }
+                                                    default { $DatastoreName }
                                                 }
                                                 'Latency Limit' = "$($StorageLatencyControl.LatencyLimitMs)/ms"
                                                 'Throttling IO Limit' = "$($StorageLatencyControl.ThrottlingIOLimitMs)/ms"
                                             }
                                             $OutObj += [pscustomobject]$inobj
-                                        }
-                                        catch {
-                                            Write-PscriboMessage -IsWarning "Per Datastore Latency Control Options Section: $($_.Exception.Message)"
+                                        } catch {
+                                            Write-PScriboMessage -IsWarning "Per Datastore Latency Control Options Section: $($_.Exception.Message)"
                                         }
                                     }
 
@@ -97,16 +95,14 @@ function Get-AbrVbrIOControlSetting {
                                     $OutObj | Table @TableParams
                                 }
                             }
-                        }
-                        catch {
-                            Write-PscriboMessage -IsWarning "Per Datastore Latency Control Options Section: $($_.Exception.Message)"
+                        } catch {
+                            Write-PScriboMessage -IsWarning "Per Datastore Latency Control Options Section: $($_.Exception.Message)"
                         }
                     }
                 }
             }
-        }
-        catch {
-            Write-PscriboMessage -IsWarning "Storage Latency Control Section: $($_.Exception.Message)"
+        } catch {
+            Write-PScriboMessage -IsWarning "Storage Latency Control Section: $($_.Exception.Message)"
         }
     }
     end {}

@@ -6,7 +6,7 @@ function Get-AbrVbrManagedServer {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.4
+        Version:        0.8.5
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -21,7 +21,7 @@ function Get-AbrVbrManagedServer {
     )
 
     begin {
-        Write-PscriboMessage "Discovering Veeam VBR Managed Server information from $System."
+        Write-PScriboMessage "Discovering Veeam VBR Managed Server information from $System."
     }
 
     process {
@@ -32,25 +32,24 @@ function Get-AbrVbrManagedServer {
                     $OutObj = @()
                     foreach ($ManagedServer in $ManagedServers) {
                         try {
-                            Write-PscriboMessage "Discovered $($ManagedServer.Name) managed server."
+                            Write-PScriboMessage "Discovered $($ManagedServer.Name) managed server."
                             $inObj = [ordered] @{
                                 'Name' = $ManagedServer.Name
                                 'Description' = $ManagedServer.Info.TypeDescription
                                 'Status' = Switch ($ManagedServer.IsUnavailable) {
-                                    'False' {'Available'}
-                                    'True' {'Unavailable'}
-                                    default {$ManagedServer.IsUnavailable}
+                                    'False' { 'Available' }
+                                    'True' { 'Unavailable' }
+                                    default { $ManagedServer.IsUnavailable }
                                 }
                             }
                             $OutObj += [pscustomobject]$inobj
-                        }
-                        catch {
-                            Write-PscriboMessage -IsWarning "Virtualization Servers and Hosts $($ManagedServer.Name) Section: $($_.Exception.Message)"
+                        } catch {
+                            Write-PScriboMessage -IsWarning "Virtualization Servers and Hosts $($ManagedServer.Name) Section: $($_.Exception.Message)"
                         }
                     }
 
                     if ($HealthCheck.Infrastructure.Status) {
-                        $OutObj | Where-Object { $_.'Status' -eq 'Unavailable'} | Set-Style -Style Warning -Property 'Status'
+                        $OutObj | Where-Object { $_.'Status' -eq 'Unavailable' } | Set-Style -Style Warning -Property 'Status'
                     }
 
                     $TableParams = @{
@@ -64,9 +63,8 @@ function Get-AbrVbrManagedServer {
                     $OutObj | Sort-Object -Property 'Description' | Table @TableParams
                 }
             }
-        }
-        catch {
-            Write-PscriboMessage -IsWarning "Virtualization Servers and Hosts Section: $($_.Exception.Message)"
+        } catch {
+            Write-PScriboMessage -IsWarning "Virtualization Servers and Hosts Section: $($_.Exception.Message)"
         }
     }
     end {}

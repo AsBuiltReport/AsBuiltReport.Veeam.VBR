@@ -6,7 +6,7 @@ function Get-AbrVbrInstalledLicense {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.4
+        Version:        0.8.5
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -21,7 +21,7 @@ function Get-AbrVbrInstalledLicense {
     )
 
     begin {
-        Write-PscriboMessage "Discovering Veeam V&R License information from $System."
+        Write-PScriboMessage "Discovering Veeam V&R License information from $System."
     }
 
     process {
@@ -34,22 +34,22 @@ function Get-AbrVbrInstalledLicense {
                         $OutObj = @()
                         try {
                             foreach ($License in $VbrLicenses) {
-                                Write-PscriboMessage "Discovered $($License.Edition) license."
+                                Write-PScriboMessage "Discovered $($License.Edition) license."
                                 $inObj = [ordered] @{
                                     'Licensed To' = $License.LicensedTo
                                     'Edition' = $License.Edition
                                     'Type' = $License.Type
                                     'Status' = $License.Status
                                     'Expiration Date' = Switch ($License.ExpirationDate) {
-                                        "" {"--"; break}
-                                        $Null {'--'; break}
-                                        default {$License.ExpirationDate.ToLongDateString()}
+                                        "" { "--"; break }
+                                        $Null { '--'; break }
+                                        default { $License.ExpirationDate.ToLongDateString() }
                                     }
                                     'Support Id' = $License.SupportId
                                     'Support Expiration Date' = Switch ($License.SupportExpirationDate) {
-                                        "" {"--"; break}
-                                        $Null {'--'; break}
-                                        default {$License.SupportExpirationDate.ToLongDateString()}
+                                        "" { "--"; break }
+                                        $Null { '--'; break }
+                                        default { $License.SupportExpirationDate.ToLongDateString() }
                                     }
                                     'Auto Update Enabled' = ConvertTo-TextYN $License.AutoUpdateEnabled
                                     'Free Agent Instance' = ConvertTo-TextYN $License.FreeAgentInstanceConsumptionEnabled
@@ -57,14 +57,13 @@ function Get-AbrVbrInstalledLicense {
                                 }
                                 $OutObj += [pscustomobject]$inobj
                             }
-                        }
-                        catch {
-                            Write-PscriboMessage -IsWarning "Installed License Information $($License.LicensedTo) Section: $($_.Exception.Message)"
+                        } catch {
+                            Write-PScriboMessage -IsWarning "Installed License Information $($License.LicensedTo) Section: $($_.Exception.Message)"
                         }
 
                         if ($HealthCheck.Infrastructure.Status) {
-                            $OutObj | Where-Object { $_.'Status' -eq 'Expired'} | Set-Style -Style Critical -Property 'Status'
-                            $OutObj | Where-Object { $_.'Type' -eq 'Evaluation'} | Set-Style -Style Warning -Property 'Type'
+                            $OutObj | Where-Object { $_.'Status' -eq 'Expired' } | Set-Style -Style Critical -Property 'Status'
+                            $OutObj | Where-Object { $_.'Type' -eq 'Evaluation' } | Set-Style -Style Warning -Property 'Type'
                         }
 
                         $TableParams = @{
@@ -85,7 +84,7 @@ function Get-AbrVbrInstalledLicense {
                                 $OutObj = @()
                                 try {
                                     foreach ($License in $Licenses) {
-                                        Write-PscriboMessage "Discovered $($Licenses.LicensedInstancesNumber) Instance licenses."
+                                        Write-PScriboMessage "Discovered $($Licenses.LicensedInstancesNumber) Instance licenses."
                                         $inObj = [ordered] @{
                                             'Instances Capacity' = $License.LicensedInstancesNumber
                                             'Used Instances' = $License.UsedInstancesNumber
@@ -94,9 +93,8 @@ function Get-AbrVbrInstalledLicense {
                                         }
                                         $OutObj += [pscustomobject]$inobj
                                     }
-                                }
-                                catch {
-                                    Write-PscriboMessage -IsWarning "Instance $($License.LicensedTo) Section: $($_.Exception.Message)"
+                                } catch {
+                                    Write-PScriboMessage -IsWarning "Instance $($License.LicensedTo) Section: $($_.Exception.Message)"
                                 }
 
                                 $TableParams = @{
@@ -109,18 +107,18 @@ function Get-AbrVbrInstalledLicense {
                                 }
                                 if ($Options.EnableCharts) {
                                     try {
-                                        $sampleData = $inObj.GetEnumerator() | Select-Object @{ Name = 'Category';  Expression = {$_.key}},@{ Name = 'Value';  Expression = {$_.value}} | Sort-Object -Property 'Category'
+                                        $sampleData = $inObj.GetEnumerator() | Select-Object @{ Name = 'Category'; Expression = { $_.key } }, @{ Name = 'Value'; Expression = { $_.value } } | Sort-Object -Property 'Category'
 
                                         $chartFileItem = Get-PieChart -SampleData $sampleData -ChartName 'InstanceLicenseUsage' -XField 'Category' -YField 'Value' -ChartLegendName 'Category'
 
                                     } catch {
-                                        Write-PscriboMessage -IsWarning "Instance License Usage chart section: $($_.Exception.Message)"
+                                        Write-PScriboMessage -IsWarning "Instance License Usage chart section: $($_.Exception.Message)"
                                     }
                                 }
                                 if ($OutObj) {
                                     Section -Style NOTOCHeading5 -ExcludeFromTOC 'Instance License Usage' {
                                         if ($Options.EnableCharts -and $chartFileItem -and ($inObj.Values | Measure-Object -Sum).Sum -ne 0) {
-                                            Image -Text 'Instance License Usage - Diagram' -Align 'Center' -Percent 100 -Base64 $chartFileItem
+                                            Image -Text 'Instance License Usage - Chart' -Align 'Center' -Percent 100 -Base64 $chartFileItem
                                         }
                                         BlankLine
                                         $OutObj | Table @TableParams
@@ -134,7 +132,7 @@ function Get-AbrVbrInstalledLicense {
                                                     $OutObj = @()
                                                     try {
                                                         foreach ($License in $Licenses) {
-                                                            Write-PscriboMessage "Discovered $($Licenses.Type) Instance licenses."
+                                                            Write-PScriboMessage "Discovered $($Licenses.Type) Instance licenses."
                                                             $inObj = [ordered] @{
                                                                 'Type' = $License.Type
                                                                 'Count' = $License.Count
@@ -143,9 +141,8 @@ function Get-AbrVbrInstalledLicense {
                                                             }
                                                             $OutObj += [pscustomobject]$inobj
                                                         }
-                                                    }
-                                                    catch {
-                                                        Write-PscriboMessage -IsWarning "Per Instance Type $($License.LicensedTo) Section: $($_.Exception.Message)"
+                                                    } catch {
+                                                        Write-PScriboMessage -IsWarning "Per Instance Type $($License.LicensedTo) Section: $($_.Exception.Message)"
                                                     }
 
                                                     $TableParams = @{
@@ -159,16 +156,14 @@ function Get-AbrVbrInstalledLicense {
                                                     $OutObj | Table @TableParams
                                                 }
                                             }
-                                        }
-                                        catch {
-                                            Write-PscriboMessage -IsWarning "Instance License Usage Section: $($_.Exception.Message)"
+                                        } catch {
+                                            Write-PScriboMessage -IsWarning "Instance License Usage Section: $($_.Exception.Message)"
                                         }
                                     }
                                 }
                             }
-                        }
-                        catch {
-                            Write-PscriboMessage -IsWarning "Instance License Section: $($_.Exception.Message)"
+                        } catch {
+                            Write-PScriboMessage -IsWarning "Instance License Section: $($_.Exception.Message)"
                         }
                         #---------------------------------------------------------------------------------------------#
                         #                                  CPU Socket License Section                                 #
@@ -179,7 +174,7 @@ function Get-AbrVbrInstalledLicense {
                                 $OutObj = @()
                                 try {
                                     foreach ($License in $Licenses) {
-                                        Write-PscriboMessage "Discovered $($Licenses.LicensedSocketsNumber) CPU Socket licenses."
+                                        Write-PScriboMessage "Discovered $($Licenses.LicensedSocketsNumber) CPU Socket licenses."
                                         $inObj = [ordered] @{
                                             'Licensed Sockets' = $License.LicensedSocketsNumber
                                             'Used Sockets Licenses' = $License.UsedSocketsNumber
@@ -187,9 +182,8 @@ function Get-AbrVbrInstalledLicense {
                                         }
                                         $OutObj += [pscustomobject]$inobj
                                     }
-                                }
-                                catch {
-                                    Write-PscriboMessage -IsWarning "CPU Socket License Section: $($_.Exception.Message)"
+                                } catch {
+                                    Write-PScriboMessage -IsWarning "CPU Socket License Section: $($_.Exception.Message)"
                                 }
 
                                 $TableParams = @{
@@ -202,25 +196,24 @@ function Get-AbrVbrInstalledLicense {
                                 }
                                 if ($Options.EnableCharts) {
                                     try {
-                                        $sampleData = $inObj.GetEnumerator() | Select-Object @{ Name = 'Category';  Expression = {$_.key}},@{ Name = 'Value';  Expression = {$_.value}} | Sort-Object -Property 'Category'
+                                        $sampleData = $inObj.GetEnumerator() | Select-Object @{ Name = 'Category'; Expression = { $_.key } }, @{ Name = 'Value'; Expression = { $_.value } } | Sort-Object -Property 'Category'
 
                                         $chartFileItem = Get-PieChart -SampleData $sampleData -ChartName 'CPUSocketUsage' -XField 'Category' -YField 'Value' -ChartLegendName 'Category'
                                     } catch {
-                                        Write-PscriboMessage -IsWarning "CPU Socket Usage chart section: $($_.Exception.Message)"
+                                        Write-PScriboMessage -IsWarning "CPU Socket Usage chart section: $($_.Exception.Message)"
                                     }
                                 }
                                 if ($OutObj) {
                                     Section -Style NOTOCHeading5 -ExcludeFromTOC 'CPU Socket License Usage' {
                                         if ($chartFileItem -and ($inObj.Values | Measure-Object -Sum).Sum -ne 0) {
-                                            Image -Text 'CPU Socket License Usage - Diagram' -Align 'Center' -Percent 100 -Base64 $chartFileItem
+                                            Image -Text 'CPU Socket License Usage - Chart' -Align 'Center' -Percent 100 -Base64 $chartFileItem
                                         }
                                         $OutObj | Table @TableParams
                                     }
                                 }
                             }
-                        }
-                        catch {
-                            Write-PscriboMessage -IsWarning "CPU Socket License Section: $($_.Exception.Message)"
+                        } catch {
+                            Write-PScriboMessage -IsWarning "CPU Socket License Section: $($_.Exception.Message)"
                         }
                         #---------------------------------------------------------------------------------------------#
                         #                                  Capacity License Section                                   #
@@ -231,16 +224,15 @@ function Get-AbrVbrInstalledLicense {
                                 $OutObj = @()
                                 try {
                                     foreach ($License in $Licenses) {
-                                        Write-PscriboMessage "Discovered $($Licenses.LicensedCapacityTb) Capacity licenses."
+                                        Write-PScriboMessage "Discovered $($Licenses.LicensedCapacityTb) Capacity licenses."
                                         $inObj = [ordered] @{
                                             'Licensed Capacity in TB' = $License.LicensedCapacityTb
                                             'Used Capacity in TB' = $License.UsedCapacityTb
                                         }
                                         $OutObj += [pscustomobject]$inobj
                                     }
-                                }
-                                catch {
-                                    Write-PscriboMessage -IsWarning "Capacity License Section: $($_.Exception.Message)"
+                                } catch {
+                                    Write-PScriboMessage -IsWarning "Capacity License Section: $($_.Exception.Message)"
                                 }
 
                                 $TableParams = @{
@@ -254,32 +246,30 @@ function Get-AbrVbrInstalledLicense {
                                 if ($Options.EnableCharts) {
                                     if ($Options.EnableCharts) {
                                         try {
-                                            $sampleData = $inObj.GetEnumerator() | Select-Object @{ Name = 'Category';  Expression = {$_.key}},@{ Name = 'Value';  Expression = {$_.value}} | Sort-Object -Property 'Category'
+                                            $sampleData = $inObj.GetEnumerator() | Select-Object @{ Name = 'Category'; Expression = { $_.key } }, @{ Name = 'Value'; Expression = { $_.value } } | Sort-Object -Property 'Category'
 
                                             $chartFileItem = Get-PieChart -SampleData $sampleData -ChartName 'CapacityLicenseUsage' -XField 'Category' -YField 'Value' -ChartLegendName 'Category'
 
                                         } catch {
-                                            Write-PscriboMessage -IsWarning "Capacity License Usage chart section: $($_.Exception.Message)"
+                                            Write-PScriboMessage -IsWarning "Capacity License Usage chart section: $($_.Exception.Message)"
                                         }
                                     }
                                 }
                                 if ($OutObj) {
                                     Section -Style NOTOCHeading5 -ExcludeFromTOC 'Capacity License Usage' {
                                         if ($chartFileItem -and ($inObj.Values | Measure-Object -Sum).Sum -ne 0) {
-                                            Image -Text 'Capacity License Usage - Diagram' -Align 'Center' -Percent 100 -Base64 $chartFileItem
+                                            Image -Text 'Capacity License Usage - Chart' -Align 'Center' -Percent 100 -Base64 $chartFileItem
                                         }
                                         $OutObj | Table @TableParams
                                     }
                                 }
                             }
-                        }
-                        catch {
-                            Write-PscriboMessage -IsWarning "Capacity License Section: $($_.Exception.Message)"
+                        } catch {
+                            Write-PScriboMessage -IsWarning "Capacity License Section: $($_.Exception.Message)"
                         }
                     }
-                }
-                catch {
-                    Write-PscriboMessage -IsWarning "License Information Section: $($_.Exception.Message)"
+                } catch {
+                    Write-PScriboMessage -IsWarning "License Information Section: $($_.Exception.Message)"
                 }
             }
         }

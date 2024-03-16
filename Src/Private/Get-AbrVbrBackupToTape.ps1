@@ -6,7 +6,7 @@ function Get-AbrVbrBackupToTape {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.4
+        Version:        0.8.5
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -21,12 +21,12 @@ function Get-AbrVbrBackupToTape {
     )
 
     begin {
-        Write-PscriboMessage "Discovering Veeam VBR Tape Backup jobs configuration information from $System."
+        Write-PScriboMessage "Discovering Veeam VBR Tape Backup jobs configuration information from $System."
     }
 
     process {
         try {
-            $TBkjobs = Get-VBRTapeJob | Where-Object {$_.Type -eq 'BackupToTape'} | Sort-Object -Property Name
+            $TBkjobs = Get-VBRTapeJob | Where-Object { $_.Type -eq 'BackupToTape' } | Sort-Object -Property Name
             if ($TBkjobs) {
                 Section -Style Heading3 'Backup To Tape Job Configuration' {
                     Paragraph "The following section details the configuration about the backup to tape jobs ."
@@ -38,26 +38,26 @@ function Get-AbrVbrBackupToTape {
                                 Section -Style NOTOCHeading5 -ExcludeFromTOC 'Backups Information' {
                                     $OutObj = @()
                                     try {
-                                        Write-PscriboMessage "Discovered $($TBkjob.Name) common information."
+                                        Write-PScriboMessage "Discovered $($TBkjob.Name) common information."
                                         if ($TBkjob.Object.Group -eq 'BackupRepository') {
-                                            $RepoSize = $TBkjob.Object | Where-Object {$_.Group -eq 'BackupRepository'}
+                                            $RepoSize = $TBkjob.Object | Where-Object { $_.Group -eq 'BackupRepository' }
                                             $TotalBackupSize = (($TBkjob.Object.info.IncludedSize | Measure-Object -Sum ).Sum) + ($RepoSize.GetContainer().CachedTotalSpace.InBytes - $RepoSize.GetContainer().CachedFreeSpace.InBytes)
-                                        } else {$TotalBackupSize = ($TBkjob.Object.info.IncludedSize | Measure-Object -Sum).Sum}
+                                        } else { $TotalBackupSize = ($TBkjob.Object.info.IncludedSize | Measure-Object -Sum).Sum }
 
                                         $inObj = [ordered] @{
                                             'Name' = $TBkjob.Name
                                             'Type' = $TBkjob.Type
                                             'Total Backup Size' = ConvertTo-FileSizeString $TotalBackupSize
                                             'Next Run' = Switch ($TBkjob.Enabled) {
-                                                'False' {'Disabled'}
-                                                default {$TBkjob.NextRun}
+                                                'False' { 'Disabled' }
+                                                default { $TBkjob.NextRun }
                                             }
-                                            'Description' = $TBkjob.Description
+                                            'Description' = ConvertTo-EmptyToFiller $TBkjob.Description
                                         }
                                         $OutObj = [pscustomobject]$inobj
 
                                         if ($HealthCheck.Jobs.BestPractice) {
-                                            $OutObj | Where-Object { $Null -like $_.'Description' } | Set-Style -Style Warning -Property 'Description'
+                                            $OutObj | Where-Object { $_.'Description' -eq "--" } | Set-Style -Style Warning -Property 'Description'
                                             $OutObj | Where-Object { $_.'Description' -match "Created by" } | Set-Style -Style Warning -Property 'Description'
                                         }
 
@@ -71,18 +71,18 @@ function Get-AbrVbrBackupToTape {
                                         }
                                         $OutObj | Table @TableParams
                                         if ($HealthCheck.Jobs.BestPractice) {
-                                            if ($OutObj | Where-Object { $_.'Description' -match 'Created by' -or $Null -like $_.'Description'}) {
+                                            if ($OutObj | Where-Object { $_.'Description' -match 'Created by' -or $_.'Description' -eq "--" }) {
                                                 Paragraph "Health Check:" -Bold -Underline
                                                 BlankLine
                                                 Paragraph {
                                                     Text "Best Practice:" -Bold
                                                     Text "It is a general rule of good practice to establish well-defined descriptions. This helps to speed up the fault identification process, as well as enabling better documentation of the environment."
                                                 }
+                                                BlankLine
                                             }
                                         }
-                                    }
-                                    catch {
-                                        Write-PscriboMessage -IsWarning "Common Information - $($TBkjob.Name) Section: $($_.Exception.Message)"
+                                    } catch {
+                                        Write-PScriboMessage -IsWarning "Common Information - $($TBkjob.Name) Section: $($_.Exception.Message)"
                                     }
                                 }
                                 if ($TBkjob.Object) {
@@ -91,7 +91,7 @@ function Get-AbrVbrBackupToTape {
                                             $OutObj = @()
                                             foreach ($LinkedBkJob in $TBkjob.Object) {
                                                 try {
-                                                    Write-PscriboMessage "Discovered $($LinkedBkJob.Name) backup objects."
+                                                    Write-PScriboMessage "Discovered $($LinkedBkJob.Name) backup objects."
                                                     if ($LinkedBkJob.Type) {
                                                         $Repository = $LinkedBkJob.Name
                                                         $Type = 'Repository'
@@ -101,7 +101,7 @@ function Get-AbrVbrBackupToTape {
                                                     }
                                                     if ($LinkedBkJob.Group -eq 'BackupRepository') {
                                                         $TotalBackupSize = ConvertTo-FileSizeString ($LinkedBkJob.GetContainer().CachedTotalSpace.InBytes - $LinkedBkJob.GetContainer().CachedFreeSpace.InBytes)
-                                                    } else {$TotalBackupSize = ConvertTo-FileSizeString $LinkedBkJob.Info.IncludedSize}
+                                                    } else { $TotalBackupSize = ConvertTo-FileSizeString $LinkedBkJob.Info.IncludedSize }
 
                                                     $inObj = [ordered] @{
                                                         'Name' = $LinkedBkJob.Name
@@ -110,9 +110,8 @@ function Get-AbrVbrBackupToTape {
                                                         'Repository' = $Repository
                                                     }
                                                     $OutObj += [pscustomobject]$inobj
-                                                }
-                                                catch {
-                                                    Write-PscriboMessage -IsWarning "Backups Objects - $($TBkjob.Name) Section: $($_.Exception.Message)"
+                                                } catch {
+                                                    Write-PScriboMessage -IsWarning "Backups Objects - $($TBkjob.Name) Section: $($_.Exception.Message)"
                                                 }
                                             }
 
@@ -126,9 +125,8 @@ function Get-AbrVbrBackupToTape {
                                             }
                                             $OutObj | Sort-Object -Property 'Name' | Table @TableParams
                                         }
-                                    }
-                                    catch {
-                                        Write-PscriboMessage -IsWarning "Backups Objects Section: $($_.Exception.Message)"
+                                    } catch {
+                                        Write-PScriboMessage -IsWarning "Backups Objects Section: $($_.Exception.Message)"
                                     }
                                 }
                                 if ($TBkjob.FullBackupMediaPool) {
@@ -137,58 +135,58 @@ function Get-AbrVbrBackupToTape {
                                             $OutObj = @()
                                             foreach ($BackupMediaPool in $TBkjob.FullBackupMediaPool) {
                                                 try {
-                                                    Write-PscriboMessage "Discovered $($TBkjob.Name) media pool."
+                                                    Write-PScriboMessage "Discovered $($TBkjob.Name) media pool."
                                                     #Todo Fix this mess!
                                                     if ($BackupMediaPool.Type -eq "Gfs") {
                                                         if ($BackupMediaPool.DailyMediaSetOptions.MediaSetPolicy.MoveFromMediaPoolAutomatically) {
                                                             $MoveFromMediaPoolAutomatically = 'Use any available media'
-                                                        } else {$MoveFromMediaPoolAutomatically = "Use $(($BackupMediaPool.DailyMediaSetOptions.MediaSetPolicy.Medium).count) selected"}
+                                                        } else { $MoveFromMediaPoolAutomatically = "Use $(($BackupMediaPool.DailyMediaSetOptions.MediaSetPolicy.Medium).count) selected" }
                                                         if ($BackupMediaPool.DailyMediaSetOptions.MediaSetPolicy.AppendToCurrentTape) {
                                                             $AppendToCurrentTape = 'append'
-                                                        } else {$AppendToCurrentTape = "do not append"}
+                                                        } else { $AppendToCurrentTape = "do not append" }
                                                         if ($BackupMediaPool.DailyMediaSetOptions.MediaSetPolicy.MoveOfflineToVault) {
                                                             $MoveOfflineToVault = "export to vault $($BackupMediaPool.DailyMediaSetOptions.MediaSetPolicy.Vault.Name)"
-                                                        } else {$MoveOfflineToVault = "do not export"}
+                                                        } else { $MoveOfflineToVault = "do not export" }
 
                                                         if ($BackupMediaPool.WeeklyMediaSetOptions.MediaSetPolicy.MoveFromMediaPoolAutomatically) {
                                                             $WeeklyMoveFromMediaPoolAutomatically = 'Use any available media'
-                                                        } else {$WeeklyMoveFromMediaPoolAutomatically = "Use $(($BackupMediaPool.WeeklyMediaSetOptions.MediaSetPolicy.Medium).count) selected"}
+                                                        } else { $WeeklyMoveFromMediaPoolAutomatically = "Use $(($BackupMediaPool.WeeklyMediaSetOptions.MediaSetPolicy.Medium).count) selected" }
                                                         if ($BackupMediaPool.WeeklyMediaSetOptions.MediaSetPolicy.AppendToCurrentTape) {
                                                             $WeeklyAppendToCurrentTape = 'append'
-                                                        } else {$WeeklyAppendToCurrentTape = "do not append"}
+                                                        } else { $WeeklyAppendToCurrentTape = "do not append" }
                                                         if ($BackupMediaPool.WeeklyMediaSetOptions.MediaSetPolicy.MoveOfflineToVault) {
                                                             $WeeklyMoveOfflineToVault = "export to vault $($BackupMediaPool.WeeklyMediaSetOptions.MediaSetPolicy.Vault.Name)"
-                                                        } else {$WeeklyMoveOfflineToVault = "do not export"}
+                                                        } else { $WeeklyMoveOfflineToVault = "do not export" }
 
                                                         if ($BackupMediaPool.MonthlyMediaSetOptions.MediaSetPolicy.MoveFromMediaPoolAutomatically) {
                                                             $MonthlyMoveFromMediaPoolAutomatically = 'Use any available media'
-                                                        } else {$MonthlyMoveFromMediaPoolAutomatically = "Use $(($BackupMediaPool.MonthlyMediaSetOptions.MediaSetPolicy.Medium).count) selected"}
+                                                        } else { $MonthlyMoveFromMediaPoolAutomatically = "Use $(($BackupMediaPool.MonthlyMediaSetOptions.MediaSetPolicy.Medium).count) selected" }
                                                         if ($BackupMediaPool.MonthlyMediaSetOptions.MediaSetPolicy.AppendToCurrentTape) {
                                                             $MonthlyAppendToCurrentTape = 'append'
-                                                        } else {$MonthlyAppendToCurrentTape = "do not append"}
+                                                        } else { $MonthlyAppendToCurrentTape = "do not append" }
                                                         if ($BackupMediaPool.MonthlyMediaSetOptions.MediaSetPolicy.MoveOfflineToVault) {
                                                             $MonthlyMoveOfflineToVault = "export to vault $($BackupMediaPool.MonthlyMediaSetOptions.MediaSetPolicy.Vault.Name)"
-                                                        } else {$MonthlyMoveOfflineToVault = "do not export"}
+                                                        } else { $MonthlyMoveOfflineToVault = "do not export" }
 
                                                         if ($BackupMediaPool.QuarterlyMediaSetOptions.MediaSetPolicy.MoveFromMediaPoolAutomatically) {
                                                             $QuarterlyMoveFromMediaPoolAutomatically = 'Use any available media'
-                                                        } else {$QuarterlyMoveFromMediaPoolAutomatically = "Use $(($BackupMediaPool.QuarterlyMediaSetOptions.MediaSetPolicy.Medium).count) selected"}
+                                                        } else { $QuarterlyMoveFromMediaPoolAutomatically = "Use $(($BackupMediaPool.QuarterlyMediaSetOptions.MediaSetPolicy.Medium).count) selected" }
                                                         if ($BackupMediaPool.QuarterlyMediaSetOptions.MediaSetPolicy.AppendToCurrentTape) {
                                                             $QuarterlyAppendToCurrentTape = 'append'
-                                                        } else {$QuarterlyAppendToCurrentTape = "do not append"}
+                                                        } else { $QuarterlyAppendToCurrentTape = "do not append" }
                                                         if ($BackupMediaPool.QuarterlyMediaSetOptions.MediaSetPolicy.MoveOfflineToVault) {
                                                             $QuarterlyMoveOfflineToVault = "export to vault $($BackupMediaPool.QuarterlyMediaSetOptions.MediaSetPolicy.Vault.Name)"
-                                                        } else {$QuarterlyMoveOfflineToVault = "do not export"}
+                                                        } else { $QuarterlyMoveOfflineToVault = "do not export" }
 
                                                         if ($BackupMediaPool.YearlyMediaSetOptions.MediaSetPolicy.MoveFromMediaPoolAutomatically) {
                                                             $YearlyMoveFromMediaPoolAutomatically = 'Use any available media'
-                                                        } else {$YearlyMoveFromMediaPoolAutomatically = "Use $(($BackupMediaPool.YearlyMediaSetOptions.MediaSetPolicy.Medium).count) selected"}
+                                                        } else { $YearlyMoveFromMediaPoolAutomatically = "Use $(($BackupMediaPool.YearlyMediaSetOptions.MediaSetPolicy.Medium).count) selected" }
                                                         if ($BackupMediaPool.YearlyMediaSetOptions.MediaSetPolicy.AppendToCurrentTape) {
                                                             $YearlyAppendToCurrentTape = 'append'
-                                                        } else {$YearlyAppendToCurrentTape = "do not append"}
+                                                        } else { $YearlyAppendToCurrentTape = "do not append" }
                                                         if ($BackupMediaPool.YearlyMediaSetOptions.MediaSetPolicy.MoveOfflineToVault) {
                                                             $YearlyMoveOfflineToVault = "export to vault $($BackupMediaPool.YearlyMediaSetOptions.MediaSetPolicy.Vault.Name)"
-                                                        } else {$YearlyMoveOfflineToVault = "do not export"}
+                                                        } else { $YearlyMoveOfflineToVault = "do not export" }
                                                     }
 
                                                     $inObj = [ordered] @{
@@ -198,9 +196,9 @@ function Get-AbrVbrBackupToTape {
                                                         'Free Space' = ConvertTo-FileSizeString ((Get-VBRTapeMedium -MediaPool $BackupMediaPool.Name).Free | Measure-Object -Sum).Sum
                                                         'Encryption Enabled' = ConvertTo-TextYN $BackupMediaPool.EncryptionOptions.Enabled
                                                         'Encryption Key' = Switch ($BackupMediaPool.EncryptionOptions.Enabled) {
-                                                            'True' {(Get-VBREncryptionKey | Where-Object {$_.Id -eq $BackupMediaPool.EncryptionOptions.Key.Id}).Description}
-                                                            'False' {'Disabled'}
-                                                            default {$BackupMediaPool.EncryptionOptions.Key.Id}
+                                                            'True' { (Get-VBREncryptionKey | Where-Object { $_.Id -eq $BackupMediaPool.EncryptionOptions.Key.Id }).Description }
+                                                            'False' { 'Disabled' }
+                                                            default { $BackupMediaPool.EncryptionOptions.Key.Id }
                                                         }
                                                         'Parallel Processing' = "$(ConvertTo-TextYN $BackupMediaPool.MultiStreamingOptions.NumberOfStreams) drives; Multiple Backup Chains: $(ConvertTo-TextYN $BackupMediaPool.MultiStreamingOptions.SplitJobFilesBetweenDrives)"
                                                         'Is WORM' = ConvertTo-TextYN $BackupMediaPool.Worm
@@ -214,20 +212,20 @@ function Get-AbrVbrBackupToTape {
                                                     }
                                                     if ($BackupMediaPool.Type -eq "Custom") {
                                                         $Vault = Switch (($TBkjob.FullBackupMediaPool.Vault).count) {
-                                                            0 {"Disabled"}
-                                                            default {$TBkjob.FullBackupMediaPool.Vault}
+                                                            0 { "Disabled" }
+                                                            default { $TBkjob.FullBackupMediaPool.Vault }
                                                         }
                                                         $Retention = Switch ($TBkjob.FullBackupMediaPool.RetentionPolicy.Type) {
-                                                            $Null {"Disabled"}
-                                                            'Period' {"Protect data for $($TBkjob.FullBackupMediaPool.RetentionPolicy.Value) $($TBkjob.FullBackupMediaPool.RetentionPolicy.Period)"}
-                                                            'Cyclic' {'Do not protect data (cyclically overwrite tape as required)'}
-                                                            'Never' {'Never Overwrite Data'}
+                                                            $Null { "Disabled" }
+                                                            'Period' { "Protect data for $($TBkjob.FullBackupMediaPool.RetentionPolicy.Value) $($TBkjob.FullBackupMediaPool.RetentionPolicy.Period)" }
+                                                            'Cyclic' { 'Do not protect data (cyclically overwrite tape as required)' }
+                                                            'Never' { 'Never Overwrite Data' }
                                                         }
                                                         $MediaSetPolicy = Switch ($TBkjob.FullBackupMediaPool.MediaSetCreationPolicy.Type) {
-                                                            $Null {"Disabled"}
-                                                            'Always' {"Create new media set for every backup session"}
-                                                            'Daily' {"Daily at $($TBkjob.FullBackupMediaPool.MediaSetCreationPolicy.DailyOptions.Period), $($TBkjob.FullBackupMediaPool.MediaSetCreationPolicy.DailyOptions.Type)"}
-                                                            'Never' {'Do not create, always continue using current media set'}
+                                                            $Null { "Disabled" }
+                                                            'Always' { "Create new media set for every backup session" }
+                                                            'Daily' { "Daily at $($TBkjob.FullBackupMediaPool.MediaSetCreationPolicy.DailyOptions.Period), $($TBkjob.FullBackupMediaPool.MediaSetCreationPolicy.DailyOptions.Type)" }
+                                                            'Never' { 'Do not create, always continue using current media set' }
                                                         }
                                                         $inObj.add('Retention', ($Retention))
                                                         $inObj.add('Export to Vault', (ConvertTo-TextYN $TBkjob.FullBackupMediaPool.MoveOfflineToVault))
@@ -237,24 +235,23 @@ function Get-AbrVbrBackupToTape {
                                                         if ($TBkjob.FullBackupMediaPool.MediaSetCreationPolicy.Type -eq 'Daily') {
                                                             $inObj.add('On these days', ($TBkjob.FullBackupMediaPool.MediaSetCreationPolicy.DailyOptions.DayOfWeek -join ", "))
                                                         }
-                                                        if ($TBkjob.FullBackupPolicy.Type  -eq 'WeeklyOnDays') {
+                                                        if ($TBkjob.FullBackupPolicy.Type -eq 'WeeklyOnDays') {
                                                             $DayOfWeek = Switch (($TBkjob.FullBackupPolicy.WeeklyOnDays).count) {
-                                                                7 {'Everyday'}
-                                                                default {$TBkjob.FullBackupPolicy.WeeklyOnDays -join ", "}
+                                                                7 { 'Everyday' }
+                                                                default { $TBkjob.FullBackupPolicy.WeeklyOnDays -join ", " }
                                                             }
                                                             $inObj.add('Full Backup Schedule', ("Weekly on selected days: $DayOfWeek"))
                                                         } else {
                                                             $Months = Switch (($TBkjob.FullBackupPolicy.MonthlyOptions.Months).count) {
-                                                                12 {'Every Month'}
-                                                                default {$TBkjob.FullBackupPolicy.MonthlyOptions.Months -join ", "}
+                                                                12 { 'Every Month' }
+                                                                default { $TBkjob.FullBackupPolicy.MonthlyOptions.Months -join ", " }
                                                             }
                                                             $inObj.add('Full Backup Schedule', ("Monthly on: $($TBkjob.FullBackupPolicy.MonthlyOptions.DayNumberInMonth), $($TBkjob.FullBackupPolicy.MonthlyOptions.DayOfWeek) of $Months"))
                                                         }
                                                     }
                                                     $OutObj += [pscustomobject]$inobj
-                                                }
-                                                catch {
-                                                    Write-PscriboMessage -IsWarning "Media Pool - $($TBkjob.Name) Section: $($_.Exception.Message)"
+                                                } catch {
+                                                    Write-PScriboMessage -IsWarning "Media Pool - $($TBkjob.Name) Section: $($_.Exception.Message)"
                                                 }
                                             }
 
@@ -268,9 +265,8 @@ function Get-AbrVbrBackupToTape {
                                             }
                                             $OutObj | Sort-Object -Property 'Name' | Table @TableParams
                                         }
-                                    }
-                                    catch {
-                                        Write-PscriboMessage -IsWarning "Media Pool Section: $($_.Exception.Message)"
+                                    } catch {
+                                        Write-PScriboMessage -IsWarning "Media Pool Section: $($_.Exception.Message)"
                                     }
                                 }
                                 if ($TBkjob.ProcessIncrementalBackup -and $TBkjob.FullBackupMediaPool.Type -eq 'Custom') {
@@ -279,58 +275,58 @@ function Get-AbrVbrBackupToTape {
                                             $OutObj = @()
                                             foreach ($BackupMediaPool in $TBkjob.IncrementalBackupMediaPool) {
                                                 try {
-                                                    Write-PscriboMessage "Discovered $($TBkjob.Name) incremental backup."
+                                                    Write-PScriboMessage "Discovered $($TBkjob.Name) incremental backup."
                                                     #Todo Fix this mess!
                                                     if ($BackupMediaPool.Type -eq "Gfs") {
                                                         if ($BackupMediaPool.DailyMediaSetOptions.MediaSetPolicy.MoveFromMediaPoolAutomatically) {
                                                             $MoveFromMediaPoolAutomatically = 'Use any available media'
-                                                        } else {$MoveFromMediaPoolAutomatically = "Use $(($BackupMediaPool.DailyMediaSetOptions.MediaSetPolicy.Medium).count) selected"}
+                                                        } else { $MoveFromMediaPoolAutomatically = "Use $(($BackupMediaPool.DailyMediaSetOptions.MediaSetPolicy.Medium).count) selected" }
                                                         if ($BackupMediaPool.DailyMediaSetOptions.MediaSetPolicy.AppendToCurrentTape) {
                                                             $AppendToCurrentTape = 'append'
-                                                        } else {$AppendToCurrentTape = "do not append"}
+                                                        } else { $AppendToCurrentTape = "do not append" }
                                                         if ($BackupMediaPool.DailyMediaSetOptions.MediaSetPolicy.MoveOfflineToVault) {
                                                             $MoveOfflineToVault = "export to vault $($BackupMediaPool.DailyMediaSetOptions.MediaSetPolicy.Vault.Name)"
-                                                        } else {$MoveOfflineToVault = "do not export"}
+                                                        } else { $MoveOfflineToVault = "do not export" }
 
                                                         if ($BackupMediaPool.WeeklyMediaSetOptions.MediaSetPolicy.MoveFromMediaPoolAutomatically) {
                                                             $WeeklyMoveFromMediaPoolAutomatically = 'Use any available media'
-                                                        } else {$WeeklyMoveFromMediaPoolAutomatically = "Use $(($BackupMediaPool.WeeklyMediaSetOptions.MediaSetPolicy.Medium).count) selected"}
+                                                        } else { $WeeklyMoveFromMediaPoolAutomatically = "Use $(($BackupMediaPool.WeeklyMediaSetOptions.MediaSetPolicy.Medium).count) selected" }
                                                         if ($BackupMediaPool.WeeklyMediaSetOptions.MediaSetPolicy.AppendToCurrentTape) {
                                                             $WeeklyAppendToCurrentTape = 'append'
-                                                        } else {$WeeklyAppendToCurrentTape = "do not append"}
+                                                        } else { $WeeklyAppendToCurrentTape = "do not append" }
                                                         if ($BackupMediaPool.WeeklyMediaSetOptions.MediaSetPolicy.MoveOfflineToVault) {
                                                             $WeeklyMoveOfflineToVault = "export to vault $($BackupMediaPool.WeeklyMediaSetOptions.MediaSetPolicy.Vault.Name)"
-                                                        } else {$WeeklyMoveOfflineToVault = "do not export"}
+                                                        } else { $WeeklyMoveOfflineToVault = "do not export" }
 
                                                         if ($BackupMediaPool.MonthlyMediaSetOptions.MediaSetPolicy.MoveFromMediaPoolAutomatically) {
                                                             $MonthlyMoveFromMediaPoolAutomatically = 'Use any available media'
-                                                        } else {$MonthlyMoveFromMediaPoolAutomatically = "Use $(($BackupMediaPool.MonthlyMediaSetOptions.MediaSetPolicy.Medium).count) selected"}
+                                                        } else { $MonthlyMoveFromMediaPoolAutomatically = "Use $(($BackupMediaPool.MonthlyMediaSetOptions.MediaSetPolicy.Medium).count) selected" }
                                                         if ($BackupMediaPool.MonthlyMediaSetOptions.MediaSetPolicy.AppendToCurrentTape) {
                                                             $MonthlyAppendToCurrentTape = 'append'
-                                                        } else {$MonthlyAppendToCurrentTape = "do not append"}
+                                                        } else { $MonthlyAppendToCurrentTape = "do not append" }
                                                         if ($BackupMediaPool.MonthlyMediaSetOptions.MediaSetPolicy.MoveOfflineToVault) {
                                                             $MonthlyMoveOfflineToVault = "export to vault $($BackupMediaPool.MonthlyMediaSetOptions.MediaSetPolicy.Vault.Name)"
-                                                        } else {$MonthlyMoveOfflineToVault = "do not export"}
+                                                        } else { $MonthlyMoveOfflineToVault = "do not export" }
 
                                                         if ($BackupMediaPool.QuarterlyMediaSetOptions.MediaSetPolicy.MoveFromMediaPoolAutomatically) {
                                                             $QuarterlyMoveFromMediaPoolAutomatically = 'Use any available media'
-                                                        } else {$QuarterlyMoveFromMediaPoolAutomatically = "Use $(($BackupMediaPool.QuarterlyMediaSetOptions.MediaSetPolicy.Medium).count) selected"}
+                                                        } else { $QuarterlyMoveFromMediaPoolAutomatically = "Use $(($BackupMediaPool.QuarterlyMediaSetOptions.MediaSetPolicy.Medium).count) selected" }
                                                         if ($BackupMediaPool.QuarterlyMediaSetOptions.MediaSetPolicy.AppendToCurrentTape) {
                                                             $QuarterlyAppendToCurrentTape = 'append'
-                                                        } else {$QuarterlyAppendToCurrentTape = "do not append"}
+                                                        } else { $QuarterlyAppendToCurrentTape = "do not append" }
                                                         if ($BackupMediaPool.QuarterlyMediaSetOptions.MediaSetPolicy.MoveOfflineToVault) {
                                                             $QuarterlyMoveOfflineToVault = "export to vault $($BackupMediaPool.QuarterlyMediaSetOptions.MediaSetPolicy.Vault.Name)"
-                                                        } else {$QuarterlyMoveOfflineToVault = "do not export"}
+                                                        } else { $QuarterlyMoveOfflineToVault = "do not export" }
 
                                                         if ($BackupMediaPool.YearlyMediaSetOptions.MediaSetPolicy.MoveFromMediaPoolAutomatically) {
                                                             $YearlyMoveFromMediaPoolAutomatically = 'Use any available media'
-                                                        } else {$YearlyMoveFromMediaPoolAutomatically = "Use $(($BackupMediaPool.YearlyMediaSetOptions.MediaSetPolicy.Medium).count) selected"}
+                                                        } else { $YearlyMoveFromMediaPoolAutomatically = "Use $(($BackupMediaPool.YearlyMediaSetOptions.MediaSetPolicy.Medium).count) selected" }
                                                         if ($BackupMediaPool.YearlyMediaSetOptions.MediaSetPolicy.AppendToCurrentTape) {
                                                             $YearlyAppendToCurrentTape = 'append'
-                                                        } else {$YearlyAppendToCurrentTape = "do not append"}
+                                                        } else { $YearlyAppendToCurrentTape = "do not append" }
                                                         if ($BackupMediaPool.YearlyMediaSetOptions.MediaSetPolicy.MoveOfflineToVault) {
                                                             $YearlyMoveOfflineToVault = "export to vault $($BackupMediaPool.YearlyMediaSetOptions.MediaSetPolicy.Vault.Name)"
-                                                        } else {$YearlyMoveOfflineToVault = "do not export"}
+                                                        } else { $YearlyMoveOfflineToVault = "do not export" }
                                                     }
 
                                                     $inObj = [ordered] @{
@@ -340,9 +336,9 @@ function Get-AbrVbrBackupToTape {
                                                         'Free Space' = ConvertTo-FileSizeString ((Get-VBRTapeMedium -MediaPool $BackupMediaPool.Name).Free | Measure-Object -Sum).Sum
                                                         'Encryption Enabled' = ConvertTo-TextYN $BackupMediaPool.EncryptionOptions.Enabled
                                                         'Encryption Key' = Switch ($BackupMediaPool.EncryptionOptions.Enabled) {
-                                                            'True' {(Get-VBREncryptionKey | Where-Object {$_.Id -eq $BackupMediaPool.EncryptionOptions.Key.Id}).Description}
-                                                            'False' {'Disabled'}
-                                                            default {$BackupMediaPool.EncryptionOptions.Key.Id}
+                                                            'True' { (Get-VBREncryptionKey | Where-Object { $_.Id -eq $BackupMediaPool.EncryptionOptions.Key.Id }).Description }
+                                                            'False' { 'Disabled' }
+                                                            default { $BackupMediaPool.EncryptionOptions.Key.Id }
                                                         }
                                                         'Parallel Processing' = "$(ConvertTo-TextYN $BackupMediaPool.MultiStreamingOptions.NumberOfStreams) drives; Multiple Backup Chains: $(ConvertTo-TextYN $BackupMediaPool.MultiStreamingOptions.SplitJobFilesBetweenDrives)"
                                                         'Is WORM' = ConvertTo-TextYN $BackupMediaPool.Worm
@@ -356,20 +352,20 @@ function Get-AbrVbrBackupToTape {
                                                     }
                                                     if ($BackupMediaPool.Type -eq "Custom") {
                                                         $Vault = Switch (($TBkjob.IncrementalBackupMediaPool.Vault).count) {
-                                                            0 {"Disabled"}
-                                                            default {$TBkjob.IncrementalBackupMediaPool.Vault}
+                                                            0 { "Disabled" }
+                                                            default { $TBkjob.IncrementalBackupMediaPool.Vault }
                                                         }
                                                         $Retention = Switch ($TBkjob.IncrementalBackupMediaPool.RetentionPolicy.Type) {
-                                                            $Null {"Disabled"}
-                                                            'Period' {"Protect data for $($TBkjob.IncrementalBackupMediaPool.RetentionPolicy.Value) $($TBkjob.IncrementalBackupMediaPool.RetentionPolicy.Period)"}
-                                                            'Cyclic' {'Do not protect data (cyclically overwrite tape as required)'}
-                                                            'Never' {'Never Overwrite Data'}
+                                                            $Null { "Disabled" }
+                                                            'Period' { "Protect data for $($TBkjob.IncrementalBackupMediaPool.RetentionPolicy.Value) $($TBkjob.IncrementalBackupMediaPool.RetentionPolicy.Period)" }
+                                                            'Cyclic' { 'Do not protect data (cyclically overwrite tape as required)' }
+                                                            'Never' { 'Never Overwrite Data' }
                                                         }
                                                         $MediaSetPolicy = Switch ($TBkjob.IncrementalBackupMediaPool.MediaSetCreationPolicy.Type) {
-                                                            $Null {"Disabled"}
-                                                            'Always' {"Create new media set for every backup session"}
-                                                            'Daily' {"Daily at $($TBkjob.IncrementalBackupMediaPool.MediaSetCreationPolicy.DailyOptions.Period), $($TBkjob.IncrementalBackupMediaPool.MediaSetCreationPolicy.DailyOptions.Type)"}
-                                                            'Never' {'Do not create, always continue using current media set'}
+                                                            $Null { "Disabled" }
+                                                            'Always' { "Create new media set for every backup session" }
+                                                            'Daily' { "Daily at $($TBkjob.IncrementalBackupMediaPool.MediaSetCreationPolicy.DailyOptions.Period), $($TBkjob.IncrementalBackupMediaPool.MediaSetCreationPolicy.DailyOptions.Type)" }
+                                                            'Never' { 'Do not create, always continue using current media set' }
                                                         }
                                                         $inObj.add('Retention', ($Retention))
                                                         $inObj.add('Export to Vault', (ConvertTo-TextYN $TBkjob.IncrementalBackupMediaPool.MoveOfflineToVault))
@@ -381,9 +377,8 @@ function Get-AbrVbrBackupToTape {
                                                         }
                                                     }
                                                     $OutObj += [pscustomobject]$inobj
-                                                }
-                                                catch {
-                                                    Write-PscriboMessage -IsWarning "Incremental Backup - $($TBkjob.Name) Section: $($_.Exception.Message)"
+                                                } catch {
+                                                    Write-PScriboMessage -IsWarning "Incremental Backup - $($TBkjob.Name) Section: $($_.Exception.Message)"
                                                 }
                                             }
 
@@ -397,16 +392,15 @@ function Get-AbrVbrBackupToTape {
                                             }
                                             $OutObj | Sort-Object -Property 'Name' | Table @TableParams
                                         }
-                                    }
-                                    catch {
-                                        Write-PscriboMessage -IsWarning "Incremental Backup Section: $($_.Exception.Message)"
+                                    } catch {
+                                        Write-PScriboMessage -IsWarning "Incremental Backup Section: $($_.Exception.Message)"
                                     }
                                 }
                                 try {
                                     Section -Style NOTOCHeading5 -ExcludeFromTOC 'Options' {
                                         $OutObj = @()
                                         try {
-                                            Write-PscriboMessage "Discovered $($TBkjob.Name) options."
+                                            Write-PScriboMessage "Discovered $($TBkjob.Name) options."
                                             $inObj = [ordered] @{
                                                 'Eject Tape Media Upon Job Completion' = ConvertTo-TextYN $TBkjob.EjectCurrentMedium
                                                 'Export the following MediaSet Upon Job Completion' = ConvertTo-TextYN $TBkjob.ExportCurrentMediaSet
@@ -414,9 +408,8 @@ function Get-AbrVbrBackupToTape {
 
                                             }
                                             $OutObj += [pscustomobject]$inobj
-                                        }
-                                        catch {
-                                            Write-PscriboMessage -IsWarning "Options - $($TBkjob.Name) Section: $($_.Exception.Message)"
+                                        } catch {
+                                            Write-PScriboMessage -IsWarning "Options - $($TBkjob.Name) Section: $($_.Exception.Message)"
                                         }
 
                                         $TableParams = @{
@@ -433,15 +426,14 @@ function Get-AbrVbrBackupToTape {
                                                 Section -Style NOTOCHeading6 -ExcludeFromTOC 'Advanced Settings (Notifications)' {
                                                     $OutObj = @()
                                                     try {
-                                                        Write-PscriboMessage "Discovered $($TBkjob.Name) notification options."
+                                                        Write-PScriboMessage "Discovered $($TBkjob.Name) notification options."
                                                         $inObj = [ordered] @{
                                                             'Send Email Notification' = ConvertTo-TextYN $TBkjob.NotificationOptions.EnableAdditionalNotification
                                                             'Email Notification Additional Recipients' = $TBkjob.NotificationOptions.AdditionalAddress -join ","
                                                         }
                                                         if (!$TBkjob.NotificationOptions.UseNotificationOptions) {
                                                             $inObj.add('Use Global Notification Settings', (ConvertTo-TextYN $TBkjob.NotificationOptions.UseNotificationOptions))
-                                                        }
-                                                        elseif ($TBkjob.NotificationOptions.UseNotificationOptions) {
+                                                        } elseif ($TBkjob.NotificationOptions.UseNotificationOptions) {
                                                             $inObj.add('Use Custom Notification Settings', ('Yes'))
                                                             $inObj.add('Subject', ($TBkjob.NotificationOptions.NotificationSubject))
                                                             $inObj.add('Notify On Success', (ConvertTo-TextYN $TBkjob.NotificationOptions.NotifyOnSuccess))
@@ -451,9 +443,8 @@ function Get-AbrVbrBackupToTape {
                                                             $inObj.add('Notify When Waiting For Tape', (ConvertTo-TextYN $TBkjob.NotificationOptions.NotifyWhenWaitingForTape))
                                                         }
                                                         $OutObj += [pscustomobject]$inobj
-                                                    }
-                                                    catch {
-                                                        Write-PscriboMessage -IsWarning "Advanced Settings (Notifications) - $($TBkjob.Name) Section: $($_.Exception.Message)"
+                                                    } catch {
+                                                        Write-PScriboMessage -IsWarning "Advanced Settings (Notifications) - $($TBkjob.Name) Section: $($_.Exception.Message)"
                                                     }
 
                                                     $TableParams = @{
@@ -466,9 +457,8 @@ function Get-AbrVbrBackupToTape {
                                                     }
                                                     $OutObj | Sort-Object -Property 'Name' | Table @TableParams
                                                 }
-                                            }
-                                            catch {
-                                                Write-PscriboMessage -IsWarning "Advanced Settings (Notifications) Section: $($_.Exception.Message)"
+                                            } catch {
+                                                Write-PScriboMessage -IsWarning "Advanced Settings (Notifications) Section: $($_.Exception.Message)"
                                             }
                                         }
                                         if ($InfoLevel.Jobs.Tape -ge 2 -and $TBkjob.NotificationOptions.EnableAdditionalNotification) {
@@ -476,38 +466,34 @@ function Get-AbrVbrBackupToTape {
                                                 Section -Style NOTOCHeading6 -ExcludeFromTOC 'Advanced Settings (Advanced)' {
                                                     $OutObj = @()
                                                     try {
-                                                        Write-PscriboMessage "Discovered $($TBkjob.Name) advanced options."
+                                                        Write-PScriboMessage "Discovered $($TBkjob.Name) advanced options."
                                                         $inObj = [ordered] @{
                                                             'Process the most recent Restore Point instead of waiting' = ConvertTo-TextYN $TBkjob.AlwaysCopyFromLatestFull
                                                             'Use Hardware Compression when available' = ConvertTo-TextYN $TBkjob.UseHardwareCompression
                                                         }
                                                         if (!$TBkjob.JobScriptOptions.PreScriptEnabled) {
                                                             $inObj.add('Pre Job Script Enabled', (ConvertTo-TextYN $TBkjob.JobScriptOptions.PreScriptEnabled))
-                                                        }
-                                                        elseif ($TBkjob.JobScriptOptions.PreScriptEnabled) {
+                                                        } elseif ($TBkjob.JobScriptOptions.PreScriptEnabled) {
                                                             $inObj.add('Run the following script before job', ($TBkjob.JobScriptOptions.PreCommand))
                                                         }
                                                         if (!$TBkjob.JobScriptOptions.PostScriptEnabled) {
                                                             $inObj.add('Post Job Script Enabled', (ConvertTo-TextYN $TBkjob.JobScriptOptions.PostScriptEnabled))
-                                                        }
-                                                        elseif ($TBkjob.JobScriptOptions.PostScriptEnabled) {
+                                                        } elseif ($TBkjob.JobScriptOptions.PostScriptEnabled) {
                                                             $inObj.add('Run the following script after job', ($TBkjob.JobScriptOptions.PostCommand))
                                                         }
                                                         if ($TBkjob.JobScriptOptions.PreScriptEnabled -or $TBkjob.JobScriptOptions.PostScriptEnabled) {
                                                             if ($TBkjob.JobScriptOptions.Periodicity -eq 'Days') {
                                                                 $FrequencyValue = $TBkjob.JobScriptOptions.Day -join ", "
                                                                 $FrequencyText = 'Run Script on the Selected Days'
-                                                            }
-                                                            elseif ($TBkjob.JobScriptOptions.Periodicity -eq 'Cycles') {
+                                                            } elseif ($TBkjob.JobScriptOptions.Periodicity -eq 'Cycles') {
                                                                 $FrequencyValue = "Every $($TBkjob.JobScriptOptions.Frequency) backup session"
                                                                 $FrequencyText = 'Run Script Every Backup Session'
                                                             }
                                                             $inObj.add($FrequencyText, ($FrequencyValue))
                                                         }
                                                         $OutObj += [pscustomobject]$inobj
-                                                    }
-                                                    catch {
-                                                        Write-PscriboMessage -IsWarning "Advanced Settings (Advanced) - $($TBkjob.Name) Section: $($_.Exception.Message)"
+                                                    } catch {
+                                                        Write-PScriboMessage -IsWarning "Advanced Settings (Advanced) - $($TBkjob.Name) Section: $($_.Exception.Message)"
                                                     }
 
                                                     $TableParams = @{
@@ -520,21 +506,19 @@ function Get-AbrVbrBackupToTape {
                                                     }
                                                     $OutObj | Sort-Object -Property 'Name' | Table @TableParams
                                                 }
-                                            }
-                                            catch {
-                                                Write-PscriboMessage -IsWarning "Advanced Settings (Advanced) Section: $($_.Exception.Message)"
+                                            } catch {
+                                                Write-PScriboMessage -IsWarning "Advanced Settings (Advanced) Section: $($_.Exception.Message)"
                                             }
                                         }
                                     }
-                                }
-                                catch {
-                                    Write-PscriboMessage -IsWarning "Options Section: $($_.Exception.Message)"
+                                } catch {
+                                    Write-PScriboMessage -IsWarning "Options Section: $($_.Exception.Message)"
                                 }
                                 try {
                                     Section -Style NOTOCHeading5 -ExcludeFromTOC 'Schedule' {
                                         $OutObj = @()
                                         try {
-                                            Write-PscriboMessage "Discovered $($TBkjob.Name) schedule options."
+                                            Write-PScriboMessage "Discovered $($TBkjob.Name) schedule options."
                                             $inObj = [ordered] @{
                                                 'Prevent this job from being interrupted by source backup job' = ConvertTo-TextYN $TBkjob.WaitForBackupJobs
                                             }
@@ -550,21 +534,18 @@ function Get-AbrVbrBackupToTape {
                                             if ($TBkjob.ScheduleOptions.Enabled -and !$TBkjob.GFSScheduleOptions) {
                                                 if ($TBkjob.ScheduleOptions.Type -eq "Daily") {
                                                     $Schedule = "Daily at this time: $($TBkjob.ScheduleOptions.DailyOptions.Period),`r`nDays: $($TBkjob.ScheduleOptions.DailyOptions.Type),`r`nDay Of Week: $($TBkjob.ScheduleOptions.DailyOptions.DayOfWeek)"
-                                                }
-                                                elseif ($TBkjob.ScheduleOptions.Type -eq "Monthly") {
+                                                } elseif ($TBkjob.ScheduleOptions.Type -eq "Monthly") {
                                                     if ($TBkjob.ScheduleOptions.MonthlyOptions.DayNumberInMonth -eq 'OnDay') {
                                                         $Schedule = "Monthly at this time: $($TBkjob.ScheduleOptions.MonthlyOptions.Period),`r`nThis Day: $($TBkjob.ScheduleOptions.MonthlyOptions.DayOfMonth),`r`nMonths: $($TBkjob.ScheduleOptions.MonthlyOptions.Months)"
                                                     } else {
                                                         $Schedule = "Monthly at this time: $($TBkjob.ScheduleOptions.MonthlyOptions.Period),`r`nDays Number of Month: $($TBkjob.ScheduleOptions.MonthlyOptions.DayNumberInMonth),`r`nDay Of Week: $($TBkjob.ScheduleOptions.MonthlyOptions.DayOfWeek),`r`nMonth: $($TBkjob.ScheduleOptions.MonthlyOptions.Months)"
                                                     }
-                                                }
-                                                elseif ($TBkjob.ScheduleOptions.Type -eq "AfterJob") {
+                                                } elseif ($TBkjob.ScheduleOptions.Type -eq "AfterJob") {
                                                     $Schedule = Switch ($TBkjob.ScheduleOptions.JobId) {
-                                                        $Null {'Unknown'}
-                                                        default {" After Job: $((Get-VBRJob -WarningAction SilentlyContinue | Where-Object {$_.Id -eq $TBkjob.ScheduleOptions.JobId}).Name)"}
+                                                        $Null { 'Unknown' }
+                                                        default { " After Job: $((Get-VBRJob -WarningAction SilentlyContinue | Where-Object {$_.Id -eq $TBkjob.ScheduleOptions.JobId}).Name)" }
                                                     }
-                                                }
-                                                elseif ($TBkjob.ScheduleOptions.Type -eq "AfterNewBackup") {
+                                                } elseif ($TBkjob.ScheduleOptions.Type -eq "AfterNewBackup") {
                                                     $Schedule = 'After New Backup File Appears'
                                                 }
                                                 $inObj.add("Run Automatically", ($Schedule))
@@ -575,9 +556,8 @@ function Get-AbrVbrBackupToTape {
                                             }
 
                                             $OutObj += [pscustomobject]$inobj
-                                        }
-                                        catch {
-                                            Write-PscriboMessage -IsWarning "Schedule - $($TBkjob.Name) Section: $($_.Exception.Message)"
+                                        } catch {
+                                            Write-PScriboMessage -IsWarning "Schedule - $($TBkjob.Name) Section: $($_.Exception.Message)"
                                         }
 
                                         $TableParams = @{
@@ -590,18 +570,16 @@ function Get-AbrVbrBackupToTape {
                                         }
                                         $OutObj | Sort-Object -Property 'Name' | Table @TableParams
                                     }
-                                }
-                                catch {
-                                    Write-PscriboMessage -IsWarning "Schedule Section: $($_.Exception.Message)"
+                                } catch {
+                                    Write-PScriboMessage -IsWarning "Schedule Section: $($_.Exception.Message)"
                                 }
                             }
                         }
                     }
                 }
             }
-        }
-        catch {
-            Write-PscriboMessage -IsWarning "Backup To Tape Job Configuration Section: $($_.Exception.Message)"
+        } catch {
+            Write-PScriboMessage -IsWarning "Backup To Tape Job Configuration Section: $($_.Exception.Message)"
         }
     }
     end {}

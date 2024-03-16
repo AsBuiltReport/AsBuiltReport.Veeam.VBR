@@ -5,7 +5,7 @@ function Get-AbrVbrCloudConnectSummary {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.4
+        Version:        0.8.5
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -20,7 +20,7 @@ function Get-AbrVbrCloudConnectSummary {
     )
 
     begin {
-        Write-PscriboMessage "Discovering Veeam VBR Cloud Connect Summary from $System."
+        Write-PScriboMessage "Discovering Veeam VBR Cloud Connect Summary from $System."
     }
 
     process {
@@ -43,9 +43,8 @@ function Get-AbrVbrCloudConnectSummary {
                     'Hardware Plans' = $CloudConnectRR.Count
                 }
                 $OutObj += [pscustomobject]$inobj
-            }
-            catch {
-                Write-PscriboMessage -IsWarning "Cloud Connect Summary Section: $($_.Exception.Message)"
+            } catch {
+                Write-PScriboMessage -IsWarning "Cloud Connect Summary Section: $($_.Exception.Message)"
             }
 
             $TableParams = @{
@@ -58,26 +57,25 @@ function Get-AbrVbrCloudConnectSummary {
             }
             if ($Options.EnableCharts) {
                 try {
-                    $sampleData = $inObj.GetEnumerator() | Select-Object @{ Name = 'Category';  Expression = {$_.key}},@{ Name = 'Value';  Expression = {$_.value}} | Sort-Object -Property 'Category'
+                    $sampleData = $inObj.GetEnumerator() | Select-Object @{ Name = 'Category'; Expression = { $_.key } }, @{ Name = 'Value'; Expression = { $_.value } } | Sort-Object -Property 'Category'
 
                     $chartFileItem = Get-PieChart -SampleData $sampleData -ChartName 'CloudConnectInventory' -XField 'Category' -YField 'Value' -ChartLegendName 'Infrastructure'
                 } catch {
-                    Write-PscriboMessage -IsWarning "Cloud Connect Inventory chart section: $($_.Exception.Message)"
+                    Write-PScriboMessage -IsWarning "Cloud Connect Inventory chart section: $($_.Exception.Message)"
                 }
             }
 
             if ($OutObj) {
                 Section -Style NOTOCHeading3 -ExcludeFromTOC 'Cloud Connect Infrastructure' {
                     if ($Options.EnableCharts -and $chartFileItem -and ($inObj.Values | Measure-Object -Sum).Sum -ne 0) {
-                        Image -Text 'Cloud Connect Infrastructure - Diagram' -Align 'Center' -Percent 100 -Base64 $chartFileItem
+                        Image -Text 'Cloud Connect Infrastructure - Chart' -Align 'Center' -Percent 100 -Base64 $chartFileItem
                     }
                     BlankLine
                     $OutObj | Table @TableParams
                 }
             }
-        }
-        catch {
-            Write-PscriboMessage -IsWarning "Cloud Connect Summary Section: $($_.Exception.Message)"
+        } catch {
+            Write-PScriboMessage -IsWarning "Cloud Connect Summary Section: $($_.Exception.Message)"
         }
     }
     end {}

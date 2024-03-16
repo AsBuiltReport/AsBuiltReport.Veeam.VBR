@@ -6,7 +6,7 @@ function Get-AbrVbrReplFailoverPlan {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.0
+        Version:        0.8.5
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -21,7 +21,7 @@ function Get-AbrVbrReplFailoverPlan {
     )
 
     begin {
-        Write-PscriboMessage "Discovering Veeam VBR Failover Plans from $System."
+        Write-PScriboMessage "Discovering Veeam VBR Failover Plans from $System."
     }
 
     process {
@@ -64,13 +64,14 @@ function Get-AbrVbrReplFailoverPlan {
                             }
                             $OutObj | Table @TableParams
                             if ($HealthCheck.Replication.BestPractice) {
-                                if ($OutObj | Where-Object { $_.'Description' -match 'Created by' -or $Null -like $_.'Description'}) {
+                                if ($OutObj | Where-Object { $_.'Description' -match 'Created by' -or $Null -like $_.'Description' }) {
                                     Paragraph "Health Check:" -Bold -Underline
                                     BlankLine
                                     Paragraph {
                                         Text "Best Practice:" -Bold
                                         Text "It is a general rule of good practice to establish well-defined descriptions. This helps to speed up the fault identification process, as well as enabling better documentation of the environment."
                                     }
+                                    BlankLine
                                 }
                             }
                             if ($InfoLevel.Replication.FailoverPlan -ge 2) {
@@ -81,27 +82,26 @@ function Get-AbrVbrReplFailoverPlan {
                                             foreach ($FailOverPlansVM in $FailOverPlan.FailoverPlanObject) {
                                                 try {
                                                     if ($FailOverPlan.Platform -eq 'VMWare') {
-                                                        Write-PscriboMessage "Discovering $($FailOverPlan.Name) VMware VM information."
+                                                        Write-PScriboMessage "Discovering $($FailOverPlan.Name) VMware VM information."
                                                         $VMInfo = Find-VBRViEntity -Name $FailOverPlansVM
                                                     } Else {
-                                                        Write-PscriboMessage "Discovering $($FailOverPlan.Name) Hyper-V VM information."
+                                                        Write-PScriboMessage "Discovering $($FailOverPlan.Name) Hyper-V VM information."
                                                         $VMInfo = Find-VBRHvEntity -Name $FailOverPlansVM
                                                     }
                                                     if ($VMInfo) {
-                                                        Write-PscriboMessage "Discovered $($VMInfo.Name) VM information."
+                                                        Write-PScriboMessage "Discovered $($VMInfo.Name) VM information."
                                                     }
                                                     $inObj = [ordered] @{
                                                         'VM Name' = Switch ($VMInfo.Name) {
-                                                            $Null {'Unknown'}
-                                                            default {$VMInfo.Name}
+                                                            $Null { 'Unknown' }
+                                                            default { $VMInfo.Name }
                                                         }
                                                         'Boot Order' = $FailOverPlansVM.BootOrder
                                                         'Boot Delay' = $FailOverPlansVM.BootDelay
                                                     }
                                                     $OutObj += [pscustomobject]$inobj
-                                                }
-                                                catch {
-                                                    Write-PscriboMessage -IsWarning "Virtual Machines $($VMInfo.Name) Section: $($_.Exception.Message)"
+                                                } catch {
+                                                    Write-PScriboMessage -IsWarning "Virtual Machines $($VMInfo.Name) Section: $($_.Exception.Message)"
                                                 }
                                             }
 
@@ -115,16 +115,14 @@ function Get-AbrVbrReplFailoverPlan {
                                             }
                                             $OutObj | Sort-Object -Property 'Job Name' | Table @TableParams
                                         }
-                                    }
-                                    catch {
-                                        Write-PscriboMessage -IsWarning "Virtual Machines Section: $($_.Exception.Message)"
+                                    } catch {
+                                        Write-PScriboMessage -IsWarning "Virtual Machines Section: $($_.Exception.Message)"
                                     }
                                 }
                             }
                         }
-                    }
-                    catch {
-                        Write-PscriboMessage -IsWarning "Failover Plans Section: $($_.Exception.Message)"
+                    } catch {
+                        Write-PScriboMessage -IsWarning "Failover Plans Section: $($_.Exception.Message)"
                     }
                 }
             }

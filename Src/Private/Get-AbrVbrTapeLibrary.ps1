@@ -6,7 +6,7 @@ function Get-AbrVbrTapeLibrary {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.7.1
+        Version:        0.8.5
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -21,7 +21,7 @@ function Get-AbrVbrTapeLibrary {
     )
 
     begin {
-        Write-PscriboMessage "Discovering Veeam VBR Tape Library information from $System."
+        Write-PScriboMessage "Discovering Veeam VBR Tape Library information from $System."
     }
 
     process {
@@ -36,8 +36,8 @@ function Get-AbrVbrTapeLibrary {
                         foreach ($TapeObj in $TapeObjs) {
                             try {
                                 Section -Style Heading4 $($TapeObj.Name) {
-                                    Write-PscriboMessage "Discovered $($TapeObj.Name) Type Library."
-                                    $TapeServer = (Get-VBRTapeServer | Where-Object {$_.Id -eq $TapeObj.TapeServerId}).Name
+                                    Write-PScriboMessage "Discovered $($TapeObj.Name) Type Library."
+                                    $TapeServer = (Get-VBRTapeServer | Where-Object { $_.Id -eq $TapeObj.TapeServerId }).Name
                                     $inObj = [ordered] @{
                                         'Library Name' = $TapeObj.Name
                                         'Library Model' = $TapeObj.Model
@@ -46,16 +46,16 @@ function Get-AbrVbrTapeLibrary {
                                         'Connected to' = $TapeServer
                                         'Enabled' = ConvertTo-TextYN $TapeObj.Enabled
                                         'Status' = Switch ($TapeObj.State) {
-                                            'Online' {'Available'}
-                                            'Offline' {'Unavailable'}
-                                            default {$TapeObj.State}
+                                            'Online' { 'Available' }
+                                            'Offline' { 'Unavailable' }
+                                            default { $TapeObj.State }
                                         }
                                     }
 
                                     $OutObj += [pscustomobject]$inobj
 
                                     if ($HealthCheck.Tape.Status) {
-                                        $OutObj | Where-Object { $_.'Status' -eq 'Unavailable'} | Set-Style -Style Warning -Property 'Status'
+                                        $OutObj | Where-Object { $_.'Status' -eq 'Unavailable' } | Set-Style -Style Warning -Property 'Status'
                                     }
 
                                     $TableParams = @{
@@ -74,20 +74,20 @@ function Get-AbrVbrTapeLibrary {
                                     try {
                                         $DriveObjs = Get-VBRTapeDrive -Library $TapeObj.Id
                                         if ($DriveObjs) {
-                                            Write-PscriboMessage "Collecting $($TapeObj.Name) Tape Drives"
+                                            Write-PScriboMessage "Collecting $($TapeObj.Name) Tape Drives"
                                             Section -Style NOTOCHeading5 -ExcludeFromTOC "Tape Drives" {
                                                 $OutObj = @()
                                                 try {
                                                     foreach ($DriveObj in $DriveObjs) {
-                                                        Write-PscriboMessage "Discovered $($DriveObj.Name) Type Drive."
+                                                        Write-PScriboMessage "Discovered $($DriveObj.Name) Type Drive."
                                                         $inObj = [ordered] @{
                                                             'Name' = $DriveObj.Name
                                                             'Model' = $DriveObj.Model
                                                             'Serial Number' = $DriveObj.SerialNumber
                                                             'Medium' = switch ([string]::IsNullOrEmpty($DriveObj.Medium)) {
-                                                                $true {'--'}
-                                                                $false {$DriveObj.Medium}
-                                                                Default {'Unknown'}
+                                                                $true { '--' }
+                                                                $false { $DriveObj.Medium }
+                                                                Default { 'Unknown' }
                                                             }
                                                             'Enabled' = ConvertTo-TextYN $DriveObj.Enabled
                                                             'Is Locked' = ConvertTo-TextYN $DriveObj.IsLocked
@@ -97,7 +97,7 @@ function Get-AbrVbrTapeLibrary {
                                                     }
 
                                                     if ($HealthCheck.Tape.Status) {
-                                                        $OutObj | Where-Object { $_.'Status' -eq 'Unavailable'} | Set-Style -Style Warning -Property 'Status'
+                                                        $OutObj | Where-Object { $_.'Status' -eq 'Unavailable' } | Set-Style -Style Warning -Property 'Status'
                                                     }
 
                                                     $TableParams = @{
@@ -110,15 +110,13 @@ function Get-AbrVbrTapeLibrary {
                                                         $TableParams['Caption'] = "- $($TableParams.Name)"
                                                     }
                                                     $OutObj | Sort-Object -Property 'Name' | Table @TableParams
-                                                }
-                                                catch {
-                                                    Write-PscriboMessage -IsWarning "Tape Drives $($TapeObj.Name) Section: $($_.Exception.Message)"
+                                                } catch {
+                                                    Write-PScriboMessage -IsWarning "Tape Drives $($TapeObj.Name) Section: $($_.Exception.Message)"
                                                 }
                                             }
                                         }
-                                    }
-                                    catch {
-                                        Write-PscriboMessage -IsWarning "Tape Drives Section: $($_.Exception.Message)"
+                                    } catch {
+                                        Write-PScriboMessage -IsWarning "Tape Drives Section: $($_.Exception.Message)"
                                     }
                                     #---------------------------------------------------------------------------------------------#
                                     #                                  Tape Medium Section                                        #
@@ -127,18 +125,18 @@ function Get-AbrVbrTapeLibrary {
                                         if ($InfoLevel.Tape.Library -ge 2) {
                                             $MediumObjs = Get-VBRTapeMedium -Library $TapeObj.Id
                                             if ($MediumObjs) {
-                                                Write-PscriboMessage "Collecting $($TapeObj.Name) Tape Medium"
+                                                Write-PScriboMessage "Collecting $($TapeObj.Name) Tape Medium"
                                                 Section -Style NOTOCHeading5 -ExcludeFromTOC "Tape Mediums" {
                                                     $OutObj = @()
                                                     foreach ($MediumObj in $MediumObjs) {
                                                         try {
 
-                                                            Write-PscriboMessage "Discovered $($MediumObj.Name) Type Medium."
+                                                            Write-PScriboMessage "Discovered $($MediumObj.Name) Type Medium."
                                                             $inObj = [ordered] @{
                                                                 'Name' = $MediumObj.Name
                                                                 'Expiration Date' = Switch (($MediumObj.ExpirationDate).count) {
-                                                                    0 {"--"}
-                                                                    default {$MediumObj.ExpirationDate.ToShortDateString()}
+                                                                    0 { "--" }
+                                                                    default { $MediumObj.ExpirationDate.ToShortDateString() }
                                                                 }
                                                                 'Total Space' = ConvertTo-FileSizeString $MediumObj.Capacity
                                                                 'Free Space' = ConvertTo-FileSizeString $MediumObj.Free
@@ -147,9 +145,8 @@ function Get-AbrVbrTapeLibrary {
                                                                 'Worm' = ConvertTo-TextYN $MediumObj.IsWorm
                                                             }
                                                             $OutObj += [pscustomobject]$inobj
-                                                        }
-                                                        catch {
-                                                            Write-PscriboMessage -IsWarning "Tape Mediums $($MediumObj.Name) Section: $($_.Exception.Message)"
+                                                        } catch {
+                                                            Write-PScriboMessage -IsWarning "Tape Mediums $($MediumObj.Name) Section: $($_.Exception.Message)"
                                                         }
                                                     }
 
@@ -166,25 +163,21 @@ function Get-AbrVbrTapeLibrary {
                                                 }
                                             }
                                         }
-                                    }
-                                    catch {
-                                        Write-PscriboMessage -IsWarning "Tape Mediums Section: $($_.Exception.Message)"
+                                    } catch {
+                                        Write-PScriboMessage -IsWarning "Tape Mediums Section: $($_.Exception.Message)"
                                     }
                                 }
-                            }
-                            catch {
-                                Write-PscriboMessage -IsWarning "Tape Library $($TapeObj.Name) Section: $($_.Exception.Message)"
+                            } catch {
+                                Write-PScriboMessage -IsWarning "Tape Library $($TapeObj.Name) Section: $($_.Exception.Message)"
                             }
                         }
-                    }
-                    catch {
-                        Write-PscriboMessage -IsWarning "Tape Libraries Table Section: $($_.Exception.Message)"
+                    } catch {
+                        Write-PScriboMessage -IsWarning "Tape Libraries Table Section: $($_.Exception.Message)"
                     }
                 }
             }
-        }
-        catch {
-            Write-PscriboMessage -IsWarning "Tape Libraries Section: $($_.Exception.Message)"
+        } catch {
+            Write-PScriboMessage -IsWarning "Tape Libraries Section: $($_.Exception.Message)"
         }
     }
     end {}

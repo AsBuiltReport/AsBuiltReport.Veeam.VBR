@@ -6,7 +6,7 @@ function Get-AbrVbrInfrastructureSummary {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.4
+        Version:        0.8.5
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -21,7 +21,7 @@ function Get-AbrVbrInfrastructureSummary {
     )
 
     begin {
-        Write-PscriboMessage "Discovering Veeam VBR Infrastructure Summary from $System."
+        Write-PScriboMessage "Discovering Veeam VBR Infrastructure Summary from $System."
     }
 
     process {
@@ -41,15 +41,14 @@ function Get-AbrVbrInfrastructureSummary {
                 try {
                     $ServiceProviders = (Get-VBRCloudProvider).count
                 } Catch {
-                    Write-PscriboMessage -IsWarning "Infrastructure Service Providers Summary Section: $($_.Exception.Message)"
+                    Write-PScriboMessage -IsWarning "Infrastructure Service Providers Summary Section: $($_.Exception.Message)"
                     $ServiceProviders = 0
                 }
                 try {
                     $SureBackupAGs = (Get-VBRApplicationGroup).count
                     $SureBackupVLs = (Get-VBRVirtualLab).count
-                }
-                Catch {
-                    Write-PscriboMessage -IsWarning "Infrastructure SureBackup Summary Section: $($_.Exception.Message)"
+                } Catch {
+                    Write-PScriboMessage -IsWarning "Infrastructure SureBackup Summary Section: $($_.Exception.Message)"
                     $SureBackupAGs = 0
                     $SureBackupVLs = 0
                 }
@@ -69,9 +68,8 @@ function Get-AbrVbrInfrastructureSummary {
                     'Capacity Licenses (Total/Used)' = "$($CapacityLicenses.LicensedCapacityTb)TB/$($CapacityLicenses.UsedCapacityTb)TB"
                 }
                 $OutObj += [pscustomobject]$inobj
-            }
-            catch {
-                Write-PscriboMessage -IsWarning "Infrastructure Summary Section: $($_.Exception.Message)"
+            } catch {
+                Write-PScriboMessage -IsWarning "Infrastructure Summary Section: $($_.Exception.Message)"
             }
 
             $TableParams = @{
@@ -87,26 +85,25 @@ function Get-AbrVbrInfrastructureSummary {
                     $inObj.Remove('Instance Licenses (Total/Used)')
                     $inObj.Remove('Socket Licenses (Total/Used)')
                     $inObj.Remove('Capacity Licenses (Total/Used)')
-                    $sampleData = $inObj.GetEnumerator() | Select-Object @{ Name = 'Category';  Expression = {$_.key}},@{ Name = 'Value';  Expression = {$_.value}} | Sort-Object -Property 'Category'
+                    $sampleData = $inObj.GetEnumerator() | Select-Object @{ Name = 'Category'; Expression = { $_.key } }, @{ Name = 'Value'; Expression = { $_.value } } | Sort-Object -Property 'Category'
 
                     $chartFileItem = Get-PieChart -SampleData $sampleData -ChartName 'BackupInfrastructure' -XField 'Category' -YField 'Value' -ChartLegendName 'Infrastructure'
                 } catch {
-                    Write-PscriboMessage -IsWarning "Backup Infrastructure chart section: $($_.Exception.Message)"
+                    Write-PScriboMessage -IsWarning "Backup Infrastructure chart section: $($_.Exception.Message)"
                 }
             }
 
             if ($OutObj) {
                 Section -Style NOTOCHeading3 -ExcludeFromTOC 'Backup Infrastructure Inventory' {
                     if ($Options.EnableCharts -and $chartFileItem -and ($inObj.Values | Measure-Object -Sum).Sum -ne 0) {
-                        Image -Text 'Backup Infrastructure - Diagram' -Align 'Center' -Percent 100 -Base64 $chartFileItem
+                        Image -Text 'Backup Infrastructure - Chart' -Align 'Center' -Percent 100 -Base64 $chartFileItem
                     }
                     BlankLine
                     $OutObj | Table @TableParams
                 }
             }
-        }
-        catch {
-            Write-PscriboMessage -IsWarning "Infrastructure Summary Section: $($_.Exception.Message)"
+        } catch {
+            Write-PScriboMessage -IsWarning "Infrastructure Summary Section: $($_.Exception.Message)"
         }
     }
     end {}

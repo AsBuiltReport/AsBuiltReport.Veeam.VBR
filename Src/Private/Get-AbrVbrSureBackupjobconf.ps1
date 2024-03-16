@@ -6,7 +6,7 @@ function Get-AbrVbrSureBackupjobconf {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.4
+        Version:        0.8.5
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -21,7 +21,7 @@ function Get-AbrVbrSureBackupjobconf {
     )
 
     begin {
-        Write-PscriboMessage "Discovering Veeam VBR SureBackup jobs configuration information from $System."
+        Write-PScriboMessage "Discovering Veeam VBR SureBackup jobs configuration information from $System."
     }
 
     process {
@@ -38,20 +38,20 @@ function Get-AbrVbrSureBackupjobconf {
                                 try {
                                     Section -Style NOTOCHeading5 -ExcludeFromTOC 'Common Information' {
                                         $OutObj = @()
-                                        Write-PscriboMessage "Discovered $($SBkjob.Name) common information."
+                                        Write-PScriboMessage "Discovered $($SBkjob.Name) common information."
                                         $inObj = [ordered] @{
                                             'Name' = $SBkjob.Name
                                             'Last Run' = $SBkjob.LastRun
                                             'Next Run' = Switch ($SBkjob.Enabled) {
-                                                'False' {'Disabled'}
-                                                default {$SBkjob.NextRun}
+                                                'False' { 'Disabled' }
+                                                default { $SBkjob.NextRun }
                                             }
-                                            'Description' = $SBkjob.Description
+                                            'Description' = ConvertTo-EmptyToFiller $SBkjob.Description
                                         }
                                         $OutObj = [pscustomobject]$inobj
 
                                         if ($HealthCheck.Jobs.BestPractice) {
-                                            $OutObj | Where-Object { $Null -like $_.'Description' } | Set-Style -Style Warning -Property 'Description'
+                                            $OutObj | Where-Object { $_.'Description' -eq "--" } | Set-Style -Style Warning -Property 'Description'
                                             $OutObj | Where-Object { $_.'Description' -match "Created by" } | Set-Style -Style Warning -Property 'Description'
                                         }
 
@@ -65,25 +65,25 @@ function Get-AbrVbrSureBackupjobconf {
                                         }
                                         $OutObj | Table @TableParams
                                         if ($HealthCheck.Jobs.BestPractice) {
-                                            if ($OutObj | Where-Object { $_.'Description' -match 'Created by' -or $Null -like $_.'Description'}) {
+                                            if ($OutObj | Where-Object { $_.'Description' -match 'Created by' -or $_.'Description' -eq "--" }) {
                                                 Paragraph "Health Check:" -Bold -Underline
                                                 BlankLine
                                                 Paragraph {
                                                     Text "Best Practice:" -Bold
                                                     Text "It is a general rule of good practice to establish well-defined descriptions. This helps to speed up the fault identification process, as well as enabling better documentation of the environment."
                                                 }
+                                                BlankLine
                                             }
                                         }
                                     }
-                                }
-                                catch {
-                                    Write-PscriboMessage -IsWarning "SureBackup $($SBkjob.Name) Common Information Section: $($_.Exception.Message)"
+                                } catch {
+                                    Write-PScriboMessage -IsWarning "SureBackup $($SBkjob.Name) Common Information Section: $($_.Exception.Message)"
                                 }
                                 try {
                                     if ($SBkjob.VirtualLab) {
                                         Section -Style NOTOCHeading5 -ExcludeFromTOC 'Virtual Lab' {
                                             $OutObj = @()
-                                            Write-PscriboMessage "Discovered $($SBkjob.VirtualLab.Name) virtual lab."
+                                            Write-PScriboMessage "Discovered $($SBkjob.VirtualLab.Name) virtual lab."
                                             $inObj = [ordered] @{
                                                 'Name' = $SBkjob.VirtualLab.Name
                                                 'Description' = $SBkjob.VirtualLab.Description
@@ -109,15 +109,14 @@ function Get-AbrVbrSureBackupjobconf {
                                             $OutObj | Table @TableParams
                                         }
                                     }
-                                }
-                                catch {
-                                    Write-PscriboMessage -IsWarning "SureBackup Virtual Lab $($SBkjob.Name) Section: $($_.Exception.Message)"
+                                } catch {
+                                    Write-PScriboMessage -IsWarning "SureBackup Virtual Lab $($SBkjob.Name) Section: $($_.Exception.Message)"
                                 }
                                 if ($SBkjob.ApplicationGroup) {
                                     try {
                                         Section -Style NOTOCHeading5 -ExcludeFromTOC 'Application Group' {
                                             $OutObj = @()
-                                            Write-PscriboMessage "Discovered $($SBkjob.ApplicationGroup.Name) application group."
+                                            Write-PScriboMessage "Discovered $($SBkjob.ApplicationGroup.Name) application group."
                                             $inObj = [ordered] @{
                                                 'Name' = $SBkjob.ApplicationGroup.Name
                                                 'Virtual Machines' = $SBkjob.ApplicationGroup.VM -join ", "
@@ -136,9 +135,8 @@ function Get-AbrVbrSureBackupjobconf {
                                             }
                                             $OutObj | Table @TableParams
                                         }
-                                    }
-                                    catch {
-                                        Write-PscriboMessage -IsWarning "SureBackup Application Group $($SBkjob.Name) Section: $($_.Exception.Message)"
+                                    } catch {
+                                        Write-PScriboMessage -IsWarning "SureBackup Application Group $($SBkjob.Name) Section: $($_.Exception.Message)"
                                     }
                                 }
                                 if ($SBkjob.LinkToJobs) {
@@ -146,15 +144,15 @@ function Get-AbrVbrSureBackupjobconf {
                                         Section -Style NOTOCHeading5 -ExcludeFromTOC 'Linked Jobs' {
                                             $OutObj = @()
                                             foreach ($LinkedJob in $SBkjob.LinkedJob) {
-                                                Write-PscriboMessage "Discovered $($LinkedJob.Job.Name) linked job."
+                                                Write-PScriboMessage "Discovered $($LinkedJob.Job.Name) linked job."
                                                 $inObj = [ordered] @{
                                                     'Name' = $LinkedJob.Job.Name
                                                     'Roles' = Switch ([string]::IsNullOrEmpty($LinkedJob.Role)) {
-                                                        $true {'Not Defined'}
-                                                        $false {$LinkedJob.Role -join ","}
-                                                        default {'Unknown'}
+                                                        $true { 'Not Defined' }
+                                                        $false { $LinkedJob.Role -join "," }
+                                                        default { 'Unknown' }
                                                     }
-                                                    'Description' =  $LinkedJob.Job.Description
+                                                    'Description' = $LinkedJob.Job.Description
                                                 }
                                                 $OutObj += [pscustomobject]$inobj
                                             }
@@ -172,7 +170,7 @@ function Get-AbrVbrSureBackupjobconf {
                                                     Section -Style NOTOCHeading6 -ExcludeFromTOC 'Verification Options' {
                                                         $OutObj = @()
                                                         foreach ($LinkedJob in $SBkjob.LinkedJob) {
-                                                            Write-PscriboMessage "Discovered $($LinkedJob.Job.Name) verification options."
+                                                            Write-PScriboMessage "Discovered $($LinkedJob.Job.Name) verification options."
                                                             $inObj = [ordered] @{
                                                                 'Job Name' = $LinkedJob.Job.Name
                                                                 'Amount of memory to Allocate to VM' = "$($LinkedJob.StartupOptions.AllocatedMemory) percent"
@@ -180,15 +178,16 @@ function Get-AbrVbrSureBackupjobconf {
                                                                 'Application Initialization Timeout' = "$($LinkedJob.StartupOptions.ApplicationInitializationTimeout) sec"
                                                                 'VM heartbeat is present' = ConvertTo-TextYN $LinkedJob.StartupOptions.VMHeartBeatCheckEnabled
                                                                 'VM respond to ping on any interface' = ConvertTo-TextYN $LinkedJob.StartupOptions.VMPingCheckEnabled
+                                                                'Automatically disable Windows Firewall' = ConvertTo-TextYN $LinkedJob.StartupOptions.WindowsFirewallDisabled
                                                                 'VM Role' = ConvertTo-EmptyToFiller ($LinkedJob.ScriptOptions.PredefinedApplication -join ", ")
-                                                                'VM Test Script' = Switch ([string]::IsNullOrEmpty(($LinkedJob.ScriptOptions | ForEach-Object {if ($_.Name) {$_.Name}}))) {
-                                                                    $true {'--'}
-                                                                    $false {($LinkedJob.ScriptOptions) | ForEach-Object {if ($_.Name) {"Name: $($_.Name), Path: $($_.Path), Argument: $($_.Argument)"}}}
-                                                                    default {"Uknown"}
+                                                                'VM Test Script' = Switch ([string]::IsNullOrEmpty(($LinkedJob.ScriptOptions | ForEach-Object { if ($_.Name) { $_.Name } }))) {
+                                                                    $true { '--' }
+                                                                    $false { ($LinkedJob.ScriptOptions) | ForEach-Object { if ($_.Name) { "Name: $($_.Name), Path: $($_.Path), Argument: $($_.Argument)" } } }
+                                                                    default { "Uknown" }
                                                                 }
                                                                 'Credentials' = Switch ($LinkedJob.Credentials.Description) {
-                                                                    $Null {'None'}
-                                                                    default {$LinkedJob.Credentials.Description}
+                                                                    $Null { 'None' }
+                                                                    default { $LinkedJob.Credentials.Description }
                                                                 }
                                                             }
                                                             $OutObj = [pscustomobject]$inobj
@@ -208,19 +207,19 @@ function Get-AbrVbrSureBackupjobconf {
                                                         Section -Style NOTOCHeading6 -ExcludeFromTOC 'Per VM Verification Rules' {
                                                             $OutObj = @()
                                                             foreach ($LinkedJobVM in $SBkjob.LinkedJob.VM) {
-                                                                Write-PscriboMessage "Discovered $($LinkedJobVM.Name) verification rules."
+                                                                Write-PScriboMessage "Discovered $($LinkedJobVM.Name) verification rules."
                                                                 $inObj = [ordered] @{
                                                                     'VM Name' = $LinkedJobVM.Name
                                                                     'Excluded' = ConvertTo-TextYN $LinkedJobVM.IsExcluded
                                                                     'VM Role' = ConvertTo-EmptyToFiller ($LinkedJobVM.Role -join ", ")
-                                                                    'VM Test Script' = Switch ([string]::IsNullOrEmpty(($LinkedJobVM.TestScript | ForEach-Object {if ($_.Name) {$_.Name}}))) {
-                                                                        $true {'--'}
-                                                                        $false {($LinkedJobVM.TestScript) | ForEach-Object {if ($_.Name) {"Name: $($_.Name),Path: $($_.Path),Argument: $($_.Argument)"}}}
-                                                                        default {"Uknown"}
+                                                                    'VM Test Script' = Switch ([string]::IsNullOrEmpty(($LinkedJobVM.TestScript | ForEach-Object { if ($_.Name) { $_.Name } }))) {
+                                                                        $true { '--' }
+                                                                        $false { ($LinkedJobVM.TestScript) | ForEach-Object { if ($_.Name) { "Name: $($_.Name),Path: $($_.Path),Argument: $($_.Argument)" } } }
+                                                                        default { "Uknown" }
                                                                     }
                                                                     'Credentials' = Switch ($LinkedJobVM.Credentials.Description) {
-                                                                        $Null {'None'}
-                                                                        default {$LinkedJobVM.Credentials.Description}
+                                                                        $Null { 'None' }
+                                                                        default { $LinkedJobVM.Credentials.Description }
                                                                     }
                                                                 }
                                                                 $OutObj += [pscustomobject]$inobj
@@ -237,21 +236,19 @@ function Get-AbrVbrSureBackupjobconf {
                                                             $OutObj | Sort-Object -Property 'VM Name' | Table @TableParams
                                                         }
                                                     }
-                                                }
-                                                catch {
-                                                    Write-PscriboMessage -IsWarning "SureBackup Verification Options $($SBkjob.Name) Section: $($_.Exception.Message)"
+                                                } catch {
+                                                    Write-PScriboMessage -IsWarning "SureBackup Verification Options $($SBkjob.Name) Section: $($_.Exception.Message)"
                                                 }
                                             }
                                         }
-                                    }
-                                    catch {
-                                        Write-PscriboMessage -IsWarning "SureBackup Linked Jobs $($SBkjob.Name) Section: $($_.Exception.Message)"
+                                    } catch {
+                                        Write-PScriboMessage -IsWarning "SureBackup Linked Jobs $($SBkjob.Name) Section: $($_.Exception.Message)"
                                     }
                                 }
                                 try {
                                     Section -Style NOTOCHeading5 -ExcludeFromTOC 'Settings' {
                                         $OutObj = @()
-                                        Write-PscriboMessage "Discovered $($SBkjob.Name) job settings."
+                                        Write-PScriboMessage "Discovered $($SBkjob.Name) job settings."
                                         $inObj = [ordered] @{
                                             'Backup file integrity scan' = ConvertTo-TextYN $SBkjob.VerificationOptions.EnableDiskContentValidation
                                             'Skip validation for application group VM' = ConvertTo-TextYN $SBkjob.VerificationOptions.DisableApplicationGroupValidation
@@ -285,44 +282,39 @@ function Get-AbrVbrSureBackupjobconf {
                                         }
                                         $OutObj | Table @TableParams
                                     }
-                                }
-                                catch {
-                                    Write-PscriboMessage -IsWarning "SureBackup Settings $($SBkjob.Name) Section: $($_.Exception.Message)"
+                                } catch {
+                                    Write-PScriboMessage -IsWarning "SureBackup Settings $($SBkjob.Name) Section: $($_.Exception.Message)"
                                 }
                                 if ($SBkjob.ScheduleEnabled) {
                                     Section -Style NOTOCHeading5 -ExcludeFromTOC 'Schedule' {
                                         $OutObj = @()
                                         try {
-                                            Write-PscriboMessage "Discovered $($SBkjob.Name) schedule options."
+                                            Write-PScriboMessage "Discovered $($SBkjob.Name) schedule options."
                                             $inObj = [ordered] @{
                                                 'Wait for backup jobs' = "$($SBkjob.ScheduleOptions.WaitTimeMinutes) minutes"
                                             }
 
                                             if ($SBkjob.ScheduleOptions.Type -eq "Daily") {
                                                 $Schedule = "Daily at this time: $($SBkjob.ScheduleOptions.DailyOptions.Period),`r`nDays: $($SBkjob.ScheduleOptions.DailyOptions.Type),`r`nDay Of Week: $($SBkjob.ScheduleOptions.DailyOptions.DayOfWeek)"
-                                            }
-                                            elseif ($SBkjob.ScheduleOptions.Type -eq "Monthly") {
+                                            } elseif ($SBkjob.ScheduleOptions.Type -eq "Monthly") {
                                                 if ($SBkjob.ScheduleOptions.MonthlyOptions.DayNumberInMonth -eq 'OnDay') {
                                                     $Schedule = "Monthly at this time: $($SBkjob.ScheduleOptions.MonthlyOptions.Period),`r`nThis Day: $($SBkjob.ScheduleOptions.MonthlyOptions.DayOfMonth),`r`nMonths: $($SBkjob.ScheduleOptions.MonthlyOptions.Months)"
                                                 } else {
                                                     $Schedule = "Monthly at this time: $($SBkjob.ScheduleOptions.MonthlyOptions.Period),`r`nDays Number of Month: $($SBkjob.ScheduleOptions.MonthlyOptions.DayNumberInMonth),`r`nDay Of Week: $($SBkjob.ScheduleOptions.MonthlyOptions.DayOfWeek),`r`nMonth: $($SBkjob.ScheduleOptions.MonthlyOptions.Months)"
                                                 }
-                                            }
-                                            elseif ($SBkjob.ScheduleOptions.Type -eq "AfterJob") {
+                                            } elseif ($SBkjob.ScheduleOptions.Type -eq "AfterJob") {
                                                 $Schedule = Switch ($SBkjob.ScheduleOptions.AfterJobId) {
-                                                    $Null {'Unknown'}
-                                                    default {" After Job: $((Get-VBRJob -WarningAction SilentlyContinue | Where-Object {$_.Id -eq $SBkjob.ScheduleOptions.AfterJobId}).Name)"}
+                                                    $Null { 'Unknown' }
+                                                    default { " After Job: $((Get-VBRJob -WarningAction SilentlyContinue | Where-Object {$_.Id -eq $SBkjob.ScheduleOptions.AfterJobId}).Name)" }
                                                 }
-                                            }
-                                            elseif ($TBkjob.ScheduleOptions.Type -eq "AfterNewBackup") {
+                                            } elseif ($TBkjob.ScheduleOptions.Type -eq "AfterNewBackup") {
                                                 $Schedule = 'After New Backup File Appears'
                                             }
                                             $inObj.add("Run Automatically", ($Schedule))
 
                                             $OutObj += [pscustomobject]$inobj
-                                        }
-                                        catch {
-                                            Write-PscriboMessage -IsWarning "SureBackup Schedule $($SBkjob.Name) Section: $($_.Exception.Message)"
+                                        } catch {
+                                            Write-PScriboMessage -IsWarning "SureBackup Schedule $($SBkjob.Name) Section: $($_.Exception.Message)"
                                         }
 
                                         $TableParams = @{
@@ -337,16 +329,14 @@ function Get-AbrVbrSureBackupjobconf {
                                     }
                                 }
                             }
-                        }
-                        catch {
-                            Write-PscriboMessage -IsWarning "SureBackup Job Configuration $($SBkjob.Name) Section: $($_.Exception.Message)"
+                        } catch {
+                            Write-PScriboMessage -IsWarning "SureBackup Job Configuration $($SBkjob.Name) Section: $($_.Exception.Message)"
                         }
                     }
                 }
             }
-        }
-        catch {
-            Write-PscriboMessage -IsWarning "SureBackup Job Configuration Section: $($_.Exception.Message)"
+        } catch {
+            Write-PScriboMessage -IsWarning "SureBackup Job Configuration Section: $($_.Exception.Message)"
         }
     }
     end {}

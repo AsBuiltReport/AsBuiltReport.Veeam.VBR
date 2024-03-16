@@ -6,7 +6,7 @@ function Get-AbrVbrSureBackupjob {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.4
+        Version:        0.8.5
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -21,7 +21,7 @@ function Get-AbrVbrSureBackupjob {
     )
 
     begin {
-        Write-PscriboMessage "Discovering Veeam VBR SureBackup jobs information from $System."
+        Write-PScriboMessage "Discovering Veeam VBR SureBackup jobs information from $System."
     }
 
     process {
@@ -34,24 +34,27 @@ function Get-AbrVbrSureBackupjob {
                     $OutObj = @()
                     foreach ($SBkjob in $SBkjobs) {
                         try {
-                            Write-PscriboMessage "Discovered $($SBkjob.Name) location."
+                            Write-PScriboMessage "Discovered $($SBkjob.Name) location."
                             $inObj = [ordered] @{
                                 'Name' = $SBkjob.Name
                                 'Status' = Switch ($SBkjob.IsEnabled) {
-                                    'False' {'Disabled'}
-                                    'True' {'Enabled'}
+                                    'False' { 'Disabled' }
+                                    'True' { 'Enabled' }
                                 }
                                 'Schedule Enabled' = Switch ($SBkjob.ScheduleEnabled) {
-                                    'False' {'Not Scheduled'}
-                                    'True' {'Scheduled'}
+                                    'False' { 'Not Scheduled' }
+                                    'True' { 'Scheduled' }
                                 }
                                 'Latest Result' = $SBkjob.LastResult
-                                'Virtual Lab' = $SBkjob.VirtualLab.Name
+                                'Virtual Lab' = Switch ($SBkjob.VirtualLab.Name) {
+                                    $true { "Not applicable" }
+                                    $false { $SBkjob.VirtualLab.Name }
+                                    default { "--" }
+                                }
                             }
                             $OutObj += [pscustomobject]$inobj
-                        }
-                        catch {
-                            Write-PscriboMessage -IsWarning "SureBackup Jobs $($SBkjob.Name) Section: $($_.Exception.Message)"
+                        } catch {
+                            Write-PScriboMessage -IsWarning "SureBackup Jobs $($SBkjob.Name) Section: $($_.Exception.Message)"
                         }
                     }
 
@@ -66,9 +69,8 @@ function Get-AbrVbrSureBackupjob {
                     $OutObj | Table @TableParams
                 }
             }
-        }
-        catch {
-            Write-PscriboMessage -IsWarning "SureBackup Jobs Section: $($_.Exception.Message)"
+        } catch {
+            Write-PScriboMessage -IsWarning "SureBackup Jobs Section: $($_.Exception.Message)"
         }
     }
     end {}

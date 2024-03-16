@@ -6,7 +6,7 @@ function Get-AbrVbrVirtualInfrastructure {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.4
+        Version:        0.8.5
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -21,7 +21,7 @@ function Get-AbrVbrVirtualInfrastructure {
     )
 
     begin {
-        Write-PscriboMessage "Discovering Veeam VBR Virtual Infrastructure inventory from $System."
+        Write-PScriboMessage "Discovering Veeam VBR Virtual Infrastructure inventory from $System."
     }
 
     process {
@@ -35,17 +35,17 @@ function Get-AbrVbrVirtualInfrastructure {
                     #                            VMware vSphere information Section                               #
                     #---------------------------------------------------------------------------------------------#
                     try {
-                        if ($VbrServer | Where-Object {$_.Type -eq 'VC' -or $_.Type -eq 'ESXi'}) {
+                        if ($VbrServer | Where-Object { $_.Type -eq 'VC' -or $_.Type -eq 'ESXi' }) {
                             Section -Style Heading4 'VMware vSphere' {
                                 Paragraph "The following section details information about VMware Virtual Infrastructure backed-up by Veeam Server $(((Get-VBRServerSession).Server))."
                                 BlankLine
-                                $InventObjs = $VbrServer | Where-Object {$_.Type -eq 'VC'}
+                                $InventObjs = $VbrServer | Where-Object { $_.Type -eq 'VC' }
                                 if ($InventObjs) {
                                     Section -Style NOTOCHeading5 -ExcludeFromTOC 'VMware vCenter' {
                                         $OutObj = @()
                                         foreach ($InventObj in $InventObjs) {
                                             try {
-                                                Write-PscriboMessage "Discovered $($InventObj.Name) vCenter Server."
+                                                Write-PScriboMessage "Discovered $($InventObj.Name) vCenter Server."
                                                 $inObj = [ordered] @{
                                                     'Name' = $InventObj.Name
                                                     'Version' = ($InventObj).Info.Info
@@ -53,9 +53,8 @@ function Get-AbrVbrVirtualInfrastructure {
                                                 }
 
                                                 $OutObj += [pscustomobject]$inobj
-                                            }
-                                            catch {
-                                                Write-PscriboMessage -IsWarning "VMware vCenter $($InventObj.Name) Table: $($_.Exception.Message)"
+                                            } catch {
+                                                Write-PScriboMessage -IsWarning "VMware vCenter $($InventObj.Name) Table: $($_.Exception.Message)"
                                             }
                                         }
 
@@ -75,13 +74,13 @@ function Get-AbrVbrVirtualInfrastructure {
                                 #                            VMware Esxi information Section                                  #
                                 #---------------------------------------------------------------------------------------------#
                                 try {
-                                    $InventObjs = $VbrServer | Where-Object {$_.Type -eq 'ESXi'}
+                                    $InventObjs = $VbrServer | Where-Object { $_.Type -eq 'ESXi' }
                                     if ($InventObjs) {
                                         Section -Style NOTOCHeading6 -ExcludeFromTOC 'Esxi Host' {
                                             $OutObj = @()
                                             foreach ($InventObj in $InventObjs) {
                                                 try {
-                                                    Write-PscriboMessage "Discovered $($InventObj.Name) ESXi Host."
+                                                    Write-PScriboMessage "Discovered $($InventObj.Name) ESXi Host."
                                                     $inObj = [ordered] @{
                                                         'Name' = $InventObj.Name
                                                         'Version' = ($InventObj).Info.Info
@@ -89,9 +88,8 @@ function Get-AbrVbrVirtualInfrastructure {
                                                     }
 
                                                     $OutObj += [pscustomobject]$inobj
-                                                }
-                                                catch {
-                                                    Write-PscriboMessage -IsWarning "Esxi Host $($InventObj.Name) Table: $($_.Exception.Message)"
+                                                } catch {
+                                                    Write-PScriboMessage -IsWarning "Esxi Host $($InventObj.Name) Table: $($_.Exception.Message)"
                                                 }
                                             }
 
@@ -107,29 +105,27 @@ function Get-AbrVbrVirtualInfrastructure {
                                             $OutObj | Sort-Object -Property 'Name' | Table @TableParams
                                         }
                                     }
-                                }
-                                catch {
-                                    Write-PscriboMessage -IsWarning "Esxi Host Section: $($_.Exception.Message)"
+                                } catch {
+                                    Write-PScriboMessage -IsWarning "Esxi Host Section: $($_.Exception.Message)"
                                 }
                             }
                         }
-                    }
-                    catch {
-                        Write-PscriboMessage -IsWarning "VMware vSphere Section: $($_.Exception.Message)"
+                    } catch {
+                        Write-PScriboMessage -IsWarning "VMware vSphere Section: $($_.Exception.Message)"
                     }
                     #---------------------------------------------------------------------------------------------#
                     #                         Microsoft Hyper-V Cluster information Section                       #
                     #---------------------------------------------------------------------------------------------#
                     try {
-                        if ($VbrServer | Where-Object {$_.Type -eq 'HvCluster' -or $_.Type -eq 'HvServer'}) {
+                        if ($VbrServer | Where-Object { $_.Type -eq 'HvCluster' -or $_.Type -eq 'HvServer' }) {
                             Section -Style Heading4 'Microsoft Hyper-V' {
-                                $InventObjs = $VbrServer | Where-Object {$_.Type -eq 'HvCluster'}
+                                $InventObjs = $VbrServer | Where-Object { $_.Type -eq 'HvCluster' }
                                 if ($InventObjs) {
                                     Section -Style NOTOCHeading5 -ExcludeFromTOC 'Hyper-V Clusters' {
                                         $OutObj = @()
                                         foreach ($InventObj in $InventObjs) {
                                             try {
-                                                Write-PscriboMessage "Discovered $($InventObj.Name) Hyper-V Cluster."
+                                                Write-PScriboMessage "Discovered $($InventObj.Name) Hyper-V Cluster."
                                                 $inObj = [ordered] @{
                                                     'Name' = $InventObj.Name
                                                     'Credentials' = ($InventObj).ProxyServicesCreds.Name
@@ -137,9 +133,8 @@ function Get-AbrVbrVirtualInfrastructure {
                                                 }
 
                                                 $OutObj += [pscustomobject]$inobj
-                                            }
-                                            catch {
-                                                Write-PscriboMessage -IsWarning "Hyper-V Clusters $($InventObj.Name) Table: $($_.Exception.Message)"
+                                            } catch {
+                                                Write-PScriboMessage -IsWarning "Hyper-V Clusters $($InventObj.Name) Table: $($_.Exception.Message)"
                                             }
                                         }
 
@@ -159,13 +154,13 @@ function Get-AbrVbrVirtualInfrastructure {
                                 #                         Microsoft Hyper-V Host information Section                          #
                                 #---------------------------------------------------------------------------------------------#
                                 try {
-                                    $InventObjs = $VbrServer | Where-Object {$_.Type -eq 'HvServer'}
+                                    $InventObjs = $VbrServer | Where-Object { $_.Type -eq 'HvServer' }
                                     if ($InventObjs) {
                                         Section -Style NOTOCHeading6 -ExcludeFromTOC 'Hyper-V Host' {
                                             $OutObj = @()
                                             foreach ($InventObj in $InventObjs) {
                                                 try {
-                                                    Write-PscriboMessage "Discovered $($InventObj.Name) Hyper-V Host."
+                                                    Write-PScriboMessage "Discovered $($InventObj.Name) Hyper-V Host."
                                                     $inObj = [ordered] @{
                                                         'Name' = $InventObj.Name
                                                         'Version' = ($InventObj).Info.Info
@@ -173,9 +168,8 @@ function Get-AbrVbrVirtualInfrastructure {
                                                     }
 
                                                     $OutObj += [pscustomobject]$inobj
-                                                }
-                                                catch {
-                                                    Write-PscriboMessage -IsWarning "Hyper-V Host $($InventObj.Name) Table: $($_.Exception.Message)"
+                                                } catch {
+                                                    Write-PScriboMessage -IsWarning "Hyper-V Host $($InventObj.Name) Table: $($_.Exception.Message)"
                                                 }
                                             }
 
@@ -191,21 +185,18 @@ function Get-AbrVbrVirtualInfrastructure {
                                             $OutObj | Sort-Object -Property 'Name' | Table @TableParams
                                         }
                                     }
-                                }
-                                catch {
-                                    Write-PscriboMessage -IsWarning "Hyper-V Host Section: $($_.Exception.Message)"
+                                } catch {
+                                    Write-PScriboMessage -IsWarning "Hyper-V Host Section: $($_.Exception.Message)"
                                 }
                             }
                         }
-                    }
-                    catch {
-                        Write-PscriboMessage -IsWarning "Microsoft Hyper-V Section: $($_.Exception.Message)"
+                    } catch {
+                        Write-PScriboMessage -IsWarning "Microsoft Hyper-V Section: $($_.Exception.Message)"
                     }
                 }
             }
-        }
-        catch {
-            Write-PscriboMessage -IsWarning "Virtual Infrastructure Section: $($_.Exception.Message)"
+        } catch {
+            Write-PScriboMessage -IsWarning "Virtual Infrastructure Section: $($_.Exception.Message)"
         }
     }
     end {}

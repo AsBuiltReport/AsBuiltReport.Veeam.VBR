@@ -21,7 +21,7 @@ function Get-AbrVbrBackupServerInfo {
     )
 
     begin {
-        Write-PscriboMessage "Discovering Veeam V&R Server information from $System."
+        Write-PScriboMessage "Discovering Veeam V&R Server information from $System."
     }
 
     process {
@@ -35,60 +35,60 @@ function Get-AbrVbrBackupServerInfo {
                             $CimSession = New-CimSession $BackupServer.Name -Credential $Credential -Authentication $Options.PSDefaultAuthentication
                             $PssSession = New-PSSession $BackupServer.Name -Credential $Credential -Authentication $Options.PSDefaultAuthentication
                             $SecurityOptions = Get-VBRSecurityOptions
-                            try {$DomainJoined = Get-CimInstance -Class Win32_ComputerSystem -Property PartOfDomain -CimSession $CimSession} catch {'Unknown'}
-                            Write-PscriboMessage "Collecting Backup Server information from $($BackupServer.Name)."
+                            try { $DomainJoined = Get-CimInstance -Class Win32_ComputerSystem -Property PartOfDomain -CimSession $CimSession } catch { 'Unknown' }
+                            Write-PScriboMessage "Collecting Backup Server information from $($BackupServer.Name)."
                             try {
-                                $VeeamVersion = Invoke-Command -Session $PssSession -ErrorAction SilentlyContinue -ScriptBlock { get-childitem -recurse HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall | get-itemproperty | Where-Object { $_.DisplayName  -match 'Veeam Backup & Replication Server' } | Select-Object -Property DisplayVersion }
-                            } catch {Write-PscriboMessage -IsWarning "Backup Server Inkoke-Command Section: $($_.Exception.Message)"}
+                                $VeeamVersion = Invoke-Command -Session $PssSession -ErrorAction SilentlyContinue -ScriptBlock { Get-ChildItem -Recurse HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall | Get-ItemProperty | Where-Object { $_.DisplayName -match 'Veeam Backup & Replication Server' } | Select-Object -Property DisplayVersion }
+                            } catch { Write-PScriboMessage -IsWarning "Backup Server Inkoke-Command Section: $($_.Exception.Message)" }
                             try {
                                 $VeeamInfo = Invoke-Command -Session $PssSession -ErrorAction SilentlyContinue -ScriptBlock { Get-ItemProperty -Path 'HKLM:\SOFTWARE\Veeam\Veeam Backup and Replication' }
-                            } catch {Write-PscriboMessage -IsWarning "Backup Server Invoke-Command Section: $($_.Exception.Message)"}
+                            } catch { Write-PScriboMessage -IsWarning "Backup Server Invoke-Command Section: $($_.Exception.Message)" }
                             try {
                                 $VeeamDBFlavor = Invoke-Command -Session $PssSession -ErrorAction SilentlyContinue -ScriptBlock { Get-ItemProperty -Path 'HKLM:\SOFTWARE\Veeam\Veeam Backup and Replication\DatabaseConfigurations' }
-                            } catch {Write-PscriboMessage -IsWarning "Backup Server Invoke-Command Section: $($_.Exception.Message)"}
+                            } catch { Write-PScriboMessage -IsWarning "Backup Server Invoke-Command Section: $($_.Exception.Message)" }
                             try {
                                 $VeeamDBInfo = Invoke-Command -Session $PssSession -ErrorAction SilentlyContinue -ScriptBlock { Get-ItemProperty -Path "HKLM:\SOFTWARE\Veeam\Veeam Backup and Replication\DatabaseConfigurations\$(($Using:VeeamDBFlavor).SqlActiveConfiguration)" }
-                            } catch {Write-PscriboMessage -IsWarning "Backup Server Invoke-Command Section: $($_.Exception.Message)"}
-                            Write-PscriboMessage "Discovered $BackupServer Server."
+                            } catch { Write-PScriboMessage -IsWarning "Backup Server Invoke-Command Section: $($_.Exception.Message)" }
+                            Write-PScriboMessage "Discovered $BackupServer Server."
                             $inObj = [ordered] @{
                                 'Server Name' = $BackupServer.Name
                                 'Is Domain Joined?' = ConvertTo-TextYN $DomainJoined.PartOfDomain
                                 'Version' = Switch (($VeeamVersion).count) {
-                                    0 {"--"}
-                                    default {$VeeamVersion.DisplayVersion}
+                                    0 { "--" }
+                                    default { $VeeamVersion.DisplayVersion }
                                 }
                                 'Database Server' = Switch ([string]::IsNullOrEmpty($VeeamDBInfo.SqlServerName)) {
-                                    $true {"--"}
-                                    $false {$VeeamDBInfo.SqlServerName}
-                                    default {'Unknown'}
+                                    $true { "--" }
+                                    $false { $VeeamDBInfo.SqlServerName }
+                                    default { 'Unknown' }
                                 }
                                 'Database Instance' = Switch ([string]::IsNullOrEmpty($VeeamDBInfo.SqlInstanceName)) {
-                                    $true {"--"}
-                                    $false {$VeeamDBInfo.SqlInstanceName}
-                                    default {'Unknown'}
+                                    $true { "--" }
+                                    $false { $VeeamDBInfo.SqlInstanceName }
+                                    default { 'Unknown' }
                                 }
                                 'Database Name' = Switch ([string]::IsNullOrEmpty($VeeamDBInfo.SqlDatabaseName)) {
-                                    $true {"--"}
-                                    $false {$VeeamDBInfo.SqlDatabaseName}
-                                    default {'Unknown'}
+                                    $true { "--" }
+                                    $false { $VeeamDBInfo.SqlDatabaseName }
+                                    default { 'Unknown' }
                                 }
                                 'Connection Ports' = Switch (($VeeamInfo.BackupServerPort).count) {
-                                    0 {"--"}
-                                    default {"Backup Server Port: $($VeeamInfo.BackupServerPort)`r`nSecure Connections Port: $($VeeamInfo.SecureConnectionsPort)`r`nCloud Server Port: $($VeeamInfo.CloudServerPort)`r`nCloud Service Port: $($VeeamInfo.CloudSvcPort)"}
+                                    0 { "--" }
+                                    default { "Backup Server Port: $($VeeamInfo.BackupServerPort)`r`nSecure Connections Port: $($VeeamInfo.SecureConnectionsPort)`r`nCloud Server Port: $($VeeamInfo.CloudServerPort)`r`nCloud Service Port: $($VeeamInfo.CloudSvcPort)" }
                                 }
                                 'Install Path' = Switch (($VeeamInfo.CorePath).count) {
-                                    0 {"--"}
-                                    default {$VeeamInfo.CorePath}
+                                    0 { "--" }
+                                    default { $VeeamInfo.CorePath }
                                 }
                                 'Audit Logs Path' = $SecurityOptions.AuditLogsPath
                                 'Compress Old Audit Logs' = ConvertTo-TextYN $SecurityOptions.CompressOldAuditLogs
                                 'Fips Compliant Mode' = Switch ($SecurityOptions.FipsCompliantModeEnabled) {
-                                    'True' {"Enabled"}
-                                    'False' {"Disabled"}
+                                    'True' { "Enabled" }
+                                    'False' { "Disabled" }
                                 }
                                 'Linux host authentication' = Switch ($SecurityOptions.HostPolicy.Type) {
-                                    'All' {"Add all discovered host to the list automatically"}
-                                    'KnownHosts' {"Add unknown host to the list manually"}
+                                    'All' { "Add all discovered host to the list automatically" }
+                                    'KnownHosts' { "Add unknown host to the list manually" }
                                 }
                                 'Logging Level' = $VeeamInfo.LoggingLevel
 
@@ -100,14 +100,13 @@ function Get-AbrVbrBackupServerInfo {
 
                             $OutObj += [pscustomobject]$inobj
                         }
-                    }
-                    catch {
-                        Write-PscriboMessage -IsWarning "Backup Server Section: $($_.Exception.Message)"
+                    } catch {
+                        Write-PScriboMessage -IsWarning "Backup Server Section: $($_.Exception.Message)"
                     }
 
                     if ($HealthCheck.Infrastructure.BackupServer) {
-                        $OutObj | Where-Object { $_.'Logging Level' -gt 4} | Set-Style -Style Warning -Property 'Logging Level'
-                        $OutObj | Where-Object { $_.'Is Domain Joined?' -eq 'Yes'} | Set-Style -Style Warning -Property 'Is Domain Joined?'
+                        $OutObj | Where-Object { $_.'Logging Level' -gt 4 } | Set-Style -Style Warning -Property 'Logging Level'
+                        $OutObj | Where-Object { $_.'Is Domain Joined?' -eq 'Yes' } | Set-Style -Style Warning -Property 'Is Domain Joined?'
                     }
 
                     $TableParams = @{
@@ -120,7 +119,7 @@ function Get-AbrVbrBackupServerInfo {
                     }
                     $OutObj | Table @TableParams
                     if ($HealthCheck.Infrastructure.BestPractice) {
-                        if ($OutObj | Where-Object { $_.'Is Domain Joined?' -eq 'Yes'}) {
+                        if ($OutObj | Where-Object { $_.'Is Domain Joined?' -eq 'Yes' }) {
                             Paragraph "Health Check:" -Bold -Underline
                             BlankLine
                             Paragraph {
@@ -139,6 +138,7 @@ function Get-AbrVbrBackupServerInfo {
                                 Text 'Reference:' -Bold
                                 Text 'https://bp.veeam.com/vbr/Security/Security_domains.html'
                             }
+                            BlankLine
                         }
                     }
                     #---------------------------------------------------------------------------------------------#
@@ -148,9 +148,9 @@ function Get-AbrVbrBackupServerInfo {
                         Write-PScriboMessage "Hardware Inventory Status set as $($Options.EnableHardwareInventory)."
                         if ($Options.EnableHardwareInventory) {
                             $BackupServer = Get-VBRServer -Type Local
-                            Write-PscriboMessage "Collecting Backup Server Inventory Summary from $($BackupServer.Name)."
+                            Write-PScriboMessage "Collecting Backup Server Inventory Summary from $($BackupServer.Name)."
                             $HW = Invoke-Command -Session $PssSession -ScriptBlock { Get-ComputerInfo }
-                            $License =  Get-CimInstance -Query 'Select * from SoftwareLicensingProduct' -CimSession $CimSession | Where-Object { $_.LicenseStatus -eq 1 }
+                            $License = Get-CimInstance -Query 'Select * from SoftwareLicensingProduct' -CimSession $CimSession | Where-Object { $_.LicenseStatus -eq 1 }
                             $HWCPU = Get-CimInstance -Class Win32_Processor -CimSession $CimSession
                             $HWBIOS = Get-CimInstance -Class Win32_Bios -CimSession $CimSession
                             if ($HW) {
@@ -181,7 +181,7 @@ function Get-AbrVbrBackupServerInfo {
                                     $OutObj += [pscustomobject]$inobj
 
                                     if ($HealthCheck.Infrastructure.Server) {
-                                        $OutObj | Where-Object { $_.'Number of CPU Cores' -lt 2} | Set-Style -Style Warning -Property 'Number of CPU Cores'
+                                        $OutObj | Where-Object { $_.'Number of CPU Cores' -lt 2 } | Set-Style -Style Warning -Property 'Number of CPU Cores'
                                         if ([int]([regex]::Matches($OutObj.'Physical Memory (GB)', "\d+(?!.*\d+)").value) -lt 8) { $OutObj | Set-Style -Style Warning -Property 'Physical Memory (GB)' }
                                     }
 
@@ -195,13 +195,14 @@ function Get-AbrVbrBackupServerInfo {
                                     }
                                     $OutObj | Table @TableParams
                                     if ($HealthCheck.Infrastructure.BestPractice) {
-                                        if (([int]([regex]::Matches($OutObj.'Physical Memory (GB)', "\d+(?!.*\d+)").value) -lt 8) -or ($OutObj | Where-Object { $_.'Number of CPU Cores' -lt 2})) {
+                                        if (([int]([regex]::Matches($OutObj.'Physical Memory (GB)', "\d+(?!.*\d+)").value) -lt 8) -or ($OutObj | Where-Object { $_.'Number of CPU Cores' -lt 2 })) {
                                             Paragraph "Health Check:" -Bold -Underline
-                                            Blankline
+                                            BlankLine
                                             Paragraph {
                                                 Text "Best Practice:" -Bold
                                                 Text "Recommended Veeam Backup Server minimum configuration is two CPU cores and 8GB of RAM."
                                             }
+                                            BlankLine
                                         }
                                     }
                                     #---------------------------------------------------------------------------------------------#
@@ -223,9 +224,8 @@ function Get-AbrVbrBackupServerInfo {
                                                                 'Disk Size' = "$([Math]::Round($Disk.Size / 1Gb)) GB"
                                                             }
                                                             $LocalDiskReport += $TempLocalDiskReport
-                                                        }
-                                                        catch {
-                                                            Write-PscriboMessage -IsWarning "Backup Server Local Disk $($Disk.Number) Section: $($_.Exception.Message)"
+                                                        } catch {
+                                                            Write-PScriboMessage -IsWarning "Backup Server Local Disk $($Disk.Number) Section: $($_.Exception.Message)"
                                                         }
                                                     }
                                                     $TableParams = @{
@@ -239,9 +239,8 @@ function Get-AbrVbrBackupServerInfo {
                                                     $LocalDiskReport | Sort-Object -Property 'Disk Number' | Table @TableParams
                                                 }
                                             }
-                                        }
-                                        catch {
-                                            Write-PscriboMessage -IsWarning "Backup Server Local Disk Section: $($_.Exception.Message)"
+                                        } catch {
+                                            Write-PScriboMessage -IsWarning "Backup Server Local Disk Section: $($_.Exception.Message)"
                                         }
                                         #---------------------------------------------------------------------------------------------#
                                         #                       Backup Server SAN Disk Inventory Section                              #
@@ -261,9 +260,8 @@ function Get-AbrVbrBackupServerInfo {
                                                                 'Disk Size' = "$([Math]::Round($Disk.Size / 1Gb)) GB"
                                                             }
                                                             $SanDiskReport += $TempSanDiskReport
-                                                        }
-                                                        catch {
-                                                            Write-PscriboMessage -IsWarning "Backup Server SAN Disk $($Disk.Number) Section: $($_.Exception.Message)"
+                                                        } catch {
+                                                            Write-PScriboMessage -IsWarning "Backup Server SAN Disk $($Disk.Number) Section: $($_.Exception.Message)"
                                                         }
                                                     }
                                                     $TableParams = @{
@@ -277,16 +275,15 @@ function Get-AbrVbrBackupServerInfo {
                                                     $SanDiskReport | Sort-Object -Property 'Disk Number' | Table @TableParams
                                                 }
                                             }
-                                        }
-                                        catch {
-                                            Write-PscriboMessage -IsWarning "Backup Server SAN Disk Section: $($_.Exception.Message)"
+                                        } catch {
+                                            Write-PScriboMessage -IsWarning "Backup Server SAN Disk Section: $($_.Exception.Message)"
                                         }
                                     }
                                     #---------------------------------------------------------------------------------------------#
                                     #                       Backup Server Volume Inventory Section                                #
                                     #---------------------------------------------------------------------------------------------#
                                     try {
-                                        $HostVolumes = Invoke-Command -Session $PssSession -ScriptBlock {  Get-Volume | Where-Object {$_.DriveType -ne "CD-ROM" -and $NUll -ne $_.DriveLetter} }
+                                        $HostVolumes = Invoke-Command -Session $PssSession -ScriptBlock { Get-Volume | Where-Object { $_.DriveType -ne "CD-ROM" -and $NUll -ne $_.DriveLetter } }
                                         if ($HostVolumes) {
                                             Section -Style NOTOCHeading5 -ExcludeFromTOC 'Host Volumes' {
                                                 $HostVolumeReport = @()
@@ -301,9 +298,8 @@ function Get-AbrVbrBackupServerInfo {
                                                             'Health Status' = $HostVolume.HealthStatus
                                                         }
                                                         $HostVolumeReport += $TempHostVolumeReport
-                                                    }
-                                                    catch {
-                                                        Write-PscriboMessage -IsWarning "Backup Server Host Volume $($HostVolume.DriveLetter) Section: $($_.Exception.Message)"
+                                                    } catch {
+                                                        Write-PScriboMessage -IsWarning "Backup Server Host Volume $($HostVolume.DriveLetter) Section: $($_.Exception.Message)"
                                                     }
                                                 }
                                                 $TableParams = @{
@@ -317,9 +313,8 @@ function Get-AbrVbrBackupServerInfo {
                                                 $HostVolumeReport | Sort-Object -Property 'Drive Letter' | Table @TableParams
                                             }
                                         }
-                                    }
-                                    catch {
-                                        Write-PscriboMessage -IsWarning "Backup Server Host Volume Section: $($_.Exception.Message)"
+                                    } catch {
+                                        Write-PScriboMessage -IsWarning "Backup Server Host Volume Section: $($_.Exception.Message)"
                                     }
                                     #---------------------------------------------------------------------------------------------#
                                     #                       Backup Server Network Inventory Section                               #
@@ -339,9 +334,8 @@ function Get-AbrVbrBackupServerInfo {
                                                                 'Link Speed' = $HostAdapter.LinkSpeed
                                                             }
                                                             $HostAdaptersReport += $TempHostAdaptersReport
-                                                        }
-                                                        catch {
-                                                            Write-PscriboMessage -IsWarning "Backup Server Host Volume $($HostAdapter.Name) Section: $($_.Exception.Message)"
+                                                        } catch {
+                                                            Write-PScriboMessage -IsWarning "Backup Server Host Volume $($HostAdapter.Name) Section: $($_.Exception.Message)"
                                                         }
                                                     }
                                                     $TableParams = @{
@@ -355,9 +349,8 @@ function Get-AbrVbrBackupServerInfo {
                                                     $HostAdaptersReport | Sort-Object -Property 'Adapter Name' | Table @TableParams
                                                 }
                                             }
-                                        }
-                                        catch {
-                                            Write-PscriboMessage -IsWarning "Backup Server Host Volume Section: $($_.Exception.Message)"
+                                        } catch {
+                                            Write-PScriboMessage -IsWarning "Backup Server Host Volume Section: $($_.Exception.Message)"
                                         }
                                         try {
                                             $NetIPs = Invoke-Command -Session $PssSession { Get-NetIPConfiguration | Where-Object -FilterScript { ($_.NetAdapter.Status -Eq "Up") } }
@@ -374,9 +367,8 @@ function Get-AbrVbrBackupServerInfo {
                                                                 'IPv4 Gateway' = $NetIp.IPv4DefaultGateway.NextHop
                                                             }
                                                             $NetIpsReport += $TempNetIpsReport
-                                                        }
-                                                        catch {
-                                                            Write-PscriboMessage -IsWarning "Backup Server Host Volume $($NetIp.InterfaceAlias) Section: $($_.Exception.Message)"
+                                                        } catch {
+                                                            Write-PScriboMessage -IsWarning "Backup Server Host Volume $($NetIp.InterfaceAlias) Section: $($_.Exception.Message)"
                                                         }
                                                     }
                                                     $TableParams = @{
@@ -390,17 +382,15 @@ function Get-AbrVbrBackupServerInfo {
                                                     $NetIpsReport | Sort-Object -Property 'Interface Name' | Table @TableParams
                                                 }
                                             }
-                                        }
-                                        catch {
-                                            Write-PscriboMessage -IsWarning "Backup Server Host Volume Section: $($_.Exception.Message)"
+                                        } catch {
+                                            Write-PScriboMessage -IsWarning "Backup Server Host Volume Section: $($_.Exception.Message)"
                                         }
                                     }
                                 }
                             }
                         }
-                    }
-                    catch {
-                        Write-PscriboMessage -IsWarning "Backup Server Inventory Summary Section: $($_.Exception.Message)"
+                    } catch {
+                        Write-PScriboMessage -IsWarning "Backup Server Inventory Summary Section: $($_.Exception.Message)"
                     }
                     try {
                         Write-PScriboMessage "Infrastructure Backup Server InfoLevel set at $($InfoLevel.Infrastructure.BackupServer)."
@@ -411,7 +401,7 @@ function Get-AbrVbrBackupServerInfo {
                                 "AgentLogOptions" = "flush"
                                 "LoggingLevel" = "4"
                                 "VNXBlockNaviSECCliPath" = "C:\Program Files\Veeam\Backup and Replication\Backup\EMC Navisphere CLI\NaviSECCli.exe"
-                                "VNXeUemcliPath"= "C:\Program Files\Veeam\Backup and Replication\Backup\EMC Unisphere CLI\3.0.1\uemcli.exe"
+                                "VNXeUemcliPath" = "C:\Program Files\Veeam\Backup and Replication\Backup\EMC Unisphere CLI\3.0.1\uemcli.exe"
                                 "SqlLockInfo" = ""
                                 "CloudServerPort" = "10003"
                                 "SqlDatabaseName" = "VeeamBackup"
@@ -439,7 +429,7 @@ function Get-AbrVbrBackupServerInfo {
                             if ($VeeamInfo) {
                                 $OutObj = @()
                                 $Hashtable = $VeeamInfo | ForEach-Object {
-                                    foreach ($prop in $_.psobject.Properties.Where({ $_.Name -notlike 'PS*'})) {
+                                    foreach ($prop in $_.psobject.Properties.Where({ $_.Name -notlike 'PS*' })) {
                                         [pscustomobject] @{
                                             Key = $prop.Name
                                             Value = $prop.Value
@@ -451,9 +441,9 @@ function Get-AbrVbrBackupServerInfo {
                                         $inObj = [ordered] @{
                                             'Registry Key' = $Registry.Key
                                             'Registry Value' = Switch (($Registry.Value).count) {
-                                                0 {'--'}
-                                                1 {$Registry.Value}
-                                                default {$Registry.Value -Join ', '}
+                                                0 { '--' }
+                                                1 { $Registry.Value }
+                                                default { $Registry.Value -Join ', ' }
 
                                             }
                                         }
@@ -476,9 +466,8 @@ function Get-AbrVbrBackupServerInfo {
                                 }
                             }
                         }
-                    }
-                    catch {
-                        Write-PscriboMessage -IsWarning "Backup Server Non-Default Registry Keys Section: $($_.Exception.Message)"
+                    } catch {
+                        Write-PScriboMessage -IsWarning "Backup Server Non-Default Registry Keys Section: $($_.Exception.Message)"
                     }
                     #---------------------------------------------------------------------------------------------#
                     #                             Backup Server Services Information Section                      #
@@ -488,14 +477,14 @@ function Get-AbrVbrBackupServerInfo {
                         try {
                             Write-PScriboMessage "Infrastructure Backup Server InfoLevel set at $($InfoLevel.Infrastructure.BackupServer)."
                             if ($InfoLevel.Infrastructure.BackupServer -ge 2) {
-                                $Available = Invoke-Command -Session $PssSession -ScriptBlock {Get-Service "W32Time" | Select-Object DisplayName, Name, Status}
-                                Write-PscriboMessage "Collecting Backup Server Service Summary from $($BackupServer.Name)."
-                                $Services = Invoke-Command -Session $PssSession -ScriptBlock {Get-Service Veeam*}
+                                $Available = Invoke-Command -Session $PssSession -ScriptBlock { Get-Service "W32Time" | Select-Object DisplayName, Name, Status }
+                                Write-PScriboMessage "Collecting Backup Server Service Summary from $($BackupServer.Name)."
+                                $Services = Invoke-Command -Session $PssSession -ScriptBlock { Get-Service Veeam* }
                                 if ($Available) {
                                     Section -Style Heading4 "HealthCheck - Services Status" {
                                         $OutObj = @()
                                         foreach ($Service in $Services) {
-                                            Write-PscriboMessage "Collecting '$($Service.DisplayName)' status on $($BackupServer.Name)."
+                                            Write-PScriboMessage "Collecting '$($Service.DisplayName)' status on $($BackupServer.Name)."
                                             $inObj = [ordered] @{
                                                 'Display Name' = $Service.DisplayName
                                                 'Short Name' = $Service.Name
@@ -505,7 +494,7 @@ function Get-AbrVbrBackupServerInfo {
                                         }
 
                                         if ($HealthCheck.Infrastructure.Server) {
-                                            $OutObj | Where-Object { $_.'Status' -notlike 'Running'} | Set-Style -Style Warning -Property 'Status'
+                                            $OutObj | Where-Object { $_.'Status' -notlike 'Running' } | Set-Style -Style Warning -Property 'Status'
                                         }
 
                                         $TableParams = @{
@@ -520,21 +509,19 @@ function Get-AbrVbrBackupServerInfo {
                                     }
                                 }
                             }
-                        }
-                        catch {
-                            Write-PscriboMessage -IsWarning "Backup Server Service Status Section: $($_.Exception.Message)"
+                        } catch {
+                            Write-PScriboMessage -IsWarning "Backup Server Service Status Section: $($_.Exception.Message)"
                         }
                     }
                 }
             }
-        }
-        catch {
-            Write-PscriboMessage -IsWarning "Backup Server Section: $($_.Exception.Message)"
+        } catch {
+            Write-PScriboMessage -IsWarning "Backup Server Section: $($_.Exception.Message)"
         }
     }
     end {
-        if ($PssSession) {Remove-PSSession -Session $PssSession}
-        if ($CimSession) {Remove-CimSession $CimSession}
+        if ($PssSession) { Remove-PSSession -Session $PssSession }
+        if ($CimSession) { Remove-CimSession $CimSession }
     }
 
 }

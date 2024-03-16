@@ -6,7 +6,7 @@ function Get-AbrVbrNetworkTrafficRule {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.4
+        Version:        0.8.5
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -21,7 +21,7 @@ function Get-AbrVbrNetworkTrafficRule {
     )
 
     begin {
-        Write-PscriboMessage "Discovering Veeam VBR network traffic rules settings information from $System."
+        Write-PScriboMessage "Discovering Veeam VBR network traffic rules settings information from $System."
     }
 
     process {
@@ -46,7 +46,7 @@ function Get-AbrVbrNetworkTrafficRule {
                             $OutObj = [pscustomobject]$inobj
 
                             if ($HealthCheck.Infrastructure.Settings) {
-                                $OutObj | Where-Object { $_.'Encryption Enabled' -like 'No'} | Set-Style -Style Warning -Property 'Encryption Enabled'
+                                $OutObj | Where-Object { $_.'Encryption Enabled' -like 'No' } | Set-Style -Style Warning -Property 'Encryption Enabled'
                             }
 
                             $TableParams = @{
@@ -72,7 +72,7 @@ function Get-AbrVbrNetworkTrafficRule {
                                         $TableParams = @{
                                             Name = "Throttling Windows - $($TrafficRule.Name)"
                                             List = $true
-                                            ColumnWidths = 6,4,3,4,4,4,4,4,4,4,4,4,4,4,3,4,4,4,4,4,4,4,4,4,4
+                                            ColumnWidths = 6, 4, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4
                                             Key = 'H'
                                         }
                                         if ($Report.ShowTableCaptions) {
@@ -80,33 +80,31 @@ function Get-AbrVbrNetworkTrafficRule {
                                         }
                                         if ($OutObj) {
                                             $OutObj2 = Table -Hashtable $OutObj @TableParams
-                                            $OutObj2.Rows | Where-Object {$_.Sun -eq "0"} | Set-Style -Style OFF -Property "Sun"
-                                            $OutObj2.Rows | Where-Object {$_.Mon -eq "0"} | Set-Style -Style OFF -Property "Mon"
-                                            $OutObj2.Rows | Where-Object {$_.Tue -eq "0"} | Set-Style -Style OFF -Property "Tue"
-                                            $OutObj2.Rows | Where-Object {$_.Wed -eq "0"} | Set-Style -Style OFF -Property "Wed"
-                                            $OutObj2.Rows | Where-Object {$_.Thu -eq "0"} | Set-Style -Style OFF -Property "Thu"
-                                            $OutObj2.Rows | Where-Object {$_.Fri -eq "0"} | Set-Style -Style OFF -Property "Fri"
-                                            $OutObj2.Rows | Where-Object {$_.Sat -eq "0"} | Set-Style -Style OFF -Property "Sat"
+                                            $OutObj2.Rows | Where-Object { $_.Sun -eq "0" } | Set-Style -Style OFF -Property "Sun"
+                                            $OutObj2.Rows | Where-Object { $_.Mon -eq "0" } | Set-Style -Style OFF -Property "Mon"
+                                            $OutObj2.Rows | Where-Object { $_.Tue -eq "0" } | Set-Style -Style OFF -Property "Tue"
+                                            $OutObj2.Rows | Where-Object { $_.Wed -eq "0" } | Set-Style -Style OFF -Property "Wed"
+                                            $OutObj2.Rows | Where-Object { $_.Thu -eq "0" } | Set-Style -Style OFF -Property "Thu"
+                                            $OutObj2.Rows | Where-Object { $_.Fri -eq "0" } | Set-Style -Style OFF -Property "Fri"
+                                            $OutObj2.Rows | Where-Object { $_.Sat -eq "0" } | Set-Style -Style OFF -Property "Sat"
 
-                                            $OutObj2.Rows | Where-Object {$_.Sun -eq "1"} | Set-Style -Style ON -Property "Sun"
-                                            $OutObj2.Rows | Where-Object {$_.Mon -eq "1"} | Set-Style -Style ON -Property "Mon"
-                                            $OutObj2.Rows | Where-Object {$_.Tue -eq "1"} | Set-Style -Style ON -Property "Tue"
-                                            $OutObj2.Rows | Where-Object {$_.Wed -eq "1"} | Set-Style -Style ON -Property "Wed"
-                                            $OutObj2.Rows | Where-Object {$_.Thu -eq "1"} | Set-Style -Style ON -Property "Thu"
-                                            $OutObj2.Rows | Where-Object {$_.Fri -eq "1"} | Set-Style -Style ON -Property "Fri"
-                                            $OutObj2.Rows | Where-Object {$_.Sat -eq "1"} | Set-Style -Style ON -Property "Sat"
+                                            $OutObj2.Rows | Where-Object { $_.Sun -eq "1" } | Set-Style -Style ON -Property "Sun"
+                                            $OutObj2.Rows | Where-Object { $_.Mon -eq "1" } | Set-Style -Style ON -Property "Mon"
+                                            $OutObj2.Rows | Where-Object { $_.Tue -eq "1" } | Set-Style -Style ON -Property "Tue"
+                                            $OutObj2.Rows | Where-Object { $_.Wed -eq "1" } | Set-Style -Style ON -Property "Wed"
+                                            $OutObj2.Rows | Where-Object { $_.Thu -eq "1" } | Set-Style -Style ON -Property "Thu"
+                                            $OutObj2.Rows | Where-Object { $_.Fri -eq "1" } | Set-Style -Style ON -Property "Fri"
+                                            $OutObj2.Rows | Where-Object { $_.Sat -eq "1" } | Set-Style -Style ON -Property "Sat"
                                             $OutObj2
                                         }
-                                    }
-                                    catch {
-                                        Write-PscriboMessage -IsWarning "Throttling Windows Time Period Section: $($_.Exception.Message)"
+                                    } catch {
+                                        Write-PScriboMessage -IsWarning "Throttling Windows Time Period Section: $($_.Exception.Message)"
                                     }
                                 }
                             }
                         }
-                    }
-                    catch {
-                        Write-PscriboMessage -IsWarning "Network Traffic Rules Section: $($_.Exception.Message)"
+                    } catch {
+                        Write-PScriboMessage -IsWarning "Network Traffic Rules Section: $($_.Exception.Message)"
                     }
                     #---------------------------------------------------------------------------------------------#
                     #                                Preferred Networks                                           #
@@ -118,16 +116,15 @@ function Get-AbrVbrNetworkTrafficRule {
                                 $PreferedNetworks = Get-VBRPreferredNetwork
                                 foreach ($PreferedNetwork in $PreferedNetworks) {
                                     try {
-                                        Write-PscriboMessage "Discovered $($PreferedNetwork.CIDRNotation) Prefered Network."
+                                        Write-PScriboMessage "Discovered $($PreferedNetwork.CIDRNotation) Prefered Network."
                                         $inObj = [ordered] @{
                                             'IP Address' = $PreferedNetwork.IpAddress
                                             'Subnet Mask' = $PreferedNetwork.SubnetMask
                                             'CIDR Notation' = $PreferedNetwork.CIDRNotation
                                         }
                                         $OutObj += [pscustomobject]$inobj
-                                    }
-                                    catch {
-                                        Write-PscriboMessage -IsWarning "Preferred Networks $($PreferedNetwork.IpAddress) Section: $($_.Exception.Message)"
+                                    } catch {
+                                        Write-PScriboMessage -IsWarning "Preferred Networks $($PreferedNetwork.IpAddress) Section: $($_.Exception.Message)"
                                     }
                                 }
 
@@ -142,15 +139,13 @@ function Get-AbrVbrNetworkTrafficRule {
                                 $OutObj | Table @TableParams
                             }
                         }
-                    }
-                    catch {
-                        Write-PscriboMessage -IsWarning "Preferred Networks Section: $($_.Exception.Message)"
+                    } catch {
+                        Write-PScriboMessage -IsWarning "Preferred Networks Section: $($_.Exception.Message)"
                     }
                 }
             }
-        }
-        catch {
-            Write-PscriboMessage -IsWarning $_.Exception.Message
+        } catch {
+            Write-PScriboMessage -IsWarning $_.Exception.Message
         }
     }
     end {}

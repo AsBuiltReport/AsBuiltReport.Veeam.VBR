@@ -6,7 +6,7 @@ function Get-AbrVbrConfigurationBackupSetting {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.4
+        Version:        0.8.5
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -21,7 +21,7 @@ function Get-AbrVbrConfigurationBackupSetting {
     )
 
     begin {
-        Write-PscriboMessage "Discovering Veeam VBR Configuration Backup settings information from $System."
+        Write-PScriboMessage "Discovering Veeam VBR Configuration Backup settings information from $System."
     }
 
     process {
@@ -33,8 +33,7 @@ function Get-AbrVbrConfigurationBackupSetting {
                     try {
                         if ($BackupSettings.ScheduleOptions.Type -like "Daily") {
                             $ScheduleOptions = "Type: $($BackupSettings.ScheduleOptions.DailyOptions.Type)`r`nPeriod: $($BackupSettings.ScheduleOptions.DailyOptions.Period)`r`nDay Of Week: $($BackupSettings.ScheduleOptions.DailyOptions.DayOfWeek)"
-                        }
-                        elseif ($BackupSettings.ScheduleOptions.Type -like "Monthly") {
+                        } elseif ($BackupSettings.ScheduleOptions.Type -like "Monthly") {
                             $ScheduleOptions = "Period: $($BackupSettings.ScheduleOptions.MonthlyOptions.Period)`r`nDay Number In Month: $($BackupSettings.ScheduleOptions.MonthlyOptions.DayNumberInMonth)`r`nDay of Week: $($BackupSettings.ScheduleOptions.MonthlyOptions.DayOfWeek)`r`nDay of Month: $($BackupSettings.ScheduleOptions.MonthlyOptions.DayOfMonth)"
                         }
                         $inObj = [ordered] @{
@@ -48,9 +47,9 @@ function Get-AbrVbrConfigurationBackupSetting {
                             'Additional Address' = $BackupSettings.NotificationOptions.AdditionalAddress
                             'Email Subject' = $BackupSettings.NotificationOptions.NotificationSubject
                             'Notify On' = Switch ($BackupSettings.NotificationOptions.EnableAdditionalNotification) {
-                                "" {"--"; break}
-                                $Null {"--"; break}
-                                default {"Notify On Success: $(ConvertTo-TextYN $BackupSettings.NotificationOptions.NotifyOnSuccess)`r`nNotify On Warning: $(ConvertTo-TextYN $BackupSettings.NotificationOptions.NotifyOnWarning)`r`nNotify On Error: $(ConvertTo-TextYN $BackupSettings.NotificationOptions.NotifyOnError)`r`nNotify On Last Retry Only: $(ConvertTo-TextYN $BackupSettings.NotificationOptions.NotifyOnLastRetryOnly)"}
+                                "" { "--"; break }
+                                $Null { "--"; break }
+                                default { "Notify On Success: $(ConvertTo-TextYN $BackupSettings.NotificationOptions.NotifyOnSuccess)`r`nNotify On Warning: $(ConvertTo-TextYN $BackupSettings.NotificationOptions.NotifyOnWarning)`r`nNotify On Error: $(ConvertTo-TextYN $BackupSettings.NotificationOptions.NotifyOnError)`r`nNotify On Last Retry Only: $(ConvertTo-TextYN $BackupSettings.NotificationOptions.NotifyOnLastRetryOnly)" }
                             }
                             'NextRun' = $BackupSettings.NextRun
                             'Target' = $BackupSettings.Target
@@ -58,17 +57,16 @@ function Get-AbrVbrConfigurationBackupSetting {
                             'LastResult' = $BackupSettings.LastResult
                         }
                         $OutObj += [pscustomobject]$inobj
-                    }
-                    catch {
-                        Write-PscriboMessage -IsWarning "Configuration Backup Settings Section: $($_.Exception.Message)"
+                    } catch {
+                        Write-PScriboMessage -IsWarning "Configuration Backup Settings Section: $($_.Exception.Message)"
                     }
 
                     if ($HealthCheck.Infrastructure.Settings) {
-                        $OutObj | Where-Object { $_.'Enabled' -like 'No'} | Set-Style -Style Warning -Property 'Enabled'
-                        $OutObj | Where-Object { $_.'Run Job Automatically' -like 'No'} | Set-Style -Style Warning -Property 'Run Job Automatically'
-                        $OutObj | Where-Object { $_.'Encryption Enabled' -like 'No'} | Set-Style -Style Critical -Property 'Encryption Enabled'
-                        $OutObj | Where-Object { $_.'LastResult' -like 'Warning'} | Set-Style -Style Warning -Property 'LastResult'
-                        $OutObj | Where-Object { $_.'LastResult' -like 'Failed'} | Set-Style -Style Critical -Property 'LastResult'
+                        $OutObj | Where-Object { $_.'Enabled' -like 'No' } | Set-Style -Style Warning -Property 'Enabled'
+                        $OutObj | Where-Object { $_.'Run Job Automatically' -like 'No' } | Set-Style -Style Warning -Property 'Run Job Automatically'
+                        $OutObj | Where-Object { $_.'Encryption Enabled' -like 'No' } | Set-Style -Style Critical -Property 'Encryption Enabled'
+                        $OutObj | Where-Object { $_.'LastResult' -like 'Warning' } | Set-Style -Style Warning -Property 'LastResult'
+                        $OutObj | Where-Object { $_.'LastResult' -like 'Failed' } | Set-Style -Style Critical -Property 'LastResult'
                     }
 
                     $TableParams = @{
@@ -81,36 +79,36 @@ function Get-AbrVbrConfigurationBackupSetting {
                     }
                     $OutObj | Table @TableParams
                     if ($HealthCheck.Infrastructure.BestPractice) {
-                        if ($OutObj | Where-Object { $_.'Encryption Enabled' -like 'No' -or $_.'Run Job Automatically' -like 'No' -or  $_.'Enabled' -like 'No' }) {
+                        if ($OutObj | Where-Object { $_.'Encryption Enabled' -like 'No' -or $_.'Run Job Automatically' -like 'No' -or $_.'Enabled' -like 'No' }) {
                             Paragraph "Health Check:" -Bold -Underline
                             BlankLine
-                            if ($OutObj | Where-Object { $_.'Encryption Enabled' -like 'No'} ) {
+                            if ($OutObj | Where-Object { $_.'Encryption Enabled' -like 'No' } ) {
                                 Paragraph {
                                     Text "Best Practice:" - Bold
                                     Text "Whenever possible, enable configuration backup encryption."
                                 }
                                 BlankLine
                             }
-                            if ($OutObj | Where-Object { $_.'Run Job Automatically' -like 'No'}) {
+                            if ($OutObj | Where-Object { $_.'Run Job Automatically' -like 'No' }) {
                                 Paragraph {
                                     Text "Best Practice:" - Bold
                                     Text "It's a recommended best practice to activate the 'Run job automatically' option of the Backup Configuration job."
                                 }
                                 BlankLine
                             }
-                            if ($OutObj | Where-Object { $_.'Enabled' -like 'No'}) {
+                            if ($OutObj | Where-Object { $_.'Enabled' -like 'No' }) {
                                 Paragraph {
                                     Text "Best Practice:" -Bold
                                     Text "It's a recommended best practice to enable the Backup Configuration job"
                                 }
+                                BlankLine
                             }
                         }
                     }
                 }
             }
-        }
-        catch {
-            Write-PscriboMessage -IsWarning "Configuration Backup Section: $($_.Exception.Message)"
+        } catch {
+            Write-PScriboMessage -IsWarning "Configuration Backup Section: $($_.Exception.Message)"
         }
     }
     end {}

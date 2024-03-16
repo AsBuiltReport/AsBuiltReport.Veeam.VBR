@@ -6,7 +6,7 @@ function Get-AbrVbrCloudConnectPublicIP {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.4
+        Version:        0.8.5
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -21,11 +21,11 @@ function Get-AbrVbrCloudConnectPublicIP {
     )
 
     begin {
-        Write-PscriboMessage "Discovering Veeam VBR Cloud Public IP information from $System."
+        Write-PScriboMessage "Discovering Veeam VBR Cloud Public IP information from $System."
     }
 
     process {
-        if ($VbrLicenses | Where-Object {$_.CloudConnect -ne "Disabled"}) {
+        if ($VbrLicenses | Where-Object { $_.CloudConnect -ne "Disabled" }) {
             if ((Get-VBRCloudGatewayPool).count -gt 0) {
                 Section -Style Heading3 'Public IP' {
                     Paragraph "The following section provides information about Cloud Public IP."
@@ -38,17 +38,16 @@ function Get-AbrVbrCloudConnectPublicIP {
                                 $inObj = [ordered] @{
                                     'IP Address' = $CloudObject.IpAddress
                                     'Assigned Tenant' = Switch ([string]::IsNullOrEmpty($CloudObject.TenantId)) {
-                                        $true {'--'}
-                                        $false {(Get-VBRCloudTenant -Id $CloudObject.TenantId).Name}
-                                        default {'Unknown'}
+                                        $true { '--' }
+                                        $false { (Get-VBRCloudTenant -Id $CloudObject.TenantId).Name }
+                                        default { 'Unknown' }
                                     }
                                 }
 
                                 $OutObj += [pscustomobject]$inobj
 
-                            }
-                            catch {
-                                Write-PscriboMessage -IsWarning "Cloud Public IP $($CloudObject.IpAddress) Section: $($_.Exception.Message)"
+                            } catch {
+                                Write-PScriboMessage -IsWarning "Cloud Public IP $($CloudObject.IpAddress) Section: $($_.Exception.Message)"
                             }
                         }
 
@@ -62,9 +61,8 @@ function Get-AbrVbrCloudConnectPublicIP {
                             $TableParams['Caption'] = "- $($TableParams.Name)"
                         }
                         $OutObj | Table @TableParams
-                    }
-                    catch {
-                        Write-PscriboMessage -IsWarning "Cloud Public IP Section: $($_.Exception.Message)"
+                    } catch {
+                        Write-PScriboMessage -IsWarning "Cloud Public IP Section: $($_.Exception.Message)"
                     }
                 }
             }
