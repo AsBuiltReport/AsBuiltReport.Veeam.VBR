@@ -26,7 +26,7 @@ function Get-AbrVbrBackupServerInfo {
 
     process {
         try {
-            $BackupServers = Get-VBRServer -Type Local
+            $script:BackupServers = Get-VBRServer -Type Local
             if (($BackupServers).count -gt 0) {
                 Section -Style Heading3 'Backup Server' {
                     $OutObj = @()
@@ -38,7 +38,7 @@ function Get-AbrVbrBackupServerInfo {
                             try { $DomainJoined = Get-CimInstance -Class Win32_ComputerSystem -Property PartOfDomain -CimSession $CimSession } catch { 'Unknown' }
                             Write-PScriboMessage "Collecting Backup Server information from $($BackupServer.Name)."
                             try {
-                                $VeeamVersion = Invoke-Command -Session $PssSession -ErrorAction SilentlyContinue -ScriptBlock { Get-ChildItem -Recurse HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall | Get-ItemProperty | Where-Object { $_.DisplayName -match 'Veeam Backup & Replication Server' } | Select-Object -Property DisplayVersion }
+                                $script:VeeamVersion = Invoke-Command -Session $PssSession -ErrorAction SilentlyContinue -ScriptBlock { Get-ChildItem -Recurse HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall | Get-ItemProperty | Where-Object { $_.DisplayName -match 'Veeam Backup & Replication Server' } | Select-Object -Property DisplayVersion }
                             } catch { Write-PScriboMessage -IsWarning "Backup Server Inkoke-Command Section: $($_.Exception.Message)" }
                             try {
                                 $VeeamInfo = Invoke-Command -Session $PssSession -ErrorAction SilentlyContinue -ScriptBlock { Get-ItemProperty -Path 'HKLM:\SOFTWARE\Veeam\Veeam Backup and Replication' }

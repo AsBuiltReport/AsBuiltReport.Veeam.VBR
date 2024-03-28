@@ -121,8 +121,9 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                                     Write-PScriboMessage -IsWarning "Wan Accelerator Diagram: $($_.Exception.Message)"
                                 }
                                 if ($Graph) {
+                                    If ((Get-DiaImagePercent -GraphObj $Graph).Width -gt 1500) { $ImagePrty = 10 } else { $ImagePrty = 50 }
                                     Section -Style Heading3 "Wan Accelerator Diagram." {
-                                        Image -Base64 $Graph -Text "Wan Accelerator Diagram" -Percent (Get-ImagePercent -Graph $Graph) -Align Center
+                                        Image -Base64 $Graph -Text "Wan Accelerator Diagram" -Percent $ImagePrty -Align Center
                                         Paragraph "Image preview: Opens the image in a new tab to view it at full resolution." -Tabs 2
                                     }
                                     BlankLine
@@ -148,8 +149,9 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                                     Write-PScriboMessage -IsWarning "Backup Repository Diagram: $($_.Exception.Message)"
                                 }
                                 if ($Graph) {
+                                    If ((Get-DiaImagePercent -GraphObj $Graph).Width -gt 1500) { $ImagePrty = 10 } else { $ImagePrty = 50 }
                                     Section -Style Heading3 "Backup Repository Diagram." {
-                                        Image -Base64 $Graph -Text "Backup Repository Diagram" -Percent (Get-ImagePercent -Graph $Graph) -Align Center
+                                        Image -Base64 $Graph -Text "Backup Repository Diagram" -Percent $ImagePrty -Align Center
                                         Paragraph "Image preview: Opens the image in a new tab to view it at full resolution." -Tabs 2
                                     }
                                     BlankLine
@@ -170,8 +172,9 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                                     Write-PScriboMessage -IsWarning "ScaleOut Backup Repository Diagram: $($_.Exception.Message)"
                                 }
                                 if ($Graph) {
+                                    If ((Get-DiaImagePercent -GraphObj $Graph).Width -gt 1500) { $ImagePrty = 10 } else { $ImagePrty = 50 }
                                     Section -Style Heading3 "ScaleOut Backup Repository Diagram." {
-                                        Image -Base64 $Graph -Text "ScaleOut Backup Repository Diagram" -Percent (Get-ImagePercent -Graph $Graph) -Align Center
+                                        Image -Base64 $Graph -Text "ScaleOut Backup Repository Diagram" -Percent $ImagePrty -Align Center
                                         Paragraph "Image preview: Opens the image in a new tab to view it at full resolution." -Tabs 2
                                     }
                                     BlankLine
@@ -225,8 +228,9 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                                     Write-PScriboMessage -IsWarning "Tape Infrastructure Diagram: $($_.Exception.Message)"
                                 }
                                 if ($Graph) {
+                                    If ((Get-DiaImagePercent -GraphObj $Graph).Width -gt 1500) { $ImagePrty = 10 } else { $ImagePrty = 50 }
                                     Section -Style Heading3 "Tape Infrastructure Diagram." {
-                                        Image -Base64 $Graph -Text "Tape Infrastructure Diagram" -Percent (Get-ImagePercent -Graph $Graph) -Align Center
+                                        Image -Base64 $Graph -Text "Tape Infrastructure Diagram" -Percent $ImagePrty -Align Center
                                         Paragraph "Image preview: Opens the image in a new tab to view it at full resolution." -Tabs 2
                                     }
                                     BlankLine
@@ -269,8 +273,9 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                                         Write-PScriboMessage -IsWarning "Physical Infrastructure Diagram: $($_.Exception.Message)"
                                     }
                                     if ($Graph) {
+                                        If ((Get-DiaImagePercent -GraphObj $Graph).Width -gt 1500) { $ImagePrty = 10 } else { $ImagePrty = 50 }
                                         Section -Style Heading3 "Physical Infrastructure Diagram." {
-                                            Image -Base64 $Graph -Text "Physical Infrastructure Diagram" -Percent (Get-ImagePercent -Graph $Graph) -Align Center
+                                            Image -Base64 $Graph -Text "Physical Infrastructure Diagram" -Percent $ImagePrty -Align Center
                                             Paragraph "Image preview: Opens the image in a new tab to view it at full resolution." -Tabs 2
                                         }
                                         BlankLine
@@ -440,10 +445,78 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                     }
                 }
             }
+
+            if ($Options.EnableDiagrams) {
+
+                $DiagramParams = @{
+                }
+
+                if ($Options.ExportDiagrams) {
+                    $DiagramParams.Add('Format', "png")
+                    $DiagramParams.Add('FileName','AsBuiltReport.Veeam.VBR.png')
+                    $DiagramParams.Add('OutputFolderPath', (Get-Location).Path)
+                } else {
+                    $DiagramParams.Add('Format', "base64")
+                }
+
+                if ($Options.EnableDiagramDebug) {
+
+                    $DiagramParams.Add('EnableEdgeDebug', $True)
+                    $DiagramParams.Add('EnableSubGraphDebug', $True)
+
+                }
+
+                if ($Options.EnableDiagramSignature) {
+                    $DiagramParams.Add('Signature', $True)
+                    $DiagramParams.Add('AuthorName', $Options.SignatureAuthorName)
+                    $DiagramParams.Add('CompanyName', $Options.SignatureCompanyName)
+                }
+
+                if ($Options.ExportDiagrams) {
+                    Try {
+                        $Graph = Get-AbrVbrDiagram @DiagramParams
+                        if ($Graph) {
+                            Write-Information "Saved 'AsBuiltReport.Veeam.VB365.png' diagram to '$((Get-Location).Path)\'." -InformationAction Continue
+                        }
+                    } Catch {
+                        Write-PScriboMessage -IsWarning "Unable to export the Infrastructure Diagram: $($_.Exception.Message)"
+                    }
+
+                    if ($Graph) {
+                        If ((Get-DiaImagePercent -ImageInput $Graph.FullName).Width -gt 1500) { $ImagePrty = 20 } else { $ImagePrty = 50 }
+                        PageBreak
+                        Section -Style Heading3 "Infrastructure Diagram." {
+                            Image -Path $Graph.FullName -Text "Veeam Backup for Microsoft 365 Diagram" -Percent $ImagePrty -Align Center
+                            Paragraph "Image preview: Opens the image in a new tab to view it at full resolution." -Tabs 2
+                        }
+                        BlankLine
+                    }
+
+                } else {
+                    try {
+                        try {
+                            $Graph = Get-AbrVbrDiagram @DiagramParams
+                        } catch {
+                            Write-PScriboMessage -IsWarning "Unable to generate the Infrastructure Diagram: $($_.Exception.Message)"
+                        }
+
+                        if ($Graph) {
+                            If ((Get-DiaImagePercent -GraphObj $Graph).Width -gt 1500) { $ImagePrty = 20 } else { $ImagePrty = 50 }
+                            Section -Style Heading3 "Infrastructure Diagram." {
+                                Image -Base64 $Graph -Text "Veeam Backup for Microsoft 365 Diagram" -Percent $ImagePrty -Align Center
+                                Paragraph "Image preview: Opens the image in a new tab to view it at full resolution." -Tabs 2
+                            }
+                            BlankLine
+                        }
+                    } catch {
+                        Write-PScriboMessage -IsWarning "Infrastructure Diagram: $($_.Exception.Message)"
+                    }
+                }
+            }
         }
         if ((Get-VBRServerSession).Server) {
             Write-PScriboMessage "Disconecting section from $((Get-VBRServerSession).Server)"
-            Disconnect-VBRServer
+            # Disconnect-VBRServer
         }
     }
     #endregion foreach loop

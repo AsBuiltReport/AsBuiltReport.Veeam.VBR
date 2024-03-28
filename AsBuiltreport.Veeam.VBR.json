@@ -13,6 +13,12 @@
         "EnableCharts": false,
         "EnableHardwareInventory": false,
         "EnableDiagrams": false,
+        "EnableDiagramDebug": false,
+        "DiagramWaterMark": "",
+        "ExportDiagrams": false,
+        "EnableDiagramSignature": false,
+        "SignatureAuthorName": "",
+        "SignatureCompanyName": "",
         "PSDefaultAuthentication": "Default"
     },
     "InfoLevel": {

@@ -229,37 +229,6 @@ function Convert-Size {
 
     return [Math]::Round($value, $Precision, [MidPointRounding]::AwayFromZero)
 }
-
-function Get-ImagePercent {
-    <#
-    .SYNOPSIS
-    Used by As Built Report to get base64 image percentage calculated from image width.
-    This low the diagram image to fit the report page margins
-    .DESCRIPTION
-    .NOTES
-        Version:        0.1.0
-        Author:         Jonathan Colon
-    .EXAMPLE
-    .LINK
-    #>
-    [CmdletBinding()]
-    [OutputType([System.Int32])]
-    Param
-    (
-        [Parameter (
-            Position = 0,
-            Mandatory)]
-        [string]
-        $Graph
-    )
-    $Image_FromStream = [System.Drawing.Image]::FromStream((New-Object System.IO.MemoryStream(, [convert]::FromBase64String($Graph))))
-    If ($Image_FromStream.Width -gt 1500) {
-        return 10
-    } else {
-        return 30
-    }
-} # end
-
 function Get-PieChart {
     <#
     .SYNOPSIS
@@ -724,3 +693,53 @@ function Get-StandardDeviation {
         Write-PScriboMessage "You did not enter enough numbers!"
     }
 } #End function Get-StandardDeviation
+
+function Get-VBRDebugObject {
+
+    [CmdletBinding()]
+    param (
+    )
+
+    $script:ProxiesDebug = [PSCustomObject]@(
+        @{
+            'Host' = [PSCustomObject]@{ 'Name' = 'veeam-prx-00000000000001' }
+            'Type' = "Vi"
+            'Options' = [PSCustomObject]@{ 'MaxTasksCount' = 2 }
+        }
+        @{
+            'Host' = [PSCustomObject]@{ 'Name' = 'veeam-prx-02' }
+            'Type' = "Vi"
+            'Options' = [PSCustomObject]@{ 'MaxTasksCount' = 2 }
+        }
+        @{
+            'Host' = [PSCustomObject]@{ 'Name' = 'veeam-prx-03' }
+            'Type' = "Vi"
+            'Options' = [PSCustomObject]@{ 'MaxTasksCount' = 2 }
+        }
+        @{
+            'Host' = [PSCustomObject]@{ 'Name' = 'veeam-prx-04' }
+            'Type' = "HvOffhost"
+            'Options' = [PSCustomObject]@{ 'MaxTasksCount' = 2 }
+        }
+        @{
+            'Host' = [PSCustomObject]@{ 'Name' = 'veeam-prx-0500000000000' }
+            'Type' = "HvOffhost"
+            'Options' = [PSCustomObject]@{ 'MaxTasksCount' = 2 }
+        }
+        @{
+            'Host' = [PSCustomObject]@{ 'Name' = 'veeam-prx-06' }
+            'Type' = "HvOnhost"
+            'Options' = [PSCustomObject]@{ 'MaxTasksCount' = 2 }
+        }
+    )
+
+
+    $script:Repositories = @{
+        Name = "Repository1", "Repository2", "Repository3", "Repository4", "Repository5", "Repository6", "Repository7"
+    }
+
+
+    $script:ObjectRepositories = @{
+        Name = "ObjectRepositor1", "ObjectRepositor2", "ObjectRepositor3", "ObjectRepositor4", "ObjectRepositor5", "ObjectRepositor6", "ObjectRepositor7"
+    }
+}
