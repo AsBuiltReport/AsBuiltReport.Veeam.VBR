@@ -133,7 +133,7 @@ function Get-VbrBackupServerInfo {
 
                     $Rows = @{
                         Role = $Roles
-                        IP = Get-NodeIP -HostName $BackupServers.Name
+                        IP = Get-NodeIP -Hostname $BackupServers.Name
                     }
 
                     if ($VeeamVersion) {
@@ -161,7 +161,7 @@ function Get-VbrBackupServerInfo {
                 }
 
                 if ($DatabaseServer) {
-                    $DatabaseServerIP = Get-NodeIP -HostName $DatabaseServer
+                    $DatabaseServerIP = Get-NodeIP -Hostname $DatabaseServer
 
                     $Rows = @{
                         Role = 'Database Server'
@@ -194,7 +194,7 @@ function Get-VbrBackupServerInfo {
             try {
                 $EMServer = [Veeam.Backup.Core.SBackupOptions]::GetEnterpriseServerInfo()
                 if ($EMServer.ServerName) {
-                    $EMServerIP = Get-NodeIP -HostName $EMServer.ServerName
+                    $EMServerIP = Get-NodeIP -Hostname $EMServer.ServerName
 
                     $Rows = @{
                         Role = 'Enterprise Manager Server'
@@ -241,7 +241,7 @@ function Get-DiagBackupServer {
     )
     process {
         try {
-            SubGraph BackupServer -Attributes @{Label = 'Management'; labelloc = 'b'; labeljust = "r"; style = "rounded"; bgcolor = "#ceedc4"; fontsize = 18; penwidth = 2 } {
+            SubGraph BackupServer -Attributes @{Label = 'Management'; labelloc = 'b'; labeljust = "r"; style = "rounded"; bgcolor = "#ceedc4"; fontcolor = '#005f4b'; fontsize = 18; penwidth = 2 } {
                 if (($DatabaseServerInfo.Name -ne $BackupServerInfo.Name) -and $EMServerInfo) {
                     Write-Verbose -Message "Collecting Backup Server, Database Server and Enterprise Manager Information."
                     $BSHASHTABLE = @{}
@@ -252,9 +252,9 @@ function Get-DiagBackupServer {
                     $DatabaseServerInfo.psobject.properties | ForEach-Object { $DBHASHTABLE[$_.Name] = $_.Value }
                     $EMServerInfo.psobject.properties | ForEach-Object { $EMHASHTABLE[$_.Name] = $_.Value }
 
-                    Node $BackupServerInfo.Name -Attributes @{Label = $BSHASHTABLE.Label; fillColor = '#ceedc4'; shape = 'plain' }
-                    Node $DatabaseServerInfo.Name -Attributes @{Label = $DBHASHTABLE.Label; fillColor = '#ceedc4'; shape = 'plain' }
-                    Node $EMServerInfo.Name -Attributes @{Label = $EMHASHTABLE.Label; fillColor = '#ceedc4'; shape = 'plain' }
+                    Node $BackupServerInfo.Name -Attributes @{Label = $BSHASHTABLE.Label; fillColor = '#ceedc4'; shape = 'plain'; fontsize = 14; fontname = "Tahoma" }
+                    Node $DatabaseServerInfo.Name -Attributes @{Label = $DBHASHTABLE.Label; fillColor = '#ceedc4'; shape = 'plain'; fontsize = 14; fontname = "Tahoma" }
+                    Node $EMServerInfo.Name -Attributes @{Label = $EMHASHTABLE.Label; fillColor = '#ceedc4'; shape = 'plain'; fontsize = 14; fontname = "Tahoma" }
 
                     if ($Dir -eq 'LR') {
                         Rank $EMServerInfo.Name, $DatabaseServerInfo.Name
@@ -273,8 +273,8 @@ function Get-DiagBackupServer {
                     $BackupServerInfo.psobject.properties | ForEach-Object { $BSHASHTABLE[$_.Name] = $_.Value }
                     $DatabaseServerInfo.psobject.properties | ForEach-Object { $DBHASHTABLE[$_.Name] = $_.Value }
 
-                    Node $BackupServerInfo.Name -Attributes @{Label = $BSHASHTABLE.Label; fillColor = '#ceedc4'; shape = 'plain' }
-                    Node $DatabaseServerInfo.Name -Attributes @{Label = $DBHASHTABLE.Label; fillColor = '#ceedc4'; shape = 'plain' }
+                    Node $BackupServerInfo.Name -Attributes @{Label = $BSHASHTABLE.Label; fillColor = '#ceedc4'; shape = 'plain'; fontsize = 14; fontname = "Tahoma" }
+                    Node $DatabaseServerInfo.Name -Attributes @{Label = $DBHASHTABLE.Label; fillColor = '#ceedc4'; shape = 'plain'; fontsize = 14; fontname = "Tahoma" }
 
                     if ($Dir -eq 'LR') {
                         Rank $BackupServerInfo.Name, $DatabaseServerInfo.Name
@@ -291,8 +291,8 @@ function Get-DiagBackupServer {
                     $BackupServerInfo.psobject.properties | ForEach-Object { $BSHASHTABLE[$_.Name] = $_.Value }
                     $EMServerInfo.psobject.properties | ForEach-Object { $EMHASHTABLE[$_.Name] = $_.Value }
 
-                    Node $BackupServerInfo.Name -Attributes @{Label = $BSHASHTABLE.Label; fillColor = '#ceedc4'; shape = 'plain' }
-                    Node $EMServerInfo.Name -Attributes @{Label = $EMHASHTABLE.Label; fillColor = '#ceedc4'; shape = 'plain' }
+                    Node $BackupServerInfo.Name -Attributes @{Label = $BSHASHTABLE.Label; fillColor = '#ceedc4'; shape = 'plain'; fontsize = 14; fontname = "Tahoma" }
+                    Node $EMServerInfo.Name -Attributes @{Label = $EMHASHTABLE.Label; fillColor = '#ceedc4'; shape = 'plain'; fontsize = 14; fontname = "Tahoma" }
 
                     if ($Dir -eq 'LR') {
                         Rank $EMServerInfo.Name, $BackupServerInfo.Name
@@ -305,10 +305,10 @@ function Get-DiagBackupServer {
                     Write-Verbose -Message "Database server colocated with Backup Server and no Enterprise Manager found: Collecting Backup Server Information."
                     $BSHASHTABLE = @{}
                     $BackupServerInfo.psobject.properties | ForEach-Object { $BSHASHTABLE[$_.Name] = $_.Value }
-                    Node Left @{Label = 'Left'; style = $EdgeDebug.style; color = $EdgeDebug.color; shape = 'plain'; fillColor = 'transparent' }
-                    Node Leftt @{Label = 'Leftt'; style = $EdgeDebug.style; color = $EdgeDebug.color; shape = 'plain'; fillColor = 'transparent' }
-                    Node Right @{Label = 'Right'; style = $EdgeDebug.style; color = $EdgeDebug.color; shape = 'plain'; fillColor = 'transparent' }
-                    Node $BackupServerInfo.Name -Attributes @{Label = $BSHASHTABLE.Label; fillColor = '#ceedc4'; shape = 'plain' }
+                    Node Left @{Label = 'Left'; style = $EdgeDebug.style; color = $EdgeDebug.color; shape = 'plain'; fillColor = 'transparent'; fontsize = 14; fontname = "Tahoma" }
+                    Node Leftt @{Label = 'Leftt'; style = $EdgeDebug.style; color = $EdgeDebug.color; shape = 'plain'; fillColor = 'transparent'; fontsize = 14; fontname = "Tahoma" }
+                    Node Right @{Label = 'Right'; style = $EdgeDebug.style; color = $EdgeDebug.color; shape = 'plain'; fillColor = 'transparent'; fontsize = 14; fontname = "Tahoma" }
+                    Node $BackupServerInfo.Name -Attributes @{Label = $BSHASHTABLE.Label; fillColor = '#ceedc4'; shape = 'plain'; fontsize = 14; fontname = "Tahoma" }
                     Edge Left, Leftt, $BackupServerInfo.Name, Right @{style = $EdgeDebug.style; color = $EdgeDebug.color }
                     Rank Left, Leftt, $BackupServerInfo.Name, Right
                 }
@@ -434,7 +434,6 @@ if ($ObjectRepositories -or $ArchObjStorages) {
     $ArchObjStorages | ForEach-Object {
         $inobj = @{
             Type = $_.ArchiveType
-            Folder = $Folder
             Gateway = & {
                 if (-Not $_.UseGatewayServer) {
                     Switch ($_.GatewayMode) {

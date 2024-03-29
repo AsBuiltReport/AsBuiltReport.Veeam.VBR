@@ -6,7 +6,7 @@ function Get-AbrVbrBackupProxy {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.5
+        Version:        0.8.6
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -288,7 +288,7 @@ function Get-AbrVbrBackupProxy {
                                                                 try {
                                                                     $HostAdapters = Invoke-Command -Session $PssSession { Get-NetAdapter }
                                                                     if ($HostAdapters) {
-                                                                        Section -Style NOTOCHeading3 -ExcludeFromTOC 'Network Adapters' {
+                                                                        Section -Style NOTOCHeading4 -ExcludeFromTOC 'Network Adapters' {
                                                                             $HostAdaptersReport = @()
                                                                             ForEach ($HostAdapter in $HostAdapters) {
                                                                                 try {
@@ -320,7 +320,7 @@ function Get-AbrVbrBackupProxy {
                                                                 try {
                                                                     $NetIPs = Invoke-Command -Session $PssSession { Get-NetIPConfiguration | Where-Object -FilterScript { ($_.NetAdapter.Status -Eq "Up") } }
                                                                     if ($NetIPs) {
-                                                                        Section -Style NOTOCHeading3 -ExcludeFromTOC 'IP Address' {
+                                                                        Section -Style NOTOCHeading4 -ExcludeFromTOC 'IP Address' {
                                                                             $NetIpsReport = @()
                                                                             ForEach ($NetIp in $NetIps) {
                                                                                 try {

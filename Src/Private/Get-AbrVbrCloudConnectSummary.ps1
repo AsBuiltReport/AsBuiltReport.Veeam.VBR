@@ -5,7 +5,7 @@ function Get-AbrVbrCloudConnectSummary {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.5
+        Version:        0.8.6
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -66,7 +66,7 @@ function Get-AbrVbrCloudConnectSummary {
             }
 
             if ($OutObj) {
-                Section -Style NOTOCHeading3 -ExcludeFromTOC 'Cloud Connect Infrastructure' {
+                Section -Style NOTOCHeading4 -ExcludeFromTOC 'Cloud Connect Infrastructure' {
                     if ($Options.EnableCharts -and $chartFileItem -and ($inObj.Values | Measure-Object -Sum).Sum -ne 0) {
                         Image -Text 'Cloud Connect Infrastructure - Chart' -Align 'Center' -Percent 100 -Base64 $chartFileItem
                     }

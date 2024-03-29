@@ -6,7 +6,7 @@ function Get-AbrVbrSecurityCompliance {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.5
+        Version:        0.8.6
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -125,7 +125,7 @@ function Get-AbrVbrSecurityCompliance {
             }
 
             if ($OutObj) {
-                Section -Style NOTOCHeading3 -ExcludeFromTOC 'Security & Compliance' {
+                Section -Style NOTOCHeading4 -ExcludeFromTOC 'Security & Compliance' {
                     if ($Options.EnableCharts -and $chartFileItem -and ($OutObj.count | Measure-Object -Sum).Sum -ne 0) {
                         Image -Text 'Security & Compliance - Chart' -Align 'Center' -Percent 100 -Base64 $chartFileItem
                     }

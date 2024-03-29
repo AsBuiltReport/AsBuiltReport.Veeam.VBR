@@ -6,7 +6,7 @@ function Get-AbrVbrInventorySummary {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.5
+        Version:        0.8.6
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -86,7 +86,7 @@ function Get-AbrVbrInventorySummary {
             }
 
             if ($OutObj) {
-                Section -Style NOTOCHeading3 -ExcludeFromTOC 'Inventory' {
+                Section -Style NOTOCHeading4 -ExcludeFromTOC 'Inventory' {
                     if ($Options.EnableCharts -and $chartFileItem -and ($inObj.Values | Measure-Object -Sum).Sum -ne 0) {
                         Image -Text 'Inventory - Chart' -Align 'Center' -Percent 100 -Base64 $chartFileItem
                     }
