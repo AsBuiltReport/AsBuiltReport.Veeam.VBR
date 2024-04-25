@@ -6,7 +6,7 @@ function Get-AbrVbrBackupServerInfo {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.0
+        Version:        0.8.6
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -142,7 +142,7 @@ function Get-AbrVbrBackupServerInfo {
                         }
                     }
                     #---------------------------------------------------------------------------------------------#
-                    #                       Backup Server Inventory Summary Section                               #
+                    #                  Backup Server Inventory & Software Summary Section                         #
                     #---------------------------------------------------------------------------------------------#
                     try {
                         Write-PScriboMessage "Hardware Inventory Status set as $($Options.EnableHardwareInventory)."
@@ -511,6 +511,57 @@ function Get-AbrVbrBackupServerInfo {
                             }
                         } catch {
                             Write-PScriboMessage -IsWarning "Backup Server Service Status Section: $($_.Exception.Message)"
+                        }
+                    }
+                    if ($HealthCheck.Infrastructure.BestPractice) {
+                        try {
+                            $UpdObj = @()
+                            $Updates = Invoke-Command -Session $PssSession -ScriptBlock { (New-Object -ComObject Microsoft.Update.Session).CreateupdateSearcher().Search("IsHidden=0 and IsInstalled=0").Updates | Select-Object Title, KBArticleIDs }
+                            $UpdObj += if ($Updates) {
+                                $OutObj = @()
+                                foreach ($Update in $Updates) {
+                                    try {
+                                        $inObj = [ordered] @{
+                                            'KB Article' = "KB$($Update.KBArticleIDs)"
+                                            'Name' = $Update.Title
+                                        }
+                                        $OutObj += [pscustomobject]$inobj
+
+                                        if ($HealthCheck.OperatingSystem.Updates) {
+                                            $OutObj | Set-Style -Style Warning
+                                        }
+                                    } catch {
+                                        Write-PScriboMessage -IsWarning $_.Exception.Message
+                                    }
+                                }
+
+                                $OutObj | Set-Style -Style Warning
+
+                                $TableParams = @{
+                                    Name = "Missing Windows Updates - $($BackupServer.Name.Split(".")[0])"
+                                    List = $false
+                                    ColumnWidths = 40, 60
+                                }
+                                if ($Report.ShowTableCaptions) {
+                                    $TableParams['Caption'] = "- $($TableParams.Name)"
+                                }
+                                $OutObj | Sort-Object -Property 'Name' | Table @TableParams
+                            }
+                            if ($UpdObj) {
+                                Section -Style Heading4 'Missing Windows Updates' {
+                                    Paragraph "The following table provides a summary of the backup server pending/missing windows updates."
+                                    BlankLine
+                                    $UpdObj
+                                }
+                                Paragraph "Health Check:" -Bold -Underline
+                                BlankLine
+                                Paragraph {
+                                    Text "Security Best Practices:" -Bold
+                                    Text "Patch operating systems, software, and firmware on Veeam components. Most hacks succeed because there is already vulnerable software in use which is not up-to-date with current patch levels. So make sure all software and hardware where Veeam components are running are up-to-date. One of the most possible causes of a credential theft are missing guest OS updates and use of outdated authentication protocols."
+                                }
+                            }
+                        } catch {
+                            Write-PScriboMessage -IsWarning $_.Exception.Message
                         }
                     }
                 }
