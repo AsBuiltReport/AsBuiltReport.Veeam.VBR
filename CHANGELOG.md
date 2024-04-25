@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add Backup Infrastructure Diagram
 - Close [#155](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/155)
+- Add vCD Resources to Service Provider section
 
 ### Changed
 

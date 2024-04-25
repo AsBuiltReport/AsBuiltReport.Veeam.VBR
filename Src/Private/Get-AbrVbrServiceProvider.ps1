@@ -26,7 +26,7 @@ function Get-AbrVbrServiceProvider {
 
     process {
         try {
-            $CloudProviders = Get-VBRCloudProvider
+            $CloudProviders = Get-VBRCloudProvider | Sort-Object -Property 'DNSName'
             if (($VbrLicenses | Where-Object { $_.Edition -in @("EnterprisePlus") }) -and $CloudProviders) {
                 Section -Style Heading3 'Service Providers' {
                     Paragraph "The following section provides a summary about configured Veeam Cloud Service Providers."
@@ -45,6 +45,8 @@ function Get-AbrVbrServiceProvider {
                                             'BaaS'
                                         } elseif ($CloudProvider.ReplicationResourcesEnabled) {
                                             'DRaas'
+                                        } elseif ($CloudProvider.vCDReplicationResources) {
+                                            'vCD'
                                         } else { 'Unknown' }
                                     }
                                     'Managed By Provider' = ConvertTo-TextYN $CloudProvider.IsManagedByProvider
@@ -64,7 +66,7 @@ function Get-AbrVbrServiceProvider {
                         if ($Report.ShowTableCaptions) {
                             $TableParams['Caption'] = "- $($TableParams.Name)"
                         }
-                        $OutObj | Sort-Object -Property 'DNS Name' | Table @TableParams
+                        $OutObj | Table @TableParams
                         if ($InfoLevel.Infrastructure.ServiceProvider -ge 2) {
                             try {
                                 Section -Style Heading4 'Service Providers Configuration' {
@@ -130,7 +132,7 @@ function Get-AbrVbrServiceProvider {
                                                     Write-PScriboMessage -IsWarning "Service Providers $($CloudProvider.DNSName) BaaS Resources Table: $($_.Exception.Message)"
                                                 }
                                             }
-                                            if ($CloudProvider.ReplicationResourcesEnabled) {
+                                            if ($CloudProvider.ReplicationResourcesEnabled -and (-Not $CloudProvider.vCDReplicationResources)) {
                                                 try {
                                                     Section -ExcludeFromTOC -Style NOTOCHeading6 'DRaaS Resources' {
                                                         $OutObj = @()
@@ -183,9 +185,40 @@ function Get-AbrVbrServiceProvider {
                                                     Write-PScriboMessage -IsWarning "Service Providers $($CloudProvider.DNSName) DRaaS Resources Table: $($_.Exception.Message)"
                                                 }
                                             }
+                                            if ($CloudProvider.vCDReplicationResources) {
+                                                try {
+                                                    Section -ExcludeFromTOC -Style NOTOCHeading6 'vCD Resources' {
+                                                        $OutObj = @()
+                                                        Write-PScriboMessage "Discovered $($CloudProvider.DNSName) Service Provider vCD Resources information."
+                                                        $inObj = [ordered] @{
+                                                            'Resources Enabled' = ConvertTo-TextYN $CloudProvider.ReplicationResourcesEnabled
+                                                            'Organizationv DC Name' = $CloudProvider.vCDReplicationResources.OrganizationvDCName
+                                                            'Allocated CPU Resources' = $CloudProvider.vCDReplicationResources.CPU
+                                                            'Allocated Memory Resources' = $CloudProvider.vCDReplicationResources.Memory
+                                                            'Storage Policy' = $CloudProvider.vCDReplicationResources.StoragePolicy
+                                                            'Is Wan Accelerator Enabled?' = ConvertTo-TextYN $CloudProvider.vCDReplicationResources.WanAcceleratorEnabled
+                                                        }
+
+                                                        $OutObj = [pscustomobject]$inobj
+
+                                                        $TableParams = @{
+                                                            Name = "vCD Resources - $($CloudProvider.DNSName)"
+                                                            List = $true
+                                                            ColumnWidths = 40, 60
+                                                        }
+
+                                                        if ($Report.ShowTableCaptions) {
+                                                            $TableParams['Caption'] = "- $($TableParams.Name)"
+                                                        }
+                                                        $OutObj | Table @TableParams
+                                                    }
+                                                } catch {
+                                                    Write-PScriboMessage -IsWarning "Service Providers $($CloudProvider.DNSName) vCD Resources Table: $($_.Exception.Message)"
+                                                }
+                                            }
                                             try {
-                                                $DefaultGatewayConfig = Get-VBRDefaultGatewayConfiguration | Where-Object { $_.ProviderId -eq $CloudProvider.id }
-                                                if ($DefaultGatewayConfig.DefaultGateway) {
+                                                $DefaultGatewayConfig = Get-VBRDefaultGatewayConfiguration -CloudProvider $CloudProvider
+                                                if ($DefaultGatewayConfig.DefaultGateway | Where-Object {$Null -ne $_}) {
                                                     Section -ExcludeFromTOC -Style NOTOCHeading6 'Default Gateway Configuration ' {
                                                         $OutObj = @()
                                                         foreach ($Gateway in $DefaultGatewayConfig.DefaultGateway) {
@@ -220,7 +253,7 @@ function Get-AbrVbrServiceProvider {
                                                 Write-PScriboMessage -IsWarning "Service Providers $($CloudProvider.DNSName) Default Gateway Section: $($_.Exception.Message)"
                                             }
                                             try {
-                                                $CloudSubUserConfig = Get-VBRCloudSubUser | Where-Object { $_.CloudProviderId -eq $CloudProvider.id }
+                                                $CloudSubUserConfig = Get-VBRCloudSubUser -CloudProvider $CloudProvider
                                                 if ($CloudSubUserConfig.DefaultGateway) {
                                                     Section -ExcludeFromTOC -Style NOTOCHeading6 'Cloud SubUser Default Gateway' {
                                                         $OutObj = @()
