@@ -6,7 +6,7 @@ function Get-AbrVbrInventorySummary {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.5
+        Version:        0.8.6
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -75,25 +75,7 @@ function Get-AbrVbrInventorySummary {
             if ($Report.ShowTableCaptions) {
                 $TableParams['Caption'] = "- $($TableParams.Name)"
             }
-            if ($Options.EnableCharts) {
-                try {
-                    $sampleData = $inObj.GetEnumerator() | Select-Object @{ Name = 'Category'; Expression = { $_.key } }, @{ Name = 'Value'; Expression = { $_.value } } | Sort-Object -Property 'Category'
-
-                    $chartFileItem = Get-PieChart -SampleData $sampleData -ChartName 'Inventory' -XField 'Category' -YField 'Value' -ChartLegendName 'Infrastructure'
-                } catch {
-                    Write-PScriboMessage -IsWarning "Inventory chart section: $($_.Exception.Message)"
-                }
-            }
-
-            if ($OutObj) {
-                Section -Style NOTOCHeading3 -ExcludeFromTOC 'Inventory' {
-                    if ($Options.EnableCharts -and $chartFileItem -and ($inObj.Values | Measure-Object -Sum).Sum -ne 0) {
-                        Image -Text 'Inventory - Chart' -Align 'Center' -Percent 100 -Base64 $chartFileItem
-                    }
-                    BlankLine
-                    $OutObj | Table @TableParams
-                }
-            }
+            $OutObj | Table @TableParams
         } catch {
             Write-PScriboMessage -IsWarning "Inventory Summary Section: $($_.Exception.Message)"s
         }

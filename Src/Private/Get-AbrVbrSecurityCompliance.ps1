@@ -6,7 +6,7 @@ function Get-AbrVbrSecurityCompliance {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.5
+        Version:        0.8.6
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -42,7 +42,7 @@ function Get-AbrVbrSecurityCompliance {
                     'OutdatedSslAndTlsDisabled' = 'Outdated SSL And TLS are Disabled'
                     'ManualLinuxHostAuthentication' = 'Unknown Linux servers are not trusted automatically'
                     'CSmbSigningAndEncryptionEnabled' = 'SMB v3 signing is enabled'
-                    'ViProxyTrafficEncrypted' = 'Host to proxy traffic encryption shoul be enable for the Network transport mode'
+                    'ViProxyTrafficEncrypted' = 'Host to proxy traffic encryption should be enable for the Network transport mode'
                     'JobsTargetingCloudRepositoriesEncrypted' = 'Backup jobs to cloud repositories is encrypted'
                     'LLMNRDisabled' = 'Link-Local Multicast Name Resolution (LLMNR) is disabled'
                     'ImmutableOrOfflineMediaPresence' = 'Immutable or offline media is used'
@@ -96,6 +96,8 @@ function Get-AbrVbrSecurityCompliance {
 
             if ($HealthCheck.Security.BestPractice) {
                 $OutObj | Where-Object { $_.'Status' -eq 'Not Implemented' } | Set-Style -Style Critical -Property 'Status'
+                $OutObj | Where-Object { $_.'Status' -eq 'Passed' } | Set-Style -Style Ok -Property 'Status'
+                $OutObj | Where-Object { $_.'Status' -eq 'Unable to detect' } | Set-Style -Style Warning -Property 'Status'
             }
 
             $TableParams = @{
@@ -109,24 +111,24 @@ function Get-AbrVbrSecurityCompliance {
 
             try {
 
-                $sampleData = @{
+                $sampleData = [ordered]@{
                     'Passed' = ($OutObj.status | Where-Object { $_ -eq "Passed" } | Measure-Object).Count
-                    'Not Implemented' = ($OutObj.status | Where-Object { $_ -eq "Not Implemented" } | Measure-Object).Count
                     'Unable to detect' = ($OutObj.status | Where-Object { $_ -eq "Unable to detect" } | Measure-Object).Count
+                    'Not Implemented' = ($OutObj.status | Where-Object { $_ -eq "Not Implemented" } | Measure-Object).Count
                     'Suppressed' = ($OutObj.status | Where-Object { $_ -eq "Suppressed" } | Measure-Object).Count
                 }
 
-                $sampleDataObj = $sampleData.GetEnumerator() | Select-Object @{ Name = 'Category'; Expression = { $_.key } }, @{ Name = 'Value'; Expression = { $_.value } } | Sort-Object -Property 'Category'
+                $sampleDataObj = $sampleData.GetEnumerator() | Select-Object @{ Name = 'Category'; Expression = { $_.key } }, @{ Name = 'Value'; Expression = { $_.value } }
 
-                $chartFileItem = Get-ColumnChart -SampleData $sampleDataObj -ChartName 'SecurityCompliance' -XField 'Category' -YField 'Value' -ChartAreaName 'Infrastructure' -AxisXTitle 'Status' -AxisYTitle 'Count' -ChartTitleName 'SecurityCompliance' -ChartTitleText 'Best Practices'
+                $chartFileItem = Get-ColumnChart -Status -SampleData $sampleDataObj -ChartName 'SecurityCompliance' -XField 'Category' -YField 'Value' -ChartAreaName 'Infrastructure' -AxisXTitle 'Status' -AxisYTitle 'Count' -ChartTitleName 'SecurityCompliance' -ChartTitleText 'Best Practice'
 
             } catch {
                 Write-PScriboMessage -IsWarning "Security & Compliance chart section: $($_.Exception.Message)"
             }
 
             if ($OutObj) {
-                Section -Style NOTOCHeading3 -ExcludeFromTOC 'Security & Compliance' {
-                    if ($Options.EnableCharts -and $chartFileItem -and ($OutObj.count | Measure-Object -Sum).Sum -ne 0) {
+                Section -Style NOTOCHeading4 -ExcludeFromTOC 'Security & Compliance' {
+                    if ($chartFileItem -and ($OutObj.count | Measure-Object -Sum).Sum -ne 0) {
                         Image -Text 'Security & Compliance - Chart' -Align 'Center' -Percent 100 -Base64 $chartFileItem
                     }
                     BlankLine

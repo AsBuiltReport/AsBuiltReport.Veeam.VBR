@@ -6,7 +6,7 @@ function Get-AbrVbrInfrastructureSummary {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.5
+        Version:        0.8.6
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -80,28 +80,9 @@ function Get-AbrVbrInfrastructureSummary {
             if ($Report.ShowTableCaptions) {
                 $TableParams['Caption'] = "- $($TableParams.Name)"
             }
-            if ($Options.EnableCharts) {
-                try {
-                    $inObj.Remove('Instance Licenses (Total/Used)')
-                    $inObj.Remove('Socket Licenses (Total/Used)')
-                    $inObj.Remove('Capacity Licenses (Total/Used)')
-                    $sampleData = $inObj.GetEnumerator() | Select-Object @{ Name = 'Category'; Expression = { $_.key } }, @{ Name = 'Value'; Expression = { $_.value } } | Sort-Object -Property 'Category'
 
-                    $chartFileItem = Get-PieChart -SampleData $sampleData -ChartName 'BackupInfrastructure' -XField 'Category' -YField 'Value' -ChartLegendName 'Infrastructure'
-                } catch {
-                    Write-PScriboMessage -IsWarning "Backup Infrastructure chart section: $($_.Exception.Message)"
-                }
-            }
+            $OutObj | Table @TableParams
 
-            if ($OutObj) {
-                Section -Style NOTOCHeading3 -ExcludeFromTOC 'Backup Infrastructure Inventory' {
-                    if ($Options.EnableCharts -and $chartFileItem -and ($inObj.Values | Measure-Object -Sum).Sum -ne 0) {
-                        Image -Text 'Backup Infrastructure - Chart' -Align 'Center' -Percent 100 -Base64 $chartFileItem
-                    }
-                    BlankLine
-                    $OutObj | Table @TableParams
-                }
-            }
         } catch {
             Write-PScriboMessage -IsWarning "Infrastructure Summary Section: $($_.Exception.Message)"
         }

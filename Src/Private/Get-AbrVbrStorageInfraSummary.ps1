@@ -6,7 +6,7 @@ function Get-AbrVbrStorageInfraSummary {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.5
+        Version:        0.8.6
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -50,25 +50,9 @@ function Get-AbrVbrStorageInfraSummary {
             if ($Report.ShowTableCaptions) {
                 $TableParams['Caption'] = "- $($TableParams.Name)"
             }
-            if ($Options.EnableCharts) {
-                try {
-                    $sampleData = $inObj.GetEnumerator() | Select-Object @{ Name = 'Category'; Expression = { $_.key } }, @{ Name = 'Value'; Expression = { $_.value } } | Sort-Object -Property 'Category'
 
-                    $chartFileItem = Get-PieChart -SampleData $sampleData -ChartName 'StorageInfrastructure' -XField 'Category' -YField 'Value' -ChartLegendName 'Infrastructure'
-                } catch {
-                    Write-PScriboMessage -IsWarning "Storage Infrastructure chart section: $($_.Exception.Message)"
-                }
-            }
+            $OutObj | Table @TableParams
 
-            if ($OutObj) {
-                Section -Style NOTOCHeading3 -ExcludeFromTOC 'Storage Infrastructure Inventory' {
-                    if ($Options.EnableCharts -and $chartFileItem -and ($inObj.Values | Measure-Object -Sum).Sum -ne 0) {
-                        Image -Text 'Storage Infrastructure Inventory - Chart' -Align 'Center' -Percent 100 -Base64 $chartFileItem
-                    }
-                    BlankLine
-                    $OutObj | Table @TableParams
-                }
-            }
         } catch {
             Write-PScriboMessage -IsWarning "Storage Infrastructure Summary Section: $($_.Exception.Message)"
         }
