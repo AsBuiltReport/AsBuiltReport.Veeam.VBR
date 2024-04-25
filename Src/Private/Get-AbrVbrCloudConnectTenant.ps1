@@ -109,7 +109,7 @@ function Get-AbrVbrCloudConnectTenant {
                                                         }
                                                         'Expiration Date' = Switch ([string]::IsNullOrEmpty($CloudObject.LeaseExpirationDate)) {
                                                             $true { 'Never' }
-                                                            $false { $CloudObject.LeaseExpirationDate.ToLongDateString() }
+                                                            $false { $CloudObject.LeaseExpirationDate }
                                                             default { '--' }
                                                         }
                                                         'Backup Storage (Cloud Backup Repository)' = ConvertTo-TextYN $CloudObject.ResourcesEnabled
@@ -128,9 +128,18 @@ function Get-AbrVbrCloudConnectTenant {
 
                                                     $OutObj = [pscustomobject]$inobj
 
-                                                    if ($HealthCheck.Jobs.BestPractice) {
+                                                    if ($HealthCheck.CloudConnect.BestPractice) {
                                                         $OutObj | Where-Object { $Null -like $_.'Description' } | Set-Style -Style Warning -Property 'Description'
                                                         $OutObj | Where-Object { $_.'Description' -match "Created by" } | Set-Style -Style Warning -Property 'Description'
+                                                        $OutObj | Where-Object { $_.'Expiration Date' -lt (Get-Date) -and $_.'Expiration Date' -ne 'Never' } | Set-Style -Style Warning -Property 'Expiration Date'
+
+                                                        foreach ( $OBJ in ($OutObj | Where-Object { $_.'Expiration Date' -ne 'Never' })) {
+                                                            if ($OBJ | Where-Object { $_.'Expiration Date' -lt (Get-Date) }) {
+                                                                $OBJ.'Expiration Date' = $OBJ.'Expiration Date'.ToLongDateString() + ' (Expired)'
+                                                            } else {
+                                                                $OBJ.'Expiration Date' = $OBJ.'Expiration Date'.ToLongDateString()
+                                                            }
+                                                        }
                                                     }
 
                                                     $TableParams = @{
@@ -449,7 +458,7 @@ function Get-AbrVbrCloudConnectTenant {
                                                     Write-PScriboMessage -IsWarning "Licenses Utilization $($CloudObject.Name) Section: $($_.Exception.Message)"
                                                 }
                                             } catch {
-                                                Write-PScriboMessage -IsWarning "Licenses Utilization Section: $($_.Exception.Message)"
+                                                Write-PScriboMessage -IsWarning "Tenants $($CloudObject.Name) Configuration Section: $($_.Exception.Message)"
                                             }
                                         }
                                     }
