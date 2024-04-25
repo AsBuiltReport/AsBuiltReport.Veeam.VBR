@@ -98,7 +98,7 @@ function Get-AbrVbrServiceProvider {
                                                     $OutObj | Table @TableParams
                                                 }
                                             } catch {
-                                                Write-PScriboMessage -IsWarning "Service Providers General Information $($CloudProvider.DNSName) Table: $($_.Exception.Message)"
+                                                Write-PScriboMessage -IsWarning "Service Providers $($CloudProvider.DNSName) General Information Table: $($_.Exception.Message)"
                                             }
                                             if ($CloudProvider.ResourcesEnabled) {
                                                 try {
@@ -127,7 +127,7 @@ function Get-AbrVbrServiceProvider {
                                                         $OutObj | Table @TableParams
                                                     }
                                                 } catch {
-                                                    Write-PScriboMessage -IsWarning "Service Providers BaaS Resources $($CloudProvider.DNSName) Table: $($_.Exception.Message)"
+                                                    Write-PScriboMessage -IsWarning "Service Providers $($CloudProvider.DNSName) BaaS Resources Table: $($_.Exception.Message)"
                                                 }
                                             }
                                             if ($CloudProvider.ReplicationResourcesEnabled) {
@@ -180,72 +180,80 @@ function Get-AbrVbrServiceProvider {
                                                         $OutObj | Table @TableParams
                                                     }
                                                 } catch {
-                                                    Write-PScriboMessage -IsWarning "Service Providers DRaaS Resources $($CloudProvider.DNSName) Table: $($_.Exception.Message)"
+                                                    Write-PScriboMessage -IsWarning "Service Providers $($CloudProvider.DNSName) DRaaS Resources Table: $($_.Exception.Message)"
                                                 }
                                             }
-                                            $DefaultGatewayConfig = Get-VBRDefaultGatewayConfiguration | Where-Object { $_.ProviderId -eq $CloudProvider.id }
-                                            if ($DefaultGatewayConfig.DefaultGateway) {
-                                                Section -ExcludeFromTOC -Style NOTOCHeading6 'Default Gateway' {
-                                                    $OutObj = @()
-                                                    foreach ($Gateway in $DefaultGatewayConfig.DefaultGateway) {
-                                                        try {
-                                                            Write-PScriboMessage "Discovered $($Gateway.Name) Service Provider Default Gateway information."
-                                                            $inObj = [ordered] @{
-                                                                'Name' = $Gateway.Name
-                                                                'IP Address' = $Gateway.IpAddress
-                                                                'Network Mask' = $Gateway.NetworkMask
-                                                                'Routing Enabled?' = ConvertTo-TextYN $DefaultGatewayConfig.RoutingEnabled
-                                                            }
+                                            try {
+                                                $DefaultGatewayConfig = Get-VBRDefaultGatewayConfiguration | Where-Object { $_.ProviderId -eq $CloudProvider.id }
+                                                if ($DefaultGatewayConfig.DefaultGateway) {
+                                                    Section -ExcludeFromTOC -Style NOTOCHeading6 'Default Gateway Configuration ' {
+                                                        $OutObj = @()
+                                                        foreach ($Gateway in $DefaultGatewayConfig.DefaultGateway) {
+                                                            try {
+                                                                Write-PScriboMessage "Discovered $($Gateway.Name) Service Provider Default Gateway Configuration information."
+                                                                $inObj = [ordered] @{
+                                                                    'Name' = $Gateway.Name
+                                                                    'IP Address' = $Gateway.IpAddress
+                                                                    'Network Mask' = $Gateway.NetworkMask
+                                                                    'Routing Enabled?' = ConvertTo-TextYN $DefaultGatewayConfig.RoutingEnabled
+                                                                }
 
-                                                            $OutObj = [pscustomobject]$inobj
+                                                                $OutObj = [pscustomobject]$inobj
 
-                                                            $TableParams = @{
-                                                                Name = "Default Gateway - $($Gateway.Name)"
-                                                                List = $true
-                                                                ColumnWidths = 40, 60
-                                                            }
+                                                                $TableParams = @{
+                                                                    Name = "Default Gateway Configuration - $($Gateway.Name)"
+                                                                    List = $true
+                                                                    ColumnWidths = 40, 60
+                                                                }
 
-                                                            if ($Report.ShowTableCaptions) {
-                                                                $TableParams['Caption'] = "- $($TableParams.Name)"
+                                                                if ($Report.ShowTableCaptions) {
+                                                                    $TableParams['Caption'] = "- $($TableParams.Name)"
+                                                                }
+                                                                $OutObj | Table @TableParams
+                                                            } catch {
+                                                                Write-PScriboMessage -IsWarning "Service Providers $($CloudProvider.DNSName) Default Gateway Configuration Table: $($_.Exception.Message)"
                                                             }
-                                                            $OutObj | Table @TableParams
-                                                        } catch {
-                                                            Write-PScriboMessage -IsWarning "Service Providers $($Gateway.Name) Default Gateway Configuration Table: $($_.Exception.Message)"
                                                         }
                                                     }
                                                 }
+                                            } catch {
+                                                Write-PScriboMessage -IsWarning "Service Providers $($CloudProvider.DNSName) Default Gateway Section: $($_.Exception.Message)"
                                             }
-                                            $CloudSubUserConfig = Get-VBRCloudSubUser | Where-Object { $_.CloudProviderId -eq $CloudProvider.id }
-                                            if ($CloudSubUserConfig.DefaultGateway) {
-                                                Section -ExcludeFromTOC -Style NOTOCHeading6 'Default Gateway' {
-                                                    $OutObj = @()
-                                                    foreach ($Gateway in $DefaultGatewayConfig.DefaultGateway) {
-                                                        try {
-                                                            Write-PScriboMessage "Discovered $($Gateway.Name) Service Provider Default Gateway information."
-                                                            $inObj = [ordered] @{
-                                                                'Name' = $Gateway.Name
-                                                                'IP Address' = $Gateway.IpAddress
-                                                                'Network Mask' = $Gateway.NetworkMask
-                                                                'Routing Enabled?' = ConvertTo-TextYN $DefaultGatewayConfig.RoutingEnabled
-                                                            }
+                                            try {
+                                                $CloudSubUserConfig = Get-VBRCloudSubUser | Where-Object { $_.CloudProviderId -eq $CloudProvider.id }
+                                                if ($CloudSubUserConfig.DefaultGateway) {
+                                                    Section -ExcludeFromTOC -Style NOTOCHeading6 'Cloud SubUser Default Gateway' {
+                                                        $OutObj = @()
+                                                        foreach ($Gateway in $DefaultGatewayConfig.DefaultGateway) {
+                                                            try {
+                                                                Write-PScriboMessage "Discovered $($Gateway.Name) Service Provider Cloud SubUser Default Gateway information."
+                                                                $inObj = [ordered] @{
+                                                                    'Name' = $Gateway.Name
+                                                                    'IP Address' = $Gateway.IpAddress
+                                                                    'Network Mask' = $Gateway.NetworkMask
+                                                                    'Routing Enabled?' = ConvertTo-TextYN $DefaultGatewayConfig.RoutingEnabled
+                                                                }
 
-                                                            $OutObj = [pscustomobject]$inobj
+                                                                $OutObj = [pscustomobject]$inobj
 
-                                                            $TableParams = @{
-                                                                Name = "Default Gateway - $($Gateway.Name)"
-                                                                List = $true
-                                                                ColumnWidths = 40, 60
-                                                            }
+                                                                $TableParams = @{
+                                                                    Name = "Cloud SubUser Default Gateway - $($Gateway.Name)"
+                                                                    List = $true
+                                                                    ColumnWidths = 40, 60
+                                                                }
 
-                                                            if ($Report.ShowTableCaptions) {
-                                                                $TableParams['Caption'] = "- $($TableParams.Name)"
+                                                                if ($Report.ShowTableCaptions) {
+                                                                    $TableParams['Caption'] = "- $($TableParams.Name)"
+                                                                }
+                                                                $OutObj | Table @TableParams
+                                                            } catch {
+                                                                Write-PScriboMessage -IsWarning "Service Providers $($CloudProvider.DNSName) Cloud SubUser Cloud SubUser Default Gateway Table: $($_.Exception.Message)"
                                                             }
-                                                            $OutObj | Table @TableParams
-                                                        } catch {
-                                                            Write-PScriboMessage -IsWarning "Service Providers $($Gateway.Name) Cloud SubUser Default Gateway Table: $($_.Exception.Message)"
                                                         }
                                                     }
                                                 }
+                                            } catch {
+                                                Write-PScriboMessage -IsWarning "Service Providers $($CloudProvider.DNSName) Cloud SubUser Default Gateway Section: $($_.Exception.Message)"
                                             }
                                         }
                                     }
