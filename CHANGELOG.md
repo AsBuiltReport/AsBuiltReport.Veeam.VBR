@@ -22,10 +22,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- [#151](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/151)
-- [#150](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/150)
-- [#149](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/149)
-
+- Fix [#149](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/149)
+- Fix [#151](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/151)
+- Fix [#150](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/150)
 
 ### Removed
 
