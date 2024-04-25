@@ -6,7 +6,7 @@ function Get-AbrVbrScaleOutRepository {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.5
+        Version:        0.8.6
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -219,10 +219,8 @@ function Get-AbrVbrScaleOutRepository {
                                                     $OutObj | Table @TableParams
                                                     if ($BackupRepo.OffloadWindowOptions) {
                                                         Section -Style NOTOCHeading6 -ExcludeFromTOC "Offload Window Time Period" {
-                                                            Paragraph {
-                                                                Text 'Permited \' -Color 81BC50 -Bold
-                                                                Text ' Denied' -Color dddf62 -Bold
-                                                            }
+                                                            Paragraph -ScriptBlock $Legend
+
                                                             $OutObj = @()
                                                             try {
                                                                 $OutObj = Get-WindowsTimePeriod -InputTimePeriod $BackupRepo.OffloadWindowOptions

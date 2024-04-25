@@ -52,10 +52,11 @@ function Get-AbrVbrBackupjob {
                 }
 
                 if ($HealthCheck.Jobs.Status) {
-                    $BackupJobsStatus | Where-Object { $_.'Latest Result' -eq 'Failed' } | Set-Style -Style Critical -Property 'Latest Result'
-                    $BackupJobsStatus | Where-Object { $_.'Latest Result' -eq 'Warning' } | Set-Style -Style Warning -Property 'Latest Result'
-                    $BackupJobsStatus | Where-Object { $_.'Status' -eq 'Disabled' } | Set-Style -Style Warning -Property 'Status'
-                    $BackupJobsStatus | Where-Object { $_.'Scheduled?' -eq 'No' } | Set-Style -Style Warning -Property 'Scheduled?'
+                    $OutObj | Where-Object { $_.'Latest Result' -eq 'Failed' } | Set-Style -Style Critical -Property 'Latest Result'
+                    $OutObj | Where-Object { $_.'Latest Result' -eq 'Warning' } | Set-Style -Style Warning -Property 'Latest Result'
+                    $OutObj | Where-Object { $_.'Latest Result' -eq 'Success' } | Set-Style -Style Ok -Property 'Latest Result'
+                    $OutObj | Where-Object { $_.'Status' -eq 'Disabled' } | Set-Style -Style Warning -Property 'Status'
+                    $OutObj | Where-Object { $_.'Scheduled?' -eq 'No' } | Set-Style -Style Warning -Property 'Scheduled?'
                 }
 
                 $TableParams = @{
@@ -78,16 +79,16 @@ function Get-AbrVbrBackupjob {
                         $Alljobs += (Get-VBRSureBackupJob -ErrorAction SilentlyContinue).LastResult
                     }
 
-                    $sampleData = @{
+                    $sampleData = [ordered]@{
                         'Success' = ($Alljobs | Where-Object { $_ -eq "Success" } | Measure-Object).Count
                         'Warning' = ($Alljobs | Where-Object { $_ -eq "Warning" } | Measure-Object).Count
                         'Failed' = ($Alljobs | Where-Object { $_ -eq "Failed" } | Measure-Object).Count
                         'None' = ($Alljobs | Where-Object { $_ -eq "None" } | Measure-Object).Count
                     }
 
-                    $sampleDataObj = $sampleData.GetEnumerator() | Select-Object @{ Name = 'Category'; Expression = { $_.key } }, @{ Name = 'Value'; Expression = { $_.value } } | Sort-Object -Property 'Category'
+                    $sampleDataObj = $sampleData.GetEnumerator() | Select-Object @{ Name = 'Category'; Expression = { $_.key } }, @{ Name = 'Value'; Expression = { $_.value } }
 
-                    $chartFileItem = Get-ColumnChart -SampleData $sampleDataObj -ChartName 'BackupJobs' -XField 'Category' -YField 'Value' -ChartAreaName 'Infrastructure' -AxisXTitle 'Status' -AxisYTitle 'Count' -ChartTitleName 'BackupJobs' -ChartTitleText 'Jobs Latest Result'
+                    $chartFileItem = Get-ColumnChart -Status -SampleData $sampleDataObj -ChartName 'BackupJobs' -XField 'Category' -YField 'Value' -ChartAreaName 'Infrastructure' -AxisXTitle 'Status' -AxisYTitle 'Count' -ChartTitleName 'BackupJobs' -ChartTitleText 'Jobs Latest Result'
 
                 } catch {
                     Write-PScriboMessage -IsWarning "Backup Jobs chart section: $($_.Exception.Message)"

@@ -6,7 +6,7 @@ function Get-AbrVbrBackupRepository {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.5
+        Version:        0.8.6
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -49,6 +49,7 @@ function Get-AbrVbrBackupRepository {
                             'Total Space' = "$($BackupRepo.GetContainer().CachedTotalSpace.InGigabytes) Gb"
                             'Free Space' = "$($BackupRepo.GetContainer().CachedFreeSpace.InGigabytes) Gb"
                             'Used Space %' = $PercentFree
+                            'Free Space %' = 100 - $PercentFree
                             'Status' = Switch ($BackupRepo.IsUnavailable) {
                                 'False' { 'Available' }
                                 'True' { 'Unavailable' }
@@ -70,30 +71,101 @@ function Get-AbrVbrBackupRepository {
                 $TableParams = @{
                     Name = "Backup Repository - $VeeamBackupServer"
                     List = $false
-                    ColumnWidths = 30, 18, 18, 19, 15
+                    Columns = 'Name', 'Total Space', 'Free Space', 'Used Space %', 'Status'
+                    ColumnWidths = 47, 12, 12, 17, 12
                 }
                 if ($Report.ShowTableCaptions) {
                     $TableParams['Caption'] = "- $($TableParams.Name)"
-                }
-                if ($Options.EnableCharts) {
-                    try {
-                        $sampleData = $OutObj | Select-Object -Property 'Name', 'Used Space %'
-
-                        $chartFileItem = Get-PieChart -SampleData $sampleData -ChartName 'BackupRepository' -XField 'Name' -YField 'Used Space %' -ChartLegendName 'Backup Repository' -ChartTitleName 'UsedSpace' -ChartTitleText 'Percentage of Used Space'
-                    } catch {
-                        Write-PScriboMessage -IsWarning "Backup Repository chart section: $($_.Exception.Message)"
-                    }
                 }
 
                 if ($OutObj) {
                     Section -Style Heading3 'Backup Repository' {
                         Paragraph "The following section provides Backup Repository summary information."
                         BlankLine
-                        if ($Options.EnableCharts -and $chartFileItem) {
+                        try {
+                            $sampleData = $OutObj | Select-Object Name, 'Used Space %', 'Free Space %'
+
+                            $CustomPalette = @(
+                                [System.Drawing.ColorTranslator]::FromHtml('#565656')
+                                [System.Drawing.ColorTranslator]::FromHtml('#DFF0D0')
+                            )
+
+                            $CustomPalette1 = @(
+                                [System.Drawing.ColorTranslator]::FromHtml('#565656')
+
+                            )
+                            $CustomPalette2 = @(
+                                [System.Drawing.ColorTranslator]::FromHtml('#DFF0D0')
+                            )
+
+                            $exampleChart = New-Chart -Name BKRepo -Width 600 -Height 600 -BorderStyle Dash -BorderWidth 1 -CustomPalette $CustomPalette -BorderColor DarkGreen
+
+                            $addChartAreaParams = @{
+                                Chart = $exampleChart
+                                Name = 'exampleChartArea'
+                                AxisXTitle = 'Backup Repositories'
+                                AxisYTitle = '%'
+                                NoAxisXMajorGridLines = $true
+                                NoAxisYMajorGridLines = $true
+                                AxisXLabelFont = New-Object -TypeName 'System.Drawing.Font' -ArgumentList @('Segoe Ui', '8')
+                                AxisXTitleFont = New-Object -TypeName 'System.Drawing.Font' -ArgumentList @('Segoe Ui', '10')
+                                AxisYLabelFont = New-Object -TypeName 'System.Drawing.Font' -ArgumentList @('Segoe Ui', '8')
+                                AxisYTitleFont = New-Object -TypeName 'System.Drawing.Font' -ArgumentList @('Segoe Ui', '10')
+                                NoAxisYMargin = $true
+                                AxisXInterval = 1
+                            }
+                            $exampleChartArea = Add-ChartArea @addChartAreaParams -PassThru
+
+                            $addChartSeriesParams = @{
+                                Chart = $exampleChart
+                                ChartArea = $exampleChartArea
+                                XField = 'Name'
+                                ColorPerDataPoint = $true
+                            }
+
+                            $sampleData | Add-StackedBarChartSeries @addChartSeriesParams -Name 'USEDSPACE' -YField 'Used Space %' -LegendText 'Used' -CustomPalette $CustomPalette1 -LabelForeColor 'White'
+                            $sampleData | Add-StackedBarChartSeries @addChartSeriesParams -Name 'FREESPACE' -YField 'Free Space %' -LegendText 'Free' -CustomPalette $CustomPalette2
+                            $addChartTitleParams = @{
+                                Chart = $exampleChart
+                                ChartArea = $exampleChartArea
+                                Name = 'PercentUsedSpace'
+                                Text = '% Space Utilization'
+                                Font = New-Object -TypeName 'System.Drawing.Font' -ArgumentList @('Segoe Ui', '12', [System.Drawing.FontStyle]::Bold)
+                            }
+
+                            Add-ChartTitle @addChartTitleParams
+
+                            $addChartLegendParams = @{
+                                Chart = $exampleChart
+                                Name = 'Repository Utilization'
+                                TitleAlignment = 'Center'
+                                Style = 'Row'
+                                Font = New-Object -TypeName 'System.Drawing.Font' -ArgumentList @('Segoe Ui', '8')
+                                Dock = 'Bottom'
+                            }
+                            Add-ChartLegend @addChartLegendParams
+
+                            $TempPath = Resolve-Path ([System.IO.Path]::GetTempPath())
+
+                            $ChartImage = Export-Chart -Chart $exampleChart -Path $TempPath.Path -Format "PNG" -PassThru
+
+                            try {
+                                $chartFileItem = [convert]::ToBase64String((Get-Content $ChartImage -Encoding byte))
+                            } catch {
+                                Write-PScriboMessage -IsWarning "Backup Repository Base64String: $($_.Exception.Message)"
+                            }
+
+                            Remove-Item -Path $ChartImage.FullName
+                        } catch {
+                            Write-PScriboMessage -IsWarning "Backup Repository graph Section: $($_.Exception.Message)"
+                        }
+
+                        if ($chartFileItem) {
                             Image -Text 'Backup Repository - Chart' -Align 'Center' -Percent 100 -Base64 $chartFileItem
                         }
+
                         BlankLine
-                        $OutObj | Sort-Object -Property 'Name' | Table @TableParams
+                        $OutObj | Sort-Object -Property 'Used Space %' | Table @TableParams
                         #---------------------------------------------------------------------------------------------#
                         #                        Backup Repository Configuration Section                              #
                         #---------------------------------------------------------------------------------------------#

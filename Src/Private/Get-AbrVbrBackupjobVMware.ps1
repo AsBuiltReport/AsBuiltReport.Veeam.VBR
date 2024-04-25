@@ -6,7 +6,7 @@ function Get-AbrVbrBackupjobVMware {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.5
+        Version:        0.8.6
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -801,10 +801,7 @@ function Get-AbrVbrBackupjobVMware {
                                             if ($Bkjob.ScheduleOptions.OptionsBackupWindow.IsEnabled -or $Bkjob.ScheduleOptions.OptionsContinuous.Enabled) {
                                                 try {
                                                     Section -Style NOTOCHeading6 -ExcludeFromTOC "Backup Window Time Period" {
-                                                        Paragraph {
-                                                            Text 'Permited \' -Color 81BC50 -Bold
-                                                            Text ' Denied' -Color dddf62 -Bold
-                                                        }
+                                                        Paragraph -ScriptBlock $Legend
 
                                                         $ScheduleTimePeriod = @()
                                                         $Days = 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'

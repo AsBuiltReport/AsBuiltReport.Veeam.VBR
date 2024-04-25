@@ -96,6 +96,8 @@ function Get-AbrVbrSecurityCompliance {
 
             if ($HealthCheck.Security.BestPractice) {
                 $OutObj | Where-Object { $_.'Status' -eq 'Not Implemented' } | Set-Style -Style Critical -Property 'Status'
+                $OutObj | Where-Object { $_.'Status' -eq 'Passed' } | Set-Style -Style Ok -Property 'Status'
+                $OutObj | Where-Object { $_.'Status' -eq 'Unable to detect' } | Set-Style -Style Warning -Property 'Status'
             }
 
             $TableParams = @{
@@ -109,16 +111,16 @@ function Get-AbrVbrSecurityCompliance {
 
             try {
 
-                $sampleData = @{
+                $sampleData = [ordered]@{
                     'Passed' = ($OutObj.status | Where-Object { $_ -eq "Passed" } | Measure-Object).Count
-                    'Not Implemented' = ($OutObj.status | Where-Object { $_ -eq "Not Implemented" } | Measure-Object).Count
                     'Unable to detect' = ($OutObj.status | Where-Object { $_ -eq "Unable to detect" } | Measure-Object).Count
+                    'Not Implemented' = ($OutObj.status | Where-Object { $_ -eq "Not Implemented" } | Measure-Object).Count
                     'Suppressed' = ($OutObj.status | Where-Object { $_ -eq "Suppressed" } | Measure-Object).Count
                 }
 
-                $sampleDataObj = $sampleData.GetEnumerator() | Select-Object @{ Name = 'Category'; Expression = { $_.key } }, @{ Name = 'Value'; Expression = { $_.value } } | Sort-Object -Property 'Category'
+                $sampleDataObj = $sampleData.GetEnumerator() | Select-Object @{ Name = 'Category'; Expression = { $_.key } }, @{ Name = 'Value'; Expression = { $_.value } }
 
-                $chartFileItem = Get-ColumnChart -SampleData $sampleDataObj -ChartName 'SecurityCompliance' -XField 'Category' -YField 'Value' -ChartAreaName 'Infrastructure' -AxisXTitle 'Status' -AxisYTitle 'Count' -ChartTitleName 'SecurityCompliance' -ChartTitleText 'Best Practices'
+                $chartFileItem = Get-ColumnChart -Status -SampleData $sampleDataObj -ChartName 'SecurityCompliance' -XField 'Category' -YField 'Value' -ChartAreaName 'Infrastructure' -AxisXTitle 'Status' -AxisYTitle 'Count' -ChartTitleName 'SecurityCompliance' -ChartTitleText 'Best Practice'
 
             } catch {
                 Write-PScriboMessage -IsWarning "Security & Compliance chart section: $($_.Exception.Message)"
@@ -126,7 +128,7 @@ function Get-AbrVbrSecurityCompliance {
 
             if ($OutObj) {
                 Section -Style NOTOCHeading4 -ExcludeFromTOC 'Security & Compliance' {
-                    if ($Options.EnableCharts -and $chartFileItem -and ($OutObj.count | Measure-Object -Sum).Sum -ne 0) {
+                    if ($chartFileItem -and ($OutObj.count | Measure-Object -Sum).Sum -ne 0) {
                         Image -Text 'Security & Compliance - Chart' -Align 'Center' -Percent 100 -Base64 $chartFileItem
                     }
                     BlankLine

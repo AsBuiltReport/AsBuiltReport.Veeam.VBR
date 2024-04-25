@@ -43,25 +43,7 @@ function Get-AbrVbrReplInfraSummary {
             if ($Report.ShowTableCaptions) {
                 $TableParams['Caption'] = "- $($TableParams.Name)"
             }
-            if ($Options.EnableCharts) {
-                try {
-                    $sampleData = $inObj.GetEnumerator() | Select-Object @{ Name = 'Category'; Expression = { $_.key } }, @{ Name = 'Value'; Expression = { $_.value } } | Sort-Object -Property 'Category'
-
-                    $chartFileItem = Get-PieChart -SampleData $sampleData -ChartName 'ReplicationInventory' -XField 'Category' -YField 'Value' -ChartLegendName 'Infrastructure'
-                } catch {
-                    Write-PScriboMessage -IsWarning "Replication Inventory chart section: $($_.Exception.Message)"
-                }
-            }
-
-            if ($OutObj) {
-                Section -Style NOTOCHeading4 -ExcludeFromTOC 'Replication Inventory' {
-                    if ($Options.EnableCharts -and $chartFileItem -and ($inObj.Values | Measure-Object -Sum).Sum -ne 0) {
-                        Image -Text 'Replication Inventory - Chart' -Align 'Center' -Percent 100 -Base64 $chartFileItem
-                    }
-                    BlankLine
-                    $OutObj | Table @TableParams
-                }
-            }
+            $OutObj | Table @TableParams
         } catch {
             Write-PScriboMessage -IsWarning "Replication Summary Section: $($_.Exception.Message)"
         }

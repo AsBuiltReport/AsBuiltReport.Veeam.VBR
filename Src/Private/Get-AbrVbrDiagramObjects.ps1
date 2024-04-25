@@ -94,7 +94,7 @@ function Get-VbrBackupServerInfo {
         try {
             $CimSession = New-CimSession $BackupServers.Name -Credential $Credential -Authentication Negotiate
             $PssSession = New-PSSession $BackupServers.Name -Credential $Credential -Authentication Negotiate
-            Write-Verbose -Message "Collecting Backup Server information from $($BackupServers.Name)."
+            Write-PScriboMessage "Collecting Backup Server information from $($BackupServers.Name)."
             try {
                 $VeeamVersion = Invoke-Command -Session $PssSession -ErrorAction SilentlyContinue -ScriptBlock { Get-ChildItem -Recurse HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall | Get-ItemProperty | Where-Object { $_.DisplayName -match 'Veeam Backup & Replication Server' } | Select-Object -Property DisplayVersion }
             } catch { $_ }
@@ -219,7 +219,7 @@ function Get-VbrBackupServerInfo {
     }
 }
 
-function Get-DiagBackupServer {
+function Get-VbrBackupSvrDiagramObj {
     <#
     .SYNOPSIS
         Function to build Backup Server object.
@@ -243,7 +243,7 @@ function Get-DiagBackupServer {
         try {
             SubGraph BackupServer -Attributes @{Label = 'Management'; labelloc = 'b'; labeljust = "r"; style = "rounded"; bgcolor = "#ceedc4"; fontcolor = '#005f4b'; fontsize = 18; penwidth = 2 } {
                 if (($DatabaseServerInfo.Name -ne $BackupServerInfo.Name) -and $EMServerInfo) {
-                    Write-Verbose -Message "Collecting Backup Server, Database Server and Enterprise Manager Information."
+                    Write-PScriboMessage "Collecting Backup Server, Database Server and Enterprise Manager Information."
                     $BSHASHTABLE = @{}
                     $DBHASHTABLE = @{}
                     $EMHASHTABLE = @{}
@@ -266,7 +266,7 @@ function Get-DiagBackupServer {
                         Edge -From $BackupServerInfo.Name -To $DatabaseServerInfo.Name @{arrowtail = "normal"; arrowhead = "normal"; minlen = 3; xlabel = $DatabaseServerInfo.DBPort }
                     }
                 } elseif (($DatabaseServerInfo.Name -ne $BackupServerInfo.Name) -and (-Not $EMServerInfo)) {
-                    Write-Verbose -Message "Not Enterprise Manager Found: Collecting Backup Server and Database server Information."
+                    Write-PScriboMessage "Not Enterprise Manager Found: Collecting Backup Server and Database server Information."
                     $BSHASHTABLE = @{}
                     $DBHASHTABLE = @{}
 
@@ -284,7 +284,7 @@ function Get-DiagBackupServer {
                         Edge -From $BackupServerInfo.Name -To $DatabaseServerInfo.Name @{arrowtail = "normal"; arrowhead = "normal"; minlen = 3; xlabel = $DatabaseServerInfo.DBPort }
                     }
                 } elseif ($EMServerInfo -and ($DatabaseServerInfo.Name -eq $BackupServerInfo.Name)) {
-                    Write-Verbose -Message "Database server colocated with Backup Server: Collecting Backup Server and Enterprise Manager Information."
+                    Write-PScriboMessage "Database server colocated with Backup Server: Collecting Backup Server and Enterprise Manager Information."
                     $BSHASHTABLE = @{}
                     $EMHASHTABLE = @{}
 
@@ -302,7 +302,7 @@ function Get-DiagBackupServer {
                         Edge -From $BackupServerInfo.Name -To $EMServerInfo.Name @{arrowtail = "normal"; arrowhead = "normal"; minlen = 3; }
                     }
                 } else {
-                    Write-Verbose -Message "Database server colocated with Backup Server and no Enterprise Manager found: Collecting Backup Server Information."
+                    Write-PScriboMessage "Database server colocated with Backup Server and no Enterprise Manager found: Collecting Backup Server Information."
                     $BSHASHTABLE = @{}
                     $BackupServerInfo.psobject.properties | ForEach-Object { $BSHASHTABLE[$_.Name] = $_.Value }
                     Node Left @{Label = 'Left'; style = $EdgeDebug.style; color = $EdgeDebug.color; shape = 'plain'; fillColor = 'transparent'; fontsize = 14; fontname = "Tahoma" }
@@ -321,144 +321,177 @@ function Get-DiagBackupServer {
 }
 
 # Proxy Graphviz Cluster
-$script:Proxies = @()
-$Proxies += Get-VBRViProxy
-$Proxies += Get-VBRHvProxy
+function Get-VbrProxyInfo {
+    param (
+    )
+    try {
+        Write-PScriboMessage "Collecting Proxy information from $VeeamBackupServer."
+        $Proxies = @()
+        $Proxies += Get-VBRViProxy
+        $Proxies += Get-VBRHvProxy
 
-if ($Proxies) {
-    if ($Options.DiagramObjDebug) {
-        $Proxies = $ProxiesDebug
-    }
-    $script:ProxiesInfo = @()
-
-    $Proxies | ForEach-Object {
-        $inobj = [ordered] @{
-            'Type' = Switch ($_.Type) {
-                'Vi' { 'vSphere' }
-                'HvOffhost' { 'Off host' }
-                'HvOnhost' { 'On host' }
-                default { $_.Type }
+        if ($Proxies) {
+            if ($Options.DiagramObjDebug) {
+                $Proxies = $ProxiesDebug
             }
-            'Max Tasks' = $_.Options.MaxTasksCount
+
+            $ProxiesInfo = @()
+
+            $Proxies | ForEach-Object {
+                $inobj = [ordered] @{
+                    'Type' = Switch ($_.Type) {
+                        'Vi' { 'vSphere' }
+                        'HvOffhost' { 'Off host' }
+                        'HvOnhost' { 'On host' }
+                        default { $_.Type }
+                    }
+                    'Max Tasks' = $_.Options.MaxTasksCount
+                }
+
+                $TempProxyInfo = [PSCustomObject]@{
+                    Name = $_.Host.Name
+                    AditionalInfo = $inobj
+                }
+
+                $ProxiesInfo += $TempProxyInfo
+            }
         }
-        $ProxiesInfo += $inobj
+
+        return $ProxiesInfo
+
+    } catch {
+        $_
     }
+
 }
 
 # Repositories Graphviz Cluster
-[Array]$script:Repositories = Get-VBRBackupRepository | Where-Object { $_.Type -notin @("SanSnapshotOnly", "AmazonS3Compatible", "WasabiS3") } | Sort-Object -Property Name
-[Array]$ScaleOuts = Get-VBRBackupRepository -ScaleOut | Sort-Object -Property Name
-if ($ScaleOuts) {
-    $Extents = Get-VBRRepositoryExtent -Repository $ScaleOuts | Sort-Object -Property Name
-    $Repositories += $Extents.Repository
-}
-if ($Repositories) {
-    $script:RepositoriesInfo = @()
+function Get-VbrRepositoryInfo {
+    param (
+    )
 
-    foreach ($Repository in $Repositories) {
-        $Role = Get-RoleType -String $Repository.Type
-
-        $Rows = @{}
-
-        if ($Role -like '*Local' -or $Role -like 'Cloud') {
-            $Rows.add('Server', $Repository.Host.Name.Split('.')[0])
-            $Rows.add('Repo Type', $Role)
-            # $Rows.add('Path', $Repository.FriendlyPath)
-            $Rows.add('Total Space', "$(($Repository).GetContainer().CachedTotalSpace.InGigabytes) GB")
-            $Rows.add('Used Space', "$(($Repository).GetContainer().CachedFreeSpace.InGigabytes) GB")
-        } elseif ($Role -like 'Dedup*') {
-            $Rows.add('Repo Type', $Role)
-            $Rows.add('Total Space', "$(($Repository).GetContainer().CachedTotalSpace.InGigabytes) GB")
-            $Rows.add('Used Space', "$(($Repository).GetContainer().CachedFreeSpace.InGigabytes) GB")
-        }
-
-        if (($Role -ne 'Dedup Appliances') -and ($Role -ne 'SAN') -and ($Repository.Host.Name -in $ViBackupProxy.Host.Name -or $Repository.Host.Name -in $HvBackupProxy.Host.Name)) {
-            $BackupType = 'Proxy'
-        } else { $BackupType = $Repository.Type }
-
-        $IconType = Get-IconType -String $BackupType
-
-        $TempBackupRepoInfo = [PSCustomObject]@{
-            Name = "$((Remove-SpecialChar -String $Repository.Name -SpecialChars '\').toUpper()) "
-            Rows = $Rows
-            IconType = $IconType
-        }
-
-        $RepositoriesInfo += $TempBackupRepoInfo
+    [Array]$script:Repositories = Get-VBRBackupRepository | Where-Object { $_.Type -notin @("SanSnapshotOnly", "AmazonS3Compatible", "WasabiS3") } | Sort-Object -Property Name
+    [Array]$ScaleOuts = Get-VBRBackupRepository -ScaleOut | Sort-Object -Property Name
+    if ($ScaleOuts) {
+        $Extents = Get-VBRRepositoryExtent -Repository $ScaleOuts | Sort-Object -Property Name
+        $Repositories += $Extents.Repository
     }
+    if ($Repositories) {
+        $script:RepositoriesInfo = @()
+
+        foreach ($Repository in $Repositories) {
+            $Role = Get-RoleType -String $Repository.Type
+
+            $Rows = @{}
+
+            if ($Role -like '*Local' -or $Role -like 'Cloud') {
+                $Rows.add('Server', $Repository.Host.Name.Split('.')[0])
+                $Rows.add('Repo Type', $Role)
+                # $Rows.add('Path', $Repository.FriendlyPath)
+                $Rows.add('Total Space', "$(($Repository).GetContainer().CachedTotalSpace.InGigabytes) GB")
+                $Rows.add('Used Space', "$(($Repository).GetContainer().CachedFreeSpace.InGigabytes) GB")
+            } elseif ($Role -like 'Dedup*') {
+                $Rows.add('Repo Type', $Role)
+                $Rows.add('Total Space', "$(($Repository).GetContainer().CachedTotalSpace.InGigabytes) GB")
+                $Rows.add('Used Space', "$(($Repository).GetContainer().CachedFreeSpace.InGigabytes) GB")
+            }
+
+            if (($Role -ne 'Dedup Appliances') -and ($Role -ne 'SAN') -and ($Repository.Host.Name -in $ViBackupProxy.Host.Name -or $Repository.Host.Name -in $HvBackupProxy.Host.Name)) {
+                $BackupType = 'Proxy'
+            } else { $BackupType = $Repository.Type }
+
+            $IconType = Get-IconType -String $BackupType
+
+            $TempBackupRepoInfo = [PSCustomObject]@{
+                Name = "$((Remove-SpecialChar -String $Repository.Name -SpecialChars '\').toUpper()) "
+                Rows = $Rows
+                IconType = $IconType
+            }
+
+            $RepositoriesInfo += $TempBackupRepoInfo
+        }
+    }
+
 }
 
 # Object Repositories Graphviz Cluster
-$script:ObjectRepositories = Get-VBRObjectStorageRepository
-$script:ArchObjStorages = Get-VBRArchiveObjectStorageRepository
-if ($ObjectRepositories -or $ArchObjStorages) {
+function Get-VbrObjectRepoyInfo {
+    param (
+    )
 
-    $script:ObjectRepositoriesInfo = @()
-    $script:ArchObjRepositoriesInfo = @()
+    $script:ObjectRepositories = Get-VBRObjectStorageRepository
+    $script:ArchObjStorages = Get-VBRArchiveObjectStorageRepository
+    if ($ObjectRepositories -or $ArchObjStorages) {
 
-    $ObjectRepositories | ForEach-Object {
-        $inobj = @{
-            'Type' = $_.Type
-            'Folder' = & {
-                if ($_.AmazonS3Folder) {
-                    $_.AmazonS3Folder
-                } elseif ($_.AzureBlobFolder) {
-                    $_.AzureBlobFolder
-                } else { 'Unknown' }
-            }
-            'Gateway' = & {
-                if (-Not $_.UseGatewayServer) {
-                    Switch ($_.ConnectionType) {
-                        'Gateway' {
-                            switch (($_.GatewayServer | Measure-Object).count) {
-                                0 { "Disable" }
-                                1 { $_.GatewayServer.Name.Split('.')[0] }
-                                Default { 'Automatic' }
+        $script:ObjectRepositoriesInfo = @()
+        $script:ArchObjRepositoriesInfo = @()
+
+        $ObjectRepositories | ForEach-Object {
+            $inobj = @{
+                'Type' = $_.Type
+                'Folder' = & {
+                    if ($_.AmazonS3Folder) {
+                        $_.AmazonS3Folder
+                    } elseif ($_.AzureBlobFolder) {
+                        $_.AzureBlobFolder
+                    } else { 'Unknown' }
+                }
+                'Gateway' = & {
+                    if (-Not $_.UseGatewayServer) {
+                        Switch ($_.ConnectionType) {
+                            'Gateway' {
+                                switch (($_.GatewayServer | Measure-Object).count) {
+                                    0 { "Disable" }
+                                    1 { $_.GatewayServer.Name.Split('.')[0] }
+                                    Default { 'Automatic' }
+                                }
                             }
+                            'Direct' { 'Direct' }
+                            default { 'Unknown' }
                         }
-                        'Direct' { 'Direct' }
-                        default { 'Unknown' }
-                    }
-                } else {
-                    switch (($_.GatewayServer | Measure-Object).count) {
-                        0 { "Disable" }
-                        1 { $_.GatewayServer.Name.Split('.')[0] }
-                        Default { 'Automatic' }
+                    } else {
+                        switch (($_.GatewayServer | Measure-Object).count) {
+                            0 { "Disable" }
+                            1 { $_.GatewayServer.Name.Split('.')[0] }
+                            Default { 'Automatic' }
+                        }
                     }
                 }
             }
+            $ObjectRepositoriesInfo += $inobj
         }
-        $ObjectRepositoriesInfo += $inobj
-    }
 
-    $ArchObjStorages | ForEach-Object {
-        $inobj = @{
-            Type = $_.ArchiveType
-            Gateway = & {
-                if (-Not $_.UseGatewayServer) {
-                    Switch ($_.GatewayMode) {
-                        'Gateway' {
-                            switch (($_.GatewayServer | Measure-Object).count) {
-                                0 { "Disable" }
-                                1 { $_.GatewayServer.Name.Split('.')[0] }
-                                Default { 'Automatic' }
+        $ArchObjStorages | ForEach-Object {
+            $inobj = @{
+                Type = $_.ArchiveType
+                Gateway = & {
+                    if (-Not $_.UseGatewayServer) {
+                        Switch ($_.GatewayMode) {
+                            'Gateway' {
+                                switch (($_.GatewayServer | Measure-Object).count) {
+                                    0 { "Disable" }
+                                    1 { $_.GatewayServer.Name.Split('.')[0] }
+                                    Default { 'Automatic' }
+                                }
                             }
+                            'Direct' { 'Direct' }
+                            default { 'Unknown' }
                         }
-                        'Direct' { 'Direct' }
-                        default { 'Unknown' }
-                    }
-                } else {
-                    switch (($_.GatewayServer | Measure-Object).count) {
-                        0 { "Disable" }
-                        1 { $_.GatewayServer.Name.Split('.')[0] }
-                        Default { 'Automatic' }
+                    } else {
+                        switch (($_.GatewayServer | Measure-Object).count) {
+                            0 { "Disable" }
+                            1 { $_.GatewayServer.Name.Split('.')[0] }
+                            Default { 'Automatic' }
+                        }
                     }
                 }
             }
+            $ArchObjRepositoriesInfo += $inobj
         }
-        $ArchObjRepositoriesInfo += $inobj
     }
+
 }
+
 function Get-VBRDebugObject {
 
     [CmdletBinding()]

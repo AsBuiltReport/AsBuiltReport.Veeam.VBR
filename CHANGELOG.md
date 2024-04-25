@@ -9,7 +9,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Added Backup Infrastructure Diagram
+- Add Backup Infrastructure Diagram
+
+### Changed
+
+- Increase AsBuiltReport.Core modules to v1.4.0
+- Migrate NOTOCHeading3 to NOTOCHeading4 to fix section heading
+- Change charts palette to follow new AsBuiltReport.Core theme
+
+
+### Fixed
+
+- [#151](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/151)
+- [#150](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/150)
+- [#149](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/149)
+
+
+### Removed
+
+- Remove EnableCharts option.
+- Remove Infrastructure Charts
 
 ## [0.8.5] - 2024-03-15
 

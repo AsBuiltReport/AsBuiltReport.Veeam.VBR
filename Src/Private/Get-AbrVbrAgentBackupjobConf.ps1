@@ -6,7 +6,7 @@ function Get-AbrVbrAgentBackupjobConf {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.5
+        Version:        0.8.6
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -710,10 +710,7 @@ function Get-AbrVbrAgentBackupjobConf {
                                                     if ($ABkjob.ScheduleOptions.BackupTerminationWindowEnabled) {
                                                         try {
                                                             Section -Style NOTOCHeading6 -ExcludeFromTOC "Backup Window Time Period" {
-                                                                Paragraph {
-                                                                    Text 'Permited \' -Color 81BC50 -Bold
-                                                                    Text ' Denied' -Color dddf62 -Bold
-                                                                }
+                                                                Paragraph -ScriptBlock $Legend
 
                                                                 $OutObj = Get-WindowsTimePeriod -InputTimePeriod $ABkjob.ScheduleOptions.TerminationWindow
 

@@ -355,27 +355,28 @@ function Get-AbrVbrDiagram {
                         # Get Veeam Backup Server Infrastructure Information
                         # This create the Backup Server, Database and Enterprise Manager Objects
                         # Here Veeam Pwershell Module are used to retreive the information
-                        Get-VbrBackupServerInfo
+                        Get-VBRBackupServerInfo
 
                         # Build Backup Server Cluster
-                        Get-DiagBackupServer
+                        Get-VbrBackupSvrDiagramObj
 
                         # Proxy Graphviz Cluster
+                        $Proxies = Get-VbrProxyInfo
                         if ($Proxies) {
 
                             SubGraph ProxyServer -Attributes @{Label = (Get-DiaHTMLLabel -ImagesObj $Images -Label "Backup Proxies" -IconType "VBR_Proxy" -SubgraphLabel -IconDebug $IconDebug); fontsize = 18; penwidth = 1.5; labelloc = 'b'; style = 'dashed,rounded' } {
 
-                                if ($Proxies | Where-Object { $_.Type -eq "Vi" }) {
+                                if ($Proxies | Where-Object { $_.AditionalInfo.Type -eq "vSphere" }) {
                                     SubGraph ViProxyServer -Attributes @{Label = (Get-DiaHTMLLabel -ImagesObj $Images -Label "VMware Proxies" -IconType "VBR_vSphere" -SubgraphLabel -IconDebug $IconDebug); fontsize = 18; penwidth = 1.5; labelloc = 'b'; style = 'dashed,rounded' } {
 
-                                        Node ViProxies @{Label = (Get-DiaHTMLNodeTable -ImagesObj $Images -inputObject (($Proxies | Where-Object { $_.Type -eq "Vi" }).Host.Name | ForEach-Object { $_.split('.')[0] }) -Align "Center" -iconType "VBR_Proxy_Server" -columnSize 3 -IconDebug $IconDebug -MultiIcon -AditionalInfo ($ProxiesInfo | Where-Object { $_.Type -eq "vSphere" })); shape = 'plain'; fillColor = 'transparent'; fontsize = 14; fontname = "Tahoma" }
+                                        Node ViProxies @{Label = (Get-DiaHTMLNodeTable -ImagesObj $Images -inputObject (($Proxies.AditionalInfo | Where-Object { $_.AditionalInfo.Type -eq "vSphere" }) | ForEach-Object { $_.Name.split('.')[0] }) -Align "Center" -iconType "VBR_Proxy_Server" -columnSize 3 -IconDebug $IconDebug -MultiIcon -AditionalInfo ($Proxies.AditionalInfo | Where-Object { $_.Type -eq "vSphere" })); shape = 'plain'; fillColor = 'transparent'; fontsize = 14; fontname = "Tahoma" }
                                     }
                                 }
 
-                                if ($Proxies | Where-Object { $_.Type -eq "HvOffhost" -or $_.Type -eq "HvOnhost" }) {
+                                if ($Proxies.AditionalInfo | Where-Object { $_.Type -eq "HvOffhost" -or $_.Type -eq "HvOnhost" }) {
                                     SubGraph HvProxyServer -Attributes @{Label = (Get-DiaHTMLLabel -ImagesObj $Images -Label "Hyper-V Proxies" -IconType "VBR_HyperV" -SubgraphLabel -IconDebug $IconDebug); fontsize = 18; penwidth = 1.5; labelloc = 'b'; style = 'dashed,rounded' } {
 
-                                        Node HvProxies @{Label = (Get-DiaHTMLNodeTable -ImagesObj $Images -inputObject (($Proxies | Where-Object { $_.Type -eq "HvOffhost" -or $_.Type -eq "HvOnhost" }).Host.Name | ForEach-Object { $_.split('.')[0] }) -Align "Center" -iconType "VBR_Proxy_Server" -columnSize 3 -IconDebug $IconDebug -MultiIcon -AditionalInfo ($ProxiesInfo | Where-Object { $_.Type -eq "Off host" -or $_.Type -eq "On host" })); shape = 'plain'; fillColor = 'transparent'; fontsize = 14; fontname = "Tahoma" }
+                                        Node HvProxies @{Label = (Get-DiaHTMLNodeTable -ImagesObj $Images -inputObject (($Proxies | Where-Object { $_.AditionalInfo.Type -eq "Off host" -or $_.AditionalInfo.Type -eq "On host" }).Host.Name | ForEach-Object { $_.Name.split('.')[0] }) -Align "Center" -iconType "VBR_Proxy_Server" -columnSize 3 -IconDebug $IconDebug -MultiIcon -AditionalInfo ($Proxies.AditionalInfo | Where-Object { $_.Type -eq "Off host" -or $_.Type -eq "On host" })); shape = 'plain'; fillColor = 'transparent'; fontsize = 14; fontname = "Tahoma" }
                                     }
                                 }
                             }
@@ -387,6 +388,7 @@ function Get-AbrVbrDiagram {
                         }
 
                         # Repositories Graphviz Cluster
+                        Get-VbrRepositoryInfo
                         if ($Repositories) {
                             SubGraph Repos -Attributes @{Label = (Get-DiaHTMLLabel -ImagesObj $Images -Label "Backup Repositories" -IconType "VBR_Repository" -SubgraphLabel -IconDebug $IconDebug); fontsize = 18; penwidth = 1.5; labelloc = 'b'; style = 'dashed,rounded' } {
 
@@ -399,6 +401,7 @@ function Get-AbrVbrDiagram {
                             }
                         }
                         # Object Repositories Graphviz Cluster
+                        Get-VbrObjectRepoyInfo
                         if ($ObjectRepositories -or $ArchObjStorages) {
                             SubGraph ObjectRepos -Attributes @{Label = (Get-DiaHTMLLabel -ImagesObj $Images -Label "Object Storage" -IconType "VBR_Object" -SubgraphLabel -IconDebug $IconDebug); fontsize = 18; penwidth = 1.5; labelloc = 't'; style = 'dashed,rounded' } {
 

@@ -141,13 +141,19 @@ The **Report** schema provides configuration of the Veeam VBR report information
 
 The **Options** schema allows certain options within the report to be toggled on or off.
 
-| Sub-Schema              | Setting            | Default | Description                                         |
-| ----------------------- | ------------------ | ------- | --------------------------------------------------- |
-| BackupServerPort        | TCP Port           | 9392    | Set the backup server service's custom port.        |
-| PSDefaultAuthentication | Negotiate/Kerberos | Default | Set the PSRemoting authentication method            |
-| EnableCharts            | true/false         | false   | Toggle to enable/disable creation of charts.        |
-| EnableHardwareInventory | true / false       | false   | Toggle to enable/disable of Hardware information    |
-| EnableDiagrams          | true / false       | false   | Toggle to enable/disable of Infrastructure Diagrams |
+| Sub-Schema              | Setting             | Default | Description                                                      |
+| ----------------------- | ------------------- | ------- | ---------------------------------------------------------------- |
+| BackupServerPort        | TCP Port            | 9392    | Set the backup server service's custom port.                     |
+| PSDefaultAuthentication | Negotiate/Kerberos  | Default | Set the PSRemoting authentication method                         |
+| EnableHardwareInventory | true / false        | false   | Toggle to enable/disable of Hardware information                 |
+| ReportStyle             | Veeam/AsBuiltReport | Veeam   | Allow to set report style template.                              |
+| EnableDiagrams          | true / false        | false   | Toggle to enable/disable of Infrastructure Diagrams              |
+| EnableDiagramsDebug     | true/false          | false   | Toggle to enable/disable diagram debug option.                   |
+| DiagramWaterMark        | string              | empty   | Used to set the diagram waterMark.                               |
+| ExportDiagrams          | true/false          | false   | Toggle to enable/disable diagram export option.                  |
+| EnableDiagramSignature  | true/false          | false   | Toggle to enable/disable diagram signature (button right corner) |
+| SignatureAuthorName     | string              | empty   | Toggle to set signature author name.                             |
+| SignatureCompanyName    | string              | empty   | Toggle to set signature company name.                            |
 
 ###### * Note: In order to generate the infrastructure diagram, the Veeam.Diagrammer module requires the following windows application [Graphviz](https://graphviz.org/download/#windows) >= v9.0
 
