@@ -42,7 +42,7 @@ function Get-AbrVbrSecurityCompliance {
                     'OutdatedSslAndTlsDisabled' = 'Outdated SSL And TLS are Disabled'
                     'ManualLinuxHostAuthentication' = 'Unknown Linux servers are not trusted automatically'
                     'CSmbSigningAndEncryptionEnabled' = 'SMB v3 signing is enabled'
-                    'ViProxyTrafficEncrypted' = 'Host to proxy traffic encryption shoul be enable for the Network transport mode'
+                    'ViProxyTrafficEncrypted' = 'Host to proxy traffic encryption should be enable for the Network transport mode'
                     'JobsTargetingCloudRepositoriesEncrypted' = 'Backup jobs to cloud repositories is encrypted'
                     'LLMNRDisabled' = 'Link-Local Multicast Name Resolution (LLMNR) is disabled'
                     'ImmutableOrOfflineMediaPresence' = 'Immutable or offline media is used'

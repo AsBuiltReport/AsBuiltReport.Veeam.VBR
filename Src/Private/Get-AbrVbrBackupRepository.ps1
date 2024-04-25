@@ -72,7 +72,7 @@ function Get-AbrVbrBackupRepository {
                     Name = "Backup Repository - $VeeamBackupServer"
                     List = $false
                     Columns = 'Name', 'Total Space', 'Free Space', 'Used Space %', 'Status'
-                    ColumnWidths = 47, 12, 12, 17, 12
+                    ColumnWidths = 46, 12, 12, 17, 13
                 }
                 if ($Report.ShowTableCaptions) {
                     $TableParams['Caption'] = "- $($TableParams.Name)"
