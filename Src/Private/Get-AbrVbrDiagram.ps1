@@ -390,15 +390,9 @@ function Get-AbrVbrDiagram {
                         # WanAccels Graphviz Cluster
                         $WanAccels = Get-VbrWanAccelInfo
                         if ($WanAccels) {
-                            SubGraph WanAccels -Attributes @{Label = (Get-DiaHTMLLabel -ImagesObj $Images -Label "Wan Accelerators" -IconType "VBR_Wan_Accel" -SubgraphLabel -IconDebug $IconDebug); fontsize = 18; penwidth = 1.5; labelloc = 'b'; style = 'dashed,rounded' } {
+                            SubGraph WanAccels -Attributes @{Label = (Get-DiaHTMLLabel -ImagesObj $Images -Label "Wan Accelerators" -IconType "VBR_Wan_Accel" -SubgraphLabel -IconDebug $IconDebug); fontsize = 18; penwidth = 1.5; labelloc = 't'; style = 'dashed,rounded' } {
 
                                 Node WanAccelServer @{Label = (Get-DiaHTMLNodeTable -ImagesObj $Images -inputObject ($WanAccels | ForEach-Object { $_.Name.split('.')[0] }) -Align "Center" -iconType "VBR_Wan_Accel" -columnSize 3 -IconDebug $IconDebug -MultiIcon -AditionalInfo $WanAccels.AditionalInfo); shape = 'plain'; fillColor = 'transparent'; fontsize = 14; fontname = "Segoe Ui" }
-
-                            }
-                        } else {
-                            SubGraph WanAccels -Attributes @{Label = (Get-DiaHTMLLabel -ImagesObj $Images -Label "Wan Accelerators" -IconType "VBR_Wan_Accel" -SubgraphLabel -IconDebug $IconDebug); fontsize = 18; penwidth = 1.5; labelloc = 'b'; style = 'dashed,rounded' } {
-
-                                Node -Name WanAccelServer -Attributes @{Label = 'No Wan Accelerators'; shape = "rectangle"; labelloc = 'c'; fixedsize = $true; width = "3"; height = "2"; fillColor = 'transparent'; penwidth = 0 }
 
                             }
                         }
@@ -436,15 +430,15 @@ function Get-AbrVbrDiagram {
                                     }
                                 }
                             }
-                        } else {
-                            SubGraph ObjectRepos -Attributes @{Label = (Get-DiaHTMLLabel -ImagesObj $Images -Label "Object Storage" -IconType "VBR_Object_Repository" -SubgraphLabel -IconDebug $IconDebug); fontsize = 18; penwidth = 1.5; labelloc = 't'; style = 'dashed,rounded' } {
-
-                                Node -Name NoObjectRepositories -Attributes @{Label = 'No Object Repositories'; shape = "rectangle"; labelloc = 'c'; fixedsize = $true; width = "3"; height = "2"; fillColor = 'transparent'; penwidth = 0 }
-                            }
                         }
 
                         # Veeam VBR elements point of connection (Dummy Nodes!)
                         $Node = @('VBRServerPointSpace', 'VBRProxyPoint', 'VBRProxyPointSpace', 'VBRRepoPoint')
+
+                        if ($WanAccels) {
+                            $Node += 'VBRWanAccelPoint', 'VBRWanAccelPointSpace'
+                        }
+
                         Node $Node -NodeScript { $_ } @{Label = { $_ } ; fontcolor = $NodeDebug.color; fillColor = $NodeDebug.style; shape = $NodeDebug.shape }
 
                         $NodeStartEnd = @('VBRStartPoint', 'VBREndPointSpace')
@@ -458,7 +452,7 @@ function Get-AbrVbrDiagram {
                         #---------------------------------------------------------------------------------------------#
 
                         # Put the dummy node in the same rank to be able to create a horizontal line
-                        Rank VBRServerPointSpace, VBRProxyPoint, VBRProxyPointSpace, VBRRepoPoint, VBRStartPoint, VBREndPointSpace
+                        Rank $NodeStartEnd, $Node
 
                         #---------------------------------------------------------------------------------------------#
                         #                             Graphviz Edge Section                                           #
@@ -473,7 +467,15 @@ function Get-AbrVbrDiagram {
                         Edge -From VBRStartPoint -To VBRServerPointSpace @{minlen = 20; arrowtail = 'none'; arrowhead = 'none'; style = 'filled' }
                         Edge -From VBRServerPointSpace -To VBRProxyPoint @{minlen = 12; arrowtail = 'none'; arrowhead = 'none'; style = 'filled' }
                         Edge -From VBRProxyPoint -To VBRProxyPointSpace @{minlen = 12; arrowtail = 'none'; arrowhead = 'none'; style = 'filled' }
-                        Edge -From VBRProxyPointSpace -To VBRRepoPoint @{minlen = 12; arrowtail = 'none'; arrowhead = 'none'; style = 'filled' }
+                        if ($WanAccels) {
+                            Edge -From VBRProxyPointSpace -To VBRWanAccelPoint @{minlen = 12; arrowtail = 'none'; arrowhead = 'none'; style = 'filled' }
+                            Edge -From VBRWanAccelPoint -To VBRWanAccelPointSpace @{minlen = 12; arrowtail = 'none'; arrowhead = 'none'; style = 'filled' }
+                            Edge -From VBRWanAccelPointSpace -To VBRRepoPoint @{minlen = 12; arrowtail = 'none'; arrowhead = 'none'; style = 'filled' }
+                            Edge -From WanAccelServer -To VBRWanAccelPoint @{minlen = 2; arrowtail = 'dot'; arrowhead = 'none'; style = 'dashed' }
+
+                        } else {
+                            Edge -From VBRProxyPointSpace -To VBRRepoPoint @{minlen = 12; arrowtail = 'none'; arrowhead = 'none'; style = 'filled' }
+                        }
                         Edge -From VBRRepoPoint -To VBREndPointSpace @{minlen = 20; arrowtail = 'none'; arrowhead = 'none'; style = 'filled' }
 
                         # Connect Veeam Backup server to the Dummy line
@@ -494,8 +496,6 @@ function Get-AbrVbrDiagram {
 
                         } elseif ($ArchObjRepositoriesInfo) {
                             Edge -To VBRRepoPoint -From ArchObjectRepositories @{minlen = 2; arrowtail = 'dot'; arrowhead = 'none'; style = 'dashed' }
-                        } else {
-                            Edge -To VBRRepoPoint -From NoObjectRepositories @{minlen = 2; arrowtail = 'dot'; arrowhead = 'none'; style = 'dashed' }
                         }
                     }
                 }
