@@ -357,7 +357,7 @@ function Get-AbrVbrDiagram {
                         # Here Veeam Pwershell Module are used to retreive the information
                         Get-VBRBackupServerInfo
 
-                        # Build Backup Server Cluster
+                        # Build Backup Server Graphviz Cluster
                         Get-VbrBackupSvrDiagramObj
 
                         # Proxy Graphviz Cluster
@@ -369,14 +369,14 @@ function Get-AbrVbrDiagram {
                                 if ($Proxies | Where-Object { $_.AditionalInfo.Type -eq "vSphere" }) {
                                     SubGraph ViProxyServer -Attributes @{Label = (Get-DiaHTMLLabel -ImagesObj $Images -Label "VMware Proxies" -IconType "VBR_vSphere" -SubgraphLabel -IconDebug $IconDebug); fontsize = 18; penwidth = 1.5; labelloc = 'b'; style = 'dashed,rounded' } {
 
-                                        Node ViProxies @{Label = (Get-DiaHTMLNodeTable -ImagesObj $Images -inputObject (($Proxies.AditionalInfo | Where-Object { $_.AditionalInfo.Type -eq "vSphere" }) | ForEach-Object { $_.Name.split('.')[0] }) -Align "Center" -iconType "VBR_Proxy_Server" -columnSize 3 -IconDebug $IconDebug -MultiIcon -AditionalInfo ($Proxies.AditionalInfo | Where-Object { $_.Type -eq "vSphere" })); shape = 'plain'; fillColor = 'transparent'; fontsize = 14; fontname = "Tahoma" }
+                                        Node ViProxies @{Label = (Get-DiaHTMLNodeTable -ImagesObj $Images -inputObject (($Proxies | Where-Object { $_.AditionalInfo.Type -eq "vSphere" }) | ForEach-Object { $_.Name.split('.')[0] }) -Align "Center" -iconType "VBR_Proxy_Server" -columnSize 3 -IconDebug $IconDebug -MultiIcon -AditionalInfo ($Proxies.AditionalInfo | Where-Object { $_.Type -eq "vSphere" })); shape = 'plain'; fillColor = 'transparent'; fontsize = 14; fontname = "Tahoma" }
                                     }
                                 }
 
-                                if ($Proxies.AditionalInfo | Where-Object { $_.Type -eq "HvOffhost" -or $_.Type -eq "HvOnhost" }) {
+                                if ($Proxies.AditionalInfo | Where-Object { $_.Type -eq "Off host" -or $_.Type -eq "On host" }) {
                                     SubGraph HvProxyServer -Attributes @{Label = (Get-DiaHTMLLabel -ImagesObj $Images -Label "Hyper-V Proxies" -IconType "VBR_HyperV" -SubgraphLabel -IconDebug $IconDebug); fontsize = 18; penwidth = 1.5; labelloc = 'b'; style = 'dashed,rounded' } {
 
-                                        Node HvProxies @{Label = (Get-DiaHTMLNodeTable -ImagesObj $Images -inputObject (($Proxies | Where-Object { $_.AditionalInfo.Type -eq "Off host" -or $_.AditionalInfo.Type -eq "On host" }).Host.Name | ForEach-Object { $_.Name.split('.')[0] }) -Align "Center" -iconType "VBR_Proxy_Server" -columnSize 3 -IconDebug $IconDebug -MultiIcon -AditionalInfo ($Proxies.AditionalInfo | Where-Object { $_.Type -eq "Off host" -or $_.Type -eq "On host" })); shape = 'plain'; fillColor = 'transparent'; fontsize = 14; fontname = "Tahoma" }
+                                        Node HvProxies @{Label = (Get-DiaHTMLNodeTable -ImagesObj $Images -inputObject (($Proxies | Where-Object { $_.AditionalInfo.Type -eq "Off host" -or $_.AditionalInfo.Type -eq "On host" }).Name | ForEach-Object { $_.split('.')[0] }) -Align "Center" -iconType "VBR_Proxy_Server" -columnSize 3 -IconDebug $IconDebug -MultiIcon -AditionalInfo ($Proxies.AditionalInfo | Where-Object { $_.Type -eq "Off host" -or $_.Type -eq "On host" })); shape = 'plain'; fillColor = 'transparent'; fontsize = 14; fontname = "Tahoma" }
                                     }
                                 }
                             }
@@ -387,12 +387,28 @@ function Get-AbrVbrDiagram {
                             }
                         }
 
+                        # WanAccels Graphviz Cluster
+                        $WanAccels = Get-VbrWanAccelInfo
+                        if ($WanAccels) {
+                            SubGraph WanAccels -Attributes @{Label = (Get-DiaHTMLLabel -ImagesObj $Images -Label "Wan Accelerators" -IconType "VBR_Wan_Accel" -SubgraphLabel -IconDebug $IconDebug); fontsize = 18; penwidth = 1.5; labelloc = 'b'; style = 'dashed,rounded' } {
+
+                                Node WanAccelServer @{Label = (Get-DiaHTMLNodeTable -ImagesObj $Images -inputObject ($WanAccels | ForEach-Object { $_.Name.split('.')[0] }) -Align "Center" -iconType "VBR_Wan_Accel" -columnSize 3 -IconDebug $IconDebug -MultiIcon -AditionalInfo $WanAccels.AditionalInfo); shape = 'plain'; fillColor = 'transparent'; fontsize = 14; fontname = "Tahoma" }
+
+                            }
+                        } else {
+                            SubGraph WanAccels -Attributes @{Label = (Get-DiaHTMLLabel -ImagesObj $Images -Label "Wan Accelerators" -IconType "VBR_Wan_Accel" -SubgraphLabel -IconDebug $IconDebug); fontsize = 18; penwidth = 1.5; labelloc = 'b'; style = 'dashed,rounded' } {
+
+                                Node -Name WanAccelServer -Attributes @{Label = 'No Wan Accelerators'; shape = "rectangle"; labelloc = 'c'; fixedsize = $true; width = "3"; height = "2"; fillColor = 'transparent'; penwidth = 0 }
+
+                            }
+                        }
+
                         # Repositories Graphviz Cluster
-                        Get-VbrRepositoryInfo
-                        if ($Repositories) {
+                        $RepositoriesInfo = Get-VbrRepositoryInfo
+                        if ($RepositoriesInfo) {
                             SubGraph Repos -Attributes @{Label = (Get-DiaHTMLLabel -ImagesObj $Images -Label "Backup Repositories" -IconType "VBR_Repository" -SubgraphLabel -IconDebug $IconDebug); fontsize = 18; penwidth = 1.5; labelloc = 'b'; style = 'dashed,rounded' } {
 
-                                Node Repositories @{Label = (Get-DiaHTMLNodeTable -ImagesObj $Images -inputObject $RepositoriesInfo.Name -Align "Center" -iconType "VBR_Windows_Repository" -columnSize 3 -IconDebug $IconDebug -MultiIcon -AditionalInfo $RepositoriesInfo.Rows); shape = 'plain'; fillColor = 'transparent'; fontsize = 14; fontname = "Tahoma" }
+                                Node Repositories @{Label = (Get-DiaHTMLNodeTable -ImagesObj $Images -inputObject $RepositoriesInfo.Name -Align "Center" -iconType "VBR_Windows_Repository" -columnSize 3 -IconDebug $IconDebug -MultiIcon -AditionalInfo $RepositoriesInfo.AditionalInfo); shape = 'plain'; fillColor = 'transparent'; fontsize = 14; fontname = "Tahoma" }
                             }
                         } else {
                             SubGraph Repos -Attributes @{Label = (Get-DiaHTMLLabel -ImagesObj $Images -Label "Backup Repositories" -IconType "VBR_Repository" -SubgraphLabel -IconDebug $IconDebug); fontsize = 18; penwidth = 1.5; labelloc = 'b'; style = 'dashed,rounded' } {
@@ -401,24 +417,29 @@ function Get-AbrVbrDiagram {
                             }
                         }
                         # Object Repositories Graphviz Cluster
-                        Get-VbrObjectRepoyInfo
-                        if ($ObjectRepositories -or $ArchObjStorages) {
+                        $ObjectRepositoriesInfo = Get-VbrObjectRepoInfo
+                        $ArchObjRepositoriesInfo = Get-VbrArchObjectRepoInfo
+                        if ($ObjectRepositoriesInfo -or $ArchObjRepositoriesInfo) {
                             SubGraph ObjectRepos -Attributes @{Label = (Get-DiaHTMLLabel -ImagesObj $Images -Label "Object Storage" -IconType "VBR_Object" -SubgraphLabel -IconDebug $IconDebug); fontsize = 18; penwidth = 1.5; labelloc = 't'; style = 'dashed,rounded' } {
 
-                                SubGraph ObjectRepo -Attributes @{Label = (Get-DiaHTMLLabel -ImagesObj $Images -Label "Object Repositories" -IconType "VBR_Object_Repository" -SubgraphLabel -IconDebug $IconDebug); fontsize = 18; penwidth = 1.5; labelloc = 't'; style = 'dashed,rounded' } {
+                                if ($ObjectRepositoriesInfo) {
+                                    SubGraph ObjectRepo -Attributes @{Label = (Get-DiaHTMLLabel -ImagesObj $Images -Label "Object Repositories" -IconType "VBR_Object_Repository" -SubgraphLabel -IconDebug $IconDebug); fontsize = 18; penwidth = 1.5; labelloc = 't'; style = 'dashed,rounded' } {
 
-                                    Node ObjectRepositories @{Label = (Get-DiaHTMLNodeTable -ImagesObj $Images -inputObject $ObjectRepositories.Name -Align "Center" -iconType "VBR_Object_Repository" -columnSize 3 -IconDebug $IconDebug -MultiIcon -AditionalInfo $ObjectRepositoriesInfo); shape = 'plain'; fillColor = 'transparent'; fontsize = 14; fontname = "Tahoma" }
+                                        Node ObjectRepositories @{Label = (Get-DiaHTMLNodeTable -ImagesObj $Images -inputObject $ObjectRepositoriesInfo.Name -Align "Center" -iconType "VBR_Object_Repository" -columnSize 3 -IconDebug $IconDebug -MultiIcon -AditionalInfo $ObjectRepositoriesInfo.AditionalInfo); shape = 'plain'; fillColor = 'transparent'; fontsize = 14; fontname = "Tahoma" }
+                                    }
                                 }
 
-                                SubGraph ArchObjectRepo -Attributes @{Label = (Get-DiaHTMLLabel -ImagesObj $Images -Label "Archives Object Repositories" -IconType "VBR_Object_Repository" -SubgraphLabel -IconDebug $IconDebug); fontsize = 18; penwidth = 1.5; labelloc = 't'; style = 'dashed,rounded' } {
+                                if ($ArchObjRepositoriesInfo) {
+                                    SubGraph ArchObjectRepo -Attributes @{Label = (Get-DiaHTMLLabel -ImagesObj $Images -Label "Archives Object Repositories" -IconType "VBR_Object_Repository" -SubgraphLabel -IconDebug $IconDebug); fontsize = 18; penwidth = 1.5; labelloc = 't'; style = 'dashed,rounded' } {
 
-                                    Node ArchObjectRepositories @{Label = (Get-DiaHTMLNodeTable -ImagesObj $Images -inputObject $ArchObjStorages.Name -Align "Center" -iconType "VBR_Object_Repository" -columnSize 3 -IconDebug $IconDebug -MultiIcon -AditionalInfo $ArchObjRepositoriesInfo); shape = 'plain'; fillColor = 'transparent'; fontsize = 14; fontname = "Tahoma" }
+                                        Node ArchObjectRepositories @{Label = (Get-DiaHTMLNodeTable -ImagesObj $Images -inputObject $ArchObjRepositoriesInfo.Name -Align "Center" -iconType "VBR_Object_Repository" -columnSize 3 -IconDebug $IconDebug -MultiIcon -AditionalInfo $ArchObjRepositoriesInfo.AditionalInfo); shape = 'plain'; fillColor = 'transparent'; fontsize = 14; fontname = "Tahoma" }
+                                    }
                                 }
                             }
                         } else {
                             SubGraph ObjectRepos -Attributes @{Label = (Get-DiaHTMLLabel -ImagesObj $Images -Label "Object Storage" -IconType "VBR_Object_Repository" -SubgraphLabel -IconDebug $IconDebug); fontsize = 18; penwidth = 1.5; labelloc = 't'; style = 'dashed,rounded' } {
 
-                                Node -Name ObjectRepositories -Attributes @{Label = 'No Object Repositories'; shape = "rectangle"; labelloc = 'c'; fixedsize = $true; width = "3"; height = "2"; fillColor = 'transparent'; penwidth = 0 }
+                                Node -Name NoObjectRepositories -Attributes @{Label = 'No Object Repositories'; shape = "rectangle"; labelloc = 'c'; fixedsize = $true; width = "3"; height = "2"; fillColor = 'transparent'; penwidth = 0 }
                             }
                         }
 
@@ -468,7 +489,14 @@ function Get-AbrVbrDiagram {
                         Edge -From VBRRepoPoint -To Repositories @{minlen = 2; arrowtail = 'none'; arrowhead = 'dot'; style = 'dashed' }
 
                         # Connect Veeam Object Repository to the Dummy line
-                        Edge -To VBRRepoPoint -From ObjectRepositories @{minlen = 2; arrowtail = 'dot'; arrowhead = 'none'; style = 'dashed' }
+                        if ($ObjectRepositoriesInfo) {
+                            Edge -To VBRRepoPoint -From ObjectRepositories @{minlen = 2; arrowtail = 'dot'; arrowhead = 'none'; style = 'dashed' }
+
+                        } elseif ($ArchObjRepositoriesInfo) {
+                            Edge -To VBRRepoPoint -From ArchObjectRepositories @{minlen = 2; arrowtail = 'dot'; arrowhead = 'none'; style = 'dashed' }
+                        } else {
+                            Edge -To VBRRepoPoint -From NoObjectRepositories @{minlen = 2; arrowtail = 'dot'; arrowhead = 'none'; style = 'dashed' }
+                        }
                     }
                 }
             }

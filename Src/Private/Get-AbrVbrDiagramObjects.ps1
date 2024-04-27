@@ -365,19 +365,57 @@ function Get-VbrProxyInfo {
 
 }
 
+# Wan Accel Graphviz Cluster
+function Get-VbrWanAccelInfo {
+    param (
+    )
+    try {
+        Write-PScriboMessage "Collecting Wan Accel information from $VeeamBackupServer."
+        $WanAccels = Get-VBRWANAccelerator
+
+        if ($WanAccels) {
+            if ($Options.DiagramObjDebug) {
+                $WanAccels = $WanAccelsDebug
+            }
+
+            $WanAccelsInfo = @()
+
+            $WanAccels | ForEach-Object {
+                $inobj = [ordered] @{
+                    'CacheSize' = "$($_.FindWaHostComp().Options.MaxCacheSize) $($_.FindWaHostComp().Options.SizeUnit)"
+                    'TrafficPort' = "$($_.GetWaTrafficPort())/TCP"
+                }
+
+                $TempWanAccelInfo = [PSCustomObject]@{
+                    Name = $_.Name
+                    AditionalInfo = $inobj
+                }
+
+                $WanAccelsInfo += $TempWanAccelInfo
+            }
+        }
+
+        return $WanAccelsInfo
+
+    } catch {
+        $_
+    }
+
+}
+
 # Repositories Graphviz Cluster
 function Get-VbrRepositoryInfo {
     param (
     )
 
-    [Array]$script:Repositories = Get-VBRBackupRepository | Where-Object { $_.Type -notin @("SanSnapshotOnly", "AmazonS3Compatible", "WasabiS3") } | Sort-Object -Property Name
+    [Array]$Repositories = Get-VBRBackupRepository | Where-Object { $_.Type -notin @("SanSnapshotOnly", "AmazonS3Compatible", "WasabiS3") } | Sort-Object -Property Name
     [Array]$ScaleOuts = Get-VBRBackupRepository -ScaleOut | Sort-Object -Property Name
     if ($ScaleOuts) {
         $Extents = Get-VBRRepositoryExtent -Repository $ScaleOuts | Sort-Object -Property Name
         $Repositories += $Extents.Repository
     }
     if ($Repositories) {
-        $script:RepositoriesInfo = @()
+        $RepositoriesInfo = @()
 
         foreach ($Repository in $Repositories) {
             $Role = Get-RoleType -String $Repository.Type
@@ -404,27 +442,26 @@ function Get-VbrRepositoryInfo {
 
             $TempBackupRepoInfo = [PSCustomObject]@{
                 Name = "$((Remove-SpecialChar -String $Repository.Name -SpecialChars '\').toUpper()) "
-                Rows = $Rows
+                AditionalInfo = $Rows
                 IconType = $IconType
             }
 
             $RepositoriesInfo += $TempBackupRepoInfo
         }
+        return $RepositoriesInfo
     }
 
 }
 
 # Object Repositories Graphviz Cluster
-function Get-VbrObjectRepoyInfo {
+function Get-VbrObjectRepoInfo {
     param (
     )
 
-    $script:ObjectRepositories = Get-VBRObjectStorageRepository
-    $script:ArchObjStorages = Get-VBRArchiveObjectStorageRepository
-    if ($ObjectRepositories -or $ArchObjStorages) {
+    $ObjectRepositories = Get-VBRObjectStorageRepository
+    if ($ObjectRepositories) {
 
-        $script:ObjectRepositoriesInfo = @()
-        $script:ArchObjRepositoriesInfo = @()
+        $ObjectRepositoriesInfo = @()
 
         $ObjectRepositories | ForEach-Object {
             $inobj = @{
@@ -458,8 +495,26 @@ function Get-VbrObjectRepoyInfo {
                     }
                 }
             }
-            $ObjectRepositoriesInfo += $inobj
+            $TempObjectRepositoriesInfo = [PSCustomObject]@{
+                Name = $_.Name
+                AditionalInfo = $inobj
+            }
+            $ObjectRepositoriesInfo += $TempObjectRepositoriesInfo
         }
+        return $ObjectRepositoriesInfo
+    }
+}
+
+
+# Archive Object Repositories Graphviz Cluster
+function Get-VbrArchObjectRepoInfo {
+    param (
+    )
+
+    $ArchObjStorages = Get-VBRArchiveObjectStorageRepository
+    if ($ArchObjStorages) {
+
+        $ArchObjRepositoriesInfo = @()
 
         $ArchObjStorages | ForEach-Object {
             $inobj = @{
@@ -486,10 +541,15 @@ function Get-VbrObjectRepoyInfo {
                     }
                 }
             }
-            $ArchObjRepositoriesInfo += $inobj
-        }
-    }
 
+            $TempArchObjectRepositoriesInfo = [PSCustomObject]@{
+                Name = $_.Name
+                AditionalInfo = $inobj
+            }
+            $ArchObjRepositoriesInfo += $TempArchObjectRepositoriesInfo
+        }
+        return $ArchObjRepositoriesInfo
+    }
 }
 
 function Get-VBRDebugObject {
