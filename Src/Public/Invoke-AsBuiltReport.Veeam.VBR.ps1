@@ -447,7 +447,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
             }
 
             #---------------------------------------------------------------------------------------------#
-            #                             Backup Restore Points Section                              #
+            #                             Backup Restore Points Section                                   #
             #---------------------------------------------------------------------------------------------#
             if ($InfoLevel.Jobs.PSObject.Properties.Value -ne 0) {
                 if (((Get-VBRJob -WarningAction SilentlyContinue).count -gt 0) -or ((Get-VBRTapeJob).count -gt 0) -or ((Get-VBRSureBackupJob).count -gt 0)) {
@@ -462,6 +462,10 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                     }
                 }
             }
+
+            #---------------------------------------------------------------------------------------------#
+            #                          Backup Infrastructure Diagram Section                              #
+            #---------------------------------------------------------------------------------------------#
 
             if ($Options.EnableDiagrams) {
 
