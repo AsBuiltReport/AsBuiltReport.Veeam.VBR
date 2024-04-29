@@ -44,7 +44,7 @@ function Get-AbrVbrDiagram {
         Allow the creation of footer signature.
         AuthorName and CompanyName must be set to use this property.
     .NOTES
-        Version:        0.3.0
+        Version:        0.8.6
         Author(s):      Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -203,7 +203,8 @@ function Get-AbrVbrDiagram {
             "VBR_Proxy" = "Veeam_Proxy.png"
             "VBR_Proxy_Server" = "Proxy_Server.png"
             "VBR_Wan_Accel" = "WAN_accelerator.png"
-            "VBR_SOBR" = "Scale-out_Backup_Repository.png"
+            "VBR_SOBR" = "Logo_SOBR.png"
+            "VBR_SOBR_Repo" = "Scale_out_Backup_Repository.png"
             "VBR_LOGO" = "Veeam_logo.png"
             "VBR_No_Icon" = "no_icon.png"
             'VBR_Storage_NetApp' = "Storage_NetApp.png"
@@ -237,7 +238,7 @@ function Get-AbrVbrDiagram {
             throw "Get-AbrVbrDiagram: AuthorName and CompanyName must be defined if the Signature option is specified"
         }
 
-        $MainGraphLabel = "Backup and Replication Infrastructure"
+        $MainGraphLabel = "Backup &amp; Replication Infrastructure"
 
         $IconDebug = $false
 
@@ -397,6 +398,16 @@ function Get-AbrVbrDiagram {
                             }
                         }
 
+                        # SOBR Graphviz Cluster
+                        $SOBR = Get-VbrSOBRInfo
+                        if ($SOBR) {
+                            SubGraph SOBR -Attributes @{Label = (Get-DiaHTMLLabel -ImagesObj $Images -Label "Scale-Out Backup Repository" -IconType "VBR_SOBR" -SubgraphLabel -IconDebug $IconDebug); fontsize = 18; penwidth = 1.5; labelloc = 'b'; style = 'dashed,rounded' } {
+
+                                Node SOBRRepo @{Label = (Get-DiaHTMLNodeTable -ImagesObj $Images -inputObject ($SOBR | ForEach-Object { $_.Name.split('.')[0] }) -Align "Center" -iconType "VBR_SOBR_Repo" -columnSize 3 -IconDebug $IconDebug -MultiIcon -AditionalInfo $SOBR.AditionalInfo); shape = 'plain'; fillColor = 'transparent'; fontsize = 14; fontname = "Segoe Ui" }
+
+                            }
+                        }
+
                         # Repositories Graphviz Cluster
                         $RepositoriesInfo = Get-VbrRepositoryInfo
                         if ($RepositoriesInfo) {
@@ -436,7 +447,7 @@ function Get-AbrVbrDiagram {
                         $Node = @('VBRServerPointSpace', 'VBRProxyPoint', 'VBRProxyPointSpace', 'VBRRepoPoint')
 
                         if ($WanAccels) {
-                            $Node += 'VBRWanAccelPoint', 'VBRWanAccelPointSpace'
+                            $Node += 'VBRWanAccelPoint', 'VBRRepoPointSpace'
                         }
 
                         Node $Node -NodeScript { $_ } @{Label = { $_ } ; fontcolor = $NodeDebug.color; fillColor = $NodeDebug.style; shape = $NodeDebug.shape }
@@ -467,16 +478,17 @@ function Get-AbrVbrDiagram {
                         Edge -From VBRStartPoint -To VBRServerPointSpace @{minlen = 20; arrowtail = 'none'; arrowhead = 'none'; style = 'filled' }
                         Edge -From VBRServerPointSpace -To VBRProxyPoint @{minlen = 12; arrowtail = 'none'; arrowhead = 'none'; style = 'filled' }
                         Edge -From VBRProxyPoint -To VBRProxyPointSpace @{minlen = 12; arrowtail = 'none'; arrowhead = 'none'; style = 'filled' }
+                        Edge -From VBRProxyPointSpace -To VBRRepoPoint @{minlen = 12; arrowtail = 'none'; arrowhead = 'none'; style = 'filled' }
+
+                        # If WanAccels add the VBRWanAccelPoint Dummy Node to the line
                         if ($WanAccels) {
-                            Edge -From VBRProxyPointSpace -To VBRWanAccelPoint @{minlen = 12; arrowtail = 'none'; arrowhead = 'none'; style = 'filled' }
-                            Edge -From VBRWanAccelPoint -To VBRWanAccelPointSpace @{minlen = 12; arrowtail = 'none'; arrowhead = 'none'; style = 'filled' }
-                            Edge -From VBRWanAccelPointSpace -To VBRRepoPoint @{minlen = 12; arrowtail = 'none'; arrowhead = 'none'; style = 'filled' }
-                            Edge -From WanAccelServer -To VBRWanAccelPoint @{minlen = 2; arrowtail = 'dot'; arrowhead = 'none'; style = 'dashed' }
+                            Edge -From VBRRepoPoint -To VBRRepoPointSpace @{minlen = 16; arrowtail = 'none'; arrowhead = 'none'; style = 'filled' }
+                            Edge -From VBRRepoPointSpace -To VBRWanAccelPoint @{minlen = 12; arrowtail = 'none'; arrowhead = 'none'; style = 'filled' }
+                            Edge -From VBRWanAccelPoint -To VBREndPointSpace @{minlen = 20; arrowtail = 'none'; arrowhead = 'none'; style = 'filled' }
 
                         } else {
-                            Edge -From VBRProxyPointSpace -To VBRRepoPoint @{minlen = 12; arrowtail = 'none'; arrowhead = 'none'; style = 'filled' }
+                            Edge -From VBRRepoPoint -To VBREndPointSpace @{minlen = 20; arrowtail = 'none'; arrowhead = 'none'; style = 'filled' }
                         }
-                        Edge -From VBRRepoPoint -To VBREndPointSpace @{minlen = 20; arrowtail = 'none'; arrowhead = 'none'; style = 'filled' }
 
                         # Connect Veeam Backup server to the Dummy line
                         Edge -From $BackupServerInfo.Name -To VBRServerPointSpace @{minlen = 2; arrowtail = 'dot'; arrowhead = 'none'; style = 'dashed' }
@@ -496,6 +508,16 @@ function Get-AbrVbrDiagram {
 
                         } elseif ($ArchObjRepositoriesInfo) {
                             Edge -To VBRRepoPoint -From ArchObjectRepositories @{minlen = 2; arrowtail = 'dot'; arrowhead = 'none'; style = 'dashed' }
+                        }
+
+                        # Connect Veeam Wan Accelerator to the Dummy line
+                        if ($WanAccels) {
+                            Edge -From WanAccelServer -To VBRWanAccelPoint @{minlen = 2; arrowtail = 'dot'; arrowhead = 'none'; style = 'dashed' }
+                        }
+
+                        # Connect Veeam Scale-Out Backup Repository to the Dummy line
+                        if ($SOBR) {
+                            Edge -From VBRRepoPointSpace -To SOBRRepo @{minlen = 2; arrowtail = 'dot'; arrowhead = 'none'; style = 'dashed' }
                         }
                     }
                 }

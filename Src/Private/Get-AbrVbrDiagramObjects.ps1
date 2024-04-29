@@ -77,7 +77,7 @@ function Get-VbrBackupServerInfo {
     .DESCRIPTION
         Build a diagram of the configuration of Veeam VBR in PDF/PNG/SVG formats using Psgraph.
     .NOTES
-        Version:        0.6.0
+        Version:        0.8.6
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -226,7 +226,7 @@ function Get-VbrBackupSvrDiagramObj {
     .DESCRIPTION
         Build a diagram of the configuration of Veeam VBR in PDF/PNG/SVG formats using Psgraph.
     .NOTES
-        Version:        0.6.0
+        Version:        0.8.6
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -550,6 +550,50 @@ function Get-VbrArchObjectRepoInfo {
         }
         return $ArchObjRepositoriesInfo
     }
+}
+
+# Scale-Out Backup Repository Graphviz Cluster
+function Get-VbrSOBRInfo {
+    param (
+    )
+    try {
+        Write-PScriboMessage "Collecting Scale-Out Backup Repository information from $VeeamBackupServer."
+        $SOBR = Get-VBRBackupRepository -ScaleOut
+
+        if ($SOBR) {
+            if ($Options.DiagramObjDebug) {
+                $SOBR = $SOBRDebug
+            }
+
+            $SOBRInfo = @()
+
+            $SOBR | ForEach-Object {
+                $inobj = [ordered] @{
+                    'Placement Policy' = $_.PolicyType
+                    'Encryption Enabled' = switch ($_.EncryptionEnabled) {
+                        "" { "--" }
+                        $Null { "--" }
+                        "True" { "Yes"; break }
+                        "False" { "No"; break }
+                        default { $_.EncryptionEnabled }
+                    }
+                }
+
+                $TempSOBRInfo = [PSCustomObject]@{
+                    Name = $_.Name
+                    AditionalInfo = $inobj
+                }
+
+                $SOBRInfo += $TempSOBRInfo
+            }
+        }
+
+        return $SOBRInfo
+
+    } catch {
+        $_
+    }
+
 }
 
 function Get-VBRDebugObject {

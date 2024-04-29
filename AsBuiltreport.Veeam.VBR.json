@@ -15,7 +15,7 @@
         "EnableDiagrams": false,
         "EnableDiagramDebug": false,
         "DiagramWaterMark": "",
-        "ExportDiagrams": false,
+        "ExportDiagrams": true,
         "EnableDiagramSignature": false,
         "SignatureAuthorName": "",
         "SignatureCompanyName": "",

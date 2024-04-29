@@ -467,72 +467,30 @@ function Invoke-AsBuiltReport.Veeam.VBR {
             #                          Backup Infrastructure Diagram Section                              #
             #---------------------------------------------------------------------------------------------#
 
-            if ($Options.EnableDiagrams) {
+            $DiagramParams = @{
+                'Format' = "png"
+                'FileName' = 'AsBuiltReport.Veeam.VBR.png'
+                'OutputFolderPath' = (Get-Location).Path
+            }
 
-                $DiagramParams = @{
+            if ($Options.EnableDiagramDebug) {
+                $DiagramParams.Add('EnableEdgeDebug', $True)
+                $DiagramParams.Add('EnableSubGraphDebug', $True)
+            }
+
+            if ($Options.EnableDiagramSignature) {
+                $DiagramParams.Add('Signature', $True)
+                $DiagramParams.Add('AuthorName', $Options.SignatureAuthorName)
+                $DiagramParams.Add('CompanyName', $Options.SignatureCompanyName)
+            }
+
+            try {
+                $Graph = Get-AbrVbrDiagram @DiagramParams
+                if ($Graph) {
+                    Write-Information "Saved 'AsBuiltReport.Veeam.VBR.png' diagram to '$((Get-Location).Path)\'." -InformationAction Continue
                 }
-
-                if ($Options.ExportDiagrams) {
-                    $DiagramParams.Add('Format', "png")
-                    $DiagramParams.Add('FileName', 'AsBuiltReport.Veeam.VBR.png')
-                    $DiagramParams.Add('OutputFolderPath', (Get-Location).Path)
-                } else {
-                    $DiagramParams.Add('Format', "base64")
-                }
-
-                if ($Options.EnableDiagramDebug) {
-
-                    $DiagramParams.Add('EnableEdgeDebug', $True)
-                    $DiagramParams.Add('EnableSubGraphDebug', $True)
-
-                }
-
-                if ($Options.EnableDiagramSignature) {
-                    $DiagramParams.Add('Signature', $True)
-                    $DiagramParams.Add('AuthorName', $Options.SignatureAuthorName)
-                    $DiagramParams.Add('CompanyName', $Options.SignatureCompanyName)
-                }
-
-                if ($Options.ExportDiagrams) {
-                    Try {
-                        $Graph = Get-AbrVbrDiagram @DiagramParams
-                        if ($Graph) {
-                            Write-Information "Saved 'AsBuiltReport.Veeam.VBR.png' diagram to '$((Get-Location).Path)\'." -InformationAction Continue
-                        }
-                    } Catch {
-                        Write-PScriboMessage -IsWarning "Unable to export the Infrastructure Diagram: $($_.Exception.Message)"
-                    }
-
-                    if ($Graph) {
-                        If ((Get-DiaImagePercent -ImageInput $Graph.FullName).Width -gt 1500) { $ImagePrty = 20 } else { $ImagePrty = 50 }
-                        PageBreak
-                        Section -Style Heading3 "Infrastructure Diagram." {
-                            Image -Path $Graph.FullName -Text "Veeam Backup for Microsoft 365 Diagram" -Percent $ImagePrty -Align Center
-                            Paragraph "Image preview: Opens the image in a new tab to view it at full resolution." -Tabs 2
-                        }
-                        BlankLine
-                    }
-
-                } else {
-                    try {
-                        try {
-                            $Graph = Get-AbrVbrDiagram @DiagramParams
-                        } catch {
-                            Write-PScriboMessage -IsWarning "Unable to generate the Infrastructure Diagram: $($_.Exception.Message)"
-                        }
-
-                        if ($Graph) {
-                            If ((Get-DiaImagePercent -GraphObj $Graph).Width -gt 1500) { $ImagePrty = 20 } else { $ImagePrty = 50 }
-                            Section -Style Heading3 "Infrastructure Diagram." {
-                                Image -Base64 $Graph -Text "Veeam Backup for Microsoft 365 Diagram" -Percent $ImagePrty -Align Center
-                                Paragraph "Image preview: Opens the image in a new tab to view it at full resolution." -Tabs 2
-                            }
-                            BlankLine
-                        }
-                    } catch {
-                        Write-PScriboMessage -IsWarning "Infrastructure Diagram: $($_.Exception.Message)"
-                    }
-                }
+            } catch {
+                Write-PScriboMessage -IsWarning "Unable to export the Infrastructure Diagram: $($_.Exception.Message)"
             }
         }
         if ((Get-VBRServerSession).Server) {
