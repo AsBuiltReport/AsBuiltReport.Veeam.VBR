@@ -36,9 +36,15 @@ Please refer to the AsBuiltReport [website](https://www.asbuiltreport.com) for m
 
 # :books: Sample Reports
 
-## Sample Report - Custom Style
+## Sample Report - Veeam Style
 
-Sample Veeam VBR As Built report HTML file: [Sample Report](https://htmlpreview.github.io/?https://raw.githubusercontent.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/dev/Samples/Sample%20Veeam%20Backup%20%26%20Replication%20As%20Built%20Report.html)
+Sample Veeam VBR As Built Report HTML file: [Sample Report](https://htmlpreview.github.io/?https://raw.githubusercontent.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/dev/Samples/Sample%20Veeam%20Backup%20%26%20Replication%20As%20Built%20Report.html)
+
+## Sample Diagram - Veeam Style
+
+Sample Veeam VBR As Built Report Diagram file: [Sample Diagram](Samples/AsBuiltReport.Veeam.VBR.png)
+
+![Sample Diagram](Samples/AsBuiltReport.Veeam.VBR.png)
 
 # :beginner: Getting Started
 
@@ -269,4 +275,3 @@ PS C:\> New-AsBuiltReport -Report Veeam.VBR -Target veeam-vbr.pharmax.local -Use
 
 - Since many of Veeam's features depend on the Standard+ license, the Community edition is not supported.
 - If the Veeam Backup Server is not joined to an Active Directory domain (WorkGroup Auth), the PSDefaultAuthentication option must be set to Negotiate. If it is not, some of the report sections will be missing.
-- In order to generate the infrastructure diagram it is required to install [Graphviz](https://graphviz.org/download/) on the machine where the report is generated.
