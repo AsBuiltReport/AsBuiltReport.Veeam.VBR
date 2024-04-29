@@ -450,7 +450,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
             #                             Backup Restore Points Section                                   #
             #---------------------------------------------------------------------------------------------#
             if ($InfoLevel.Jobs.PSObject.Properties.Value -ne 0) {
-                if (((Get-VBRJob -WarningAction SilentlyContinue).count -gt 0) -or ((Get-VBRTapeJob).count -gt 0) -or ((Get-VBRSureBackupJob).count -gt 0)) {
+                if (((Get-VBRBackup -WarningAction SilentlyContinue).count -gt 0) -or ((Get-VBRTapeJob).count -gt 0) -or ((Get-VBRSureBackupJob).count -gt 0)) {
                     Section -Style Heading2 'Backups Summary' {
                         Paragraph "The following section provides information about the jobs restore points in Veeam Server: $(((Get-VBRServerSession).Server))."
                         BlankLine

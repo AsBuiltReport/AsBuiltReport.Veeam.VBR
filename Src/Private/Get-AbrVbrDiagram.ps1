@@ -494,7 +494,7 @@ function Get-AbrVbrDiagram {
                         Edge -From $BackupServerInfo.Name -To VBRServerPointSpace @{minlen = 2; arrowtail = 'dot'; arrowhead = 'none'; style = 'dashed' }
 
                         # Connect Veeam Proxies Server to the Dummy line
-                        if ($Proxies | Where-Object { $_.Type -eq 'Vi' }) {
+                        if ($Proxies | Where-Object { $_.AditionalInfo.Type -eq 'vSphere' }) {
                             Edge -From VBRProxyPoint -To ViProxies @{minlen = 2; arrowtail = 'none'; arrowhead = 'dot'; style = 'dashed' }
                         } else {
                             Edge -From VBRProxyPoint -To HvProxies @{minlen = 2; arrowtail = 'none'; arrowhead = 'dot'; style = 'dashed' }

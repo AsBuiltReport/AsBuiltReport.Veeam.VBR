@@ -305,7 +305,13 @@ function Get-PieChart {
         [System.Drawing.ColorTranslator]::FromHtml('#005f4b')
     )
 
-    $exampleChart = New-Chart -Name $ChartName -Width $Width -Height $Height -BorderStyle Dash -BorderWidth 1 -BorderColor DarkGreen
+    if ($Options.ReportStyle -eq "Veeam") {
+        $BorderColor = 'DarkGreen'
+    } else {
+        $BorderColor = 'DarkBlue'
+    }
+
+    $exampleChart = New-Chart -Name $ChartName -Width $Width -Height $Height -BorderStyle Dash -BorderWidth 1 -BorderColor $BorderColor
 
     $addChartAreaParams = @{
         Chart = $exampleChart
@@ -441,7 +447,13 @@ function Get-ColumnChart {
         [System.Drawing.ColorTranslator]::FromHtml('#005f4b')
     )
 
-    $exampleChart = New-Chart -Name $ChartName -Width $Width -Height $Height -BorderStyle Dash -BorderWidth 1 -BorderColor DarkGreen
+    if ($Options.ReportStyle -eq "Veeam") {
+        $BorderColor = 'DarkGreen'
+    } else {
+        $BorderColor = 'DarkBlue'
+    }
+
+    $exampleChart = New-Chart -Name $ChartName -Width $Width -Height $Height -BorderStyle Dash -BorderWidth 1 -BorderColor $BorderColor
 
     $addChartAreaParams = @{
         Chart = $exampleChart
