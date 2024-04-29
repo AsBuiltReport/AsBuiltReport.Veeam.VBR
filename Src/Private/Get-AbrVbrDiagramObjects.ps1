@@ -77,7 +77,7 @@ function Get-VbrBackupServerInfo {
     .DESCRIPTION
         Build a diagram of the configuration of Veeam VBR in PDF/PNG/SVG formats using Psgraph.
     .NOTES
-        Version:        0.6.0
+        Version:        0.8.6
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -226,7 +226,7 @@ function Get-VbrBackupSvrDiagramObj {
     .DESCRIPTION
         Build a diagram of the configuration of Veeam VBR in PDF/PNG/SVG formats using Psgraph.
     .NOTES
-        Version:        0.6.0
+        Version:        0.8.6
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -252,9 +252,9 @@ function Get-VbrBackupSvrDiagramObj {
                     $DatabaseServerInfo.psobject.properties | ForEach-Object { $DBHASHTABLE[$_.Name] = $_.Value }
                     $EMServerInfo.psobject.properties | ForEach-Object { $EMHASHTABLE[$_.Name] = $_.Value }
 
-                    Node $BackupServerInfo.Name -Attributes @{Label = $BSHASHTABLE.Label; fillColor = '#ceedc4'; shape = 'plain'; fontsize = 14; fontname = "Tahoma" }
-                    Node $DatabaseServerInfo.Name -Attributes @{Label = $DBHASHTABLE.Label; fillColor = '#ceedc4'; shape = 'plain'; fontsize = 14; fontname = "Tahoma" }
-                    Node $EMServerInfo.Name -Attributes @{Label = $EMHASHTABLE.Label; fillColor = '#ceedc4'; shape = 'plain'; fontsize = 14; fontname = "Tahoma" }
+                    Node $BackupServerInfo.Name -Attributes @{Label = $BSHASHTABLE.Label; fillColor = '#ceedc4'; shape = 'plain'; fontsize = 14; fontname = "Segoe Ui" }
+                    Node $DatabaseServerInfo.Name -Attributes @{Label = $DBHASHTABLE.Label; fillColor = '#ceedc4'; shape = 'plain'; fontsize = 14; fontname = "Segoe Ui" }
+                    Node $EMServerInfo.Name -Attributes @{Label = $EMHASHTABLE.Label; fillColor = '#ceedc4'; shape = 'plain'; fontsize = 14; fontname = "Segoe Ui" }
 
                     if ($Dir -eq 'LR') {
                         Rank $EMServerInfo.Name, $DatabaseServerInfo.Name
@@ -273,8 +273,8 @@ function Get-VbrBackupSvrDiagramObj {
                     $BackupServerInfo.psobject.properties | ForEach-Object { $BSHASHTABLE[$_.Name] = $_.Value }
                     $DatabaseServerInfo.psobject.properties | ForEach-Object { $DBHASHTABLE[$_.Name] = $_.Value }
 
-                    Node $BackupServerInfo.Name -Attributes @{Label = $BSHASHTABLE.Label; fillColor = '#ceedc4'; shape = 'plain'; fontsize = 14; fontname = "Tahoma" }
-                    Node $DatabaseServerInfo.Name -Attributes @{Label = $DBHASHTABLE.Label; fillColor = '#ceedc4'; shape = 'plain'; fontsize = 14; fontname = "Tahoma" }
+                    Node $BackupServerInfo.Name -Attributes @{Label = $BSHASHTABLE.Label; fillColor = '#ceedc4'; shape = 'plain'; fontsize = 14; fontname = "Segoe Ui" }
+                    Node $DatabaseServerInfo.Name -Attributes @{Label = $DBHASHTABLE.Label; fillColor = '#ceedc4'; shape = 'plain'; fontsize = 14; fontname = "Segoe Ui" }
 
                     if ($Dir -eq 'LR') {
                         Rank $BackupServerInfo.Name, $DatabaseServerInfo.Name
@@ -291,8 +291,8 @@ function Get-VbrBackupSvrDiagramObj {
                     $BackupServerInfo.psobject.properties | ForEach-Object { $BSHASHTABLE[$_.Name] = $_.Value }
                     $EMServerInfo.psobject.properties | ForEach-Object { $EMHASHTABLE[$_.Name] = $_.Value }
 
-                    Node $BackupServerInfo.Name -Attributes @{Label = $BSHASHTABLE.Label; fillColor = '#ceedc4'; shape = 'plain'; fontsize = 14; fontname = "Tahoma" }
-                    Node $EMServerInfo.Name -Attributes @{Label = $EMHASHTABLE.Label; fillColor = '#ceedc4'; shape = 'plain'; fontsize = 14; fontname = "Tahoma" }
+                    Node $BackupServerInfo.Name -Attributes @{Label = $BSHASHTABLE.Label; fillColor = '#ceedc4'; shape = 'plain'; fontsize = 14; fontname = "Segoe Ui" }
+                    Node $EMServerInfo.Name -Attributes @{Label = $EMHASHTABLE.Label; fillColor = '#ceedc4'; shape = 'plain'; fontsize = 14; fontname = "Segoe Ui" }
 
                     if ($Dir -eq 'LR') {
                         Rank $EMServerInfo.Name, $BackupServerInfo.Name
@@ -305,10 +305,10 @@ function Get-VbrBackupSvrDiagramObj {
                     Write-PScriboMessage "Database server colocated with Backup Server and no Enterprise Manager found: Collecting Backup Server Information."
                     $BSHASHTABLE = @{}
                     $BackupServerInfo.psobject.properties | ForEach-Object { $BSHASHTABLE[$_.Name] = $_.Value }
-                    Node Left @{Label = 'Left'; style = $EdgeDebug.style; color = $EdgeDebug.color; shape = 'plain'; fillColor = 'transparent'; fontsize = 14; fontname = "Tahoma" }
-                    Node Leftt @{Label = 'Leftt'; style = $EdgeDebug.style; color = $EdgeDebug.color; shape = 'plain'; fillColor = 'transparent'; fontsize = 14; fontname = "Tahoma" }
-                    Node Right @{Label = 'Right'; style = $EdgeDebug.style; color = $EdgeDebug.color; shape = 'plain'; fillColor = 'transparent'; fontsize = 14; fontname = "Tahoma" }
-                    Node $BackupServerInfo.Name -Attributes @{Label = $BSHASHTABLE.Label; fillColor = '#ceedc4'; shape = 'plain'; fontsize = 14; fontname = "Tahoma" }
+                    Node Left @{Label = 'Left'; style = $EdgeDebug.style; color = $EdgeDebug.color; shape = 'plain'; fillColor = 'transparent'; fontsize = 14; fontname = "Segoe Ui" }
+                    Node Leftt @{Label = 'Leftt'; style = $EdgeDebug.style; color = $EdgeDebug.color; shape = 'plain'; fillColor = 'transparent'; fontsize = 14; fontname = "Segoe Ui" }
+                    Node Right @{Label = 'Right'; style = $EdgeDebug.style; color = $EdgeDebug.color; shape = 'plain'; fillColor = 'transparent'; fontsize = 14; fontname = "Segoe Ui" }
+                    Node $BackupServerInfo.Name -Attributes @{Label = $BSHASHTABLE.Label; fillColor = '#ceedc4'; shape = 'plain'; fontsize = 14; fontname = "Segoe Ui" }
                     Edge Left, Leftt, $BackupServerInfo.Name, Right @{style = $EdgeDebug.style; color = $EdgeDebug.color }
                     Rank Left, Leftt, $BackupServerInfo.Name, Right
                 }
@@ -365,19 +365,57 @@ function Get-VbrProxyInfo {
 
 }
 
+# Wan Accel Graphviz Cluster
+function Get-VbrWanAccelInfo {
+    param (
+    )
+    try {
+        Write-PScriboMessage "Collecting Wan Accel information from $VeeamBackupServer."
+        $WanAccels = Get-VBRWANAccelerator
+
+        if ($WanAccels) {
+            if ($Options.DiagramObjDebug) {
+                $WanAccels = $WanAccelsDebug
+            }
+
+            $WanAccelsInfo = @()
+
+            $WanAccels | ForEach-Object {
+                $inobj = [ordered] @{
+                    'CacheSize' = "$($_.FindWaHostComp().Options.MaxCacheSize) $($_.FindWaHostComp().Options.SizeUnit)"
+                    'TrafficPort' = "$($_.GetWaTrafficPort())/TCP"
+                }
+
+                $TempWanAccelInfo = [PSCustomObject]@{
+                    Name = $_.Name
+                    AditionalInfo = $inobj
+                }
+
+                $WanAccelsInfo += $TempWanAccelInfo
+            }
+        }
+
+        return $WanAccelsInfo
+
+    } catch {
+        $_
+    }
+
+}
+
 # Repositories Graphviz Cluster
 function Get-VbrRepositoryInfo {
     param (
     )
 
-    [Array]$script:Repositories = Get-VBRBackupRepository | Where-Object { $_.Type -notin @("SanSnapshotOnly", "AmazonS3Compatible", "WasabiS3") } | Sort-Object -Property Name
+    [Array]$Repositories = Get-VBRBackupRepository | Where-Object { $_.Type -notin @("SanSnapshotOnly", "AmazonS3Compatible", "WasabiS3") } | Sort-Object -Property Name
     [Array]$ScaleOuts = Get-VBRBackupRepository -ScaleOut | Sort-Object -Property Name
     if ($ScaleOuts) {
         $Extents = Get-VBRRepositoryExtent -Repository $ScaleOuts | Sort-Object -Property Name
         $Repositories += $Extents.Repository
     }
     if ($Repositories) {
-        $script:RepositoriesInfo = @()
+        $RepositoriesInfo = @()
 
         foreach ($Repository in $Repositories) {
             $Role = Get-RoleType -String $Repository.Type
@@ -404,27 +442,26 @@ function Get-VbrRepositoryInfo {
 
             $TempBackupRepoInfo = [PSCustomObject]@{
                 Name = "$((Remove-SpecialChar -String $Repository.Name -SpecialChars '\').toUpper()) "
-                Rows = $Rows
+                AditionalInfo = $Rows
                 IconType = $IconType
             }
 
             $RepositoriesInfo += $TempBackupRepoInfo
         }
+        return $RepositoriesInfo
     }
 
 }
 
 # Object Repositories Graphviz Cluster
-function Get-VbrObjectRepoyInfo {
+function Get-VbrObjectRepoInfo {
     param (
     )
 
-    $script:ObjectRepositories = Get-VBRObjectStorageRepository
-    $script:ArchObjStorages = Get-VBRArchiveObjectStorageRepository
-    if ($ObjectRepositories -or $ArchObjStorages) {
+    $ObjectRepositories = Get-VBRObjectStorageRepository
+    if ($ObjectRepositories) {
 
-        $script:ObjectRepositoriesInfo = @()
-        $script:ArchObjRepositoriesInfo = @()
+        $ObjectRepositoriesInfo = @()
 
         $ObjectRepositories | ForEach-Object {
             $inobj = @{
@@ -458,8 +495,26 @@ function Get-VbrObjectRepoyInfo {
                     }
                 }
             }
-            $ObjectRepositoriesInfo += $inobj
+            $TempObjectRepositoriesInfo = [PSCustomObject]@{
+                Name = $_.Name
+                AditionalInfo = $inobj
+            }
+            $ObjectRepositoriesInfo += $TempObjectRepositoriesInfo
         }
+        return $ObjectRepositoriesInfo
+    }
+}
+
+
+# Archive Object Repositories Graphviz Cluster
+function Get-VbrArchObjectRepoInfo {
+    param (
+    )
+
+    $ArchObjStorages = Get-VBRArchiveObjectStorageRepository
+    if ($ArchObjStorages) {
+
+        $ArchObjRepositoriesInfo = @()
 
         $ArchObjStorages | ForEach-Object {
             $inobj = @{
@@ -486,8 +541,57 @@ function Get-VbrObjectRepoyInfo {
                     }
                 }
             }
-            $ArchObjRepositoriesInfo += $inobj
+
+            $TempArchObjectRepositoriesInfo = [PSCustomObject]@{
+                Name = $_.Name
+                AditionalInfo = $inobj
+            }
+            $ArchObjRepositoriesInfo += $TempArchObjectRepositoriesInfo
         }
+        return $ArchObjRepositoriesInfo
+    }
+}
+
+# Scale-Out Backup Repository Graphviz Cluster
+function Get-VbrSOBRInfo {
+    param (
+    )
+    try {
+        Write-PScriboMessage "Collecting Scale-Out Backup Repository information from $VeeamBackupServer."
+        $SOBR = Get-VBRBackupRepository -ScaleOut
+
+        if ($SOBR) {
+            if ($Options.DiagramObjDebug) {
+                $SOBR = $SOBRDebug
+            }
+
+            $SOBRInfo = @()
+
+            $SOBR | ForEach-Object {
+                $inobj = [ordered] @{
+                    'Placement Policy' = $_.PolicyType
+                    'Encryption Enabled' = switch ($_.EncryptionEnabled) {
+                        "" { "--" }
+                        $Null { "--" }
+                        "True" { "Yes"; break }
+                        "False" { "No"; break }
+                        default { $_.EncryptionEnabled }
+                    }
+                }
+
+                $TempSOBRInfo = [PSCustomObject]@{
+                    Name = $_.Name
+                    AditionalInfo = $inobj
+                }
+
+                $SOBRInfo += $TempSOBRInfo
+            }
+        }
+
+        return $SOBRInfo
+
+    } catch {
+        $_
     }
 
 }
