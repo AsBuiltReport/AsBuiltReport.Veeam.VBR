@@ -517,7 +517,7 @@ function Get-AbrVbrDiagram {
 
                         # Connect Veeam Scale-Out Backup Repository to the Dummy line
                         if ($SOBR) {
-                            Edge -From VBRRepoPointSpace -To SOBRRepo @{minlen = 2; arrowtail = 'dot'; arrowhead = 'none'; style = 'dashed' }
+                            Edge -From VBRRepoPointSpace -To SOBRRepo @{minlen = 2; arrowtail = 'none'; arrowhead = 'dot'; style = 'dashed' }
                         }
                     }
                 }
