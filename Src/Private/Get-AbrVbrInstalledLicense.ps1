@@ -6,7 +6,7 @@ function Get-AbrVbrInstalledLicense {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.5
+        Version:        0.8.6
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -105,19 +105,17 @@ function Get-AbrVbrInstalledLicense {
                                 if ($Report.ShowTableCaptions) {
                                     $TableParams['Caption'] = "- $($TableParams.Name)"
                                 }
-                                if ($Options.EnableCharts) {
-                                    try {
-                                        $sampleData = $inObj.GetEnumerator() | Select-Object @{ Name = 'Category'; Expression = { $_.key } }, @{ Name = 'Value'; Expression = { $_.value } } | Sort-Object -Property 'Category'
+                                try {
+                                    $sampleData = $inObj.GetEnumerator() | Select-Object @{ Name = 'Category'; Expression = { $_.key } }, @{ Name = 'Value'; Expression = { $_.value } } | Sort-Object -Property 'Category'
 
-                                        $chartFileItem = Get-PieChart -SampleData $sampleData -ChartName 'InstanceLicenseUsage' -XField 'Category' -YField 'Value' -ChartLegendName 'Category'
+                                    $chartFileItem = Get-PieChart -SampleData $sampleData -ChartName 'InstanceLicenseUsage' -XField 'Category' -YField 'Value' -ChartLegendName 'Category'
 
-                                    } catch {
-                                        Write-PScriboMessage -IsWarning "Instance License Usage chart section: $($_.Exception.Message)"
-                                    }
+                                } catch {
+                                    Write-PScriboMessage -IsWarning "Instance License Usage chart section: $($_.Exception.Message)"
                                 }
                                 if ($OutObj) {
                                     Section -Style NOTOCHeading5 -ExcludeFromTOC 'Instance License Usage' {
-                                        if ($Options.EnableCharts -and $chartFileItem -and ($inObj.Values | Measure-Object -Sum).Sum -ne 0) {
+                                        if ($chartFileItem -and ($inObj.Values | Measure-Object -Sum).Sum -ne 0) {
                                             Image -Text 'Instance License Usage - Chart' -Align 'Center' -Percent 100 -Base64 $chartFileItem
                                         }
                                         BlankLine
@@ -194,14 +192,12 @@ function Get-AbrVbrInstalledLicense {
                                 if ($Report.ShowTableCaptions) {
                                     $TableParams['Caption'] = "- $($TableParams.Name)"
                                 }
-                                if ($Options.EnableCharts) {
-                                    try {
-                                        $sampleData = $inObj.GetEnumerator() | Select-Object @{ Name = 'Category'; Expression = { $_.key } }, @{ Name = 'Value'; Expression = { $_.value } } | Sort-Object -Property 'Category'
+                                try {
+                                    $sampleData = $inObj.GetEnumerator() | Select-Object @{ Name = 'Category'; Expression = { $_.key } }, @{ Name = 'Value'; Expression = { $_.value } } | Sort-Object -Property 'Category'
 
-                                        $chartFileItem = Get-PieChart -SampleData $sampleData -ChartName 'CPUSocketUsage' -XField 'Category' -YField 'Value' -ChartLegendName 'Category'
-                                    } catch {
-                                        Write-PScriboMessage -IsWarning "CPU Socket Usage chart section: $($_.Exception.Message)"
-                                    }
+                                    $chartFileItem = Get-PieChart -SampleData $sampleData -ChartName 'CPUSocketUsage' -XField 'Category' -YField 'Value' -ChartLegendName 'Category'
+                                } catch {
+                                    Write-PScriboMessage -IsWarning "CPU Socket Usage chart section: $($_.Exception.Message)"
                                 }
                                 if ($OutObj) {
                                     Section -Style NOTOCHeading5 -ExcludeFromTOC 'CPU Socket License Usage' {
@@ -243,17 +239,13 @@ function Get-AbrVbrInstalledLicense {
                                 if ($Report.ShowTableCaptions) {
                                     $TableParams['Caption'] = "- $($TableParams.Name)"
                                 }
-                                if ($Options.EnableCharts) {
-                                    if ($Options.EnableCharts) {
-                                        try {
-                                            $sampleData = $inObj.GetEnumerator() | Select-Object @{ Name = 'Category'; Expression = { $_.key } }, @{ Name = 'Value'; Expression = { $_.value } } | Sort-Object -Property 'Category'
+                                try {
+                                    $sampleData = $inObj.GetEnumerator() | Select-Object @{ Name = 'Category'; Expression = { $_.key } }, @{ Name = 'Value'; Expression = { $_.value } } | Sort-Object -Property 'Category'
 
-                                            $chartFileItem = Get-PieChart -SampleData $sampleData -ChartName 'CapacityLicenseUsage' -XField 'Category' -YField 'Value' -ChartLegendName 'Category'
+                                    $chartFileItem = Get-PieChart -SampleData $sampleData -ChartName 'CapacityLicenseUsage' -XField 'Category' -YField 'Value' -ChartLegendName 'Category'
 
-                                        } catch {
-                                            Write-PScriboMessage -IsWarning "Capacity License Usage chart section: $($_.Exception.Message)"
-                                        }
-                                    }
+                                } catch {
+                                    Write-PScriboMessage -IsWarning "Capacity License Usage chart section: $($_.Exception.Message)"
                                 }
                                 if ($OutObj) {
                                     Section -Style NOTOCHeading5 -ExcludeFromTOC 'Capacity License Usage' {

@@ -4,6 +4,18 @@ labels: ["bug"]
 assignees:
   - rebelinux
 body:
+  - type: dropdown
+    id: vbrversion
+    attributes:
+      label: Veeam Backup & Replication version
+      options:
+        - 12.1
+        - 12
+        - 11
+        - 10
+        - 9.5
+    validations:
+      required: true
   - type: textarea
     id: bug-description
     attributes:

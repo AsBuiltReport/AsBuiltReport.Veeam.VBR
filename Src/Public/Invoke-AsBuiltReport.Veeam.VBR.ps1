@@ -5,7 +5,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.5
+        Version:        0.8.6
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -46,6 +46,23 @@ function Invoke-AsBuiltReport.Veeam.VBR {
     $script:Report = $ReportConfig.Report
     $script:InfoLevel = $ReportConfig.InfoLevel
     $script:Options = $ReportConfig.Options
+
+    # Set Custom styles for Veeam theme template
+    if ($Options.ReportStyle -eq "Veeam") {
+        & "$PSScriptRoot\..\..\AsBuiltReport.Veeam.VBR.Style.ps1"
+        $Legend = {
+            Text 'Enabled \' -Color 81BC50 -Bold
+            Text ' Disabled' -Color dddf62 -Bold
+        }
+    } else {
+        # Set Custom styles for Default AsBuiltReport template
+        Style -Name 'ON' -Size 8 -BackgroundColor '4c7995' -Color 4c7995
+        Style -Name 'OFF' -Size 8 -BackgroundColor 'ADDBDB' -Color ADDBDB
+        $Legend = {
+            Text 'Enabled \' -Color 4c7995 -Bold
+            Text ' Disabled' -Color ADDBDB -Bold
+        }
+    }
 
     # Used to set values to TitleCase where required
     $script:TextInfo = (Get-Culture).TextInfo
@@ -121,8 +138,9 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                                     Write-PScriboMessage -IsWarning "Wan Accelerator Diagram: $($_.Exception.Message)"
                                 }
                                 if ($Graph) {
+                                    If ((Get-DiaImagePercent -GraphObj $Graph).Width -gt 1500) { $ImagePrty = 15 } else { $ImagePrty = 50 }
                                     Section -Style Heading3 "Wan Accelerator Diagram." {
-                                        Image -Base64 $Graph -Text "Wan Accelerator Diagram" -Percent (Get-ImagePercent -Graph $Graph) -Align Center
+                                        Image -Base64 $Graph -Text "Wan Accelerator Diagram" -Percent $ImagePrty -Align Center
                                         Paragraph "Image preview: Opens the image in a new tab to view it at full resolution." -Tabs 2
                                     }
                                     BlankLine
@@ -148,8 +166,9 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                                     Write-PScriboMessage -IsWarning "Backup Repository Diagram: $($_.Exception.Message)"
                                 }
                                 if ($Graph) {
+                                    If ((Get-DiaImagePercent -GraphObj $Graph).Width -gt 1500) { $ImagePrty = 15 } else { $ImagePrty = 50 }
                                     Section -Style Heading3 "Backup Repository Diagram." {
-                                        Image -Base64 $Graph -Text "Backup Repository Diagram" -Percent (Get-ImagePercent -Graph $Graph) -Align Center
+                                        Image -Base64 $Graph -Text "Backup Repository Diagram" -Percent $ImagePrty -Align Center
                                         Paragraph "Image preview: Opens the image in a new tab to view it at full resolution." -Tabs 2
                                     }
                                     BlankLine
@@ -170,8 +189,9 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                                     Write-PScriboMessage -IsWarning "ScaleOut Backup Repository Diagram: $($_.Exception.Message)"
                                 }
                                 if ($Graph) {
+                                    If ((Get-DiaImagePercent -GraphObj $Graph).Width -gt 1500) { $ImagePrty = 15 } else { $ImagePrty = 50 }
                                     Section -Style Heading3 "ScaleOut Backup Repository Diagram." {
-                                        Image -Base64 $Graph -Text "ScaleOut Backup Repository Diagram" -Percent (Get-ImagePercent -Graph $Graph) -Align Center
+                                        Image -Base64 $Graph -Text "ScaleOut Backup Repository Diagram" -Percent $ImagePrty -Align Center
                                         Paragraph "Image preview: Opens the image in a new tab to view it at full resolution." -Tabs 2
                                     }
                                     BlankLine
@@ -225,8 +245,9 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                                     Write-PScriboMessage -IsWarning "Tape Infrastructure Diagram: $($_.Exception.Message)"
                                 }
                                 if ($Graph) {
+                                    If ((Get-DiaImagePercent -GraphObj $Graph).Width -gt 1500) { $ImagePrty = 15 } else { $ImagePrty = 50 }
                                     Section -Style Heading3 "Tape Infrastructure Diagram." {
-                                        Image -Base64 $Graph -Text "Tape Infrastructure Diagram" -Percent (Get-ImagePercent -Graph $Graph) -Align Center
+                                        Image -Base64 $Graph -Text "Tape Infrastructure Diagram" -Percent $ImagePrty -Align Center
                                         Paragraph "Image preview: Opens the image in a new tab to view it at full resolution." -Tabs 2
                                     }
                                     BlankLine
@@ -269,8 +290,9 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                                         Write-PScriboMessage -IsWarning "Physical Infrastructure Diagram: $($_.Exception.Message)"
                                     }
                                     if ($Graph) {
+                                        If ((Get-DiaImagePercent -GraphObj $Graph).Width -gt 1500) { $ImagePrty = 15 } else { $ImagePrty = 50 }
                                         Section -Style Heading3 "Physical Infrastructure Diagram." {
-                                            Image -Base64 $Graph -Text "Physical Infrastructure Diagram" -Percent (Get-ImagePercent -Graph $Graph) -Align Center
+                                            Image -Base64 $Graph -Text "Physical Infrastructure Diagram" -Percent $ImagePrty -Align Center
                                             Paragraph "Image preview: Opens the image in a new tab to view it at full resolution." -Tabs 2
                                         }
                                         BlankLine
@@ -425,10 +447,10 @@ function Invoke-AsBuiltReport.Veeam.VBR {
             }
 
             #---------------------------------------------------------------------------------------------#
-            #                             Backup Restore Points Section                              #
+            #                             Backup Restore Points Section                                   #
             #---------------------------------------------------------------------------------------------#
             if ($InfoLevel.Jobs.PSObject.Properties.Value -ne 0) {
-                if (((Get-VBRJob -WarningAction SilentlyContinue).count -gt 0) -or ((Get-VBRTapeJob).count -gt 0) -or ((Get-VBRSureBackupJob).count -gt 0)) {
+                if (((Get-VBRBackup -WarningAction SilentlyContinue).count -gt 0) -or ((Get-VBRTapeJob).count -gt 0) -or ((Get-VBRSureBackupJob).count -gt 0)) {
                     Section -Style Heading2 'Backups Summary' {
                         Paragraph "The following section provides information about the jobs restore points in Veeam Server: $(((Get-VBRServerSession).Server))."
                         BlankLine
@@ -440,10 +462,40 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                     }
                 }
             }
+
+            #---------------------------------------------------------------------------------------------#
+            #                          Backup Infrastructure Diagram Section                              #
+            #---------------------------------------------------------------------------------------------#
+
+            $DiagramParams = @{
+                'Format' = "png"
+                'FileName' = 'AsBuiltReport.Veeam.VBR.png'
+                'OutputFolderPath' = (Get-Location).Path
+            }
+
+            if ($Options.EnableDiagramDebug) {
+                $DiagramParams.Add('EnableEdgeDebug', $True)
+                $DiagramParams.Add('EnableSubGraphDebug', $True)
+            }
+
+            if ($Options.EnableDiagramSignature) {
+                $DiagramParams.Add('Signature', $True)
+                $DiagramParams.Add('AuthorName', $Options.SignatureAuthorName)
+                $DiagramParams.Add('CompanyName', $Options.SignatureCompanyName)
+            }
+
+            try {
+                $Graph = Get-AbrVbrDiagram @DiagramParams
+                if ($Graph) {
+                    Write-Information "Saved 'AsBuiltReport.Veeam.VBR.png' diagram to '$((Get-Location).Path)\'." -InformationAction Continue
+                }
+            } catch {
+                Write-PScriboMessage -IsWarning "Unable to export the Infrastructure Diagram: $($_.Exception.Message)"
+            }
         }
         if ((Get-VBRServerSession).Server) {
             Write-PScriboMessage "Disconecting section from $((Get-VBRServerSession).Server)"
-            Disconnect-VBRServer
+            # Disconnect-VBRServer
         }
     }
     #endregion foreach loop

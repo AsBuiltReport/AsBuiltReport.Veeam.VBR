@@ -5,6 +5,33 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.6] - 2024-04-29
+
+### Added
+
+- Add Backup Infrastructure Diagram (WIP)
+- Close [#155](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/155)
+- Add vCD Resources to Service Provider section
+- Add Backup Repository Space Utilization chart
+
+### Changed
+
+- Increase AsBuiltReport.Core modules to v1.4.0
+- Migrate NOTOCHeading3 to NOTOCHeading4 to fix section heading
+- Change charts palette to follow new AsBuiltReport.Core theme
+
+
+### Fixed
+
+- Fix [#149](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/149)
+- Fix [#151](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/151)
+- Fix [#150](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/150)
+
+### Removed
+
+- Remove EnableCharts option.
+- Remove Infrastructure Charts
+
 ## [0.8.5] - 2024-03-15
 
 ### Added
