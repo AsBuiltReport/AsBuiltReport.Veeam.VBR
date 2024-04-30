@@ -85,19 +85,27 @@ function Get-AbrVbrBackupRepository {
                         try {
                             $sampleData = $OutObj | Select-Object Name, 'Used Space %', 'Free Space %'
 
-                            $CustomPalette = @(
-                                [System.Drawing.ColorTranslator]::FromHtml('#565656')
-                                [System.Drawing.ColorTranslator]::FromHtml('#DFF0D0')
-                            )
-
                             $CustomPalette1 = @(
                                 [System.Drawing.ColorTranslator]::FromHtml('#565656')
 
                             )
-                            $CustomPalette2 = @(
-                                [System.Drawing.ColorTranslator]::FromHtml('#DFF0D0')
-                            )
-
+                            if ($Options.ReportStyle -eq "Veeam") {
+                                $CustomPalette = @(
+                                    [System.Drawing.ColorTranslator]::FromHtml('#565656')
+                                    [System.Drawing.ColorTranslator]::FromHtml('#DFF0D0')
+                                )
+                                $CustomPalette2 = @(
+                                    [System.Drawing.ColorTranslator]::FromHtml('#DFF0D0')
+                                )
+                            } else {
+                                $CustomPalette = @(
+                                    [System.Drawing.ColorTranslator]::FromHtml('#565656')
+                                    [System.Drawing.ColorTranslator]::FromHtml('#d5e2ff')
+                                )
+                                $CustomPalette2 = @(
+                                    [System.Drawing.ColorTranslator]::FromHtml('#d5e2ff')
+                                )
+                            }
                             $exampleChart = New-Chart -Name BKRepo -Width 600 -Height 600 -BorderStyle Dash -BorderWidth 1 -CustomPalette $CustomPalette -BorderColor DarkGreen
 
                             $addChartAreaParams = @{
