@@ -6,7 +6,7 @@ function Get-AbrVbrRepljobVMware {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.6
+        Version:        0.8.7
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -652,7 +652,7 @@ function Get-AbrVbrRepljobVMware {
                                     Section -Style NOTOCHeading5 -ExcludeFromTOC "Guest Processing" {
                                         $OutObj = @()
                                         try {
-                                            $VSSObjs = Get-VBRJobObject -Job $Bkjob.Name | Where-Object { $_.Type -eq "Include" -or $_.Type -eq "VssChild" }
+                                            $VSSObjs = Get-VBRJobObject -Job $Bkjob.Name | Where-Object { $_.Type -eq "Include" -or $_.Type -eq "VssChild" } | Sort-Object -Property Name
                                             foreach ($VSSObj in $VSSObjs) {
                                                 Write-PScriboMessage "Discovered $($Bkjob.Name) guest processing."
                                                 $inObj = [ordered] @{

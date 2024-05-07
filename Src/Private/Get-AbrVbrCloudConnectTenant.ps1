@@ -6,7 +6,7 @@ function Get-AbrVbrCloudConnectTenant {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.6
+        Version:        0.8.7
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -378,7 +378,7 @@ function Get-AbrVbrCloudConnectTenant {
                                                     }
                                                 }
                                                 try {
-                                                    $CloudSubTenants = Get-VBRCloudSubTenant | Where-Object { $_.TenantId -eq $CloudObject.Id }
+                                                    $CloudSubTenants = Get-VBRCloudSubTenant | Where-Object { $_.TenantId -eq $CloudObject.Id } | Sort-Object -Property Name
                                                     if ($CloudSubTenants) {
                                                         Section -ExcludeFromTOC -Style NOTOCHeading6 'Sub-Tenants' {
                                                             $OutObj = @()

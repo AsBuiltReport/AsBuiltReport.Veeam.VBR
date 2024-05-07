@@ -6,7 +6,7 @@ function Get-AbrVbrBackupProxy {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.6
+        Version:        0.8.7
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -30,7 +30,7 @@ function Get-AbrVbrBackupProxy {
                 Section -Style Heading3 'Backup Proxies' {
                     Paragraph "The following section provides a summary of the Veeam Backup Proxies"
                     BlankLine
-                    $BackupProxies = Get-VBRViProxy
+                    $BackupProxies = Get-VBRViProxy | Sort-Object -Property Name
                     if ($BackupProxies) {
                         Section -Style Heading4 'VMware Backup Proxies' {
                             $OutObj = @()
@@ -118,7 +118,7 @@ function Get-AbrVbrBackupProxy {
                                 Write-PScriboMessage "Hardware Inventory Status set as $($Options.EnableHardwareInventory)."
                                 if ($Options.EnableHardwareInventory) {
                                     Write-PScriboMessage "Collecting Hardware/Software Inventory Summary."
-                                    $BackupProxies = Get-VBRViProxy | Where-Object { $_.Host.Type -eq "Windows" }
+                                    $BackupProxies = Get-VBRViProxy | Where-Object { $_.Host.Type -eq "Windows" } | Sort-Object -Property Name
                                     if ($BackupProxies) {
                                         $vSphereVBProxyObj = foreach ($BackupProxy in $BackupProxies) {
                                             if (Test-Connection -ComputerName $BackupProxy.Host.Name -Quiet -Count 2) {
@@ -378,7 +378,7 @@ function Get-AbrVbrBackupProxy {
                                     if ($InfoLevel.Infrastructure.Proxy -ge 1) {
                                         Write-PScriboMessage "Backup Proxy InfoLevel set at $($InfoLevel.Infrastructure.Proxy)."
                                         Write-PScriboMessage "Collecting Veeam Services Information."
-                                        $BackupProxies = Get-VBRViProxy | Where-Object { $_.Host.Type -eq "Windows" }
+                                        $BackupProxies = Get-VBRViProxy | Where-Object { $_.Host.Type -eq "Windows" } | Sort-Object -Property Name
                                         foreach ($BackupProxy in $BackupProxies) {
                                             if (Test-Connection -ComputerName $BackupProxy.Host.Name -Quiet -Count 2) {
                                                 try {
@@ -454,7 +454,7 @@ function Get-AbrVbrBackupProxy {
                     #                       Hyper-V Backup Prxy information Section                               #
                     #---------------------------------------------------------------------------------------------#
                     try {
-                        $BackupProxies = Get-VBRHvProxy
+                        $BackupProxies = Get-VBRHvProxy | Sort-Object -Property Name
                         if ($BackupProxies) {
                             Section -Style Heading4 'Hyper-V Backup Proxies' {
                                 $OutObj = @()
@@ -545,7 +545,7 @@ function Get-AbrVbrBackupProxy {
                                     if ($Options.EnableHardwareInventory) {
                                         Write-PScriboMessage "Backup Proxy InfoLevel set at $($InfoLevel.Infrastructure.Proxy)."
                                         Write-PScriboMessage "Collecting Hardware/Software Inventory Summary."
-                                        $BackupProxies = Get-VBRHvProxy
+                                        $BackupProxies = Get-VBRHvProxy | Sort-Object -Property Name
                                         if ($BackupProxies) {
                                             $HyperVBProxyObj = foreach ($BackupProxy in $BackupProxies) {
                                                 if (Test-Connection -ComputerName $BackupProxy.Host.Name -Quiet -Count 2) {
@@ -808,7 +808,7 @@ function Get-AbrVbrBackupProxy {
                                         if ($InfoLevel.Infrastructure.Proxy -ge 1) {
                                             Write-PScriboMessage "Backup Proxy InfoLevel set at $($InfoLevel.Infrastructure.Proxy)."
                                             Write-PScriboMessage "Collecting Veeam Service Information."
-                                            $BackupProxies = Get-VBRHvProxy
+                                            $BackupProxies = Get-VBRHvProxy | Sort-Object -Property Name
                                             foreach ($BackupProxy in $BackupProxies) {
                                                 if (Test-Connection -ComputerName $BackupProxy.Host.Name -Quiet -Count 2) {
                                                     try {
