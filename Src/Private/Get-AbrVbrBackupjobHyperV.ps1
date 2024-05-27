@@ -26,15 +26,13 @@ function Get-AbrVbrBackupjobHyperV {
 
     process {
         try {
-            $Bkjobs = Get-VBRJob -WarningAction SilentlyContinue | Where-Object { $_.TypeToString -eq "Hyper-V Backup" -or $_.TypeToString -eq "Hyper-V Backup Copy" } | Sort-Object -Property Name
-            if (($Bkjobs).count -gt 0) {
+            if ($Bkjobs = Get-VBRJob -WarningAction SilentlyContinue | Where-Object { $_.TypeToString -eq "Hyper-V Backup" -or $_.TypeToString -eq "Hyper-V Backup Copy" } | Sort-Object -Property Name) {
                 Section -Style Heading3 'Hyper-V Backup Jobs Configuration' {
                     Paragraph "The following section details the configuration of the Hyper-V type backup jobs."
                     BlankLine
                     $OutObj = @()
                     try {
-                        $VMcounts = Get-VBRBackup | Where-Object { $_.TypeToString -eq "Hyper-V Backup" -or $_.TypeToString -eq "Hyper-V Backup Copy" }
-                        if ($VMcounts) {
+                        if ($VMcounts = Get-VBRBackup | Where-Object { $_.TypeToString -eq "Hyper-V Backup" -or $_.TypeToString -eq "Hyper-V Backup Copy" }) {
                             foreach ($VMcount in $VMcounts) {
                                 try {
                                     Write-PScriboMessage "Discovered $($VMcount.Name) ."

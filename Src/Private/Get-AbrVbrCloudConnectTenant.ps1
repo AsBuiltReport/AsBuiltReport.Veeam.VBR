@@ -27,8 +27,7 @@ function Get-AbrVbrCloudConnectTenant {
     process {
         try {
             if ($VbrLicenses | Where-Object { $_.CloudConnect -ne "Disabled" }) {
-                $CloudObjects = Get-VBRCloudTenant | Sort-Object -Property Name
-                if ($CloudObjects) {
+                if ($CloudObjects = Get-VBRCloudTenant | Sort-Object -Property Name) {
                     Section -Style Heading3 'Tenants' {
                         Paragraph "The following table provides status information about Cloud Connect Tenants."
                         BlankLine
@@ -330,8 +329,7 @@ function Get-AbrVbrCloudConnectTenant {
                                                 }
                                                 if ($CloudObject.ReplicationResources.NetworkFailoverResourcesEnabled -or $CloudObject.vCDReplicationResource.TenantNetworkAppliance) {
                                                     try {
-                                                        $TenantNetworkAppliances = Get-VBRCloudTenantNetworkAppliance -Tenant $CloudObject
-                                                        if ($TenantNetworkAppliances) {
+                                                        if ($TenantNetworkAppliances = Get-VBRCloudTenantNetworkAppliance -Tenant $CloudObject) {
                                                             Section -ExcludeFromTOC -Style NOTOCHeading6 'Network Extension' {
                                                                 $OutObj = @()
                                                                 foreach ($TenantNetworkAppliance in $TenantNetworkAppliances) {
@@ -378,8 +376,7 @@ function Get-AbrVbrCloudConnectTenant {
                                                     }
                                                 }
                                                 try {
-                                                    $CloudSubTenants = Get-VBRCloudSubTenant | Where-Object { $_.TenantId -eq $CloudObject.Id } | Sort-Object -Property Name
-                                                    if ($CloudSubTenants) {
+                                                    if ($CloudSubTenants = Get-VBRCloudSubTenant | Where-Object { $_.TenantId -eq $CloudObject.Id } | Sort-Object -Property Name) {
                                                         Section -ExcludeFromTOC -Style NOTOCHeading6 'Sub-Tenants' {
                                                             $OutObj = @()
                                                             foreach ($CloudSubTenant in $CloudSubTenants) {

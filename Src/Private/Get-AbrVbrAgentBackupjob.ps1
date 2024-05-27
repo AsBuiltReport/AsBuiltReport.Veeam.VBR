@@ -6,7 +6,7 @@ function Get-AbrVbrAgentBackupjob {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.5
+        Version:        0.8.7
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -26,8 +26,7 @@ function Get-AbrVbrAgentBackupjob {
 
     process {
         try {
-            $ABkjobs = Get-VBRComputerBackupJob
-            if (($ABkjobs).count -gt 0) {
+            if ($ABkjobs = Get-VBRComputerBackupJob) {
                 Section -Style Heading3 'Agent Backup Jobs' {
                     Paragraph "The following section list agent backup jobs created in Veeam Backup & Replication."
                     BlankLine

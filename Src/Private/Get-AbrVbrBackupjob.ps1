@@ -6,7 +6,7 @@ function Get-AbrVbrBackupjob {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.5
+        Version:        0.8.7
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -26,8 +26,7 @@ function Get-AbrVbrBackupjob {
 
     process {
         try {
-            $Bkjobs = Get-VBRJob -WarningAction SilentlyContinue | Where-Object { $_.TypeToString -ne 'Windows Agent Backup' -and $_.TypeToString -ne 'Hyper-V Replication' -and $_.TypeToString -ne 'VMware Replication' } | Sort-Object -Property Name
-            if ($Bkjobs) {
+            if ($Bkjobs = Get-VBRJob -WarningAction SilentlyContinue | Where-Object { $_.TypeToString -ne 'Windows Agent Backup' -and $_.TypeToString -ne 'Hyper-V Replication' -and $_.TypeToString -ne 'VMware Replication' } | Sort-Object -Property Name) {
                 $OutObj = @()
                 foreach ($Bkjob in $Bkjobs) {
                     try {
@@ -103,67 +102,67 @@ function Get-AbrVbrBackupjob {
                         Section -ExcludeFromTOC -Style NOTOCHeading4 'Backup Job Status' {
                             $OutObj | Sort-Object -Property Name | Table @TableParams
                         }
-                        if ($Bkjobs) {
-                            try {
-                                Section -ExcludeFromTOC -Style NOTOCHeading4 'Backup Jobs Duration' {
-                                    $OutObj = @()
-                                    foreach ($Bkjob in $Bkjobs) {
-                                        try {
-                                            $BKJobSession = Get-VBRSession -Job $Bkjob | Select-Object -First 10
-                                            $Duration = $Null
-                                            $StandardDeviation = $Null
-                                            if ($BKJobSession) {
-                                                try {
-                                                    $Duration = Get-AvgTimeDuration -InputObject $BKJobSession -StartTime 'CreationTime' -EndTime 'EndTime'
-                                                } catch {
-                                                    Out-Null
-                                                }
-                                            }
-                                            if ($BKJobSession) {
-                                                try {
-                                                    $StandardDeviation = (Get-StrdDevDuration -JobSessions $BKJobSession).StandardDeviation
-                                                } catch {
-                                                    Out-Null
-                                                }
-                                            }
-                                            $inObj = [ordered] @{
-                                                'Name' = $Bkjob.Name
-                                                'Last Backup Duration' = Switch ([string]::IsNullOrEmpty($BKJobSession)) {
-                                                    $true { '--' }
-                                                    $false { Get-TimeDuration -TimeSpan (New-TimeSpan -Start $BKJobSession[0].CreationTime -End $BKJobSession[0].EndTime) }
-                                                }
-                                                'Last 10 Backup AVG Duration' = Switch ([string]::IsNullOrEmpty($Duration)) {
-                                                    $true { '--' }
-                                                    $false { $Duration }
-                                                    default { 'Unknown' }
-                                                }
-                                                'Standard Deviation' = Switch ([string]::IsNullOrEmpty($StandardDeviation)) {
-                                                    $true { '--' }
-                                                    $false { $StandardDeviation }
-                                                    default { 'Unknown' }
-                                                }
-                                            }
-                                            $OutObj += [pscustomobject]$inObj
-                                        } catch {
-                                            Write-PScriboMessage -IsWarning "Backup Jobs $($Bkjob.Name) Time Table: $($_.Exception.Message)"
-                                        }
-                                    }
+                        # Disable until fixing code issues
+                        # if ($Bkjobs) {
+                        #     try {
+                        #         Section -ExcludeFromTOC -Style NOTOCHeading4 'Backup Jobs Duration' {
+                        #             $OutObj = @()
+                        #             foreach ($Bkjob in $Bkjobs) {
+                        #                 try {
+                        #                     $Duration = $Null
+                        #                     $StandardDeviation = $Null
+                        #                     if ($BKJobSession = Get-VBRSession -Job $Bkjob | Select-Object -First 10) {
+                        #                         try {
+                        #                             $Duration = Get-AvgTimeDuration -InputObject $BKJobSession -StartTime 'CreationTime' -EndTime 'EndTime'
+                        #                         } catch {
+                        #                             Out-Null
+                        #                         }
+                        #                     }
+                        #                     if ($BKJobSession) {
+                        #                         try {
+                        #                             $StandardDeviation = (Get-StrdDevDuration -JobSessions $BKJobSession).StandardDeviation
+                        #                         } catch {
+                        #                             Out-Null
+                        #                         }
+                        #                     }
+                        #                     $inObj = [ordered] @{
+                        #                         'Name' = $Bkjob.Name
+                        #                         'Last Backup Duration' = Switch ([string]::IsNullOrEmpty($BKJobSession)) {
+                        #                             $true { '--' }
+                        #                             $false { Get-TimeDuration -TimeSpan (New-TimeSpan -Start $BKJobSession[0].CreationTime -End $BKJobSession[0].EndTime) }
+                        #                         }
+                        #                         'Last 10 Backup AVG Duration' = Switch ([string]::IsNullOrEmpty($Duration)) {
+                        #                             $true { '--' }
+                        #                             $false { $Duration }
+                        #                             default { 'Unknown' }
+                        #                         }
+                        #                         'Standard Deviation' = Switch ([string]::IsNullOrEmpty($StandardDeviation)) {
+                        #                             $true { '--' }
+                        #                             $false { $StandardDeviation }
+                        #                             default { 'Unknown' }
+                        #                         }
+                        #                     }
+                        #                     $OutObj += [pscustomobject]$inObj
+                        #                 } catch {
+                        #                     Write-PScriboMessage -IsWarning "Backup Jobs $($Bkjob.Name) Time Table: $($_.Exception.Message)"
+                        #                 }
+                        #             }
 
-                                    $TableParams = @{
-                                        Name = "Backup Jobs Time - $VeeamBackupServer"
-                                        List = $false
-                                        ColumnWidths = 40, 20, 20, 20
-                                    }
-                                    if ($Report.ShowTableCaptions) {
-                                        $TableParams['Caption'] = "- $($TableParams.Name)"
-                                    }
+                        #             $TableParams = @{
+                        #                 Name = "Backup Jobs Time - $VeeamBackupServer"
+                        #                 List = $false
+                        #                 ColumnWidths = 40, 20, 20, 20
+                        #             }
+                        #             if ($Report.ShowTableCaptions) {
+                        #                 $TableParams['Caption'] = "- $($TableParams.Name)"
+                        #             }
 
-                                    $OutObj | Sort-Object -Property Name | Table @TableParams
-                                }
-                            } catch {
-                                Write-PScriboMessage -IsWarning "Backup Jobs Time Section: $($_.Exception.Message)"
-                            }
-                        }
+                        #             $OutObj | Sort-Object -Property Name | Table @TableParams
+                        #         }
+                        #     } catch {
+                        #         Write-PScriboMessage -IsWarning "Backup Jobs Time Section: $($_.Exception.Message)"
+                        #     }
+                        # }
                     }
                 }
             }

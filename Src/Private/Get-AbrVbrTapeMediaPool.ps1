@@ -6,7 +6,7 @@ function Get-AbrVbrTapeMediaPool {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.5
+        Version:        0.8.7
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -26,8 +26,7 @@ function Get-AbrVbrTapeMediaPool {
 
     process {
         try {
-            $PoolObjs = Get-VBRTapeMediaPool
-            if ($PoolObjs) {
+            if ($PoolObjs = Get-VBRTapeMediaPool) {
                 #---------------------------------------------------------------------------------------------#
                 #                            Tape Media Pools Section                                         #
                 #---------------------------------------------------------------------------------------------#
@@ -93,8 +92,7 @@ function Get-AbrVbrTapeMediaPool {
                                             $OutObj = @()
                                             foreach ($TapeLibrary in $PoolObj.GlobalOptions.LibraryId) {
                                                 try {
-                                                    $TapeLibraryObj = Get-VBRTapeLibrary -Id $TapeLibrary.Guid
-                                                    if ($TapeLibraryObj) {
+                                                    if ($TapeLibraryObj = Get-VBRTapeLibrary -Id $TapeLibrary.Guid) {
                                                         if ($PoolObj.Type -ne "Custom") {
                                                             $Capacity = ((Get-VBRTapeMedium -MediaPool $PoolObj.Id | Where-Object { $_.LibraryId -eq $TapeLibrary.Guid }).Capacity | Measure-Object -Sum).Sum
                                                             $FreeSpace = ((Get-VBRTapeMedium -MediaPool $PoolObj.Id | Where-Object { $_.LibraryId -eq $TapeLibrary.Guid }).Free | Measure-Object -Sum).Sum
@@ -174,8 +172,7 @@ function Get-AbrVbrTapeMediaPool {
                                                         #                          Tape Media Pools - Tape Medium Sub-Section                         #
                                                         #---------------------------------------------------------------------------------------------#
                                                         try {
-                                                            $TapeMediums = Get-VBRTapeMedium -MediaPool $PoolObj.Id | Where-Object { $_.LibraryId -eq $TapeLibraryObj.Id }
-                                                            if ($TapeMediums) {
+                                                            if ($TapeMediums = Get-VBRTapeMedium -MediaPool $PoolObj.Id | Where-Object { $_.LibraryId -eq $TapeLibraryObj.Id }) {
                                                                 Section -ExcludeFromTOC -Style NOTOCHeading6 'Tape Mediums' {
                                                                     $OutObj = @()
                                                                     if ($TapeMediums) {

@@ -5,7 +5,7 @@ function Get-AbrVbrGlobalExclusion {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.5
+        Version:        0.8.7
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -25,9 +25,7 @@ function Get-AbrVbrGlobalExclusion {
 
     process {
         try {
-            $MalwareDetectionExclusions = Get-VBRMalwareDetectionExclusion
-            $VMExclusions = Get-VBRVMExclusion
-            if ($MalwareDetectionExclusions) {
+            if ($MalwareDetectionExclusions = Get-VBRMalwareDetectionExclusion) {
                 Section -Style Heading4 'Global Exclusions' {
                     try {
                         Write-PScriboMessage "Discovering Veeam VBR Malware Detection Exclusions settings information from $System."
@@ -56,7 +54,7 @@ function Get-AbrVbrGlobalExclusion {
                     } catch {
                         Write-PScriboMessage -IsWarning "Malware Detection Exclusions Section: $($_.Exception.Message)"
                     }
-                    if ($VMExclusions) {
+                    if ($VMExclusions = Get-VBRVMExclusion) {
                         try {
                             Write-PScriboMessage "Discovering Veeam VBR VM Exclusions settings information from $System."
                             Section -ExcludeFromTOC -Style Heading5 'VM Exclusions' {

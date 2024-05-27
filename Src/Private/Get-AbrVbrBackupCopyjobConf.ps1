@@ -6,7 +6,7 @@ function Get-AbrVbrBackupCopyjobConf {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.6
+        Version:        0.8.7
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -26,8 +26,7 @@ function Get-AbrVbrBackupCopyjobConf {
 
     process {
         try {
-            $Bkjobs = Get-VBRBackupCopyJob -WarningAction SilentlyContinue | Sort-Object -Property Name
-            if (($Bkjobs).count -gt 0) {
+            if ($Bkjobs = Get-VBRBackupCopyJob -WarningAction SilentlyContinue | Sort-Object -Property Name) {
                 Section -Style Heading3 'Backup Copy Jobs Configuration' {
                     Paragraph "The following section details the configuration of backup copy jobs."
                     BlankLine

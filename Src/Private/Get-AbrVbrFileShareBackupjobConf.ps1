@@ -25,8 +25,7 @@ function Get-AbrVbrFileShareBackupjobConf {
     }
 
     process {
-        $Bkjobs = Get-VBRJob -WarningAction SilentlyContinue | Where-Object { $_.TypeToString -like 'File Backup' -or $_.TypeToString -like 'Object Storage Backup' } | Sort-Object -Property Name
-        if (($Bkjobs).count -gt 0) {
+        if ($Bkjobs = Get-VBRJob -WarningAction SilentlyContinue | Where-Object { $_.TypeToString -like 'File Backup' -or $_.TypeToString -like 'Object Storage Backup' } | Sort-Object -Property Name) {
             if ($VbrVersion -lt 12.1) {
                 $BSName = 'File Share Backup Jobs Configuration'
             } else {

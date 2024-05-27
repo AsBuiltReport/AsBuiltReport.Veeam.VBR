@@ -26,8 +26,7 @@ function Get-AbrVbrConfigurationBackupSetting {
 
     process {
         try {
-            $BackupSettings = Get-VBRConfigurationBackupJob | Sort-Object -Property Name
-            if ($BackupSettings) {
+            if ($BackupSettings = Get-VBRConfigurationBackupJob | Sort-Object -Property Name) {
                 Section -Style Heading4 'Configuration Backup' {
                     $OutObj = @()
                     try {

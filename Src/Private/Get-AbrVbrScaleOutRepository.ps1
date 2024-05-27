@@ -6,7 +6,7 @@ function Get-AbrVbrScaleOutRepository {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.6
+        Version:        0.8.7
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -26,8 +26,7 @@ function Get-AbrVbrScaleOutRepository {
 
     process {
         try {
-            $BackupRepos = Get-VBRBackupRepository -ScaleOut | Sort-Object -Property Name
-            if ($BackupRepos) {
+            if ($BackupRepos = Get-VBRBackupRepository -ScaleOut | Sort-Object -Property Name) {
                 Section -Style Heading3 'ScaleOut Backup Repository' {
                     Paragraph "The following section provides a summary about ScaleOut Backup Repository"
                     BlankLine

@@ -26,8 +26,7 @@ function Get-AbrVbrKMSInfo {
 
     process {
         try {
-            $KMSServers = Get-VBRKMSServer | Sort-Object -Property Name
-            if ($KMSServers) {
+            if ($KMSServers = Get-VBRKMSServer | Sort-Object -Property Name) {
                 Section -Style Heading3 'Key Management Servers' {
                     Paragraph "The following table provide information about the kms configured in Veeam Backup & Replication."
                     BlankLine

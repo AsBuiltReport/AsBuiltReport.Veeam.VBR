@@ -26,8 +26,7 @@ function Get-AbrVbrRepljobHyperV {
 
     process {
         try {
-            $Bkjobs = Get-VBRJob -WarningAction SilentlyContinue | Where-Object { $_.TypeToString -eq 'Hyper-V Replication' } | Sort-Object -Property Name
-            if (($Bkjobs).count -gt 0) {
+            if ($Bkjobs = Get-VBRJob -WarningAction SilentlyContinue | Where-Object { $_.TypeToString -eq 'Hyper-V Replication' } | Sort-Object -Property Name) {
                 Section -Style Heading3 'Hyper-V Replication Jobs Configuration' {
                     Paragraph "The following section details the configuration about Hyper-V replication jobs."
                     BlankLine

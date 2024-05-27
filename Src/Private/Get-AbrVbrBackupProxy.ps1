@@ -30,8 +30,7 @@ function Get-AbrVbrBackupProxy {
                 Section -Style Heading3 'Backup Proxies' {
                     Paragraph "The following section provides a summary of the Veeam Backup Proxies"
                     BlankLine
-                    $BackupProxies = Get-VBRViProxy | Sort-Object -Property Name
-                    if ($BackupProxies) {
+                    if ($BackupProxies = Get-VBRViProxy | Sort-Object -Property Name) {
                         Section -Style Heading4 'VMware Backup Proxies' {
                             $OutObj = @()
                             try {
@@ -118,8 +117,7 @@ function Get-AbrVbrBackupProxy {
                                 Write-PScriboMessage "Hardware Inventory Status set as $($Options.EnableHardwareInventory)."
                                 if ($Options.EnableHardwareInventory) {
                                     Write-PScriboMessage "Collecting Hardware/Software Inventory Summary."
-                                    $BackupProxies = Get-VBRViProxy | Where-Object { $_.Host.Type -eq "Windows" } | Sort-Object -Property Name
-                                    if ($BackupProxies) {
+                                    if ($BackupProxies = Get-VBRViProxy | Where-Object { $_.Host.Type -eq "Windows" } | Sort-Object -Property Name) {
                                         $vSphereVBProxyObj = foreach ($BackupProxy in $BackupProxies) {
                                             if (Test-Connection -ComputerName $BackupProxy.Host.Name -Quiet -Count 2) {
                                                 try {
@@ -454,8 +452,7 @@ function Get-AbrVbrBackupProxy {
                     #                       Hyper-V Backup Prxy information Section                               #
                     #---------------------------------------------------------------------------------------------#
                     try {
-                        $BackupProxies = Get-VBRHvProxy | Sort-Object -Property Name
-                        if ($BackupProxies) {
+                        if ($BackupProxies = Get-VBRHvProxy | Sort-Object -Property Name) {
                             Section -Style Heading4 'Hyper-V Backup Proxies' {
                                 $OutObj = @()
                                 if ($InfoLevel.Infrastructure.Proxy -eq 1) {
@@ -545,8 +542,7 @@ function Get-AbrVbrBackupProxy {
                                     if ($Options.EnableHardwareInventory) {
                                         Write-PScriboMessage "Backup Proxy InfoLevel set at $($InfoLevel.Infrastructure.Proxy)."
                                         Write-PScriboMessage "Collecting Hardware/Software Inventory Summary."
-                                        $BackupProxies = Get-VBRHvProxy | Sort-Object -Property Name
-                                        if ($BackupProxies) {
+                                        if ($BackupProxies = Get-VBRHvProxy | Sort-Object -Property Name) {
                                             $HyperVBProxyObj = foreach ($BackupProxy in $BackupProxies) {
                                                 if (Test-Connection -ComputerName $BackupProxy.Host.Name -Quiet -Count 2) {
                                                     try {

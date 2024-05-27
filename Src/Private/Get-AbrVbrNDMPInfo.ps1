@@ -27,8 +27,7 @@ function Get-AbrVbrNDMPInfo {
     process {
         try {
             if ($VbrLicenses | Where-Object { $_.Edition -in @("EnterprisePlus", "Enterprise") -and $_.Status -ne "Expired" }) {
-                $NDMPObjs = Get-VBRNDMPServer | Sort-Object -Property Name
-                if ($NDMPObjs) {
+                if ($NDMPObjs = Get-VBRNDMPServer | Sort-Object -Property Name) {
                     Section -Style Heading3 'NDMP Servers' {
                         $OutObj = @()
                         try {

@@ -27,8 +27,7 @@ function Get-AbrVbrTapeVault {
     process {
         try {
             if ($VbrLicenses | Where-Object { $_.Edition -in @("EnterprisePlus", "Enterprise") -and $_.Status -ne "Expired" }) {
-                $TapeObjs = Get-VBRTapeVault | Sort-Object -Property Name
-                if ($TapeObjs) {
+                if ($TapeObjs = Get-VBRTapeVault | Sort-Object -Property Name) {
                     Section -Style Heading3 'Tape Vaults' {
                         $OutObj = @()
                         try {

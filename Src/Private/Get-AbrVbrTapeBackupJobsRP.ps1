@@ -5,7 +5,7 @@ function Get-AbrVbrTapeBackupJobsRP {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.5
+        Version:        0.8.7
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -24,15 +24,13 @@ function Get-AbrVbrTapeBackupJobsRP {
 
     process {
         try {
-            $BackupJobs = Get-VBRTapeBackup -WarningAction SilentlyContinue | Sort-Object -Property Name
-            if ($BackupJobs) {
+            if ($BackupJobs = Get-VBRTapeBackup -WarningAction SilentlyContinue | Sort-Object -Property Name) {
                 Write-PScriboMessage "Collecting Veeam VBR Tape Restore Point."
                 Section -Style Heading3 'Tape Backup Restore Points ' {
                     Paragraph "The following section details per Tape Backup Job restore points."
                     BlankLine
                     foreach ($BackupJob in $BackupJobs) {
-                        $BackupJobRestorePoints = Get-VBRRestorePoint -Backup $BackupJob | Sort-Object -Property VMName, CreationTimeUt, Type
-                        if ($BackupJobRestorePoints) {
+                        if ($BackupJobRestorePoints = Get-VBRRestorePoint -Backup $BackupJob | Sort-Object -Property VMName, CreationTimeUt, Type) {
                             Section -ExcludeFromTOC -Style NOTOCHeading4  $BackupJob.Name {
                                 $RestorePointInfo = @()
                                 foreach ($RestorePoint in $BackupJobRestorePoints) {

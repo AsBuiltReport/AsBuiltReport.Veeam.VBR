@@ -6,7 +6,7 @@ function Get-AbrVbrIOControlSetting {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.5
+        Version:        0.8.7
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -27,8 +27,7 @@ function Get-AbrVbrIOControlSetting {
     process {
         try {
             if ($VbrLicenses | Where-Object { $_.Edition -in @("EnterprisePlus", "Enterprise") -and $_.Status -ne "Expired" }) {
-                $StorageLatencyControls = Get-VBRStorageLatencyControlOptions
-                if ($StorageLatencyControls) {
+                if ($StorageLatencyControls = Get-VBRStorageLatencyControlOptions) {
                     Section -Style Heading4 'Storage Latency Control' {
                         $OutObj = @()
                         foreach ($StorageLatencyControl in $StorageLatencyControls) {
