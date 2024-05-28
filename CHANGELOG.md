@@ -7,14 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.8.7] - 2024-05-28
 
-### Changed
+### Added
 
-- Fix sorting of table [A-Z].
-- Disable the Backup Restore section (Some users reported issues with this section)
 - Update the ReadMe file to reflect conflicts with PSWriteWord module
 - Update the Eomm/why-don-t-you-tweet action to v2.0.0
 - General code cleanup/improvements
+
+### Changed
+
+- Disable the Backup Restore section (Some users reported issues with this section)
 - Increase Veeam.Diagrammer module minimun requirement to v0.6.0
+
+### Fixed
+
+ - Fix sorting of table [A-Z].
 
 ## [0.8.6] - 2024-04-29
 
