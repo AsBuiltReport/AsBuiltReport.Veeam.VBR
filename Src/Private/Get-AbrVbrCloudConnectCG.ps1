@@ -27,8 +27,7 @@ function Get-AbrVbrCloudConnectCG {
     process {
         try {
             if ($VbrLicenses | Where-Object { $_.CloudConnect -ne "Disabled" }) {
-                $CloudObjects = Get-VBRCloudGateway | Sort-Object -Property Name
-                if ($CloudObjects) {
+                if ($CloudObjects = Get-VBRCloudGateway | Sort-Object -Property Name) {
                     Section -Style Heading3 'Cloud Gateways' {
                         Paragraph "The following section provides summary information about configured Cloud Gateways."
                         BlankLine

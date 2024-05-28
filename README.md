@@ -226,7 +226,7 @@ The table below outlines the default and maximum **InfoLevel** settings for each
 | Agent       |        1        |        2        |
 | FileShare   |        1        |        2        |
 | Replication |        1        |        2        |
-| Restores    |        1        |        1        |
+| Restores    |        0        |        1        |
 
 The table below outlines the default and maximum **InfoLevel** settings for each Replication section.
 
@@ -275,3 +275,4 @@ PS C:\> New-AsBuiltReport -Report Veeam.VBR -Target veeam-vbr.pharmax.local -Use
 
 - Since many of Veeam's features depend on the Standard+ license, the Community edition is not supported.
 - If the Veeam Backup Server is not joined to an Active Directory domain (WorkGroup Auth), the PSDefaultAuthentication option must be set to Negotiate. If it is not, some of the report sections will be missing.
+- This project uses the PScribo module to generate the report. It has been identified that the EvotecIT module `PSWriteWord` uses the same cmdlet names. In order for this report to be generated correctly it is necessary to uninstall the `PSWriteWord` module.

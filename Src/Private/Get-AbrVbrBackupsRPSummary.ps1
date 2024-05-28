@@ -5,7 +5,7 @@ function Get-AbrVbrBackupsRPSummary {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.5
+        Version:        0.8.7
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -31,8 +31,7 @@ function Get-AbrVbrBackupsRPSummary {
                 Write-PScriboMessage "Collecting Veeam VBR Restore Point."
                 $RestorePointInfo = @()
                 foreach ($BackupJob in $BackupJobs) {
-                    $BackupJobRestorePoints = Get-VBRRestorePoint -Backup $BackupJob
-                    if ($BackupJobRestorePoints) {
+                    if ($BackupJobRestorePoints = Get-VBRRestorePoint -Backup $BackupJob) {
                         try {
                             if ($FullRP = $BackupJobRestorePoints |  Where-Object { $_.Type -eq 'Full' -and -Not $_.IsCorrupted -and $_.CompletionTimeUtc -gt $_.CreationTimeUTC }) {
                                 try {

@@ -6,7 +6,7 @@ function Get-AbrVbrSureBackupjobconf {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.5
+        Version:        0.8.7
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -26,8 +26,7 @@ function Get-AbrVbrSureBackupjobconf {
 
     process {
         try {
-            $SBkjobs = Get-VBRSureBackupJob
-            if ($SBkjobs) {
+            if ($SBkjobs = Get-VBRSureBackupJob | Sort-Object -Property Name) {
                 Section -Style Heading3 'SureBackup Job Configuration' {
                     Paragraph "The following section provide detailed jobs configuration about Surebackup."
                     BlankLine

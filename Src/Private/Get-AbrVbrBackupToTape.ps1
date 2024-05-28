@@ -6,7 +6,7 @@ function Get-AbrVbrBackupToTape {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.5
+        Version:        0.8.7
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -26,8 +26,7 @@ function Get-AbrVbrBackupToTape {
 
     process {
         try {
-            $TBkjobs = Get-VBRTapeJob | Where-Object { $_.Type -eq 'BackupToTape' } | Sort-Object -Property Name
-            if ($TBkjobs) {
+            if ($TBkjobs = Get-VBRTapeJob | Where-Object { $_.Type -eq 'BackupToTape' } | Sort-Object -Property Name) {
                 Section -Style Heading3 'Backup To Tape Job Configuration' {
                     Paragraph "The following section details the configuration about the backup to tape jobs ."
                     BlankLine

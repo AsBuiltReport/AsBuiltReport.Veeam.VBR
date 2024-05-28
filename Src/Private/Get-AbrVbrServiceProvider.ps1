@@ -6,7 +6,7 @@ function Get-AbrVbrServiceProvider {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.6
+        Version:        0.8.7
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -217,7 +217,7 @@ function Get-AbrVbrServiceProvider {
                                                 }
                                             }
                                             try {
-                                                $DefaultGatewayConfig = Get-VBRDefaultGatewayConfiguration -CloudProvider $CloudProvider
+                                                $DefaultGatewayConfig = Get-VBRDefaultGatewayConfiguration -CloudProvider $CloudProvider | Sort-Object -Property Name
                                                 if ($DefaultGatewayConfig.DefaultGateway | Where-Object {$Null -ne $_}) {
                                                     Section -ExcludeFromTOC -Style NOTOCHeading6 'Default Gateway Configuration ' {
                                                         $OutObj = @()
@@ -253,7 +253,7 @@ function Get-AbrVbrServiceProvider {
                                                 Write-PScriboMessage -IsWarning "Service Providers $($CloudProvider.DNSName) Default Gateway Section: $($_.Exception.Message)"
                                             }
                                             try {
-                                                $CloudSubUserConfig = Get-VBRCloudSubUser -CloudProvider $CloudProvider
+                                                $CloudSubUserConfig = Get-VBRCloudSubUser -CloudProvider $CloudProvider | Sort-Object -Property Name
                                                 if ($CloudSubUserConfig.DefaultGateway) {
                                                     Section -ExcludeFromTOC -Style NOTOCHeading6 'Cloud SubUser Default Gateway' {
                                                         $OutObj = @()

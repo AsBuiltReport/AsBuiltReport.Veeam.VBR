@@ -72,7 +72,7 @@
             "FileShare": 1,
             "Surebackup": 1,
             "Replication": 1,
-            "Restores": 1,
+            "Restores": 0,
             "Tape": 1
         }
     },

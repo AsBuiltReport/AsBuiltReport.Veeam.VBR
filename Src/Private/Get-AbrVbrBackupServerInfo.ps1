@@ -6,7 +6,7 @@ function Get-AbrVbrBackupServerInfo {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.6
+        Version:        0.8.7
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -26,8 +26,7 @@ function Get-AbrVbrBackupServerInfo {
 
     process {
         try {
-            $script:BackupServers = Get-VBRServer -Type Local
-            if (($BackupServers).count -gt 0) {
+            if ($script:BackupServers = Get-VBRServer -Type Local) {
                 Section -Style Heading3 'Backup Server' {
                     $OutObj = @()
                     try {
@@ -123,16 +122,9 @@ function Get-AbrVbrBackupServerInfo {
                             Paragraph "Health Check:" -Bold -Underline
                             BlankLine
                             Paragraph {
-                                Text 'Best Practice:' -Bold
-
-                                Text 'For the most secure deployment, Veeam recommend three options:'
+                                Text "Best Practice:" -Bold
+                                Text "When setting up the Veeam Availability infrastructure keep in mind the principle that a data protection system should not rely on the environment it is meant to protect in any way! This is because when your production environment goes down along with its domain controllers, it will impact your ability to perform actual restores due to the backup server's dependency on those domain controllers for backup console authentication, DNS for name resolution, etc."
                             }
-                            BlankLine
-                            Paragraph '1. Add the Veeam components to a management domain that resides in a separate Active Directory Forest and protect the administrative accounts with two-factor authentication mechanics.'
-
-                            Paragraph '2. Add the Veeam components to a separate workgroup and place the components on a separate network where applicable.'
-
-                            Paragraph '3. Add the Veeam components to the production domain but make sure the accounts with administrative privileges are protected with two-factor authentication.'
                             BlankLine
                             Paragraph {
                                 Text 'Reference:' -Bold
@@ -149,11 +141,10 @@ function Get-AbrVbrBackupServerInfo {
                         if ($Options.EnableHardwareInventory) {
                             $BackupServer = Get-VBRServer -Type Local
                             Write-PScriboMessage "Collecting Backup Server Inventory Summary from $($BackupServer.Name)."
-                            $HW = Invoke-Command -Session $PssSession -ScriptBlock { Get-ComputerInfo }
                             $License = Get-CimInstance -Query 'Select * from SoftwareLicensingProduct' -CimSession $CimSession | Where-Object { $_.LicenseStatus -eq 1 }
                             $HWCPU = Get-CimInstance -Class Win32_Processor -CimSession $CimSession
                             $HWBIOS = Get-CimInstance -Class Win32_Bios -CimSession $CimSession
-                            if ($HW) {
+                            if ($HW = Invoke-Command -Session $PssSession -ScriptBlock { Get-ComputerInfo }) {
                                 Section -Style Heading4 'Hardware & Software Inventory' {
                                     $OutObj = @()
                                     $inObj = [ordered] @{
@@ -477,10 +468,10 @@ function Get-AbrVbrBackupServerInfo {
                         try {
                             Write-PScriboMessage "Infrastructure Backup Server InfoLevel set at $($InfoLevel.Infrastructure.BackupServer)."
                             if ($InfoLevel.Infrastructure.BackupServer -ge 2) {
-                                $Available = Invoke-Command -Session $PssSession -ScriptBlock { Get-Service "W32Time" | Select-Object DisplayName, Name, Status }
                                 Write-PScriboMessage "Collecting Backup Server Service Summary from $($BackupServer.Name)."
-                                $Services = Invoke-Command -Session $PssSession -ScriptBlock { Get-Service Veeam* }
+                                $Available = Invoke-Command -Session $PssSession -ScriptBlock { Get-Service "W32Time" | Select-Object DisplayName, Name, Status }
                                 if ($Available) {
+                                    $Services = Invoke-Command -Session $PssSession -ScriptBlock { Get-Service Veeam* }
                                     Section -Style Heading4 "HealthCheck - Services Status" {
                                         $OutObj = @()
                                         foreach ($Service in $Services) {

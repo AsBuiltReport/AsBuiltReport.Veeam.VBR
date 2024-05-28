@@ -6,7 +6,7 @@ function Get-AbrVbrConfigurationBackupSetting {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.5
+        Version:        0.8.7
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -26,8 +26,7 @@ function Get-AbrVbrConfigurationBackupSetting {
 
     process {
         try {
-            $BackupSettings = Get-VBRConfigurationBackupJob
-            if ($BackupSettings) {
+            if ($BackupSettings = Get-VBRConfigurationBackupJob | Sort-Object -Property Name) {
                 Section -Style Heading4 'Configuration Backup' {
                     $OutObj = @()
                     try {

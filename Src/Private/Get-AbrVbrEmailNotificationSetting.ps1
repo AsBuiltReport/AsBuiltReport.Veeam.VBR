@@ -6,7 +6,7 @@ function Get-AbrVbrEmailNotificationSetting {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.0
+        Version:        0.8.7
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -26,8 +26,7 @@ function Get-AbrVbrEmailNotificationSetting {
 
     process {
         try {
-            $EmailSettings = Get-VBRMailNotificationConfiguration
-            if ($EmailSettings) {
+            if ($EmailSettings = Get-VBRMailNotificationConfiguration) {
                 Section -Style Heading4 'Email Notification' {
                     $OutObj = @()
                     foreach ($EmailSetting in $EmailSettings) {
