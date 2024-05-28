@@ -469,8 +469,9 @@ function Get-AbrVbrBackupServerInfo {
                             Write-PScriboMessage "Infrastructure Backup Server InfoLevel set at $($InfoLevel.Infrastructure.BackupServer)."
                             if ($InfoLevel.Infrastructure.BackupServer -ge 2) {
                                 Write-PScriboMessage "Collecting Backup Server Service Summary from $($BackupServer.Name)."
-                                $Services = Invoke-Command -Session $PssSession -ScriptBlock { Get-Service Veeam* }
-                                if ($Available = Invoke-Command -Session $PssSession -ScriptBlock { Get-Service "W32Time" | Select-Object DisplayName, Name, Status }) {
+                                $Available = Invoke-Command -Session $PssSession -ScriptBlock { Get-Service "W32Time" | Select-Object DisplayName, Name, Status }
+                                if ($Available) {
+                                    $Services = Invoke-Command -Session $PssSession -ScriptBlock { Get-Service Veeam* }
                                     Section -Style Heading4 "HealthCheck - Services Status" {
                                         $OutObj = @()
                                         foreach ($Service in $Services) {
