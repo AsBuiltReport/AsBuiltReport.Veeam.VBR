@@ -16,7 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Disable the Backup Restore section (Some users reported issues with this section)
-- Increase Veeam.Diagrammer module minimun requirement to v0.6.0
+- Increase Veeam.Diagrammer module minimum requirement to v0.6.0
 
 ### Fixed
 
