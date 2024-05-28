@@ -5,7 +5,7 @@ function Get-AbrVbrCloudConnectBS {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.5
+        Version:        0.8.7
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -76,7 +76,7 @@ function Get-AbrVbrCloudConnectBS {
                                         }
                                         $OutObj | Table @TableParams
                                         try {
-                                            $CloutTenant = Get-VBRCloudTenant
+                                            $CloutTenant = Get-VBRCloudTenant | Sort-Object -Property Name
                                             Section -ExcludeFromTOC -Style NOTOCHeading5 'Tenant Utilization' {
                                                 $OutObj = @()
                                                 try {

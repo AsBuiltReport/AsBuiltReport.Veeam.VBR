@@ -6,7 +6,7 @@ function Get-AbrVbrBackupjobVMware {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.6
+        Version:        0.8.7
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -26,15 +26,13 @@ function Get-AbrVbrBackupjobVMware {
 
     process {
         try {
-            $Bkjobs = Get-VBRJob -WarningAction SilentlyContinue | Where-Object { $_.TypeToString -eq "VMware Backup" -or $_.TypeToString -eq "VMware Backup Copy" -or $_.TypeToString -eq "VM Copy" } | Sort-Object -Property Name
-            if (($Bkjobs).count -gt 0) {
+            if ($Bkjobs = Get-VBRJob -WarningAction SilentlyContinue | Where-Object { $_.TypeToString -eq "VMware Backup" -or $_.TypeToString -eq "VMware Backup Copy" -or $_.TypeToString -eq "VM Copy" } | Sort-Object -Property Name) {
                 Section -Style Heading3 'VMware Backup Jobs Configuration' {
                     Paragraph "The following section details the configuration of VMware type backup jobs."
                     BlankLine
                     $OutObj = @()
                     try {
-                        $VMcounts = Get-VBRBackup | Where-Object { $_.TypeToString -eq "VMware Backup" -or $_.TypeToString -eq "VMware Backup Copy" -or $_.TypeToString -eq "VM Copy" }
-                        if ($VMcounts) {
+                        if ($VMcounts = Get-VBRBackup | Where-Object { $_.TypeToString -eq "VMware Backup" -or $_.TypeToString -eq "VMware Backup Copy" -or $_.TypeToString -eq "VM Copy" }) {
                             foreach ($VMcount in $VMcounts) {
                                 try {
                                     Write-PScriboMessage "Discovered $($VMcount.Name) ."
@@ -158,16 +156,14 @@ function Get-AbrVbrBackupjobVMware {
                                             foreach ($LinkedRepository in $Bkjob.LinkedRepositories.LinkedRepositoryId) {
                                                 try {
                                                     Write-PScriboMessage "Discovered $($Bkjob.Name) linked repository."
-                                                    $Repo = Get-VBRBackupRepository | Where-Object { $_.Id -eq $LinkedRepository }
-                                                    $ScaleRepo = Get-VBRBackupRepository -ScaleOut | Where-Object { $_.Id -eq $LinkedRepository }
-                                                    if ($Repo) {
+                                                    if ($Repo = Get-VBRBackupRepository | Where-Object { $_.Id -eq $LinkedRepository }) {
                                                         $inObj = [ordered] @{
                                                             'Name' = $Repo.Name
                                                             'Type' = "Standard"
                                                             'Size' = "$($Repo.GetContainer().CachedTotalSpace.InGigabytes) Gb"
                                                         }
                                                     }
-                                                    if ($ScaleRepo) {
+                                                    if ($ScaleRepo = Get-VBRBackupRepository -ScaleOut | Where-Object { $_.Id -eq $LinkedRepository }) {
                                                         $inObj = [ordered] @{
                                                             'Name' = $ScaleRepo.Name
                                                             'Type' = "ScaleOut"
@@ -652,7 +648,7 @@ function Get-AbrVbrBackupjobVMware {
                                     Section -Style NOTOCHeading5 -ExcludeFromTOC "Guest Processing" {
                                         $OutObj = @()
                                         try {
-                                            $VSSObjs = Get-VBRJobObject -Job $Bkjob.Name | Where-Object { $_.Type -eq "Include" -or $_.Type -eq "VssChild" }
+                                            $VSSObjs = Get-VBRJobObject -Job $Bkjob.Name | Where-Object { $_.Type -eq "Include" -or $_.Type -eq "VssChild" } | Sort-Object -Property Name
                                             foreach ($VSSObj in $VSSObjs) {
                                                 Write-PScriboMessage "Discovered $($Bkjob.Name) guest processing."
                                                 $inObj = [ordered] @{

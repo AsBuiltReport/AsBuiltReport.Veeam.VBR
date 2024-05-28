@@ -6,7 +6,7 @@ function Get-AbrVbrBackupServerCertificate {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.5
+        Version:        0.8.7
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -26,8 +26,7 @@ function Get-AbrVbrBackupServerCertificate {
 
     process {
         try {
-            $TLSSettings = Get-VBRBackupServerCertificate
-            if ($TLSSettings) {
+            if ($TLSSettings = Get-VBRBackupServerCertificate) {
                 Section -Style Heading4 'Backup Server TLS Certificate' {
                     $OutObj = @()
                     try {

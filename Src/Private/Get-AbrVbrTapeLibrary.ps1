@@ -6,7 +6,7 @@ function Get-AbrVbrTapeLibrary {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.5
+        Version:        0.8.7
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -26,8 +26,7 @@ function Get-AbrVbrTapeLibrary {
 
     process {
         try {
-            $TapeObjs = Get-VBRTapeLibrary | Sort-Object -Property Name
-            if ($TapeObjs) {
+            if ($TapeObjs = Get-VBRTapeLibrary | Sort-Object -Property Name) {
                 Section -Style Heading3 'Tape Libraries' {
                     Paragraph "The following section provides summary information about Tape Server connected Tape Library."
                     BlankLine
@@ -72,8 +71,7 @@ function Get-AbrVbrTapeLibrary {
                                     #                                  Tape Drives Section                                        #
                                     #---------------------------------------------------------------------------------------------#
                                     try {
-                                        $DriveObjs = Get-VBRTapeDrive -Library $TapeObj.Id
-                                        if ($DriveObjs) {
+                                        if ($DriveObjs = Get-VBRTapeDrive -Library $TapeObj.Id) {
                                             Write-PScriboMessage "Collecting $($TapeObj.Name) Tape Drives"
                                             Section -Style NOTOCHeading5 -ExcludeFromTOC "Tape Drives" {
                                                 $OutObj = @()
@@ -123,8 +121,7 @@ function Get-AbrVbrTapeLibrary {
                                     #---------------------------------------------------------------------------------------------#
                                     try {
                                         if ($InfoLevel.Tape.Library -ge 2) {
-                                            $MediumObjs = Get-VBRTapeMedium -Library $TapeObj.Id
-                                            if ($MediumObjs) {
+                                            if ($MediumObjs = Get-VBRTapeMedium -Library $TapeObj.Id) {
                                                 Write-PScriboMessage "Collecting $($TapeObj.Name) Tape Medium"
                                                 Section -Style NOTOCHeading5 -ExcludeFromTOC "Tape Mediums" {
                                                     $OutObj = @()

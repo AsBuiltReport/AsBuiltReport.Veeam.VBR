@@ -6,7 +6,7 @@ function Get-AbrVbrStorageOntap {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.5
+        Version:        0.8.7
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -25,8 +25,7 @@ function Get-AbrVbrStorageOntap {
     }
 
     process {
-        $OntapHosts = Get-NetAppHost
-        if ($OntapHosts) {
+        if ($OntapHosts = Get-NetAppHost) {
             Section -Style Heading3 'NetApp Ontap Storage' {
                 Paragraph "The following section details information about NetApp storage infrastructure."
                 BlankLine

@@ -6,7 +6,7 @@ function Get-AbrVbrCloudConnectGP {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.5
+        Version:        0.8.7
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -27,8 +27,7 @@ function Get-AbrVbrCloudConnectGP {
     process {
         try {
             if ($VbrLicenses | Where-Object { $_.CloudConnect -ne "Disabled" }) {
-                $CloudObjects = Get-VBRCloudGatewayPool | Sort-Object -Property Name
-                if ($CloudObjects) {
+                if ($CloudObjects = Get-VBRCloudGatewayPool | Sort-Object -Property Name) {
                     Section -Style Heading3 'Gateways Pools' {
                         Paragraph "The following section provides summary information about configured Cloud Gateways Pools."
                         BlankLine

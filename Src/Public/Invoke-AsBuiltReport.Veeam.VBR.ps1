@@ -5,7 +5,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.6
+        Version:        0.8.7
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -449,16 +449,14 @@ function Invoke-AsBuiltReport.Veeam.VBR {
             #---------------------------------------------------------------------------------------------#
             #                             Backup Restore Points Section                                   #
             #---------------------------------------------------------------------------------------------#
-            if ($InfoLevel.Jobs.PSObject.Properties.Value -ne 0) {
+            if ($InfoLevel.Jobs.Restores -gt 0) {
                 if (((Get-VBRBackup -WarningAction SilentlyContinue).count -gt 0) -or ((Get-VBRTapeJob).count -gt 0) -or ((Get-VBRSureBackupJob).count -gt 0)) {
                     Section -Style Heading2 'Backups Summary' {
                         Paragraph "The following section provides information about the jobs restore points in Veeam Server: $(((Get-VBRServerSession).Server))."
                         BlankLine
                         Get-AbrVbrBackupsRPSummary
-                        if ($InfoLevel.Jobs.Restores -gt 0) {
-                            Get-AbrVbrBackupJobsRP
-                            Get-AbrVbrTapeBackupJobsRP
-                        }
+                        Get-AbrVbrBackupJobsRP
+                        Get-AbrVbrTapeBackupJobsRP
                     }
                 }
             }

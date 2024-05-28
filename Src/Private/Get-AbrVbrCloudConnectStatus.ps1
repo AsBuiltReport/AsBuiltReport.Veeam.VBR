@@ -6,7 +6,7 @@ function Get-AbrVbrCloudConnectStatus {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.5
+        Version:        0.8.7
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -26,8 +26,7 @@ function Get-AbrVbrCloudConnectStatus {
 
     process {
         if ($VbrLicenses | Where-Object { $_.CloudConnect -ne "Disabled" }) {
-            $CloudConnectInfraStatus = Get-VBRCloudInfrastructureState
-            if ($CloudConnectInfraStatus) {
+            if ($CloudConnectInfraStatus = Get-VBRCloudInfrastructureState) {
                 Section -Style Heading3 'Service Status' {
                     Paragraph "The following section provides information about Cloud Gateways SSL Certificate."
                     BlankLine
