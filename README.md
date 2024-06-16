@@ -36,11 +36,11 @@ Please refer to the AsBuiltReport [website](https://www.asbuiltreport.com) for m
 
 # :books: Sample Reports
 
-## Sample Report - Veeam Style
+## Sample Report - Veeam Style with EnableHealthCheck
 
 Sample Veeam VBR As Built Report HTML file: [Sample Report](https://htmlpreview.github.io/?https://raw.githubusercontent.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/dev/Samples/Sample%20Veeam%20Backup%20%26%20Replication%20As%20Built%20Report.html)
 
-## Sample Diagram - Veeam Style
+## Sample Diagram
 
 Sample Veeam VBR As Built Report Diagram file: [Sample Diagram](Samples/AsBuiltReport.Veeam.VBR.png)
 
