@@ -6,7 +6,7 @@ function Get-AbrVbrBackupServerInfo {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.7
+        Version:        0.8.8
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -31,8 +31,16 @@ function Get-AbrVbrBackupServerInfo {
                     $OutObj = @()
                     try {
                         foreach ($BackupServer in $BackupServers) {
-                            $CimSession = New-CimSession $BackupServer.Name -Credential $Credential -Authentication $Options.PSDefaultAuthentication
-                            $PssSession = New-PSSession $BackupServer.Name -Credential $Credential -Authentication $Options.PSDefaultAuthentication
+                            # $CimSession = New-CimSession $BackupServer.Name -Credential $Credential -Authentication $Options.PSDefaultAuthentication
+                            # $PssSession = New-PSSession $BackupServer.Name -Credential $Credential -Authentication $Options.PSDefaultAuthentication
+                            $CimSession = try { New-CimSession $BackupServer.Name -Credential $Credential -Authentication $Options.PSDefaultAuthentication -Name 'CIMBackupServer' -ErrorAction Stop } catch { Write-PScriboMessage -IsWarning "Backup Server Section: New-CimSession: Unable to connect to $($BackupServer.Name): $($_.Exception.MessageId)" }
+
+                            $PssSession = try { New-PSSession $BackupServer.Name -Credential $Credential -Authentication $Options.PSDefaultAuthentication -ErrorAction Stop -Name 'PSSBackupServer' } catch {
+                                if (-Not $_.Exception.MessageId) {
+                                    $ErrorMessage = $_.FullyQualifiedErrorId
+                                } else { $ErrorMessage = $_.Exception.MessageId }
+                                Write-PScriboMessage -IsWarning "Backup Server Section: New-PSSession: Unable to connect to $($BackupServer.Name): $ErrorMessage"
+                            }
                             $SecurityOptions = Get-VBRSecurityOptions
                             try { $DomainJoined = Get-CimInstance -Class Win32_ComputerSystem -Property PartOfDomain -CimSession $CimSession } catch { 'Unknown' }
                             Write-PScriboMessage "Collecting Backup Server information from $($BackupServer.Name)."

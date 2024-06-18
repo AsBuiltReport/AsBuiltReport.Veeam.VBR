@@ -92,8 +92,16 @@ function Get-VbrBackupServerInfo {
     )
     process {
         try {
-            $CimSession = New-CimSession $BackupServers.Name -Credential $Credential -Authentication Negotiate
-            $PssSession = New-PSSession $BackupServers.Name -Credential $Credential -Authentication Negotiate
+            # $CimSession = New-CimSession $BackupServers.Name -Credential $Credential -Authentication Negotiate
+            # $PssSession = New-PSSession $BackupServers.Name -Credential $Credential -Authentication Negotiate
+            $CimSession = try { New-CimSession $BackupServers.Name -Credential $Credential -Authentication $Options.PSDefaultAuthentication -Name 'CIMBackupServerDiagram' -ErrorAction Stop } catch { Write-PScriboMessage -IsWarning "Backup Server Section: New-CimSession: Unable to connect to $($BackupServers.Name): $($_.Exception.MessageId)" }
+
+            $PssSession = try { New-PSSession $BackupServers.Name -Credential $Credential -Authentication $Options.PSDefaultAuthentication -ErrorAction Stop -Name 'PSSBackupServerDiagram' } catch {
+                if (-Not $_.Exception.MessageId) {
+                    $ErrorMessage = $_.FullyQualifiedErrorId
+                } else { $ErrorMessage = $_.Exception.MessageId }
+                Write-PScriboMessage -IsWarning "Backup Server Section: New-PSSession: Unable to connect to $($BackupServers.Name): $ErrorMessage"
+            }
             Write-PScriboMessage "Collecting Backup Server information from $($BackupServers.Name)."
             try {
                 $VeeamVersion = Invoke-Command -Session $PssSession -ErrorAction SilentlyContinue -ScriptBlock { Get-ChildItem -Recurse HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall | Get-ItemProperty | Where-Object { $_.DisplayName -match 'Veeam Backup & Replication Server' } | Select-Object -Property DisplayVersion }
@@ -418,6 +426,7 @@ function Get-VbrRepositoryInfo {
         $RepositoriesInfo = @()
 
         foreach ($Repository in $Repositories) {
+            $IconType = Get-IconType
             $Role = Get-RoleType -String $Repository.Type
 
             $Rows = @{}

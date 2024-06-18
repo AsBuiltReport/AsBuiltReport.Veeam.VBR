@@ -6,7 +6,7 @@ function Get-AbrVbrRepljobVMware {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.7
+        Version:        0.8.8
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -38,7 +38,7 @@ function Get-AbrVbrRepljobVMware {
                                 $inObj = [ordered] @{
                                     'Name' = $VMcount.Name
                                     'Creation Time' = $VMcount.Info.CreationTimeUtc.ToLongDateString()
-                                    'VM Count' = (Get-VBRReplica | Where-Object { $_.JobName -eq $VMcount.Name }).VMcount
+                                    'VM Count' = try {(Get-VBRReplica | Where-Object { $_.JobName -eq $VMcount.Name }).VMcount} catch {Out-Null}
                                 }
                                 $OutObj += [pscustomobject]$inobj
                             } catch {
