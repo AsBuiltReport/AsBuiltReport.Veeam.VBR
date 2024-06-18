@@ -62,6 +62,10 @@
             ModuleVersion = '0.9.0'
         }
         @{
+            ModuleName = 'Diagrammer.Core';
+            ModuleVersion = '0.2.1'
+        }
+        @{
             ModuleName = 'Veeam.Diagrammer';
             ModuleVersion = '0.6.0'
         }
