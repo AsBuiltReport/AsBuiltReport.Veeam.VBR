@@ -163,8 +163,6 @@ The **Options** schema allows certain options within the report to be toggled on
 | SignatureAuthorName     | string              | empty   | Toggle to set signature author name.                             |
 | SignatureCompanyName    | string              | empty   | Toggle to set signature company name.                            |
 
-###### * Note: In order to generate the infrastructure diagram, the Veeam.Diagrammer module requires the following windows application [Graphviz](https://graphviz.org/download/#windows) >= v9.0
-
 ### InfoLevel
 
 The **InfoLevel** schema allows configuration of each section of the report at a granular level. The following sections can be set.
