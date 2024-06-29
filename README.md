@@ -26,7 +26,7 @@
     <a href='https://ko-fi.com/F1F8DEV80' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://cdn.ko-fi.com/cdn/kofi1.png?v=3'            border='0' alt='Buy Me a Coffee at ko-fi.com' /></a>
 </p>
 
-# This project is community maintained and has no sponsorship from Veeam, its employees or any of its affiliates.
+#### This project is community maintained and has no sponsorship from Veeam, its employees or any of its affiliates.
 
 # Veeam VBR As Built Report
 
@@ -162,8 +162,6 @@ The **Options** schema allows certain options within the report to be toggled on
 | EnableDiagramSignature  | true/false          | false   | Toggle to enable/disable diagram signature (button right corner) |
 | SignatureAuthorName     | string              | empty   | Toggle to set signature author name.                             |
 | SignatureCompanyName    | string              | empty   | Toggle to set signature company name.                            |
-
-###### * Note: In order to generate the infrastructure diagram, the Veeam.Diagrammer module requires the following windows application [Graphviz](https://graphviz.org/download/#windows) >= v9.0
 
 ### InfoLevel
 
