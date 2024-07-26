@@ -26,6 +26,8 @@
     <a href='https://ko-fi.com/F1F8DEV80' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://cdn.ko-fi.com/cdn/kofi1.png?v=3'            border='0' alt='Buy Me a Coffee at ko-fi.com' /></a>
 </p>
 
+#### This project is community maintained and has no sponsorship from Veeam, its employees or any of its affiliates.
+
 # Veeam VBR As Built Report
 
 Veeam VBR As Built Report is a PowerShell module which works in conjunction with [AsBuiltReport.Core](https://github.com/AsBuiltReport/AsBuiltReport.Core).
@@ -36,11 +38,11 @@ Please refer to the AsBuiltReport [website](https://www.asbuiltreport.com) for m
 
 # :books: Sample Reports
 
-## Sample Report - Veeam Style
+## Sample Report - Veeam Style with EnableHealthCheck
 
 Sample Veeam VBR As Built Report HTML file: [Sample Report](https://htmlpreview.github.io/?https://raw.githubusercontent.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/dev/Samples/Sample%20Veeam%20Backup%20%26%20Replication%20As%20Built%20Report.html)
 
-## Sample Diagram - Veeam Style
+## Sample Diagram
 
 Sample Veeam VBR As Built Report Diagram file: [Sample Diagram](Samples/AsBuiltReport.Veeam.VBR.png)
 
@@ -161,8 +163,6 @@ The **Options** schema allows certain options within the report to be toggled on
 | SignatureAuthorName     | string              | empty   | Toggle to set signature author name.                             |
 | SignatureCompanyName    | string              | empty   | Toggle to set signature company name.                            |
 
-###### * Note: In order to generate the infrastructure diagram, the Veeam.Diagrammer module requires the following windows application [Graphviz](https://graphviz.org/download/#windows) >= v9.0
-
 ### InfoLevel
 
 The **InfoLevel** schema allows configuration of each section of the report at a granular level. The following sections can be set.
@@ -275,4 +275,4 @@ PS C:\> New-AsBuiltReport -Report Veeam.VBR -Target veeam-vbr.pharmax.local -Use
 
 - Since many of Veeam's features depend on the Standard+ license, the Community edition is not supported.
 - If the Veeam Backup Server is not joined to an Active Directory domain (WorkGroup Auth), the PSDefaultAuthentication option must be set to Negotiate. If it is not, some of the report sections will be missing.
-- This project uses the PScribo module to generate the report. It has been identified that the EvotecIT module `PSWriteWord` uses the same cmdlet names. In order for this report to be generated correctly it is necessary to uninstall the `PSWriteWord` module.
+- This project uses the `PScribo` module to generate the report. It has been identified that the `PSWriteWord` module of `EvotecIT` uses the same cmdlet names. For this report to be generated correctly it is required to uninstall the `PSWriteWord` module.

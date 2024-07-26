@@ -92,8 +92,16 @@ function Get-VbrBackupServerInfo {
     )
     process {
         try {
-            $CimSession = New-CimSession $BackupServers.Name -Credential $Credential -Authentication Negotiate
-            $PssSession = New-PSSession $BackupServers.Name -Credential $Credential -Authentication Negotiate
+            # $CimSession = New-CimSession $BackupServers.Name -Credential $Credential -Authentication Negotiate
+            # $PssSession = New-PSSession $BackupServers.Name -Credential $Credential -Authentication Negotiate
+            $CimSession = try { New-CimSession $BackupServers.Name -Credential $Credential -Authentication $Options.PSDefaultAuthentication -Name 'CIMBackupServerDiagram' -ErrorAction Stop } catch { Write-PScriboMessage -IsWarning "Backup Server Section: New-CimSession: Unable to connect to $($BackupServers.Name): $($_.Exception.MessageId)" }
+
+            $PssSession = try { New-PSSession $BackupServers.Name -Credential $Credential -Authentication $Options.PSDefaultAuthentication -ErrorAction Stop -Name 'PSSBackupServerDiagram' } catch {
+                if (-Not $_.Exception.MessageId) {
+                    $ErrorMessage = $_.FullyQualifiedErrorId
+                } else { $ErrorMessage = $_.Exception.MessageId }
+                Write-PScriboMessage -IsWarning "Backup Server Section: New-PSSession: Unable to connect to $($BackupServers.Name): $ErrorMessage"
+            }
             Write-PScriboMessage "Collecting Backup Server information from $($BackupServers.Name)."
             try {
                 $VeeamVersion = Invoke-Command -Session $PssSession -ErrorAction SilentlyContinue -ScriptBlock { Get-ChildItem -Recurse HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall | Get-ItemProperty | Where-Object { $_.DisplayName -match 'Veeam Backup & Replication Server' } | Select-Object -Property DisplayVersion }
@@ -418,6 +426,7 @@ function Get-VbrRepositoryInfo {
         $RepositoriesInfo = @()
 
         foreach ($Repository in $Repositories) {
+            $IconType = Get-IconType
             $Role = Get-RoleType -String $Repository.Type
 
             $Rows = @{}
@@ -511,7 +520,7 @@ function Get-VbrArchObjectRepoInfo {
     param (
     )
 
-    $ArchObjStorages = Get-VBRArchiveObjectStorageRepository
+    $ArchObjStorages = Get-VBRArchiveObjectStorageRepository | Sort-Object -Property Name
     if ($ArchObjStorages) {
 
         $ArchObjRepositoriesInfo = @()
@@ -558,7 +567,7 @@ function Get-VbrSOBRInfo {
     )
     try {
         Write-PScriboMessage "Collecting Scale-Out Backup Repository information from $VeeamBackupServer."
-        $SOBR = Get-VBRBackupRepository -ScaleOut
+        $SOBR = Get-VBRBackupRepository -ScaleOut | Sort-Object -Property Name
 
         if ($SOBR) {
             if ($Options.DiagramObjDebug) {
@@ -594,6 +603,163 @@ function Get-VbrSOBRInfo {
         $_
     }
 
+}
+
+# Tape Servers Graphviz Cluster
+function Get-VbrTapeServersInfo {
+    param (
+    )
+    try {
+        Write-PScriboMessage "Collecting Tape Servers information from $VeeamBackupServer."
+        $TapeServers = Get-VBRTapeServer | Sort-Object -Property Name
+
+        if ($TapeServers) {
+
+            $TapeServernfo = @()
+
+            $TapeServers | ForEach-Object {
+                $inobj = [ordered] @{
+                    'Is Available' = switch ($_.IsAvailable) {
+                        "" { "--" }
+                        $Null { "--" }
+                        "True" { "Yes"; break }
+                        "False" { "No"; break }
+                        default { $_.IsAvailable }
+                    }
+                }
+
+                $TempTapeServernfo = [PSCustomObject]@{
+                    Name = $_.Name.split('.')[0]
+                    AditionalInfo = $inobj
+                }
+
+                $TapeServernfo += $TempTapeServernfo
+            }
+        }
+
+        return $TapeServernfo
+
+    } catch {
+        $_
+    }
+
+}
+
+# Tape Library Graphviz Cluster
+function Get-VbrTapeLibraryInfo {
+    param (
+    )
+    try {
+        Write-PScriboMessage "Collecting Tape Library information from $VeeamBackupServer."
+        $TapeLibraries = Get-VBRTapeLibrary | Sort-Object -Property Name
+
+        if ($TapeLibraries) {
+
+            $TapeLibrariesInfo = @()
+
+            $TapeLibraries | ForEach-Object {
+                $inobj = [ordered] @{
+                    'State' = $_.State
+                    'Type' = $_.Type
+                    'Model' = $_.Model
+                }
+
+                $TempTapeLibrariesInfo = [PSCustomObject]@{
+                    Name = $_.Name
+                    AditionalInfo = $inobj
+                }
+
+                $TapeLibrariesInfo += $TempTapeLibrariesInfo
+            }
+        }
+
+        return $TapeLibrariesInfo
+
+    } catch {
+        $_
+    }
+
+}
+
+# Tape Library Graphviz Cluster
+function Get-VbrTapeVaultInfo {
+    param (
+    )
+    try {
+        Write-PScriboMessage "Collecting Tape Vault information from $VeeamBackupServer."
+        $TapeVaults = Get-VBRTapeVault | Sort-Object -Property Name
+
+        if ($TapeVaults) {
+
+            $TapeVaultsInfo = @()
+
+            $TapeVaults | ForEach-Object {
+                $inobj = [ordered] @{
+                    'Protect' = Switch ($_.Protect) {
+                        'True' { 'Yes' }
+                        'False' { 'No' }
+                        default { 'Unknown' }
+                    }
+                }
+
+                $TempTapeVaultsInfo = [PSCustomObject]@{
+                    Name = $_.Name
+                    AditionalInfo = $inobj
+                }
+
+                $TapeVaultsInfo += $TempTapeVaultsInfo
+            }
+        }
+
+        return $TapeVaultsInfo
+
+    } catch {
+        $_
+    }
+}
+
+# Tape Library Graphviz Cluster
+function Get-VbrServiceProviderInfo {
+    param (
+    )
+    try {
+        Write-PScriboMessage "Collecting Service Provider information from $VeeamBackupServer."
+        $ServiceProviders = Get-VBRCloudProvider | Sort-Object -Property 'DNSName'
+
+        if ($ServiceProviders) {
+
+            $ServiceProvidersInfo = @()
+
+            $ServiceProviders | ForEach-Object {
+                $inobj = [ordered] @{
+                    'Cloud Connect Type' = & {
+                        if ($_.ResourcesEnabled -and $_.ReplicationResourcesEnabled) {
+                            'BaaS & DRaaS'
+                        } elseif ($_.ResourcesEnabled) {
+                            'BaaS'
+                        } elseif ($_.ReplicationResourcesEnabled) {
+                            'DRaas'
+                        } elseif ($_.vCDReplicationResources) {
+                            'vCD'
+                        } else { 'Unknown' }
+                    }
+                    'Managed By Provider' = ConvertTo-TextYN $_.IsManagedByProvider
+                }
+
+                $TempServiceProvidersInfo = [PSCustomObject]@{
+                    Name = $_.DNSName
+                    AditionalInfo = $inobj
+                }
+
+                $ServiceProvidersInfo += $TempServiceProvidersInfo
+            }
+        }
+
+        return $ServiceProvidersInfo
+
+    } catch {
+        $_
+    }
 }
 
 function Get-VBRDebugObject {

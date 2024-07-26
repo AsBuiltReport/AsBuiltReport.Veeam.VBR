@@ -5,7 +5,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.7
+        Version:        0.8.8
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -25,6 +25,8 @@ function Invoke-AsBuiltReport.Veeam.VBR {
     Write-PScriboMessage -Plugin "Module" -IsWarning "Do not forget to update your report configuration file after each new version release."
     Write-PScriboMessage -Plugin "Module" -IsWarning "Documentation: https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR"
     Write-PScriboMessage -Plugin "Module" -IsWarning "Issues or bug reporting: https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues"
+    Write-PScriboMessage -Plugin "Module" -IsWarning "This project is community maintained and has no sponsorship from Veeam, its employees or any of its affiliates."
+
 
     # Check the current AsBuiltReport.Veeam.VBR module
     Try {
@@ -69,7 +71,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
 
     #region foreach loop
     foreach ($System in $Target) {
-        Get-AbrVbrRequiredModule -Name 'Veeam.Backup.PowerShell' -Version '1.0'
+        Get-AbrVbrRequiredModule -Name 'Veeam.Backup.PowerShell' -Version '12'
         Get-AbrVbrServerConnection
         $VeeamBackupServer = ((Get-VBRServerSession).Server).ToString().ToUpper().Split(".")[0]
         $script:VbrLicenses = Get-VBRInstalledLicense
