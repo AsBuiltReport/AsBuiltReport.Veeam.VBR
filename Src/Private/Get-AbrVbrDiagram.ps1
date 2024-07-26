@@ -392,16 +392,6 @@ function Get-AbrVbrDiagram {
                             }
                         }
 
-                        # WanAccels Graphviz Cluster
-                        $WanAccels = Get-VbrWanAccelInfo
-                        if ($WanAccels) {
-                            SubGraph WanAccels -Attributes @{Label = (Get-DiaHTMLLabel -ImagesObj $Images -Label "Wan Accelerators" -IconType "VBR_Wan_Accel" -SubgraphLabel -IconDebug $IconDebug); fontsize = 18; penwidth = 1.5; labelloc = 't'; style = 'dashed,rounded' } {
-
-                                Node WanAccelServer @{Label = (Get-DiaHTMLNodeTable -ImagesObj $Images -inputObject ($WanAccels | ForEach-Object { $_.Name.split('.')[0] }) -Align "Center" -iconType "VBR_Wan_Accel" -columnSize 3 -IconDebug $IconDebug -MultiIcon -AditionalInfo $WanAccels.AditionalInfo); shape = 'plain'; fillColor = 'transparent'; fontsize = 14; fontname = "Segoe Ui" }
-
-                            }
-                        }
-
                         # SOBR Graphviz Cluster
                         $SOBR = Get-VbrSOBRInfo
                         if ($SOBR) {
@@ -447,6 +437,16 @@ function Get-AbrVbrDiagram {
                             }
                         }
 
+                        # WanAccels Graphviz Cluster
+                        $WanAccels = Get-VbrWanAccelInfo
+                        if ($WanAccels) {
+                            SubGraph WanAccels -Attributes @{Label = (Get-DiaHTMLLabel -ImagesObj $Images -Label "Wan Accelerators" -IconType "VBR_Wan_Accel" -SubgraphLabel -IconDebug $IconDebug); fontsize = 18; penwidth = 1.5; labelloc = 't'; style = 'dashed,rounded' } {
+
+                                Node WanAccelServer @{Label = (Get-DiaHTMLNodeTable -ImagesObj $Images -inputObject ($WanAccels | ForEach-Object { $_.Name.split('.')[0] }) -Align "Center" -iconType "VBR_Wan_Accel" -columnSize 3 -IconDebug $IconDebug -MultiIcon -AditionalInfo $WanAccels.AditionalInfo); shape = 'plain'; fillColor = 'transparent'; fontsize = 14; fontname = "Segoe Ui" }
+
+                            }
+                        }
+
                         # # Tapes Graphviz Cluster
                         $TapeServerInfo = Get-VbrTapeServersInfo
                         $TapeLibraryInfo = Get-VbrTapeLibraryInfo
@@ -476,7 +476,7 @@ function Get-AbrVbrDiagram {
 
                         $ServiceProviderInfo = Get-VbrServiceProviderInfo
                         if ($ServiceProviderInfo) {
-                            SubGraph ServiceProviders -Attributes @{Label = (Get-DiaHTMLLabel -ImagesObj $Images -Label "Service Providers" -IconType "VBR_Service_Providers" -SubgraphLabel -IconDebug $IconDebug); fontsize = 18; penwidth = 1.5; labelloc = 'b'; style = 'dashed,rounded' } {
+                            SubGraph ServiceProviders -Attributes @{Label = (Get-DiaHTMLLabel -ImagesObj $Images -Label "Service Providers" -IconType "VBR_Service_Providers" -SubgraphLabel -IconDebug $IconDebug); fontsize = 18; penwidth = 1.5; labelloc = 't'; style = 'dashed,rounded' } {
 
                                 Node ServiceProvider @{Label = (Get-DiaHTMLNodeTable -ImagesObj $Images -inputObject $ServiceProviderInfo.Name -Align "Center" -iconType "VBR_Service_Providers_Server" -columnSize 3 -IconDebug $IconDebug -MultiIcon -AditionalInfo $ServiceProviderInfo.AditionalInfo); shape = 'plain'; fillColor = 'transparent'; fontsize = 14; fontname = "Segoe Ui" }
                             }
@@ -531,18 +531,43 @@ function Get-AbrVbrDiagram {
                         Edge -From VBRProxyPointSpace -To VBRRepoPoint @{minlen = 12; arrowtail = 'none'; arrowhead = 'none'; style = 'filled' }
                         Edge -From VBRRepoPoint -To VBRRepoPointSpace @{minlen = 16; arrowtail = 'none'; arrowhead = 'none'; style = 'filled' }
 
-                        # If WanAccels add the VBRWanAccelPoint Dummy Node to the line
-                        if ($WanAccels) {
+                        if ($TapeServerInfo -and $WanAccels -and $ServiceProviderInfo) {
                             Edge -From VBRRepoPointSpace -To VBRWanAccelPoint @{minlen = 12; arrowtail = 'none'; arrowhead = 'none'; style = 'filled' }
-
-                        }
-
-                        if ($TapeServerInfo -and $WanAccels) {
                             Edge -From VBRWanAccelPoint -To VBRTapePoint @{minlen = 12; arrowtail = 'none'; arrowhead = 'none'; style = 'filled' }
+                            Edge -From VBRTapePoint -To VBRServiceProviderPoint @{minlen = 12; arrowtail = 'none'; arrowhead = 'none'; style = 'filled' }
+                            $LastPoint = 'VBRServiceProviderPoint'
 
-                        } elseif ($TapeServerInfo -and (-Not $WanAccels)) {
+                        } elseif ($TapeServerInfo -and (-Not $WanAccels) -and $ServiceProviderInfo) {
                             Edge -From VBRRepoPointSpace -To VBRTapePoint @{minlen = 12; arrowtail = 'none'; arrowhead = 'none'; style = 'filled' }
+                            Edge -From VBRTapePoint -To VBRServiceProviderPoint @{minlen = 12; arrowtail = 'none'; arrowhead = 'none'; style = 'filled' }
+                            $LastPoint = 'VBRServiceProviderPoint'
+                        } elseif ($TapeServerInfo -and (-Not $WanAccels) -and (-Not $ServiceProviderInfo)) {
+                            Edge -From VBRRepoPointSpace -To VBRTapePoint @{minlen = 12; arrowtail = 'none'; arrowhead = 'none'; style = 'filled' }
+                            $LastPoint = 'VBRTapePoint'
+                        } elseif ((-Not $TapeServerInfo) -and $WanAccels -and $ServiceProviderInfo) {
+                            Edge -From VBRRepoPointSpace -To VBRWanAccelPoint @{minlen = 12; arrowtail = 'none'; arrowhead = 'none'; style = 'filled' }
+                            Edge -From VBRWanAccelPoint -To VBRServiceProviderPoint @{minlen = 12; arrowtail = 'none'; arrowhead = 'none'; style = 'filled' }
+                            $LastPoint = 'VBRServiceProviderPoint'
+                        } elseif ((-Not $TapeServerInfo) -and (-Not $WanAccels) -and $ServiceProviderInfo) {
+                            Edge -From VBRRepoPointSpace -To VBRServiceProviderPoint @{minlen = 12; arrowtail = 'none'; arrowhead = 'none'; style = 'filled' }
+                            $LastPoint = 'VBRServiceProviderPoint'
+
+                        } elseif ((-Not $TapeServerInfo) -and $WanAccels -and (-Not $ServiceProviderInfo)) {
+                            Edge -From VBRRepoPointSpace -To VBRWanAccelPoint @{minlen = 12; arrowtail = 'none'; arrowhead = 'none'; style = 'filled' }
+                            $LastPoint = 'VBRWanAccelPoint'
+                        } elseif ($TapeServerInfo -and $WanAccels -and (-Not $ServiceProviderInfo)) {
+                            Edge -From VBRRepoPointSpace -To VBRWanAccelPoint @{minlen = 12; arrowtail = 'none'; arrowhead = 'none'; style = 'filled' }
+                            Edge -From VBRWanAccelPoint -To VBRTapePoint @{minlen = 12; arrowtail = 'none'; arrowhead = 'none'; style = 'filled' }
+                            $LastPoint = 'VBRTapePoint'
+                        } elseif ((-Not $TapeServerInfo) -and (-Not $WanAccels) -and (-Not $ServiceProviderInfo)) {
+                            $LastPoint = 'VBRRepoPointSpace'
                         }
+
+                        ####################################################################################
+                        #                                                                                  #
+                        #      This section connect the Infrastructure component to the Dummy Points       #
+                        #                                                                                  #
+                        ####################################################################################
 
                         # Connect Veeam Backup server to the Dummy line
                         Edge -From $BackupServerInfo.Name -To VBRServerPointSpace @{minlen = 2; arrowtail = 'dot'; arrowhead = 'none'; style = 'dashed' }
@@ -579,27 +604,19 @@ function Get-AbrVbrDiagram {
                             Edge -From VBRTapePoint -To TapeServer @{minlen = 2; arrowtail = 'none'; arrowhead = 'dot'; style = 'dashed' }
                         }
 
-                        if ($TapeServerInfo -and (-Not $WanAccels)) {
-                            Edge -From VBRTapePoint -To VBREndPointSpace @{minlen = 30; arrowtail = 'none'; arrowhead = 'none'; style = 'filled' }
-                        }
-
-                        if ($WanAccels -and (-Not $TapeServerInfo)) {
-                            Edge -From VBRWanAccelPoint -To VBREndPointSpace @{minlen = 20; arrowtail = 'none'; arrowhead = 'none'; style = 'filled' }
-                        }
-
-                        if ((-Not $TapeServerInfo) -and (-Not $WanAccels)) {
-                            Edge -From VBRRepoPoint -To VBREndPointSpace @{minlen = 20; arrowtail = 'none'; arrowhead = 'none'; style = 'filled' }
-                        }
-
-                        if ($TapeServerInfo -and $WanAccels -and ($TapeLibraryInfo -or $TapeVaultInfo)) {
-                            Edge -From VBRTapePoint -To VBREndPointSpace @{minlen = 30; arrowtail = 'none'; arrowhead = 'none'; style = 'filled' }
-                        } elseif ($TapeServerInfo -and $WanAccels -and (-Not ($TapeLibraryInfo -or $TapeVaultInfo))) {
-                            Edge -From VBRTapePoint -To VBREndPointSpace @{minlen = 20; arrowtail = 'none'; arrowhead = 'none'; style = 'filled' }
-                        }
-
-                        # Connect Veeam Tape Infra to VBRTapePoint Dummy line
+                        # Connect Veeam ServiceProvider Infra to VBRServiceProviderPoint Dummy line
                         if ($ServiceProviderInfo) {
-                            Edge -From VBRServiceProviderPoint -To ServiceProviders @{minlen = 2; arrowtail = 'none'; arrowhead = 'dot'; style = 'dashed' }
+                            Edge -From ServiceProvider -To VBRServiceProviderPoint @{minlen = 2; arrowtail = 'dot'; arrowhead = 'none'; style = 'dashed' }
+                        }
+
+                        ####################################################################################
+                        #                                                                                  #
+                        #   This section connect the Last Infrastructure component to VBREndPointSpace     #
+                        #                                                                                  #
+                        ####################################################################################
+
+                        if ($LastPoint) {
+                            Edge -From $LastPoint -To VBREndPointSpace @{minlen = 30; arrowtail = 'none'; arrowhead = 'none'; style = 'filled' }
                         }
                     }
                 }
