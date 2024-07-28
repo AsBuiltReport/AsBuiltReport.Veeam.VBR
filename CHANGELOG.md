@@ -11,7 +11,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Added option ExportDiagramsFormat that allow to expecified Exported idagram format (png, pdf, jpg, svg)
+- Add ExportDiagramsFormat option that allows specifying the format of exported diagrams.
+  - Supported formats are dot, pdf, png, svg
+
+### Fixed
+
+- Fix bug while exporting diagram in svg format
 
 ## [0.8.8] - 2024-07-26
 
@@ -39,7 +44,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
- - Fix sorting of table [A-Z].
+- Fix sorting of table [A-Z].
 
 ## [0.8.6] - 2024-04-29
 
