@@ -5,7 +5,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.8
+        Version:        0.8.9
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -467,9 +467,14 @@ function Invoke-AsBuiltReport.Veeam.VBR {
             #                          Backup Infrastructure Diagram Section                              #
             #---------------------------------------------------------------------------------------------#
 
+            if (-Not $Options.ExportDiagramsFormat) {
+                $DiagramFormat = 'png'
+            } else {
+                $DiagramFormat = $Options.ExportDiagramsFormat
+            }
             $DiagramParams = @{
-                'Format' = "png"
-                'FileName' = 'AsBuiltReport.Veeam.VBR.png'
+                'Format' = $DiagramFormat
+                'FileName' = "AsBuiltReport.Veeam.VBR.$($DiagramFormat)"
                 'OutputFolderPath' = (Get-Location).Path
             }
 
@@ -487,7 +492,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
             try {
                 $Graph = Get-AbrVbrDiagram @DiagramParams
                 if ($Graph) {
-                    Write-Information "Saved 'AsBuiltReport.Veeam.VBR.png' diagram to '$((Get-Location).Path)\'." -InformationAction Continue
+                    Write-Information "Saved 'AsBuiltReport.Veeam.VBR.$($DiagramFormat)' diagram to '$((Get-Location).Path)\'." -InformationAction Continue
                 }
             } catch {
                 Write-PScriboMessage -IsWarning "Unable to export the Infrastructure Diagram: $($_.Exception.Message)"
