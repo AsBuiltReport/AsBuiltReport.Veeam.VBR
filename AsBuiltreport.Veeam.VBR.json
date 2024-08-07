@@ -16,7 +16,7 @@
         "EnableDiagramDebug": false,
         "DiagramWaterMark": "",
         "ExportDiagrams": true,
-        "ExportDiagramsFormat": "png",
+        "ExportDiagramsFormat": ["png"],
         "EnableDiagramSignature": false,
         "SignatureAuthorName": "",
         "SignatureCompanyName": "",

@@ -159,7 +159,7 @@ The **Options** schema allows certain options within the report to be toggled on
 | EnableDiagramsDebug     | true/false          | false   | Toggle to enable/disable diagram debug option.                                 |
 | DiagramWaterMark        | string              | empty   | Used to set the diagram waterMark.                                             |
 | ExportDiagrams          | true/false          | true    | Toggle to enable/disable diagram export option.                                |
-| ExportDiagramsFormat    | string              | png     | Set the format used to export the infrastructure diagram. (dot, png, pdf, svg) |
+| ExportDiagramsFormat    | string array        | png     | Set the format used to export the infrastructure diagram. (dot, png, pdf, svg) |
 | EnableDiagramSignature  | true/false          | false   | Toggle to enable/disable diagram signature (button right corner)               |
 | SignatureAuthorName     | string              | empty   | Toggle to set signature author name.                                           |
 | SignatureCompanyName    | string              | empty   | Toggle to set signature company name.                                          |

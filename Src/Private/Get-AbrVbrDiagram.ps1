@@ -120,13 +120,6 @@ function Get-AbrVbrDiagram {
             HelpMessage = 'Specify the Diagram filename'
         )]
         [ValidateNotNullOrEmpty()]
-        [ValidateScript({
-                if (($Format | Measure-Object).count -lt 2) {
-                    $true
-                } else {
-                    throw "Format value must be unique if Filename is especified."
-                }
-            })]
         [String] $Filename,
 
         [Parameter(
@@ -455,7 +448,7 @@ function Get-AbrVbrDiagram {
                             SubGraph TapeInfra -Attributes @{Label = (Get-DiaHTMLLabel -ImagesObj $Images -Label "Tape Infrastructure" -IconType "VBR_Tape" -SubgraphLabel -IconDebug $IconDebug); fontsize = 18; penwidth = 1.5; labelloc = 'b'; style = 'dashed,rounded' } {
                                 SubGraph TapeServers -Attributes @{Label = (Get-DiaHTMLLabel -ImagesObj $Images -Label "Tape Servers" -IconType "VBR_Tape_Server" -SubgraphLabel -IconDebug $IconDebug); fontsize = 18; penwidth = 1.5; labelloc = 'b'; style = 'dashed,rounded' } {
 
-                                    Node TapeServer @{Label = (Get-DiaHTMLNodeTable -ImagesObj $Images -inputObject $TapeServerInfo.Name -Align "Center" -iconType "VBR_Tape_Server" -columnSize 3 -IconDebug $IconDebug -MultiIcon -AditionalInfo $TapeServerInfo.AditionalInfo); shape = 'plain'; fillColor = 'transparent'; fontsize = 14; fontname = "Segoe Ui" }
+                                    Node TapeServer @{Label = (Get-DiaHTMLNodeTable -ImagesObj $Images -inputObject $TapeServerInfo.Name -Align "Center" -iconType "VBR_Tape_Server" -columnSize 3 -IconDebug $IconDebug -MultiIcon -AditionalInfo $TapeServerInfo.AditionalInfo); shape = 'plain'; fillColor = 'transparent'; fontsize = 14; fontname = "Segoe Ui"}
                                 }
 
                                 if ($TapeLibraryInfo) {
@@ -624,11 +617,13 @@ function Get-AbrVbrDiagram {
         }
     }
     end {
-        #Export  the Diagram
-        if ($Graph) {
-            Export-Diagrammer -GraphObj ($Graph | Select-String -Pattern '"([A-Z])\w+"\s\[label="";style="invis";shape="point";]' -NotMatch) -ErrorDebug $EnableErrorDebug -Format $Format -Filename $Filename -OutputFolderPath $OutputFolderPath -WaterMarkText $Options.DiagramWaterMark -WaterMarkColor "Green" -IconPath $IconPath
-        } else {
-            Write-PScriboMessage -IsWarning "No Graph object found. Disabling diagram section"
+        foreach ($OutputFormat in $Format) {
+            #Export the Diagram
+            if ($Graph) {
+                Export-Diagrammer -GraphObj ($Graph | Select-String -Pattern '"([A-Z])\w+"\s\[label="";style="invis";shape="point";]' -NotMatch) -ErrorDebug $EnableErrorDebug -Format $OutputFormat -Filename "$Filename.$OutputFormat" -OutputFolderPath $OutputFolderPath -WaterMarkText $Options.DiagramWaterMark -WaterMarkColor "Green" -IconPath $IconPath
+            } else {
+                Write-PScriboMessage -IsWarning "No Graph object found. Disabling diagram section"
+            }
         }
     }
 }
