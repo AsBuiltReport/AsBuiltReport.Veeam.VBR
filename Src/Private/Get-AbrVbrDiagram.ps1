@@ -359,7 +359,7 @@ function Get-AbrVbrDiagram {
                         Get-VbrBackupSvrDiagramObj
 
                         # Proxy Graphviz Cluster
-                        $Proxie = Get-VbrProxyInfo
+                        $Proxies = Get-VbrProxyInfo
                         if ($Proxies) {
 
                             SubGraph ProxyServer -Attributes @{Label = (Get-DiaHTMLLabel -ImagesObj $Images -Label "Backup Proxies" -IconType "VBR_Proxy" -SubgraphLabel -IconDebug $IconDebug); fontsize = 18; penwidth = 1.5; labelloc = 'b'; style = 'dashed,rounded' } {
@@ -409,8 +409,8 @@ function Get-AbrVbrDiagram {
                             }
                         }
                         # Object Repositories Graphviz Cluster
-                        $ObjectRepositoriesInfos = Get-VbrObjectRepoInfo
-                        $ArchObjRepositoriesInfos = Get-VbrArchObjectRepoInfo
+                        $ObjectRepositoriesInfo = Get-VbrObjectRepoInfo
+                        $ArchObjRepositoriesInfo = Get-VbrArchObjectRepoInfo
                         if ($ObjectRepositoriesInfo -or $ArchObjRepositoriesInfo) {
                             SubGraph ObjectRepos -Attributes @{Label = (Get-DiaHTMLLabel -ImagesObj $Images -Label "Object Storage" -IconType "VBR_Object" -SubgraphLabel -IconDebug $IconDebug); fontsize = 18; penwidth = 1.5; labelloc = 't'; style = 'dashed,rounded' } {
 
@@ -573,8 +573,11 @@ function Get-AbrVbrDiagram {
                         # Connect Veeam Proxies Server to the Dummy line
                         if ($Proxies | Where-Object { $_.AditionalInfo.Type -eq 'vSphere' }) {
                             Edge -From VBRProxyPoint -To ViProxies @{minlen = 2; arrowtail = 'none'; arrowhead = 'dot'; style = 'dashed' }
-                        } else {
+                        } elseif (-Not ($Proxies | Where-Object { $_.AditionalInfo.Type -eq 'vSphere' }) -and ($Proxies.AditionalInfo | Where-Object { $_.Type -eq "Off host" -or $_.Type -eq "On host" })) {
                             Edge -From VBRProxyPoint -To HvProxies @{minlen = 2; arrowtail = 'none'; arrowhead = 'dot'; style = 'dashed' }
+                        } else {
+                            Edge -From VBRProxyPoint -To Proxies @{minlen = 2; arrowtail = 'none'; arrowhead = 'dot'; style = 'dashed' }
+
                         }
                         # Connect Veeam Repository to the Dummy line
                         Edge -From VBRRepoPoint -To Repositories @{minlen = 2; arrowtail = 'none'; arrowhead = 'dot'; style = 'dashed' }
