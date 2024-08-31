@@ -23,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Fix bug while exporting diagram in svg format
 - Improve error handling when infrastructure components are missing
+- Fix [#169](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/169)
 
 ## [0.8.8] - 2024-07-26
 
