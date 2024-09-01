@@ -24,6 +24,7 @@ function Get-IconType {
         'AzureArchive' { 'VBR_Cloud_Repository' }
         'DDBoost' { 'VBR_Deduplicating_Storage' }
         'HPStoreOnceIntegration' { 'VBR_Deduplicating_Storage' }
+        'ExaGrid' { 'VBR_Deduplicating_Storage' }
         'SanSnapshotOnly' { 'VBR_Storage_NetApp' }
         'Proxy' { 'VBR_Repository' }
         'ESXi' { 'VBR_ESXi_Server' }
@@ -32,6 +33,8 @@ function Get-IconType {
         'IndividualComputers' { 'VBR_AGENT_IC' }
         'ActiveDirectory' { 'VBR_AGENT_AD' }
         'CSV' { 'VBR_AGENT_CSV' }
+        'CifsShare' {'VBR_NAS'}
+        'NfsShare' {'VBR_NAS'}
         default { 'VBR_No_Icon' }
     }
 
@@ -58,13 +61,17 @@ function Get-RoleType {
         'WinLocal' { 'Windows Local' }
         'DDBoost' { 'Dedup Appliances' }
         'HPStoreOnceIntegration' { 'Dedup Appliances' }
+        'ExaGrid' { 'Dedup Appliances' }
+        'InfiniGuard' { 'Dedup Appliances' }
         'Cloud' { 'Cloud' }
         'SanSnapshotOnly' { 'SAN' }
         "vmware" { 'VMware Backup Proxy' }
         "hyperv" { 'HyperV Backup Proxy' }
         "agent" { 'Agent & Files Backup Proxy' }
         "nas" { 'NAS Backup Proxy' }
-        default { 'Backup Repository' }
+        "CifsShare" { 'SMB Share' }
+        "NfsShare" { 'NFS Share' }
+        default { 'Unknown' }
     }
 
     return $RoleType
@@ -416,7 +423,7 @@ function Get-VbrRepositoryInfo {
     param (
     )
 
-    [Array]$Repositories = Get-VBRBackupRepository | Where-Object { $_.Type -notin @("SanSnapshotOnly", "AmazonS3Compatible", "WasabiS3") } | Sort-Object -Property Name
+    [Array]$Repositories = Get-VBRBackupRepository | Where-Object { $_.Type -notin @("SanSnapshotOnly", "AmazonS3Compatible", "WasabiS3", "SmartObjectS3") } | Sort-Object -Property Name
     [Array]$ScaleOuts = Get-VBRBackupRepository -ScaleOut | Sort-Object -Property Name
     if ($ScaleOuts) {
         $Extents = Get-VBRRepositoryExtent -Repository $ScaleOuts | Sort-Object -Property Name
@@ -429,19 +436,16 @@ function Get-VbrRepositoryInfo {
             $IconType = Get-IconType
             $Role = Get-RoleType -String $Repository.Type
 
-            $Rows = @{}
+            $Rows = [ordered]@{}
 
-            if ($Role -like '*Local' -or $Role -like 'Cloud') {
+            if ($Repository.Host.Name) {
                 $Rows.add('Server', $Repository.Host.Name.Split('.')[0])
-                $Rows.add('Repo Type', $Role)
-                # $Rows.add('Path', $Repository.FriendlyPath)
-                $Rows.add('Total Space', "$(($Repository).GetContainer().CachedTotalSpace.InGigabytes) GB")
-                $Rows.add('Used Space', "$(($Repository).GetContainer().CachedFreeSpace.InGigabytes) GB")
-            } elseif ($Role -like 'Dedup*') {
-                $Rows.add('Repo Type', $Role)
-                $Rows.add('Total Space', "$(($Repository).GetContainer().CachedTotalSpace.InGigabytes) GB")
-                $Rows.add('Used Space', "$(($Repository).GetContainer().CachedFreeSpace.InGigabytes) GB")
+            } else {
+                $Rows.add('Server', 'N/A')
             }
+            $Rows.add('Repo Type', $Role)
+            $Rows.add('Total Space', "$(($Repository).GetContainer().CachedTotalSpace.InGigabytes) GB")
+            $Rows.add('Used Space', "$(($Repository).GetContainer().CachedFreeSpace.InGigabytes) GB")
 
             if (($Role -ne 'Dedup Appliances') -and ($Role -ne 'SAN') -and ($Repository.Host.Name -in $ViBackupProxy.Host.Name -or $Repository.Host.Name -in $HvBackupProxy.Host.Name)) {
                 $BackupType = 'Proxy'
