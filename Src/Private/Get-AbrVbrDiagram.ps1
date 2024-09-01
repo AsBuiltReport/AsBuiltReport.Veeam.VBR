@@ -120,13 +120,6 @@ function Get-AbrVbrDiagram {
             HelpMessage = 'Specify the Diagram filename'
         )]
         [ValidateNotNullOrEmpty()]
-        [ValidateScript({
-                if (($Format | Measure-Object).count -lt 2) {
-                    $true
-                } else {
-                    throw "Format value must be unique if Filename is especified."
-                }
-            })]
         [String] $Filename,
 
         [Parameter(
@@ -395,7 +388,7 @@ function Get-AbrVbrDiagram {
                         # SOBR Graphviz Cluster
                         $SOBR = Get-VbrSOBRInfo
                         if ($SOBR) {
-                            SubGraph SOBR -Attributes @{Label = (Get-DiaHTMLLabel -ImagesObj $Images -Label "Scale-Out Backup Repository" -IconType "VBR_SOBR" -SubgraphLabel -IconDebug $IconDebug); fontsize = 18; penwidth = 1.5; labelloc = 'b'; style = 'dashed,rounded' } {
+                            SubGraph SOBR -Attributes @{Label = (Get-DiaHTMLLabel -ImagesObj $Images -Label "Scale-Out Backup Repositories" -IconType "VBR_SOBR" -SubgraphLabel -IconDebug $IconDebug); fontsize = 18; penwidth = 1.5; labelloc = 'b'; style = 'dashed,rounded' } {
 
                                 Node SOBRRepo @{Label = (Get-DiaHTMLNodeTable -ImagesObj $Images -inputObject ($SOBR | ForEach-Object { $_.Name.split('.')[0] }) -Align "Center" -iconType "VBR_SOBR_Repo" -columnSize 3 -IconDebug $IconDebug -MultiIcon -AditionalInfo $SOBR.AditionalInfo); shape = 'plain'; fillColor = 'transparent'; fontsize = 14; fontname = "Segoe Ui" }
 
@@ -434,6 +427,11 @@ function Get-AbrVbrDiagram {
                                         Node ArchObjectRepositories @{Label = (Get-DiaHTMLNodeTable -ImagesObj $Images -inputObject $ArchObjRepositoriesInfo.Name -Align "Center" -iconType "VBR_Object_Repository" -columnSize 3 -IconDebug $IconDebug -MultiIcon -AditionalInfo $ArchObjRepositoriesInfo.AditionalInfo); shape = 'plain'; fillColor = 'transparent'; fontsize = 14; fontname = "Segoe Ui" }
                                     }
                                 }
+                            }
+                        } else {
+                            SubGraph ObjectRepos -Attributes @{Label = (Get-DiaHTMLLabel -ImagesObj $Images -Label "Object Storage" -IconType "VBR_Object" -SubgraphLabel -IconDebug $IconDebug); fontsize = 18; penwidth = 1.5; labelloc = 't'; style = 'dashed,rounded' } {
+
+                                Node -Name ObjectRepo -Attributes @{Label = 'No Object Storage Repositories'; shape = "rectangle"; labelloc = 'c'; fixedsize = $true; width = "4"; height = "3"; fillColor = 'transparent'; penwidth = 0 }
                             }
                         }
 
@@ -575,8 +573,11 @@ function Get-AbrVbrDiagram {
                         # Connect Veeam Proxies Server to the Dummy line
                         if ($Proxies | Where-Object { $_.AditionalInfo.Type -eq 'vSphere' }) {
                             Edge -From VBRProxyPoint -To ViProxies @{minlen = 2; arrowtail = 'none'; arrowhead = 'dot'; style = 'dashed' }
-                        } else {
+                        } elseif (-Not ($Proxies | Where-Object { $_.AditionalInfo.Type -eq 'vSphere' }) -and ($Proxies.AditionalInfo | Where-Object { $_.Type -eq "Off host" -or $_.Type -eq "On host" })) {
                             Edge -From VBRProxyPoint -To HvProxies @{minlen = 2; arrowtail = 'none'; arrowhead = 'dot'; style = 'dashed' }
+                        } else {
+                            Edge -From VBRProxyPoint -To Proxies @{minlen = 2; arrowtail = 'none'; arrowhead = 'dot'; style = 'dashed' }
+
                         }
                         # Connect Veeam Repository to the Dummy line
                         Edge -From VBRRepoPoint -To Repositories @{minlen = 2; arrowtail = 'none'; arrowhead = 'dot'; style = 'dashed' }
@@ -587,6 +588,8 @@ function Get-AbrVbrDiagram {
 
                         } elseif ($ArchObjRepositoriesInfo) {
                             Edge -To VBRRepoPoint -From ArchObjectRepositories @{minlen = 2; arrowtail = 'dot'; arrowhead = 'none'; style = 'dashed' }
+                        } else {
+                            Edge -To VBRRepoPoint -From ObjectRepo @{minlen = 2; arrowtail = 'dot'; arrowhead = 'none'; style = 'dashed' }
                         }
 
                         # Connect Veeam Wan Accelerator to the Dummy line
@@ -624,11 +627,13 @@ function Get-AbrVbrDiagram {
         }
     }
     end {
-        #Export  the Diagram
-        if ($Graph) {
-            Export-Diagrammer -GraphObj ($Graph | Select-String -Pattern '"([A-Z])\w+"\s\[label="";style="invis";shape="point";]' -NotMatch) -ErrorDebug $EnableErrorDebug -Format $Format -Filename $Filename -OutputFolderPath $OutputFolderPath -WaterMarkText $Options.DiagramWaterMark -WaterMarkColor "Green" -IconPath $IconPath
-        } else {
-            Write-PScriboMessage -IsWarning "No Graph object found. Disabling diagram section"
+        foreach ($OutputFormat in $Format) {
+            #Export the Diagram
+            if ($Graph) {
+                Export-Diagrammer -GraphObj ($Graph | Select-String -Pattern '"([A-Z])\w+"\s\[label="";style="invis";shape="point";]' -NotMatch) -ErrorDebug $EnableErrorDebug -Format $OutputFormat -Filename "$Filename.$OutputFormat" -OutputFolderPath $OutputFolderPath -WaterMarkText $Options.DiagramWaterMark -WaterMarkColor "Green" -IconPath $IconPath
+            } else {
+                Write-PScriboMessage -IsWarning "No Graph object found. Disabling diagram section"
+            }
         }
     }
 }

@@ -6,7 +6,7 @@ function Get-AbrVbrSecurityCompliance {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.6
+        Version:        0.8.9
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -70,6 +70,9 @@ function Get-AbrVbrSecurityCompliance {
                     'ConfigurationBackupRepositoryNotLocal' = 'The configuration backup is not stored on the backup server'
                     'LossProtectionEnabled' = 'Password loss protection is enabled'
                     'TrafficEncryptionEnabled' = 'Encryption network rules added for LAN traffic'
+                    'NetBiosDisabled' = 'NetBIOS protocol should be disabled on all network interfaces'
+                    'LsassProtectedProcess' = 'Local Security Authority Server Service (LSASS) should be set to run as a protected process'
+                    'HardenedRepositoryNotContainsNBDProxies' = 'Hardened repositories should not be used as backup proxy servers due to expanded attack surface'
                 }
                 $StatusObj = @{
                     'Ok' = "Passed"

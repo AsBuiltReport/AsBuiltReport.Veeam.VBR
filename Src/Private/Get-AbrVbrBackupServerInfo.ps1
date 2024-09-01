@@ -6,7 +6,7 @@ function Get-AbrVbrBackupServerInfo {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.8
+        Version:        0.8.9
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -31,8 +31,6 @@ function Get-AbrVbrBackupServerInfo {
                     $OutObj = @()
                     try {
                         foreach ($BackupServer in $BackupServers) {
-                            # $CimSession = New-CimSession $BackupServer.Name -Credential $Credential -Authentication $Options.PSDefaultAuthentication
-                            # $PssSession = New-PSSession $BackupServer.Name -Credential $Credential -Authentication $Options.PSDefaultAuthentication
                             $CimSession = try { New-CimSession $BackupServer.Name -Credential $Credential -Authentication $Options.PSDefaultAuthentication -Name 'CIMBackupServer' -ErrorAction Stop } catch { Write-PScriboMessage -IsWarning "Backup Server Section: New-CimSession: Unable to connect to $($BackupServer.Name): $($_.Exception.MessageId)" }
 
                             $PssSession = try { New-PSSession $BackupServer.Name -Credential $Credential -Authentication $Options.PSDefaultAuthentication -ErrorAction Stop -Name 'PSSBackupServer' } catch {

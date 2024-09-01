@@ -474,7 +474,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
             }
             $DiagramParams = @{
                 'Format' = $DiagramFormat
-                'FileName' = "AsBuiltReport.Veeam.VBR.$($DiagramFormat)"
+                'FileName' = "AsBuiltReport.Veeam.VBR"
                 'OutputFolderPath' = (Get-Location).Path
             }
 
@@ -492,7 +492,9 @@ function Invoke-AsBuiltReport.Veeam.VBR {
             try {
                 $Graph = Get-AbrVbrDiagram @DiagramParams
                 if ($Graph) {
-                    Write-Information "Saved 'AsBuiltReport.Veeam.VBR.$($DiagramFormat)' diagram to '$((Get-Location).Path)\'." -InformationAction Continue
+                    foreach ($OutputFormat in $DiagramFormat) {
+                        Write-Information "Saved 'AsBuiltReport.Veeam.VBR.$($OutputFormat)' diagram to '$((Get-Location).Path)\'." -InformationAction Continue
+                    }
                 }
             } catch {
                 Write-PScriboMessage -IsWarning "Unable to export the Infrastructure Diagram: $($_.Exception.Message)"

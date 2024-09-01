@@ -7,16 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ##### This project is community maintained and has no sponsorship from Veeam, its employees or any of its affiliates.
 
-## [0.8.9] - Unreleased
+## [0.8.9] - 2024-08-31
 
 ### Added
 
-- Add ExportDiagramsFormat option that allows specifying the format of exported diagrams.
+- Add ExportDiagramsFormat option that allows specifying the format of the exported diagrams
   - Supported formats are dot, pdf, png, svg
+- Compatibility tests with v12.2 were performed
+
+### Changed
+
+- Increase Diagrammer.Core minimum requirement to v0.2.3
+- Increase Veeam.Diagrammer minimum requirement to v0.6.2
 
 ### Fixed
 
 - Fix bug while exporting diagram in svg format
+- Improve error handling when infrastructure components are missing
+- Fix [#169](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/169)
 
 ## [0.8.8] - 2024-07-26
 
