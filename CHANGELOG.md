@@ -17,7 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Increase Diagrammer.Core minimum requirement to v0.2.3
-- Increase Veeam.Diagrammer minimum requirement to v0.6.1
+- Increase Veeam.Diagrammer minimum requirement to v0.6.2
 
 ### Fixed
 
