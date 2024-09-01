@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add ExportDiagramsFormat option that allows specifying the format of the exported diagrams
   - Supported formats are dot, pdf, png, svg
+- Compatibility tests with v12.2 were performed
 
 ### Changed
 
