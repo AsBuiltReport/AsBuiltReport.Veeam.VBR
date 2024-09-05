@@ -20,6 +20,8 @@ body:
     attributes:
       label: Veeam Backup & Replication version
       options:
+        - vNEXT
+        - 12.2
         - 12.1
         - 12
         - 11
