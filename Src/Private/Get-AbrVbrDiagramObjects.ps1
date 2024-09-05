@@ -17,16 +17,17 @@ function Get-IconType {
         'LinuxLocal' { 'VBR_Linux_Repository' }
         'WinLocal' { 'VBR_Windows_Repository' }
         'Cloud' { 'VBR_Cloud_Repository' }
-        'AzureBlob' { 'VBR_Cloud_Repository' }
-        'AmazonS3' { 'VBR_Cloud_Repository' }
-        'AmazonS3Compatible' { 'VBR_Cloud_Repository' }
-        'AmazonS3Glacier' { 'VBR_Cloud_Repository' }
-        'AzureArchive' { 'VBR_Cloud_Repository' }
+        'AmazonS3Compatible' { 'VBR_Amazon_S3_Compatible' }
+        'AmazonS3Glacier' { 'VBR_Amazon_S3_Compatible' }
+        'AmazonS3' { 'VBR_Amazon_S3' }
+        'AzureArchive' { 'VBR_Azure_Blob' }
+        'AzureBlob' { 'VBR_Azure_Blob' }
         'DDBoost' { 'VBR_Deduplicating_Storage' }
         'HPStoreOnceIntegration' { 'VBR_Deduplicating_Storage' }
         'ExaGrid' { 'VBR_Deduplicating_Storage' }
         'SanSnapshotOnly' { 'VBR_Storage_NetApp' }
         'Proxy' { 'VBR_Repository' }
+        'ProxyServer' { 'VBR_Proxy_Server' }
         'ESXi' { 'VBR_ESXi_Server' }
         'HyperVHost' { 'Hyper-V_host' }
         'ManuallyDeployed' { 'VBR_AGENT_MC' }
@@ -363,9 +364,12 @@ function Get-VbrProxyInfo {
                     'Max Tasks' = $_.Options.MaxTasksCount
                 }
 
+                $IconType = Get-IconType -String 'ProxyServer'
+
                 $TempProxyInfo = [PSCustomObject]@{
                     Name = $_.Host.Name
                     AditionalInfo = $inobj
+                    IconType = $IconType
                 }
 
                 $ProxiesInfo += $TempProxyInfo
@@ -508,9 +512,13 @@ function Get-VbrObjectRepoInfo {
                     }
                 }
             }
+
+            $IconType = Get-IconType -String $_.Type
+
             $TempObjectRepositoriesInfo = [PSCustomObject]@{
                 Name = $_.Name
                 AditionalInfo = $inobj
+                IconType = $IconType
             }
             $ObjectRepositoriesInfo += $TempObjectRepositoriesInfo
         }
@@ -555,9 +563,12 @@ function Get-VbrArchObjectRepoInfo {
                 }
             }
 
+            $IconType = Get-IconType -String $_.ArchiveType
+
             $TempArchObjectRepositoriesInfo = [PSCustomObject]@{
                 Name = $_.Name
                 AditionalInfo = $inobj
+                IconType = $IconType
             }
             $ArchObjRepositoriesInfo += $TempArchObjectRepositoriesInfo
         }
