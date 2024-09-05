@@ -328,7 +328,7 @@ function Get-AbrVbrDiagram {
 
             #---------------------------------------------------------------------------------------------#
             #                             Graphviz Clusters (SubGraph) Section                            #
-            #               SubGraph can be use to bungle the Nodes together like a single entity         #
+            #               SubGraph can be use to bundle the Nodes together like a single entity         #
             #                     SubGraph allow you to have a graph within a graph                       #
             #                PSgraph: https://psgraph.readthedocs.io/en/latest/Command-SubGraph/          #
             #                      Graphviz: https://graphviz.org/docs/attrs/cluster/                     #
