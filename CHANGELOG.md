@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.8.10] - Unreleased
 
+### Changed
+
+- Add support to per object type icon in the infrastructure diagram
 
 ## [0.8.9] - 2024-08-31
 
