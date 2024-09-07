@@ -67,7 +67,7 @@
         }
         @{
             ModuleName = 'Veeam.Diagrammer';
-            ModuleVersion = '0.6.2'
+            ModuleVersion = '0.6.4'
         }
     )
 
@@ -138,5 +138,3 @@
     # DefaultCommandPrefix = ''
 
 }
-
-
