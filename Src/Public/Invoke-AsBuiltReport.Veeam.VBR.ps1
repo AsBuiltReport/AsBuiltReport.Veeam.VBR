@@ -35,7 +35,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
         if ($InstalledVersion) {
             Write-PScriboMessage -Plugin "Module" -IsWarning "AsBuiltReport.Veeam.VBR $($InstalledVersion.ToString()) is currently installed."
             $LatestVersion = Find-Module -Name AsBuiltReport.Veeam.VBR -Repository PSGallery -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Version
-            if ($LatestVersion -gt $InstalledVersion) {
+            if ($InstalledVersion -lt $LatestVersion) {
                 Write-PScriboMessage -Plugin "Module" -IsWarning "AsBuiltReport.Veeam.VBR $($LatestVersion.ToString()) is available."
                 Write-PScriboMessage -Plugin "Module" -IsWarning "Run 'Update-Module -Name AsBuiltReport.Veeam.VBR -Force' to install the latest version."
             }
@@ -478,6 +478,8 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                 'Target' = $System
                 'Direction' = 'top-to-bottom'
                 'DiagramType' = 'Backup-Infrastructure'
+                'WaterMarkText' = $Options.DiagramWaterMark
+                'WaterMarkColor' = 'DarkGreen'
             }
 
             if ($Options.EnableDiagramDebug) {
