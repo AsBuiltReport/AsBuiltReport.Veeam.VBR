@@ -86,10 +86,10 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                     Paragraph "The following section details configuration information about the Backup Server: $($VeeamBackupServer)"
                     BlankLine
                     if ($InfoLevel.Infrastructure.BackupServer -ge 1) {
-                        # Get-AbrVbrInfrastructureSummary
-                        # Get-AbrVbrSecurityCompliance
+                        Get-AbrVbrInfrastructureSummary
+                        Get-AbrVbrSecurityCompliance
                         Get-AbrVbrBackupServerInfo
-                        # Get-AbrVbrEnterpriseManagerInfo
+                        Get-AbrVbrEnterpriseManagerInfo
                     }
                     Write-PScriboMessage "Infrastructure Licenses InfoLevel set at $($InfoLevel.Infrastructure.Licenses)."
                     if ($InfoLevel.Infrastructure.Licenses -ge 1) {
