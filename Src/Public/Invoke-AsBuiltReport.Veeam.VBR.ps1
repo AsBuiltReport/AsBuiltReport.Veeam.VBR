@@ -5,7 +5,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.9
+        Version:        0.8.10
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -467,27 +467,17 @@ function Invoke-AsBuiltReport.Veeam.VBR {
             #                          Backup Infrastructure Diagram Section                              #
             #---------------------------------------------------------------------------------------------#
 
-            # Set icons path
-            $RootPath = Split-Path (Split-Path $PSScriptRoot -Parent) -Parent
-            [System.IO.FileInfo]$IconPath = Join-Path $RootPath 'icons'
-
-            # Diagram options
             if (-Not $Options.ExportDiagramsFormat) {
                 $DiagramFormat = 'png'
             } else {
                 $DiagramFormat = $Options.ExportDiagramsFormat
             }
             $DiagramParams = @{
-                'Format' = $DiagramFormat
-                'FileName' = 'AsBuiltReport.Veeam.VBR'
-                'IconPath' = $IconPath
-                'ImagesObj' = $Images
-                'LogoName' = 'VBR_LOGO'
-                'MainDiagramLabel' = 'Backup &amp; Replication Infrastructure'
                 'OutputFolderPath' = (Get-Location).Path
-                'SignatureLogoName' = 'VBR_LOGO_Footer'
-                'WaterMarkText' = $Options.DiagramWaterMark
-                'WaterMarkColor' = 'DarkGreen'
+                'Credential' = $Credential
+                'Target' = $System
+                'Direction' = 'top-to-bottom'
+                'DiagramType' = 'Backup-Infrastructure'
             }
 
             if ($Options.EnableDiagramDebug) {
@@ -502,15 +492,10 @@ function Invoke-AsBuiltReport.Veeam.VBR {
             }
 
             try {
-                # Create Veeam Graphviz Object
-                $Graph = Get-AbrVbrDiagram
-                if ($Graph) {
-                    # Create Main Diagram and attach Veeam Graphviz Object to it
-                    $Diagram = New-Diagrammer @DiagramParams -InputObject $Graph
-                    if ($Diagram) {
-                        foreach ($OutputFormat in $DiagramFormat) {
-                            Write-Information "Saved 'AsBuiltReport.Veeam.VBR.$($OutputFormat)' diagram to '$((Get-Location).Path)\'." -InformationAction Continue
-                        }
+                foreach ($Format in $DiagramFormat) {
+                    $Graph = New-VeeamDiagram @DiagramParams -Format $Format -Filename "AsBuiltReport.Veeam.VBR.$($Format)"
+                    if ($Graph) {
+                        Write-Information "Saved 'AsBuiltReport.Veeam.VBR.$($Format)' diagram to '$((Get-Location).Path)\'." -InformationAction Continue
                     }
                 }
             } catch {
