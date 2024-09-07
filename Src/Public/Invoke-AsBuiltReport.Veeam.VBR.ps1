@@ -86,10 +86,10 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                     Paragraph "The following section details configuration information about the Backup Server: $($VeeamBackupServer)"
                     BlankLine
                     if ($InfoLevel.Infrastructure.BackupServer -ge 1) {
-                        Get-AbrVbrInfrastructureSummary
-                        Get-AbrVbrSecurityCompliance
+                        # Get-AbrVbrInfrastructureSummary
+                        # Get-AbrVbrSecurityCompliance
                         Get-AbrVbrBackupServerInfo
-                        Get-AbrVbrEnterpriseManagerInfo
+                        # Get-AbrVbrEnterpriseManagerInfo
                     }
                     Write-PScriboMessage "Infrastructure Licenses InfoLevel set at $($InfoLevel.Infrastructure.Licenses)."
                     if ($InfoLevel.Infrastructure.Licenses -ge 1) {
@@ -467,6 +467,9 @@ function Invoke-AsBuiltReport.Veeam.VBR {
             #                          Backup Infrastructure Diagram Section                              #
             #---------------------------------------------------------------------------------------------#
 
+            $RootPath = Split-Path (Split-Path $PSScriptRoot -Parent) -Parent
+            [System.IO.FileInfo]$IconPath = Join-Path $RootPath 'icons'
+
             if (-Not $Options.ExportDiagramsFormat) {
                 $DiagramFormat = 'png'
             } else {
@@ -474,8 +477,15 @@ function Invoke-AsBuiltReport.Veeam.VBR {
             }
             $DiagramParams = @{
                 'Format' = $DiagramFormat
-                'FileName' = "AsBuiltReport.Veeam.VBR"
+                'FileName' = 'AsBuiltReport.Veeam.VBR'
                 'OutputFolderPath' = (Get-Location).Path
+                'MainDiagramLabel' = 'Backup &amp; Replication Infrastructure'
+                'IconPath' = $IconPath
+                'ImagesObj' = $Images
+                # 'LogoName' = 'VBR_LOGO'
+                'Logo' = 'C:\Users\jocolon\customlogo.png'
+                # 'SignatureLogoName' = 'VBR_LOGO_Footer'
+                'SignatureLogo' = 'C:\Users\jocolon\customlogo.png'
             }
 
             if ($Options.EnableDiagramDebug) {
@@ -490,10 +500,13 @@ function Invoke-AsBuiltReport.Veeam.VBR {
             }
 
             try {
-                $Graph = Get-AbrVbrDiagram @DiagramParams
+                $Graph = Get-AbrVbrDiagram
                 if ($Graph) {
-                    foreach ($OutputFormat in $DiagramFormat) {
-                        Write-Information "Saved 'AsBuiltReport.Veeam.VBR.$($OutputFormat)' diagram to '$((Get-Location).Path)\'." -InformationAction Continue
+                    $Diagram = New-Diagrammer @DiagramParams -InputObject $Graph
+                    if ($Diagram) {
+                        foreach ($OutputFormat in $DiagramFormat) {
+                            Write-Information "Saved 'AsBuiltReport.Veeam.VBR.$($OutputFormat)' diagram to '$((Get-Location).Path)\'." -InformationAction Continue
+                        }
                     }
                 }
             } catch {
