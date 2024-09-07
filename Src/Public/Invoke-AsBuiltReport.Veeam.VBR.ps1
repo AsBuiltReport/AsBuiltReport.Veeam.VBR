@@ -467,9 +467,11 @@ function Invoke-AsBuiltReport.Veeam.VBR {
             #                          Backup Infrastructure Diagram Section                              #
             #---------------------------------------------------------------------------------------------#
 
+            # Set icons path
             $RootPath = Split-Path (Split-Path $PSScriptRoot -Parent) -Parent
             [System.IO.FileInfo]$IconPath = Join-Path $RootPath 'icons'
 
+            # Diagram options
             if (-Not $Options.ExportDiagramsFormat) {
                 $DiagramFormat = 'png'
             } else {
@@ -478,14 +480,14 @@ function Invoke-AsBuiltReport.Veeam.VBR {
             $DiagramParams = @{
                 'Format' = $DiagramFormat
                 'FileName' = 'AsBuiltReport.Veeam.VBR'
-                'OutputFolderPath' = (Get-Location).Path
-                'MainDiagramLabel' = 'Backup &amp; Replication Infrastructure'
                 'IconPath' = $IconPath
                 'ImagesObj' = $Images
-                # 'LogoName' = 'VBR_LOGO'
-                'Logo' = 'C:\Users\jocolon\customlogo.png'
-                # 'SignatureLogoName' = 'VBR_LOGO_Footer'
-                'SignatureLogo' = 'C:\Users\jocolon\customlogo.png'
+                'LogoName' = 'VBR_LOGO'
+                'MainDiagramLabel' = 'Backup &amp; Replication Infrastructure'
+                'OutputFolderPath' = (Get-Location).Path
+                'SignatureLogoName' = 'VBR_LOGO_Footer'
+                'WaterMarkText' = $Options.DiagramWaterMark
+                'WaterMarkColor' = 'DarkGreen'
             }
 
             if ($Options.EnableDiagramDebug) {
@@ -500,8 +502,10 @@ function Invoke-AsBuiltReport.Veeam.VBR {
             }
 
             try {
+                # Create Veeam Graphviz Object
                 $Graph = Get-AbrVbrDiagram
                 if ($Graph) {
+                    # Create Main Diagram and attach Veeam Graphviz Object to it
                     $Diagram = New-Diagrammer @DiagramParams -InputObject $Graph
                     if ($Diagram) {
                         foreach ($OutputFormat in $DiagramFormat) {
