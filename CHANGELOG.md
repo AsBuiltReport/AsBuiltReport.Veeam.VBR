@@ -11,7 +11,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Add support to per object type icon in the infrastructure diagram
 - Migrate infrastructure diagram to Veeam.Diagrammer
 
 ### Changed
@@ -21,7 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Remove
 
-- Remove unused icons
+- Remove unused icons folder and images
 
 ## [0.8.9] - 2024-08-31
 
