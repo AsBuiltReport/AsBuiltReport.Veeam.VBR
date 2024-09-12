@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ##### This project is community maintained and has no sponsorship from Veeam, its employees or any of its affiliates.
 
-## [0.8.10] - Unreleased
+## [0.8.10] - 2024-09-12
 
 ### Changed
 
@@ -15,8 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Increase Diagrammer.Core minimum requirement to v0.2.4
-- Increase Veeam.Diagrammer minimum requirement to v0.6.4
+- Increase Diagrammer.Core minimum requirement to v0.2.7
+- Increase Veeam.Diagrammer minimum requirement to v0.6.6
 
 ### Remove
 
