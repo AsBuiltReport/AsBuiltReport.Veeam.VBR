@@ -276,4 +276,4 @@ PS C:\> New-AsBuiltReport -Report Veeam.VBR -Target veeam-vbr.pharmax.local -Use
 
 - Since many of Veeam's features depend on the Standard+ license, the Community edition is not supported.
 - If the Veeam Backup Server is not joined to an Active Directory domain (WorkGroup Auth), the PSDefaultAuthentication option must be set to Negotiate. If it is not, some of the report sections will be missing.
-- This project uses the `PScribo` module to generate the report. It has been identified that the `PSWriteWord` module of `EvotecIT` uses the same cmdlet names. For this report to be generated correctly it is required to uninstall the `PSWriteWord` module.
+- This project uses the PScribo module to generate the report. It has been detected that the EvotecIT PSWriteWord module uses the same cmdlet names. For this report to be generated correctly it is required to uninstall the PSWriteWord module.

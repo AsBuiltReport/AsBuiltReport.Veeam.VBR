@@ -5,7 +5,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.9
+        Version:        0.8.10
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -35,7 +35,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
         if ($InstalledVersion) {
             Write-PScriboMessage -Plugin "Module" -IsWarning "AsBuiltReport.Veeam.VBR $($InstalledVersion.ToString()) is currently installed."
             $LatestVersion = Find-Module -Name AsBuiltReport.Veeam.VBR -Repository PSGallery -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Version
-            if ($LatestVersion -gt $InstalledVersion) {
+            if ($InstalledVersion -lt $LatestVersion) {
                 Write-PScriboMessage -Plugin "Module" -IsWarning "AsBuiltReport.Veeam.VBR $($LatestVersion.ToString()) is available."
                 Write-PScriboMessage -Plugin "Module" -IsWarning "Run 'Update-Module -Name AsBuiltReport.Veeam.VBR -Force' to install the latest version."
             }
@@ -473,9 +473,13 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                 $DiagramFormat = $Options.ExportDiagramsFormat
             }
             $DiagramParams = @{
-                'Format' = $DiagramFormat
-                'FileName' = "AsBuiltReport.Veeam.VBR"
                 'OutputFolderPath' = (Get-Location).Path
+                'Credential' = $Credential
+                'Target' = $System
+                'Direction' = 'top-to-bottom'
+                'DiagramType' = 'Backup-Infrastructure'
+                'WaterMarkText' = $Options.DiagramWaterMark
+                'WaterMarkColor' = 'DarkGreen'
             }
 
             if ($Options.EnableDiagramDebug) {
@@ -490,10 +494,10 @@ function Invoke-AsBuiltReport.Veeam.VBR {
             }
 
             try {
-                $Graph = Get-AbrVbrDiagram @DiagramParams
-                if ($Graph) {
-                    foreach ($OutputFormat in $DiagramFormat) {
-                        Write-Information "Saved 'AsBuiltReport.Veeam.VBR.$($OutputFormat)' diagram to '$((Get-Location).Path)\'." -InformationAction Continue
+                foreach ($Format in $DiagramFormat) {
+                    $Graph = New-VeeamDiagram @DiagramParams -Format $Format -Filename "AsBuiltReport.Veeam.VBR.$($Format)"
+                    if ($Graph) {
+                        Write-Information "Saved 'AsBuiltReport.Veeam.VBR.$($Format)' diagram to '$((Get-Location).Path)\'." -InformationAction Continue
                     }
                 }
             } catch {
