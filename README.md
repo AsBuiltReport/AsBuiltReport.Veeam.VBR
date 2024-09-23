@@ -157,6 +157,7 @@ The **Options** schema allows certain options within the report to be toggled on
 | ReportStyle             | Veeam/AsBuiltReport | Veeam   | Allow to set report style template.                                            |
 | EnableDiagrams          | true / false        | false   | Toggle to enable/disable of Infrastructure Diagrams                            |
 | EnableDiagramsDebug     | true/false          | false   | Toggle to enable/disable diagram debug option.                                 |
+| DiagramTheme            | string              | White   | Used to set the diagram theme. (Black/White/Neon)                              |
 | DiagramWaterMark        | string              | empty   | Used to set the diagram waterMark.                                             |
 | ExportDiagrams          | true/false          | true    | Toggle to enable/disable diagram export option.                                |
 | ExportDiagramsFormat    | string array        | png     | Set the format used to export the infrastructure diagram. (dot, png, pdf, svg) |

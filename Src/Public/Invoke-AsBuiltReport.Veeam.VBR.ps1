@@ -5,7 +5,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.10
+        Version:        0.8.11
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -64,6 +64,13 @@ function Invoke-AsBuiltReport.Veeam.VBR {
             Text 'Enabled \' -Color 4c7995 -Bold
             Text ' Disabled' -Color ADDBDB -Bold
         }
+    }
+
+    # Set default theme styles
+    if (-Not $Options.DiagramTheme) {
+        $DiagramTheme = 'White'
+    } else {
+        $DiagramTheme = $Options.DiagramTheme
     }
 
     # Used to set values to TitleCase where required
@@ -135,7 +142,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                         if ($Options.EnableDiagrams -and ((Get-VBRWANAccelerator).count -gt 0)) {
                             Try {
                                 Try {
-                                    $Graph = New-VeeamDiagram -Target $System -Credential $Credential -Format base64 -Direction top-to-bottom -DiagramType "Backup-to-WanAccelerator"
+                                    $Graph = New-VeeamDiagram -Target $System -Credential $Credential -Format base64 -Direction top-to-bottom -DiagramType "Backup-to-WanAccelerator" -DiagramTheme $DiagramTheme
                                 } Catch {
                                     Write-PScriboMessage -IsWarning "Wan Accelerator Diagram: $($_.Exception.Message)"
                                 }
@@ -163,7 +170,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                         if ($Options.EnableDiagrams) {
                             Try {
                                 Try {
-                                    $Graph = New-VeeamDiagram -Target $System -Credential $Credential -Format base64 -Direction top-to-bottom -DiagramType "Backup-to-Repository"
+                                    $Graph = New-VeeamDiagram -Target $System -Credential $Credential -Format base64 -Direction top-to-bottom -DiagramType "Backup-to-Repository" -DiagramTheme $DiagramTheme
                                 } Catch {
                                     Write-PScriboMessage -IsWarning "Backup Repository Diagram: $($_.Exception.Message)"
                                 }
@@ -186,7 +193,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                         if ($Options.EnableDiagrams -and (Get-VBRBackupRepository -ScaleOut)) {
                             Try {
                                 Try {
-                                    $Graph = New-VeeamDiagram -Target $System -Credential $Credential -Format base64 -Direction top-to-bottom -DiagramType "Backup-to-Sobr"
+                                    $Graph = New-VeeamDiagram -Target $System -Credential $Credential -Format base64 -Direction top-to-bottom -DiagramType "Backup-to-Sobr" -DiagramTheme $DiagramTheme
                                 } Catch {
                                     Write-PScriboMessage -IsWarning "ScaleOut Backup Repository Diagram: $($_.Exception.Message)"
                                 }
@@ -242,7 +249,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                         if ($Options.EnableDiagrams -and ((Get-VBRTapeServer).count -gt 0) -and ((Get-VBRTapeLibrary).count -gt 0)) {
                             Try {
                                 Try {
-                                    $Graph = New-VeeamDiagram -Target $System -Credential $Credential -Format base64 -Direction top-to-bottom -DiagramType "Backup-to-Tape"
+                                    $Graph = New-VeeamDiagram -Target $System -Credential $Credential -Format base64 -Direction top-to-bottom -DiagramType "Backup-to-Tape" -DiagramTheme $DiagramTheme
                                 } Catch {
                                     Write-PScriboMessage -IsWarning "Tape Infrastructure Diagram: $($_.Exception.Message)"
                                 }
@@ -287,7 +294,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                             if ($Options.EnableDiagrams -and $InventObjs) {
                                 Try {
                                     Try {
-                                        $Graph = New-VeeamDiagram -Target $System -Credential $Credential -Format base64 -Direction top-to-bottom -DiagramType "Backup-to-ProtectedGroup"
+                                        $Graph = New-VeeamDiagram -Target $System -Credential $Credential -Format base64 -Direction top-to-bottom -DiagramType "Backup-to-ProtectedGroup" -DiagramTheme $DiagramTheme
                                     } Catch {
                                         Write-PScriboMessage -IsWarning "Physical Infrastructure Diagram: $($_.Exception.Message)"
                                     }
@@ -480,6 +487,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                 'DiagramType' = 'Backup-Infrastructure'
                 'WaterMarkText' = $Options.DiagramWaterMark
                 'WaterMarkColor' = 'DarkGreen'
+                'DiagramTheme' = $DiagramTheme
             }
 
             if ($Options.EnableDiagramDebug) {

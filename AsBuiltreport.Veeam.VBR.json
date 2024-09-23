@@ -14,6 +14,7 @@
         "EnableHardwareInventory": false,
         "EnableDiagrams": false,
         "EnableDiagramDebug": false,
+        "DiagramTheme": "White",
         "DiagramWaterMark": "",
         "ExportDiagrams": true,
         "ExportDiagramsFormat": ["png"],
