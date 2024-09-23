@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ##### This project is community maintained and has no sponsorship from Veeam, its employees or any of its affiliates.
 
+## [0.8.11] - Unreleased
+
+### Added
+
+- Add diagram theming option (Black/White/Neon)
+
+### Changed
+
+- Increase Diagrammer.Core minimum requirement to v0.2.8
+- Increase Veeam.Diagrammer minimum requirement to v0.6.8
+
+### Fixed
+
+- Fix SOBR capacity extent members table
+
 ## [0.8.10] - 2024-09-12
 
 ### Changed

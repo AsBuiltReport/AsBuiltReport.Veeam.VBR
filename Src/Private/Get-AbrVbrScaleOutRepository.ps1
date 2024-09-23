@@ -6,7 +6,7 @@ function Get-AbrVbrScaleOutRepository {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.7
+        Version:        0.8.11
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -37,9 +37,9 @@ function Get-AbrVbrScaleOutRepository {
                             $inObj = [ordered] @{
                                 'Name' = $BackupRepo.Name
                                 'Performance Tier' = $BackupRepo.Extent.Name
-                                'Capacity Tier' = Switch ($BackupRepo.CapacityExtent.Repository.Name) {
+                                'Capacity Tier' = Switch ($BackupRepo.CapacityExtents.Repository.Name) {
                                     $null { 'Not configured' }
-                                    default { $BackupRepo.CapacityExtent.Repository.Name }
+                                    default { $BackupRepo.CapacityExtents.Repository.Name }
                                 }
                                 'Archive Tier' = Switch ($BackupRepo.ArchiveExtent.Repository.Name) {
                                     $null { 'Not configured' }
@@ -170,7 +170,7 @@ function Get-AbrVbrScaleOutRepository {
                                         #---------------------------------------------------------------------------------------------#
                                         #                               Capacity Tier Section                                         #
                                         #---------------------------------------------------------------------------------------------#
-                                        foreach ($CapacityExtent in $BackupRepo.CapacityExtent) {
+                                        foreach ($CapacityExtent in $BackupRepo.CapacityExtents) {
                                             try {
                                                 Section -Style NOTOCHeading6 -ExcludeFromTOC "Capacity Tier" {
                                                     $OutObj = @()
