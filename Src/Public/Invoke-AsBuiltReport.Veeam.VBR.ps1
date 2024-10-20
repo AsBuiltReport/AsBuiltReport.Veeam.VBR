@@ -21,6 +21,15 @@ function Invoke-AsBuiltReport.Veeam.VBR {
         [PSCredential] $Credential
     )
 
+    #Requires -Version 5.1
+    #Requires -PSEdition Desktop
+    #Requires -RunAsAdministrator
+
+    if ($psISE) {
+        Write-Error -Message "You cannot run this script inside the PowerShell ISE. Please execute it from the PowerShell Command Window."
+        break
+    }
+
     Write-PScriboMessage -Plugin "Module" -IsWarning "Please refer to the AsBuiltReport.Veeam.VBR github website for more detailed information about this project."
     Write-PScriboMessage -Plugin "Module" -IsWarning "Do not forget to update your report configuration file after each new version release."
     Write-PScriboMessage -Plugin "Module" -IsWarning "Documentation: https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR"
@@ -176,7 +185,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                                 }
                                 if ($Graph) {
                                     If ((Get-DiaImagePercent -GraphObj $Graph).Width -gt 1500) { $ImagePrty = 15 } else { $ImagePrty = 50 }
-                                    Section -Style Heading3 "Backup Repository Diagram." {
+                                    Section -Style Heading3 "Backup Repository Diagram" {
                                         Image -Base64 $Graph -Text "Backup Repository Diagram" -Percent $ImagePrty -Align Center
                                         Paragraph "Image preview: Opens the image in a new tab to view it at full resolution." -Tabs 2
                                     }

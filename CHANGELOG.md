@@ -15,12 +15,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Increase Diagrammer.Core minimum requirement to v0.2.8
-- Increase Veeam.Diagrammer minimum requirement to v0.6.8
+- Increase Diagrammer.Core minimum requirement to v0.2.11
+- Increase Veeam.Diagrammer minimum requirement to v0.6.11
+- Improve connection validation throuth WinRM
 
 ### Fixed
 
 - Fix SOBR capacity extent members table
+- Fix Unstructured Data section displaying section when no data is available
 
 ## [0.8.10] - 2024-09-12
 

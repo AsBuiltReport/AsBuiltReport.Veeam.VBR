@@ -119,10 +119,9 @@ function Get-AbrVbrBackupProxy {
                                     Write-PScriboMessage "Collecting Hardware/Software Inventory Summary."
                                     if ($BackupProxies = Get-VBRViProxy | Where-Object { $_.Host.Type -eq "Windows" } | Sort-Object -Property Name) {
                                         $vSphereVBProxyObj = foreach ($BackupProxy in $BackupProxies) {
-                                            if (Test-Connection -ComputerName $BackupProxy.Host.Name -Quiet -Count 2) {
+                                            if (Test-WSMan -Credential $Credential -Authentication $Options.PSDefaultAuthentication -ComputerName $BackupProxy.Host.Name -ErrorAction SilentlyContinue) {
                                                 try {
                                                     Write-PScriboMessage "Collecting Backup Proxy Inventory Summary from $($BackupProxy.Host.Name)."
-                                                    # $CimSession = New-CimSession $BackupProxy.Host.Name -Credential $Credential -Authentication $Options.PSDefaultAuthentication
                                                     $CimSession = try { New-CimSession $BackupProxy.Host.Name -Credential $Credential -Authentication $Options.PSDefaultAuthentication -Name 'HardwareInventory' -ErrorAction Stop } catch { Write-PScriboMessage -IsWarning "VMware Backup Proxies Hardware/Software Section: New-CimSession: Unable to connect to $($BackupProxy.Host.Name): $($_.Exception.MessageId)" }
 
                                                     $PssSession = try { New-PSSession $BackupProxy.Host.Name -Credential $Credential -Authentication $Options.PSDefaultAuthentication -ErrorAction Stop -Name 'VMwareHardwareInventory' } catch {
@@ -131,7 +130,6 @@ function Get-AbrVbrBackupProxy {
                                                         } else { $ErrorMessage = $_.Exception.MessageId }
                                                         Write-PScriboMessage -IsWarning "VMware Backup Proxies Hardware/Software Section: New-PSSession: Unable to connect to $($BackupProxy.Host.Name): $ErrorMessage"
                                                     }
-                                                    # $PssSession = New-PSSession $BackupProxy.Host.Name -Credential $Credential -Authentication $Options.PSDefaultAuthentication -ErrorAction SilentlyContinue
                                                     if ($PssSession) {
                                                         $HW = Invoke-Command -Session $PssSession -ScriptBlock { Get-ComputerInfo }
                                                     } else { Write-PScriboMessage -IsWarning "VMware Backup Proxies Hardware/Software Inventory: Unable to connect to $($BackupProxy.Host.Name)" }
@@ -358,14 +356,23 @@ function Get-AbrVbrBackupProxy {
                                                                 }
                                                             }
                                                         }
-                                                        Remove-PSSession -Session $PssSession
-                                                        Remove-CimSession $CimSession
+                                                        if ($PssSession) {
+                                                            # Remove used PSSession
+                                                            Write-PScriboMessage "Clearing PowerShell Session $($PssSession.Id)"
+                                                            Remove-PSSession -Session $PssSession
+                                                        }
+
+                                                        if ($CimSession) {
+                                                            # Remove used CIMSession
+                                                            Write-PScriboMessage "Clearing CIM Session $($CimSession.Id)"
+                                                            Remove-CimSession -CimSession $CimSession
+                                                        }
                                                     }
                                                 } catch {
                                                     Write-PScriboMessage -IsWarning "VMware Backup Proxies Section: $($_.Exception.Message)"
                                                 }
                                             } else {
-                                                Write-PScriboMessage -IsWarning "VMware Backup Proxies Section: Failed to Test-Connection on $($BackupProxies.Host.Name), disabling section"
+                                                Write-PScriboMessage -IsWarning "VMware Backup Proxies Section: Unable to connect to $($BackupProxies.Host.Name) throuth WinRM, disabling section"
                                             }
                                         }
                                         if ($vSphereVBProxyObj) {
@@ -388,7 +395,7 @@ function Get-AbrVbrBackupProxy {
                                         Write-PScriboMessage "Collecting Veeam Services Information."
                                         $BackupProxies = Get-VBRViProxy | Where-Object { $_.Host.Type -eq "Windows" } | Sort-Object -Property Name
                                         foreach ($BackupProxy in $BackupProxies) {
-                                            if (Test-Connection -ComputerName $BackupProxy.Host.Name -Quiet -Count 2) {
+                                            if (Test-WSMan -Credential $Credential -Authentication $Options.PSDefaultAuthentication -ComputerName $BackupProxy.Host.Name -ErrorAction SilentlyContinue) {
                                                 try {
                                                     # $PssSession = New-PSSession $BackupProxy.Host.Name -Credential $Credential -Authentication $Options.PSDefaultAuthentication -ErrorAction SilentlyContinue
                                                     $PssSession = try { New-PSSession $BackupProxy.Host.Name -Credential $Credential -Authentication $Options.PSDefaultAuthentication -ErrorAction Stop -Name 'VMwareBackupProxyService' } catch {
@@ -437,7 +444,7 @@ function Get-AbrVbrBackupProxy {
                                                     Write-PScriboMessage -IsWarning "VMware Backup Proxies $($BackupProxy.Host.Name) Services Status Section: $($_.Exception.Message)"
                                                 }
                                             } else {
-                                                Write-PScriboMessage -IsWarning "VMware Backup Proxy Service Section: Failed to Test-Connection on $($BackupProxy.Host.Name), disabling section"
+                                                Write-PScriboMessage -IsWarning "VMware Backup Proxies Section: Unable to connect to $($BackupProxies.Host.Name) throuth WinRM, disabling section"
                                             }
                                         }
                                     }
@@ -562,7 +569,7 @@ function Get-AbrVbrBackupProxy {
                                         Write-PScriboMessage "Collecting Hardware/Software Inventory Summary."
                                         if ($BackupProxies = Get-VBRHvProxy | Sort-Object -Property Name) {
                                             $HyperVBProxyObj = foreach ($BackupProxy in $BackupProxies) {
-                                                if (Test-Connection -ComputerName $BackupProxy.Host.Name -Quiet -Count 2) {
+                                                if (Test-WSMan -Credential $Credential -Authentication $Options.PSDefaultAuthentication -ComputerName $BackupProxy.Host.Name -ErrorAction SilentlyContinue) {
                                                     try {
                                                         Write-PScriboMessage "Collecting Backup Proxy Inventory Summary from $($BackupProxy.Host.Name)."
                                                         # $CimSession = New-CimSession $BackupProxy.Host.Name -Credential $Credential -Authentication $Options.PSDefaultAuthentication
@@ -804,14 +811,23 @@ function Get-AbrVbrBackupProxy {
                                                                     }
                                                                 }
                                                             }
-                                                            Remove-PSSession -Session $PssSession
-                                                            Remove-CimSession $CimSession
+                                                            if ($PssSession) {
+                                                                # Remove used PSSession
+                                                                Write-PScriboMessage "Clearing PowerShell Session $($PssSession.Id)"
+                                                                Remove-PSSession -Session $PssSession
+                                                            }
+
+                                                            if ($CimSession) {
+                                                                # Remove used CIMSession
+                                                                Write-PScriboMessage "Clearing CIM Session $($CimSession.Id)"
+                                                                Remove-CimSession -CimSession $CimSession
+                                                            }
                                                         }
                                                     } catch {
                                                         Write-PScriboMessage -IsWarning "Hyper-V Backup Proxies Hardware & Software Inventory Section: $($_.Exception.Message)"
                                                     }
                                                 } else {
-                                                    Write-PScriboMessage -IsWarning "Hyper-V Backup Proxies Section: Failed to Test-Connection on $($BackupProxies.Host.Name), disabling section"
+                                                    Write-PScriboMessage -IsWarning "Hyper-V Backup Proxies Section: Unable to connect to $($BackupProxies.Host.Name) throuth WinRM, disabling section"
                                                 }
                                             }
                                             if ($HyperVBProxyObj) {
@@ -834,9 +850,8 @@ function Get-AbrVbrBackupProxy {
                                             Write-PScriboMessage "Collecting Veeam Service Information."
                                             $BackupProxies = Get-VBRHvProxy | Sort-Object -Property Name
                                             foreach ($BackupProxy in $BackupProxies) {
-                                                if (Test-Connection -ComputerName $BackupProxy.Host.Name -Quiet -Count 2) {
+                                                if (Test-WSMan -Credential $Credential -Authentication $Options.PSDefaultAuthentication -ComputerName $BackupProxy.Host.Name -ErrorAction SilentlyContinue) {
                                                     try {
-                                                        # $PssSession = New-PSSession $BackupProxy.Host.Name -Credential $Credential -Authentication $Options.PSDefaultAuthentication -ErrorAction SilentlyContinue
                                                         $PssSession = try { New-PSSession $BackupProxy.Host.Name -Credential $Credential -Authentication $Options.PSDefaultAuthentication -ErrorAction Stop -Name 'HyperVBackupProxyService' } catch {
                                                             if (-Not $_.Exception.MessageId) {
                                                                 $ErrorMessage = $_.FullyQualifiedErrorId
@@ -883,7 +898,7 @@ function Get-AbrVbrBackupProxy {
                                                         Write-PScriboMessage -IsWarning "Hyper-V Backup Proxies Services Status - $($BackupProxy.Host.Name.Split(".")[0]) Section: $($_.Exception.Message)"
                                                     }
                                                 } else {
-                                                    Write-PScriboMessage -IsWarning "Hyper-V Backup Proxies Services Section: Failed to Test-Connection on $($BackupProxy.Host.Name), disabling section"
+                                                    Write-PScriboMessage -IsWarning "Hyper-V Backup Proxies Section: Unable to connect to $($BackupProxies.Host.Name) throuth WinRM, disabling section"
                                                 }
                                             }
                                         }
