@@ -80,7 +80,9 @@ This report is compatible with the following PowerShell versions;
 PowerShell 5.1 and the following PowerShell modules are required for generating a Veeam VBR As Built report.
 
 - [Veeam.Backup.PowerShell Module](https://helpcenter.veeam.com/docs/backup/powershell/getting_started.html?ver=110)
+- [PScribo Module](https://github.com/iainbrighton/PScribo)
 - [PScriboCharts Module](https://github.com/iainbrighton/PScriboCharts)
+- [PSGraph Module](https://github.com/KevinMarquette/PSGraph)
 - [AsBuiltReport.Core Module](https://github.com/AsBuiltReport/AsBuiltReport.Core)
 - [Veeam.Diagrammer Module](https://github.com/rebelinux/Veeam.Diagrammer)
 - [Diagrammer.Core Module](https://github.com/rebelinux/Diagrammer.Core)
