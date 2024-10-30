@@ -87,6 +87,9 @@ function Invoke-AsBuiltReport.Veeam.VBR {
 
     #region foreach loop
     foreach ($System in $Target) {
+        if (Select-String -InputObject $System -Pattern "^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$") {
+            throw "Please use the FQDN instead of an IP address to connect to the Backup Server: $System"
+        }
         Get-AbrVbrRequiredModule -Name 'Veeam.Backup.PowerShell' -Version '12'
         Get-AbrVbrServerConnection
         $VeeamBackupServer = ((Get-VBRServerSession).Server).ToString().ToUpper().Split(".")[0]
@@ -456,7 +459,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                             Get-AbrVbrFileShareBackupjobConf
                         }
                         Write-PScriboMessage "Backup Copy Jobs InfoLevel set at $($InfoLevel.Jobs.BackupCopy)."
-                        if ($InfoLevel.Jobs.BackupCopy -ge 1 -and ((Get-Item "C:\Program Files\Veeam\Backup and Replication\Console\Veeam.Backup.PowerShell.dll").VersionInfo.ProductVersion -ge 12)) {
+                        if ($InfoLevel.Jobs.BackupCopy -ge 1 -and ($VbrVersion -ge 12)) {
                             Get-AbrVbrBackupCopyjob
                             Get-AbrVbrBackupCopyjobConf
                         }
