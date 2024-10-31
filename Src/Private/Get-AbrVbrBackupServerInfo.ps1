@@ -175,7 +175,7 @@ function Get-AbrVbrBackupServerInfo {
                                         'Processor Model' = $HWCPU[0].Name
                                         'Number of CPU Cores' = ($HWCPU.NumberOfCores | Measure-Object -Sum).Sum
                                         'Number of Logical Cores' = ($HWCPU.NumberOfLogicalProcessors | Measure-Object -Sum).Sum
-                                        'Physical Memory (GB)' = ConvertTo-FileSizeString $HW.CsTotalPhysicalMemory
+                                        'Physical Memory (GB)' = ConvertTo-FileSizeString -Size $HW.CsTotalPhysicalMemory
                                     }
                                     $OutObj += [pscustomobject]$inobj
 
@@ -220,7 +220,7 @@ function Get-AbrVbrBackupServerInfo {
                                                                 'Model' = $Disk.Model
                                                                 'Serial Number' = $Disk.SerialNumber
                                                                 'Partition Style' = $Disk.PartitionStyle
-                                                                'Disk Size' = "$([Math]::Round($Disk.Size / 1Gb)) GB"
+                                                                'Disk Size' = ConvertTo-FileSizeString -Size $Disk.Size
                                                             }
                                                             $LocalDiskReport += $TempLocalDiskReport
                                                         } catch {
@@ -256,7 +256,7 @@ function Get-AbrVbrBackupServerInfo {
                                                                 'Model' = $Disk.Model
                                                                 'Serial Number' = $Disk.SerialNumber
                                                                 'Partition Style' = $Disk.PartitionStyle
-                                                                'Disk Size' = "$([Math]::Round($Disk.Size / 1Gb)) GB"
+                                                                'Disk Size' = ConvertTo-FileSizeString -Size $Disk.Size
                                                             }
                                                             $SanDiskReport += $TempSanDiskReport
                                                         } catch {
@@ -292,8 +292,8 @@ function Get-AbrVbrBackupServerInfo {
                                                             'Drive Letter' = $HostVolume.DriveLetter
                                                             'File System Label' = $HostVolume.FileSystemLabel
                                                             'File System' = $HostVolume.FileSystem
-                                                            'Size' = "$([Math]::Round($HostVolume.Size / 1gb)) GB"
-                                                            'Free Space' = "$([Math]::Round($HostVolume.SizeRemaining / 1gb)) GB"
+                                                            'Size' = ConvertTo-FileSizeString -Size $HostVolume.Size
+                                                            'Free Space' = ConvertTo-FileSizeString -Size $HostVolume.SizeRemaining
                                                             'Health Status' = $HostVolume.HealthStatus
                                                         }
                                                         $HostVolumeReport += $TempHostVolumeReport

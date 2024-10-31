@@ -5,7 +5,7 @@ function Get-AbrVbrRequiredModule {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.5
+        Version:        0.8.11
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -33,8 +33,16 @@ function Get-AbrVbrRequiredModule {
         # Loading Module or PSSnapin
         # Make sure PSModulePath includes Veeam Console
         #Code taken from @vMarkus_K
-        $MyModulePath = "C:\Program Files\Veeam\Backup and Replication\Console\"
-        $env:PSModulePath = $env:PSModulePath + "$([System.IO.Path]::PathSeparator)$MyModulePath"
+        if (Test-path "C:\Program Files\Veeam\Backup and Replication\Console\" ) {
+            $MyModulePath = "C:\Program Files\Veeam\Backup and Replication\Console\"
+            $env:PSModulePath = $env:PSModulePath + "$([System.IO.Path]::PathSeparator)$MyModulePath"
+        } elseif (Test-path "D:\Program Files\Veeam\Backup and Replication\Console\" ) {
+            $MyModulePath = "D:\Program Files\Veeam\Backup and Replication\Console\"
+            $env:PSModulePath = $env:PSModulePath + "$([System.IO.Path]::PathSeparator)$MyModulePath"
+        } elseif (Test-path "E:\Program Files\Veeam\Backup and Replication\Console\" ) {
+            $MyModulePath = "E:\Program Files\Veeam\Backup and Replication\Console\"
+            $env:PSModulePath = $env:PSModulePath + "$([System.IO.Path]::PathSeparator)$MyModulePath"
+        }
         if ($Modules = Get-Module -ListAvailable -Name Veeam.Backup.PowerShell) {
             try {
                 Write-PScriboMessage "Trying to import Veeam B&R modules."

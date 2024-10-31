@@ -6,7 +6,7 @@ function Get-AbrVbrRepljobHyperV {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.8
+        Version:        0.8.11
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -72,7 +72,7 @@ function Get-AbrVbrRepljobHyperV {
                                                 $inObj = [ordered] @{
                                                     'Name' = $Bkjob.Name
                                                     'Type' = $Bkjob.TypeToString
-                                                    'Total Backup Size' = ConvertTo-FileSizeString $CommonInfo.IncludedSize
+                                                    'Total Backup Size' = ConvertTo-FileSizeString -Size  $CommonInfo.IncludedSize
                                                     'Target Address' = $CommonInfo.TargetDir
                                                     'Target File' = $CommonInfo.TargetFile
                                                     'Description' = ConvertTo-EmptyToFiller $CommonInfo.CommonInfo.Description

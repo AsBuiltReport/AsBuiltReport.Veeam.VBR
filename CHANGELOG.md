@@ -12,17 +12,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Add diagram theming option (Black/White/Neon)
+- Add code to properly display space information
 
 ### Changed
 
 - Increase Diagrammer.Core minimum requirement to v0.2.11
-- Increase Veeam.Diagrammer minimum requirement to v0.6.11
+- Increase Veeam.Diagrammer minimum requirement to v0.6.12
 - Improve connection validation throuth WinRM
+- Deny connection to backup server by Ip Address
 
 ### Fixed
 
 - Fix SOBR capacity extent members table
 - Fix Unstructured Data section displaying section when no data is available
+- Fix [#179](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/179)
+- Fix [#181](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/181)
+- Fix [#182](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/182)
 
 ## [0.8.10] - 2024-09-12
 

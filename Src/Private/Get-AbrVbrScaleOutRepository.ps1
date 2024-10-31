@@ -143,8 +143,8 @@ function Get-AbrVbrScaleOutRepository {
                                                         'Name' = $Extent.Name
                                                         'Repository' = $Extent.Repository.Name
                                                         'Path' = $Extent.Repository.FriendlyPath
-                                                        'Total Space' = "$((($BackupRepo.Extent).Repository).GetContainer().CachedTotalSpace.InGigabytes) GB"
-                                                        'Used Space' = "$((($BackupRepo.Extent).Repository).GetContainer().CachedFreeSpace.InGigabytes) GB"
+                                                        'Total Space' = ConvertTo-FileSizeString -Size (($Extent).Repository).GetContainer().CachedTotalSpace.InBytesAsUInt64
+                                                        'Used Space' = ConvertTo-FileSizeString -Size (($Extent).Repository).GetContainer().CachedFreeSpace.InBytesAsUInt64
                                                         'Status' = $Extent.Status
                                                     }
                                                     $OutObj += [pscustomobject]$inobj

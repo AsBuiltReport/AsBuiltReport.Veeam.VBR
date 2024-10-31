@@ -6,7 +6,7 @@ function Get-AbrVbrTapeLibrary {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.7
+        Version:        0.8.11
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -135,8 +135,8 @@ function Get-AbrVbrTapeLibrary {
                                                                     0 { "--" }
                                                                     default { $MediumObj.ExpirationDate.ToShortDateString() }
                                                                 }
-                                                                'Total Space' = ConvertTo-FileSizeString $MediumObj.Capacity
-                                                                'Free Space' = ConvertTo-FileSizeString $MediumObj.Free
+                                                                'Total Space' = ConvertTo-FileSizeString -Size  $MediumObj.Capacity
+                                                                'Free Space' = ConvertTo-FileSizeString -Size  $MediumObj.Free
                                                                 'Locked' = ConvertTo-TextYN $MediumObj.IsLocked
                                                                 'Retired' = ConvertTo-TextYN $MediumObj.IsRetired
                                                                 'Worm' = ConvertTo-TextYN $MediumObj.IsWorm

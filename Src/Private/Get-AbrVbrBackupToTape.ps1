@@ -6,7 +6,7 @@ function Get-AbrVbrBackupToTape {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.7
+        Version:        0.8.11
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -46,7 +46,7 @@ function Get-AbrVbrBackupToTape {
                                         $inObj = [ordered] @{
                                             'Name' = $TBkjob.Name
                                             'Type' = $TBkjob.Type
-                                            'Total Backup Size' = ConvertTo-FileSizeString $TotalBackupSize
+                                            'Total Backup Size' = ConvertTo-FileSizeString -Size $TotalBackupSize
                                             'Next Run' = Switch ($TBkjob.Enabled) {
                                                 'False' { 'Disabled' }
                                                 default { $TBkjob.NextRun }
@@ -99,8 +99,8 @@ function Get-AbrVbrBackupToTape {
                                                         $Type = 'Backup Job'
                                                     }
                                                     if ($LinkedBkJob.Group -eq 'BackupRepository') {
-                                                        $TotalBackupSize = ConvertTo-FileSizeString ($LinkedBkJob.GetContainer().CachedTotalSpace.InBytes - $LinkedBkJob.GetContainer().CachedFreeSpace.InBytes)
-                                                    } else { $TotalBackupSize = ConvertTo-FileSizeString $LinkedBkJob.Info.IncludedSize }
+                                                        $TotalBackupSize = ConvertTo-FileSizeString -Size ($LinkedBkJob.GetContainer().CachedTotalSpace.InBytes - $LinkedBkJob.GetContainer().CachedFreeSpace.InBytes)
+                                                    } else { $TotalBackupSize = ConvertTo-FileSizeString -Size $LinkedBkJob.Info.IncludedSize }
 
                                                     $inObj = [ordered] @{
                                                         'Name' = $LinkedBkJob.Name
@@ -192,7 +192,7 @@ function Get-AbrVbrBackupToTape {
                                                         'Name' = $BackupMediaPool.Name
                                                         'Pool Type' = $BackupMediaPool.Type
                                                         'Tape Count' = (Get-VBRTapeMedium -MediaPool $BackupMediaPool.Name).count
-                                                        'Free Space' = ConvertTo-FileSizeString ((Get-VBRTapeMedium -MediaPool $BackupMediaPool.Name).Free | Measure-Object -Sum).Sum
+                                                        'Free Space' = ConvertTo-FileSizeString -Size ((Get-VBRTapeMedium -MediaPool $BackupMediaPool.Name).Free | Measure-Object -Sum).Sum
                                                         'Encryption Enabled' = ConvertTo-TextYN $BackupMediaPool.EncryptionOptions.Enabled
                                                         'Encryption Key' = Switch ($BackupMediaPool.EncryptionOptions.Enabled) {
                                                             'True' { (Get-VBREncryptionKey | Where-Object { $_.Id -eq $BackupMediaPool.EncryptionOptions.Key.Id }).Description }
@@ -332,7 +332,7 @@ function Get-AbrVbrBackupToTape {
                                                         'Media Pool' = $BackupMediaPool.Name
                                                         'Pool Type' = $BackupMediaPool.Type
                                                         'Tape Count' = (Get-VBRTapeMedium -MediaPool $BackupMediaPool.Name).count
-                                                        'Free Space' = ConvertTo-FileSizeString ((Get-VBRTapeMedium -MediaPool $BackupMediaPool.Name).Free | Measure-Object -Sum).Sum
+                                                        'Free Space' = ConvertTo-FileSizeString -Size ((Get-VBRTapeMedium -MediaPool $BackupMediaPool.Name).Free | Measure-Object -Sum).Sum
                                                         'Encryption Enabled' = ConvertTo-TextYN $BackupMediaPool.EncryptionOptions.Enabled
                                                         'Encryption Key' = Switch ($BackupMediaPool.EncryptionOptions.Enabled) {
                                                             'True' { (Get-VBREncryptionKey | Where-Object { $_.Id -eq $BackupMediaPool.EncryptionOptions.Key.Id }).Description }
