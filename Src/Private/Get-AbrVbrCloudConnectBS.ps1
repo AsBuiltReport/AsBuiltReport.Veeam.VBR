@@ -5,7 +5,7 @@ function Get-AbrVbrCloudConnectBS {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.7
+        Version:        0.8.11
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -52,8 +52,8 @@ function Get-AbrVbrCloudConnectBS {
                                                 $false { $CloudObject.FriendlyPath }
                                                 default { 'Unknown' }
                                             }
-                                            'Total Space' = "$($CloudObject.GetContainer().CachedTotalSpace.InGigabytes) GB"
-                                            'Free Space' = "$($CloudObject.GetContainer().CachedFreeSpace.InGigabytes) GB"
+                                            'Total Space' = ConvertTo-FileSizeString -Size $CloudObject.GetContainer().CachedTotalSpace.InBytesAsUInt64
+                                            'Free Space' = ConvertTo-FileSizeString -Size $CloudObject.GetContainer().CachedFreeSpace.InBytesAsUInt64
                                             'Used Space %' = $PercentFree
                                             'Status' = Switch ($CloudObject.IsUnavailable) {
                                                 'False' { 'Available' }
@@ -85,10 +85,10 @@ function Get-AbrVbrCloudConnectBS {
                                                         foreach ($Storage in ($Tenant.Resources | Where-Object { $_.Repository.Name -eq $CloudObject.Name })) {
                                                             $inObj = [ordered] @{
                                                                 'Name' = $Tenant.Name
-                                                                'Quota' = "$([math]::Round($Storage.RepositoryQuota / 1Kb, 2)) GB"
+                                                                'Quota' = ConvertTo-FileSizeString -Size $Storage.RepositoryQuota
                                                                 'Used Space' = Switch ([string]::IsNullOrEmpty($Storage.UsedSpace)) {
                                                                     $true { '--' }
-                                                                    $false { "$(Convert-Size -From MB -To GB -Value $Storage.UsedSpace) GB" }
+                                                                    $false { ConvertTo-FileSizeString -Size $Storage.UsedSpace }
                                                                     default { 'Unknown' }
                                                                 }
                                                                 'Used Space %' = $Storage.UsedSpacePercentage

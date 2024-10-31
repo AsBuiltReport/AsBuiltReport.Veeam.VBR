@@ -105,8 +105,8 @@ function ConvertTo-FileSizeString {
     Used by As Built Report to convert bytes automatically to GB or TB based on size.
     .DESCRIPTION
     .NOTES
-        Version:        0.4.0
-        Author:         LEE DAILEY
+        Version:        0.1.0
+        Author:         Jonathan Colon
     .EXAMPLE
     .LINK
     #>
@@ -121,22 +121,14 @@ function ConvertTo-FileSizeString {
         $Size
     )
 
-    switch ($Size) {
-        { $_ -gt 1TB }
-        { [string]::Format("{0:0} TB", $Size / 1TB); break }
-        { $_ -gt 1GB }
-        { [string]::Format("{0:0} GB", $Size / 1GB); break }
-        { $_ -gt 1MB }
-        { [string]::Format("{0:0} MB", $Size / 1MB); break }
-        { $_ -gt 1KB }
-        { [string]::Format("{0:0} KB", $Size / 1KB); break }
-        { $_ -gt 0 }
-        { [string]::Format("{0} B", $Size); break }
-        { $_ -eq 0 }
-        { "0 KB"; break }
-        default
-        { "0 KB" }
+    $Unit = Switch ($Size) {
+        { $Size -gt 1PB } { 'PB' ; Break }
+        { $Size -gt 1TB } { 'TB' ; Break }
+        { $Size -gt 1GB } { 'GB' ; Break }
+        { $Size -gt 1Mb } { 'MB' ; Break }
+        Default { 'KB' }
     }
+    return "$([math]::Round(($Size / $("1" + $Unit)), 0)) $Unit"
 } # end
 function Get-VeeamNetStat {
     <#
@@ -868,13 +860,13 @@ function New-VBRConnection {
     [CmdletBinding()]
     Param(
 
-        [Parameter(Position=0,mandatory=$true)]
+        [Parameter(Position = 0, mandatory = $true)]
         [string]$Endpoint,
 
-        [Parameter(Position=1,mandatory=$true)]
+        [Parameter(Position = 1, mandatory = $true)]
         [string]$Port,
 
-        [Parameter(Mandatory=$true,ParameterSetName="Credential")]
+        [Parameter(Mandatory = $true, ParameterSetName = "Credential")]
         [ValidateNotNullOrEmpty()]
         [Management.Automation.PSCredential]$Credential
 
@@ -887,15 +879,15 @@ function New-VBRConnection {
 
     # Define the headers for the API request
     $headers = @{
-        "Content-Type"  = "application/x-www-form-urlencoded"
+        "Content-Type" = "application/x-www-form-urlencoded"
         "x-api-version" = "1.1-rev0"
     }
 
     ## TO-DO: Grant_type options
     $body = @{
         "grant_type" = "password"
-        "username"   = $User
-        "password"   = $Pass
+        "username" = $User
+        "password" = $Pass
     }
 
     # Send an authentication request to obtain a session token
@@ -905,18 +897,16 @@ function New-VBRConnection {
         if (($response.access_token) -or ($response.StatusCode -eq 200) ) {
             Write-Output "Successfully authenticated."
             $VBRAuthentication = [PSCustomObject]@{
-                Session_endpoint       = $Endpoint
-                Session_port           = $Port
-                Session_access_token  = $response.access_token
+                Session_endpoint = $Endpoint
+                Session_port = $Port
+                Session_access_token = $response.access_token
             }
 
             return $VBRAuthentication
-        }
-        else {
+        } else {
             Write-Output "Authentication failed. Status code: $($response.StatusCode), Message: $($response.Content)"
         }
-    }
-    catch {
+    } catch {
         Write-Output "An error occurred: $($_.Exception.Message)"
     }
 }
@@ -968,3 +958,39 @@ $script:Images = @{
     "VBR_Service_Providers" = "Veeam_Service_Provider_Console.png"
     "VBR_Service_Providers_Server" = "Veeam_Service_Provider_Server.png"
 }
+
+function ConvertTo-HashToYN {
+    <#
+    .SYNOPSIS
+        Used by As Built Report to convert array content true or false automatically to Yes or No.
+    .DESCRIPTION
+
+    .NOTES
+        Version:        0.1.0
+        Author:         Jonathan Colon
+
+    .EXAMPLE
+
+    .LINK
+
+    #>
+    [CmdletBinding()]
+    [OutputType([Hashtable])]
+    Param (
+        [Parameter (Position = 0, Mandatory)]
+        [AllowEmptyString()]
+        [Hashtable] $TEXT
+    )
+
+    $result = [ordered] @{}
+    foreach ($i in $inObj.GetEnumerator()) {
+        try {
+            $result.add($i.Key, (ConvertTo-TextYN $i.Value))
+        } catch {
+            Write-PScriboMessage -IsWarning "Unable to process $($i.key) values"
+        }
+    }
+    if ($result) {
+        return $result
+    } else { return $TEXT }
+} # end

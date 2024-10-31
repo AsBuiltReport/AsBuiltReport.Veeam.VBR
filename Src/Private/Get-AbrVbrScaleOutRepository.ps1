@@ -6,7 +6,7 @@ function Get-AbrVbrScaleOutRepository {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.7
+        Version:        0.8.11
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -37,9 +37,9 @@ function Get-AbrVbrScaleOutRepository {
                             $inObj = [ordered] @{
                                 'Name' = $BackupRepo.Name
                                 'Performance Tier' = $BackupRepo.Extent.Name
-                                'Capacity Tier' = Switch ($BackupRepo.CapacityExtent.Repository.Name) {
+                                'Capacity Tier' = Switch ($BackupRepo.CapacityExtents.Repository.Name) {
                                     $null { 'Not configured' }
-                                    default { $BackupRepo.CapacityExtent.Repository.Name }
+                                    default { $BackupRepo.CapacityExtents.Repository.Name }
                                 }
                                 'Archive Tier' = Switch ($BackupRepo.ArchiveExtent.Repository.Name) {
                                     $null { 'Not configured' }
@@ -143,8 +143,8 @@ function Get-AbrVbrScaleOutRepository {
                                                         'Name' = $Extent.Name
                                                         'Repository' = $Extent.Repository.Name
                                                         'Path' = $Extent.Repository.FriendlyPath
-                                                        'Total Space' = "$((($BackupRepo.Extent).Repository).GetContainer().CachedTotalSpace.InGigabytes) GB"
-                                                        'Used Space' = "$((($BackupRepo.Extent).Repository).GetContainer().CachedFreeSpace.InGigabytes) GB"
+                                                        'Total Space' = ConvertTo-FileSizeString -Size (($Extent).Repository).GetContainer().CachedTotalSpace.InBytesAsUInt64
+                                                        'Used Space' = ConvertTo-FileSizeString -Size (($Extent).Repository).GetContainer().CachedFreeSpace.InBytesAsUInt64
                                                         'Status' = $Extent.Status
                                                     }
                                                     $OutObj += [pscustomobject]$inobj
@@ -170,7 +170,7 @@ function Get-AbrVbrScaleOutRepository {
                                         #---------------------------------------------------------------------------------------------#
                                         #                               Capacity Tier Section                                         #
                                         #---------------------------------------------------------------------------------------------#
-                                        foreach ($CapacityExtent in $BackupRepo.CapacityExtent) {
+                                        foreach ($CapacityExtent in $BackupRepo.CapacityExtents) {
                                             try {
                                                 Section -Style NOTOCHeading6 -ExcludeFromTOC "Capacity Tier" {
                                                     $OutObj = @()

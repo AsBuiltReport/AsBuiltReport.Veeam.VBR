@@ -80,7 +80,9 @@ This report is compatible with the following PowerShell versions;
 PowerShell 5.1 and the following PowerShell modules are required for generating a Veeam VBR As Built report.
 
 - [Veeam.Backup.PowerShell Module](https://helpcenter.veeam.com/docs/backup/powershell/getting_started.html?ver=110)
+- [PScribo Module](https://github.com/iainbrighton/PScribo)
 - [PScriboCharts Module](https://github.com/iainbrighton/PScriboCharts)
+- [PSGraph Module](https://github.com/KevinMarquette/PSGraph)
 - [AsBuiltReport.Core Module](https://github.com/AsBuiltReport/AsBuiltReport.Core)
 - [Veeam.Diagrammer Module](https://github.com/rebelinux/Veeam.Diagrammer)
 - [Diagrammer.Core Module](https://github.com/rebelinux/Diagrammer.Core)
@@ -157,6 +159,7 @@ The **Options** schema allows certain options within the report to be toggled on
 | ReportStyle             | Veeam/AsBuiltReport | Veeam   | Allow to set report style template.                                            |
 | EnableDiagrams          | true / false        | false   | Toggle to enable/disable of Infrastructure Diagrams                            |
 | EnableDiagramsDebug     | true/false          | false   | Toggle to enable/disable diagram debug option.                                 |
+| DiagramTheme            | string              | White   | Used to set the diagram theme. (Black/White/Neon)                              |
 | DiagramWaterMark        | string              | empty   | Used to set the diagram waterMark.                                             |
 | ExportDiagrams          | true/false          | true    | Toggle to enable/disable diagram export option.                                |
 | ExportDiagramsFormat    | string array        | png     | Set the format used to export the infrastructure diagram. (dot, png, pdf, svg) |

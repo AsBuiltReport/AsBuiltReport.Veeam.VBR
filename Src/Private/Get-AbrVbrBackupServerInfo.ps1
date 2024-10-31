@@ -6,7 +6,7 @@ function Get-AbrVbrBackupServerInfo {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.9
+        Version:        0.8.11
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -31,30 +31,32 @@ function Get-AbrVbrBackupServerInfo {
                     $OutObj = @()
                     try {
                         foreach ($BackupServer in $BackupServers) {
-                            $CimSession = try { New-CimSession $BackupServer.Name -Credential $Credential -Authentication $Options.PSDefaultAuthentication -Name 'CIMBackupServer' -ErrorAction Stop } catch { Write-PScriboMessage -IsWarning "Backup Server Section: New-CimSession: Unable to connect to $($BackupServer.Name): $($_.Exception.MessageId)" }
+                            if (Test-WSMan -Credential $Credential -Authentication $Options.PSDefaultAuthentication -ComputerName $BackupServer.Name -ErrorAction SilentlyContinue) {
+                                $CimSession = try { New-CimSession $BackupServer.Name -Credential $Credential -Authentication $Options.PSDefaultAuthentication -Name 'CIMBackupServer' -ErrorAction Stop } catch { Write-PScriboMessage -IsWarning "Backup Server Section: New-CimSession: Unable to connect to $($BackupServer.Name): $($_.Exception.MessageId)" }
 
-                            $PssSession = try { New-PSSession $BackupServer.Name -Credential $Credential -Authentication $Options.PSDefaultAuthentication -ErrorAction Stop -Name 'PSSBackupServer' } catch {
-                                if (-Not $_.Exception.MessageId) {
-                                    $ErrorMessage = $_.FullyQualifiedErrorId
-                                } else { $ErrorMessage = $_.Exception.MessageId }
-                                Write-PScriboMessage -IsWarning "Backup Server Section: New-PSSession: Unable to connect to $($BackupServer.Name): $ErrorMessage"
-                            }
-                            $SecurityOptions = Get-VBRSecurityOptions
-                            try { $DomainJoined = Get-CimInstance -Class Win32_ComputerSystem -Property PartOfDomain -CimSession $CimSession } catch { 'Unknown' }
-                            Write-PScriboMessage "Collecting Backup Server information from $($BackupServer.Name)."
-                            try {
-                                $script:VeeamVersion = Invoke-Command -Session $PssSession -ErrorAction SilentlyContinue -ScriptBlock { Get-ChildItem -Recurse HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall | Get-ItemProperty | Where-Object { $_.DisplayName -match 'Veeam Backup & Replication Server' } | Select-Object -Property DisplayVersion }
-                            } catch { Write-PScriboMessage -IsWarning "Backup Server Inkoke-Command Section: $($_.Exception.Message)" }
-                            try {
-                                $VeeamInfo = Invoke-Command -Session $PssSession -ErrorAction SilentlyContinue -ScriptBlock { Get-ItemProperty -Path 'HKLM:\SOFTWARE\Veeam\Veeam Backup and Replication' }
-                            } catch { Write-PScriboMessage -IsWarning "Backup Server Invoke-Command Section: $($_.Exception.Message)" }
-                            try {
-                                $VeeamDBFlavor = Invoke-Command -Session $PssSession -ErrorAction SilentlyContinue -ScriptBlock { Get-ItemProperty -Path 'HKLM:\SOFTWARE\Veeam\Veeam Backup and Replication\DatabaseConfigurations' }
-                            } catch { Write-PScriboMessage -IsWarning "Backup Server Invoke-Command Section: $($_.Exception.Message)" }
-                            try {
-                                $VeeamDBInfo = Invoke-Command -Session $PssSession -ErrorAction SilentlyContinue -ScriptBlock { Get-ItemProperty -Path "HKLM:\SOFTWARE\Veeam\Veeam Backup and Replication\DatabaseConfigurations\$(($Using:VeeamDBFlavor).SqlActiveConfiguration)" }
-                            } catch { Write-PScriboMessage -IsWarning "Backup Server Invoke-Command Section: $($_.Exception.Message)" }
-                            Write-PScriboMessage "Discovered $BackupServer Server."
+                                $PssSession = try { New-PSSession $BackupServer.Name -Credential $Credential -Authentication $Options.PSDefaultAuthentication -ErrorAction Stop -Name 'PSSBackupServer' } catch {
+                                    if (-Not $_.Exception.MessageId) {
+                                        $ErrorMessage = $_.FullyQualifiedErrorId
+                                    } else { $ErrorMessage = $_.Exception.MessageId }
+                                    Write-PScriboMessage -IsWarning "Backup Server Section: New-PSSession: Unable to connect to $($BackupServer.Name): $ErrorMessage"
+                                }
+                                $SecurityOptions = Get-VBRSecurityOptions
+                                try { $DomainJoined = Get-CimInstance -Class Win32_ComputerSystem -Property PartOfDomain -CimSession $CimSession } catch { 'Unknown' }
+                                Write-PScriboMessage "Collecting Backup Server information from $($BackupServer.Name)."
+                                try {
+                                    $script:VeeamVersion = Invoke-Command -Session $PssSession -ErrorAction SilentlyContinue -ScriptBlock { Get-ChildItem -Recurse HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall | Get-ItemProperty | Where-Object { $_.DisplayName -match 'Veeam Backup & Replication Server' } | Select-Object -Property DisplayVersion }
+                                } catch { Write-PScriboMessage -IsWarning "Backup Server Inkoke-Command Section: $($_.Exception.Message)" }
+                                try {
+                                    $VeeamInfo = Invoke-Command -Session $PssSession -ErrorAction SilentlyContinue -ScriptBlock { Get-ItemProperty -Path 'HKLM:\SOFTWARE\Veeam\Veeam Backup and Replication' }
+                                } catch { Write-PScriboMessage -IsWarning "Backup Server Invoke-Command Section: $($_.Exception.Message)" }
+                                try {
+                                    $VeeamDBFlavor = Invoke-Command -Session $PssSession -ErrorAction SilentlyContinue -ScriptBlock { Get-ItemProperty -Path 'HKLM:\SOFTWARE\Veeam\Veeam Backup and Replication\DatabaseConfigurations' }
+                                } catch { Write-PScriboMessage -IsWarning "Backup Server Invoke-Command Section: $($_.Exception.Message)" }
+                                try {
+                                    $VeeamDBInfo = Invoke-Command -Session $PssSession -ErrorAction SilentlyContinue -ScriptBlock { Get-ItemProperty -Path "HKLM:\SOFTWARE\Veeam\Veeam Backup and Replication\DatabaseConfigurations\$(($Using:VeeamDBFlavor).SqlActiveConfiguration)" }
+                                } catch { Write-PScriboMessage -IsWarning "Backup Server Invoke-Command Section: $($_.Exception.Message)" }
+                                Write-PScriboMessage "Discovered $($BackupServer.Name) Server."
+                            } else { Write-PScriboMessage -IsWarning "Backup Server Section: Unable to connect to Backup Server throuth WinRM" }
                             $inObj = [ordered] @{
                                 'Server Name' = $BackupServer.Name
                                 'Is Domain Joined?' = ConvertTo-TextYN $DomainJoined.PartOfDomain
@@ -173,7 +175,7 @@ function Get-AbrVbrBackupServerInfo {
                                         'Processor Model' = $HWCPU[0].Name
                                         'Number of CPU Cores' = ($HWCPU.NumberOfCores | Measure-Object -Sum).Sum
                                         'Number of Logical Cores' = ($HWCPU.NumberOfLogicalProcessors | Measure-Object -Sum).Sum
-                                        'Physical Memory (GB)' = ConvertTo-FileSizeString $HW.CsTotalPhysicalMemory
+                                        'Physical Memory (GB)' = ConvertTo-FileSizeString -Size $HW.CsTotalPhysicalMemory
                                     }
                                     $OutObj += [pscustomobject]$inobj
 
@@ -218,7 +220,7 @@ function Get-AbrVbrBackupServerInfo {
                                                                 'Model' = $Disk.Model
                                                                 'Serial Number' = $Disk.SerialNumber
                                                                 'Partition Style' = $Disk.PartitionStyle
-                                                                'Disk Size' = "$([Math]::Round($Disk.Size / 1Gb)) GB"
+                                                                'Disk Size' = ConvertTo-FileSizeString -Size $Disk.Size
                                                             }
                                                             $LocalDiskReport += $TempLocalDiskReport
                                                         } catch {
@@ -254,7 +256,7 @@ function Get-AbrVbrBackupServerInfo {
                                                                 'Model' = $Disk.Model
                                                                 'Serial Number' = $Disk.SerialNumber
                                                                 'Partition Style' = $Disk.PartitionStyle
-                                                                'Disk Size' = "$([Math]::Round($Disk.Size / 1Gb)) GB"
+                                                                'Disk Size' = ConvertTo-FileSizeString -Size $Disk.Size
                                                             }
                                                             $SanDiskReport += $TempSanDiskReport
                                                         } catch {
@@ -290,8 +292,8 @@ function Get-AbrVbrBackupServerInfo {
                                                             'Drive Letter' = $HostVolume.DriveLetter
                                                             'File System Label' = $HostVolume.FileSystemLabel
                                                             'File System' = $HostVolume.FileSystem
-                                                            'Size' = "$([Math]::Round($HostVolume.Size / 1gb)) GB"
-                                                            'Free Space' = "$([Math]::Round($HostVolume.SizeRemaining / 1gb)) GB"
+                                                            'Size' = ConvertTo-FileSizeString -Size $HostVolume.Size
+                                                            'Free Space' = ConvertTo-FileSizeString -Size $HostVolume.SizeRemaining
                                                             'Health Status' = $HostVolume.HealthStatus
                                                         }
                                                         $HostVolumeReport += $TempHostVolumeReport
@@ -392,74 +394,76 @@ function Get-AbrVbrBackupServerInfo {
                     try {
                         Write-PScriboMessage "Infrastructure Backup Server InfoLevel set at $($InfoLevel.Infrastructure.BackupServer)."
                         if ($InfoLevel.Infrastructure.BackupServer -ge 3) {
-                            $VeeamInfo = Invoke-Command -Session $PssSession -ErrorAction SilentlyContinue -ScriptBlock { Get-ItemProperty -Path 'HKLM:\SOFTWARE\Veeam\Veeam Backup and Replication' }
-                            $DefaultRegistryHash = @{
-                                "AgentLogging" = "1"
-                                "AgentLogOptions" = "flush"
-                                "LoggingLevel" = "4"
-                                "VNXBlockNaviSECCliPath" = "C:\Program Files\Veeam\Backup and Replication\Backup\EMC Navisphere CLI\NaviSECCli.exe"
-                                "VNXeUemcliPath" = "C:\Program Files\Veeam\Backup and Replication\Backup\EMC Unisphere CLI\3.0.1\uemcli.exe"
-                                "SqlLockInfo" = ""
-                                "CloudServerPort" = "10003"
-                                "SqlDatabaseName" = "VeeamBackup"
-                                "SqlInstanceName" = "VEEAMSQL2016"
-                                "SqlServerName" = ""
-                                "SqlLogin" = ""
-                                "CorePath" = "C:\Program Files\Veeam\Backup and Replication\Backup\"
-                                "BackupServerPort" = "9392"
-                                "SecureConnectionsPort" = "9401"
-                                "VddkReadBufferSize" = "0"
-                                "EndPointServerPort" = "10001"
-                                "SqlSecuredPassword" = ""
-                                "IsComponentsUpdateRequired" = "0"
-                                "LicenseAutoUpdate" = "1"
-                                "CloudSvcPort" = "6169"
-                                "VBRServiceRestartNeeded" = "0"
-                                "ImportServers" = "0"
-                                "MaxLogCount" = "10"
-                                "MaxLogSize" = "10240"
-                                "RunspaceId" = "0000"
-                                "ProviderCredentialsId" = ""
-                                "ProviderInfo" = ""
-                                "ProviderId" = ""
-                            }
-                            if ($VeeamInfo) {
-                                $OutObj = @()
-                                $Hashtable = $VeeamInfo | ForEach-Object {
-                                    foreach ($prop in $_.psobject.Properties.Where({ $_.Name -notlike 'PS*' })) {
-                                        [pscustomobject] @{
-                                            Key = $prop.Name
-                                            Value = $prop.Value
-                                        }
-                                    }
+                            if ($PssSession) {
+                                $VeeamInfo = Invoke-Command -Session $PssSession -ErrorAction SilentlyContinue -ScriptBlock { Get-ItemProperty -Path 'HKLM:\SOFTWARE\Veeam\Veeam Backup and Replication' }
+                                $DefaultRegistryHash = @{
+                                    "AgentLogging" = "1"
+                                    "AgentLogOptions" = "flush"
+                                    "LoggingLevel" = "4"
+                                    "VNXBlockNaviSECCliPath" = "C:\Program Files\Veeam\Backup and Replication\Backup\EMC Navisphere CLI\NaviSECCli.exe"
+                                    "VNXeUemcliPath" = "C:\Program Files\Veeam\Backup and Replication\Backup\EMC Unisphere CLI\3.0.1\uemcli.exe"
+                                    "SqlLockInfo" = ""
+                                    "CloudServerPort" = "10003"
+                                    "SqlDatabaseName" = "VeeamBackup"
+                                    "SqlInstanceName" = "VEEAMSQL2016"
+                                    "SqlServerName" = ""
+                                    "SqlLogin" = ""
+                                    "CorePath" = "C:\Program Files\Veeam\Backup and Replication\Backup\"
+                                    "BackupServerPort" = "9392"
+                                    "SecureConnectionsPort" = "9401"
+                                    "VddkReadBufferSize" = "0"
+                                    "EndPointServerPort" = "10001"
+                                    "SqlSecuredPassword" = ""
+                                    "IsComponentsUpdateRequired" = "0"
+                                    "LicenseAutoUpdate" = "1"
+                                    "CloudSvcPort" = "6169"
+                                    "VBRServiceRestartNeeded" = "0"
+                                    "ImportServers" = "0"
+                                    "MaxLogCount" = "10"
+                                    "MaxLogSize" = "10240"
+                                    "RunspaceId" = "0000"
+                                    "ProviderCredentialsId" = ""
+                                    "ProviderInfo" = ""
+                                    "ProviderId" = ""
                                 }
-                                foreach ($Registry in $Hashtable) {
-                                    if ($Registry.Key -notin $DefaultRegistryHash.Keys) {
-                                        $inObj = [ordered] @{
-                                            'Registry Key' = $Registry.Key
-                                            'Registry Value' = Switch (($Registry.Value).count) {
-                                                0 { '--' }
-                                                1 { $Registry.Value }
-                                                default { $Registry.Value -Join ', ' }
-
+                                if ($VeeamInfo) {
+                                    $OutObj = @()
+                                    $Hashtable = $VeeamInfo | ForEach-Object {
+                                        foreach ($prop in $_.psobject.Properties.Where({ $_.Name -notlike 'PS*' })) {
+                                            [pscustomobject] @{
+                                                Key = $prop.Name
+                                                Value = $prop.Value
                                             }
                                         }
-                                        $OutObj += [pscustomobject]$inobj
+                                    }
+                                    foreach ($Registry in $Hashtable) {
+                                        if ($Registry.Key -notin $DefaultRegistryHash.Keys) {
+                                            $inObj = [ordered] @{
+                                                'Registry Key' = $Registry.Key
+                                                'Registry Value' = Switch (($Registry.Value).count) {
+                                                    0 { '--' }
+                                                    1 { $Registry.Value }
+                                                    default { $Registry.Value -Join ', ' }
+
+                                                }
+                                            }
+                                            $OutObj += [pscustomobject]$inobj
+                                        }
+                                    }
+
+                                    $TableParams = @{
+                                        Name = "Non-Default Registry Keys - $($BackupServer.Name.Split(".")[0])"
+                                        List = $false
+                                        ColumnWidths = 50, 50
+                                    }
+                                    if ($Report.ShowTableCaptions) {
+                                        $TableParams['Caption'] = "- $($TableParams.Name)"
                                     }
                                 }
-
-                                $TableParams = @{
-                                    Name = "Non-Default Registry Keys - $($BackupServer.Name.Split(".")[0])"
-                                    List = $false
-                                    ColumnWidths = 50, 50
-                                }
-                                if ($Report.ShowTableCaptions) {
-                                    $TableParams['Caption'] = "- $($TableParams.Name)"
-                                }
-                            }
-                            if ($OutObj) {
-                                Section -Style Heading4 "Non-Default Registry Keys" {
-                                    $OutObj | Sort-Object -Property 'Registry Key' | Table @TableParams
+                                if ($OutObj) {
+                                    Section -Style Heading4 "Non-Default Registry Keys" {
+                                        $OutObj | Sort-Object -Property 'Registry Key' | Table @TableParams
+                                    }
                                 }
                             }
                         }
@@ -471,46 +475,48 @@ function Get-AbrVbrBackupServerInfo {
                     #---------------------------------------------------------------------------------------------#
                     if ($HealthCheck.Infrastructure.Server) {
                         $BackupServer = Get-VBRServer -Type Local
-                        try {
-                            Write-PScriboMessage "Infrastructure Backup Server InfoLevel set at $($InfoLevel.Infrastructure.BackupServer)."
-                            if ($InfoLevel.Infrastructure.BackupServer -ge 2) {
-                                Write-PScriboMessage "Collecting Backup Server Service Summary from $($BackupServer.Name)."
-                                $Available = Invoke-Command -Session $PssSession -ScriptBlock { Get-Service "W32Time" | Select-Object DisplayName, Name, Status }
-                                if ($Available) {
-                                    $Services = Invoke-Command -Session $PssSession -ScriptBlock { Get-Service Veeam* }
-                                    Section -Style Heading4 "HealthCheck - Services Status" {
-                                        $OutObj = @()
-                                        foreach ($Service in $Services) {
-                                            Write-PScriboMessage "Collecting '$($Service.DisplayName)' status on $($BackupServer.Name)."
-                                            $inObj = [ordered] @{
-                                                'Display Name' = $Service.DisplayName
-                                                'Short Name' = $Service.Name
-                                                'Status' = $Service.Status
+                        if ($PssSession) {
+                            try {
+                                Write-PScriboMessage "Infrastructure Backup Server InfoLevel set at $($InfoLevel.Infrastructure.BackupServer)."
+                                if ($InfoLevel.Infrastructure.BackupServer -ge 2) {
+                                    Write-PScriboMessage "Collecting Backup Server Service Summary from $($BackupServer.Name)."
+                                    $Available = Invoke-Command -Session $PssSession -ScriptBlock { Get-Service "W32Time" | Select-Object DisplayName, Name, Status }
+                                    if ($Available) {
+                                        $Services = Invoke-Command -Session $PssSession -ScriptBlock { Get-Service Veeam* }
+                                        Section -Style Heading4 "HealthCheck - Services Status" {
+                                            $OutObj = @()
+                                            foreach ($Service in $Services) {
+                                                Write-PScriboMessage "Collecting '$($Service.DisplayName)' status on $($BackupServer.Name)."
+                                                $inObj = [ordered] @{
+                                                    'Display Name' = $Service.DisplayName
+                                                    'Short Name' = $Service.Name
+                                                    'Status' = $Service.Status
+                                                }
+                                                $OutObj += [pscustomobject]$inobj
                                             }
-                                            $OutObj += [pscustomobject]$inobj
-                                        }
 
-                                        if ($HealthCheck.Infrastructure.Server) {
-                                            $OutObj | Where-Object { $_.'Status' -notlike 'Running' } | Set-Style -Style Warning -Property 'Status'
-                                        }
+                                            if ($HealthCheck.Infrastructure.Server) {
+                                                $OutObj | Where-Object { $_.'Status' -notlike 'Running' } | Set-Style -Style Warning -Property 'Status'
+                                            }
 
-                                        $TableParams = @{
-                                            Name = "HealthCheck - Services Status - $($BackupServer.Name.Split(".")[0])"
-                                            List = $false
-                                            ColumnWidths = 45, 35, 20
+                                            $TableParams = @{
+                                                Name = "HealthCheck - Services Status - $($BackupServer.Name.Split(".")[0])"
+                                                List = $false
+                                                ColumnWidths = 45, 35, 20
+                                            }
+                                            if ($Report.ShowTableCaptions) {
+                                                $TableParams['Caption'] = "- $($TableParams.Name)"
+                                            }
+                                            $OutObj | Table @TableParams
                                         }
-                                        if ($Report.ShowTableCaptions) {
-                                            $TableParams['Caption'] = "- $($TableParams.Name)"
-                                        }
-                                        $OutObj | Table @TableParams
                                     }
                                 }
+                            } catch {
+                                Write-PScriboMessage -IsWarning "Backup Server Service Status Section: $($_.Exception.Message)"
                             }
-                        } catch {
-                            Write-PScriboMessage -IsWarning "Backup Server Service Status Section: $($_.Exception.Message)"
                         }
                     }
-                    if ($HealthCheck.Infrastructure.BestPractice) {
+                    if ($HealthCheck.Infrastructure.BestPractice -and $PssSession) {
                         try {
                             $UpdObj = @()
                             $Updates = Invoke-Command -Session $PssSession -ScriptBlock { (New-Object -ComObject Microsoft.Update.Session).CreateupdateSearcher().Search("IsHidden=0 and IsInstalled=0").Updates | Select-Object Title, KBArticleIDs }

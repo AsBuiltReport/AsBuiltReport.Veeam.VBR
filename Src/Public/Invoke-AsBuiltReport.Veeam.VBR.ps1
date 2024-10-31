@@ -5,7 +5,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.10
+        Version:        0.8.11
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -20,6 +20,15 @@ function Invoke-AsBuiltReport.Veeam.VBR {
         [String[]] $Target,
         [PSCredential] $Credential
     )
+
+    #Requires -Version 5.1
+    #Requires -PSEdition Desktop
+    #Requires -RunAsAdministrator
+
+    if ($psISE) {
+        Write-Error -Message "You cannot run this script inside the PowerShell ISE. Please execute it from the PowerShell Command Window."
+        break
+    }
 
     Write-PScriboMessage -Plugin "Module" -IsWarning "Please refer to the AsBuiltReport.Veeam.VBR github website for more detailed information about this project."
     Write-PScriboMessage -Plugin "Module" -IsWarning "Do not forget to update your report configuration file after each new version release."
@@ -66,11 +75,21 @@ function Invoke-AsBuiltReport.Veeam.VBR {
         }
     }
 
+    # Set default theme styles
+    if (-Not $Options.DiagramTheme) {
+        $DiagramTheme = 'White'
+    } else {
+        $DiagramTheme = $Options.DiagramTheme
+    }
+
     # Used to set values to TitleCase where required
     $script:TextInfo = (Get-Culture).TextInfo
 
     #region foreach loop
     foreach ($System in $Target) {
+        if (Select-String -InputObject $System -Pattern "^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$") {
+            throw "Please use the FQDN instead of an IP address to connect to the Backup Server: $System"
+        }
         Get-AbrVbrRequiredModule -Name 'Veeam.Backup.PowerShell' -Version '12'
         Get-AbrVbrServerConnection
         $VeeamBackupServer = ((Get-VBRServerSession).Server).ToString().ToUpper().Split(".")[0]
@@ -135,7 +154,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                         if ($Options.EnableDiagrams -and ((Get-VBRWANAccelerator).count -gt 0)) {
                             Try {
                                 Try {
-                                    $Graph = New-VeeamDiagram -Target $System -Credential $Credential -Format base64 -Direction top-to-bottom -DiagramType "Backup-to-WanAccelerator"
+                                    $Graph = New-VeeamDiagram -Target $System -Credential $Credential -Format base64 -Direction top-to-bottom -DiagramType "Backup-to-WanAccelerator" -DiagramTheme $DiagramTheme
                                 } Catch {
                                     Write-PScriboMessage -IsWarning "Wan Accelerator Diagram: $($_.Exception.Message)"
                                 }
@@ -163,13 +182,13 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                         if ($Options.EnableDiagrams) {
                             Try {
                                 Try {
-                                    $Graph = New-VeeamDiagram -Target $System -Credential $Credential -Format base64 -Direction top-to-bottom -DiagramType "Backup-to-Repository"
+                                    $Graph = New-VeeamDiagram -Target $System -Credential $Credential -Format base64 -Direction top-to-bottom -DiagramType "Backup-to-Repository" -DiagramTheme $DiagramTheme
                                 } Catch {
                                     Write-PScriboMessage -IsWarning "Backup Repository Diagram: $($_.Exception.Message)"
                                 }
                                 if ($Graph) {
                                     If ((Get-DiaImagePercent -GraphObj $Graph).Width -gt 1500) { $ImagePrty = 15 } else { $ImagePrty = 50 }
-                                    Section -Style Heading3 "Backup Repository Diagram." {
+                                    Section -Style Heading3 "Backup Repository Diagram" {
                                         Image -Base64 $Graph -Text "Backup Repository Diagram" -Percent $ImagePrty -Align Center
                                         Paragraph "Image preview: Opens the image in a new tab to view it at full resolution." -Tabs 2
                                     }
@@ -186,7 +205,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                         if ($Options.EnableDiagrams -and (Get-VBRBackupRepository -ScaleOut)) {
                             Try {
                                 Try {
-                                    $Graph = New-VeeamDiagram -Target $System -Credential $Credential -Format base64 -Direction top-to-bottom -DiagramType "Backup-to-Sobr"
+                                    $Graph = New-VeeamDiagram -Target $System -Credential $Credential -Format base64 -Direction top-to-bottom -DiagramType "Backup-to-Sobr" -DiagramTheme $DiagramTheme
                                 } Catch {
                                     Write-PScriboMessage -IsWarning "ScaleOut Backup Repository Diagram: $($_.Exception.Message)"
                                 }
@@ -242,7 +261,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                         if ($Options.EnableDiagrams -and ((Get-VBRTapeServer).count -gt 0) -and ((Get-VBRTapeLibrary).count -gt 0)) {
                             Try {
                                 Try {
-                                    $Graph = New-VeeamDiagram -Target $System -Credential $Credential -Format base64 -Direction top-to-bottom -DiagramType "Backup-to-Tape"
+                                    $Graph = New-VeeamDiagram -Target $System -Credential $Credential -Format base64 -Direction top-to-bottom -DiagramType "Backup-to-Tape" -DiagramTheme $DiagramTheme
                                 } Catch {
                                     Write-PScriboMessage -IsWarning "Tape Infrastructure Diagram: $($_.Exception.Message)"
                                 }
@@ -287,7 +306,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                             if ($Options.EnableDiagrams -and $InventObjs) {
                                 Try {
                                     Try {
-                                        $Graph = New-VeeamDiagram -Target $System -Credential $Credential -Format base64 -Direction top-to-bottom -DiagramType "Backup-to-ProtectedGroup"
+                                        $Graph = New-VeeamDiagram -Target $System -Credential $Credential -Format base64 -Direction top-to-bottom -DiagramType "Backup-to-ProtectedGroup" -DiagramTheme $DiagramTheme
                                     } Catch {
                                         Write-PScriboMessage -IsWarning "Physical Infrastructure Diagram: $($_.Exception.Message)"
                                     }
@@ -440,7 +459,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                             Get-AbrVbrFileShareBackupjobConf
                         }
                         Write-PScriboMessage "Backup Copy Jobs InfoLevel set at $($InfoLevel.Jobs.BackupCopy)."
-                        if ($InfoLevel.Jobs.BackupCopy -ge 1 -and ((Get-Item "C:\Program Files\Veeam\Backup and Replication\Console\Veeam.Backup.PowerShell.dll").VersionInfo.ProductVersion -ge 12)) {
+                        if ($InfoLevel.Jobs.BackupCopy -ge 1 -and ($VbrVersion -ge 12)) {
                             Get-AbrVbrBackupCopyjob
                             Get-AbrVbrBackupCopyjobConf
                         }
@@ -480,6 +499,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                 'DiagramType' = 'Backup-Infrastructure'
                 'WaterMarkText' = $Options.DiagramWaterMark
                 'WaterMarkColor' = 'DarkGreen'
+                'DiagramTheme' = $DiagramTheme
             }
 
             if ($Options.EnableDiagramDebug) {

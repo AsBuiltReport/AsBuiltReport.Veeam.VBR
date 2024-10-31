@@ -6,7 +6,7 @@ function Get-AbrVbrRepljob {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.7
+        Version:        0.8.11
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -42,7 +42,10 @@ function Get-AbrVbrRepljob {
                                     'True' { 'Enabled' }
                                 }
                                 'Latest Result' = $Bkjob.info.LatestStatus
-                                'Last Run' = $Bkjob.FindLastSession().EndTimeUTC
+                                'Last Run' = Switch ($Bkjob.FindLastSession().EndTimeUTC) {
+                                    $null {'Never'}
+                                    default {$Bkjob.FindLastSession().EndTimeUTC}
+                                }
                             }
                             $OutObj += [pscustomobject]$inobj
                         } catch {
