@@ -6,7 +6,7 @@ function Get-AbrVbrBackupjobVMware {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.7
+        Version:        0.8.11
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -74,7 +74,7 @@ function Get-AbrVbrBackupjobVMware {
                                                 $inObj = [ordered] @{
                                                     'Name' = $Bkjob.Name
                                                     'Type' = $Bkjob.TypeToString
-                                                    'Total Backup Size' = ConvertTo-FileSizeString $CommonInfo.IncludedSize
+                                                    'Total Backup Size' = ConvertTo-FileSizeString -Size $CommonInfo.IncludedSize
                                                     'Target Address' = $CommonInfo.TargetDir
                                                     'Target File' = $CommonInfo.TargetFile
                                                     'Description' = ConvertTo-EmptyToFiller $CommonInfo.CommonInfo.Description
@@ -126,7 +126,7 @@ function Get-AbrVbrBackupjobVMware {
                                                     $inObj = [ordered] @{
                                                         'Name' = $Job.Name
                                                         'Type' = $Job.TypeToString
-                                                        'Size' = ConvertTo-FileSizeString $Job.Info.IncludedSize
+                                                        'Size' = ConvertTo-FileSizeString -Size $Job.Info.IncludedSize
                                                         'Repository' = $Job.GetTargetRepository().Name
                                                     }
                                                     $OutObj += [pscustomobject]$inobj
@@ -160,14 +160,14 @@ function Get-AbrVbrBackupjobVMware {
                                                         $inObj = [ordered] @{
                                                             'Name' = $Repo.Name
                                                             'Type' = "Standard"
-                                                            'Size' = "$($Repo.GetContainer().CachedTotalSpace.InGigabytes) Gb"
+                                                            'Size' = ConvertTo-FileSizeString -Size $Repo.GetContainer().CachedTotalSpace.InBytesAsUInt64
                                                         }
                                                     }
                                                     if ($ScaleRepo = Get-VBRBackupRepository -ScaleOut | Where-Object { $_.Id -eq $LinkedRepository }) {
                                                         $inObj = [ordered] @{
                                                             'Name' = $ScaleRepo.Name
                                                             'Type' = "ScaleOut"
-                                                            'Size' = "$((($ScaleRepo.Extent).Repository).GetContainer().CachedTotalSpace.InGigabytes) GB"
+                                                            'Size' = ConvertTo-FileSizeString -Size (($ScaleRepo.Extent).Repository).GetContainer().CachedTotalSpace.InBytesAsUInt64
                                                         }
                                                     }
                                                     $OutObj += [pscustomobject]$inobj

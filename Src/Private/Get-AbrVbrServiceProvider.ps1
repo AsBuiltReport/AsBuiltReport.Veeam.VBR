@@ -6,7 +6,7 @@ function Get-AbrVbrServiceProvider {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.7
+        Version:        0.8.11
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -111,8 +111,8 @@ function Get-AbrVbrServiceProvider {
                                                             'Resources Enabled' = ConvertTo-TextYN $CloudProvider.ResourcesEnabled
                                                             'Repository Name' = $CloudProvider.Resources.RepositoryName
                                                             'Wan Acceleration?' = $CloudProvider.Resources | ForEach-Object { "$($_.RepositoryName): $(ConvertTo-TextYN $_.WanAccelerationEnabled)" }
-                                                            'Per Datastore Allocated Space' = $CloudProvider.Resources | ForEach-Object { "$($_.RepositoryName): $($_.RepositoryAllocatedSpace / 1024) GB" }
-                                                            'Total Datastore Allocated Space' = "$([Math]::Round(($CloudProvider.Resources.RepositoryAllocatedSpace | Measure-Object -Sum).Sum / 1024)) GB"
+                                                            'Per Datastore Allocated Space' = $CloudProvider.Resources | ForEach-Object { "$($_.RepositoryName): $(ConvertTo-FileSizeString -Size $_.RepositoryAllocatedSpace)" }
+                                                            'Total Datastore Allocated Space' = ConvertTo-FileSizeString -Size $CloudProvider.Resources.RepositoryAllocatedSpace
                                                         }
 
                                                         $OutObj = [pscustomobject]$inobj
@@ -143,7 +143,7 @@ function Get-AbrVbrServiceProvider {
                                                         }
                                                         $Memory = Switch ([string]::IsNullOrEmpty($CloudProvider.ReplicationResources.Memory)) {
                                                             $true { 'Unlimited' }
-                                                            $false { "$([math]::Round($CloudProvider.ReplicationResources.Memory / 1Kb, 2)) GB" }
+                                                            $false { ConvertTo-FileSizeString -Size $CloudProvider.ReplicationResources.Memory }
                                                             default { '--' }
                                                         }
                                                         Write-PScriboMessage "Discovered $($CloudProvider.DNSName) Service Provider DRaaS Resources information."
@@ -153,8 +153,8 @@ function Get-AbrVbrServiceProvider {
                                                             'Allocated CPU Resources' = $CPU
                                                             'Allocated Memory Resources' = $Memory
                                                             'Repository Name' = $CloudProvider.ReplicationResources.Datastore.Name
-                                                            'Per Datastore Allocated Space' = $CloudProvider.ReplicationResources.Datastore | ForEach-Object { "$($_.Name): $($_.DatastoreAllocatedSpace) GB" }
-                                                            'Total Datastore Allocated Space' = "$([Math]::Round(($CloudProvider.ReplicationResources.Datastore.DatastoreAllocatedSpace | Measure-Object -Sum).Sum)) GB"
+                                                            'Per Datastore Allocated Space' = $CloudProvider.ReplicationResources.Datastore | ForEach-Object { "$($_.Name): $(ConvertTo-FileSizeString -Size $_.DatastoreAllocatedSpace)" }
+                                                            'Total Datastore Allocated Space' = ConvertTo-FileSizeString -Size ($CloudProvider.ReplicationResources.Datastore.DatastoreAllocatedSpace | Measure-Object -Sum).Sum
                                                             'Network Count' = $CloudProvider.ReplicationResources.NetworkCount
                                                             'Public IP Enabled' = ConvertTo-TextYN $CloudProvider.ReplicationResources.PublicIpEnabled
                                                         }
@@ -226,8 +226,11 @@ function Get-AbrVbrServiceProvider {
                                                                 Write-PScriboMessage "Discovered $($Gateway.Name) Service Provider Default Gateway Configuration information."
                                                                 $inObj = [ordered] @{
                                                                     'Name' = $Gateway.Name
-                                                                    'IP Address' = $Gateway.IpAddress
-                                                                    'Network Mask' = $Gateway.NetworkMask
+                                                                    'IPv4 Address' = ConvertTo-EmptyToFiller -TEXT $Gateway.IpAddress
+                                                                    'Network Mask' = ConvertTo-EmptyToFiller -TEXT $Gateway.NetworkMask
+                                                                    'IPv6 Address' = ConvertTo-EmptyToFiller -TEXT $Gateway.IpAddress
+                                                                    'IPv6 Subnet Address' = ConvertTo-EmptyToFiller -TEXT $Gateway.Ipv6SubnetAddress
+                                                                    'IPv6 Prefix Length' = ConvertTo-EmptyToFiller -TEXT $Gateway.Ipv6PrefixLength
                                                                     'Routing Enabled?' = ConvertTo-TextYN $DefaultGatewayConfig.RoutingEnabled
                                                                 }
 
@@ -257,14 +260,17 @@ function Get-AbrVbrServiceProvider {
                                                 if ($CloudSubUserConfig.DefaultGateway) {
                                                     Section -ExcludeFromTOC -Style NOTOCHeading6 'Cloud SubUser Default Gateway' {
                                                         $OutObj = @()
-                                                        foreach ($Gateway in $DefaultGatewayConfig.DefaultGateway) {
+                                                        foreach ($Gateway in $CloudSubUserConfig.DefaultGateway) {
                                                             try {
                                                                 Write-PScriboMessage "Discovered $($Gateway.Name) Service Provider Cloud SubUser Default Gateway information."
                                                                 $inObj = [ordered] @{
                                                                     'Name' = $Gateway.Name
-                                                                    'IP Address' = $Gateway.IpAddress
-                                                                    'Network Mask' = $Gateway.NetworkMask
-                                                                    'Routing Enabled?' = ConvertTo-TextYN $DefaultGatewayConfig.RoutingEnabled
+                                                                    'IPv4 Address' = ConvertTo-EmptyToFiller -TEXT $Gateway.IpAddress
+                                                                    'Network Mask' = ConvertTo-EmptyToFiller -TEXT $Gateway.NetworkMask
+                                                                    'IPv6 Address' = ConvertTo-EmptyToFiller -TEXT $Gateway.IpAddress
+                                                                    'IPv6 Subnet Address' = ConvertTo-EmptyToFiller -TEXT $Gateway.Ipv6SubnetAddress
+                                                                    'IPv6 Prefix Length' = ConvertTo-EmptyToFiller -TEXT $Gateway.Ipv6PrefixLength
+                                                                    'Routing Enabled?' = ConvertTo-TextYN $CloudSubUserConfig.RoutingEnabled
                                                                 }
 
                                                                 $OutObj = [pscustomobject]$inobj

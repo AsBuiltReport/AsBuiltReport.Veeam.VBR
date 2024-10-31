@@ -6,7 +6,7 @@ function Get-AbrVbrCloudConnectRR {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.7
+        Version:        0.8.11
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -45,10 +45,10 @@ function Get-AbrVbrCloudConnectRR {
                                     }
                                     'Memory' = Switch ([string]::IsNullOrEmpty($CloudObject.Memory)) {
                                         $true { 'Unlimited' }
-                                        $false { "$([math]::Round($CloudObject.Memory / 1Kb, 2)) GB" }
+                                        $false { ConvertTo-FileSizeString -Size $CloudObject.Memory }
                                         default { '--' }
                                     }
-                                    'Storage Quota' = "$(($CloudObject.Datastore.Quota | Measure-Object -Sum).Sum) GB"
+                                    'Storage Quota' = ConvertTo-FileSizeString -Size ($CloudObject.Datastore.Quota | Measure-Object -Sum).Sum
                                     'Network Count' = $CloudObject.NumberOfNetWithInternet + $CloudObject.NumberOfNetWithoutInternet
                                     'Subscribers Count' = ($CloudObject.SubscribedTenantId).count
                                 }
@@ -96,7 +96,7 @@ function Get-AbrVbrCloudConnectRR {
                                                             }
                                                             'Memory' = Switch ([string]::IsNullOrEmpty($CloudObject.Memory)) {
                                                                 $true { 'Unlimited' }
-                                                                $false { "$([math]::Round($CloudObject.Memory / 1Kb, 2)) GB" }
+                                                                $false { ConvertTo-FileSizeString -Size $CloudObject.Memory }
                                                                 default { '--' }
                                                             }
                                                             'Network Count' = $CloudObject.NumberOfNetWithInternet + $CloudObject.NumberOfNetWithoutInternet
@@ -137,7 +137,7 @@ function Get-AbrVbrCloudConnectRR {
                                                                 'Datastore Name' = $Storage.Datastore
                                                                 'Friendly Name' = $Storage.FriendlyName
                                                                 'Platform' = $Storage.Platform
-                                                                'Storage Quota' = "$($Storage.Quota) GB"
+                                                                'Storage Quota' = ConvertTo-FileSizeString -Size $Storage.Quota
                                                                 'Storage Policy' = Switch ([string]::IsNullOrEmpty($Storage.StoragePolicy.Name)) {
                                                                     $true { '--' }
                                                                     $false { $Storage.StoragePolicy.Name }
@@ -211,7 +211,7 @@ function Get-AbrVbrCloudConnectRR {
                                                                     'Name' = $TenantUtil.Name
                                                                     'CPU Usage' = $TenantUtil.CPUUsage
                                                                     'Memory Usage' = $TenantUtil.MemoryUsage
-                                                                    'Storage Usage' = $TenantUtil.StorageUsage | ForEach-Object { "$($_.UsedSpace) GB ($($_.FriendlyName))" }
+                                                                    'Storage Usage' = $TenantUtil.StorageUsage | ForEach-Object { "$(ConvertTo-FileSizeString -Size $_.UsedSpace) ($($_.FriendlyName))" }
                                                                 }
 
                                                                 $OutObj += [pscustomobject]$inobj

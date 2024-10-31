@@ -6,7 +6,7 @@ function Get-AbrVbrBackupRepository {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.6
+        Version:        0.8.11
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -46,8 +46,8 @@ function Get-AbrVbrBackupRepository {
                         }
                         $inObj = [ordered] @{
                             'Name' = $BackupRepo.Name
-                            'Total Space' = "$($BackupRepo.GetContainer().CachedTotalSpace.InGigabytes) Gb"
-                            'Free Space' = "$($BackupRepo.GetContainer().CachedFreeSpace.InGigabytes) Gb"
+                            'Total Space' = ConvertTo-FileSizeString -Size $BackupRepo.GetContainer().CachedTotalSpace.InBytesAsUInt64
+                            'Free Space' = ConvertTo-FileSizeString -Size $BackupRepo.GetContainer().CachedFreeSpace.InBytesAsUInt64
                             'Used Space %' = $PercentFree
                             'Free Space %' = 100 - $PercentFree
                             'Status' = Switch ($BackupRepo.IsUnavailable) {

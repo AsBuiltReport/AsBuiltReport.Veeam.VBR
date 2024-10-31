@@ -6,7 +6,7 @@ function Get-AbrVbrFileToTape {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.7
+        Version:        0.8.11
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -145,8 +145,8 @@ function Get-AbrVbrFileToTape {
                                                         'Name' = $BackupMediaPool.Name
                                                         'Pool Type' = $BackupMediaPool.Type
                                                         'Tape Count' = (Get-VBRTapeMedium -MediaPool $BackupMediaPool.Name).count
-                                                        'Capacity' = ConvertTo-FileSizeString $BackupMediaPool.Capacity
-                                                        'Remaining' = ConvertTo-FileSizeString $BackupMediaPool.FreeSpace
+                                                        'Capacity' = ConvertTo-FileSizeString -Size $BackupMediaPool.Capacity
+                                                        'Remaining' = ConvertTo-FileSizeString -Size  $BackupMediaPool.FreeSpace
                                                         'Is WORM' = ConvertTo-TextYN $BackupMediaPool.Worm
                                                         'Schedule Enabled' = ConvertTo-TextYN $TBkjob.FullBackupPolicy.Enabled
                                                     }
@@ -196,8 +196,8 @@ function Get-AbrVbrFileToTape {
                                                         'Name' = $BackupMediaPool.Name
                                                         'Pool Type' = $BackupMediaPool.Type
                                                         'Tape Count' = (Get-VBRTapeMedium -MediaPool $BackupMediaPool.Name).count
-                                                        'Capacity' = ConvertTo-FileSizeString $BackupMediaPool.Capacity
-                                                        'Remaining' = ConvertTo-FileSizeString $BackupMediaPool.FreeSpace
+                                                        'Capacity' = ConvertTo-FileSizeString -Size  $BackupMediaPool.Capacity
+                                                        'Remaining' = ConvertTo-FileSizeString -Size  $BackupMediaPool.FreeSpace
                                                         'Is WORM' = ConvertTo-TextYN $BackupMediaPool.Worm
                                                         'Schedule Enabled' = ConvertTo-TextYN $TBkjob.IncrementalBackupPolicy.Enabled
                                                     }
