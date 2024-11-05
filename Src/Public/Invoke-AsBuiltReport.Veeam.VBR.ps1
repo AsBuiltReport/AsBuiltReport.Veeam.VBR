@@ -5,7 +5,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.11
+        Version:        0.8.12
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -24,6 +24,8 @@ function Invoke-AsBuiltReport.Veeam.VBR {
     #Requires -Version 5.1
     #Requires -PSEdition Desktop
     #Requires -RunAsAdministrator
+    #Requires -Modules @{ ModuleName="Veeam.Backup.PowerShell"; MaximumVersion="12.2.0.334" }
+
 
     if ($psISE) {
         Write-Error -Message "You cannot run this script inside the PowerShell ISE. Please execute it from the PowerShell Command Window."
@@ -90,7 +92,6 @@ function Invoke-AsBuiltReport.Veeam.VBR {
         if (Select-String -InputObject $System -Pattern "^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$") {
             throw "Please use the FQDN instead of an IP address to connect to the Backup Server: $System"
         }
-        Get-AbrVbrRequiredModule -Name 'Veeam.Backup.PowerShell' -Version '12'
         Get-AbrVbrServerConnection
         $VeeamBackupServer = ((Get-VBRServerSession).Server).ToString().ToUpper().Split(".")[0]
         $script:VbrLicenses = Get-VBRInstalledLicense
