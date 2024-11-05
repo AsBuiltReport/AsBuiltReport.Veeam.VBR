@@ -12,7 +12,7 @@
     RootModule = 'AsBuiltReport.Veeam.VBR.psm1'
 
     # Version number of this module.
-    ModuleVersion = '0.8.11'
+    ModuleVersion = '0.8.12'
 
     # Supported PSEditions
     # CompatiblePSEditions = @()
