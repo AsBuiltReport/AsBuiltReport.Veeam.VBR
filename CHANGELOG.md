@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Fix [#187](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/187)
+- Improve Veeam B&R v11 support
 
 ## [0.8.11] - 2024-10-30
 

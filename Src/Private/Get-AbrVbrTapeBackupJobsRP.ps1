@@ -26,44 +26,47 @@ function Get-AbrVbrTapeBackupJobsRP {
         try {
             if ($BackupJobs = Get-VBRTapeBackup -WarningAction SilentlyContinue | Sort-Object -Property Name) {
                 Write-PScriboMessage "Collecting Veeam VBR Tape Restore Point."
-                Section -Style Heading3 'Tape Backup Restore Points ' {
-                    Paragraph "The following section details per Tape Backup Job restore points."
-                    BlankLine
-                    foreach ($BackupJob in $BackupJobs) {
-                        if ($BackupJobRestorePoints = Get-VBRRestorePoint -Backup $BackupJob | Sort-Object -Property VMName, CreationTimeUt, Type) {
-                            Section -ExcludeFromTOC -Style NOTOCHeading4  $BackupJob.Name {
-                                $RestorePointInfo = @()
-                                foreach ($RestorePoint in $BackupJobRestorePoints) {
-                                    try {
-                                        $DedupRatio = $RestorePoint.GetStorage().stats.DedupRatio
-                                        $CompressRatio = $RestorePoint.GetStorage().stats.CompressRatio
-                                        if ($DedupRatio -gt 1) { $DedupRatio = 100 / $DedupRatio } else { $DedupRatio = 1 }
-                                        if ($CompressRatio -gt 1) { $CompressRatio = 100 / $CompressRatio } else { $CompressRatio = 1 }
-                                        $inObj = [ordered] @{
-                                            'VM Name' = $RestorePoint.VMName
-                                            'Backup Type' = $RestorePoint.Algorithm
-                                            'Backup Size' = (ConvertTo-FileSizeString -Size $RestorePoint.GetStorage().stats.BackupSize)
-                                            'Dedub Ratio' = [Math]::Round($DedupRatio, 2)
-                                            'Compress Ratio' = [Math]::Round($CompressRatio, 2)
-                                            'Reduction' = [Math]::Round(($DedupRatio * $CompressRatio), 2)
-                                        }
-                                        $RestorePointInfo += [PSCustomObject]$InObj
-                                    } catch {
-                                        Write-PScriboMessage -IsWarning "Tape Restore Point table: $($_.Exception.Message)"
+                $TapeRestorePoints = foreach ($BackupJob in $BackupJobs) {
+                    if ($BackupJobRestorePoints = Get-VBRRestorePoint -Backup $BackupJob | Sort-Object -Property VMName, CreationTimeUt, Type) {
+                        Section -ExcludeFromTOC -Style NOTOCHeading4  $BackupJob.Name {
+                            $RestorePointInfo = @()
+                            foreach ($RestorePoint in $BackupJobRestorePoints) {
+                                try {
+                                    $DedupRatio = $RestorePoint.GetStorage().stats.DedupRatio
+                                    $CompressRatio = $RestorePoint.GetStorage().stats.CompressRatio
+                                    if ($DedupRatio -gt 1) { $DedupRatio = 100 / $DedupRatio } else { $DedupRatio = 1 }
+                                    if ($CompressRatio -gt 1) { $CompressRatio = 100 / $CompressRatio } else { $CompressRatio = 1 }
+                                    $inObj = [ordered] @{
+                                        'VM Name' = $RestorePoint.VMName
+                                        'Backup Type' = $RestorePoint.Algorithm
+                                        'Backup Size' = (ConvertTo-FileSizeString -Size $RestorePoint.GetStorage().stats.BackupSize)
+                                        'Dedub Ratio' = [Math]::Round($DedupRatio, 2)
+                                        'Compress Ratio' = [Math]::Round($CompressRatio, 2)
+                                        'Reduction' = [Math]::Round(($DedupRatio * $CompressRatio), 2)
                                     }
+                                    $RestorePointInfo += [PSCustomObject]$InObj
+                                } catch {
+                                    Write-PScriboMessage -IsWarning "Tape Restore Point table: $($_.Exception.Message)"
                                 }
-
-                                $TableParams = @{
-                                    Name = "Tape Restore Points - $($BackupJob.Name)"
-                                    List = $false
-                                    ColumnWidths = 40, 12, 12, 12, 12, 12
-                                }
-                                if ($Report.ShowTableCaptions) {
-                                    $TableParams['Caption'] = "- $($TableParams.Name)"
-                                }
-                                $RestorePointInfo | Table @TableParams
                             }
+
+                            $TableParams = @{
+                                Name = "Tape Restore Points - $($BackupJob.Name)"
+                                List = $false
+                                ColumnWidths = 40, 12, 12, 12, 12, 12
+                            }
+                            if ($Report.ShowTableCaptions) {
+                                $TableParams['Caption'] = "- $($TableParams.Name)"
+                            }
+                            $RestorePointInfo | Table @TableParams
                         }
+                    }
+                }
+                if ($TapeRestorePoints) {
+                    Section -Style Heading3 'Tape Backup Restore Points ' {
+                        Paragraph "The following section details per Tape Backup Job restore points."
+                        BlankLine
+                        $TapeRestorePoints
                     }
                 }
             }
