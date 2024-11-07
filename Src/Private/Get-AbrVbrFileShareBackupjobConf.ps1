@@ -6,7 +6,7 @@ function Get-AbrVbrFileShareBackupjobConf {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.11
+        Version:        0.8.12
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -50,10 +50,10 @@ function Get-AbrVbrFileShareBackupjobConf {
                                                 'Total Backup Size' = ConvertTo-FileSizeString -Size $CommonInfo.IncludedSize
                                                 'Target Address' = $CommonInfo.TargetDir
                                                 'Target File' = $CommonInfo.TargetFile
-                                                'Description' = ConvertTo-EmptyToFiller $CommonInfo.CommonInfo.Description
+                                                'Description' = $CommonInfo.CommonInfo.Description
                                                 'Modified By' = $CommonInfo.CommonInfo.ModifiedBy.FullName
                                             }
-                                            $OutObj = [pscustomobject]$inobj
+                                            $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
                                         } catch {
                                             Write-PScriboMessage -IsWarning "Common Information $($Bkjob.Name) Section: $($_.Exception.Message)"
                                         }
@@ -104,7 +104,7 @@ function Get-AbrVbrFileShareBackupjobConf {
                                                     'File Filter Include Masks' = $OBJ.ExtendedOptions.FileSourceOptions.IncludeMasks
                                                     'File Filter Exclude Masks' = $OBJ.ExtendedOptions.FileSourceOptions.ExcludeMasks
                                                 }
-                                                $OutObj = [pscustomobject]$inobj
+                                                $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                 $TableParams = @{
                                                     Name = "Files and Folders - $($OBJ.Name)"
@@ -151,7 +151,7 @@ function Get-AbrVbrFileShareBackupjobConf {
                                                         default { "Unknown" }
                                                     }
                                                 }
-                                                $OutObj += [pscustomobject]$inobj
+                                                $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                                             }
                                             $TableParams = @{
                                                 Name = "Objects - $($OBJ.Name)"
@@ -193,7 +193,7 @@ function Get-AbrVbrFileShareBackupjobConf {
                                         $inObj.add('File to Archive', $FiletoArchive)
                                     }
 
-                                    $OutObj = [pscustomobject]$inobj
+                                    $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                     $TableParams = @{
                                         Name = "Storage Options - $($Bkjob.Name)"
@@ -228,7 +228,7 @@ function Get-AbrVbrFileShareBackupjobConf {
                                                 if ($Bkjob.Options.NasBackupRetentionPolicy.LimitMaxDeletedFileVersionsCount) {
                                                     $inObj.add('Delete file version limit', $Bkjob.Options.NasBackupRetentionPolicy.MaxDeletedFileVersionsCount)
                                                 }
-                                                $OutObj = [pscustomobject]$inobj
+                                                $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                 $TableParams = @{
                                                     Name = "Advanced Settings ($FLVersion) - $($Bkjob.Name)"
@@ -256,7 +256,7 @@ function Get-AbrVbrFileShareBackupjobConf {
                                                         default { "--" }
                                                     }
                                                 }
-                                                $OutObj = [pscustomobject]$inobj
+                                                $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                 $TableParams = @{
                                                     Name = "Advanced Settings (acl handling) - $($Bkjob.Name)"
@@ -278,7 +278,7 @@ function Get-AbrVbrFileShareBackupjobConf {
                                             try {
                                                 Write-PScriboMessage "Discovered $($Bkjob.Name) storage options."
                                                 $inObj = [ordered] @{
-                                                    'Inline Data Deduplication' = ConvertTo-TextYN $Bkjob.Options.BackupStorageOptions.EnableDeduplication
+                                                    'Inline Data Deduplication' = $Bkjob.Options.BackupStorageOptions.EnableDeduplication
                                                     'Compression Level' = Switch ($Bkjob.Options.BackupStorageOptions.CompressionLevel) {
                                                         0 { 'NONE' }
                                                         -1 { 'AUTO' }
@@ -287,13 +287,13 @@ function Get-AbrVbrFileShareBackupjobConf {
                                                         6 { 'High' }
                                                         9 { 'EXTREME' }
                                                     }
-                                                    'Enabled Backup File Encryption' = ConvertTo-TextYN $Bkjob.Options.BackupStorageOptions.StorageEncryptionEnabled
+                                                    'Enabled Backup File Encryption' = $Bkjob.Options.BackupStorageOptions.StorageEncryptionEnabled
                                                     'Encryption Key' = Switch ($Bkjob.Options.BackupStorageOptions.StorageEncryptionEnabled) {
                                                         $false { 'None' }
                                                         default { (Get-VBREncryptionKey | Where-Object { $_.id -eq $Bkjob.Info.PwdKeyId }).Description }
                                                     }
                                                 }
-                                                $OutObj = [pscustomobject]$inobj
+                                                $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                 $TableParams = @{
                                                     Name = "Advanced Settings (Storage) - $($Bkjob.Name)"
@@ -315,7 +315,7 @@ function Get-AbrVbrFileShareBackupjobConf {
                                             try {
                                                 Write-PScriboMessage "Discovered $($Bkjob.Name) maintenance options."
                                                 $inObj = [ordered] @{
-                                                    'Storage-Level Corruption Guard (SLCG)' = ConvertTo-TextYN $Bkjob.Options.GenerationPolicy.EnableRechek
+                                                    'Storage-Level Corruption Guard (SLCG)' = $Bkjob.Options.GenerationPolicy.EnableRechek
                                                     'SLCG Schedule Type' = $Bkjob.Options.GenerationPolicy.RecheckScheduleKind
                                                 }
 
@@ -325,7 +325,7 @@ function Get-AbrVbrFileShareBackupjobConf {
                                                 if ($Bkjob.Options.GenerationPolicy.RecheckScheduleKind -eq 'Monthly') {
                                                     $inObj.add('SLCG Backup Monthly Schedule', "Day Of Week: $($Bkjob.Options.GenerationPolicy.RecheckBackupMonthlyScheduleOptions.DayOfWeek)`r`nDay Number In Month: $($Bkjob.Options.GenerationPolicy.RecheckBackupMonthlyScheduleOptions.DayNumberInMonth)`r`nDay of Month: $($Bkjob.Options.GenerationPolicy.RecheckBackupMonthlyScheduleOptions.DayOfMonth)`r`nMonths: $($Bkjob.Options.GenerationPolicy.RecheckBackupMonthlyScheduleOptions.Months)")
                                                 }
-                                                $OutObj = [pscustomobject]$inobj
+                                                $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                 if ($HealthCheck.Jobs.BestPractice) {
                                                     $OutObj | Where-Object { $_.'Storage-Level Corruption Guard (SLCG)' -eq "No" } | Set-Style -Style Warning -Property 'Storage-Level Corruption Guard (SLCG)'
@@ -362,21 +362,21 @@ function Get-AbrVbrFileShareBackupjobConf {
                                             try {
                                                 Write-PScriboMessage "Discovered $($Bkjob.Name) notification options."
                                                 $inObj = [ordered] @{
-                                                    'Send Snmp Notification' = ConvertTo-TextYN $Bkjob.Options.NotificationOptions.SnmpNotification
-                                                    'Send Email Notification' = ConvertTo-TextYN $Bkjob.Options.NotificationOptions.SendEmailNotification2AdditionalAddresses
+                                                    'Send Snmp Notification' = $Bkjob.Options.NotificationOptions.SnmpNotification
+                                                    'Send Email Notification' = $Bkjob.Options.NotificationOptions.SendEmailNotification2AdditionalAddresses
                                                     'Email Notification Additional Addresses' = $Bkjob.Options.NotificationOptions.EmailNotificationAdditionalAddresses
                                                     'Email Notify Time' = $Bkjob.Options.NotificationOptions.EmailNotifyTime.ToShortTimeString()
-                                                    'Use Custom Email Notification Options' = ConvertTo-TextYN $Bkjob.Options.NotificationOptions.UseCustomEmailNotificationOptions
+                                                    'Use Custom Email Notification Options' = $Bkjob.Options.NotificationOptions.UseCustomEmailNotificationOptions
                                                     'Use Custom Notification Setting' = $Bkjob.Options.NotificationOptions.EmailNotificationSubject
-                                                    'Notify On Success' = ConvertTo-TextYN $Bkjob.Options.NotificationOptions.EmailNotifyOnSuccess
-                                                    'Notify On Warning' = ConvertTo-TextYN $Bkjob.Options.NotificationOptions.EmailNotifyOnWarning
-                                                    'Notify On Error' = ConvertTo-TextYN $Bkjob.Options.NotificationOptions.EmailNotifyOnError
-                                                    'Suppress Notification until Last Retry' = ConvertTo-TextYN $Bkjob.Options.NotificationOptions.EmailNotifyOnLastRetryOnly
-                                                    'Set Results To Vm Notes' = ConvertTo-TextYN $Bkjob.Options.ViSourceOptions.SetResultsToVmNotes
+                                                    'Notify On Success' = $Bkjob.Options.NotificationOptions.EmailNotifyOnSuccess
+                                                    'Notify On Warning' = $Bkjob.Options.NotificationOptions.EmailNotifyOnWarning
+                                                    'Notify On Error' = $Bkjob.Options.NotificationOptions.EmailNotifyOnError
+                                                    'Suppress Notification until Last Retry' = $Bkjob.Options.NotificationOptions.EmailNotifyOnLastRetryOnly
+                                                    'Set Results To Vm Notes' = $Bkjob.Options.ViSourceOptions.SetResultsToVmNotes
                                                     'VM Attribute Note Value' = $Bkjob.Options.ViSourceOptions.VmAttributeName
-                                                    'Append to Existing Attribute' = ConvertTo-TextYN $Bkjob.Options.ViSourceOptions.VmNotesAppend
+                                                    'Append to Existing Attribute' = $Bkjob.Options.ViSourceOptions.VmNotesAppend
                                                 }
-                                                $OutObj = [pscustomobject]$inobj
+                                                $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                 $TableParams = @{
                                                     Name = "Advanced Settings (Notification) - $($Bkjob.Name)"
@@ -405,15 +405,15 @@ function Get-AbrVbrFileShareBackupjobConf {
                                                 }
                                                 Write-PScriboMessage "Discovered $($Bkjob.Name) script options."
                                                 $inObj = [ordered] @{
-                                                    'Run the Following Script Before' = ConvertTo-TextYN $Bkjob.Options.JobScriptCommand.PreScriptEnabled
+                                                    'Run the Following Script Before' = $Bkjob.Options.JobScriptCommand.PreScriptEnabled
                                                     'Run Script Before the Job' = $Bkjob.Options.JobScriptCommand.PreScriptCommandLine
-                                                    'Run the Following Script After' = ConvertTo-TextYN $Bkjob.Options.JobScriptCommand.PostScriptEnabled
+                                                    'Run the Following Script After' = $Bkjob.Options.JobScriptCommand.PostScriptEnabled
                                                     'Run Script After the Job' = $Bkjob.Options.JobScriptCommand.PostScriptCommandLine
                                                     'Run Script Frequency' = $Bkjob.Options.JobScriptCommand.Periodicity
                                                     $FrequencyText = $FrequencyValue
 
                                                 }
-                                                $OutObj = [pscustomobject]$inobj
+                                                $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                 $TableParams = @{
                                                     Name = "Advanced Settings (Script) - $($Bkjob.Name)"
@@ -455,7 +455,7 @@ function Get-AbrVbrFileShareBackupjobConf {
                                             }
                                             $inObj.add("Description", $ArchiveRepoTarget.LongTermBackupRepository.Description)
 
-                                            $OutObj += [pscustomobject]$inobj
+                                            $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                                         } catch {
                                             Write-PScriboMessage -IsWarning "Archive Repository $($ArchiveRepoTarget.Name) Section: $($_.Exception.Message)"
                                         }
@@ -487,7 +487,7 @@ function Get-AbrVbrFileShareBackupjobConf {
                                                     'State' = $SecondaryTarget.info.LatestStatus
                                                     'Description' = $SecondaryTarget.Description
                                                 }
-                                                $OutObj += [pscustomobject]$inobj
+                                                $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                                             } catch {
                                                 Write-PScriboMessage -IsWarning "Secondary Target $($SecondaryTarget.Name) Section: $($_.Exception.Message)"
                                             }
@@ -528,15 +528,15 @@ function Get-AbrVbrFileShareBackupjobConf {
                                             'Retry Failed item' = $Bkjob.ScheduleOptions.RetryTimes
                                             'Wait before each retry' = "$($Bkjob.ScheduleOptions.RetryTimeout)/min"
                                             'Backup Window' = Switch ($Bkjob.TypeToString) {
-                                                "Backup Copy" { ConvertTo-TextYN $Bkjob.ScheduleOptions.OptionsContinuous.Enabled }
-                                                default { ConvertTo-TextYN $Bkjob.ScheduleOptions.OptionsBackupWindow.IsEnabled }
+                                                "Backup Copy" { $Bkjob.ScheduleOptions.OptionsContinuous.Enabled }
+                                                default { $Bkjob.ScheduleOptions.OptionsBackupWindow.IsEnabled }
                                             }
                                             'Shedule type' = $ScheduleType
                                             'Shedule Options' = $Schedule
                                             'Start Time' = $Bkjob.ScheduleOptions.OptionsDaily.TimeLocal.ToShorttimeString()
                                             'Latest Run' = $Bkjob.LatestRunLocal
                                         }
-                                        $OutObj = [pscustomobject]$inobj
+                                        $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                         $TableParams = @{
                                             Name = "Schedule Options - $($Bkjob.Name)"

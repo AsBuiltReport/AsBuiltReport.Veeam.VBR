@@ -6,7 +6,7 @@ function Get-AbrVbrGlobalNotificationSetting {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.7
+        Version:        0.8.12
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -37,7 +37,7 @@ function Get-AbrVbrGlobalNotificationSetting {
                                 default { 'Unknown' }
                             }
                         }
-                        $OutObj += [pscustomobject]$inobj
+                        $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
 
                         if ($HealthCheck.Infrastructure.Settings) {
                             $OutObj | Where-Object { $_.'Warn me when free disk space is below' -eq "Disabled" } | Set-Style -Style Warning -Property 'Warn me when free disk space is below'
@@ -76,7 +76,7 @@ function Get-AbrVbrGlobalNotificationSetting {
                                 default { 'Unknown' }
                             }
                         }
-                        $OutObj += [pscustomobject]$inobj
+                        $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
 
                         if ($HealthCheck.Infrastructure.Settings) {
                             $OutObj | Where-Object { $_.'Is (Warn me when free disk space is below) Enabled' -eq 'No' } | Set-Style -Style Warning -Property 'Is (Warn me when free disk space is below) Enabled'
@@ -105,9 +105,9 @@ function Get-AbrVbrGlobalNotificationSetting {
                     Section -ExcludeFromTOC -Style NOTOCHeading5 'Support Expiration' {
                         $OutObj = @()
                         $inObj = [ordered] @{
-                            'Enable notification about support contract expiration' = ConvertTo-TextYN $GlobalNotifications.NotifyOnSupportExpiration
+                            'Enable notification about support contract expiration' = $GlobalNotifications.NotifyOnSupportExpiration
                         }
-                        $OutObj += [pscustomobject]$inobj
+                        $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
 
                         if ($HealthCheck.Infrastructure.Settings) {
                             $OutObj | Where-Object { $_.'Is (Enable notification about support contract expiration) Enabled' -eq 'No' } | Set-Style -Style Warning -Property 'Enabled'
@@ -135,9 +135,9 @@ function Get-AbrVbrGlobalNotificationSetting {
                     Section -ExcludeFromTOC -Style NOTOCHeading5 'Update Notification' {
                         $OutObj = @()
                         $inObj = [ordered] @{
-                            'Check for product and hypervisor updates periodically' = ConvertTo-TextYN $GlobalNotifications.NotifyOnUpdates
+                            'Check for product and hypervisor updates periodically' = $GlobalNotifications.NotifyOnUpdates
                         }
-                        $OutObj += [pscustomobject]$inobj
+                        $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
 
                         $TableParams = @{
                             Name = "Update Notification Notification - $VeeamBackupServer"

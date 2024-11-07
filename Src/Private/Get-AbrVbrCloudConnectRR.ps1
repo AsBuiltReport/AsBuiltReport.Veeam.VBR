@@ -6,7 +6,7 @@ function Get-AbrVbrCloudConnectRR {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.11
+        Version:        0.8.12
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -53,7 +53,7 @@ function Get-AbrVbrCloudConnectRR {
                                     'Subscribers Count' = ($CloudObject.SubscribedTenantId).count
                                 }
 
-                                $OutObj += [pscustomobject]$inobj
+                                $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                             } catch {
                                 Write-PScriboMessage -IsWarning "Replica Resources $($CloudObject.Name) Section: $($_.Exception.Message)"
                             }
@@ -108,7 +108,7 @@ function Get-AbrVbrCloudConnectRR {
                                                             'Description' = $CloudObject.Description
                                                         }
 
-                                                        $OutObj += [pscustomobject]$inobj
+                                                        $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                         if ($HealthCheck.CloudConnect.ReplicaResources) {
                                                             $OutObj | Where-Object { $_.'Subscribed Tenant' -eq 'None' } | Set-Style -Style Warning -Property 'Subscribed Tenant'
@@ -145,7 +145,7 @@ function Get-AbrVbrCloudConnectRR {
                                                                 }
                                                             }
 
-                                                            $OutObj = [pscustomobject]$inobj
+                                                            $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                             $TableParams = @{
                                                                 Name = "Storage Quota - $($Storage.Datastore)"
@@ -180,7 +180,7 @@ function Get-AbrVbrCloudConnectRR {
                                                             $inObj.add('VLANs Without Internet', "$($VlanConfiguration.FirstVLANWithoutInternet) - $($VlanConfiguration.LastVLANWithoutInternet)")
                                                         }
 
-                                                        $OutObj = [pscustomobject]$inobj
+                                                        $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                         $TableParams = @{
                                                             Name = "Network Quota - $($CloudObject.Name)"
@@ -214,7 +214,7 @@ function Get-AbrVbrCloudConnectRR {
                                                                     'Storage Usage' = $TenantUtil.StorageUsage | ForEach-Object { "$(ConvertTo-FileSizeString -Size $_.UsedSpace) ($($_.FriendlyName))" }
                                                                 }
 
-                                                                $OutObj += [pscustomobject]$inobj
+                                                                $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                                                             }
 
                                                             $TableParams = @{

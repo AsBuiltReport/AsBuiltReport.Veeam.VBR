@@ -6,7 +6,7 @@ function Get-AbrVbrNetworkTrafficRule {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.7
+        Version:        0.8.12
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -33,11 +33,11 @@ function Get-AbrVbrNetworkTrafficRule {
                     $OutObj = @()
                     try {
                         $inObj = [ordered] @{
-                            'Is Multiple Upload Streams Enabled?' = ConvertTo-TextYN $TrafficOptions.MultipleUploadStreamsEnabled
+                            'Is Multiple Upload Streams Enabled?' = $TrafficOptions.MultipleUploadStreamsEnabled
                             'Upload Streams Per Job' = $TrafficOptions.StreamsPerJobCount
-                            'Is IPv6 Enabled?' = ConvertTo-TextYN $TrafficOptions.IPv6Enabled
+                            'Is IPv6 Enabled?' = $TrafficOptions.IPv6Enabled
                         }
-                        $OutObj = [pscustomobject]$inobj
+                        $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                         $TableParams = @{
                             Name = "Network Traffic Rule Options - $VeeamBackupServer"
@@ -58,13 +58,13 @@ function Get-AbrVbrNetworkTrafficRule {
                                         $inObj = [ordered] @{
                                             'Name' = $TrafficRule.Name
                                             'Source IP Start' = $TrafficRule.SourceIPStart
-                                            'Source IP End' = ConvertTo-EmptyToFiller $TrafficRule.SourceIPEnd
+                                            'Source IP End' = $TrafficRule.SourceIPEnd
                                             'Target IP Start' = $TrafficRule.TargetIPStart
-                                            'Target IP End' = ConvertTo-EmptyToFiller $TrafficRule.TargetIPEnd
-                                            'Encryption Enabled' = ConvertTo-TextYN $TrafficRule.EncryptionEnabled
-                                            'Throttling' = "Throttling Enabled: $(ConvertTo-TextYN $TrafficRule.ThrottlingEnabled)`r`nThrottling Unit: $($TrafficRule.ThrottlingUnit)`r`nThrottling Value: $($TrafficRule.ThrottlingValue)`r`nThrottling Windows: $(ConvertTo-TextYN $TrafficRule.ThrottlingWindowEnabled)"
+                                            'Target IP End' = $TrafficRule.TargetIPEnd
+                                            'Encryption Enabled' = $TrafficRule.EncryptionEnabled
+                                            'Throttling' = "Throttling Enabled: $($TrafficRule.ThrottlingEnabled)`r`nThrottling Unit: $($TrafficRule.ThrottlingUnit)`r`nThrottling Value: $($TrafficRule.ThrottlingValue)`r`nThrottling Windows: $($TrafficRule.ThrottlingWindowEnabled)"
                                         }
-                                        $OutObj = [pscustomobject]$inobj
+                                        $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                         if ($HealthCheck.Infrastructure.Settings) {
                                             $OutObj | Where-Object { $_.'Encryption Enabled' -like 'No' } | Set-Style -Style Warning -Property 'Encryption Enabled'
@@ -140,7 +140,7 @@ function Get-AbrVbrNetworkTrafficRule {
                                                         'Subnet Mask' = $PreferedNetwork.SubnetMask
                                                         'CIDR Notation' = $PreferedNetwork.CIDRNotation
                                                     }
-                                                    $OutObj += [pscustomobject]$inobj
+                                                    $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                                                 } catch {
                                                     Write-PScriboMessage -IsWarning "Preferred Networks $($PreferedNetwork.IpAddress) Section: $($_.Exception.Message)"
                                                 }

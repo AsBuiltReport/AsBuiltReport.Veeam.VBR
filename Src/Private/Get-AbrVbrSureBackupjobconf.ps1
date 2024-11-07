@@ -6,7 +6,7 @@ function Get-AbrVbrSureBackupjobconf {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.7
+        Version:        0.8.12
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -45,9 +45,9 @@ function Get-AbrVbrSureBackupjobconf {
                                                 'False' { 'Disabled' }
                                                 default { $SBkjob.NextRun }
                                             }
-                                            'Description' = ConvertTo-EmptyToFiller $SBkjob.Description
+                                            'Description' = $SBkjob.Description
                                         }
-                                        $OutObj = [pscustomobject]$inobj
+                                        $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                         if ($HealthCheck.Jobs.BestPractice) {
                                             $OutObj | Where-Object { $_.'Description' -eq "--" } | Set-Style -Style Warning -Property 'Description'
@@ -95,7 +95,7 @@ function Get-AbrVbrSureBackupjobconf {
                                             if ($SBkjob.VirtualLab.Platform -eq "VMWare") {
                                                 $inObj.add('Datastore', (Get-VBRViVirtualLabConfiguration -Id $SBkjob.VirtualLab.Id).CacheDatastore)
                                             }
-                                            $OutObj = [pscustomobject]$inobj
+                                            $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                             $TableParams = @{
                                                 Name = "Virtual Lab - $($SBkjob.Name)"
@@ -119,10 +119,10 @@ function Get-AbrVbrSureBackupjobconf {
                                             $inObj = [ordered] @{
                                                 'Name' = $SBkjob.ApplicationGroup.Name
                                                 'Virtual Machines' = $SBkjob.ApplicationGroup.VM -join ", "
-                                                'Keep Application Group Running' = ConvertTo-TextYN $SBkjob.KeepApplicationGroupRunning
+                                                'Keep Application Group Running' = $SBkjob.KeepApplicationGroupRunning
                                                 'Description' = $SBkjob.ApplicationGroup.Description
                                             }
-                                            $OutObj = [pscustomobject]$inobj
+                                            $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                             $TableParams = @{
                                                 Name = "Application Group - $($SBkjob.Name)"
@@ -153,7 +153,7 @@ function Get-AbrVbrSureBackupjobconf {
                                                     }
                                                     'Description' = $LinkedJob.Job.Description
                                                 }
-                                                $OutObj += [pscustomobject]$inobj
+                                                $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                                             }
                                             $TableParams = @{
                                                 Name = "Linked Jobs - $($SBkjob.Name)"
@@ -175,10 +175,10 @@ function Get-AbrVbrSureBackupjobconf {
                                                                 'Amount of memory to Allocate to VM' = "$($LinkedJob.StartupOptions.AllocatedMemory) percent"
                                                                 'Maximum allowed boot time' = "$($LinkedJob.StartupOptions.MaximumBootTime) sec"
                                                                 'Application Initialization Timeout' = "$($LinkedJob.StartupOptions.ApplicationInitializationTimeout) sec"
-                                                                'VM heartbeat is present' = ConvertTo-TextYN $LinkedJob.StartupOptions.VMHeartBeatCheckEnabled
-                                                                'VM respond to ping on any interface' = ConvertTo-TextYN $LinkedJob.StartupOptions.VMPingCheckEnabled
-                                                                'Automatically disable Windows Firewall' = ConvertTo-TextYN $LinkedJob.StartupOptions.WindowsFirewallDisabled
-                                                                'VM Role' = ConvertTo-EmptyToFiller ($LinkedJob.ScriptOptions.PredefinedApplication -join ", ")
+                                                                'VM heartbeat is present' = $LinkedJob.StartupOptions.VMHeartBeatCheckEnabled
+                                                                'VM respond to ping on any interface' = $LinkedJob.StartupOptions.VMPingCheckEnabled
+                                                                'Automatically disable Windows Firewall' = $LinkedJob.StartupOptions.WindowsFirewallDisabled
+                                                                'VM Role' = ($LinkedJob.ScriptOptions.PredefinedApplication -join ", ")
                                                                 'VM Test Script' = Switch ([string]::IsNullOrEmpty(($LinkedJob.ScriptOptions | ForEach-Object { if ($_.Name) { $_.Name } }))) {
                                                                     $true { '--' }
                                                                     $false { ($LinkedJob.ScriptOptions) | ForEach-Object { if ($_.Name) { "Name: $($_.Name), Path: $($_.Path), Argument: $($_.Argument)" } } }
@@ -189,7 +189,7 @@ function Get-AbrVbrSureBackupjobconf {
                                                                     default { $LinkedJob.Credentials.Description }
                                                                 }
                                                             }
-                                                            $OutObj = [pscustomobject]$inobj
+                                                            $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                             $TableParams = @{
                                                                 Name = "Verification Options - $($SBkjob.Name)"
@@ -209,8 +209,8 @@ function Get-AbrVbrSureBackupjobconf {
                                                                 Write-PScriboMessage "Discovered $($LinkedJobVM.Name) verification rules."
                                                                 $inObj = [ordered] @{
                                                                     'VM Name' = $LinkedJobVM.Name
-                                                                    'Excluded' = ConvertTo-TextYN $LinkedJobVM.IsExcluded
-                                                                    'VM Role' = ConvertTo-EmptyToFiller ($LinkedJobVM.Role -join ", ")
+                                                                    'Excluded' = $LinkedJobVM.IsExcluded
+                                                                    'VM Role' = ($LinkedJobVM.Role -join ", ")
                                                                     'VM Test Script' = Switch ([string]::IsNullOrEmpty(($LinkedJobVM.TestScript | ForEach-Object { if ($_.Name) { $_.Name } }))) {
                                                                         $true { '--' }
                                                                         $false { ($LinkedJobVM.TestScript) | ForEach-Object { if ($_.Name) { "Name: $($_.Name),Path: $($_.Path),Argument: $($_.Argument)" } } }
@@ -221,7 +221,7 @@ function Get-AbrVbrSureBackupjobconf {
                                                                         default { $LinkedJobVM.Credentials.Description }
                                                                     }
                                                                 }
-                                                                $OutObj += [pscustomobject]$inobj
+                                                                $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                                                             }
 
                                                             $TableParams = @{
@@ -249,15 +249,15 @@ function Get-AbrVbrSureBackupjobconf {
                                         $OutObj = @()
                                         Write-PScriboMessage "Discovered $($SBkjob.Name) job settings."
                                         $inObj = [ordered] @{
-                                            'Backup file integrity scan' = ConvertTo-TextYN $SBkjob.VerificationOptions.EnableDiskContentValidation
-                                            'Skip validation for application group VM' = ConvertTo-TextYN $SBkjob.VerificationOptions.DisableApplicationGroupValidation
-                                            'Malware Scan' = ConvertTo-TextYN $SBkjob.VerificationOptions.EnableMalwareScan
-                                            'YARA Scan' = ConvertTo-TextYN $SBkjob.VerificationOptions.EnableYARAScan
-                                            'YARA Rules' = ConvertTo-EmptyToFiller $SBkjob.VerificationOptions.YARAScanRule
-                                            'Scan the entire image' = ConvertTo-TextYN $SBkjob.VerificationOptions.EnableEntireImageScan
-                                            'Skip application group machine from malware scan' = ConvertTo-TextYN $SBkjob.VerificationOptions.DisableApplicationGroupMalwareScan
-                                            'Send SNMP trap' = ConvertTo-TextYN $SBkjob.VerificationOptions.EnableSNMPNotification
-                                            'Send Email notification' = ConvertTo-TextYN $SBkjob.VerificationOptions.EnableEmailNotification
+                                            'Backup file integrity scan' = $SBkjob.VerificationOptions.EnableDiskContentValidation
+                                            'Skip validation for application group VM' = $SBkjob.VerificationOptions.DisableApplicationGroupValidation
+                                            'Malware Scan' = $SBkjob.VerificationOptions.EnableMalwareScan
+                                            'YARA Scan' = $SBkjob.VerificationOptions.EnableYARAScan
+                                            'YARA Rules' = $SBkjob.VerificationOptions.YARAScanRule
+                                            'Scan the entire image' = $SBkjob.VerificationOptions.EnableEntireImageScan
+                                            'Skip application group machine from malware scan' = $SBkjob.VerificationOptions.DisableApplicationGroupMalwareScan
+                                            'Send SNMP trap' = $SBkjob.VerificationOptions.EnableSNMPNotification
+                                            'Send Email notification' = $SBkjob.VerificationOptions.EnableEmailNotification
                                             'Email recipients' = $SBkjob.VerificationOptions.Address
                                             'Use custom notification settings' = $SBkjob.VerificationOptions.UseCustomEmailSettings
                                         }
@@ -269,7 +269,7 @@ function Get-AbrVbrSureBackupjobconf {
                                             $inObj.Add("Notify On Error", $SBkjob.VerificationOptions.NotifyOnError)
                                         }
 
-                                        $OutObj = [pscustomobject]$inobj
+                                        $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                         $TableParams = @{
                                             Name = "Settings - $($SBkjob.Name)"
@@ -311,7 +311,7 @@ function Get-AbrVbrSureBackupjobconf {
                                             }
                                             $inObj.add("Run Automatically", ($Schedule))
 
-                                            $OutObj += [pscustomobject]$inobj
+                                            $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                                         } catch {
                                             Write-PScriboMessage -IsWarning "SureBackup Schedule $($SBkjob.Name) Section: $($_.Exception.Message)"
                                         }

@@ -6,7 +6,7 @@ function Get-AbrVbrInventorySummary {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.6
+        Version:        0.8.12
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -62,7 +62,7 @@ function Get-AbrVbrInventorySummary {
                     $inObj.add('Object Storage', ($ObjectStorage | Measure-Object).Count)
                 }
 
-                $OutObj += [pscustomobject]$inobj
+                $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
             } catch {
                 Write-PScriboMessage -IsWarning "Inventory Summary Table: $($_.Exception.Message)"
             }

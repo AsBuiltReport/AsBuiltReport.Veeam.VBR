@@ -6,7 +6,7 @@ function Get-AbrVbrBackupRepository {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.11
+        Version:        0.8.12
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -56,7 +56,7 @@ function Get-AbrVbrBackupRepository {
                                 default { $BackupRepo.IsUnavailable }
                             }
                         }
-                        $OutObj += [pscustomobject]$inobj
+                        $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                     }
                 } catch {
                     Write-PScriboMessage -IsWarning "Backup Repository Section: $($_.Exception.Message)"
@@ -212,29 +212,29 @@ function Get-AbrVbrBackupRepository {
                                                         $false { $BackupRepo.Options.MaxTaskCount }
                                                         default { 'Unknown' }
                                                     }
-                                                    'Use Nfs On Mount Host' = ConvertTo-TextYN $BackupRepo.UseNfsOnMountHost
-                                                    'San Snapshot Only' = ConvertTo-TextYN $BackupRepo.IsSanSnapshotOnly
-                                                    'Dedup Storage' = ConvertTo-TextYN $BackupRepo.IsDedupStorage
-                                                    'Split Storages Per Vm' = ConvertTo-TextYN $BackupRepo.SplitStoragesPerVm
-                                                    'Immutability Supported' = ConvertTo-TextYN $BackupRepo.IsImmutabilitySupported
-                                                    'Immutability Enabled' = ConvertTo-TextYN $BackupRepo.GetImmutabilitySettings().IsEnabled
+                                                    'Use Nfs On Mount Host' = $BackupRepo.UseNfsOnMountHost
+                                                    'San Snapshot Only' = $BackupRepo.IsSanSnapshotOnly
+                                                    'Dedup Storage' = $BackupRepo.IsDedupStorage
+                                                    'Split Storages Per Vm' = $BackupRepo.SplitStoragesPerVm
+                                                    'Immutability Supported' = $BackupRepo.IsImmutabilitySupported
+                                                    'Immutability Enabled' = $BackupRepo.GetImmutabilitySettings().IsEnabled
                                                     'Immutability Interval' = $BackupRepo.GetImmutabilitySettings().IntervalDays
                                                     'Version Of Creation' = $BackupRepo.VersionOfCreation
-                                                    'Has Backup Chain Length Limitation' = ConvertTo-TextYN $BackupRepo.HasBackupChainLengthLimitation
+                                                    'Has Backup Chain Length Limitation' = $BackupRepo.HasBackupChainLengthLimitation
                                                 }
                                                 if ($null -eq $inObj.'Extent of ScaleOut Backup Repository') {
                                                     $inObj.Remove('Extent of ScaleOut Backup Repository')
                                                 }
 
                                                 if ($BackupRepo.Type -in @('AmazonS3Compatible', 'WasabiS3')) {
-                                                    $inObj.Add('Object Lock Enabled', (ConvertTo-TextYN $BackupRepo.ObjectLockEnabled))
+                                                    $inObj.Add('Object Lock Enabled', ($BackupRepo.ObjectLockEnabled))
                                                 }
 
                                                 if ($BackupRepo.Type -in @('AmazonS3Compatible', 'WasabiS3')) {
                                                     $inObj.Add('Mount Server', (Get-VBRServer | Where-Object { $_.id -eq $BackupRepo.MountHostId.Guid }).Name)
                                                 }
 
-                                                $OutObj += [pscustomobject]$inobj
+                                                $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                 if ($HealthCheck.Infrastructure.BR) {
                                                     $OutObj | Where-Object { $_.'Immutability Supported' -eq 'Yes' } | Set-Style -Style OK -Property 'Immutability Supported'

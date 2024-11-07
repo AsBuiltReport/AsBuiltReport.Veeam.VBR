@@ -6,7 +6,7 @@ function Get-AbrVbrCloudConnectPublicIP {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.5
+        Version:        0.8.12
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -44,7 +44,7 @@ function Get-AbrVbrCloudConnectPublicIP {
                                     }
                                 }
 
-                                $OutObj += [pscustomobject]$inobj
+                                $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
 
                             } catch {
                                 Write-PScriboMessage -IsWarning "Cloud Public IP $($CloudObject.IpAddress) Section: $($_.Exception.Message)"

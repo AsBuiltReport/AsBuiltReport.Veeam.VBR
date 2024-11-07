@@ -6,7 +6,7 @@ function Get-AbrVbrStorageInfraSummary {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.6
+        Version:        0.8.12
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -37,7 +37,7 @@ function Get-AbrVbrStorageInfraSummary {
                     'Dell Isilon Storage' = $IsilonHosts.Count
                     'Dell Isilon Volumes' = $IsilonVols.Count
                 }
-                $OutObj += [pscustomobject]$inobj
+                $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
             } catch {
                 Write-PScriboMessage -IsWarning "Storage Infrastructure Inventory Section: $($_.Exception.Message)"
             }

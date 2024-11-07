@@ -5,7 +5,7 @@ function Get-AbrVbrBackupJobsRP {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.11
+        Version:        0.8.12
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -48,7 +48,7 @@ function Get-AbrVbrBackupJobsRP {
                                             'Compress Ratio' = [Math]::Round($CompressRatio, 2)
                                             'Reduction' = [Math]::Round(($DedupRatio * $CompressRatio), 2)
                                         }
-                                        $RestorePointInfo += [PSCustomObject]$InObj
+                                        $RestorePointInfo += [pscustomobject](ConvertTo-HashToYN $inObj)
                                     } catch {
                                         Write-PScriboMessage -IsWarning "Restore Point table: $($_.Exception.Message)"
                                     }

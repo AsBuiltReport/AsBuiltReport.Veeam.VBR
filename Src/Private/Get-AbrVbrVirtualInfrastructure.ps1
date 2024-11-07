@@ -6,7 +6,7 @@ function Get-AbrVbrVirtualInfrastructure {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.7
+        Version:        0.8.12
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -51,7 +51,7 @@ function Get-AbrVbrVirtualInfrastructure {
                                                     'Child Host' = $InventObj.GetChilds().Name -join ", "
                                                 }
 
-                                                $OutObj += [pscustomobject]$inobj
+                                                $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                                             } catch {
                                                 Write-PScriboMessage -IsWarning "VMware vCenter $($InventObj.Name) Table: $($_.Exception.Message)"
                                             }
@@ -86,7 +86,7 @@ function Get-AbrVbrVirtualInfrastructure {
                                                         #'Connected Vcenter' = (Find-VBRViEntity -Name $InventObj.Name).Path.split("\")[0]
                                                     }
 
-                                                    $OutObj += [pscustomobject]$inobj
+                                                    $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                                                 } catch {
                                                     Write-PScriboMessage -IsWarning "Esxi Host $($InventObj.Name) Table: $($_.Exception.Message)"
                                                 }
@@ -131,7 +131,7 @@ function Get-AbrVbrVirtualInfrastructure {
                                                     'Child Host' = $InventObj.GetChilds().Name -join ", "
                                                 }
 
-                                                $OutObj += [pscustomobject]$inobj
+                                                $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                                             } catch {
                                                 Write-PScriboMessage -IsWarning "Hyper-V Clusters $($InventObj.Name) Table: $($_.Exception.Message)"
                                             }
@@ -166,7 +166,7 @@ function Get-AbrVbrVirtualInfrastructure {
                                                         #'Hyper-V CLuster' = (Find-VBRHvEntity -Name $InventObj.Name).Path.split("\")[0]
                                                     }
 
-                                                    $OutObj += [pscustomobject]$inobj
+                                                    $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                                                 } catch {
                                                     Write-PScriboMessage -IsWarning "Hyper-V Host $($InventObj.Name) Table: $($_.Exception.Message)"
                                                 }
