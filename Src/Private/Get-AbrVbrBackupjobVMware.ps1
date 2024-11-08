@@ -6,7 +6,7 @@ function Get-AbrVbrBackupjobVMware {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.11
+        Version:        0.8.12
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -41,7 +41,7 @@ function Get-AbrVbrBackupjobVMware {
                                         'Creation Time' = $VMcount.CreationTime
                                         'VM Count' = $VMcount.VmCount
                                     }
-                                    $OutObj += [pscustomobject]$inobj
+                                    $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                                 } catch {
                                     Write-PScriboMessage -IsWarning "VMware Backup Jobs Configuration Section: $($_.Exception.Message)"
                                 }
@@ -77,10 +77,10 @@ function Get-AbrVbrBackupjobVMware {
                                                     'Total Backup Size' = ConvertTo-FileSizeString -Size $CommonInfo.IncludedSize
                                                     'Target Address' = $CommonInfo.TargetDir
                                                     'Target File' = $CommonInfo.TargetFile
-                                                    'Description' = ConvertTo-EmptyToFiller $CommonInfo.CommonInfo.Description
+                                                    'Description' = $CommonInfo.CommonInfo.Description
                                                     'Modified By' = $CommonInfo.CommonInfo.ModifiedBy.FullName
                                                 }
-                                                $OutObj = [pscustomobject]$inobj
+                                                $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
                                             } catch {
                                                 Write-PScriboMessage -IsWarning $_.Exception.Message
                                             }
@@ -129,7 +129,7 @@ function Get-AbrVbrBackupjobVMware {
                                                         'Size' = ConvertTo-FileSizeString -Size $Job.Info.IncludedSize
                                                         'Repository' = $Job.GetTargetRepository().Name
                                                     }
-                                                    $OutObj += [pscustomobject]$inobj
+                                                    $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                                                 } catch {
                                                     Write-PScriboMessage -IsWarning $_.Exception.Message
                                                 }
@@ -170,7 +170,7 @@ function Get-AbrVbrBackupjobVMware {
                                                             'Size' = ConvertTo-FileSizeString -Size (($ScaleRepo.Extent).Repository).GetContainer().CachedTotalSpace.InBytesAsUInt64
                                                         }
                                                     }
-                                                    $OutObj += [pscustomobject]$inobj
+                                                    $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                                                 } catch {
                                                     Write-PScriboMessage -IsWarning $_.Exception.Message
                                                 }
@@ -209,7 +209,7 @@ function Get-AbrVbrBackupjobVMware {
                                                     }
                                                 }
                                                 $inObj = [ordered] @{
-                                                    'Use Wan accelerator' = ConvertTo-TextYN $Bkjob.IsWanAcceleratorEnabled()
+                                                    'Use Wan accelerator' = $Bkjob.IsWanAcceleratorEnabled()
                                                     'Source Wan accelerator' = Switch ($Bkjob.IsWanAcceleratorEnabled()) {
                                                         'False' { 'Direct Mode' }
                                                         'True' { $SourceWanAccelerator }
@@ -221,7 +221,7 @@ function Get-AbrVbrBackupjobVMware {
                                                         default { 'Unknown' }
                                                     }
                                                 }
-                                                $OutObj += [pscustomobject]$inobj
+                                                $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                                             } catch {
                                                 Write-PScriboMessage -IsWarning $_.Exception.Message
                                             }
@@ -253,7 +253,7 @@ function Get-AbrVbrBackupjobVMware {
                                                     'Approx Size' = $OBJ.ApproxSizeString
                                                     'Disk Filter Mode' = $OBJ.DiskFilterInfo.Mode
                                                 }
-                                                $OutObj += [pscustomobject]$inobj
+                                                $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                                             }
 
                                             $TableParams = @{
@@ -297,24 +297,24 @@ function Get-AbrVbrBackupjobVMware {
                                             }
                                             'Retention Type' = $Bkjob.BackupStorageOptions.RetentionType
                                             $RetainString = $Retains
-                                            'Keep First Full Backup' = ConvertTo-TextYN $Bkjob.BackupStorageOptions.KeepFirstFullBackup
-                                            'Enable Full Backup' = ConvertTo-TextYN $Bkjob.BackupStorageOptions.EnableFullBackup
-                                            'Integrity Checks' = ConvertTo-TextYN $Bkjob.BackupStorageOptions.EnableIntegrityChecks
-                                            'Storage Encryption' = ConvertTo-TextYN $Bkjob.BackupStorageOptions.StorageEncryptionEnabled
+                                            'Keep First Full Backup' = $Bkjob.BackupStorageOptions.KeepFirstFullBackup
+                                            'Enable Full Backup' = $Bkjob.BackupStorageOptions.EnableFullBackup
+                                            'Integrity Checks' = $Bkjob.BackupStorageOptions.EnableIntegrityChecks
+                                            'Storage Encryption' = $Bkjob.BackupStorageOptions.StorageEncryptionEnabled
                                             'Backup Mode' = Switch ($Bkjob.Options.BackupTargetOptions.Algorithm) {
                                                 'Synthetic' { "Reverse Incremental" }
                                                 'Increment' { 'Incremental' }
                                             }
                                             'Active Full Backup Schedule Kind' = $Bkjob.Options.BackupTargetOptions.FullBackupScheduleKind
                                             'Active Full Backup Days' = $Bkjob.Options.BackupTargetOptions.FullBackupDays
-                                            'Transform Full To Synthetic' = ConvertTo-TextYN $Bkjob.Options.BackupTargetOptions.TransformFullToSyntethic
-                                            'Transform Increments To Synthetic' = ConvertTo-TextYN $Bkjob.Options.BackupTargetOptions.TransformIncrementsToSyntethic
+                                            'Transform Full To Synthetic' = $Bkjob.Options.BackupTargetOptions.TransformFullToSyntethic
+                                            'Transform Increments To Synthetic' = $Bkjob.Options.BackupTargetOptions.TransformIncrementsToSyntethic
                                             'Transform To Synthetic Days' = $Bkjob.Options.BackupTargetOptions.TransformToSyntethicDays
 
 
                                         }
                                         if ($Bkjob.Options.GfsPolicy.IsEnabled) {
-                                            $inObj.add('Keep certain full backup longer for archival purposes (GFS)', (ConvertTo-TextYN $Bkjob.Options.GfsPolicy.IsEnabled))
+                                            $inObj.add('Keep certain full backup longer for archival purposes (GFS)', ($Bkjob.Options.GfsPolicy.IsEnabled))
                                             if (-Not $Bkjob.Options.GfsPolicy.Weekly.IsEnabled) {
                                                 $inObj.add('Keep Weekly full backup', ('Disabled'))
                                             } else {
@@ -331,7 +331,7 @@ function Get-AbrVbrBackupjobVMware {
                                                 $inObj.add('Keep Yearly full backup for', ("$($Bkjob.Options.GfsPolicy.Yearly.KeepBackupsForNumberOfYears) years,`r`nUse monthly full backup from the following month: $($Bkjob.Options.GfsPolicy.Yearly.DesiredTime)"))
                                             }
                                         }
-                                        $OutObj = [pscustomobject]$inobj
+                                        $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                         $TableParams = @{
                                             Name = "$Storage Options - $($Bkjob.Name)"
@@ -348,17 +348,17 @@ function Get-AbrVbrBackupjobVMware {
                                                 try {
                                                     Write-PScriboMessage "Discovered $($Bkjob.Name) maintenance options."
                                                     $inObj = [ordered] @{
-                                                        'Storage-Level Corruption Guard (SLCG)' = ConvertTo-TextYN $Bkjob.Options.GenerationPolicy.EnableRechek
+                                                        'Storage-Level Corruption Guard (SLCG)' = $Bkjob.Options.GenerationPolicy.EnableRechek
                                                         'SLCG Schedule Type' = $Bkjob.Options.GenerationPolicy.RecheckScheduleKind
                                                         'SLCG Schedule Day' = $Bkjob.Options.GenerationPolicy.RecheckDays
                                                         'SLCG Backup Monthly Schedule' = "Day Of Week: $($Bkjob.Options.GenerationPolicy.RecheckBackupMonthlyScheduleOptions.DayOfWeek)`r`nDay Number In Month: $($Bkjob.Options.GenerationPolicy.RecheckBackupMonthlyScheduleOptions.DayNumberInMonth)`r`nDay of Month: $($Bkjob.Options.GenerationPolicy.RecheckBackupMonthlyScheduleOptions.DayOfMonth)`r`nMonths: $($Bkjob.Options.GenerationPolicy.RecheckBackupMonthlyScheduleOptions.Months)"
-                                                        'Defragment and Compact Full Backup (DCFB)' = ConvertTo-TextYN $Bkjob.Options.GenerationPolicy.EnableCompactFull
+                                                        'Defragment and Compact Full Backup (DCFB)' = $Bkjob.Options.GenerationPolicy.EnableCompactFull
                                                         'DCFB Schedule Type' = $Bkjob.Options.GenerationPolicy.CompactFullBackupScheduleKind
                                                         'DCFB Schedule Day' = $Bkjob.Options.GenerationPolicy.CompactFullBackupDays
                                                         'DCFB Backup Monthly Schedule' = "Day Of Week: $($Bkjob.Options.GenerationPolicy.CompactFullBackupMonthlyScheduleOptions.DayOfWeek)`r`nDay Number In Month: $($Bkjob.Options.GenerationPolicy.CompactFullBackupMonthlyScheduleOptions.DayNumberInMonth)`r`nDay of Month: $($Bkjob.Options.GenerationPolicy.CompactFullBackupMonthlyScheduleOptions.DayOfMonth)`r`nMonths: $($Bkjob.Options.GenerationPolicy.CompactFullBackupMonthlyScheduleOptions.Months)"
                                                         'Remove deleted item data after' = $Bkjob.Options.BackupStorageOptions.RetainDays
                                                     }
-                                                    $OutObj = [pscustomobject]$inobj
+                                                    $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                     if ($HealthCheck.Jobs.BestPractice) {
                                                         $OutObj | Where-Object { $_.'Storage-Level Corruption Guard (SLCG)' -eq "No" } | Set-Style -Style Warning -Property 'Storage-Level Corruption Guard (SLCG)'
@@ -395,9 +395,9 @@ function Get-AbrVbrBackupjobVMware {
                                                 try {
                                                     Write-PScriboMessage "Discovered $($Bkjob.Name) storage options."
                                                     $inObj = [ordered] @{
-                                                        'Inline Data Deduplication' = ConvertTo-TextYN $Bkjob.Options.BackupStorageOptions.EnableDeduplication
-                                                        'Exclude Swap Files Block' = ConvertTo-TextYN $Bkjob.ViSourceOptions.ExcludeSwapFile
-                                                        'Exclude Deleted Files Block' = ConvertTo-TextYN $Bkjob.ViSourceOptions.DirtyBlocksNullingEnabled
+                                                        'Inline Data Deduplication' = $Bkjob.Options.BackupStorageOptions.EnableDeduplication
+                                                        'Exclude Swap Files Block' = $Bkjob.ViSourceOptions.ExcludeSwapFile
+                                                        'Exclude Deleted Files Block' = $Bkjob.ViSourceOptions.DirtyBlocksNullingEnabled
                                                         'Compression Level' = Switch ($Bkjob.Options.BackupStorageOptions.CompressionLevel) {
                                                             0 { 'NONE' }
                                                             -1 { 'AUTO' }
@@ -413,13 +413,13 @@ function Get-AbrVbrBackupjobVMware {
                                                             'KbBlockSize4096' { 'Local target (large blocks)' }
                                                             default { $Bkjob.Options.BackupStorageOptions.StgBlockSize }
                                                         }
-                                                        'Enabled Backup File Encryption' = ConvertTo-TextYN $Bkjob.Options.BackupStorageOptions.StorageEncryptionEnabled
+                                                        'Enabled Backup File Encryption' = $Bkjob.Options.BackupStorageOptions.StorageEncryptionEnabled
                                                         'Encryption Key' = Switch ($Bkjob.Options.BackupStorageOptions.StorageEncryptionEnabled) {
                                                             $false { 'None' }
                                                             default { (Get-VBREncryptionKey | Where-Object { $_.id -eq $Bkjob.Info.PwdKeyId }).Description }
                                                         }
                                                     }
-                                                    $OutObj = [pscustomobject]$inobj
+                                                    $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                     if ($HealthCheck.Jobs.BestPractice) {
                                                         $OutObj | Where-Object { $_.'Enabled Backup File Encryption' -eq 'No' } | Set-Style -Style Warning -Property 'Enabled Backup File Encryption'
@@ -458,21 +458,21 @@ function Get-AbrVbrBackupjobVMware {
                                                 try {
                                                     Write-PScriboMessage "Discovered $($Bkjob.Name) notification options."
                                                     $inObj = [ordered] @{
-                                                        'Send Snmp Notification' = ConvertTo-TextYN $Bkjob.Options.NotificationOptions.SnmpNotification
-                                                        'Send Email Notification' = ConvertTo-TextYN $Bkjob.Options.NotificationOptions.SendEmailNotification2AdditionalAddresses
+                                                        'Send Snmp Notification' = $Bkjob.Options.NotificationOptions.SnmpNotification
+                                                        'Send Email Notification' = $Bkjob.Options.NotificationOptions.SendEmailNotification2AdditionalAddresses
                                                         'Email Notification Additional Addresses' = $Bkjob.Options.NotificationOptions.EmailNotificationAdditionalAddresses
                                                         'Email Notify Time' = $Bkjob.Options.NotificationOptions.EmailNotifyTime.ToShortTimeString()
-                                                        'Use Custom Email Notification Options' = ConvertTo-TextYN $Bkjob.Options.NotificationOptions.UseCustomEmailNotificationOptions
+                                                        'Use Custom Email Notification Options' = $Bkjob.Options.NotificationOptions.UseCustomEmailNotificationOptions
                                                         'Use Custom Notification Setting' = $Bkjob.Options.NotificationOptions.EmailNotificationSubject
-                                                        'Notify On Success' = ConvertTo-TextYN $Bkjob.Options.NotificationOptions.EmailNotifyOnSuccess
-                                                        'Notify On Warning' = ConvertTo-TextYN $Bkjob.Options.NotificationOptions.EmailNotifyOnWarning
-                                                        'Notify On Error' = ConvertTo-TextYN $Bkjob.Options.NotificationOptions.EmailNotifyOnError
-                                                        'Suppress Notification until Last Retry' = ConvertTo-TextYN $Bkjob.Options.NotificationOptions.EmailNotifyOnLastRetryOnly
-                                                        'Set Results To Vm Notes' = ConvertTo-TextYN $Bkjob.Options.ViSourceOptions.SetResultsToVmNotes
+                                                        'Notify On Success' = $Bkjob.Options.NotificationOptions.EmailNotifyOnSuccess
+                                                        'Notify On Warning' = $Bkjob.Options.NotificationOptions.EmailNotifyOnWarning
+                                                        'Notify On Error' = $Bkjob.Options.NotificationOptions.EmailNotifyOnError
+                                                        'Suppress Notification until Last Retry' = $Bkjob.Options.NotificationOptions.EmailNotifyOnLastRetryOnly
+                                                        'Set Results To Vm Notes' = $Bkjob.Options.ViSourceOptions.SetResultsToVmNotes
                                                         'VM Attribute Note Value' = $Bkjob.Options.ViSourceOptions.VmAttributeName
-                                                        'Append to Existing Attribute' = ConvertTo-TextYN $Bkjob.Options.ViSourceOptions.VmNotesAppend
+                                                        'Append to Existing Attribute' = $Bkjob.Options.ViSourceOptions.VmNotesAppend
                                                     }
-                                                    $OutObj = [pscustomobject]$inobj
+                                                    $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                     $TableParams = @{
                                                         Name = "Advanced Settings (Notification) - $($Bkjob.Name)"
@@ -494,12 +494,12 @@ function Get-AbrVbrBackupjobVMware {
                                                 try {
                                                     Write-PScriboMessage "Discovered $($Bkjob.Name) vSphere options."
                                                     $inObj = [ordered] @{
-                                                        'Enable VMware Tools Quiescence' = ConvertTo-TextYN $Bkjob.Options.ViSourceOptions.VMToolsQuiesce
-                                                        'Use Change Block Tracking' = ConvertTo-TextYN $Bkjob.Options.ViSourceOptions.UseChangeTracking
-                                                        'Enable CBT for all protected VMs' = ConvertTo-TextYN $Bkjob.Options.ViSourceOptions.EnableChangeTracking
-                                                        'Reset CBT On each Active Full Backup' = ConvertTo-TextYN $Bkjob.Options.ViSourceOptions.ResetChangeTrackingOnActiveFull
+                                                        'Enable VMware Tools Quiescence' = $Bkjob.Options.ViSourceOptions.VMToolsQuiesce
+                                                        'Use Change Block Tracking' = $Bkjob.Options.ViSourceOptions.UseChangeTracking
+                                                        'Enable CBT for all protected VMs' = $Bkjob.Options.ViSourceOptions.EnableChangeTracking
+                                                        'Reset CBT On each Active Full Backup' = $Bkjob.Options.ViSourceOptions.ResetChangeTrackingOnActiveFull
                                                     }
-                                                    $OutObj = [pscustomobject]$inobj
+                                                    $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                     $TableParams = @{
                                                         Name = "Advanced Settings (vSphere) - $($Bkjob.Name)"
@@ -521,13 +521,13 @@ function Get-AbrVbrBackupjobVMware {
                                                 try {
                                                     Write-PScriboMessage "Discovered $($Bkjob.Name) Integration options."
                                                     $inObj = [ordered] @{
-                                                        'Enable Backup from Storage Snapshots' = ConvertTo-TextYN $Bkjob.Options.SanIntegrationOptions.UseSanSnapshots
-                                                        'Limit processed VM count per Storage Snapshot' = ConvertTo-TextYN $Bkjob.Options.SanIntegrationOptions.MultipleStorageSnapshotEnabled
+                                                        'Enable Backup from Storage Snapshots' = $Bkjob.Options.SanIntegrationOptions.UseSanSnapshots
+                                                        'Limit processed VM count per Storage Snapshot' = $Bkjob.Options.SanIntegrationOptions.MultipleStorageSnapshotEnabled
                                                         'VM count per Storage Snapshot' = $Bkjob.Options.SanIntegrationOptions.MultipleStorageSnapshotVmsCount
-                                                        'Failover to Standard Backup' = ConvertTo-TextYN $Bkjob.Options.SanIntegrationOptions.FailoverFromSan
-                                                        'Failover to Primary Storage Snapshot' = ConvertTo-TextYN $Bkjob.Options.SanIntegrationOptions.Failover2StorageSnapshotBackup
+                                                        'Failover to Standard Backup' = $Bkjob.Options.SanIntegrationOptions.FailoverFromSan
+                                                        'Failover to Primary Storage Snapshot' = $Bkjob.Options.SanIntegrationOptions.Failover2StorageSnapshotBackup
                                                     }
-                                                    $OutObj = [pscustomobject]$inobj
+                                                    $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                     $TableParams = @{
                                                         Name = "Advanced Settings (Integration) - $($Bkjob.Name)"
@@ -556,15 +556,15 @@ function Get-AbrVbrBackupjobVMware {
                                                     }
                                                     Write-PScriboMessage "Discovered $($Bkjob.Name) script options."
                                                     $inObj = [ordered] @{
-                                                        'Run the Following Script Before' = ConvertTo-TextYN $Bkjob.Options.JobScriptCommand.PreScriptEnabled
+                                                        'Run the Following Script Before' = $Bkjob.Options.JobScriptCommand.PreScriptEnabled
                                                         'Run Script Before the Job' = $Bkjob.Options.JobScriptCommand.PreScriptCommandLine
-                                                        'Run the Following Script After' = ConvertTo-TextYN $Bkjob.Options.JobScriptCommand.PostScriptEnabled
+                                                        'Run the Following Script After' = $Bkjob.Options.JobScriptCommand.PostScriptEnabled
                                                         'Run Script After the Job' = $Bkjob.Options.JobScriptCommand.PostScriptCommandLine
                                                         'Run Script Frequency' = $Bkjob.Options.JobScriptCommand.Periodicity
                                                         $FrequencyText = $FrequencyValue
 
                                                     }
-                                                    $OutObj = [pscustomobject]$inobj
+                                                    $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                     $TableParams = @{
                                                         Name = "Advanced Settings (Script) - $($Bkjob.Name)"
@@ -586,12 +586,12 @@ function Get-AbrVbrBackupjobVMware {
                                                 try {
                                                     Write-PScriboMessage "Discovered $($Bkjob.Name) rpo monitor options."
                                                     $inObj = [ordered] @{
-                                                        'RPO Monitor Enabled' = ConvertTo-TextYN $Bkjob.Options.RpoOptions.Enabled
+                                                        'RPO Monitor Enabled' = $Bkjob.Options.RpoOptions.Enabled
                                                         'If Backup is not Copied Within' = "$($Bkjob.Options.RpoOptions.Value) $($Bkjob.Options.RpoOptions.TimeUnit)"
-                                                        'Log Backup RPO Monitor Enabled' = ConvertTo-TextYN $Bkjob.Options.RpoOptions.LogBackupRpoEnabled
+                                                        'Log Backup RPO Monitor Enabled' = $Bkjob.Options.RpoOptions.LogBackupRpoEnabled
                                                         'If Log Backup is not Copied Within' = "$($Bkjob.Options.RpoOptions.LogBackupRpoValue) $($Bkjob.Options.RpoOptions.LogBackupRpoTimeUnit)"
                                                     }
-                                                    $OutObj = [pscustomobject]$inobj
+                                                    $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                     $TableParams = @{
                                                         Name = "Advanced Settings (RPO Monitor) - $($Bkjob.Name)"
@@ -625,7 +625,7 @@ function Get-AbrVbrBackupjobVMware {
                                                         'State' = $SecondaryTarget.info.LatestStatus
                                                         'Description' = $SecondaryTarget.Description
                                                     }
-                                                    $OutObj += [pscustomobject]$inobj
+                                                    $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                                                 } catch {
                                                     Write-PScriboMessage -IsWarning $_.Exception.Message
                                                 }
@@ -653,10 +653,10 @@ function Get-AbrVbrBackupjobVMware {
                                                 Write-PScriboMessage "Discovered $($Bkjob.Name) guest processing."
                                                 $inObj = [ordered] @{
                                                     'Name' = $VSSObj.Name
-                                                    'Enabled' = ConvertTo-TextYN $VSSObj.VssOptions.Enabled
+                                                    'Enabled' = $VSSObj.VssOptions.Enabled
                                                     'Resource Type' = ($Bkjob.GetViOijs() | Where-Object { $_.Name -eq $VSSObj.Name -and ($_.Type -eq "Include" -or $_.Type -eq "VssChild") }).TypeDisplayName
-                                                    'Ignore Errors' = ConvertTo-TextYN $VSSObj.VssOptions.IgnoreErrors
-                                                    'Guest Proxy Auto Detect' = ConvertTo-TextYN  $VSSObj.VssOptions.GuestProxyAutoDetect
+                                                    'Ignore Errors' = $VSSObj.VssOptions.IgnoreErrors
+                                                    'Guest Proxy Auto Detect' = $VSSObj.VssOptions.GuestProxyAutoDetect
                                                     'Default Credential' = Switch ((Get-VBRCredentials | Where-Object { $_.Id -eq $Bkjob.VssOptions.WinCredsId.Guid }).count) {
                                                         0 { 'None' }
                                                         Default { Get-VBRCredentials | Where-Object { $_.Id -eq $Bkjob.VssOptions.WinCredsId.Guid } }
@@ -665,12 +665,12 @@ function Get-AbrVbrBackupjobVMware {
                                                         '00000000-0000-0000-0000-000000000000' { 'Default Credential' }
                                                         default { Get-VBRCredentials | Where-Object { $_.Id -eq $VSSObj.VssOptions.WinCredsId.Guid } }
                                                     }
-                                                    'Application Processing' = ConvertTo-TextYN $VSSObj.VssOptions.VssSnapshotOptions.ApplicationProcessingEnabled
+                                                    'Application Processing' = $VSSObj.VssOptions.VssSnapshotOptions.ApplicationProcessingEnabled
                                                     'Transaction Logs' = Switch ($VSSObj.VssOptions.VssSnapshotOptions.IsCopyOnly) {
                                                         'False' { 'Process Transaction Logs' }
                                                         'True' { 'Perform Copy Only' }
                                                     }
-                                                    'Use Persistent Guest Agent' = ConvertTo-TextYN $VSSObj.VssOptions.VssSnapshotOptions.UsePersistentGuestAgent
+                                                    'Use Persistent Guest Agent' = $VSSObj.VssOptions.VssSnapshotOptions.UsePersistentGuestAgent
                                                 }
                                                 if ($InfoLevel.Jobs.Backup -ge 2) {
                                                     if (!$VSSObj.VssOptions.VssSnapshotOptions.IsCopyOnly) {
@@ -711,7 +711,7 @@ function Get-AbrVbrBackupjobVMware {
                                                         $inObj.add('Oracle Retain Log Backups', $($RetainLogBackups))
                                                     }
                                                     if ($VSSObj.VssOptions.GuestFSExcludeOptions.FileExcludeEnabled) {
-                                                        $inObj.add('File Exclusions', (ConvertTo-TextYN $VSSObj.VssOptions.GuestFSExcludeOptions.FileExcludeEnabled))
+                                                        $inObj.add('File Exclusions', ($VSSObj.VssOptions.GuestFSExcludeOptions.FileExcludeEnabled))
                                                         if ($VSSObj.VssOptions.GuestFSExcludeOptions.BackupScope -eq 'ExcludeSpecifiedFolders') {
                                                             $inObj.add('Exclude the following file and folders', ($VSSObj.VssOptions.GuestFSExcludeOptions.ExcludeList -join ','))
                                                         } elseif ($VSSObj.VssOptions.GuestFSExcludeOptions.BackupScope -eq 'IncludeSpecifiedFolders') {
@@ -724,7 +724,7 @@ function Get-AbrVbrBackupjobVMware {
                                                             'IgnoreErrors' { 'Ignore script execution failures' }
                                                             'Disabled' { 'Disable script execution' }
                                                         }
-                                                        $inObj.add('Scripts', (ConvertTo-TextYN $VSSObj.VssOptions.GuestScriptsOptions.IsAtLeastOneScriptSet))
+                                                        $inObj.add('Scripts', ($VSSObj.VssOptions.GuestScriptsOptions.IsAtLeastOneScriptSet))
                                                         $inObj.add('Scripts Mode', ($ScriptingMode))
                                                         if ($VSSObj.VssOptions.GuestScriptsOptions.WinScriptFiles.IsAtLeastOneScriptSet) {
                                                             $inObj.add('Windows Pre-freeze script', ($VSSObj.VssOptions.GuestScriptsOptions.WinScriptFiles.PreScriptFilePath))
@@ -736,7 +736,7 @@ function Get-AbrVbrBackupjobVMware {
                                                     }
                                                 }
 
-                                                $OutObj = [pscustomobject]$inobj
+                                                $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                 $TableParams = @{
                                                     Name = "Guest Processing Options - $($VSSObj.Name)"
@@ -775,15 +775,15 @@ function Get-AbrVbrBackupjobVMware {
                                                 'Retry Failed item' = $Bkjob.ScheduleOptions.RetryTimes
                                                 'Wait before each retry' = "$($Bkjob.ScheduleOptions.RetryTimeout)/min"
                                                 'Backup Window' = Switch ($Bkjob.TypeToString) {
-                                                    "VMware Backup Copy" { ConvertTo-TextYN $Bkjob.ScheduleOptions.OptionsContinuous.Enabled }
-                                                    default { ConvertTo-TextYN $Bkjob.ScheduleOptions.OptionsBackupWindow.IsEnabled }
+                                                    "VMware Backup Copy" { $Bkjob.ScheduleOptions.OptionsContinuous.Enabled }
+                                                    default { $Bkjob.ScheduleOptions.OptionsBackupWindow.IsEnabled }
                                                 }
                                                 'Shedule type' = $ScheduleType
                                                 'Shedule Options' = $Schedule
                                                 'Start Time' = $Bkjob.ScheduleOptions.OptionsDaily.TimeLocal.ToShorttimeString()
                                                 'Latest Run' = $Bkjob.LatestRunLocal
                                             }
-                                            $OutObj = [pscustomobject]$inobj
+                                            $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                             $TableParams = @{
                                                 Name = "Schedule Options - $($Bkjob.Name)"

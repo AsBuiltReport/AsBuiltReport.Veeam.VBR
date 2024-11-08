@@ -6,7 +6,7 @@ function Get-AbrVbrScaleOutRepository {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.11
+        Version:        0.8.12
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -46,7 +46,7 @@ function Get-AbrVbrScaleOutRepository {
                                     default { $BackupRepo.ArchiveExtent.Repository.Name }
                                 }
                             }
-                            $OutObj += [pscustomobject]$inobj
+                            $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                         }
                     } catch {
                         Write-PScriboMessage -IsWarning "ScaleOut Backup Repository Table: $($_.Exception.Message)"
@@ -83,25 +83,25 @@ function Get-AbrVbrScaleOutRepository {
                                                 Write-PScriboMessage "Discovered $($BackupRepo.Name) General Settings."
                                                 $inObj = [ordered] @{
                                                     'Placement Policy' = ($BackupRepo.PolicyType -creplace '([A-Z\W_]|\d+)(?<![a-z])', ' $&').trim()
-                                                    'Use Per VM Backup Files' = ConvertTo-TextYN $BackupRepo.UsePerVMBackupFiles
-                                                    'Perform Full When Extent Offline' = ConvertTo-TextYN $BackupRepo.PerformFullWhenExtentOffline
-                                                    'Use Capacity Tier' = ConvertTo-TextYN $BackupRepo.EnableCapacityTier
-                                                    'Encrypt data uploaded to Object Storage' = ConvertTo-TextYN $BackupRepo.EncryptionEnabled
+                                                    'Use Per VM Backup Files' = $BackupRepo.UsePerVMBackupFiles
+                                                    'Perform Full When Extent Offline' = $BackupRepo.PerformFullWhenExtentOffline
+                                                    'Use Capacity Tier' = $BackupRepo.EnableCapacityTier
+                                                    'Encrypt data uploaded to Object Storage' = $BackupRepo.EncryptionEnabled
                                                     'Encryption Key' = Switch ($BackupRepo.EncryptionKey.Description) {
                                                         $null { 'Disabled' }
                                                         default { $BackupRepo.EncryptionKey.Description }
                                                     }
                                                     'Move backup file older than' = $BackupRepo.OperationalRestorePeriod
-                                                    'Override Policy Enabled' = ConvertTo-TextYN $BackupRepo.OverridePolicyEnabled
+                                                    'Override Policy Enabled' = $BackupRepo.OverridePolicyEnabled
                                                     'Override Space Threshold' = $BackupRepo.OverrideSpaceThreshold
-                                                    'Use Archive GFS Tier' = ConvertTo-TextYN $BackupRepo.ArchiveTierEnabled
+                                                    'Use Archive GFS Tier' = $BackupRepo.ArchiveTierEnabled
                                                     'Archive GFS Backup older than' = "$($BackupRepo.ArchivePeriod) days"
-                                                    'Store archived backup as standalone fulls' = ConvertTo-TextYN $BackupRepo.ArchiveFullBackupModeEnabled
-                                                    'Cost Optimized Archive Enabled' = ConvertTo-TextYN $BackupRepo.CostOptimizedArchiveEnabled
+                                                    'Store archived backup as standalone fulls' = $BackupRepo.ArchiveFullBackupModeEnabled
+                                                    'Cost Optimized Archive Enabled' = $BackupRepo.CostOptimizedArchiveEnabled
                                                     'Description' = $BackupRepo.Description
                                                 }
 
-                                                $OutObj = [pscustomobject]$inobj
+                                                $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                 if ($HealthCheck.Infrastructure.Settings) {
                                                     $OutObj | Where-Object { $_.'Encrypt data uploaded to Object Storage' -like 'No' } | Set-Style -Style Warning -Property 'Encrypt data uploaded to Object Storage'
@@ -147,7 +147,7 @@ function Get-AbrVbrScaleOutRepository {
                                                         'Used Space' = ConvertTo-FileSizeString -Size (($Extent).Repository).GetContainer().CachedFreeSpace.InBytesAsUInt64
                                                         'Status' = $Extent.Status
                                                     }
-                                                    $OutObj += [pscustomobject]$inobj
+                                                    $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                     if ($HealthCheck.Infrastructure.Settings) {
                                                         $OutObj | Where-Object { $_.'Status' -ne 'Normal' } | Set-Style -Style Warning -Property 'Status'
@@ -180,20 +180,20 @@ function Get-AbrVbrScaleOutRepository {
                                                         'Service Point' = ($CapacityExtent.Repository).ServicePoint
                                                         'Type' = ($CapacityExtent.Repository).Type
                                                         'Amazon S3 Folder' = ($CapacityExtent.Repository).AmazonS3Folder
-                                                        'Use Gateway Server' = ConvertTo-TextYN ($CapacityExtent.Repository).UseGatewayServer
+                                                        'Use Gateway Server' = ($CapacityExtent.Repository).UseGatewayServer
                                                         'Gateway Server' = Switch ((($CapacityExtent.Repository).GatewayServer.Name).length) {
                                                             0 { "Auto" }
                                                             default { ($CapacityExtent.Repository).GatewayServer.Name }
                                                         }
                                                         'Immutability Period' = $CapacityExtent.Repository.ImmutabilityPeriod
-                                                        'Immutability Enabled' = ConvertTo-TextYN $CapacityExtent.Repository.BackupImmutabilityEnabled
-                                                        'Size Limit Enabled' = ConvertTo-TextYN ($CapacityExtent.Repository).SizeLimitEnabled
+                                                        'Immutability Enabled' = $CapacityExtent.Repository.BackupImmutabilityEnabled
+                                                        'Size Limit Enabled' = ($CapacityExtent.Repository).SizeLimitEnabled
                                                         'Size Limit' = ($CapacityExtent.Repository).SizeLimit
                                                     }
                                                     if (($CapacityExtent.Repository).Type -eq 'AmazonS3') {
                                                         $inObj.remove('Service Point')
-                                                        $inObj.add('Use IA Storage Class', (ConvertTo-TextYN ($CapacityExtent.Repository).EnableIAStorageClass))
-                                                        $inObj.add('Use OZ IA Storage Class', (ConvertTo-TextYN ($CapacityExtent.Repository).EnableOZIAStorageClass))
+                                                        $inObj.add('Use IA Storage Class', (($CapacityExtent.Repository).EnableIAStorageClass))
+                                                        $inObj.add('Use OZ IA Storage Class', (($CapacityExtent.Repository).EnableOZIAStorageClass))
                                                     } elseif (($CapacityExtent.Repository).Type -eq 'AzureBlob') {
                                                         $inObj.remove('Service Point')
                                                         $inObj.remove('Amazon S3 Folder')
@@ -201,7 +201,7 @@ function Get-AbrVbrScaleOutRepository {
                                                         $inObj.add('Azure Blob Container', ($CapacityExtent.Repository.AzureBlobFolder).Container)
                                                     }
 
-                                                    $OutObj += [pscustomobject]$inobj
+                                                    $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                     if ($HealthCheck.Infrastructure.SOBR) {
                                                         $OutObj | Where-Object { $_.'Immutability Enabled' -eq 'No' } | Set-Style -Style Warning -Property 'Immutability Enabled'
@@ -273,7 +273,7 @@ function Get-AbrVbrScaleOutRepository {
                                                     $inObj = [ordered] @{
                                                         'Name' = ($ArchiveExtent.Repository).Name
                                                         'Type' = ($ArchiveExtent.Repository).ArchiveType
-                                                        'Use Gateway Server' = ConvertTo-TextYN ($ArchiveExtent.Repository).UseGatewayServer
+                                                        'Use Gateway Server' = ($ArchiveExtent.Repository).UseGatewayServer
                                                         'Gateway Server' = Switch ((($ArchiveExtent.Repository).GatewayServer.Name).length) {
                                                             0 { "Auto" }
                                                             default { ($ArchiveExtent.Repository).GatewayServer.Name }
@@ -285,7 +285,7 @@ function Get-AbrVbrScaleOutRepository {
                                                         $inObj.add('Azure Blob Container', ($ArchiveExtent.Repository.AzureBlobFolder).Container)
                                                     }
 
-                                                    $OutObj += [pscustomobject]$inobj
+                                                    $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                     $TableParams = @{
                                                         Name = "Archive Tier - $(($ArchiveExtent.Repository).Name)"

@@ -6,7 +6,7 @@ function Get-AbrVbrInstalledLicense {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.6
+        Version:        0.8.12
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -51,11 +51,11 @@ function Get-AbrVbrInstalledLicense {
                                         $Null { '--'; break }
                                         default { $License.SupportExpirationDate.ToLongDateString() }
                                     }
-                                    'Auto Update Enabled' = ConvertTo-TextYN $License.AutoUpdateEnabled
-                                    'Free Agent Instance' = ConvertTo-TextYN $License.FreeAgentInstanceConsumptionEnabled
+                                    'Auto Update Enabled' = $License.AutoUpdateEnabled
+                                    'Free Agent Instance' = $License.FreeAgentInstanceConsumptionEnabled
                                     'Cloud Connect' = $License.CloudConnect
                                 }
-                                $OutObj += [pscustomobject]$inobj
+                                $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                             }
                         } catch {
                             Write-PScriboMessage -IsWarning "Installed License Information $($License.LicensedTo) Section: $($_.Exception.Message)"
@@ -91,7 +91,7 @@ function Get-AbrVbrInstalledLicense {
                                             'New Instances' = $License.NewInstancesNumber
                                             'Rental Instances' = $License.RentalInstancesNumber
                                         }
-                                        $OutObj += [pscustomobject]$inobj
+                                        $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                                     }
                                 } catch {
                                     Write-PScriboMessage -IsWarning "Instance $($License.LicensedTo) Section: $($_.Exception.Message)"
@@ -137,7 +137,7 @@ function Get-AbrVbrInstalledLicense {
                                                                 'Multiplier' = $License.Multiplier
                                                                 'Used Instances' = $License.UsedInstancesNumber
                                                             }
-                                                            $OutObj += [pscustomobject]$inobj
+                                                            $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                                                         }
                                                     } catch {
                                                         Write-PScriboMessage -IsWarning "Per Instance Type $($License.LicensedTo) Section: $($_.Exception.Message)"
@@ -178,7 +178,7 @@ function Get-AbrVbrInstalledLicense {
                                             'Used Sockets Licenses' = $License.UsedSocketsNumber
                                             'Remaining Sockets Licenses' = $License.RemainingSocketsNumber
                                         }
-                                        $OutObj += [pscustomobject]$inobj
+                                        $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                                     }
                                 } catch {
                                     Write-PScriboMessage -IsWarning "CPU Socket License Section: $($_.Exception.Message)"
@@ -225,7 +225,7 @@ function Get-AbrVbrInstalledLicense {
                                             'Licensed Capacity in TB' = $License.LicensedCapacityTb
                                             'Used Capacity in TB' = $License.UsedCapacityTb
                                         }
-                                        $OutObj += [pscustomobject]$inobj
+                                        $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                                     }
                                 } catch {
                                     Write-PScriboMessage -IsWarning "Capacity License Section: $($_.Exception.Message)"

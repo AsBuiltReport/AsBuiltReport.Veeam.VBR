@@ -6,7 +6,7 @@ function Get-AbrVbrTapeLibrary {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.11
+        Version:        0.8.12
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -43,7 +43,7 @@ function Get-AbrVbrTapeLibrary {
                                         'Library Type' = $TapeObj.Type
                                         'Number of Slots' = $TapeObj.Slots
                                         'Connected to' = $TapeServer
-                                        'Enabled' = ConvertTo-TextYN $TapeObj.Enabled
+                                        'Enabled' = $TapeObj.Enabled
                                         'Status' = Switch ($TapeObj.State) {
                                             'Online' { 'Available' }
                                             'Offline' { 'Unavailable' }
@@ -51,7 +51,7 @@ function Get-AbrVbrTapeLibrary {
                                         }
                                     }
 
-                                    $OutObj += [pscustomobject]$inobj
+                                    $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                     if ($HealthCheck.Tape.Status) {
                                         $OutObj | Where-Object { $_.'Status' -eq 'Unavailable' } | Set-Style -Style Warning -Property 'Status'
@@ -87,11 +87,11 @@ function Get-AbrVbrTapeLibrary {
                                                                 $false { $DriveObj.Medium }
                                                                 Default { 'Unknown' }
                                                             }
-                                                            'Enabled' = ConvertTo-TextYN $DriveObj.Enabled
-                                                            'Is Locked' = ConvertTo-TextYN $DriveObj.IsLocked
+                                                            'Enabled' = $DriveObj.Enabled
+                                                            'Is Locked' = $DriveObj.IsLocked
                                                             'State' = $DriveObj.State
                                                         }
-                                                        $OutObj += [pscustomobject]$inobj
+                                                        $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                                                     }
 
                                                     if ($HealthCheck.Tape.Status) {
@@ -137,11 +137,11 @@ function Get-AbrVbrTapeLibrary {
                                                                 }
                                                                 'Total Space' = ConvertTo-FileSizeString -Size  $MediumObj.Capacity
                                                                 'Free Space' = ConvertTo-FileSizeString -Size  $MediumObj.Free
-                                                                'Locked' = ConvertTo-TextYN $MediumObj.IsLocked
-                                                                'Retired' = ConvertTo-TextYN $MediumObj.IsRetired
-                                                                'Worm' = ConvertTo-TextYN $MediumObj.IsWorm
+                                                                'Locked' = $MediumObj.IsLocked
+                                                                'Retired' = $MediumObj.IsRetired
+                                                                'Worm' = $MediumObj.IsWorm
                                                             }
-                                                            $OutObj += [pscustomobject]$inobj
+                                                            $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                                                         } catch {
                                                             Write-PScriboMessage -IsWarning "Tape Mediums $($MediumObj.Name) Section: $($_.Exception.Message)"
                                                         }

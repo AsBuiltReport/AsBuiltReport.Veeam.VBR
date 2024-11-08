@@ -6,7 +6,7 @@ function Get-AbrVbrBackupCopyjobConf {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.11
+        Version:        0.8.12
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -46,12 +46,12 @@ function Get-AbrVbrBackupCopyjobConf {
                                                 'Copy Mode' = $Bkjob.Mode
                                                 'Last Result' = $Bkjob.LastResult
                                                 'Status' = $Bkjob.LastState
-                                                'Next Run' = ConvertTo-EmptyToFiller $Bkjob.NextRun
-                                                'Include database transaction log backup' = ConvertTo-TextYN $Bkjob.TransactionLogCopyEnabled
-                                                'Description' = ConvertTo-EmptyToFiller $Bkjob.Description
+                                                'Next Run' = $Bkjob.NextRun
+                                                'Include database transaction log backup' = $Bkjob.TransactionLogCopyEnabled
+                                                'Description' = $Bkjob.Description
                                                 'Modified By' = (Get-VBRJob -WarningAction SilentlyContinue -ErrorAction SilentlyContinue | Where-Object { $_.id -eq $Bkjob.Id }).Info.CommonInfo.ModifiedBy.FullName
                                             }
-                                            $OutObj = [pscustomobject]$inobj
+                                            $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
                                         } catch {
                                             Write-PScriboMessage -IsWarning $_.Exception.Message
                                         }
@@ -101,7 +101,7 @@ function Get-AbrVbrBackupCopyjobConf {
                                                         'Size' = ConvertTo-FileSizeString -Size $LinkedBkJob.Info.IncludedSize
                                                         'Repository' = $LinkedBkJob.GetTargetRepository().Name
                                                     }
-                                                    $OutObj += [pscustomobject]$inobj
+                                                    $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                                                 } catch {
                                                     Write-PScriboMessage -IsWarning $_.Exception.Message
                                                 }
@@ -141,7 +141,7 @@ function Get-AbrVbrBackupCopyjobConf {
                                                             'Size' = ConvertTo-FileSizeString -Size $LinkedRepository.GetContainer().CachedTotalSpace.InBytesAsUInt64
                                                         }
                                                     }
-                                                    $OutObj += [pscustomobject]$inobj
+                                                    $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                                                 } catch {
                                                     Write-PScriboMessage -IsWarning $_.Exception.Message
                                                 }
@@ -197,9 +197,9 @@ function Get-AbrVbrBackupCopyjobConf {
                                             } else {
                                                 $inObj.add('Keep Yearly full backup for', ("$($Bkjob.GFSOptions.YearlyOptions.RetentionPeriod) years,`r`nUse monthly full backup from the following month: $($Bkjob.GFSOptions.YearlyOptions.SelectedMonth)"))
                                             }
-                                            $inObj.add('Read the entire RestorePoint fromSource Backup', (ConvertTo-TextYN $Bkjob.GFSOptions.ReadEntireRestorePoint))
+                                            $inObj.add('Read the entire RestorePoint fromSource Backup', ($Bkjob.GFSOptions.ReadEntireRestorePoint))
                                         }
-                                        $OutObj = [pscustomobject]$inobj
+                                        $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                         $TableParams = @{
                                             Name = "Target Options - $($Bkjob.Name)"
@@ -216,7 +216,7 @@ function Get-AbrVbrBackupCopyjobConf {
                                                 try {
                                                     Write-PScriboMessage "Discovered $($Bkjob.Name) maintenance options."
                                                     $inObj = [ordered] @{
-                                                        'Storage-Level Corruption Guard (SLCG)' = ConvertTo-TextYN $Bkjob.HealthCheckOptions.Enabled
+                                                        'Storage-Level Corruption Guard (SLCG)' = $Bkjob.HealthCheckOptions.Enabled
                                                         'SLCG Schedule Type' = $Bkjob.HealthCheckOptions.ScheduleType
                                                     }
 
@@ -228,7 +228,7 @@ function Get-AbrVbrBackupCopyjobConf {
 
                                                     }
 
-                                                    $OutObj = [pscustomobject]$inobj
+                                                    $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                     if ($HealthCheck.Jobs.BestPractice) {
                                                         $OutObj | Where-Object { $_.'Storage-Level Corruption Guard (SLCG)' -eq "No" } | Set-Style -Style Warning -Property 'Storage-Level Corruption Guard (SLCG)'
@@ -265,12 +265,12 @@ function Get-AbrVbrBackupCopyjobConf {
                                                 try {
                                                     Write-PScriboMessage "Discovered $($Bkjob.Name) storage options."
                                                     $inObj = [ordered] @{
-                                                        'Inline Data Deduplication' = ConvertTo-TextYN $Bkjob.StorageOptions.DataDeduplicationEnabled
+                                                        'Inline Data Deduplication' = $Bkjob.StorageOptions.DataDeduplicationEnabled
                                                         'Compression Level' = $Bkjob.StorageOptions.CompressionLevel
-                                                        'Enabled Backup File Encryption' = ConvertTo-TextYN $Bkjob.StorageOptions.EncryptionEnabled
-                                                        'Encryption Key' = ConvertTo-EmptyToFiller $Bkjob.StorageOptions.EncryptionKey.Description
+                                                        'Enabled Backup File Encryption' = $Bkjob.StorageOptions.EncryptionEnabled
+                                                        'Encryption Key' = $Bkjob.StorageOptions.EncryptionKey.Description
                                                     }
-                                                    $OutObj = [pscustomobject]$inobj
+                                                    $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                     if ($HealthCheck.Jobs.BestPractice) {
                                                         $OutObj | Where-Object { $_.'Enabled Backup File Encryption' -eq 'No' } | Set-Style -Style Warning -Property 'Enabled Backup File Encryption'
@@ -311,11 +311,11 @@ function Get-AbrVbrBackupCopyjobConf {
                                                     $BackupLogJob = $Bkjob.RpoWarningOptions | Where-Object { $_.RpoType -eq 'BackupLogJob' }
 
                                                     $inObj = [ordered] @{
-                                                        'Alert me when new backup is not copied within' = "$($BackupJob.Value) $($BackupJob.TimeUnit)`r`nEnable:$(ConvertTo-TextYN $BackupJob.EnableRpoWarning)"
-                                                        'Alert me when new log backup is not copied within' = "$($BackupLogJob.Value) $($BackupLogJob.TimeUnit)`r`nEnabled:$(ConvertTo-TextYN $BackupLogJob.EnableRpoWarning)"
+                                                        'Alert me when new backup is not copied within' = "$($BackupJob.Value) $($BackupJob.TimeUnit)`r`nEnable:$($BackupJob.EnableRpoWarning)"
+                                                        'Alert me when new log backup is not copied within' = "$($BackupLogJob.Value) $($BackupLogJob.TimeUnit)`r`nEnabled:$($BackupLogJob.EnableRpoWarning)"
 
                                                     }
-                                                    $OutObj = [pscustomobject]$inobj
+                                                    $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                     $TableParams = @{
                                                         Name = "Advanced Settings (RPO Monitor) - $($Bkjob.Name)"
@@ -338,25 +338,25 @@ function Get-AbrVbrBackupCopyjobConf {
                                                 try {
                                                     Write-PScriboMessage "Discovered $($Bkjob.Name) notification options."
                                                     $inObj = [ordered] @{
-                                                        'Send Snmp Notification' = ConvertTo-TextYN $Bkjob.NotificationOptions.EnableSnmpNotification
-                                                        'Send Email Notification' = ConvertTo-TextYN $Bkjob.NotificationOptions.EnableAdditionalNotification
+                                                        'Send Snmp Notification' = $Bkjob.NotificationOptions.EnableSnmpNotification
+                                                        'Send Email Notification' = $Bkjob.NotificationOptions.EnableAdditionalNotification
                                                         'Email Notification Additional Addresses' = Switch ($Bkjob.NotificationOptions.AdditionalAddress) {
                                                             $Null { '--' }
                                                             default { $Bkjob.NotificationOptions.AdditionalAddress }
                                                         }
                                                         'Email Notify Time' = $Bkjob.NotificationOptions.SendTime
-                                                        'Use Custom Email Notification Options' = ConvertTo-TextYN $Bkjob.NotificationOptions.UseNotificationOptions
+                                                        'Use Custom Email Notification Options' = $Bkjob.NotificationOptions.UseNotificationOptions
                                                         'Use Custom Notification Setting' = $Bkjob.NotificationOptions.NotificationSubject
-                                                        'Notify On Success' = ConvertTo-TextYN $Bkjob.NotificationOptions.NotifyOnSuccess
-                                                        'Notify On Warning' = ConvertTo-TextYN $Bkjob.NotificationOptions.NotifyOnWarning
-                                                        'Notify On Error' = ConvertTo-TextYN $Bkjob.NotificationOptions.NotifyOnError
+                                                        'Notify On Success' = $Bkjob.NotificationOptions.NotifyOnSuccess
+                                                        'Notify On Warning' = $Bkjob.NotificationOptions.NotifyOnWarning
+                                                        'Notify On Error' = $Bkjob.NotificationOptions.NotifyOnError
                                                         'Send notification' = Switch ($Bkjob.NotificationOptions.EnableDailyNotification) {
                                                             'False' { 'Immediately after each copied backup' }
                                                             'True' { 'Daily as a summary' }
                                                             default { 'Unknown' }
                                                         }
                                                     }
-                                                    $OutObj = [pscustomobject]$inobj
+                                                    $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                     $TableParams = @{
                                                         Name = "Advanced Settings (Notification) - $($Bkjob.Name)"
@@ -386,15 +386,15 @@ function Get-AbrVbrBackupCopyjobConf {
                                                     }
                                                     Write-PScriboMessage "Discovered $($Bkjob.Name) script options."
                                                     $inObj = [ordered] @{
-                                                        'Run the Following Script Before' = ConvertTo-TextYN $Bkjob.ScriptOptions.PreScriptEnabled
-                                                        'Run Script Before the Job' = ConvertTo-EmptyToFiller $Bkjob.ScriptOptions.PreCommand
-                                                        'Run the Following Script After' = ConvertTo-TextYN $Bkjob.ScriptOptions.PostScriptEnabled
-                                                        'Run Script After the Job' = ConvertTo-EmptyToFiller $Bkjob.ScriptOptions.PostCommand
+                                                        'Run the Following Script Before' = $Bkjob.ScriptOptions.PreScriptEnabled
+                                                        'Run Script Before the Job' = $Bkjob.ScriptOptions.PreCommand
+                                                        'Run the Following Script After' = $Bkjob.ScriptOptions.PostScriptEnabled
+                                                        'Run Script After the Job' = $Bkjob.ScriptOptions.PostCommand
                                                         'Run Script Frequency' = $Bkjob.ScriptOptions.Periodicity
                                                         $FrequencyText = $FrequencyValue
 
                                                     }
-                                                    $OutObj = [pscustomobject]$inobj
+                                                    $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                     $TableParams = @{
                                                         Name = "Advanced Settings (Script) - $($Bkjob.Name)"
@@ -425,10 +425,10 @@ function Get-AbrVbrBackupCopyjobConf {
                                                     'Direct' { 'No' }
                                                     default { 'Unkwnown' }
                                                 }
-                                                'Source Wan accelerator' = ConvertTo-EmptyToFiller $Bkjob.SourceAccelerator.Name
-                                                'Target Wan accelerator' = ConvertTo-EmptyToFiller $Bkjob.TargetAccelerator.Name
+                                                'Source Wan accelerator' = $Bkjob.SourceAccelerator.Name
+                                                'Target Wan accelerator' = $Bkjob.TargetAccelerator.Name
                                             }
-                                            $OutObj += [pscustomobject]$inobj
+                                            $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                                         } catch {
                                             Write-PScriboMessage -IsWarning $_.Exception.Message
                                         }
@@ -465,14 +465,14 @@ function Get-AbrVbrBackupCopyjobConf {
                                                 $Schedule = "After Job: $($BKjob.ScheduleOptions.Job.Name)"
                                             }
                                             $inObj = [ordered] @{
-                                                'Retry Failed Enabled?' = ConvertTo-TextYN $Bkjob.ScheduleOptions.RetryEnabled
+                                                'Retry Failed Enabled?' = $Bkjob.ScheduleOptions.RetryEnabled
                                                 'Retry Failed item processing' = $Bkjob.ScheduleOptions.RetryCount
                                                 'Wait before each retry' = "$($Bkjob.ScheduleOptions.RetryTimeout)/min"
-                                                'Backup Window' = ConvertTo-TextYN $Bkjob.ScheduleOptions.BackupTerminationWindowEnabled
+                                                'Backup Window' = $Bkjob.ScheduleOptions.BackupTerminationWindowEnabled
                                                 'Shedule type' = $ScheduleType
                                                 'Shedule Options' = $Schedule
                                             }
-                                            $OutObj = [pscustomobject]$inobj
+                                            $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                             $TableParams = @{
                                                 Name = "Schedule Options - $($Bkjob.Name)"
@@ -534,14 +534,14 @@ function Get-AbrVbrBackupCopyjobConf {
                                         try {
                                             Write-PScriboMessage "Discovered $($Bkjob.Name) schedule options."
                                             $inObj = [ordered] @{
-                                                'Retry Failed Enabled?' = ConvertTo-TextYN $Bkjob.ScheduleOptions.RetryEnabled
+                                                'Retry Failed Enabled?' = $Bkjob.ScheduleOptions.RetryEnabled
                                                 'Retry Failed item processing' = $Bkjob.ScheduleOptions.RetryCount
                                                 'Wait before each retry' = "$($Bkjob.ScheduleOptions.RetryTimeout)/min"
-                                                'Backup Window' = ConvertTo-TextYN $Bkjob.ScheduleOptions.BackupTerminationWindowEnabled
+                                                'Backup Window' = $Bkjob.ScheduleOptions.BackupTerminationWindowEnabled
                                                 'Shedule type' = $Bkjob.ScheduleOptions.Type
                                                 'Shedule Options' = "Continuously"
                                             }
-                                            $OutObj = [pscustomobject]$inobj
+                                            $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                             $TableParams = @{
                                                 Name = "Schedule Options - $($Bkjob.Name)"

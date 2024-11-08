@@ -6,7 +6,7 @@ function Get-AbrVbrBackupServerInfo {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.11
+        Version:        0.8.12
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -59,7 +59,7 @@ function Get-AbrVbrBackupServerInfo {
                             } else { Write-PScriboMessage -IsWarning "Backup Server Section: Unable to connect to Backup Server throuth WinRM" }
                             $inObj = [ordered] @{
                                 'Server Name' = $BackupServer.Name
-                                'Is Domain Joined?' = ConvertTo-TextYN $DomainJoined.PartOfDomain
+                                'Is Domain Joined?' = $DomainJoined.PartOfDomain
                                 'Version' = Switch (($VeeamVersion).count) {
                                     0 { "--" }
                                     default { $VeeamVersion.DisplayVersion }
@@ -88,7 +88,7 @@ function Get-AbrVbrBackupServerInfo {
                                     default { $VeeamInfo.CorePath }
                                 }
                                 'Audit Logs Path' = $SecurityOptions.AuditLogsPath
-                                'Compress Old Audit Logs' = ConvertTo-TextYN $SecurityOptions.CompressOldAuditLogs
+                                'Compress Old Audit Logs' = $SecurityOptions.CompressOldAuditLogs
                                 'Fips Compliant Mode' = Switch ($SecurityOptions.FipsCompliantModeEnabled) {
                                     'True' { "Enabled" }
                                     'False' { "Disabled" }
@@ -105,7 +105,7 @@ function Get-AbrVbrBackupServerInfo {
                                 $inObj.add('Log Directory', ($VeeamInfo.LogDirectory))
                             }
 
-                            $OutObj += [pscustomobject]$inobj
+                            $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                         }
                     } catch {
                         Write-PScriboMessage -IsWarning "Backup Server Section: $($_.Exception.Message)"
@@ -177,7 +177,7 @@ function Get-AbrVbrBackupServerInfo {
                                         'Number of Logical Cores' = ($HWCPU.NumberOfLogicalProcessors | Measure-Object -Sum).Sum
                                         'Physical Memory (GB)' = ConvertTo-FileSizeString -Size $HW.CsTotalPhysicalMemory
                                     }
-                                    $OutObj += [pscustomobject]$inobj
+                                    $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                     if ($HealthCheck.Infrastructure.Server) {
                                         $OutObj | Where-Object { $_.'Number of CPU Cores' -lt 2 } | Set-Style -Style Warning -Property 'Number of CPU Cores'
@@ -447,7 +447,7 @@ function Get-AbrVbrBackupServerInfo {
 
                                                 }
                                             }
-                                            $OutObj += [pscustomobject]$inobj
+                                            $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                                         }
                                     }
 
@@ -492,7 +492,7 @@ function Get-AbrVbrBackupServerInfo {
                                                     'Short Name' = $Service.Name
                                                     'Status' = $Service.Status
                                                 }
-                                                $OutObj += [pscustomobject]$inobj
+                                                $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                                             }
 
                                             if ($HealthCheck.Infrastructure.Server) {
@@ -528,7 +528,7 @@ function Get-AbrVbrBackupServerInfo {
                                             'KB Article' = "KB$($Update.KBArticleIDs)"
                                             'Name' = $Update.Title
                                         }
-                                        $OutObj += [pscustomobject]$inobj
+                                        $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                         if ($HealthCheck.OperatingSystem.Updates) {
                                             $OutObj | Set-Style -Style Warning

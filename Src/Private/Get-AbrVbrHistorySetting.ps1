@@ -6,7 +6,7 @@ function Get-AbrVbrHistorySetting {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.7
+        Version:        0.8.12
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -30,10 +30,10 @@ function Get-AbrVbrHistorySetting {
                 Section -Style Heading4 'History Retention' {
                     $OutObj = @()
                     $inObj = [ordered] @{
-                        'Keep All Sessions' = ConvertTo-TextYN $HistorySettings.KeepAllSessions
+                        'Keep All Sessions' = $HistorySettings.KeepAllSessions
                         'Retention Limit' = "$($HistorySettings.RetentionLimitWeeks) weeks"
                     }
-                    $OutObj = [pscustomobject]$inobj
+                    $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                     $TableParams = @{
                         Name = "History Settings - $VeeamBackupServer"

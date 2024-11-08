@@ -6,7 +6,7 @@ function Get-AbrVbrTapeInfraSummary {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.6
+        Version:        0.8.12
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -42,7 +42,7 @@ function Get-AbrVbrTapeInfraSummary {
                     'Tape Drives' = $TapeDrive.Count
                     'Tape Medium' = $TapeMedium.Count
                 }
-                $OutObj += [pscustomobject]$inobj
+                $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
             } catch {
                 Write-PScriboMessage -IsWarning "Tape Infrastructure Summary Table Section: $($_.Exception.Message)"
             }

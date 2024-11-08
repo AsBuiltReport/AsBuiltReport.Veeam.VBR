@@ -6,7 +6,7 @@ function Get-AbrVbrUnstructuredDataInfo {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.11
+        Version:        0.8.12
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -44,7 +44,7 @@ function Get-AbrVbrUnstructuredDataInfo {
                                 'Cache Repository' = $ShareObj.CacheRepository.Name
                             }
 
-                            $OutObj += [pscustomobject]$inobj
+                            $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                         } catch {
                             Write-PScriboMessage -IsWarning "Unstructured Data File Server Item: $($_.Exception.Message)"
                         }
@@ -97,7 +97,7 @@ function Get-AbrVbrUnstructuredDataInfo {
                                 'Cache Repository' = $ShareObj.CacheRepository.Name
                             }
 
-                            $OutObj += [pscustomobject]$inobj
+                            $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                         } catch {
                             Write-PScriboMessage -IsWarning "Unstructured Data $($Path) Section: $($_.Exception.Message)"
                         }
@@ -151,7 +151,7 @@ function Get-AbrVbrUnstructuredDataInfo {
                                 'Cache Repository' = $ShareObj.CacheRepository.Name
                             }
 
-                            $OutObj += [pscustomobject]$inobj
+                            $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                         } catch {
                             Write-PScriboMessage -IsWarning "Unstructured Data $($Path) Section: $($_.Exception.Message)"
                         }
@@ -181,7 +181,7 @@ function Get-AbrVbrUnstructuredDataInfo {
                             Write-PScriboMessage "Discovered $($ShareObj.Name) Server."
                             $inObj = [ordered] @{
                                 'Name' = $ShareObj.FriendlyName
-                                'Region' = ConvertTo-EmptyToFiller $ShareObj.Info
+                                'Region' = $ShareObj.Info
                                 'Account' = Switch ([string]::IsNullOrEmpty($ShareObj.Account.Name)) {
                                     $true { "--" }
                                     $false { $ShareObj.Account.Name }
@@ -191,7 +191,7 @@ function Get-AbrVbrUnstructuredDataInfo {
                                 'Cache Repository' = $ShareObj.CacheRepository.Name
                             }
 
-                            $OutObj += [pscustomobject]$inobj
+                            $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                         } catch {
                             Write-PScriboMessage -IsWarning "Unstructured Data Object Storage Item: $($_.Exception.Message)"
                         }

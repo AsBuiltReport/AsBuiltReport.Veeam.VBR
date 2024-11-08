@@ -6,7 +6,7 @@ function Get-AbrVbrUserRoleAssignment {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.5
+        Version:        0.8.12
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -39,7 +39,7 @@ function Get-AbrVbrUserRoleAssignment {
                             'Type' = $RoleAssignment.Type
                             'Role' = $RoleAssignment.Role
                         }
-                        $OutObj += [pscustomobject]$inobj
+                        $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                     }
                 } catch {
                     Write-PScriboMessage -IsWarning "Roles and Users Table: $($_.Exception.Message)"
@@ -92,13 +92,13 @@ function Get-AbrVbrUserRoleAssignment {
                                 foreach ($RoleAssignment in $RoleAssignments) {
                                     Write-PScriboMessage "Discovered Roles and Users Settings."
                                     $inObj = [ordered] @{
-                                        'Is MFA globally enabled?' = ConvertTo-TextYN $MFAGlobalSetting
-                                        'Is auto logoff on inactivity enabled?' = ConvertTo-TextYN $AutoTerminateSession
+                                        'Is MFA globally enabled?' = $MFAGlobalSetting
+                                        'Is auto logoff on inactivity enabled?' = $AutoTerminateSession
                                         'Auto logoff on inactivity after' = "$($AutoTerminateSessionMin) minutes"
-                                        'Is Four-eye Authorization enabled?' = ConvertTo-TextYN $UserActionNotification
+                                        'Is Four-eye Authorization enabled?' = $UserActionNotification
                                         'Auto reject pending approvals after' = "$($UserActionRetention) days"
                                     }
-                                    $OutObj = [pscustomobject]$inobj
+                                    $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
                                 }
                             } catch {
                                 Write-PScriboMessage -IsWarning "Roles and Users Settings Table: $($_.Exception.Message)"

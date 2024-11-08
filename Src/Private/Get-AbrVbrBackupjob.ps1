@@ -6,7 +6,7 @@ function Get-AbrVbrBackupjob {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.7
+        Version:        0.8.12
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -44,7 +44,7 @@ function Get-AbrVbrBackupjob {
                                 default { 'Unknown' }
                             }
                         }
-                        $OutObj += [pscustomobject]$inObj
+                        $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                     } catch {
                         Write-PScriboMessage -IsWarning "Backup Jobs Section: $($_.Exception.Message)"
                     }
@@ -142,7 +142,7 @@ function Get-AbrVbrBackupjob {
                         #                             default { 'Unknown' }
                         #                         }
                         #                     }
-                        #                     $OutObj += [pscustomobject]$inObj
+                        #                     $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                         #                 } catch {
                         #                     Write-PScriboMessage -IsWarning "Backup Jobs $($Bkjob.Name) Time Table: $($_.Exception.Message)"
                         #                 }

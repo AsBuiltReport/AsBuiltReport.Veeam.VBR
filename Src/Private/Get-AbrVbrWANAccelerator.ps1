@@ -6,7 +6,7 @@ function Get-AbrVbrWANAccelerator {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.5
+        Version:        0.8.12
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -50,18 +50,18 @@ function Get-AbrVbrWANAccelerator {
                                 $inObj = [ordered] @{
                                     'Name' = $WANAccel.Name
                                     'Host Name' = $WANAccel.GetHost().Name
-                                    'Is Public' = ConvertTo-TextYN $WANAccel.GetType().IsPublic
+                                    'Is Public' = $WANAccel.GetType().IsPublic
                                     'Management Port' = "$($WANAccel.GetWaMgmtPort())\TCP"
                                     'Service IP Address' = $ServiceIPAddress
                                     'Traffic Port' = "$($WANAccel.GetWaTrafficPort())\TCP"
                                     'Max Tasks Count' = $WANAccel.FindWaHostComp().Options.MaxTasksCount
                                     'Download Stream Count' = $WANAccel.FindWaHostComp().Options.DownloadStreamCount
-                                    'Enable Performance Mode' = ConvertTo-TextYN $WANAccel.FindWaHostComp().Options.EnablePerformanceMode
-                                    'Configured Cache' = ConvertTo-TextYN $IsWaHasAnyCaches
+                                    'Enable Performance Mode' = $WANAccel.FindWaHostComp().Options.EnablePerformanceMode
+                                    'Configured Cache' = $IsWaHasAnyCaches
                                     'Cache Path' = $WANAccel.FindWaHostComp().Options.CachePath
                                     'Max Cache Size' = "$($WANAccel.FindWaHostComp().Options.MaxCacheSize) $($WANAccel.FindWaHostComp().Options.SizeUnit)"
                                 }
-                                $OutObj = [pscustomobject]$inobj
+                                $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                 if ($HealthCheck.Infrastructure.Proxy) {
                                     $OutObj | Where-Object { $_.'Status' -eq 'Unavailable' } | Set-Style -Style Warning -Property 'Status'
