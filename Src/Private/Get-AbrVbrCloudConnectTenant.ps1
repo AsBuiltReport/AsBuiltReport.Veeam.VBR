@@ -108,7 +108,11 @@ function Get-AbrVbrCloudConnectTenant {
                                                         }
                                                         'Expiration Date' = Switch ([string]::IsNullOrEmpty($CloudObject.LeaseExpirationDate)) {
                                                             $true { 'Never' }
-                                                            $false { $CloudObject.LeaseExpirationDate }
+                                                            $false { & {
+                                                                if ($CloudObject.LeaseExpirationDate -lt (get-date)) {
+                                                                    "$($CloudObject.LeaseExpirationDate.ToShortDateString()) (Expired)"
+                                                                } else {$CloudObject.LeaseExpirationDate.ToShortDateString()}
+                                                            }}
                                                             default { '--' }
                                                         }
                                                         'Backup Storage (Cloud Backup Repository)' = $CloudObject.ResourcesEnabled
@@ -130,15 +134,7 @@ function Get-AbrVbrCloudConnectTenant {
                                                     if ($HealthCheck.CloudConnect.BestPractice) {
                                                         $OutObj | Where-Object { $Null -like $_.'Description' } | Set-Style -Style Warning -Property 'Description'
                                                         $OutObj | Where-Object { $_.'Description' -match "Created by" } | Set-Style -Style Warning -Property 'Description'
-                                                        $OutObj | Where-Object { $_.'Expiration Date' -lt (Get-Date) -and $_.'Expiration Date' -ne 'Never' } | Set-Style -Style Warning -Property 'Expiration Date'
-
-                                                        foreach ( $OBJ in ($OutObj | Where-Object { $_.'Expiration Date' -ne 'Never' })) {
-                                                            if ($OBJ | Where-Object { $_.'Expiration Date' -lt (Get-Date) }) {
-                                                                $OBJ.'Expiration Date' = $OBJ.'Expiration Date'.ToLongDateString() + ' (Expired)'
-                                                            } else {
-                                                                $OBJ.'Expiration Date' = $OBJ.'Expiration Date'.ToLongDateString()
-                                                            }
-                                                        }
+                                                        $OutObj | Where-Object { $_.'Expiration Date' -match '(Expired)' } | Set-Style -Style Warning -Property 'Expiration Date'
                                                     }
 
                                                     $TableParams = @{
