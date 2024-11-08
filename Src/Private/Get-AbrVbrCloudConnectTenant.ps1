@@ -108,11 +108,13 @@ function Get-AbrVbrCloudConnectTenant {
                                                         }
                                                         'Expiration Date' = Switch ([string]::IsNullOrEmpty($CloudObject.LeaseExpirationDate)) {
                                                             $true { 'Never' }
-                                                            $false { & {
-                                                                if ($CloudObject.LeaseExpirationDate -lt (get-date)) {
-                                                                    "$($CloudObject.LeaseExpirationDate.ToShortDateString()) (Expired)"
-                                                                } else {$CloudObject.LeaseExpirationDate.ToShortDateString()}
-                                                            }}
+                                                            $false {
+                                                                & {
+                                                                    if ($CloudObject.LeaseExpirationDate -lt (Get-Date)) {
+                                                                        "$($CloudObject.LeaseExpirationDate.ToShortDateString()) (Expired)"
+                                                                    } else { $CloudObject.LeaseExpirationDate.ToShortDateString() }
+                                                                }
+                                                            }
                                                             default { '--' }
                                                         }
                                                         'Backup Storage (Cloud Backup Repository)' = $CloudObject.ResourcesEnabled
