@@ -990,7 +990,7 @@ function ConvertTo-HashToYN {
         try {
             $result.add($i.Key, (ConvertTo-TextYN $i.Value))
         } catch {
-            Write-PScriboMessage -IsWarning "Unable to process $($i.key) values"
+            $result.add($i.Key, ($i.Value))
         }
     }
     if ($result) {
