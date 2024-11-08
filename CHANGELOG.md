@@ -11,8 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Improve detection of table empty fields
-- Improve detection of true/false elements
+- Improve detection of empty fields in tables
+- Improve detection of true/false elements in tables
 - Improve support for Veeam B&R v11
 
 ### Fixed

@@ -372,7 +372,7 @@ function Get-AbrVbrBackupProxy {
                                                     Write-PScriboMessage -IsWarning "VMware Backup Proxies Section: $($_.Exception.Message)"
                                                 }
                                             } else {
-                                                Write-PScriboMessage -IsWarning "VMware Backup Proxies Section: Unable to connect to $($BackupProxies.Host.Name) throuth WinRM, disabling section"
+                                                Write-PScriboMessage -IsWarning "VMware Backup Proxies Section: Unable to connect to $($BackupProxies.Host.Name) throuth WinRM, removing server from Hardware Inventory section"
                                             }
                                         }
                                         if ($vSphereVBProxyObj) {
@@ -444,7 +444,7 @@ function Get-AbrVbrBackupProxy {
                                                     Write-PScriboMessage -IsWarning "VMware Backup Proxies $($BackupProxy.Host.Name) Services Status Section: $($_.Exception.Message)"
                                                 }
                                             } else {
-                                                Write-PScriboMessage -IsWarning "VMware Backup Proxies Section: Unable to connect to $($BackupProxies.Host.Name) throuth WinRM, disabling section"
+                                                Write-PScriboMessage -IsWarning "VMware Backup Proxies Section: Unable to connect to $($BackupProxies.Host.Name) throuth WinRM, removing server from Veeam Services section"
                                             }
                                         }
                                     }
@@ -827,7 +827,7 @@ function Get-AbrVbrBackupProxy {
                                                         Write-PScriboMessage -IsWarning "Hyper-V Backup Proxies Hardware & Software Inventory Section: $($_.Exception.Message)"
                                                     }
                                                 } else {
-                                                    Write-PScriboMessage -IsWarning "Hyper-V Backup Proxies Section: Unable to connect to $($BackupProxies.Host.Name) throuth WinRM, disabling section"
+                                                    Write-PScriboMessage -IsWarning "Hyper-V Backup Proxies Section: Unable to connect to $($BackupProxies.Host.Name) throuth WinRM, removing server from Hardware Inventory section"
                                                 }
                                             }
                                             if ($HyperVBProxyObj) {
@@ -898,7 +898,7 @@ function Get-AbrVbrBackupProxy {
                                                         Write-PScriboMessage -IsWarning "Hyper-V Backup Proxies Services Status - $($BackupProxy.Host.Name.Split(".")[0]) Section: $($_.Exception.Message)"
                                                     }
                                                 } else {
-                                                    Write-PScriboMessage -IsWarning "Hyper-V Backup Proxies Section: Unable to connect to $($BackupProxies.Host.Name) throuth WinRM, disabling section"
+                                                    Write-PScriboMessage -IsWarning "Hyper-V Backup Proxies Section: Unable to connect to $($BackupProxies.Host.Name) throuth WinRM, removing server from Veeam Services section"
                                                 }
                                             }
                                         }
