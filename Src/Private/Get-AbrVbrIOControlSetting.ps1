@@ -6,7 +6,7 @@ function Get-AbrVbrIOControlSetting {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.7
+        Version:        0.8.12
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -35,9 +35,9 @@ function Get-AbrVbrIOControlSetting {
                                 $inObj = [ordered] @{
                                     'Latency Limit' = "$($StorageLatencyControl.LatencyLimitMs)/ms"
                                     'Throttling IO Limit' = "$($StorageLatencyControl.ThrottlingIOLimitMs)/ms"
-                                    'Enabled' = ConvertTo-TextYN $StorageLatencyControl.Enabled
+                                    'Enabled' = $StorageLatencyControl.Enabled
                                 }
-                                $OutObj += [pscustomobject]$inobj
+                                $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                             } catch {
                                 Write-PScriboMessage -IsWarning "Storage Latency Control Section: $($_.Exception.Message)"
                             }
@@ -76,7 +76,7 @@ function Get-AbrVbrIOControlSetting {
                                                 'Latency Limit' = "$($StorageLatencyControl.LatencyLimitMs)/ms"
                                                 'Throttling IO Limit' = "$($StorageLatencyControl.ThrottlingIOLimitMs)/ms"
                                             }
-                                            $OutObj += [pscustomobject]$inobj
+                                            $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                                         } catch {
                                             Write-PScriboMessage -IsWarning "Per Datastore Latency Control Options Section: $($_.Exception.Message)"
                                         }

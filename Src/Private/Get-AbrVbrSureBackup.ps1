@@ -6,7 +6,7 @@ function Get-AbrVbrSureBackup {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.5
+        Version:        0.8.12
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -45,7 +45,7 @@ function Get-AbrVbrSureBackup {
                                             'Name' = $SureBackupAG.Name
                                             'VM List' = $SureBackupAG.VM -join ", "
                                         }
-                                        $OutObj += [pscustomobject]$inobj
+                                        $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                                     }
                                 } catch {
                                     Write-PScriboMessage -IsWarning "SureBackup Configuration $($SureBackupAG.Name) Section: $($_.Exception.Message)"
@@ -78,17 +78,17 @@ function Get-AbrVbrSureBackup {
                                                         Write-PScriboMessage "Discovered $($VMSetting.Name) Application Group VM Setting."
                                                         $inObj = [ordered] @{
                                                             'VM Name' = $VMSetting.Name
-                                                            'Credentials' = ConvertTo-EmptyToFiller $VMSetting.Credentials
-                                                            'Role' = ConvertTo-EmptyToFiller ($VMSetting.Role -join ", ")
-                                                            'Test Script' = ConvertTo-EmptyToFiller ($VMSetting.TestScript.PredefinedApplication -join ", ")
+                                                            'Credentials' = $VMSetting.Credentials
+                                                            'Role' = ($VMSetting.Role -join ", ")
+                                                            'Test Script' = ($VMSetting.TestScript.PredefinedApplication -join ", ")
                                                             'Startup Options' = SWitch ($VMSetting.StartupOptions) {
                                                                 "" { "--"; break }
                                                                 $Null { "--"; break }
-                                                                default { $VMSetting.StartupOptions | ForEach-Object { "Allocated Memory: $($_.AllocatedMemory)`r`nHeartbeat Check: $(ConvertTo-TextYN $_.VMHeartBeatCheckEnabled)`r`nMaximum Boot Time: $($_.MaximumBootTime)`r`nApp Init Timeout: $($_.ApplicationInitializationTimeout)`r`nPing Check: $(ConvertTo-TextYN $_.VMPingCheckEnabled)" } }
+                                                                default { $VMSetting.StartupOptions | ForEach-Object { "Allocated Memory: $($_.AllocatedMemory)`r`nHeartbeat Check: $($_.VMHeartBeatCheckEnabled)`r`nMaximum Boot Time: $($_.MaximumBootTime)`r`nApp Init Timeout: $($_.ApplicationInitializationTimeout)`r`nPing Check: $($_.VMPingCheckEnabled)" } }
                                                             }
                                                         }
 
-                                                        $OutObj += [pscustomobject]$inobj
+                                                        $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                         $TableParams = @{
                                                             Name = "Application Group VM Settings - $($VMSetting.Name)"
@@ -128,7 +128,7 @@ function Get-AbrVbrSureBackup {
                                             'Physical Host' = $SureBackupVL.Server.Name.split(".")[0]
                                             'Physical Host Version' = $SureBackupVL.Server.Info.Info
                                         }
-                                        $OutObj += [pscustomobject]$inobj
+                                        $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                                     }
                                 } catch {
                                     Write-PScriboMessage -IsWarning "SureBackup Virtual Labs $($SureBackupVL.Name) Section: $($_.Exception.Message)"
@@ -158,17 +158,17 @@ function Get-AbrVbrSureBackup {
                                                                 'Resource Pool' = $SureBackupVLC.DesignatedResourcePoolName
                                                                 'VM Folder' = $SureBackupVLC.DesignatedVMFolderName
                                                                 'Cache Datastore' = $SureBackupVLC.CacheDatastore
-                                                                'Proxy Appliance Enabled' = ConvertTo-TextYN $SureBackupVLC.ProxyApplianceEnabled
+                                                                'Proxy Appliance Enabled' = $SureBackupVLC.ProxyApplianceEnabled
                                                                 'Proxy Appliance' = $SureBackupVLC.ProxyAppliance
                                                                 'Networking Type' = $SureBackupVLC.Type
                                                                 'Production Network' = $SureBackupVLC.NetworkMapping.ProductionNetwork.NetworkName
                                                                 'Isolated Network' = $SureBackupVLC.NetworkMapping.IsolatedNetworkName
-                                                                'Routing Between vNics' = ConvertTo-TextYN $SureBackupVLC.RoutingBetweenvNicsEnabled
-                                                                'Multi Host' = ConvertTo-TextYN $SureBackupVLC.IsMultiHost
-                                                                'Static IP Mapping' = ConvertTo-TextYN $SureBackupVLC.StaticIPMappingEnabled
+                                                                'Routing Between vNics' = $SureBackupVLC.RoutingBetweenvNicsEnabled
+                                                                'Multi Host' = $SureBackupVLC.IsMultiHost
+                                                                'Static IP Mapping' = $SureBackupVLC.StaticIPMappingEnabled
                                                             }
 
-                                                            $OutObj += [pscustomobject]$inobj
+                                                            $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                             $TableParams = @{
                                                                 Name = "Virtual Lab Settings - $($SureBackupVLC.Name)"
@@ -186,11 +186,11 @@ function Get-AbrVbrSureBackup {
                                                                         $inObj = [ordered] @{
                                                                             'Isolated Network' = $NetworkOption.NetworkMappingRule.IsolatedNetworkName
                                                                             'VLAN ID' = $NetworkOption.NetworkMappingRule.VLANID
-                                                                            'DHCP Enabled' = ConvertTo-TextYN $NetworkOption.DHCPEnabled
+                                                                            'DHCP Enabled' = $NetworkOption.DHCPEnabled
                                                                             'Network Properties' = "IP Address: $($NetworkOption.IPAddress)`r`nSubnet Mask: $($NetworkOption.SubnetMask)`r`nMasquerade IP: $($NetworkOption.MasqueradeIPAddress)`r`nDNS Server: $($NetworkOption.DNSServer)"
                                                                         }
 
-                                                                        $OutObj += [pscustomobject]$inobj
+                                                                        $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                                                                     }
 
                                                                     $TableParams = @{
@@ -215,10 +215,10 @@ function Get-AbrVbrSureBackup {
                                                                                 'Production Network' = $NetworkOption.ProductionNetwork.Name
                                                                                 'Isolated IP Address' = $NetworkOption.IsolatedIPAddress
                                                                                 'Access IP Address' = $NetworkOption.AccessIPAddress
-                                                                                'Notes' = ConvertTo-EmptyToFiller $NetworkOption.Note
+                                                                                'Notes' = $NetworkOption.Note
                                                                             }
 
-                                                                            $OutObj += [pscustomobject]$inobj
+                                                                            $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                                                                         }
 
                                                                         if ($HealthCheck.Infrastructure.BestPractice) {
@@ -272,14 +272,14 @@ function Get-AbrVbrSureBackup {
                                                             $inObj = [ordered] @{
                                                                 'Host' = $SureBackupHvVLC.Server.Info.DNSName
                                                                 'Path' = $SureBackupHvVLC.Path
-                                                                'Proxy Appliance Enabled' = ConvertTo-TextYN $SureBackupHvVLC.ProxyApplianceEnabled
+                                                                'Proxy Appliance Enabled' = $SureBackupHvVLC.ProxyApplianceEnabled
                                                                 'Proxy Appliance' = $SureBackupHvVLC.ProxyAppliance
                                                                 'Networking Type' = $SureBackupHvVLC.Type
                                                                 'Isolated Network' = $SureBackupHvVLC.IsolatedNetworkOptions.IsolatedNetworkName
-                                                                'Static IP Mapping' = ConvertTo-TextYN $SureBackupHvVLC.StaticIPMappingEnabled
+                                                                'Static IP Mapping' = $SureBackupHvVLC.StaticIPMappingEnabled
                                                             }
 
-                                                            $OutObj += [pscustomobject]$inobj
+                                                            $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                             $TableParams = @{
                                                                 Name = "Virtual Lab Settings - $($SureBackupHvVLC.Name)"
@@ -297,11 +297,11 @@ function Get-AbrVbrSureBackup {
                                                                         $inObj = [ordered] @{
                                                                             'Isolated Network' = $NetworkOption.IsolatedNetworkName
                                                                             'VLAN ID' = $NetworkOption.IsolatedNetworkVLanID
-                                                                            'DHCP Enabled' = ConvertTo-TextYN $NetworkOption.DHCPEnabled
+                                                                            'DHCP Enabled' = $NetworkOption.DHCPEnabled
                                                                             'Network Properties' = "IP Address: $($NetworkOption.IPAddress)`r`nSubnet Mask: $($NetworkOption.SubnetMask)`r`nMasquerade IP: $($NetworkOption.MasqueradeIPAddress)`r`nDNS Server: $($NetworkOption.DNSServer)"
                                                                         }
 
-                                                                        $OutObj += [pscustomobject]$inobj
+                                                                        $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                                                                     }
 
                                                                     $TableParams = @{
@@ -329,7 +329,7 @@ function Get-AbrVbrSureBackup {
                                                                                 'Notes' = $NetworkOption.Note
                                                                             }
 
-                                                                            $OutObj += [pscustomobject]$inobj
+                                                                            $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                                                                         }
 
                                                                         if ($HealthCheck.Infrastructure.BestPractice) {

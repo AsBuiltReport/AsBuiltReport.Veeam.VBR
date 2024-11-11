@@ -6,7 +6,7 @@ function Get-AbrVbrAgentBackupjob {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.7
+        Version:        0.8.12
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -40,7 +40,7 @@ function Get-AbrVbrAgentBackupjob {
                                 'OS Platform' = $ABkjob.OSPlatform
                                 'Backup Object' = $ABkjob.BackupObject
                             }
-                            $OutObj += [pscustomobject]$inobj
+                            $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                         } catch {
                             Write-PScriboMessage -IsWarning "Agent Backup Jobs $($ABkjob.Name) Section: $($_.Exception.Message)"
                         }

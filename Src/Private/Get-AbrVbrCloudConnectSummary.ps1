@@ -5,7 +5,7 @@ function Get-AbrVbrCloudConnectSummary {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.6
+        Version:        0.8.12
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -42,7 +42,7 @@ function Get-AbrVbrCloudConnectSummary {
                     'Public IP Addresses' = $CloudConnectPublicIP.Count
                     'Hardware Plans' = $CloudConnectRR.Count
                 }
-                $OutObj += [pscustomobject]$inobj
+                $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
             } catch {
                 Write-PScriboMessage -IsWarning "Cloud Connect Summary Section: $($_.Exception.Message)"
             }

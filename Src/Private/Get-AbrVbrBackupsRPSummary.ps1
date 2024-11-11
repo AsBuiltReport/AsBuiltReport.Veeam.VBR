@@ -5,7 +5,7 @@ function Get-AbrVbrBackupsRPSummary {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.11
+        Version:        0.8.12
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -64,7 +64,7 @@ function Get-AbrVbrBackupsRPSummary {
                                 'Average Full Duration' = $FullDurationAvg
                                 'Average Increment Duration ' = $IncrementDurationAvg
                             }
-                            $RestorePointInfo += [PSCustomObject]$InObj
+                            $RestorePointInfo += [pscustomobject](ConvertTo-HashToYN $inObj)
 
                         } catch {
                             Write-PScriboMessage -IsWarning "Restore Point table: $($_.Exception.Message)"

@@ -6,7 +6,7 @@ function Get-AbrVbrBackupProxy {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.11
+        Version:        0.8.12
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -43,14 +43,14 @@ function Get-AbrVbrBackupProxy {
                                             'Name' = $BackupProxy.Name
                                             'Type' = $BackupProxy.Type
                                             'Max Tasks Count' = $BackupProxy.MaxTasksCount
-                                            'Disabled' = ConvertTo-TextYN $BackupProxy.IsDisabled
+                                            'Disabled' = $BackupProxy.IsDisabled
                                             'Status' = Switch (($BackupProxy.Host).IsUnavailable) {
                                                 'False' { 'Available' }
                                                 'True' { 'Unavailable' }
                                                 default { ($BackupProxy.Host).IsUnavailable }
                                             }
                                         }
-                                        $OutObj += [pscustomobject]$inobj
+                                        $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                                     }
 
                                     if ($HealthCheck.Infrastructure.Proxy) {
@@ -75,21 +75,21 @@ function Get-AbrVbrBackupProxy {
                                             'Name' = $BackupProxy.Name
                                             'Host Name' = $BackupProxy.Host.Name
                                             'Type' = $BackupProxy.Type
-                                            'Disabled' = ConvertTo-TextYN $BackupProxy.IsDisabled
+                                            'Disabled' = $BackupProxy.IsDisabled
                                             'Max Tasks Count' = $BackupProxy.MaxTasksCount
-                                            'Use Ssl' = ConvertTo-TextYN $BackupProxy.UseSsl
-                                            'Failover To Network' = ConvertTo-TextYN $BackupProxy.FailoverToNetwork
+                                            'Use Ssl' = $BackupProxy.UseSsl
+                                            'Failover To Network' = $BackupProxy.FailoverToNetwork
                                             'Transport Mode' = $BackupProxy.TransportMode
                                             'Chassis Type' = $BackupProxy.ChassisType
                                             'OS Type' = $BackupProxy.Host.Type
-                                            'Services Credential' = ConvertTo-EmptyToFiller $BackupProxy.Host.ProxyServicesCreds.Name
+                                            'Services Credential' = $BackupProxy.Host.ProxyServicesCreds.Name
                                             'Status' = Switch (($BackupProxy.Host).IsUnavailable) {
                                                 'False' { 'Available' }
                                                 'True' { 'Unavailable' }
                                                 default { ($BackupProxy.Host).IsUnavailable }
                                             }
                                         }
-                                        $OutObj = [pscustomobject]$inobj
+                                        $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                         if ($HealthCheck.Infrastructure.Proxy) {
                                             $OutObj | Where-Object { $_.'Status' -eq 'Unavailable' } | Set-Style -Style Warning -Property 'Status'
@@ -161,7 +161,7 @@ function Get-AbrVbrBackupProxy {
                                                                 'Number of Logical Cores' = $HWCPU[0].NumberOfLogicalProcessors
                                                                 'Physical Memory (GB)' = ConvertTo-FileSizeString -Size $HW.CsTotalPhysicalMemory
                                                             }
-                                                            $OutObj += [pscustomobject]$inobj
+                                                            $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                             if ($HealthCheck.Infrastructure.Server) {
                                                                 $OutObj | Where-Object { $_.'Number of CPU Cores' -lt 4 } | Set-Style -Style Warning -Property 'Number of CPU Cores'
@@ -372,7 +372,7 @@ function Get-AbrVbrBackupProxy {
                                                     Write-PScriboMessage -IsWarning "VMware Backup Proxies Section: $($_.Exception.Message)"
                                                 }
                                             } else {
-                                                Write-PScriboMessage -IsWarning "VMware Backup Proxies Section: Unable to connect to $($BackupProxies.Host.Name) throuth WinRM, disabling section"
+                                                Write-PScriboMessage -IsWarning "VMware Backup Proxies Section: Unable to connect to $($BackupProxies.Host.Name) throuth WinRM, removing server from Hardware Inventory section"
                                             }
                                         }
                                         if ($vSphereVBProxyObj) {
@@ -421,7 +421,7 @@ function Get-AbrVbrBackupProxy {
                                                                         'Short Name' = $Service.Name
                                                                         'Status' = $Service.Status
                                                                     }
-                                                                    $OutObj += [pscustomobject]$inobj
+                                                                    $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                                                                 }
 
                                                                 if ($HealthCheck.Infrastructure.Server) {
@@ -444,7 +444,7 @@ function Get-AbrVbrBackupProxy {
                                                     Write-PScriboMessage -IsWarning "VMware Backup Proxies $($BackupProxy.Host.Name) Services Status Section: $($_.Exception.Message)"
                                                 }
                                             } else {
-                                                Write-PScriboMessage -IsWarning "VMware Backup Proxies Section: Unable to connect to $($BackupProxies.Host.Name) throuth WinRM, disabling section"
+                                                Write-PScriboMessage -IsWarning "VMware Backup Proxies Section: Unable to connect to $($BackupProxies.Host.Name) throuth WinRM, removing server from Veeam Services section"
                                             }
                                         }
                                     }
@@ -490,14 +490,14 @@ function Get-AbrVbrBackupProxy {
                                                 'Name' = $BackupProxy.Name
                                                 'Type' = $BackupProxy.Type
                                                 'Max Tasks Count' = $BackupProxy.MaxTasksCount
-                                                'Disabled' = ConvertTo-TextYN $BackupProxy.IsDisabled
+                                                'Disabled' = $BackupProxy.IsDisabled
                                                 'Status' = Switch (($BackupProxy.Host).IsUnavailable) {
                                                     'False' { 'Available' }
                                                     'True' { 'Unavailable' }
                                                     default { ($BackupProxy.Host).IsUnavailable }
                                                 }
                                             }
-                                            $OutObj += [pscustomobject]$inobj
+                                            $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                                         } catch {
                                             Write-PScriboMessage -IsWarning "Hyper-V Backup Proxies $($BackupProxy.Name) Section: $($_.Exception.Message)"
                                         }
@@ -528,18 +528,18 @@ function Get-AbrVbrBackupProxy {
                                                 'Name' = $BackupProxy.Name
                                                 'Host Name' = $BackupProxy.Host.Name
                                                 'Type' = $BackupProxy.Type
-                                                'Disabled' = ConvertTo-TextYN $BackupProxy.IsDisabled
+                                                'Disabled' = $BackupProxy.IsDisabled
                                                 'Max Tasks Count' = $BackupProxy.MaxTasksCount
-                                                'AutoDetect Volumes' = ConvertTo-TextYN $BackupProxy.Options.IsAutoDetectVolumes
+                                                'AutoDetect Volumes' = $BackupProxy.Options.IsAutoDetectVolumes
                                                 'OS Type' = $BackupProxy.Host.Type
-                                                'Services Credential' = ConvertTo-EmptyToFiller $BackupProxy.Host.ProxyServicesCreds.Name
+                                                'Services Credential' = $BackupProxy.Host.ProxyServicesCreds.Name
                                                 'Status' = Switch (($BackupProxy.Host).IsUnavailable) {
                                                     'False' { 'Available' }
                                                     'True' { 'Unavailable' }
                                                     default { ($BackupProxy.Host).IsUnavailable }
                                                 }
                                             }
-                                            $OutObj = [pscustomobject]$inobj
+                                            $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                             if ($HealthCheck.Infrastructure.Proxy) {
                                                 $OutObj | Where-Object { $_.'Status' -eq 'Unavailable' } | Set-Style -Style Warning -Property 'Status'
@@ -613,7 +613,7 @@ function Get-AbrVbrBackupProxy {
                                                                     'Number of Logical Cores' = $HWCPU[0].NumberOfLogicalProcessors
                                                                     'Physical Memory (GB)' = ConvertTo-FileSizeString -Size $HW.CsTotalPhysicalMemory
                                                                 }
-                                                                $OutObj += [pscustomobject]$inobj
+                                                                $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                                 if ($HealthCheck.Infrastructure.Server) {
                                                                     $OutObj | Where-Object { $_.'Number of CPU Cores' -lt 4 } | Set-Style -Style Warning -Property 'Number of CPU Cores'
@@ -827,7 +827,7 @@ function Get-AbrVbrBackupProxy {
                                                         Write-PScriboMessage -IsWarning "Hyper-V Backup Proxies Hardware & Software Inventory Section: $($_.Exception.Message)"
                                                     }
                                                 } else {
-                                                    Write-PScriboMessage -IsWarning "Hyper-V Backup Proxies Section: Unable to connect to $($BackupProxies.Host.Name) throuth WinRM, disabling section"
+                                                    Write-PScriboMessage -IsWarning "Hyper-V Backup Proxies Section: Unable to connect to $($BackupProxies.Host.Name) throuth WinRM, removing server from Hardware Inventory section"
                                                 }
                                             }
                                             if ($HyperVBProxyObj) {
@@ -875,7 +875,7 @@ function Get-AbrVbrBackupProxy {
                                                                             'Short Name' = $Service.Name
                                                                             'Status' = $Service.Status
                                                                         }
-                                                                        $OutObj += [pscustomobject]$inobj
+                                                                        $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                                                                     }
 
                                                                     if ($HealthCheck.Infrastructure.Server) {
@@ -898,7 +898,7 @@ function Get-AbrVbrBackupProxy {
                                                         Write-PScriboMessage -IsWarning "Hyper-V Backup Proxies Services Status - $($BackupProxy.Host.Name.Split(".")[0]) Section: $($_.Exception.Message)"
                                                     }
                                                 } else {
-                                                    Write-PScriboMessage -IsWarning "Hyper-V Backup Proxies Section: Unable to connect to $($BackupProxies.Host.Name) throuth WinRM, disabling section"
+                                                    Write-PScriboMessage -IsWarning "Hyper-V Backup Proxies Section: Unable to connect to $($BackupProxies.Host.Name) throuth WinRM, removing server from Veeam Services section"
                                                 }
                                             }
                                         }

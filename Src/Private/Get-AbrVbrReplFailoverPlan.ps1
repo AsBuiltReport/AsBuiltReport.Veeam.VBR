@@ -6,7 +6,7 @@ function Get-AbrVbrReplFailoverPlan {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.7
+        Version:        0.8.12
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -35,14 +35,14 @@ function Get-AbrVbrReplFailoverPlan {
                             $inObj = [ordered] @{
                                 'Platform' = $FailOverPlan.Platform
                                 'Status' = $FailOverPlan.Status
-                                'Pre Failover Script Enabled' = ConvertTo-TextYN $FailOverPlan.PreFailoverScriptEnabled
-                                'Pre Failover Command' = ConvertTo-EmptyToFiller $FailOverPlan.PrefailoverCommand
-                                'Post Failover Script Enabled' = ConvertTo-TextYN $FailOverPlan.PostFailoverScriptEnabled
-                                'Post Failover Command' = ConvertTo-EmptyToFiller $FailOverPlan.PostfailoverCommand
+                                'Pre Failover Script Enabled' = $FailOverPlan.PreFailoverScriptEnabled
+                                'Pre Failover Command' = $FailOverPlan.PrefailoverCommand
+                                'Post Failover Script Enabled' = $FailOverPlan.PostFailoverScriptEnabled
+                                'Post Failover Command' = $FailOverPlan.PostfailoverCommand
                                 'VM Count' = $FailOverPlan.VmCount
                                 'Description' = $FailOverPlan.Description
                             }
-                            $OutObj = [pscustomobject]$inobj
+                            $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                             if ($HealthCheck.Replication.Status) {
                                 $OutObj | Where-Object { $_.'Status' -ne 'Ready' } | Set-Style -Style Warning -Property 'Status'
@@ -98,7 +98,7 @@ function Get-AbrVbrReplFailoverPlan {
                                                         'Boot Order' = $FailOverPlansVM.BootOrder
                                                         'Boot Delay' = $FailOverPlansVM.BootDelay
                                                     }
-                                                    $OutObj += [pscustomobject]$inobj
+                                                    $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                                                 } catch {
                                                     Write-PScriboMessage -IsWarning "Virtual Machines $($VMInfo.Name) Section: $($_.Exception.Message)"
                                                 }

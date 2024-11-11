@@ -6,7 +6,7 @@ function Get-AbrVbrAgentBackupjobConf {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.7
+        Version:        0.8.12
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -53,7 +53,7 @@ function Get-AbrVbrAgentBackupjobConf {
                                                 'False' { 'Normal Priority' }
                                             }
                                         }
-                                        $OutObj = [pscustomobject]$inobj
+                                        $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                         if ($HealthCheck.Jobs.BestPractice) {
                                             $OutObj | Where-Object { $Null -like $_.'Description' } | Set-Style -Style Warning -Property 'Description'
@@ -96,7 +96,7 @@ function Get-AbrVbrAgentBackupjobConf {
                                                         $Null { 'Computer' }
                                                         default { $BackupObject.Type }
                                                     }
-                                                    'Enabled' = ConvertTo-TextYN $BackupObject.Enabled
+                                                    'Enabled' = $BackupObject.Enabled
                                                     'Container' = Switch ($BackupObject.Container) {
                                                         $Null { 'Individual Computer' }
                                                         'ActiveDirectory' { 'Active Directory' }
@@ -105,7 +105,7 @@ function Get-AbrVbrAgentBackupjobConf {
                                                         default { $BackupObject.Container }
                                                     }
                                                 }
-                                                $OutObj += [pscustomobject]$inobj
+                                                $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                                             } catch {
                                                 Write-PScriboMessage -IsWarning "Agent Backup Jobs Protected Computers Section: $($_.Exception.Message)"
                                             }
@@ -137,7 +137,7 @@ function Get-AbrVbrAgentBackupjobConf {
                                                 }
                                             }
                                             if ($ABkjob.BackupType -eq 'EntireComputer') {
-                                                $inObj.add('Include external USB drives', (ConvertTo-TextYN $ABkjob.UsbDrivesIncluded))
+                                                $inObj.add('Include external USB drives', ($ABkjob.UsbDrivesIncluded))
                                             } elseif ($ABkjob.BackupType -eq 'SelectedVolumes') {
                                                 if ($Null -ne $ABkjob.SelectedVolumes.Path) {
                                                     $inObj.add('Backup the following volumes only', ($ABkjob.SelectedVolumes.Path -join ', '))
@@ -146,12 +146,12 @@ function Get-AbrVbrAgentBackupjobConf {
                                                 }
 
                                             } elseif ($ABkjob.BackupType -eq 'SelectedFiles') {
-                                                $inObj.add('Backup Operating System Files', (ConvertTo-TextYN $ABkjob.SelectedFilesOptions.BackupOS))
-                                                $inObj.add('Backup Personal Files', (ConvertTo-TextYN $ABkjob.SelectedFilesOptions.BackupPersonalFiles))
+                                                $inObj.add('Backup Operating System Files', ($ABkjob.SelectedFilesOptions.BackupOS))
+                                                $inObj.add('Backup Personal Files', ($ABkjob.SelectedFilesOptions.BackupPersonalFiles))
                                                 if ($ABkjob.SelectedFilesOptions.BackupPersonalFiles -eq $TRUE) {
-                                                    $inObj.add('User Profile Folder to Backup', ("Desktop: $(ConvertTo-TextYN $ABkjob.SelectedFilesOptions.SelectedPersonalFolders.Desktop),`r`nDocuments: $(ConvertTo-TextYN $ABkjob.SelectedFilesOptions.SelectedPersonalFolders.Documents),`r`nPictures: $(ConvertTo-TextYN $ABkjob.SelectedFilesOptions.SelectedPersonalFolders.Pictures),`r`nVideo: $(ConvertTo-TextYN $ABkjob.SelectedFilesOptions.SelectedPersonalFolders.Video),`r`nFavorites: $(ConvertTo-TextYN $ABkjob.SelectedFilesOptions.SelectedPersonalFolders.Favorites),`r`nDownloads: $(ConvertTo-TextYN $ABkjob.SelectedFilesOptions.SelectedPersonalFolders.Downloads),`r`nApplicationData: $(ConvertTo-TextYN $ABkjob.SelectedFilesOptions.SelectedPersonalFolders.ApplicationData),`r`nOther Files and Folders: $(ConvertTo-TextYN $ABkjob.SelectedFilesOptions.SelectedPersonalFolders.Custom),`r`nExclude Roaming Profile: $(ConvertTo-TextYN $ABkjob.SelectedFilesOptions.SelectedPersonalFolders.ExcludeRoamingUsers)"))
+                                                    $inObj.add('User Profile Folder to Backup', ("Desktop: $($ABkjob.SelectedFilesOptions.SelectedPersonalFolders.Desktop),`r`nDocuments: $($ABkjob.SelectedFilesOptions.SelectedPersonalFolders.Documents),`r`nPictures: $($ABkjob.SelectedFilesOptions.SelectedPersonalFolders.Pictures),`r`nVideo: $($ABkjob.SelectedFilesOptions.SelectedPersonalFolders.Video),`r`nFavorites: $($ABkjob.SelectedFilesOptions.SelectedPersonalFolders.Favorites),`r`nDownloads: $($ABkjob.SelectedFilesOptions.SelectedPersonalFolders.Downloads),`r`nApplicationData: $($ABkjob.SelectedFilesOptions.SelectedPersonalFolders.ApplicationData),`r`nOther Files and Folders: $($ABkjob.SelectedFilesOptions.SelectedPersonalFolders.Custom),`r`nExclude Roaming Profile: $($ABkjob.SelectedFilesOptions.SelectedPersonalFolders.ExcludeRoamingUsers)"))
                                                 }
-                                                $inObj.add('Backup File System Files', (ConvertTo-TextYN $ABkjob.SelectedFilesOptions.BackupSelectedFiles))
+                                                $inObj.add('Backup File System Files', ($ABkjob.SelectedFilesOptions.BackupSelectedFiles))
                                                 if ($Null -ne $ABkjob.SelectedFilesOptions.SelectedFiles) {
                                                     $inObj.add('Files System Path', ($ABkjob.SelectedFilesOptions.SelectedFiles -join ', '))
                                                 }
@@ -162,10 +162,10 @@ function Get-AbrVbrAgentBackupjobConf {
                                                     $inObj.add('Filter Files (Exclude Mask)', ($ABkjob.SelectedFilesOptions.ExcludeMask))
                                                 }
                                                 if ($ABkjob.SelectedFilesOptions.BackupPersonalFiles -eq $TRUE) {
-                                                    $inObj.add('Exclude Microsoft Onedrive Folders', (ConvertTo-TextYN $ABkjob.SelectedFilesOptions.SelectedPersonalFolders.ExcludeOneDrive))
+                                                    $inObj.add('Exclude Microsoft Onedrive Folders', ($ABkjob.SelectedFilesOptions.SelectedPersonalFolders.ExcludeOneDrive))
                                                 }
                                             }
-                                            $OutObj += [pscustomobject]$inobj
+                                            $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                                         } catch {
                                             Write-PScriboMessage -IsWarning "Agent Backup Jobs Backup Mode Section: $($_.Exception.Message)"
                                         }
@@ -233,18 +233,18 @@ function Get-AbrVbrAgentBackupjobConf {
                                                 } elseif ($ABkjob.DestinationOptions.DestinationType -eq 'NetworkFolder') {
                                                     $inObj.add('Shared Folder', ($ABkjob.DestinationOptions.NetworkFolderPath))
                                                     $inObj.add('Target Share Type', ($ABkjob.DestinationOptions.TargetShareType))
-                                                    $inObj.add('Use Network Credentials', (ConvertTo-TextYN $ABkjob.DestinationOptions.UseNetworkCredentials))
+                                                    $inObj.add('Use Network Credentials', ($ABkjob.DestinationOptions.UseNetworkCredentials))
                                                     if ($ABkjob.DestinationOptions.UseNetworkCredentials) {
                                                         $inObj.add('Credentials', ($ABkjob.DestinationOptions.NetworkCredentials.Name))
                                                     }
                                                 }
                                                 if ($ABkjob.GFSRetentionEnabled) {
-                                                    $inObj.add('Keep certain full backup longer for archival purposes (GFS)', (ConvertTo-TextYN $ABkjob.GFSRetentionEnabled))
+                                                    $inObj.add('Keep certain full backup longer for archival purposes (GFS)', ($ABkjob.GFSRetentionEnabled))
                                                     $inObj.add('Keep Weekly full backup for', ("$($ABkjob.GFSOptions.WeeklyOptions.RetentionPeriod) weeks,`r`nIf multiple backup exist use the one from: $($ABkjob.GFSOptions.WeeklyOptions.SelectedDay)"))
                                                     $inObj.add('Keep Monthly full backup for', ("$($ABkjob.GFSOptions.MonthlyOptions.RetentionPeriod) months,`r`nUse weekly full backup from the following week of the month: $($ABkjob.GFSOptions.MonthlyOptions.SelectedWeek)"))
                                                     $inObj.add('Keep Yearly full backup for', ("$($ABkjob.GFSOptions.YearlyOptions.RetentionPeriod) years,`r`nUse monthly full backup from the following month: $($ABkjob.GFSOptions.YearlyOptions.SelectedMonth)"))
                                                 }
-                                                $OutObj += [pscustomobject]$inobj
+                                                $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                                             } catch {
                                                 Write-PScriboMessage -IsWarning "Agent Backup Jobs Destination Section: $($_.Exception.Message)"
                                             }
@@ -271,7 +271,7 @@ function Get-AbrVbrAgentBackupjobConf {
                                                                 'State' = $SecondaryTarget.info.LatestStatus
                                                                 'Description' = $SecondaryTarget.Description
                                                             }
-                                                            $OutObj += [pscustomobject]$inobj
+                                                            $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                                                         }
 
                                                         $TableParams = @{
@@ -332,18 +332,18 @@ function Get-AbrVbrAgentBackupjobConf {
                                                 } elseif ($ABkjob.DestinationOptions.DestinationType -eq 'NetworkFolder') {
                                                     $inObj.add('Shared Folder', ($ABkjob.DestinationOptions.NetworkFolderPath))
                                                     $inObj.add('Target Share Type', ($ABkjob.DestinationOptions.TargetShareType))
-                                                    $inObj.add('Use Network Credentials', (ConvertTo-TextYN $ABkjob.DestinationOptions.UseNetworkCredentials))
+                                                    $inObj.add('Use Network Credentials', ($ABkjob.DestinationOptions.UseNetworkCredentials))
                                                     if ($ABkjob.DestinationOptions.UseNetworkCredentials) {
                                                         $inObj.add('Credentials', ($ABkjob.DestinationOptions.NetworkCredentials.Name))
                                                     }
                                                 }
                                                 if ($ABkjob.GFSRetentionEnabled) {
-                                                    $inObj.add('Keep certain full backup longer for archival purposes (GFS)', (ConvertTo-TextYN $ABkjob.GFSRetentionEnabled))
+                                                    $inObj.add('Keep certain full backup longer for archival purposes (GFS)', ($ABkjob.GFSRetentionEnabled))
                                                     $inObj.add('Keep Weekly full backup for', ("$($ABkjob.GFSOptions.WeeklyOptions.RetentionPeriod) weeks,`r`nIf multiple backup exist use the one from: $($ABkjob.GFSOptions.WeeklyOptions.SelectedDay)"))
                                                     $inObj.add('Keep Monthly full backup for', ("$($ABkjob.GFSOptions.MonthlyOptions.RetentionPeriod) months,`r`nUse weekly full backup from the following week of the month: $($ABkjob.GFSOptions.MonthlyOptions.SelectedWeek)"))
                                                     $inObj.add('Keep Yearly full backup for', ("$($ABkjob.GFSOptions.YearlyOptions.RetentionPeriod) years,`r`nUse monthly full backup from the following month: $($ABkjob.GFSOptions.YearlyOptions.SelectedMonth)"))
                                                 }
-                                                $OutObj += [pscustomobject]$inobj
+                                                $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                                             } catch {
                                                 Write-PScriboMessage -IsWarning "Agent Backup Jobs Destination Section: $($_.Exception.Message)"
                                             }
@@ -370,7 +370,7 @@ function Get-AbrVbrAgentBackupjobConf {
                                                                 'State' = $SecondaryTarget.info.LatestStatus
                                                                 'Description' = $SecondaryTarget.Description
                                                             }
-                                                            $OutObj += [pscustomobject]$inobj
+                                                            $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                                                         }
 
                                                         $TableParams = @{
@@ -396,13 +396,13 @@ function Get-AbrVbrAgentBackupjobConf {
                                                         Write-PScriboMessage "Discovered $($ABkjob.Name) backup options."
 
                                                         $inObj = [ordered] @{
-                                                            'Syntethic Full Backup' = ConvertTo-TextYN $ABkjob.SyntheticFullOptions.Enabled
+                                                            'Syntethic Full Backup' = $ABkjob.SyntheticFullOptions.Enabled
                                                         }
                                                         if ($ABkjob.SyntheticFullOptions.Enabled) {
                                                             $inObj.add('Create Syntethic on Days', $ABkjob.SyntheticFullOptions.Days -join ", ")
                                                         }
                                                         $inObj += [ordered] @{
-                                                            'Active Full Backup' = ConvertTo-TextYN $ABkjob.ActiveFullOptions.Enabled
+                                                            'Active Full Backup' = $ABkjob.ActiveFullOptions.Enabled
                                                         }
                                                         if ($ABkjob.ActiveFullOptions.ScheduleType -eq 'Weekly' -and $ABkjob.ActiveFullOptions.Enabled) {
                                                             $inObj.add('Active Full Backup Schedule Type', $ABkjob.ActiveFullOptions.ScheduleType)
@@ -413,7 +413,7 @@ function Get-AbrVbrAgentBackupjobConf {
                                                             $inObj.add('Active Full Backup Monthly on', "Day Number In Month: $($ABkjob.ActiveFullOptions.DayNumber)`r`nDay Of Week: $($ABkjob.ActiveFullOptions.DayOfWeek)`r`nDay of Month: $($ABkjob.ActiveFullOptions.DayOfMonth)`r`nMonths: $($ABkjob.ActiveFullOptions.SelectedMonths)")
                                                         }
 
-                                                        $OutObj += [pscustomobject]$inObj
+                                                        $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                         $TableParams = @{
                                                             Name = "Advanced Settings (Backup) - $($ABkjob.Name)"
@@ -438,7 +438,7 @@ function Get-AbrVbrAgentBackupjobConf {
                                                         Write-PScriboMessage "Discovered $($ABkjob.Name) maintenance options."
 
                                                         $inObj = [ordered] @{
-                                                            'Storage-Level Corruption Guard (SLCG)' = ConvertTo-TextYN $ABkjob.HealthCheckOptions.Enabled
+                                                            'Storage-Level Corruption Guard (SLCG)' = $ABkjob.HealthCheckOptions.Enabled
                                                         }
                                                         if ($ABkjob.HealthCheckOptions.Enabled) {
                                                             $inObj.add('SLCG Schedule Type', $ABkjob.HealthCheckOptions.ScheduleType)
@@ -449,7 +449,7 @@ function Get-AbrVbrAgentBackupjobConf {
                                                         }
 
                                                         $inObj += [ordered] @{
-                                                            'Defragment and Compact Full Backup (DCFB)' = ConvertTo-TextYN $ABkjob.CompactFullOptions.Enabled
+                                                            'Defragment and Compact Full Backup (DCFB)' = $ABkjob.CompactFullOptions.Enabled
                                                         }
                                                         if ($ABkjob.CompactFullOptions.Enabled) {
                                                             $inObj.add('DCFB Schedule Type', $ABkjob.CompactFullOptions.ScheduleType)
@@ -458,7 +458,7 @@ function Get-AbrVbrAgentBackupjobConf {
                                                         if ($ABkjob.CompactFullOptions.ScheduleType -ne 'Weekly' -and $ABkjob.CompactFullOptions.Enabled) {
                                                             $inObj.add('DCFB Backup Monthly Schedule', "Day Of Week: $($ABkjob.CompactFullOptions.DayOfWeek)`r`nDay Number In Month: $($ABkjob.CompactFullOptions.DayNumber)`r`nDay of Month: $($ABkjob.CompactFullOptions.DayOfMonth)`r`nMonths: $($ABkjob.CompactFullOptions.SelectedMonths)")
                                                         }
-                                                        $OutObj += [pscustomobject]$inObj
+                                                        $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                         if ($HealthCheck.Jobs.BestPractice) {
                                                             $OutObj | Where-Object { $_.'Storage-Level Corruption Guard (SLCG)' -eq "No" } | Set-Style -Style Warning -Property 'Storage-Level Corruption Guard (SLCG)'
@@ -498,13 +498,13 @@ function Get-AbrVbrAgentBackupjobConf {
                                                     $inObj = [ordered] @{
                                                         'Compression Level' = $ABkjob.StorageOptions.CompressionLevel
                                                         'Storage optimization' = $ABkjob.StorageOptions.StorageOptimizationType
-                                                        'Enabled Backup File Encryption' = ConvertTo-TextYN $ABkjob.StorageOptions.EncryptionEnabled
+                                                        'Enabled Backup File Encryption' = $ABkjob.StorageOptions.EncryptionEnabled
                                                         'Encryption Key' = Switch ($ABkjob.StorageOptions.EncryptionEnabled) {
                                                             $false { 'None' }
                                                             default { (Get-VBREncryptionKey | Where-Object { $_.id -eq $ABkjob.StorageOptions.EncryptionKey.Id }).Description }
                                                         }
                                                     }
-                                                    $OutObj = [pscustomobject]$inobj
+                                                    $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                     if ($HealthCheck.Jobs.BestPractice) {
                                                         $OutObj | Where-Object { $_.'Enabled Backup File Encryption' -eq 'No' } | Set-Style -Style Warning -Property 'Enabled Backup File Encryption'
@@ -539,19 +539,19 @@ function Get-AbrVbrAgentBackupjobConf {
                                                     $OutObj = @()
                                                     Write-PScriboMessage "Discovered $($ABkjob.Name) notification options."
                                                     $inObj = [ordered] @{
-                                                        'Send Snmp Notification' = ConvertTo-TextYN $ABkjob.NotificationOptions.EnableSnmpNotification
-                                                        'Send Email Notification' = ConvertTo-TextYN $ABkjob.NotificationOptions.EnableAdditionalNotification
+                                                        'Send Snmp Notification' = $ABkjob.NotificationOptions.EnableSnmpNotification
+                                                        'Send Email Notification' = $ABkjob.NotificationOptions.EnableAdditionalNotification
                                                     }
                                                     if ($ABkjob.NotificationOptions.EnableAdditionalNotification) {
                                                         $inObj.add('Email Notification Additional Addresses', $ABkjob.NotificationOptions.AdditionalAddress)
-                                                        $inObj.add('Use Custom Email Notification Options', (ConvertTo-TextYN $ABkjob.NotificationOptions.UseNotificationOptions))
+                                                        $inObj.add('Use Custom Email Notification Options', ($ABkjob.NotificationOptions.UseNotificationOptions))
                                                         $inObj.add('Use Custom Notification Setting', $ABkjob.NotificationOptions.NotificationSubject)
-                                                        $inObj.add('Notify On Success', (ConvertTo-TextYN $ABkjob.NotificationOptions.NotifyOnSuccess))
-                                                        $inObj.add('Notify On Warning', (ConvertTo-TextYN $ABkjob.NotificationOptions.NotifyOnWarning))
-                                                        $inObj.add('Notify On Error', (ConvertTo-TextYN $ABkjob.NotificationOptions.NotifyOnError))
-                                                        $inObj.add('Suppress Notification until Last Retry', (ConvertTo-TextYN $ABkjob.NotificationOptions.NotifyOnLastRetryOnly))
+                                                        $inObj.add('Notify On Success', ($ABkjob.NotificationOptions.NotifyOnSuccess))
+                                                        $inObj.add('Notify On Warning', ($ABkjob.NotificationOptions.NotifyOnWarning))
+                                                        $inObj.add('Notify On Error', ($ABkjob.NotificationOptions.NotifyOnError))
+                                                        $inObj.add('Suppress Notification until Last Retry', ($ABkjob.NotificationOptions.NotifyOnLastRetryOnly))
                                                     }
-                                                    $OutObj = [pscustomobject]$inobj
+                                                    $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                     $TableParams = @{
                                                         Name = "Advanced Settings (Notification) - $($ABkjob.Name)"
@@ -572,16 +572,16 @@ function Get-AbrVbrAgentBackupjobConf {
                                                         $OutObj = @()
                                                         Write-PScriboMessage "Discovered $($ABkjob.Name) Integration options."
                                                         $inObj = [ordered] @{
-                                                            'Enable Backup from Storage Snapshots' = ConvertTo-TextYN $ABkjob.SanIntegrationOptions.SanSnapshotsEnabled
+                                                            'Enable Backup from Storage Snapshots' = $ABkjob.SanIntegrationOptions.SanSnapshotsEnabled
                                                         }
                                                         if ($ABkjob.SanIntegrationOptions.SanSnapshotsEnabled) {
-                                                            $inObj.add('Failover to On-Host Backup agent', (ConvertTo-TextYN $ABkjob.SanIntegrationOptions.FailoverFromSanEnabled))
-                                                            $inObj.add('Off-host Backup Proxy Automatic Selection', (ConvertTo-TextYN $ABkjob.SanIntegrationOptions.SanProxyAutodetectEnabled))
+                                                            $inObj.add('Failover to On-Host Backup agent', ($ABkjob.SanIntegrationOptions.FailoverFromSanEnabled))
+                                                            $inObj.add('Off-host Backup Proxy Automatic Selection', ($ABkjob.SanIntegrationOptions.SanProxyAutodetectEnabled))
                                                         }
                                                         if (!$ABkjob.SanIntegrationOptions.SanProxyAutodetectEnabled) {
                                                             $inObj.add('Off-host Backup Proxy Server', $ABkjob.SanIntegrationOptions.Proxy.Server.Name)
                                                         }
-                                                        $OutObj = [pscustomobject]$inobj
+                                                        $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                         $TableParams = @{
                                                             Name = "Advanced Settings (Integration) - $($ABkjob.Name)"
@@ -610,10 +610,10 @@ function Get-AbrVbrAgentBackupjobConf {
                                                         }
                                                         Write-PScriboMessage "Discovered $($ABkjob.Name) script options."
                                                         $inObj = [ordered] @{
-                                                            'Run the Following Script Before' = ConvertTo-TextYN $ABkjob.ScriptOptions.PreScriptEnabled
+                                                            'Run the Following Script Before' = $ABkjob.ScriptOptions.PreScriptEnabled
                                                         }
                                                         $inObj += [ordered] @{
-                                                            'Run the Following Script After' = ConvertTo-TextYN $ABkjob.ScriptOptions.PostScriptEnabled
+                                                            'Run the Following Script After' = $ABkjob.ScriptOptions.PostScriptEnabled
                                                         }
                                                         if ($ABkjob.ScriptOptions.PreScriptEnabled) {
                                                             $inObj.add('Run Script Before the Job', $ABkjob.ScriptOptions.PreCommand)
@@ -625,7 +625,7 @@ function Get-AbrVbrAgentBackupjobConf {
                                                             $inObj.add('Run Script Frequency', $ABkjob.ScriptOptions.Periodicity)
                                                             $inObj.add($FrequencyText, $FrequencyValue)
                                                         }
-                                                        $OutObj = [pscustomobject]$inobj
+                                                        $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                         $TableParams = @{
                                                             Name = "Advanced Settings (Script) - $($ABkjob.Name)"
@@ -649,11 +649,11 @@ function Get-AbrVbrAgentBackupjobConf {
                                             try {
                                                 Write-PScriboMessage "Discovered $($ABkjob.Name) guest processing."
                                                 $inObj = [ordered] @{
-                                                    'Enabled Application Process Processing' = ConvertTo-TextYN $ABkjob.ApplicationProcessingEnabled
-                                                    'Enabled Guest File System Indexing' = ConvertTo-TextYN $ABkjob.IndexingEnabled
+                                                    'Enabled Application Process Processing' = $ABkjob.ApplicationProcessingEnabled
+                                                    'Enabled Guest File System Indexing' = $ABkjob.IndexingEnabled
                                                 }
 
-                                                $OutObj = [pscustomobject]$inobj
+                                                $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                 $TableParams = @{
                                                     Name = "Guest Processing Options - $($ABkjob.Name)"
@@ -691,11 +691,11 @@ function Get-AbrVbrAgentBackupjobConf {
                                                     $inObj = [ordered] @{
                                                         'Retry Failed item' = $ABkjob.ScheduleOptions.RetryCount
                                                         'Wait before each retry' = "$($ABkjob.ScheduleOptions.RetryTimeout)/min"
-                                                        'Backup Window' = ConvertTo-TextYN $ABkjob.ScheduleOptions.BackupTerminationWindowEnabled
+                                                        'Backup Window' = $ABkjob.ScheduleOptions.BackupTerminationWindowEnabled
                                                         'Schedule type' = $ScheduleType
                                                         'Schedule Options' = $Schedule
                                                     }
-                                                    $OutObj = [pscustomobject]$inobj
+                                                    $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                     $TableParams = @{
                                                         Name = "Schedule Options - $($ABkjob.Name)"
@@ -764,7 +764,7 @@ function Get-AbrVbrAgentBackupjobConf {
                                                             default { $ABkjob.BackupCacheOptions.LocalPath }
                                                         }
                                                     }
-                                                    $OutObj += [pscustomobject]$inobj
+                                                    $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                     $TableParams = @{
                                                         Name = "Backup Cache - $($ABkjob.Name)"
@@ -818,17 +818,17 @@ function Get-AbrVbrAgentBackupjobConf {
                                                             'KeepRunning' { 'Keep Running' }
                                                             default { $ABkjob.ScheduleOptions.PostBackupAction }
                                                         }
-                                                        'Backup At LogOff' = ConvertTo-TextYN $ABkjob.ScheduleOptions.BackupAtLogOff
-                                                        'Backup At Lock' = ConvertTo-TextYN $ABkjob.ScheduleOptions.BackupAtLock
-                                                        'Backup At Target Connection' = ConvertTo-TextYN $ABkjob.ScheduleOptions.BackupAtTargetConnection
-                                                        'Eject Storage After Backup' = ConvertTo-TextYN $ABkjob.ScheduleOptions.EjectStorageAfterBackup
+                                                        'Backup At LogOff' = $ABkjob.ScheduleOptions.BackupAtLogOff
+                                                        'Backup At Lock' = $ABkjob.ScheduleOptions.BackupAtLock
+                                                        'Backup At Target Connection' = $ABkjob.ScheduleOptions.BackupAtTargetConnection
+                                                        'Eject Storage After Backup' = $ABkjob.ScheduleOptions.EjectStorageAfterBackup
                                                         'Backup Timeout' = Switch ([string]::IsNullOrEmpty($ABkjob.ScheduleOptions.BackupTimeout)) {
                                                             $true { '--' }
                                                             $false { "$($ABkjob.ScheduleOptions.BackupTimeout) $($ABkjob.ScheduleOptions.BackupTimeoutType)" }
                                                             default { "Unknown" }
                                                         }
                                                     }
-                                                    $OutObj = [pscustomobject]$inobj
+                                                    $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                     $TableParams = @{
                                                         Name = "Schedule Options - $($ABkjob.Name)"

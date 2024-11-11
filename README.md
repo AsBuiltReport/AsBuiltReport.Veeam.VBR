@@ -56,13 +56,14 @@ Below are the instructions on how to install, configure and generate a Veeam VBR
 <!-- ********** Update supported Veeam versions ********** -->
 The Veeam VBR As Built Report supports the following Veeam Backup & Replication version;
 
+- Veeam Backup & Replication v11+ (Standard, Enterprise & Enterprise Plus Edition)
 - Veeam Backup & Replication v12+ (Standard, Enterprise & Enterprise Plus Edition)
 
 :exclamation:Community Edition is not supported:exclamation:
 
 ## :no_entry_sign: Unsupported Versions
 
-The versions 10 and 11 are no longer supported by Veeam. So I will not be performing compatibility tests with those versions. The report may work on previous versions but I do not guarantee and will not address issues related to pre-v12.
+The versions 10 are no longer supported by Veeam. So I will not be performing compatibility tests with these version. The report may work on previous versions but I do not guarantee and will not address issues related to pre-v11.
 
 [Veeam Product Lifecycle Policy](https://www.veeam.com/product-lifecycle.html)
 

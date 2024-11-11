@@ -107,7 +107,9 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                     BlankLine
                     if ($InfoLevel.Infrastructure.BackupServer -ge 1) {
                         Get-AbrVbrInfrastructureSummary
-                        Get-AbrVbrSecurityCompliance
+                        if ($VbrVersion -ge 12) {
+                            Get-AbrVbrSecurityCompliance
+                        }
                         Get-AbrVbrBackupServerInfo
                         Get-AbrVbrEnterpriseManagerInfo
                     }
@@ -129,7 +131,9 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                             Get-AbrVbrHistorySetting
                             Get-AbrVbrIOControlSetting
                             Get-AbrVbrBackupServerCertificate
-                            Get-AbrVbrNetworkTrafficRule
+                            if ($VbrVersion -ge 12) {
+                                Get-AbrVbrNetworkTrafficRule
+                            }
                             if ($VbrVersion -ge 12.1) {
                                 Get-AbrVbrMalwareDetectionOption
                                 Get-AbrVbrGlobalExclusion

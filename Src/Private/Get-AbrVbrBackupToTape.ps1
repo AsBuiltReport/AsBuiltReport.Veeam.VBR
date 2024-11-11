@@ -6,7 +6,7 @@ function Get-AbrVbrBackupToTape {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.11
+        Version:        0.8.12
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -51,9 +51,9 @@ function Get-AbrVbrBackupToTape {
                                                 'False' { 'Disabled' }
                                                 default { $TBkjob.NextRun }
                                             }
-                                            'Description' = ConvertTo-EmptyToFiller $TBkjob.Description
+                                            'Description' = $TBkjob.Description
                                         }
-                                        $OutObj = [pscustomobject]$inobj
+                                        $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                         if ($HealthCheck.Jobs.BestPractice) {
                                             $OutObj | Where-Object { $_.'Description' -eq "--" } | Set-Style -Style Warning -Property 'Description'
@@ -108,7 +108,7 @@ function Get-AbrVbrBackupToTape {
                                                         'Size' = $TotalBackupSize
                                                         'Repository' = $Repository
                                                     }
-                                                    $OutObj += [pscustomobject]$inobj
+                                                    $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                                                 } catch {
                                                     Write-PScriboMessage -IsWarning "Backups Objects - $($TBkjob.Name) Section: $($_.Exception.Message)"
                                                 }
@@ -193,14 +193,14 @@ function Get-AbrVbrBackupToTape {
                                                         'Pool Type' = $BackupMediaPool.Type
                                                         'Tape Count' = (Get-VBRTapeMedium -MediaPool $BackupMediaPool.Name).count
                                                         'Free Space' = ConvertTo-FileSizeString -Size ((Get-VBRTapeMedium -MediaPool $BackupMediaPool.Name).Free | Measure-Object -Sum).Sum
-                                                        'Encryption Enabled' = ConvertTo-TextYN $BackupMediaPool.EncryptionOptions.Enabled
+                                                        'Encryption Enabled' = $BackupMediaPool.EncryptionOptions.Enabled
                                                         'Encryption Key' = Switch ($BackupMediaPool.EncryptionOptions.Enabled) {
                                                             'True' { (Get-VBREncryptionKey | Where-Object { $_.Id -eq $BackupMediaPool.EncryptionOptions.Key.Id }).Description }
                                                             'False' { 'Disabled' }
                                                             default { $BackupMediaPool.EncryptionOptions.Key.Id }
                                                         }
-                                                        'Parallel Processing' = "$(ConvertTo-TextYN $BackupMediaPool.MultiStreamingOptions.NumberOfStreams) drives; Multiple Backup Chains: $(ConvertTo-TextYN $BackupMediaPool.MultiStreamingOptions.SplitJobFilesBetweenDrives)"
-                                                        'Is WORM' = ConvertTo-TextYN $BackupMediaPool.Worm
+                                                        'Parallel Processing' = "$($BackupMediaPool.MultiStreamingOptions.NumberOfStreams) drives; Multiple Backup Chains: $($BackupMediaPool.MultiStreamingOptions.SplitJobFilesBetweenDrives)"
+                                                        'Is WORM' = $BackupMediaPool.Worm
                                                     }
                                                     if ($BackupMediaPool.Type -eq "Gfs") {
                                                         $inObj.add('Daily', ("$($TBkjob.FullBackupMediaPool.DailyMediaSetOptions.OverwritePeriod) days; $MoveFromMediaPoolAutomatically; $AppendToCurrentTape; $MoveOfflineToVault"))
@@ -227,7 +227,7 @@ function Get-AbrVbrBackupToTape {
                                                             'Never' { 'Do not create, always continue using current media set' }
                                                         }
                                                         $inObj.add('Retention', ($Retention))
-                                                        $inObj.add('Export to Vault', (ConvertTo-TextYN $TBkjob.FullBackupMediaPool.MoveOfflineToVault))
+                                                        $inObj.add('Export to Vault', ($TBkjob.FullBackupMediaPool.MoveOfflineToVault))
                                                         $inObj.add('Vault', ($Vault))
                                                         $inObj.add('Media Set Name', ($TBkjob.FullBackupMediaPool.MediaSetName))
                                                         $inObj.add('Automatically create new media set', ($MediaSetPolicy))
@@ -248,7 +248,7 @@ function Get-AbrVbrBackupToTape {
                                                             $inObj.add('Full Backup Schedule', ("Monthly on: $($TBkjob.FullBackupPolicy.MonthlyOptions.DayNumberInMonth), $($TBkjob.FullBackupPolicy.MonthlyOptions.DayOfWeek) of $Months"))
                                                         }
                                                     }
-                                                    $OutObj += [pscustomobject]$inobj
+                                                    $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                                                 } catch {
                                                     Write-PScriboMessage -IsWarning "Media Pool - $($TBkjob.Name) Section: $($_.Exception.Message)"
                                                 }
@@ -333,14 +333,14 @@ function Get-AbrVbrBackupToTape {
                                                         'Pool Type' = $BackupMediaPool.Type
                                                         'Tape Count' = (Get-VBRTapeMedium -MediaPool $BackupMediaPool.Name).count
                                                         'Free Space' = ConvertTo-FileSizeString -Size ((Get-VBRTapeMedium -MediaPool $BackupMediaPool.Name).Free | Measure-Object -Sum).Sum
-                                                        'Encryption Enabled' = ConvertTo-TextYN $BackupMediaPool.EncryptionOptions.Enabled
+                                                        'Encryption Enabled' = $BackupMediaPool.EncryptionOptions.Enabled
                                                         'Encryption Key' = Switch ($BackupMediaPool.EncryptionOptions.Enabled) {
                                                             'True' { (Get-VBREncryptionKey | Where-Object { $_.Id -eq $BackupMediaPool.EncryptionOptions.Key.Id }).Description }
                                                             'False' { 'Disabled' }
                                                             default { $BackupMediaPool.EncryptionOptions.Key.Id }
                                                         }
-                                                        'Parallel Processing' = "$(ConvertTo-TextYN $BackupMediaPool.MultiStreamingOptions.NumberOfStreams) drives; Multiple Backup Chains: $(ConvertTo-TextYN $BackupMediaPool.MultiStreamingOptions.SplitJobFilesBetweenDrives)"
-                                                        'Is WORM' = ConvertTo-TextYN $BackupMediaPool.Worm
+                                                        'Parallel Processing' = "$($BackupMediaPool.MultiStreamingOptions.NumberOfStreams) drives; Multiple Backup Chains: $($BackupMediaPool.MultiStreamingOptions.SplitJobFilesBetweenDrives)"
+                                                        'Is WORM' = $BackupMediaPool.Worm
                                                     }
                                                     if ($BackupMediaPool.Type -eq "Gfs") {
                                                         $inObj.add('Daily', ("$($TBkjob.IncrementalBackupMediaPool.DailyMediaSetOptions.OverwritePeriod) days; $MoveFromMediaPoolAutomatically; $AppendToCurrentTape; $MoveOfflineToVault"))
@@ -367,7 +367,7 @@ function Get-AbrVbrBackupToTape {
                                                             'Never' { 'Do not create, always continue using current media set' }
                                                         }
                                                         $inObj.add('Retention', ($Retention))
-                                                        $inObj.add('Export to Vault', (ConvertTo-TextYN $TBkjob.IncrementalBackupMediaPool.MoveOfflineToVault))
+                                                        $inObj.add('Export to Vault', ($TBkjob.IncrementalBackupMediaPool.MoveOfflineToVault))
                                                         $inObj.add('Vault', ($Vault))
                                                         $inObj.add('Media Set Name', ($TBkjob.IncrementalBackupMediaPool.MediaSetName))
                                                         $inObj.add('Automatically create new media set', ($MediaSetPolicy))
@@ -375,7 +375,7 @@ function Get-AbrVbrBackupToTape {
                                                             $inObj.add('On these days', ($TBkjob.IncrementalBackupMediaPool.MediaSetCreationPolicy.DailyOptions.DayOfWeek -join ", "))
                                                         }
                                                     }
-                                                    $OutObj += [pscustomobject]$inobj
+                                                    $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                                                 } catch {
                                                     Write-PScriboMessage -IsWarning "Incremental Backup - $($TBkjob.Name) Section: $($_.Exception.Message)"
                                                 }
@@ -401,12 +401,12 @@ function Get-AbrVbrBackupToTape {
                                         try {
                                             Write-PScriboMessage "Discovered $($TBkjob.Name) options."
                                             $inObj = [ordered] @{
-                                                'Eject Tape Media Upon Job Completion' = ConvertTo-TextYN $TBkjob.EjectCurrentMedium
-                                                'Export the following MediaSet Upon Job Completion' = ConvertTo-TextYN $TBkjob.ExportCurrentMediaSet
-                                                'Limit the number of drives this job can use' = "Enabled: $(ConvertTo-TextYN $TBkjob.ParallelDriveOptions.IsEnabled); Tape Drives Limit: $($TBkjob.ParallelDriveOptions.DrivesLimit)"
+                                                'Eject Tape Media Upon Job Completion' = $TBkjob.EjectCurrentMedium
+                                                'Export the following MediaSet Upon Job Completion' = $TBkjob.ExportCurrentMediaSet
+                                                'Limit the number of drives this job can use' = "Enabled: $($TBkjob.ParallelDriveOptions.IsEnabled); Tape Drives Limit: $($TBkjob.ParallelDriveOptions.DrivesLimit)"
 
                                             }
-                                            $OutObj += [pscustomobject]$inobj
+                                            $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                                         } catch {
                                             Write-PScriboMessage -IsWarning "Options - $($TBkjob.Name) Section: $($_.Exception.Message)"
                                         }
@@ -427,21 +427,21 @@ function Get-AbrVbrBackupToTape {
                                                     try {
                                                         Write-PScriboMessage "Discovered $($TBkjob.Name) notification options."
                                                         $inObj = [ordered] @{
-                                                            'Send Email Notification' = ConvertTo-TextYN $TBkjob.NotificationOptions.EnableAdditionalNotification
+                                                            'Send Email Notification' = $TBkjob.NotificationOptions.EnableAdditionalNotification
                                                             'Email Notification Additional Recipients' = $TBkjob.NotificationOptions.AdditionalAddress -join ","
                                                         }
                                                         if (!$TBkjob.NotificationOptions.UseNotificationOptions) {
-                                                            $inObj.add('Use Global Notification Settings', (ConvertTo-TextYN $TBkjob.NotificationOptions.UseNotificationOptions))
+                                                            $inObj.add('Use Global Notification Settings', ($TBkjob.NotificationOptions.UseNotificationOptions))
                                                         } elseif ($TBkjob.NotificationOptions.UseNotificationOptions) {
                                                             $inObj.add('Use Custom Notification Settings', ('Yes'))
                                                             $inObj.add('Subject', ($TBkjob.NotificationOptions.NotificationSubject))
-                                                            $inObj.add('Notify On Success', (ConvertTo-TextYN $TBkjob.NotificationOptions.NotifyOnSuccess))
-                                                            $inObj.add('Notify On Warning', (ConvertTo-TextYN $TBkjob.NotificationOptions.NotifyOnWarning))
-                                                            $inObj.add('Notify On Error', (ConvertTo-TextYN $TBkjob.NotificationOptions.NotifyOnError))
-                                                            $inObj.add('Notify On Last Retry Only', (ConvertTo-TextYN $TBkjob.NotificationOptions.NotifyOnLastRetryOnly))
-                                                            $inObj.add('Notify When Waiting For Tape', (ConvertTo-TextYN $TBkjob.NotificationOptions.NotifyWhenWaitingForTape))
+                                                            $inObj.add('Notify On Success', ($TBkjob.NotificationOptions.NotifyOnSuccess))
+                                                            $inObj.add('Notify On Warning', ($TBkjob.NotificationOptions.NotifyOnWarning))
+                                                            $inObj.add('Notify On Error', ($TBkjob.NotificationOptions.NotifyOnError))
+                                                            $inObj.add('Notify On Last Retry Only', ($TBkjob.NotificationOptions.NotifyOnLastRetryOnly))
+                                                            $inObj.add('Notify When Waiting For Tape', ($TBkjob.NotificationOptions.NotifyWhenWaitingForTape))
                                                         }
-                                                        $OutObj += [pscustomobject]$inobj
+                                                        $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                                                     } catch {
                                                         Write-PScriboMessage -IsWarning "Advanced Settings (Notifications) - $($TBkjob.Name) Section: $($_.Exception.Message)"
                                                     }
@@ -467,16 +467,16 @@ function Get-AbrVbrBackupToTape {
                                                     try {
                                                         Write-PScriboMessage "Discovered $($TBkjob.Name) advanced options."
                                                         $inObj = [ordered] @{
-                                                            'Process the most recent Restore Point instead of waiting' = ConvertTo-TextYN $TBkjob.AlwaysCopyFromLatestFull
-                                                            'Use Hardware Compression when available' = ConvertTo-TextYN $TBkjob.UseHardwareCompression
+                                                            'Process the most recent Restore Point instead of waiting' = $TBkjob.AlwaysCopyFromLatestFull
+                                                            'Use Hardware Compression when available' = $TBkjob.UseHardwareCompression
                                                         }
                                                         if (!$TBkjob.JobScriptOptions.PreScriptEnabled) {
-                                                            $inObj.add('Pre Job Script Enabled', (ConvertTo-TextYN $TBkjob.JobScriptOptions.PreScriptEnabled))
+                                                            $inObj.add('Pre Job Script Enabled', ($TBkjob.JobScriptOptions.PreScriptEnabled))
                                                         } elseif ($TBkjob.JobScriptOptions.PreScriptEnabled) {
                                                             $inObj.add('Run the following script before job', ($TBkjob.JobScriptOptions.PreCommand))
                                                         }
                                                         if (!$TBkjob.JobScriptOptions.PostScriptEnabled) {
-                                                            $inObj.add('Post Job Script Enabled', (ConvertTo-TextYN $TBkjob.JobScriptOptions.PostScriptEnabled))
+                                                            $inObj.add('Post Job Script Enabled', ($TBkjob.JobScriptOptions.PostScriptEnabled))
                                                         } elseif ($TBkjob.JobScriptOptions.PostScriptEnabled) {
                                                             $inObj.add('Run the following script after job', ($TBkjob.JobScriptOptions.PostCommand))
                                                         }
@@ -490,7 +490,7 @@ function Get-AbrVbrBackupToTape {
                                                             }
                                                             $inObj.add($FrequencyText, ($FrequencyValue))
                                                         }
-                                                        $OutObj += [pscustomobject]$inobj
+                                                        $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                                                     } catch {
                                                         Write-PScriboMessage -IsWarning "Advanced Settings (Advanced) - $($TBkjob.Name) Section: $($_.Exception.Message)"
                                                     }
@@ -519,7 +519,7 @@ function Get-AbrVbrBackupToTape {
                                         try {
                                             Write-PScriboMessage "Discovered $($TBkjob.Name) schedule options."
                                             $inObj = [ordered] @{
-                                                'Prevent this job from being interrupted by source backup job' = ConvertTo-TextYN $TBkjob.WaitForBackupJobs
+                                                'Prevent this job from being interrupted by source backup job' = $TBkjob.WaitForBackupJobs
                                             }
 
                                             if ($TBkjob.GFSScheduleOptions) {
@@ -554,7 +554,7 @@ function Get-AbrVbrBackupToTape {
                                                 $inObj.add('Wait for Backup Job', ("$($TBkjob.WaitPeriod.ToString()) hours"))
                                             }
 
-                                            $OutObj += [pscustomobject]$inobj
+                                            $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                                         } catch {
                                             Write-PScriboMessage -IsWarning "Schedule - $($TBkjob.Name) Section: $($_.Exception.Message)"
                                         }
