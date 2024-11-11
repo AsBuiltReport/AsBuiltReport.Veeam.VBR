@@ -87,6 +87,9 @@ function Invoke-AsBuiltReport.Veeam.VBR {
     # Used to set values to TitleCase where required
     $script:TextInfo = (Get-Culture).TextInfo
 
+    # Identify installed Veeam module version
+    $script:VbrVersion = (Get-Module -ListAvailable -Name Veeam.Backup.PowerShell).Version.ToString()
+
     #region foreach loop
     foreach ($System in $Target) {
         if (Select-String -InputObject $System -Pattern "^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$") {
