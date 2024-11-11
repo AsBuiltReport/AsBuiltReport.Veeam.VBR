@@ -226,11 +226,11 @@ function Get-AbrVbrServiceProvider {
                                                                 Write-PScriboMessage "Discovered $($Gateway.Name) Service Provider Default Gateway Configuration information."
                                                                 $inObj = [ordered] @{
                                                                     'Name' = $Gateway.Name
-                                                                    'IPv4 Address' = -TEXT $Gateway.IpAddress
-                                                                    'Network Mask' = -TEXT $Gateway.NetworkMask
-                                                                    'IPv6 Address' = -TEXT $Gateway.IpAddress
-                                                                    'IPv6 Subnet Address' = -TEXT $Gateway.Ipv6SubnetAddress
-                                                                    'IPv6 Prefix Length' = -TEXT $Gateway.Ipv6PrefixLength
+                                                                    'IPv4 Address' = $Gateway.IpAddress
+                                                                    'Network Mask' = $Gateway.NetworkMask
+                                                                    'IPv6 Address' = $Gateway.IpAddress
+                                                                    'IPv6 Subnet Address' = $Gateway.Ipv6SubnetAddress
+                                                                    'IPv6 Prefix Length' = $Gateway.Ipv6PrefixLength
                                                                     'Routing Enabled?' = $DefaultGatewayConfig.RoutingEnabled
                                                                 }
 
@@ -265,11 +265,11 @@ function Get-AbrVbrServiceProvider {
                                                                 Write-PScriboMessage "Discovered $($Gateway.Name) Service Provider Cloud SubUser Default Gateway information."
                                                                 $inObj = [ordered] @{
                                                                     'Name' = $Gateway.Name
-                                                                    'IPv4 Address' = -TEXT $Gateway.IpAddress
-                                                                    'Network Mask' = -TEXT $Gateway.NetworkMask
-                                                                    'IPv6 Address' = -TEXT $Gateway.IpAddress
-                                                                    'IPv6 Subnet Address' = -TEXT $Gateway.Ipv6SubnetAddress
-                                                                    'IPv6 Prefix Length' = -TEXT $Gateway.Ipv6PrefixLength
+                                                                    'IPv4 Address' = $Gateway.IpAddress
+                                                                    'Network Mask' = $Gateway.NetworkMask
+                                                                    'IPv6 Address' = $Gateway.IpAddress
+                                                                    'IPv6 Subnet Address' = $Gateway.Ipv6SubnetAddress
+                                                                    'IPv6 Prefix Length' = $Gateway.Ipv6PrefixLength
                                                                     'Routing Enabled?' = $CloudSubUserConfig.RoutingEnabled
                                                                 }
 
