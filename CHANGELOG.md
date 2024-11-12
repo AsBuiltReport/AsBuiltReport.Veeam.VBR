@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improve detection of empty fields in tables
 - Improve detection of true/false elements in tables
 - Improve support for Veeam B&R v11
+- Update GitHub release workflow to add post to Bluesky social platform
 
 ### Fixed
 
