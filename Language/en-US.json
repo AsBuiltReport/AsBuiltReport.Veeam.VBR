@@ -1,0 +1,78 @@
+{
+    "Main": {
+        "Message": {
+            "MessageURL": "Please refer to the AsBuiltReport.Veeam.VBR github website for more detailed information about this project.",
+            "MessageAffiliates": "This project is community maintained and has no sponsorship from Veeam, its employees or any of its affiliates.",
+            "MessageIssues": "Issues or bug reporting: https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues",
+            "MessageDocumentation": "Documentation: https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR",
+            "MessageUpdate": "Do not forget to update your report configuration file after each new version release.",
+            "MessageInstalledVersion": "The current installed version of AsBuiltReport.VMware.vSphere is ",
+            "MessageNewVersion": "The latest version of AsBuiltReport.VMware.vSphere available is ",
+            "MessageUpdateInstruction": "Run 'Update-Module -Name AsBuiltReport.VMware.vSphere -Force' to install the latest version.",
+            "MessageConnecting": "Connecting to vCenter Server ",
+            "MessagevCenterPrivilegesCheck": "Checking vCenter user privileges.",
+            "MessagevCenterPrivilegesError": "Unable to obtain vCenter user privileges.",
+            "MessageVMLookup": "Creating VM lookup hashtable.",
+            "MessageVMHostLookup": "Creating VMHost lookup hashtable.",
+            "MessageDatastoreLookup": "Creating Datastore lookup hashtable.",
+            "MessageVDPortGroupLookup": "Creating VDPortGroup lookup hashtable.",
+            "MessageEVCLookup": "Creating EVC lookup hashtable.",
+            "MessageVUM": "Checking for VMware Update Manager Server.",
+            "MessageVXRail": "Checking for VxRail Manager Server.",
+            "MessageSRM": "Checking for VMware Site Recovery Manager Server.",
+            "MessageNSX": "Checking for VMware NSX-T Manager Server.",
+            "MessageVcenterAdv": "Collecting advanced settings of vCenter Server ",
+            "MessageInfoLevel": "vCenter InfoLevel set at "
+        },
+        "Keyword": {
+            "Keyword_Description": "Description",
+            "Keyword_IPAddress": "IP Address",
+            "Keyword_MACAddress": "MAC Address",
+            "Keyword_Capacity": "Capacity",
+            "Keyword_Mailsettings": "Mail Settings",
+            "Keyword_MailSender": "Mail Sender",
+            "Keyword_SMTPServer": "SMTP Server",
+            "Keyword_SMTPPort": "SMTP Port",
+            "Keyword_HistoricalStatistics": "Historical Statistics",
+            "Keyword_Licensing": "Licensing",
+            "Keyword_Total": "Total",
+            "Keyword_Used": "Used",
+            "Keyword_LicenseKey": "License Key",
+            "Keyword_Available": "Available"
+        }
+    },
+    "Infrastructure": {
+        "WANAccel": {
+            "WanAccelheading": "WAN Accelerators",
+            "WanAccelparagraph": "The following section provides information about WAN Accelerator. WAN accelerators are responsible for global data caching and data deduplication.",
+            "WanAccelName": "Name",
+            "WanAccelHostName": "Host Name",
+            "WanAccelIsPublic": "Is Public",
+            "WanAccelManagementPort": "Management Port",
+            "WanAccelServiceIPAddress": "Service IP Address",
+            "WanAccelTrafficPort": "Traffic Por",
+            "WanAccelMaxTasksCount": "Max Tasks Count",
+            "WanAccelDownloadStreamCount": "Download Stream Count",
+            "WanAccelEnablePerformanceMode": "Enable Performance Mode",
+            "WanAccelConfiguredCache": "Configured Cache",
+            "WanAccelCachePath": "Cache Path",
+            "WanAccelMaxCacheSize": "Max Cache Size"
+        },
+        "BackupServer": {
+            "WanAccelheading": "WAN Accelerators",
+            "WanAccelparagraph": "The following section provides information about WAN Accelerator. WAN accelerators are responsible for global data caching and data deduplication.",
+            "WanAccelName": "Name",
+            "WanAccelHostName": "Host Name",
+            "WanAccelIsPublic": "Is Public",
+            "WanAccelManagementPort": "Management Port",
+            "WanAccelServiceIPAddress": "Service IP Address",
+            "WanAccelTrafficPort": "Traffic Por",
+            "WanAccelMaxTasksCount": "Max Tasks Count",
+            "WanAccelDownloadStreamCount": "Download Stream Count",
+            "WanAccelEnablePerformanceMode": "Enable Performance Mode",
+            "WanAccelConfiguredCache": "Configured Cache",
+            "WanAccelCachePath": "Cache Path",
+            "WanAccelMaxCacheSize": "Max Cache Size"
+        }
+    }
+}

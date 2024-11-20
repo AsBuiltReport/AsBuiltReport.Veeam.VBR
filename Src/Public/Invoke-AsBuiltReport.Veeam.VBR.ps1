@@ -21,22 +21,30 @@ function Invoke-AsBuiltReport.Veeam.VBR {
         [PSCredential] $Credential
     )
 
+    # Import Report Configuration
+    $script:Report = $ReportConfig.Report
+    $script:InfoLevel = $ReportConfig.InfoLevel
+    $script:Options = $ReportConfig.Options
+
+    $script:RootPath = Split-Path (Split-Path $PSScriptRoot -Parent) -Parent
+
+    $MainTranslate = Get-AsBuiltTranslation -Product "Main" -Category "Message"
+
     #Requires -Version 5.1
     #Requires -PSEdition Desktop
     #Requires -RunAsAdministrator
     #Requires -Modules @{ ModuleName="Veeam.Backup.PowerShell"; MaximumVersion="12.2.0.334" }
-
 
     if ($psISE) {
         Write-Error -Message "You cannot run this script inside the PowerShell ISE. Please execute it from the PowerShell Command Window."
         break
     }
 
-    Write-PScriboMessage -Plugin "Module" -IsWarning "Please refer to the AsBuiltReport.Veeam.VBR github website for more detailed information about this project."
-    Write-PScriboMessage -Plugin "Module" -IsWarning "Do not forget to update your report configuration file after each new version release."
-    Write-PScriboMessage -Plugin "Module" -IsWarning "Documentation: https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR"
-    Write-PScriboMessage -Plugin "Module" -IsWarning "Issues or bug reporting: https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues"
-    Write-PScriboMessage -Plugin "Module" -IsWarning "This project is community maintained and has no sponsorship from Veeam, its employees or any of its affiliates."
+    Write-PScriboMessage -Plugin "Module" -IsWarning $MainTranslate.MessageURL
+    Write-PScriboMessage -Plugin "Module" -IsWarning $MainTranslate.MessageUpdate
+    Write-PScriboMessage -Plugin "Module" -IsWarning $MainTranslate.MessageDocumentation
+    Write-PScriboMessage -Plugin "Module" -IsWarning $MainTranslate.MessageIssues
+    Write-PScriboMessage -Plugin "Module" -IsWarning $MainTranslate.MessageAffiliates
 
 
     # Check the current AsBuiltReport.Veeam.VBR module
@@ -54,11 +62,6 @@ function Invoke-AsBuiltReport.Veeam.VBR {
     } Catch {
         Write-PScriboMessage -IsWarning $_.Exception.Message
     }
-
-    # Import Report Configuration
-    $script:Report = $ReportConfig.Report
-    $script:InfoLevel = $ReportConfig.InfoLevel
-    $script:Options = $ReportConfig.Options
 
     # Set Custom styles for Veeam theme template
     if ($Options.ReportStyle -eq "Veeam") {
@@ -109,7 +112,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                     Paragraph "The following section details configuration information about the Backup Server: $($VeeamBackupServer)"
                     BlankLine
                     if ($InfoLevel.Infrastructure.BackupServer -ge 1) {
-                        Get-AbrVbrInfrastructureSummary
+                        # Get-AbrVbrInfrastructureSummary
                         if ($VbrVersion -ge 12) {
                             Get-AbrVbrSecurityCompliance
                         }

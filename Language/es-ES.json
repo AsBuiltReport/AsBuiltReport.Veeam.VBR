@@ -1,0 +1,49 @@
+{
+    "Main": {
+        "Message": {
+            "MessageURL": "Please refer to the AsBuiltReport.Veeam.VBR github website for more detailed information about this project.",
+            "MessageAffiliates": "This project is community maintained and has no sponsorship from Veeam, its employees or any of its affiliates.",
+            "MessageIssues": "Issues or bug reporting: https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues",
+            "MessageDocumentation": "Documentation: https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR",
+            "MessageUpdate": "Do not forget to update your report configuration file after each new version release.",
+            "MessageInstalledVersion": "The current installed version of AsBuiltReport.VMware.vSphere is ",
+            "MessageNewVersion": "The latest version of AsBuiltReport.VMware.vSphere available is ",
+            "MessageUpdateInstruction": "Run 'Update-Module -Name AsBuiltReport.VMware.vSphere -Force' to install the latest version.",
+            "MessageInfoLevel": "vCenter InfoLevel set at "
+        },
+        "Keyword": {
+            "Keyword_Description": "Description",
+            "Keyword_IPAddress": "IP Address",
+            "Keyword_MACAddress": "MAC Address",
+            "Keyword_Capacity": "Capacity",
+            "Keyword_Mailsettings": "Mail Settings",
+            "Keyword_MailSender": "Mail Sender",
+            "Keyword_SMTPServer": "SMTP Server",
+            "Keyword_SMTPPort": "SMTP Port",
+            "Keyword_HistoricalStatistics": "Historical Statistics",
+            "Keyword_Licensing": "Licensing",
+            "Keyword_Total": "Total",
+            "Keyword_Used": "Used",
+            "Keyword_LicenseKey": "License Key",
+            "Keyword_Available": "Available"
+        }
+    },
+    "Infrastructure": {
+        "WANAccel": {
+            "WanAccelheading": "Accelerador WAN",
+            "WanAccelparagraph": "La siguiente sección proporciona información sobre el acelerador WAN. Los aceleradores WAN se encargan del almacenamiento global en caché y la deduplicación de datos.",
+            "WanAccelName": "Nombre",
+            "WanAccelHostName": "Nombre de Estación",
+            "WanAccelIsPublic": "Es Público?",
+            "WanAccelManagementPort": "IP de Manejo",
+            "WanAccelServiceIPAddress": "IP de Servicio",
+            "WanAccelTrafficPort": "Puerto de Tráfico",
+            "WanAccelMaxTasksCount": "Número máximo de tareas",
+            "WanAccelDownloadStreamCount": "Descargar el recuento de flujos",
+            "WanAccelEnablePerformanceMode": "Activar el modo Rendimiento",
+            "WanAccelConfiguredCache": "Caché configurada",
+            "WanAccelCachePath": "Cache Path",
+            "WanAccelMaxCacheSize": "Ruta de caché"
+        }
+    }
+}

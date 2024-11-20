@@ -6,7 +6,7 @@ function Get-AbrVbrWANAccelerator {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.12
+        Version:        0.8.13
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -22,14 +22,15 @@ function Get-AbrVbrWANAccelerator {
 
     begin {
         Write-PScriboMessage "Discovering Veeam VBR WAN Accelerator information from $System."
+        $WanAcceltranslate = Get-AsBuiltTranslation -Product "Infrastructure" -Category "WANAccel"
     }
 
     process {
         try {
             $WANAccels = Get-VBRWANAccelerator | Sort-Object -Property Name
             if (($VbrLicenses | Where-Object { $_.Edition -in @("EnterprisePlus") }) -and $WANAccels) {
-                Section -Style Heading3 'WAN Accelerators' {
-                    Paragraph "The following section provides information about WAN Accelerator. WAN accelerators are responsible for global data caching and data deduplication."
+                Section -Style Heading3 $WanAcceltranslate.WanAccelheading {
+                    Paragraph $WanAcceltranslate.WanAccelparagraph
                     BlankLine
                     $OutObj = @()
                     try {
@@ -48,27 +49,23 @@ function Get-AbrVbrWANAccelerator {
                                     Write-PScriboMessage -IsWarning "Wan Accelerator $($WANAccel.Name) GetWaConnSpec() Item: $($_.Exception.Message)"
                                 }
                                 $inObj = [ordered] @{
-                                    'Name' = $WANAccel.Name
-                                    'Host Name' = $WANAccel.GetHost().Name
-                                    'Is Public' = $WANAccel.GetType().IsPublic
-                                    'Management Port' = "$($WANAccel.GetWaMgmtPort())\TCP"
-                                    'Service IP Address' = $ServiceIPAddress
-                                    'Traffic Port' = "$($WANAccel.GetWaTrafficPort())\TCP"
-                                    'Max Tasks Count' = $WANAccel.FindWaHostComp().Options.MaxTasksCount
-                                    'Download Stream Count' = $WANAccel.FindWaHostComp().Options.DownloadStreamCount
-                                    'Enable Performance Mode' = $WANAccel.FindWaHostComp().Options.EnablePerformanceMode
-                                    'Configured Cache' = $IsWaHasAnyCaches
-                                    'Cache Path' = $WANAccel.FindWaHostComp().Options.CachePath
-                                    'Max Cache Size' = "$($WANAccel.FindWaHostComp().Options.MaxCacheSize) $($WANAccel.FindWaHostComp().Options.SizeUnit)"
+                                    $WanAcceltranslate.WanAccelName = $WANAccel.Name
+                                    $WanAcceltranslate.WanAccelHostName = $WANAccel.GetHost().Name
+                                    $WanAcceltranslate.WanAccelIsPublic  = $WANAccel.GetType().IsPublic
+                                    $WanAcceltranslate.WanAccelManagementPort = "$($WANAccel.GetWaMgmtPort())\TCP"
+                                    $WanAcceltranslate.WanAccelServiceIPAddress  = $ServiceIPAddress
+                                    $WanAcceltranslate.WanAccelTrafficPort  = "$($WANAccel.GetWaTrafficPort())\TCP"
+                                    $WanAcceltranslate.WanAccelMaxTasksCount  = $WANAccel.FindWaHostComp().Options.MaxTasksCount
+                                    $WanAcceltranslate.WanAccelDownloadStreamCount  = $WANAccel.FindWaHostComp().Options.DownloadStreamCount
+                                    $WanAcceltranslate.WanAccelEnablePerformanceMode  = $WANAccel.FindWaHostComp().Options.EnablePerformanceMode
+                                    $WanAcceltranslate.WanAccelConfiguredCache  = $IsWaHasAnyCaches
+                                    $WanAcceltranslate.WanAccelCachePath  = $WANAccel.FindWaHostComp().Options.CachePath
+                                    $WanAcceltranslate.WanAccelMaxCacheSize  = "$($WANAccel.FindWaHostComp().Options.MaxCacheSize) $($WANAccel.FindWaHostComp().Options.SizeUnit)"
                                 }
                                 $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
-                                if ($HealthCheck.Infrastructure.Proxy) {
-                                    $OutObj | Where-Object { $_.'Status' -eq 'Unavailable' } | Set-Style -Style Warning -Property 'Status'
-                                }
-
                                 $TableParams = @{
-                                    Name = "Wan Accelerator - $($WANAccel.GetHost().Name)"
+                                    Name = "$($WanAcceltranslate.WanAccelheading3) - $($WANAccel.GetHost().Name)"
                                     List = $true
                                     ColumnWidths = 40, 60
                                 }
