@@ -6,7 +6,7 @@ function Get-AbrVbrServiceProvider {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.11
+        Version:        0.8.12
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -49,9 +49,9 @@ function Get-AbrVbrServiceProvider {
                                             'vCD'
                                         } else { 'Unknown' }
                                     }
-                                    'Managed By Provider' = ConvertTo-TextYN $CloudProvider.IsManagedByProvider
+                                    'Managed By Provider' = $CloudProvider.IsManagedByProvider
                                 }
-                                $OutObj += [pscustomobject]$inobj
+                                $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                             } catch {
                                 Write-PScriboMessage -IsWarning "Service Providers $($CloudProvider.DNSName) Table: $($_.Exception.Message)"
                             }
@@ -82,11 +82,11 @@ function Get-AbrVbrServiceProvider {
                                                         'Port' = $CloudProvider.Port
                                                         'Credentials' = $CloudProvider.Credentials
                                                         'Certificate Expiration Date' = $CloudProvider.Certificate.NotAfter
-                                                        'Managed By Service Provider' = ConvertTo-TextYN $CloudProvider.IsManagedByProvider
+                                                        'Managed By Service Provider' = $CloudProvider.IsManagedByProvider
                                                         'Description' = $CloudProvider.Description
                                                     }
 
-                                                    $OutObj = [pscustomobject]$inobj
+                                                    $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                     $TableParams = @{
                                                         Name = "General Information - $($CloudProvider.DNSName)"
@@ -108,14 +108,14 @@ function Get-AbrVbrServiceProvider {
                                                         $OutObj = @()
                                                         Write-PScriboMessage "Discovered $($CloudProvider.DNSName) Service Provider BaaS Resources information."
                                                         $inObj = [ordered] @{
-                                                            'Resources Enabled' = ConvertTo-TextYN $CloudProvider.ResourcesEnabled
+                                                            'Resources Enabled' = $CloudProvider.ResourcesEnabled
                                                             'Repository Name' = $CloudProvider.Resources.RepositoryName
-                                                            'Wan Acceleration?' = $CloudProvider.Resources | ForEach-Object { "$($_.RepositoryName): $(ConvertTo-TextYN $_.WanAccelerationEnabled)" }
+                                                            'Wan Acceleration?' = $CloudProvider.Resources | ForEach-Object { "$($_.RepositoryName): $($_.WanAccelerationEnabled)" }
                                                             'Per Datastore Allocated Space' = $CloudProvider.Resources | ForEach-Object { "$($_.RepositoryName): $(ConvertTo-FileSizeString -Size $_.RepositoryAllocatedSpace)" }
                                                             'Total Datastore Allocated Space' = ConvertTo-FileSizeString -Size $CloudProvider.Resources.RepositoryAllocatedSpace
                                                         }
 
-                                                        $OutObj = [pscustomobject]$inobj
+                                                        $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                         $TableParams = @{
                                                             Name = "BaaS Resources - $($CloudProvider.DNSName)"
@@ -148,7 +148,7 @@ function Get-AbrVbrServiceProvider {
                                                         }
                                                         Write-PScriboMessage "Discovered $($CloudProvider.DNSName) Service Provider DRaaS Resources information."
                                                         $inObj = [ordered] @{
-                                                            'Resources Enabled' = ConvertTo-TextYN $CloudProvider.ReplicationResourcesEnabled
+                                                            'Resources Enabled' = $CloudProvider.ReplicationResourcesEnabled
                                                             'Hardware Plan Name' = $CloudProvider.ReplicationResources.HardwarePlanName
                                                             'Allocated CPU Resources' = $CPU
                                                             'Allocated Memory Resources' = $Memory
@@ -156,7 +156,7 @@ function Get-AbrVbrServiceProvider {
                                                             'Per Datastore Allocated Space' = $CloudProvider.ReplicationResources.Datastore | ForEach-Object { "$($_.Name): $(ConvertTo-FileSizeString -Size $_.DatastoreAllocatedSpace)" }
                                                             'Total Datastore Allocated Space' = ConvertTo-FileSizeString -Size ($CloudProvider.ReplicationResources.Datastore.DatastoreAllocatedSpace | Measure-Object -Sum).Sum
                                                             'Network Count' = $CloudProvider.ReplicationResources.NetworkCount
-                                                            'Public IP Enabled' = ConvertTo-TextYN $CloudProvider.ReplicationResources.PublicIpEnabled
+                                                            'Public IP Enabled' = $CloudProvider.ReplicationResources.PublicIpEnabled
                                                         }
 
                                                         if ($CloudProvider.ReplicationResources.PublicIpEnabled) {
@@ -168,7 +168,7 @@ function Get-AbrVbrServiceProvider {
                                                             $inObj.add('Allocated Public IP Address', $PublicIP)
                                                         }
 
-                                                        $OutObj = [pscustomobject]$inobj
+                                                        $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                         $TableParams = @{
                                                             Name = "DRaaS Resources - $($CloudProvider.DNSName)"
@@ -191,15 +191,15 @@ function Get-AbrVbrServiceProvider {
                                                         $OutObj = @()
                                                         Write-PScriboMessage "Discovered $($CloudProvider.DNSName) Service Provider vCD Resources information."
                                                         $inObj = [ordered] @{
-                                                            'Resources Enabled' = ConvertTo-TextYN $CloudProvider.ReplicationResourcesEnabled
+                                                            'Resources Enabled' = $CloudProvider.ReplicationResourcesEnabled
                                                             'Organizationv DC Name' = $CloudProvider.vCDReplicationResources.OrganizationvDCName
                                                             'Allocated CPU Resources' = $CloudProvider.vCDReplicationResources.CPU
                                                             'Allocated Memory Resources' = $CloudProvider.vCDReplicationResources.Memory
                                                             'Storage Policy' = $CloudProvider.vCDReplicationResources.StoragePolicy
-                                                            'Is Wan Accelerator Enabled?' = ConvertTo-TextYN $CloudProvider.vCDReplicationResources.WanAcceleratorEnabled
+                                                            'Is Wan Accelerator Enabled?' = $CloudProvider.vCDReplicationResources.WanAcceleratorEnabled
                                                         }
 
-                                                        $OutObj = [pscustomobject]$inobj
+                                                        $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                         $TableParams = @{
                                                             Name = "vCD Resources - $($CloudProvider.DNSName)"
@@ -218,7 +218,7 @@ function Get-AbrVbrServiceProvider {
                                             }
                                             try {
                                                 $DefaultGatewayConfig = Get-VBRDefaultGatewayConfiguration -CloudProvider $CloudProvider | Sort-Object -Property Name
-                                                if ($DefaultGatewayConfig.DefaultGateway | Where-Object {$Null -ne $_}) {
+                                                if ($DefaultGatewayConfig.DefaultGateway | Where-Object { $Null -ne $_ }) {
                                                     Section -ExcludeFromTOC -Style NOTOCHeading6 'Default Gateway Configuration ' {
                                                         $OutObj = @()
                                                         foreach ($Gateway in $DefaultGatewayConfig.DefaultGateway) {
@@ -226,15 +226,15 @@ function Get-AbrVbrServiceProvider {
                                                                 Write-PScriboMessage "Discovered $($Gateway.Name) Service Provider Default Gateway Configuration information."
                                                                 $inObj = [ordered] @{
                                                                     'Name' = $Gateway.Name
-                                                                    'IPv4 Address' = ConvertTo-EmptyToFiller -TEXT $Gateway.IpAddress
-                                                                    'Network Mask' = ConvertTo-EmptyToFiller -TEXT $Gateway.NetworkMask
-                                                                    'IPv6 Address' = ConvertTo-EmptyToFiller -TEXT $Gateway.IpAddress
-                                                                    'IPv6 Subnet Address' = ConvertTo-EmptyToFiller -TEXT $Gateway.Ipv6SubnetAddress
-                                                                    'IPv6 Prefix Length' = ConvertTo-EmptyToFiller -TEXT $Gateway.Ipv6PrefixLength
-                                                                    'Routing Enabled?' = ConvertTo-TextYN $DefaultGatewayConfig.RoutingEnabled
+                                                                    'IPv4 Address' = $Gateway.IpAddress
+                                                                    'Network Mask' = $Gateway.NetworkMask
+                                                                    'IPv6 Address' = $Gateway.IpAddress
+                                                                    'IPv6 Subnet Address' = $Gateway.Ipv6SubnetAddress
+                                                                    'IPv6 Prefix Length' = $Gateway.Ipv6PrefixLength
+                                                                    'Routing Enabled?' = $DefaultGatewayConfig.RoutingEnabled
                                                                 }
 
-                                                                $OutObj = [pscustomobject]$inobj
+                                                                $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                                 $TableParams = @{
                                                                     Name = "Default Gateway Configuration - $($Gateway.Name)"
@@ -265,15 +265,15 @@ function Get-AbrVbrServiceProvider {
                                                                 Write-PScriboMessage "Discovered $($Gateway.Name) Service Provider Cloud SubUser Default Gateway information."
                                                                 $inObj = [ordered] @{
                                                                     'Name' = $Gateway.Name
-                                                                    'IPv4 Address' = ConvertTo-EmptyToFiller -TEXT $Gateway.IpAddress
-                                                                    'Network Mask' = ConvertTo-EmptyToFiller -TEXT $Gateway.NetworkMask
-                                                                    'IPv6 Address' = ConvertTo-EmptyToFiller -TEXT $Gateway.IpAddress
-                                                                    'IPv6 Subnet Address' = ConvertTo-EmptyToFiller -TEXT $Gateway.Ipv6SubnetAddress
-                                                                    'IPv6 Prefix Length' = ConvertTo-EmptyToFiller -TEXT $Gateway.Ipv6PrefixLength
-                                                                    'Routing Enabled?' = ConvertTo-TextYN $CloudSubUserConfig.RoutingEnabled
+                                                                    'IPv4 Address' = $Gateway.IpAddress
+                                                                    'Network Mask' = $Gateway.NetworkMask
+                                                                    'IPv6 Address' = $Gateway.IpAddress
+                                                                    'IPv6 Subnet Address' = $Gateway.Ipv6SubnetAddress
+                                                                    'IPv6 Prefix Length' = $Gateway.Ipv6PrefixLength
+                                                                    'Routing Enabled?' = $CloudSubUserConfig.RoutingEnabled
                                                                 }
 
-                                                                $OutObj = [pscustomobject]$inobj
+                                                                $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                                 $TableParams = @{
                                                                     Name = "Cloud SubUser Default Gateway - $($Gateway.Name)"

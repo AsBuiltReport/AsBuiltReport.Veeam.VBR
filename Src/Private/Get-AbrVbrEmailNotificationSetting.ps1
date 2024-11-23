@@ -6,7 +6,7 @@ function Get-AbrVbrEmailNotificationSetting {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.7
+        Version:        0.8.12
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -35,18 +35,18 @@ function Get-AbrVbrEmailNotificationSetting {
                             'Email Sender' = $EmailSetting.Sender
                             'SMTP Server' = $EmailSetting.SmtpServer
                             'Email Subject' = $EmailSetting.Subject
-                            'SSL Enabled' = ConvertTo-TextYN $EmailSetting.SSLEnabled
-                            'Auth Enabled' = ConvertTo-TextYN $EmailSetting.AuthEnabled
+                            'SSL Enabled' = $EmailSetting.SSLEnabled
+                            'Auth Enabled' = $EmailSetting.AuthEnabled
                             'Credentials' = $EmailSetting.Credentials.Name
                             'Daily Reports Time' = $EmailSetting.DailyReportsTime.ToShortTimeString()
-                            'Enabled' = ConvertTo-TextYN $EmailSetting.Enabled
+                            'Enabled' = $EmailSetting.Enabled
                             'Notify On' = Switch ($EmailSetting.NotifyOnSuccess) {
                                 "" { "--"; break }
                                 $Null { "--"; break }
-                                default { "Notify On Success: $(ConvertTo-TextYN $EmailSetting.NotifyOnSuccess)`r`nNotify On Warning: $(ConvertTo-TextYN $EmailSetting.NotifyOnWarning)`r`nNotify On Failure: $(ConvertTo-TextYN $EmailSetting.NotifyOnFailure)`r`nNotify On Last Retry Only: $(ConvertTo-TextYN $EmailSetting.NotifyOnLastRetryOnly)" }
+                                default { "Notify On Success: $($EmailSetting.NotifyOnSuccess)`r`nNotify On Warning: $($EmailSetting.NotifyOnWarning)`r`nNotify On Failure: $($EmailSetting.NotifyOnFailure)`r`nNotify On Last Retry Only: $($EmailSetting.NotifyOnLastRetryOnly)" }
                             }
                         }
-                        $OutObj += [pscustomobject]$inobj
+                        $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                     }
 
                     if ($HealthCheck.Infrastructure.Settings) {

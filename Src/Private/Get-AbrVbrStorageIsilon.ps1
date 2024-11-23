@@ -6,7 +6,7 @@ function Get-AbrVbrStorageIsilon {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.11
+        Version:        0.8.12
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -50,7 +50,7 @@ function Get-AbrVbrStorageIsilon {
                                 'Connection Port' = "$($IsilonOptions.IsilonHostOptions.Port)\TCP"
                             }
 
-                            $OutObj = [pscustomobject]$inobj
+                            $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                             $TableParams = @{
                                 Name = "Isilon Host - $($IsilonHost.Name)"
@@ -74,10 +74,10 @@ function Get-AbrVbrStorageIsilon {
                                                         'Name' = $IsilonVol.Name
                                                         'Total Space' = ConvertTo-FileSizeString -Size  $IsilonVol.Size
                                                         'Used Space' = ConvertTo-FileSizeString -Size  $IsilonVol.ConsumedSpace
-                                                        'Thin Provision' = ConvertTo-TextYN $IsilonVol.IsThinProvision
+                                                        'Thin Provision' = $IsilonVol.IsThinProvision
                                                     }
 
-                                                    $OutObj += [pscustomobject]$inobj
+                                                    $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                                                 } catch {
                                                     Write-PScriboMessage -IsWarning "Dell Isilon Storage $($IsilonVol.Name) Volumes Section: $($_.Exception.Message)"
                                                 }

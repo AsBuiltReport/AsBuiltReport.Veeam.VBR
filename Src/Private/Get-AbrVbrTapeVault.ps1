@@ -6,7 +6,7 @@ function Get-AbrVbrTapeVault {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.7
+        Version:        0.8.12
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -37,10 +37,10 @@ function Get-AbrVbrTapeVault {
                                     $inObj = [ordered] @{
                                         'Name' = $TapeObj.Name
                                         'Description' = $TapeObj.Description
-                                        'Automatic Protect' = ConvertTo-TextYN $TapeObj.Protect
-                                        'Location' = ConvertTo-EmptyToFiller (Get-VBRLocation -Object $TapeObj -ErrorAction SilentlyContinue)
+                                        'Automatic Protect' = $TapeObj.Protect
+                                        'Location' = (Get-VBRLocation -Object $TapeObj -ErrorAction SilentlyContinue)
                                     }
-                                    $OutObj += [pscustomobject]$inobj
+                                    $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                                 } catch {
                                     Write-PScriboMessage -IsWarning "Tape Vaults $($TapeObj.Name) Table: $($_.Exception.Message)"
                                 }

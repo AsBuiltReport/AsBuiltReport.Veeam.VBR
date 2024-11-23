@@ -1,29 +1,32 @@
 function ConvertTo-TextYN {
     <#
     .SYNOPSIS
-    Used by As Built Report to convert true or false automatically to Yes or No.
+        Used by As Built Report to convert true or false automatically to Yes or No.
     .DESCRIPTION
+
     .NOTES
         Version:        0.3.0
         Author:         LEE DAILEY
+
     .EXAMPLE
+
     .LINK
+
     #>
     [CmdletBinding()]
     [OutputType([String])]
-    Param
-    (
+    Param (
         [Parameter (
             Position = 0,
             Mandatory)]
         [AllowEmptyString()]
-        [string]
-        $TEXT
+        [string] $TEXT
     )
 
     switch ($TEXT) {
-        "" { "--" }
-        $Null { "--" }
+        "" { "--"; break }
+        " " { "--"; break }
+        $Null { "--"; break }
         "True" { "Yes"; break }
         "False" { "No"; break }
         default { $TEXT }
@@ -987,7 +990,7 @@ function ConvertTo-HashToYN {
         try {
             $result.add($i.Key, (ConvertTo-TextYN $i.Value))
         } catch {
-            Write-PScriboMessage -IsWarning "Unable to process $($i.key) values"
+            $result.add($i.Key, ($i.Value))
         }
     }
     if ($result) {

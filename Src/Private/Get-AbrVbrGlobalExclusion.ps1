@@ -5,7 +5,7 @@ function Get-AbrVbrGlobalExclusion {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.7
+        Version:        0.8.12
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -36,9 +36,9 @@ function Get-AbrVbrGlobalExclusion {
                                 $inObj = [ordered] @{
                                     'Name' = $MalwareDetectionExclusion.Name
                                     'Platform' = $MalwareDetectionExclusion.Platform
-                                    'Note' = ConvertTo-EmptyToFiller $MalwareDetectionExclusion.Note
+                                    'Note' = $MalwareDetectionExclusion.Note
                                 }
-                                $OutObj += [pscustomobject]$inobj
+                                $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                             }
 
                             $TableParams = @{
@@ -64,9 +64,9 @@ function Get-AbrVbrGlobalExclusion {
                                     $inObj = [ordered] @{
                                         'Name' = $VMExclusion.Name
                                         'Platform' = $VMExclusion.Platform
-                                        'Note' = ConvertTo-EmptyToFiller $VMExclusion.Note
+                                        'Note' = $VMExclusion.Note
                                     }
-                                    $OutObj += [pscustomobject]$inobj
+                                    $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                                 }
 
                                 $TableParams = @{

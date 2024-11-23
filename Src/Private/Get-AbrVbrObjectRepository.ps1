@@ -6,7 +6,7 @@ function Get-AbrVbrObjectRepository {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.7
+        Version:        0.8.12
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -46,7 +46,7 @@ function Get-AbrVbrObjectRepository {
                                     }
                                 }
 
-                                $OutObj += [pscustomobject]$inobj
+                                $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                             } catch {
                                 Write-PScriboMessage -IsWarning "Preferred Networks $($ObjectRepo.Name) Section: $($_.Exception.Message)"
                             }
@@ -56,7 +56,7 @@ function Get-AbrVbrObjectRepository {
                                 $inObj = [ordered] @{
                                     'Name' = $ObjectRepo.Name
                                     'Type' = $ObjectRepo.Type
-                                    'Use Gateway Server' = ConvertTo-TextYN $ObjectRepo.UseGatewayServer
+                                    'Use Gateway Server' = $ObjectRepo.UseGatewayServer
                                     'Gateway Server' = Switch ($ObjectRepo.GatewayServer.Name) {
                                         "" { "--"; break }
                                         $Null { "--"; break }
@@ -64,7 +64,7 @@ function Get-AbrVbrObjectRepository {
                                     }
                                 }
 
-                                $OutObj += [pscustomobject]$inobj
+                                $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                             } catch {
                                 Write-PScriboMessage -IsWarning "Preferred Networks $($ObjectRepo.Name) Section: $($_.Exception.Message)"
                             }
@@ -106,14 +106,14 @@ function Get-AbrVbrObjectRepository {
                                                     'Type' = ($ObjectRepo).Type
                                                     'Amazon S3 Folder' = ($ObjectRepo).AmazonS3Folder
                                                     'Immutability Period' = $ObjectRepo.ImmutabilityPeriod
-                                                    'Immutability Enabled' = ConvertTo-TextYN $ObjectRepo.BackupImmutabilityEnabled
-                                                    'Size Limit Enabled' = ConvertTo-TextYN ($ObjectRepo).SizeLimitEnabled
+                                                    'Immutability Enabled' = $ObjectRepo.BackupImmutabilityEnabled
+                                                    'Size Limit Enabled' = ($ObjectRepo).SizeLimitEnabled
                                                     'Size Limit' = ($ObjectRepo).SizeLimit
 
                                                 }
 
                                                 if ($Null -ne ($ObjectRepo).UseGatewayServer) {
-                                                    $inObj.add('Use Gateway Server', (ConvertTo-TextYN $ObjectRepo.UseGatewayServer))
+                                                    $inObj.add('Use Gateway Server', ($ObjectRepo.UseGatewayServer))
                                                     $inObj.add('Gateway Server', $ObjectRepo.GatewayServer.Name)
                                                 }
                                                 if ($Null -ne $ObjectRepo.ConnectionType) {
@@ -124,8 +124,8 @@ function Get-AbrVbrObjectRepository {
                                                 }
                                                 if (($ObjectRepo).Type -eq 'AmazonS3') {
                                                     $inObj.remove('Service Point')
-                                                    $inObj.add('Use IA Storage Class', (ConvertTo-TextYN ($ObjectRepo).EnableIAStorageClass))
-                                                    $inObj.add('Use OZ IA Storage Class', (ConvertTo-TextYN ($ObjectRepo).EnableOZIAStorageClass))
+                                                    $inObj.add('Use IA Storage Class', (($ObjectRepo).EnableIAStorageClass))
+                                                    $inObj.add('Use OZ IA Storage Class', (($ObjectRepo).EnableOZIAStorageClass))
                                                 } elseif (($ObjectRepo).Type -eq 'AzureBlob') {
                                                     $inObj.remove('Service Point')
                                                     $inObj.remove('Amazon S3 Folder')
@@ -133,7 +133,7 @@ function Get-AbrVbrObjectRepository {
                                                     $inObj.add('Azure Blob Name', ($ObjectRepo.AzureBlobFolder).Name)
                                                     $inObj.add('Azure Blob Container', ($ObjectRepo.AzureBlobFolder).Container)
                                                 }
-                                                $OutObj = [pscustomobject]$inobj
+                                                $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                 if ($HealthCheck.Infrastructure.BR) {
                                                     $OutObj | Where-Object { $_.'Immutability Enabled' -eq 'No' } | Set-Style -Style Warning -Property 'Immutability Enabled'
@@ -188,12 +188,12 @@ function Get-AbrVbrObjectRepository {
                                                 $Null { "Auto Selected"; break }
                                                 default { $ObjectRepoArchive.GatewayServer.Name.split(".")[0] }
                                             }
-                                            'Gateway Server Enabled' = ConvertTo-TextYN $ObjectRepoArchive.UseGatewayServer
-                                            'Immutability Enabled' = ConvertTo-TextYN $ObjectRepoArchive.BackupImmutabilityEnabled
+                                            'Gateway Server Enabled' = $ObjectRepoArchive.UseGatewayServer
+                                            'Immutability Enabled' = $ObjectRepoArchive.BackupImmutabilityEnabled
                                             'Archive Type' = $ObjectRepoArchive.ArchiveType
                                         }
                                         if ($ObjectRepoArchive.ArchiveType -eq 'AmazonS3Glacier') {
-                                            $inObj.add('Deep Archive', (ConvertTo-TextYN $ObjectRepoArchive.UseDeepArchive))
+                                            $inObj.add('Deep Archive', ($ObjectRepoArchive.UseDeepArchive))
                                             $inObj.add('Proxy Instance Type', $ObjectRepoArchive.AmazonProxySpec.InstanceType)
                                             $inObj.add('Proxy Instance vCPU', $ObjectRepoArchive.AmazonProxySpec.InstanceType.vCPUs)
                                             $inObj.add('Proxy Instance Memory', ([Math]::Round($ObjectRepoArchive.AmazonProxySpec.InstanceType.Memory * 1MB / 1GB)))
@@ -214,7 +214,7 @@ function Get-AbrVbrObjectRepository {
                                             $inObj.add('Proxy VM Max Disks', $ObjectRepoArchive.AzureProxySpec.VMSize.MaxDisks)
                                             $inObj.add('Proxy VM Location', $ObjectRepoArchive.AzureProxySpec.VMSize.Location)
                                         }
-                                        $OutObj += [pscustomobject]$inobj
+                                        $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                         if ($HealthCheck.Infrastructure.BR) {
                                             $OutObj | Where-Object { $_.'Immutability Enabled' -eq 'No' } | Set-Style -Style Warning -Property 'Immutability Enabled'

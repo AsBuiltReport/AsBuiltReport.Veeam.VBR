@@ -6,7 +6,7 @@ function Get-AbrVbrCloudConnectCG {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.5
+        Version:        0.8.12
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -43,7 +43,7 @@ function Get-AbrVbrCloudConnectCG {
                                         'Network Mode' = $CloudObject.NetworkMode
                                         'NAT Port' = $CloudObject.NATPort
                                         'Incoming Port' = $CloudObject.IncomingPort
-                                        'Enabled' = ConvertTo-TextYN $CloudObject.Enabled
+                                        'Enabled' = $CloudObject.Enabled
                                     }
 
                                     if ($InfoLevel.CloudConnect.CloudGateway -ge 2) {
@@ -59,12 +59,12 @@ function Get-AbrVbrCloudConnectCG {
                                     }
 
                                     if ($InfoLevel.CloudConnect.CloudGateway -eq 1) {
-                                        $OutObj += [pscustomobject]$inobj
+                                        $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                                     }
 
                                     if ($InfoLevel.CloudConnect.CloudGateway -ge 2) {
 
-                                        $OutObj = [pscustomobject]$inobj
+                                        $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
                                         if ($HealthCheck.Jobs.BestPractice) {
                                             $OutObj | Where-Object { $Null -like $_.'Description' } | Set-Style -Style Warning -Property 'Description'
                                             $OutObj | Where-Object { $_.'Description' -match "Created by" } | Set-Style -Style Warning -Property 'Description'

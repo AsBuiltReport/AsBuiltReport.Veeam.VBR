@@ -6,7 +6,7 @@ function Get-AbrVbrCloudConnectTenant {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.11
+        Version:        0.8.12
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -47,7 +47,7 @@ function Get-AbrVbrCloudConnectTenant {
                                     'Last Result' = $CloudObject.LastResult
                                 }
 
-                                $OutObj += [pscustomobject]$inobj
+                                $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                             } catch {
                                 Write-PScriboMessage -IsWarning "Tenants $($CloudObject.Name) Section: $($_.Exception.Message)"
                             }
@@ -108,10 +108,16 @@ function Get-AbrVbrCloudConnectTenant {
                                                         }
                                                         'Expiration Date' = Switch ([string]::IsNullOrEmpty($CloudObject.LeaseExpirationDate)) {
                                                             $true { 'Never' }
-                                                            $false { $CloudObject.LeaseExpirationDate }
+                                                            $false {
+                                                                & {
+                                                                    if ($CloudObject.LeaseExpirationDate -lt (Get-Date)) {
+                                                                        "$($CloudObject.LeaseExpirationDate.ToShortDateString()) (Expired)"
+                                                                    } else { $CloudObject.LeaseExpirationDate.ToShortDateString() }
+                                                                }
+                                                            }
                                                             default { '--' }
                                                         }
-                                                        'Backup Storage (Cloud Backup Repository)' = ConvertTo-TextYN $CloudObject.ResourcesEnabled
+                                                        'Backup Storage (Cloud Backup Repository)' = $CloudObject.ResourcesEnabled
                                                         'Replication Resource (Cloud Host)' = Switch ($CloudObject.ReplicationResourcesEnabled -or $CloudObject.vCDReplicationResourcesEnabled) {
                                                             'True' { 'Yes' }
                                                             'False' { 'No' }
@@ -125,20 +131,12 @@ function Get-AbrVbrCloudConnectTenant {
                                                         $inObj.add('Domain Username', $CloudObject.Name)
                                                     }
 
-                                                    $OutObj = [pscustomobject]$inobj
+                                                    $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                     if ($HealthCheck.CloudConnect.BestPractice) {
                                                         $OutObj | Where-Object { $Null -like $_.'Description' } | Set-Style -Style Warning -Property 'Description'
                                                         $OutObj | Where-Object { $_.'Description' -match "Created by" } | Set-Style -Style Warning -Property 'Description'
-                                                        $OutObj | Where-Object { $_.'Expiration Date' -lt (Get-Date) -and $_.'Expiration Date' -ne 'Never' } | Set-Style -Style Warning -Property 'Expiration Date'
-
-                                                        foreach ( $OBJ in ($OutObj | Where-Object { $_.'Expiration Date' -ne 'Never' })) {
-                                                            if ($OBJ | Where-Object { $_.'Expiration Date' -lt (Get-Date) }) {
-                                                                $OBJ.'Expiration Date' = $OBJ.'Expiration Date'.ToLongDateString() + ' (Expired)'
-                                                            } else {
-                                                                $OBJ.'Expiration Date' = $OBJ.'Expiration Date'.ToLongDateString()
-                                                            }
-                                                        }
+                                                        $OutObj | Where-Object { $_.'Expiration Date' -match '(Expired)' } | Set-Style -Style Warning -Property 'Expiration Date'
                                                     }
 
                                                     $TableParams = @{
@@ -173,7 +171,7 @@ function Get-AbrVbrCloudConnectTenant {
                                                             }
 
                                                             if ($CloudObject.ThrottlingEnabled) {
-                                                                $inObj.add('Limit network traffic from this tenant?', (ConvertTo-TextYN $CloudObject.ThrottlingEnabled))
+                                                                $inObj.add('Limit network traffic from this tenant?', ($CloudObject.ThrottlingEnabled))
                                                                 Switch ($CloudObject.ThrottlingUnit) {
                                                                     'MbytePerSec' { $inObj.add('Throttling network traffic to', "$($CloudObject.ThrottlingValue) MB/s") }
                                                                     'KbytePerSec' { $inObj.add('Throttling network traffic to', "$($CloudObject.ThrottlingValue) KB/s") }
@@ -191,10 +189,10 @@ function Get-AbrVbrCloudConnectTenant {
                                                                 }
                                                                 $inObj.add('Gateway Type', 'Gateway Pool')
                                                                 $inObj.add('Gateway Pool', $GatewayPool)
-                                                                $inObj.add('Gateway Failover', (ConvertTo-TextYN $CloudObject.GatewayFailoverEnabled))
+                                                                $inObj.add('Gateway Failover', ($CloudObject.GatewayFailoverEnabled))
                                                             }
 
-                                                            $OutObj = [pscustomobject]$inobj
+                                                            $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                             $TableParams = @{
                                                                 Name = "Bandwidth - $($CloudObject.Name)"
@@ -225,7 +223,7 @@ function Get-AbrVbrCloudConnectTenant {
                                                                         'Friendly Name' = $CloudBackupRepo.RepositoryFriendlyName
                                                                         'Quota' = ConvertTo-FileSizeString -Size $CloudBackupRepo.RepositoryQuota
                                                                         'Quota Path' = $CloudBackupRepo.RepositoryQuotaPath
-                                                                        'Use Wan Acceleration' = ConvertTo-TextYN $CloudBackupRepo.WanAccelerationEnabled
+                                                                        'Use Wan Acceleration' = $CloudBackupRepo.WanAccelerationEnabled
                                                                     }
 
                                                                     if ($CloudBackupRepo.WanAccelerationEnabled) {
@@ -235,7 +233,7 @@ function Get-AbrVbrCloudConnectTenant {
                                                                         $inObj.add('Keep deleted backup file for', "$($CloudObject.BackupProtectionPeriod) days")
                                                                     }
 
-                                                                    $OutObj = [pscustomobject]$inobj
+                                                                    $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                                     $TableParams = @{
                                                                         Name = "Backup Resources - $($CloudBackupRepo.RepositoryFriendlyName)"
@@ -265,10 +263,10 @@ function Get-AbrVbrCloudConnectTenant {
                                                                     Write-PScriboMessage "Discovered $($CloudRepliRes.RepositoryFriendlyName) Replication Resources information."
                                                                     $inObj = [ordered] @{
                                                                         'Hardware Plans' = (Get-VBRCloudHardwarePlan  | Where-Object { $_.SubscribedTenantId -contains $CloudObject.Id }).Name -join ', '
-                                                                        'Use Veeam Network Extension Capabilities during Partial and Full Site Failover' = ConvertTo-TextYN $CloudRepliRes.NetworkFailoverResourcesEnabled
+                                                                        'Use Veeam Network Extension Capabilities during Partial and Full Site Failover' = $CloudRepliRes.NetworkFailoverResourcesEnabled
                                                                     }
 
-                                                                    $OutObj = [pscustomobject]$inobj
+                                                                    $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                                     $TableParams = @{
                                                                         Name = "Replication Resources - $($CloudObject.Name)"
@@ -299,14 +297,14 @@ function Get-AbrVbrCloudConnectTenant {
                                                                     $inObj = [ordered] @{
                                                                         'Organization vDC Name' = $CloudRepliRes.OrganizationvDCName
                                                                         'Allocation Model' = $CloudRepliRes.AllocationModel
-                                                                        'WAN Accelaration?' = ConvertTo-TextYN $CloudRepliRes.WANAccelarationEnabled
+                                                                        'WAN Accelaration?' = $CloudRepliRes.WANAccelarationEnabled
                                                                     }
 
                                                                     if ($CloudRepliRes.WANAccelarationEnabled) {
                                                                         $inObj.add('WAN Accelerator', $CloudRepliRes.WANAccelerator.Name)
                                                                     }
 
-                                                                    $OutObj = [pscustomobject]$inobj
+                                                                    $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                                     $TableParams = @{
                                                                         Name = "Replication Resources (vCD) - $($CloudObject.Name)"
@@ -345,7 +343,7 @@ function Get-AbrVbrCloudConnectTenant {
                                                                         }
 
                                                                         $inObj.add('Production Network', $TenantNetworkAppliance.ProductionNetwork.Name)
-                                                                        $inObj.add('Obtain Ip Address Automatically', (ConvertTo-TextYN $TenantNetworkAppliance.ObtainIpAddressAutomatically))
+                                                                        $inObj.add('Obtain Ip Address Automatically', ($TenantNetworkAppliance.ObtainIpAddressAutomatically))
 
                                                                         if (-Not $TenantNetworkAppliance.ObtainIpAddressAutomatically) {
                                                                             $inObj.add('Ip Address', $TenantNetworkAppliance.IpAddress)
@@ -353,7 +351,7 @@ function Get-AbrVbrCloudConnectTenant {
                                                                             $inObj.add('Default Gateway', $TenantNetworkAppliance.DefaultGateway)
                                                                         }
 
-                                                                        $OutObj = [pscustomobject]$inobj
+                                                                        $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                                         $TableParams = @{
                                                                             Name = "Network Extension - $($CloudObject.Name)"
@@ -397,7 +395,7 @@ function Get-AbrVbrCloudConnectTenant {
                                                                         }
                                                                     }
 
-                                                                    $OutObj = [pscustomobject]$inobj
+                                                                    $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                                     if ($HealthCheck.CloudConnect.Tenants) {
                                                                         $OutObj | Where-Object { $_.'Used Space %' -gt 85 } | Set-Style -Style Warning -Property 'Used Space %'
@@ -438,7 +436,7 @@ function Get-AbrVbrCloudConnectTenant {
                                                             'Rental Replica' = $CloudObject.RentalReplicaCount
                                                         }
 
-                                                        $OutObj = [pscustomobject]$inobj
+                                                        $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                         $TableParams = @{
                                                             Name = "Licenses Utilization - $($CloudObject.Name)"

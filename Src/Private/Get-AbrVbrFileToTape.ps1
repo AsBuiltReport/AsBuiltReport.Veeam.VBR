@@ -6,7 +6,7 @@ function Get-AbrVbrFileToTape {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.11
+        Version:        0.8.12
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -45,9 +45,9 @@ function Get-AbrVbrFileToTape {
                                                 'False' { 'Disabled' }
                                                 default { $TBkjob.NextRun }
                                             }
-                                            'Description' = ConvertTo-EmptyToFiller $TBkjob.Description
+                                            'Description' = $TBkjob.Description
                                         }
-                                        $OutObj = [pscustomobject]$inobj
+                                        $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                         if ($HealthCheck.Jobs.BestPractice) {
                                             $OutObj | Where-Object { $_.'Description' -eq "--" } | Set-Style -Style Warning -Property 'Description'
@@ -90,10 +90,10 @@ function Get-AbrVbrFileToTape {
                                                         'Type' = $File.Server.Type
                                                         'Selection Type' = $File.SelectionType
                                                         'Path' = $File.Path
-                                                        'Include Filter' = ConvertTo-EmptyToFiller $File.IncludeMask
-                                                        'Exclude Filter' = ConvertTo-EmptyToFiller $File.ExcludeMask
+                                                        'Include Filter' = $File.IncludeMask
+                                                        'Exclude Filter' = $File.ExcludeMask
                                                     }
-                                                    $OutObj += [pscustomobject]$inobj
+                                                    $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                                                 } catch {
                                                     Write-PScriboMessage -IsWarning "Files and Folders $($File.Name) Section: $($_.Exception.Message)"
                                                 }
@@ -113,7 +113,7 @@ function Get-AbrVbrFileToTape {
                                                             'Include Filter' = '--'
                                                             'Exclude Filter' = '--'
                                                         }
-                                                        $OutObj += [pscustomobject]$inobj2
+                                                        $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj2)
                                                     } catch {
                                                         Write-PScriboMessage -IsWarning "Files and Folders $($NDMP.Name) Section: $($_.Exception.Message)"
                                                     }
@@ -147,8 +147,8 @@ function Get-AbrVbrFileToTape {
                                                         'Tape Count' = (Get-VBRTapeMedium -MediaPool $BackupMediaPool.Name).count
                                                         'Capacity' = ConvertTo-FileSizeString -Size $BackupMediaPool.Capacity
                                                         'Remaining' = ConvertTo-FileSizeString -Size  $BackupMediaPool.FreeSpace
-                                                        'Is WORM' = ConvertTo-TextYN $BackupMediaPool.Worm
-                                                        'Schedule Enabled' = ConvertTo-TextYN $TBkjob.FullBackupPolicy.Enabled
+                                                        'Is WORM' = $BackupMediaPool.Worm
+                                                        'Schedule Enabled' = $TBkjob.FullBackupPolicy.Enabled
                                                     }
                                                     if ($BackupMediaPool.Type -eq "Custom" -and $TBkjob.FullBackupPolicy.Enabled) {
                                                         if ($TBkjob.FullBackupPolicy.Type -eq 'Daily') {
@@ -165,7 +165,7 @@ function Get-AbrVbrFileToTape {
                                                             }
                                                         }
                                                     }
-                                                    $OutObj += [pscustomobject]$inobj
+                                                    $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                                                 } catch {
                                                     Write-PScriboMessage -IsWarning "Full Backup $($BackupMediaPool.Name) Section: $($_.Exception.Message)"
                                                 }
@@ -198,8 +198,8 @@ function Get-AbrVbrFileToTape {
                                                         'Tape Count' = (Get-VBRTapeMedium -MediaPool $BackupMediaPool.Name).count
                                                         'Capacity' = ConvertTo-FileSizeString -Size  $BackupMediaPool.Capacity
                                                         'Remaining' = ConvertTo-FileSizeString -Size  $BackupMediaPool.FreeSpace
-                                                        'Is WORM' = ConvertTo-TextYN $BackupMediaPool.Worm
-                                                        'Schedule Enabled' = ConvertTo-TextYN $TBkjob.IncrementalBackupPolicy.Enabled
+                                                        'Is WORM' = $BackupMediaPool.Worm
+                                                        'Schedule Enabled' = $TBkjob.IncrementalBackupPolicy.Enabled
                                                     }
                                                     if ($BackupMediaPool.Type -eq "Custom" -and $TBkjob.IncrementalBackupPolicy.Enabled) {
                                                         if ($TBkjob.IncrementalBackupPolicy.Type -eq 'Daily') {
@@ -216,7 +216,7 @@ function Get-AbrVbrFileToTape {
                                                             }
                                                         }
                                                     }
-                                                    $OutObj += [pscustomobject]$inobj
+                                                    $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                                                 } catch {
                                                     Write-PScriboMessage -IsWarning "Incremental Backup $($BackupMediaPool.Name) Section: $($_.Exception.Message)"
                                                 }
@@ -242,11 +242,11 @@ function Get-AbrVbrFileToTape {
                                         try {
                                             Write-PScriboMessage "Discovered $($TBkjob.Name) options."
                                             $inObj = [ordered] @{
-                                                'Use Microsoft volume shadow copy (VSS)' = ConvertTo-TextYN $TBkjob.UseVss
-                                                'Eject Tape Media Upon Job Completion' = ConvertTo-TextYN $TBkjob.EjectCurrentMedium
-                                                'Export the following MediaSet Upon Job Completion' = ConvertTo-TextYN $TBkjob.ExportCurrentMediaSet
+                                                'Use Microsoft volume shadow copy (VSS)' = $TBkjob.UseVss
+                                                'Eject Tape Media Upon Job Completion' = $TBkjob.EjectCurrentMedium
+                                                'Export the following MediaSet Upon Job Completion' = $TBkjob.ExportCurrentMediaSet
                                             }
-                                            $OutObj += [pscustomobject]$inobj
+                                            $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                                         } catch {
                                             Write-PScriboMessage -IsWarning "Options $($TBkjob.Name) Section: $($_.Exception.Message)"
                                         }
@@ -267,21 +267,21 @@ function Get-AbrVbrFileToTape {
                                                     try {
                                                         Write-PScriboMessage "Discovered $($TBkjob.Name) notification options."
                                                         $inObj = [ordered] @{
-                                                            'Send Email Notification' = ConvertTo-TextYN $TBkjob.NotificationOptions.EnableAdditionalNotification
+                                                            'Send Email Notification' = $TBkjob.NotificationOptions.EnableAdditionalNotification
                                                             'Email Notification Additional Recipients' = $TBkjob.NotificationOptions.AdditionalAddress -join ","
                                                         }
                                                         if (!$TBkjob.NotificationOptions.UseNotificationOptions) {
-                                                            $inObj.add('Use Global Notification Settings', (ConvertTo-TextYN $TBkjob.NotificationOptions.UseNotificationOptions))
+                                                            $inObj.add('Use Global Notification Settings', ($TBkjob.NotificationOptions.UseNotificationOptions))
                                                         } elseif ($TBkjob.NotificationOptions.UseNotificationOptions) {
                                                             $inObj.add('Use Custom Notification Settings', ('Yes'))
                                                             $inObj.add('Subject', ($TBkjob.NotificationOptions.NotificationSubject))
-                                                            $inObj.add('Notify On Success', (ConvertTo-TextYN $TBkjob.NotificationOptions.NotifyOnSuccess))
-                                                            $inObj.add('Notify On Warning', (ConvertTo-TextYN $TBkjob.NotificationOptions.NotifyOnWarning))
-                                                            $inObj.add('Notify On Error', (ConvertTo-TextYN $TBkjob.NotificationOptions.NotifyOnError))
-                                                            $inObj.add('Notify On Last Retry Only', (ConvertTo-TextYN $TBkjob.NotificationOptions.NotifyOnLastRetryOnly))
-                                                            $inObj.add('Notify When Waiting For Tape', (ConvertTo-TextYN $TBkjob.NotificationOptions.NotifyWhenWaitingForTape))
+                                                            $inObj.add('Notify On Success', ($TBkjob.NotificationOptions.NotifyOnSuccess))
+                                                            $inObj.add('Notify On Warning', ($TBkjob.NotificationOptions.NotifyOnWarning))
+                                                            $inObj.add('Notify On Error', ($TBkjob.NotificationOptions.NotifyOnError))
+                                                            $inObj.add('Notify On Last Retry Only', ($TBkjob.NotificationOptions.NotifyOnLastRetryOnly))
+                                                            $inObj.add('Notify When Waiting For Tape', ($TBkjob.NotificationOptions.NotifyWhenWaitingForTape))
                                                         }
-                                                        $OutObj += [pscustomobject]$inobj
+                                                        $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                                                     } catch {
                                                         Write-PScriboMessage -IsWarning "Advanced Settings (Notifications) $($TBkjob.Name) Section: $($_.Exception.Message)"
                                                     }
@@ -307,15 +307,15 @@ function Get-AbrVbrFileToTape {
                                                     try {
                                                         Write-PScriboMessage "Discovered $($TBkjob.Name) advanced options."
                                                         $inObj = [ordered] @{
-                                                            'Use Hardware Compression when available' = ConvertTo-TextYN $TBkjob.UseHardwareCompression
+                                                            'Use Hardware Compression when available' = $TBkjob.UseHardwareCompression
                                                         }
                                                         if (!$TBkjob.JobScriptOptions.PreScriptEnabled) {
-                                                            $inObj.add('Pre Job Script Enabled', (ConvertTo-TextYN $TBkjob.JobScriptOptions.PreScriptEnabled))
+                                                            $inObj.add('Pre Job Script Enabled', ($TBkjob.JobScriptOptions.PreScriptEnabled))
                                                         } elseif ($TBkjob.JobScriptOptions.PreScriptEnabled) {
                                                             $inObj.add('Run the following script before job', ($TBkjob.JobScriptOptions.PreCommand))
                                                         }
                                                         if (!$TBkjob.JobScriptOptions.PostScriptEnabled) {
-                                                            $inObj.add('Post Job Script Enabled', (ConvertTo-TextYN $TBkjob.JobScriptOptions.PostScriptEnabled))
+                                                            $inObj.add('Post Job Script Enabled', ($TBkjob.JobScriptOptions.PostScriptEnabled))
                                                         } elseif ($TBkjob.JobScriptOptions.PostScriptEnabled) {
                                                             $inObj.add('Run the following script after job', ($TBkjob.JobScriptOptions.PostCommand))
                                                         }
@@ -329,7 +329,7 @@ function Get-AbrVbrFileToTape {
                                                             }
                                                             $inObj.add($FrequencyText, ($FrequencyValue))
                                                         }
-                                                        $OutObj += [pscustomobject]$inobj
+                                                        $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                                                     } catch {
                                                         Write-PScriboMessage -IsWarning "Advanced Settings (Advanced) $($TBkjob.Name) Section: $($_.Exception.Message)"
                                                     }

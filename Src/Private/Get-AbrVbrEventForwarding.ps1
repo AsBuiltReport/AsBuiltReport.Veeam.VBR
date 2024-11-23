@@ -5,7 +5,7 @@ function Get-AbrVbrEventForwarding {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.3
+        Version:        0.8.12
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -42,7 +42,7 @@ function Get-AbrVbrEventForwarding {
                         default { "Unknown" }
                     }
                 }
-                $OutObj += [pscustomobject]$inobj
+                $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
 
                 if ($HealthCheck.Infrastructure.Settings) {
                     $OutObj | Where-Object { $_.'Syslog Servers' -eq '--' } | Set-Style -Style Warning -Property 'Syslog Servers'

@@ -6,7 +6,7 @@ function Get-AbrVbrConfigurationBackupSetting {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.7
+        Version:        0.8.12
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -37,25 +37,25 @@ function Get-AbrVbrConfigurationBackupSetting {
                         }
                         $inObj = [ordered] @{
                             'Name' = $BackupSettings.Name
-                            'Run Job Automatically' = ConvertTo-TextYN $BackupSettings.ScheduleOptions.Enabled
+                            'Run Job Automatically' = $BackupSettings.ScheduleOptions.Enabled
                             'Schedule Type' = $BackupSettings.ScheduleOptions.Type
                             'Schedule Options' = $ScheduleOptions
                             'Restore Points To Keep' = $BackupSettings.RestorePointsToKeep
-                            'Encryption Enabled' = ConvertTo-TextYN $BackupSettings.EncryptionOptions
+                            'Encryption Enabled' = $BackupSettings.EncryptionOptions
                             'Encryption Key' = $BackupSettings.EncryptionOptions.Key.Description
                             'Additional Address' = $BackupSettings.NotificationOptions.AdditionalAddress
                             'Email Subject' = $BackupSettings.NotificationOptions.NotificationSubject
                             'Notify On' = Switch ($BackupSettings.NotificationOptions.EnableAdditionalNotification) {
                                 "" { "--"; break }
                                 $Null { "--"; break }
-                                default { "Notify On Success: $(ConvertTo-TextYN $BackupSettings.NotificationOptions.NotifyOnSuccess)`r`nNotify On Warning: $(ConvertTo-TextYN $BackupSettings.NotificationOptions.NotifyOnWarning)`r`nNotify On Error: $(ConvertTo-TextYN $BackupSettings.NotificationOptions.NotifyOnError)`r`nNotify On Last Retry Only: $(ConvertTo-TextYN $BackupSettings.NotificationOptions.NotifyOnLastRetryOnly)" }
+                                default { "Notify On Success: $($BackupSettings.NotificationOptions.NotifyOnSuccess)`r`nNotify On Warning: $($BackupSettings.NotificationOptions.NotifyOnWarning)`r`nNotify On Error: $($BackupSettings.NotificationOptions.NotifyOnError)`r`nNotify On Last Retry Only: $($BackupSettings.NotificationOptions.NotifyOnLastRetryOnly)" }
                             }
                             'NextRun' = $BackupSettings.NextRun
                             'Target' = $BackupSettings.Target
-                            'Enabled' = ConvertTo-TextYN $BackupSettings.Enabled
+                            'Enabled' = $BackupSettings.Enabled
                             'LastResult' = $BackupSettings.LastResult
                         }
-                        $OutObj += [pscustomobject]$inobj
+                        $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                     } catch {
                         Write-PScriboMessage -IsWarning "Configuration Backup Settings Section: $($_.Exception.Message)"
                     }
