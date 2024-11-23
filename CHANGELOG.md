@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ##### This project is community maintained and has no sponsorship from Veeam, its employees or any of its affiliates.
 
-## [0.8.12] - Unreleased
+## [0.8.12] - 2024-11-22
 
 ### Changed
 
@@ -15,8 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improve detection of true/false elements in tables
 - Improve support for Veeam B&R v11
 - Update GitHub release workflow to add post to Bluesky social platform
-- Increase Diagrammer.Core minimum requirement to v0.2.12
-- Increase Veeam.Diagrammer minimum requirement to v0.6.13
+- Increase Diagrammer.Core minimum requirement to v0.2.13
+- Increase Veeam.Diagrammer minimum requirement to v0.6.16
 
 ### Fixed
 
