@@ -113,7 +113,7 @@ function Get-AbrVbrFileToTape {
                                                             'Include Filter' = '--'
                                                             'Exclude Filter' = '--'
                                                         }
-                                                        $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
+                                                        $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj2)
                                                     } catch {
                                                         Write-PScriboMessage -IsWarning "Files and Folders $($NDMP.Name) Section: $($_.Exception.Message)"
                                                     }
