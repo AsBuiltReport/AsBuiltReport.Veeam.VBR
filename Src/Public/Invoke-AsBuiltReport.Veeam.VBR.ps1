@@ -500,7 +500,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                 $DiagramFormat = $Options.ExportDiagramsFormat
             }
             $DiagramParams = @{
-                'OutputFolderPath' = (Get-Location).Path
+                'OutputFolderPath' = $OutputFolderPath
                 'Credential' = $Credential
                 'Target' = $System
                 'Direction' = 'top-to-bottom'
@@ -525,7 +525,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                 foreach ($Format in $DiagramFormat) {
                     $Graph = New-VeeamDiagram @DiagramParams -Format $Format -Filename "AsBuiltReport.Veeam.VBR.$($Format)"
                     if ($Graph) {
-                        Write-Information "Saved 'AsBuiltReport.Veeam.VBR.$($Format)' diagram to '$((Get-Location).Path)\'." -InformationAction Continue
+                        Write-Information "Saved 'AsBuiltReport.Veeam.VBR.$($Format)' diagram to '$($OutputFolderPath)'." -InformationAction Continue
                     }
                 }
             } catch {
