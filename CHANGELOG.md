@@ -11,8 +11,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Increase Veeam.Diagrammer minimum requirement to v0.6.17
 - Change the infrastructure diagram default save location to $OutputFolderPath
 - Increase AsBuiltReport.Core to v1.4.1
+
+### Fixed
+
+- Fix error "A positional parameter cannot be found that accepts argument '-'" at Get-AbrVbrConfigurationBackupSetting cmdlet
 
 ## [0.8.12] - 2024-11-22
 

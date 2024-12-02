@@ -6,7 +6,7 @@ function Get-AbrVbrConfigurationBackupSetting {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.12
+        Version:        0.8.13
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -83,14 +83,14 @@ function Get-AbrVbrConfigurationBackupSetting {
                             BlankLine
                             if ($OutObj | Where-Object { $_.'Encryption Enabled' -like 'No' } ) {
                                 Paragraph {
-                                    Text "Best Practice:" - Bold
+                                    Text "Best Practice:" -Bold
                                     Text "Whenever possible, enable configuration backup encryption."
                                 }
                                 BlankLine
                             }
                             if ($OutObj | Where-Object { $_.'Run Job Automatically' -like 'No' }) {
                                 Paragraph {
-                                    Text "Best Practice:" - Bold
+                                    Text "Best Practice:" -Bold
                                     Text "It's a recommended best practice to activate the 'Run job automatically' option of the Backup Configuration job."
                                 }
                                 BlankLine
