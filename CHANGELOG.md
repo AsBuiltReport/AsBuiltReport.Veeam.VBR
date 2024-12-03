@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Fix error "A positional parameter cannot be found that accepts argument '-'" at Get-AbrVbrConfigurationBackupSetting cmdlet
+- Fix ConvertTo-HashToYN cmdlet not generating an ordereddictionary output
 
 ## [0.8.12] - 2024-11-22
 
