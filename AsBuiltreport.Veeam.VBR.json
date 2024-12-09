@@ -48,7 +48,8 @@
         "Inventory": {
             "FileShare": 1,
             "PHY": 1,
-            "VI": 1
+            "VI": 1,
+            "EntraID": 1
         },
         "Storage": {
             "ISILON": 1,
@@ -71,6 +72,7 @@
             "Agent": 1,
             "Backup": 1,
             "BackupCopy": 1,
+            "EntraID": 3,
             "FileShare": 1,
             "Surebackup": 1,
             "Replication": 1,

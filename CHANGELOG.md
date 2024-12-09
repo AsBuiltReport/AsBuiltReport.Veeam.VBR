@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.8.13] - Unreleased
 
+### Added
+
+- Add EntraID Tenant configuration
+  - Add Objects Backup Job information
+
 ### Changed
 
 - Increase Veeam.Diagrammer minimum requirement to v0.6.17

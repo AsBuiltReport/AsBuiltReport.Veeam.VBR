@@ -6,7 +6,7 @@ function Get-AbrVbrVirtualInfrastructure {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.12
+        Version:        0.8.13
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -28,7 +28,7 @@ function Get-AbrVbrVirtualInfrastructure {
         try {
             if ($VbrServer = Get-VBRServer) {
                 Section -Style Heading3 'Virtual Infrastructure' {
-                    Paragraph "The following sections detail the configuration about managed virtual servers backed-up by Veeam Server $(((Get-VBRServerSession).Server))."
+                    Paragraph "The following sections detail the configuration about managed virtual servers backed-up by Veeam Server $VeeamBackupServer."
                     BlankLine
                     #---------------------------------------------------------------------------------------------#
                     #                            VMware vSphere information Section                               #
@@ -36,7 +36,7 @@ function Get-AbrVbrVirtualInfrastructure {
                     try {
                         if ($VbrServer | Where-Object { $_.Type -eq 'VC' -or $_.Type -eq 'ESXi' }) {
                             Section -Style Heading4 'VMware vSphere' {
-                                Paragraph "The following section details information about VMware Virtual Infrastructure backed-up by Veeam Server $(((Get-VBRServerSession).Server))."
+                                Paragraph "The following section details information about VMware Virtual Infrastructure backed-up by Veeam Server $VeeamBackupServer."
                                 BlankLine
                                 $InventObjs = $VbrServer | Where-Object { $_.Type -eq 'VC' }
                                 if ($InventObjs) {

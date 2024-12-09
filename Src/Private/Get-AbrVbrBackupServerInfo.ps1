@@ -6,7 +6,7 @@ function Get-AbrVbrBackupServerInfo {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.12
+        Version:        0.8.13
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -425,6 +425,12 @@ function Get-AbrVbrBackupServerInfo {
                                     "ProviderCredentialsId" = ""
                                     "ProviderInfo" = ""
                                     "ProviderId" = ""
+                                    "EntraIdSqlHostName" = "localhost"
+                                    "EntraIdSqlHostPort" = "5432"
+                                    "EntraIdSqlPassword" = ""
+                                    "EntraIdSqlServiceName" = "postgresql-x64-15"
+                                    "EntraIdSqlUserName" = "postgres"
+                                    "HighestDetectedVMCVersion" = ""
                                 }
                                 if ($VeeamInfo) {
                                     $OutObj = @()
@@ -444,7 +450,6 @@ function Get-AbrVbrBackupServerInfo {
                                                     0 { '--' }
                                                     1 { $Registry.Value }
                                                     default { $Registry.Value -Join ', ' }
-
                                                 }
                                             }
                                             $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
