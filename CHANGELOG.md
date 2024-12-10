@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add EntraID Tenant configuration
   - Add Objects Backup Job information
+- Update Malware detection setting
+  - Add Signature Detection
+- Update Security & Compliance Best Practice content
+- Add Syslog Event Filter information
 
 ### Changed
 

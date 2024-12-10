@@ -66,6 +66,44 @@ function Get-AbrVbrEventForwarding {
                     }
                     BlankLine
                 }
+                try {
+                    $SyslogEventFilters = try { Get-VBRSyslogEventFilters } catch { Write-PScriboMessage "No syslog event filter configured" }
+                    Section -Style Heading4 'Syslog Event Filter' {
+                        $OutObj = @()
+                        foreach ($SyslogEventFilter in $SyslogEventFilters) {
+
+                            $SyslogEventFilterLevel = @()
+
+                            if ($SyslogEventFilter.FilterInfos) {
+                                $SyslogEventFilterLevel += 'Information'
+                            }
+                            if ($SyslogEventFilter.FilterWarnings) {
+                                $SyslogEventFilterLevel += 'Warning'
+                            }
+                            if ($SyslogEventFilter.FilterErrors) {
+                                $SyslogEventFilterLevel += 'Error'
+                            }
+
+                            $inObj = [ordered] @{
+                                'EventId' = $SyslogEventFilter.EventId
+                                'Level' = $SyslogEventFilterLevel -join ", "
+                            }
+                            $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
+                        }
+
+                        $TableParams = @{
+                            Name = "Syslog Event Filter - $VeeamBackupServer"
+                            List = $false
+                            ColumnWidths = 50, 50
+                        }
+                        if ($Report.ShowTableCaptions) {
+                            $TableParams['Caption'] = "- $($TableParams.Name)"
+                        }
+                        $OutObj | Table @TableParams
+                    }
+                } catch {
+                    Write-PScriboMessage -IsWarning "Syslog Event Filter Section: $($_.Exception.Message)"
+                }
             }
         } catch {
             Write-PScriboMessage -IsWarning "Event Forwarding Section: $($_.Exception.Message)"

@@ -6,7 +6,7 @@ function Get-AbrVbrSecurityCompliance {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.12
+        Version:        0.8.13
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -74,6 +74,7 @@ function Get-AbrVbrSecurityCompliance {
                     'LsassProtectedProcess' = 'Local Security Authority Server Service (LSASS) should be set to run as a protected process'
                     'HardenedRepositoryNotContainsNBDProxies' = 'Hardened repositories should not be used as backup proxy servers due to expanded attack surface'
                     'PostgreSqlUseRecommendedSettings' = 'PostgreSQL server should be configured with recommended settings'
+                    'PasswordsComplexityRules' = 'Backup encryption password length and complexity recommendations should be followed'
                 }
                 $StatusObj = @{
                     'Ok' = "Passed"
@@ -86,7 +87,7 @@ function Get-AbrVbrSecurityCompliance {
                     try {
                         # Write-PscriboMessage -IsWarning "$($SecurityCompliance.Type) = $($RuleTypes[$SecurityCompliance.Type.ToString()])"
                         $inObj = [ordered] @{
-                            'Best Practice' = $RuleTypes[$SecurityCompliance.Type.ToString()]
+                            'Best Practices' = $RuleTypes[$SecurityCompliance.Type.ToString()]
                             'Status' = $StatusObj[$SecurityCompliance.Status.ToString()]
                         }
                         $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
@@ -124,7 +125,7 @@ function Get-AbrVbrSecurityCompliance {
 
                 $sampleDataObj = $sampleData.GetEnumerator() | Select-Object @{ Name = 'Category'; Expression = { $_.key } }, @{ Name = 'Value'; Expression = { $_.value } }
 
-                $chartFileItem = Get-ColumnChart -Status -SampleData $sampleDataObj -ChartName 'SecurityCompliance' -XField 'Category' -YField 'Value' -ChartAreaName 'Infrastructure' -AxisXTitle 'Status' -AxisYTitle 'Count' -ChartTitleName 'SecurityCompliance' -ChartTitleText 'Best Practice'
+                $chartFileItem = Get-ColumnChart -Status -SampleData $sampleDataObj -ChartName 'SecurityCompliance' -XField 'Category' -YField 'Value' -ChartAreaName 'Infrastructure' -AxisXTitle 'Status' -AxisYTitle 'Count' -ChartTitleName 'SecurityCompliance' -ChartTitleText 'Best Practices'
 
             } catch {
                 Write-PScriboMessage -IsWarning "Security & Compliance chart section: $($_.Exception.Message)"
@@ -136,7 +137,7 @@ function Get-AbrVbrSecurityCompliance {
                         Image -Text 'Security & Compliance - Chart' -Align 'Center' -Percent 100 -Base64 $chartFileItem
                     }
                     BlankLine
-                    $OutObj | Sort-Object -Property 'Best Practice' | Table @TableParams
+                    $OutObj | Sort-Object -Property 'Best Practices' | Table @TableParams
                 }
             }
         } catch {
