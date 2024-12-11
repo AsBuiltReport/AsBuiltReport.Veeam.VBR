@@ -6,7 +6,7 @@ function Get-AbrVbrCloudConnectTenant {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.12
+        Version:        0.8.13
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -134,7 +134,7 @@ function Get-AbrVbrCloudConnectTenant {
                                                     $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                     if ($HealthCheck.CloudConnect.BestPractice) {
-                                                        $OutObj | Where-Object { $Null -like $_.'Description' } | Set-Style -Style Warning -Property 'Description'
+                                                        $OutObj | Where-Object { $_.'Description' -eq "--" } | Set-Style -Style Warning -Property 'Description'
                                                         $OutObj | Where-Object { $_.'Description' -match "Created by" } | Set-Style -Style Warning -Property 'Description'
                                                         $OutObj | Where-Object { $_.'Expiration Date' -match '(Expired)' } | Set-Style -Style Warning -Property 'Expiration Date'
                                                     }
@@ -150,8 +150,7 @@ function Get-AbrVbrCloudConnectTenant {
                                                     }
                                                     $OutObj | Sort-Object -Property 'Name' | Table @TableParams
                                                     if ($HealthCheck.Jobs.BestPractice) {
-                                                        if ($OutObj | Where-Object { $_.'Description' -match 'Created by' -or $Null -like $_.'Description' }) {
-                                                            Paragraph "Health Check:" -Bold -Underline
+                                                        if ($OutObj | Where-Object { $_.'Description' -match 'Created by' -or $_.'Description' -eq '--' }) {                                                            Paragraph "Health Check:" -Bold -Underline
                                                             BlankLine
                                                             Paragraph {
                                                                 Text "Best Practice:" -Bold

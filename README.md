@@ -212,6 +212,7 @@ The table below outlines the default and maximum **InfoLevel** settings for each
 | VI         |        1        |        1        |
 | PHY        |        1        |        2        |
 | FileShare  |        1        |        1        |
+| EntraID    |        1        |        1        |
 
 The table below outlines the default and maximum **InfoLevel** settings for each Storage Infrastructure section.
 
@@ -232,6 +233,7 @@ The table below outlines the default and maximum **InfoLevel** settings for each
 | FileShare   |        1        |        2        |
 | Replication |        1        |        2        |
 | Restores    |        0        |        1        |
+| EntraID     |        1        |        2        |
 
 The table below outlines the default and maximum **InfoLevel** settings for each Replication section.
 

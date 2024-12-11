@@ -6,7 +6,7 @@ function Get-AbrVbrUnstructuredDataInfo {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.12
+        Version:        0.8.13
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -27,7 +27,7 @@ function Get-AbrVbrUnstructuredDataInfo {
     process {
         if ($ShareObjs = Get-VBRUnstructuredServer) {
             Section -Style Heading3 'Unstructured Data' {
-                Paragraph "The following table provides a summary about the unstructured data backed-up by Veeam Server $(((Get-VBRServerSession).Server))."
+                Paragraph "The following table provides a summary about the unstructured data backed-up by Veeam Server $VeeamBackupServer."
                 $OutObj = @()
                 try {
                     foreach ($ShareObj in $ShareObjs | Where-Object { $_.Type -eq "FileServer" }) {

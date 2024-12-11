@@ -7,17 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ##### This project is community maintained and has no sponsorship from Veeam, its employees or any of its affiliates.
 
-## [0.8.13] - Unreleased
+## [0.8.13] - 2024-12-11
+
+### Added
+
+- Add EntraID Tenant configuration
+  - Add Objects Backup Job information
+- Update Malware detection setting
+  - Add Signature Detection
+- Update Security & Compliance Best Practice content
+- Add Syslog Event Filter information
+- Add Google Cloud Storage repository information
 
 ### Changed
 
-- Increase Veeam.Diagrammer minimum requirement to v0.6.17
+- Increase Veeam.Diagrammer minimum requirement to v0.6.18
 - Change the infrastructure diagram default save location to $OutputFolderPath
 - Increase AsBuiltReport.Core to v1.4.1
 
 ### Fixed
 
 - Fix error "A positional parameter cannot be found that accepts argument '-'" at Get-AbrVbrConfigurationBackupSetting cmdlet
+- Fix ConvertTo-HashToYN cmdlet not generating an ordereddictionary output
 
 ## [0.8.12] - 2024-11-22
 

@@ -6,7 +6,7 @@ function Get-AbrVbrFileSharesInfo {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.12
+        Version:        0.8.13
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -27,7 +27,7 @@ function Get-AbrVbrFileSharesInfo {
     process {
         if ($ShareObjs = Get-VBRNASServer -WarningAction SilentlyContinue) {
             Section -Style Heading3 'File Shares' {
-                Paragraph "The following table provides a summary about the file shares backed-up by Veeam Server $(((Get-VBRServerSession).Server))."
+                Paragraph "The following table provides a summary about the file shares backed-up by Veeam Server $VeeamBackupServer."
                 BlankLine
                 $OutObj = @()
                 try {

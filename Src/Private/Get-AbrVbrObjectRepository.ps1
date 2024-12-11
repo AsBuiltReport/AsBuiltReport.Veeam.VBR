@@ -6,7 +6,7 @@ function Get-AbrVbrObjectRepository {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.12
+        Version:        0.8.13
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -130,8 +130,16 @@ function Get-AbrVbrObjectRepository {
                                                     $inObj.remove('Service Point')
                                                     $inObj.remove('Amazon S3 Folder')
                                                     $inObj.remove('Immutability Period')
+                                                    $inObj.remove('Immutability Enabled	')
                                                     $inObj.add('Azure Blob Name', ($ObjectRepo.AzureBlobFolder).Name)
                                                     $inObj.add('Azure Blob Container', ($ObjectRepo.AzureBlobFolder).Container)
+                                                } elseif (($ObjectRepo).Type -eq 'GoogleCloudStorage') {
+                                                    $inObj.remove('Service Point')
+                                                    $inObj.remove('Amazon S3 Folder')
+                                                    $inObj.remove('Immutability Period')
+                                                    $inObj.add('Folder Name', $ObjectRepo.Folder)
+                                                    $inObj.add('Enable Nearline Storage Class', $ObjectRepo.EnableNearlineStorageClass)
+                                                    $inObj.add('Enable Coldline Storage Class', $ObjectRepo.EnableColdlineStorageClass)
                                                 }
                                                 $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
