@@ -6,7 +6,7 @@ function Get-AbrVbrReplFailoverPlan {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.12
+        Version:        0.8.13
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -27,7 +27,7 @@ function Get-AbrVbrReplFailoverPlan {
     process {
         if ($FailOverPlans = Get-VBRFailoverPlan | Sort-Object -Property Name) {
             Section -Style Heading3 'Failover Plans' {
-                Paragraph "The following section details failover plan information from Veeam Server $(((Get-VBRServerSession).Server))."
+                Paragraph "The following section details failover plan information from Veeam Server $VeeamBackupServer."
                 $OutObj = @()
                 foreach ($FailOverPlan in $FailOverPlans) {
                     try {
@@ -49,7 +49,7 @@ function Get-AbrVbrReplFailoverPlan {
                             }
 
                             if ($HealthCheck.Replication.BestPractice) {
-                                $OutObj | Where-Object { $Null -like $_.'Description' } | Set-Style -Style Warning -Property 'Description'
+                                $OutObj | Where-Object { $_.'Description' -eq "--" } | Set-Style -Style Warning -Property 'Description'
                                 $OutObj | Where-Object { $_.'Description' -match "Created by" } | Set-Style -Style Warning -Property 'Description'
                             }
 
@@ -63,8 +63,7 @@ function Get-AbrVbrReplFailoverPlan {
                             }
                             $OutObj | Table @TableParams
                             if ($HealthCheck.Replication.BestPractice) {
-                                if ($OutObj | Where-Object { $_.'Description' -match 'Created by' -or $Null -like $_.'Description' }) {
-                                    Paragraph "Health Check:" -Bold -Underline
+                                if ($OutObj | Where-Object { $_.'Description' -match 'Created by' -or $_.'Description' -eq '--' }) {                                    Paragraph "Health Check:" -Bold -Underline
                                     BlankLine
                                     Paragraph {
                                         Text "Best Practice:" -Bold

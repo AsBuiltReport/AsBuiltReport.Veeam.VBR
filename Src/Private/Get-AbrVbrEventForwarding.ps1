@@ -5,7 +5,7 @@ function Get-AbrVbrEventForwarding {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.12
+        Version:        0.8.13
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -65,6 +65,44 @@ function Get-AbrVbrEventForwarding {
                         Text "It is a recommends best practice to configure Event Forwarding to an external SIEM or Log Collector to increase the organization security posture."
                     }
                     BlankLine
+                }
+                try {
+                    $SyslogEventFilters = try { Get-VBRSyslogEventFilters } catch { Write-PScriboMessage "No syslog event filter configured" }
+                    Section -Style Heading4 'Syslog Event Filter' {
+                        $OutObj = @()
+                        foreach ($SyslogEventFilter in $SyslogEventFilters) {
+
+                            $SyslogEventFilterLevel = @()
+
+                            if ($SyslogEventFilter.FilterInfos) {
+                                $SyslogEventFilterLevel += 'Information'
+                            }
+                            if ($SyslogEventFilter.FilterWarnings) {
+                                $SyslogEventFilterLevel += 'Warning'
+                            }
+                            if ($SyslogEventFilter.FilterErrors) {
+                                $SyslogEventFilterLevel += 'Error'
+                            }
+
+                            $inObj = [ordered] @{
+                                'EventId' = $SyslogEventFilter.EventId
+                                'Level' = $SyslogEventFilterLevel -join ", "
+                            }
+                            $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
+                        }
+
+                        $TableParams = @{
+                            Name = "Syslog Event Filter - $VeeamBackupServer"
+                            List = $false
+                            ColumnWidths = 50, 50
+                        }
+                        if ($Report.ShowTableCaptions) {
+                            $TableParams['Caption'] = "- $($TableParams.Name)"
+                        }
+                        $OutObj | Table @TableParams
+                    }
+                } catch {
+                    Write-PScriboMessage -IsWarning "Syslog Event Filter Section: $($_.Exception.Message)"
                 }
             }
         } catch {
