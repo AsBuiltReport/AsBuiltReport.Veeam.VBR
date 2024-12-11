@@ -6,7 +6,7 @@ function Get-AbrVbrBackupRepository {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.12
+        Version:        0.8.13
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -226,11 +226,22 @@ function Get-AbrVbrBackupRepository {
                                                     $inObj.Remove('Extent of ScaleOut Backup Repository')
                                                 }
 
-                                                if ($BackupRepo.Type -in @('AmazonS3Compatible', 'WasabiS3')) {
+                                                if ($BackupRepo.Type -in @('GoogleCloudStorage')) {
+                                                    $inObj.Add('Region Id', ($BackupRepos.GoogleCloudOptions.RegionId))
+                                                    $inObj.Add('Region Type', ( $BackupRepos.GoogleCloudOptions.RegionType))
+                                                    $inObj.Add('Bucket Name', ( $BackupRepos.GoogleCloudOptions.BucketName))
+                                                    $inObj.Add('Folder Name', ( $BackupRepos.GoogleCloudOptions.FolderName))
+                                                    $inObj.Add('Storage Class', ( $BackupRepos.GoogleCloudOptions.StorageClass))
+                                                    $inObj.Add('Enable Nearline Storage Class', ( $BackupRepos.GoogleCloudOptions.EnableNearlineStorageClass))
+                                                    $inObj.Add('Enable Coldline Storage Class', ( $BackupRepos.GoogleCloudOptions.EnableColdlineStorageClass))
+                                                    $inObj.Remove('Path')
+                                                }
+
+                                                if ($BackupRepo.Type -in @('AmazonS3Compatible', 'WasabiS3', 'GoogleCloudStorage')) {
                                                     $inObj.Add('Object Lock Enabled', ($BackupRepo.ObjectLockEnabled))
                                                 }
 
-                                                if ($BackupRepo.Type -in @('AmazonS3Compatible', 'WasabiS3')) {
+                                                if ($BackupRepo.Type -in @('AmazonS3Compatible', 'WasabiS3', 'GoogleCloudStorage')) {
                                                     $inObj.Add('Mount Server', (Get-VBRServer | Where-Object { $_.id -eq $BackupRepo.MountHostId.Guid }).Name)
                                                 }
 
