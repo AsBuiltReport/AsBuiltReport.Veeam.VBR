@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Update Security & Compliance Best Practice content
 - Add Syslog Event Filter information
 - Add Google Cloud Storage repository information
+- Add VMware Infrastructure information to the Infrastructure diagram
 
 ### Changed
 
