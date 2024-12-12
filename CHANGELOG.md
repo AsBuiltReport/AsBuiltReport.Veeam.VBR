@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add EntraID Tenant configuration
   - Add Objects Backup Job information
+  - Add EntraID Tenant information to the Infrastructure diagram
 - Update Malware detection setting
   - Add Signature Detection
 - Update Security & Compliance Best Practice content
