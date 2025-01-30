@@ -21,7 +21,8 @@
         "EnableDiagramSignature": false,
         "SignatureAuthorName": "",
         "SignatureCompanyName": "",
-        "PSDefaultAuthentication": "Default"
+        "PSDefaultAuthentication": "Default",
+        "RoundUnits": 1
     },
     "InfoLevel": {
 		"_comment_": "Please refer to the AsBuiltReport project contributing guide for information about how to define InfoLevels.",

@@ -6,7 +6,7 @@ function Get-AbrVbrBackupjobVMware {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.12
+        Version:        0.8.14
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -26,13 +26,13 @@ function Get-AbrVbrBackupjobVMware {
 
     process {
         try {
-            if ($Bkjobs = Get-VBRJob -WarningAction SilentlyContinue | Where-Object { $_.TypeToString -eq "VMware Backup" -or $_.TypeToString -eq "VMware Backup Copy" -or $_.TypeToString -eq "VM Copy" } | Sort-Object -Property Name) {
+            if ($Bkjobs = Get-VBRJob -WarningAction SilentlyContinue | Where-Object { $_.TypeToString -eq "VMware Backup" -or $_.TypeToString -eq "VMware Backup Copy" -or $_.TypeToString -eq "VM Copy" -or $_.TypeToString -eq "Cloud Director Backup"} | Sort-Object -Property Name) {
                 Section -Style Heading3 'VMware Backup Jobs Configuration' {
                     Paragraph "The following section details the configuration of VMware type backup jobs."
                     BlankLine
                     $OutObj = @()
                     try {
-                        if ($VMcounts = Get-VBRBackup | Where-Object { $_.TypeToString -eq "VMware Backup" -or $_.TypeToString -eq "VMware Backup Copy" -or $_.TypeToString -eq "VM Copy" }) {
+                        if ($VMcounts = Get-VBRBackup | Where-Object { $_.TypeToString -eq "VMware Backup" -or $_.TypeToString -eq "VMware Backup Copy" -or $_.TypeToString -eq "VM Copy" -or $_.TypeToString -eq "Cloud Director Backup"}) {
                             foreach ($VMcount in $VMcounts) {
                                 try {
                                     Write-PScriboMessage "Discovered $($VMcount.Name) ."
@@ -74,7 +74,7 @@ function Get-AbrVbrBackupjobVMware {
                                                 $inObj = [ordered] @{
                                                     'Name' = $Bkjob.Name
                                                     'Type' = $Bkjob.TypeToString
-                                                    'Total Backup Size' = ConvertTo-FileSizeString -Size $CommonInfo.IncludedSize
+                                                    'Total Backup Size' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $CommonInfo.IncludedSize
                                                     'Target Address' = $CommonInfo.TargetDir
                                                     'Target File' = $CommonInfo.TargetFile
                                                     'Description' = $CommonInfo.CommonInfo.Description
@@ -126,7 +126,7 @@ function Get-AbrVbrBackupjobVMware {
                                                     $inObj = [ordered] @{
                                                         'Name' = $Job.Name
                                                         'Type' = $Job.TypeToString
-                                                        'Size' = ConvertTo-FileSizeString -Size $Job.Info.IncludedSize
+                                                        'Size' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $Job.Info.IncludedSize
                                                         'Repository' = $Job.GetTargetRepository().Name
                                                     }
                                                     $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
@@ -160,14 +160,14 @@ function Get-AbrVbrBackupjobVMware {
                                                         $inObj = [ordered] @{
                                                             'Name' = $Repo.Name
                                                             'Type' = "Standard"
-                                                            'Size' = ConvertTo-FileSizeString -Size $Repo.GetContainer().CachedTotalSpace.InBytesAsUInt64
+                                                            'Size' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $Repo.GetContainer().CachedTotalSpace.InBytesAsUInt64
                                                         }
                                                     }
                                                     if ($ScaleRepo = Get-VBRBackupRepository -ScaleOut | Where-Object { $_.Id -eq $LinkedRepository }) {
                                                         $inObj = [ordered] @{
                                                             'Name' = $ScaleRepo.Name
                                                             'Type' = "ScaleOut"
-                                                            'Size' = ConvertTo-FileSizeString -Size (($ScaleRepo.Extent).Repository).GetContainer().CachedTotalSpace.InBytesAsUInt64
+                                                            'Size' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size (($ScaleRepo.Extent).Repository).GetContainer().CachedTotalSpace.InBytesAsUInt64
                                                         }
                                                     }
                                                     $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
@@ -248,7 +248,13 @@ function Get-AbrVbrBackupjobVMware {
                                                 Write-PScriboMessage "Discovered $($OBJ.Name) object to backup."
                                                 $inObj = [ordered] @{
                                                     'Name' = $OBJ.Name
-                                                    'Resource Type' = $OBJ.TypeDisplayName
+                                                    'Resource Type' = & {
+                                                        if ($OBJ.TypeDisplayName) {
+                                                            $OBJ.TypeDisplayName
+                                                        } elseif ($OBJ.Object) {
+                                                            $OBJ.Object.Type
+                                                        }
+                                                    }
                                                     'Role' = $OBJ.Type
                                                     'Approx Size' = $OBJ.ApproxSizeString
                                                     'Disk Filter Mode' = $OBJ.DiskFilterInfo.Mode
@@ -407,10 +413,10 @@ function Get-AbrVbrBackupjobVMware {
                                                             9 { 'EXTREME' }
                                                         }
                                                         'Storage optimization' = Switch ($Bkjob.Options.BackupStorageOptions.StgBlockSize) {
-                                                            'KbBlockSize1024' { 'Local target' }
-                                                            'KbBlockSize512' { 'LAN target' }
-                                                            'KbBlockSize256' { 'WAN target' }
-                                                            'KbBlockSize4096' { 'Local target (large blocks)' }
+                                                            'KbBlockSize1024' { 'Local target (1MB)' }
+                                                            'KbBlockSize512' { 'LAN target (512KB)' }
+                                                            'KbBlockSize256' { 'WAN target (256KB)' }
+                                                            'KbBlockSize4096' { 'Local target (4MB large blocks)' }
                                                             default { $Bkjob.Options.BackupStorageOptions.StgBlockSize }
                                                         }
                                                         'Enabled Backup File Encryption' = $Bkjob.Options.BackupStorageOptions.StorageEncryptionEnabled
@@ -654,7 +660,13 @@ function Get-AbrVbrBackupjobVMware {
                                                 $inObj = [ordered] @{
                                                     'Name' = $VSSObj.Name
                                                     'Enabled' = $VSSObj.VssOptions.Enabled
-                                                    'Resource Type' = ($Bkjob.GetViOijs() | Where-Object { $_.Name -eq $VSSObj.Name -and ($_.Type -eq "Include" -or $_.Type -eq "VssChild") }).TypeDisplayName
+                                                    'Resource Type' = &{
+                                                        if (($Bkjob.GetViOijs() | Where-Object { $_.Name -eq $VSSObj.Name -and ($_.Type -eq "Include" -or $_.Type -eq "VssChild") }).TypeDisplayName) {
+                                                            ($Bkjob.GetViOijs() | Where-Object { $_.Name -eq $VSSObj.Name -and ($_.Type -eq "Include" -or $_.Type -eq "VssChild") }).TypeDisplayName
+                                                        } elseif (($Bkjob.GetViOijs() | Where-Object { $_.Name -eq $VSSObj.Name -and ($_.Type -eq "Include" -or $_.Type -eq "VssChild") }).Object) {
+                                                            ($Bkjob.GetViOijs() | Where-Object { $_.Name -eq $VSSObj.Name -and ($_.Type -eq "Include" -or $_.Type -eq "VssChild") }).Object.Type
+                                                        }
+                                                    }
                                                     'Ignore Errors' = $VSSObj.VssOptions.IgnoreErrors
                                                     'Guest Proxy Auto Detect' = $VSSObj.VssOptions.GuestProxyAutoDetect
                                                     'Default Credential' = Switch ((Get-VBRCredentials | Where-Object { $_.Id -eq $Bkjob.VssOptions.WinCredsId.Guid }).count) {

@@ -6,7 +6,7 @@ function Get-AbrVbrCloudConnectTenant {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.13
+        Version:        0.8.14
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -150,7 +150,8 @@ function Get-AbrVbrCloudConnectTenant {
                                                     }
                                                     $OutObj | Sort-Object -Property 'Name' | Table @TableParams
                                                     if ($HealthCheck.Jobs.BestPractice) {
-                                                        if ($OutObj | Where-Object { $_.'Description' -match 'Created by' -or $_.'Description' -eq '--' }) {                                                            Paragraph "Health Check:" -Bold -Underline
+                                                        if ($OutObj | Where-Object { $_.'Description' -match 'Created by' -or $_.'Description' -eq '--' }) {
+                                                            Paragraph "Health Check:" -Bold -Underline
                                                             BlankLine
                                                             Paragraph {
                                                                 Text "Best Practice:" -Bold
@@ -220,7 +221,7 @@ function Get-AbrVbrCloudConnectTenant {
                                                                     $inObj = [ordered] @{
                                                                         'Repository' = $CloudBackupRepo.Repository.Name
                                                                         'Friendly Name' = $CloudBackupRepo.RepositoryFriendlyName
-                                                                        'Quota' = ConvertTo-FileSizeString -Size $CloudBackupRepo.RepositoryQuota
+                                                                        'Quota' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $CloudBackupRepo.RepositoryQuota -SourceSpaceUnit MB -TargetSpaceUnit GB
                                                                         'Quota Path' = $CloudBackupRepo.RepositoryQuotaPath
                                                                         'Use Wan Acceleration' = $CloudBackupRepo.WanAccelerationEnabled
                                                                     }
@@ -384,7 +385,7 @@ function Get-AbrVbrCloudConnectTenant {
                                                                         'Type' = $CloudSubTenant.Type
                                                                         'Mode' = $CloudSubTenant.Mode
                                                                         'Repository Name' = $CloudSubTenant.Resources.RepositoryFriendlyName
-                                                                        'Quota' = ConvertTo-FileSizeString -Size $CloudSubTenant.Resources.RepositoryQuota
+                                                                        'Quota' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $CloudSubTenant.Resources.RepositoryQuota
                                                                         'Quota Path' = $CloudSubTenant.Resources.RepositoryQuotaPath
                                                                         'Used Space %' = $CloudSubTenant.Resources.UsedSpacePercentage
                                                                         'Status' = Switch ($CloudSubTenant.Enabled) {

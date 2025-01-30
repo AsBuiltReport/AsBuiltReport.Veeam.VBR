@@ -6,7 +6,7 @@ function Get-AbrVbrCloudConnectRR {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.12
+        Version:        0.8.14
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -45,10 +45,10 @@ function Get-AbrVbrCloudConnectRR {
                                     }
                                     'Memory' = Switch ([string]::IsNullOrEmpty($CloudObject.Memory)) {
                                         $true { 'Unlimited' }
-                                        $false { ConvertTo-FileSizeString -Size $CloudObject.Memory }
+                                        $false { ConvertTo-FileSizeString -Size $CloudObject.Memory -RoundUnits $Options.RoundUnits }
                                         default { '--' }
                                     }
-                                    'Storage Quota' = ConvertTo-FileSizeString -Size ($CloudObject.Datastore.Quota | Measure-Object -Sum).Sum
+                                    'Storage Quota' = ConvertTo-FileSizeString -Size ($CloudObject.Datastore.Quota | Measure-Object -Sum).Sum -RoundUnits $Options.RoundUnits
                                     'Network Count' = $CloudObject.NumberOfNetWithInternet + $CloudObject.NumberOfNetWithoutInternet
                                     'Subscribers Count' = ($CloudObject.SubscribedTenantId).count
                                 }
@@ -96,7 +96,7 @@ function Get-AbrVbrCloudConnectRR {
                                                             }
                                                             'Memory' = Switch ([string]::IsNullOrEmpty($CloudObject.Memory)) {
                                                                 $true { 'Unlimited' }
-                                                                $false { ConvertTo-FileSizeString -Size $CloudObject.Memory }
+                                                                $false { ConvertTo-FileSizeString -Size $CloudObject.Memory -RoundUnits $Options.RoundUnits }
                                                                 default { '--' }
                                                             }
                                                             'Network Count' = $CloudObject.NumberOfNetWithInternet + $CloudObject.NumberOfNetWithoutInternet
@@ -137,7 +137,7 @@ function Get-AbrVbrCloudConnectRR {
                                                                 'Datastore Name' = $Storage.Datastore
                                                                 'Friendly Name' = $Storage.FriendlyName
                                                                 'Platform' = $Storage.Platform
-                                                                'Storage Quota' = ConvertTo-FileSizeString -Size $Storage.Quota
+                                                                'Storage Quota' = ConvertTo-FileSizeString -Size $Storage.Quota -RoundUnits $Options.RoundUnits
                                                                 'Storage Policy' = Switch ([string]::IsNullOrEmpty($Storage.StoragePolicy.Name)) {
                                                                     $true { '--' }
                                                                     $false { $Storage.StoragePolicy.Name }
@@ -211,7 +211,7 @@ function Get-AbrVbrCloudConnectRR {
                                                                     'Name' = $TenantUtil.Name
                                                                     'CPU Usage' = $TenantUtil.CPUUsage
                                                                     'Memory Usage' = $TenantUtil.MemoryUsage
-                                                                    'Storage Usage' = $TenantUtil.StorageUsage | ForEach-Object { "$(ConvertTo-FileSizeString -Size $_.UsedSpace) ($($_.FriendlyName))" }
+                                                                    'Storage Usage' = $TenantUtil.StorageUsage | ForEach-Object { "$(ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $_.UsedSpace) ($($_.FriendlyName))" }
                                                                 }
 
                                                                 $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)

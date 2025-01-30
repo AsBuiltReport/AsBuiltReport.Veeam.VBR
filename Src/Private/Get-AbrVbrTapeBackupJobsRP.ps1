@@ -5,7 +5,7 @@ function Get-AbrVbrTapeBackupJobsRP {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.12
+        Version:        0.8.14
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -39,7 +39,7 @@ function Get-AbrVbrTapeBackupJobsRP {
                                     $inObj = [ordered] @{
                                         'VM Name' = $RestorePoint.VMName
                                         'Backup Type' = $RestorePoint.Algorithm
-                                        'Backup Size' = (ConvertTo-FileSizeString -Size $RestorePoint.GetStorage().stats.BackupSize)
+                                        'Backup Size' = (ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $RestorePoint.GetStorage().stats.BackupSize)
                                         'Dedub Ratio' = [Math]::Round($DedupRatio, 2)
                                         'Compress Ratio' = [Math]::Round($CompressRatio, 2)
                                         'Reduction' = [Math]::Round(($DedupRatio * $CompressRatio), 2)

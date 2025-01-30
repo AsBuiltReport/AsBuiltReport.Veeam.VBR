@@ -6,7 +6,7 @@ function Get-AbrVbrBackupServerInfo {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.13
+        Version:        0.8.14
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -175,7 +175,7 @@ function Get-AbrVbrBackupServerInfo {
                                         'Processor Model' = $HWCPU[0].Name
                                         'Number of CPU Cores' = ($HWCPU.NumberOfCores | Measure-Object -Sum).Sum
                                         'Number of Logical Cores' = ($HWCPU.NumberOfLogicalProcessors | Measure-Object -Sum).Sum
-                                        'Physical Memory (GB)' = ConvertTo-FileSizeString -Size $HW.CsTotalPhysicalMemory
+                                        'Physical Memory (GB)' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $HW.CsTotalPhysicalMemory
                                     }
                                     $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
 
@@ -220,7 +220,7 @@ function Get-AbrVbrBackupServerInfo {
                                                                 'Model' = $Disk.Model
                                                                 'Serial Number' = $Disk.SerialNumber
                                                                 'Partition Style' = $Disk.PartitionStyle
-                                                                'Disk Size' = ConvertTo-FileSizeString -Size $Disk.Size
+                                                                'Disk Size' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $Disk.Size
                                                             }
                                                             $LocalDiskReport += $TempLocalDiskReport
                                                         } catch {
@@ -256,7 +256,7 @@ function Get-AbrVbrBackupServerInfo {
                                                                 'Model' = $Disk.Model
                                                                 'Serial Number' = $Disk.SerialNumber
                                                                 'Partition Style' = $Disk.PartitionStyle
-                                                                'Disk Size' = ConvertTo-FileSizeString -Size $Disk.Size
+                                                                'Disk Size' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $Disk.Size
                                                             }
                                                             $SanDiskReport += $TempSanDiskReport
                                                         } catch {
@@ -292,8 +292,8 @@ function Get-AbrVbrBackupServerInfo {
                                                             'Drive Letter' = $HostVolume.DriveLetter
                                                             'File System Label' = $HostVolume.FileSystemLabel
                                                             'File System' = $HostVolume.FileSystem
-                                                            'Size' = ConvertTo-FileSizeString -Size $HostVolume.Size
-                                                            'Free Space' = ConvertTo-FileSizeString -Size $HostVolume.SizeRemaining
+                                                            'Size' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $HostVolume.Size
+                                                            'Free Space' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $HostVolume.SizeRemaining
                                                             'Health Status' = $HostVolume.HealthStatus
                                                         }
                                                         $HostVolumeReport += $TempHostVolumeReport

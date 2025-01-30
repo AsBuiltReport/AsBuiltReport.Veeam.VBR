@@ -6,7 +6,7 @@ function Get-AbrVbrServiceProvider {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.12
+        Version:        0.8.14
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -111,8 +111,8 @@ function Get-AbrVbrServiceProvider {
                                                             'Resources Enabled' = $CloudProvider.ResourcesEnabled
                                                             'Repository Name' = $CloudProvider.Resources.RepositoryName
                                                             'Wan Acceleration?' = $CloudProvider.Resources | ForEach-Object { "$($_.RepositoryName): $($_.WanAccelerationEnabled)" }
-                                                            'Per Datastore Allocated Space' = $CloudProvider.Resources | ForEach-Object { "$($_.RepositoryName): $(ConvertTo-FileSizeString -Size $_.RepositoryAllocatedSpace)" }
-                                                            'Total Datastore Allocated Space' = ConvertTo-FileSizeString -Size $CloudProvider.Resources.RepositoryAllocatedSpace
+                                                            'Per Datastore Allocated Space' = $CloudProvider.Resources | ForEach-Object { "$($_.RepositoryName): $(ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $_.RepositoryAllocatedSpace)" }
+                                                            'Total Datastore Allocated Space' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $CloudProvider.Resources.RepositoryAllocatedSpace
                                                         }
 
                                                         $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
@@ -143,7 +143,7 @@ function Get-AbrVbrServiceProvider {
                                                         }
                                                         $Memory = Switch ([string]::IsNullOrEmpty($CloudProvider.ReplicationResources.Memory)) {
                                                             $true { 'Unlimited' }
-                                                            $false { ConvertTo-FileSizeString -Size $CloudProvider.ReplicationResources.Memory }
+                                                            $false { ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $CloudProvider.ReplicationResources.Memory }
                                                             default { '--' }
                                                         }
                                                         Write-PScriboMessage "Discovered $($CloudProvider.DNSName) Service Provider DRaaS Resources information."
@@ -153,8 +153,8 @@ function Get-AbrVbrServiceProvider {
                                                             'Allocated CPU Resources' = $CPU
                                                             'Allocated Memory Resources' = $Memory
                                                             'Repository Name' = $CloudProvider.ReplicationResources.Datastore.Name
-                                                            'Per Datastore Allocated Space' = $CloudProvider.ReplicationResources.Datastore | ForEach-Object { "$($_.Name): $(ConvertTo-FileSizeString -Size $_.DatastoreAllocatedSpace)" }
-                                                            'Total Datastore Allocated Space' = ConvertTo-FileSizeString -Size ($CloudProvider.ReplicationResources.Datastore.DatastoreAllocatedSpace | Measure-Object -Sum).Sum
+                                                            'Per Datastore Allocated Space' = $CloudProvider.ReplicationResources.Datastore | ForEach-Object { "$($_.Name): $(ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $_.DatastoreAllocatedSpace)" }
+                                                            'Total Datastore Allocated Space' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size ($CloudProvider.ReplicationResources.Datastore.DatastoreAllocatedSpace | Measure-Object -Sum).Sum
                                                             'Network Count' = $CloudProvider.ReplicationResources.NetworkCount
                                                             'Public IP Enabled' = $CloudProvider.ReplicationResources.PublicIpEnabled
                                                         }

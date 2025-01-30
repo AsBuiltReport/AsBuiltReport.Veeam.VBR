@@ -5,7 +5,7 @@ function Get-AbrVbrCloudConnectBS {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.12
+        Version:        0.8.14
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -52,8 +52,8 @@ function Get-AbrVbrCloudConnectBS {
                                                 $false { $CloudObject.FriendlyPath }
                                                 default { 'Unknown' }
                                             }
-                                            'Total Space' = ConvertTo-FileSizeString -Size $CloudObject.GetContainer().CachedTotalSpace.InBytesAsUInt64
-                                            'Free Space' = ConvertTo-FileSizeString -Size $CloudObject.GetContainer().CachedFreeSpace.InBytesAsUInt64
+                                            'Total Space' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $CloudObject.GetContainer().CachedTotalSpace.InBytesAsUInt64
+                                            'Free Space' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $CloudObject.GetContainer().CachedFreeSpace.InBytesAsUInt64
                                             'Used Space %' = $PercentFree
                                             'Status' = Switch ($CloudObject.IsUnavailable) {
                                                 'False' { 'Available' }
@@ -76,19 +76,19 @@ function Get-AbrVbrCloudConnectBS {
                                         }
                                         $OutObj | Table @TableParams
                                         try {
-                                            $CloutTenant = Get-VBRCloudTenant | Sort-Object -Property Name
+                                            $CloudTenant = Get-VBRCloudTenant | Sort-Object -Property Name
                                             Section -ExcludeFromTOC -Style NOTOCHeading5 'Tenant Utilization' {
                                                 $OutObj = @()
                                                 try {
-                                                    foreach ($Tenant in ($CloutTenant | Where-Object { $_.Resources.Repository.Name -eq $CloudObject.Name })) {
+                                                    foreach ($Tenant in ($CloudTenant | Where-Object { $_.Resources.Repository.Name -eq $CloudObject.Name })) {
                                                         Write-PScriboMessage "Discovered $($CloudObject.Name) Cloud Tenant utilization."
                                                         foreach ($Storage in ($Tenant.Resources | Where-Object { $_.Repository.Name -eq $CloudObject.Name })) {
                                                             $inObj = [ordered] @{
                                                                 'Name' = $Tenant.Name
-                                                                'Quota' = ConvertTo-FileSizeString -Size $Storage.RepositoryQuota
+                                                                'Quota' = ConvertTo-FileSizeString -Size $Storage.RepositoryQuota -RoundUnits $Options.RoundUnits
                                                                 'Used Space' = Switch ([string]::IsNullOrEmpty($Storage.UsedSpace)) {
                                                                     $true { '--' }
-                                                                    $false { ConvertTo-FileSizeString -Size $Storage.UsedSpace }
+                                                                    $false { ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $Storage.UsedSpace }
                                                                     default { 'Unknown' }
                                                                 }
                                                                 'Used Space %' = $Storage.UsedSpacePercentage

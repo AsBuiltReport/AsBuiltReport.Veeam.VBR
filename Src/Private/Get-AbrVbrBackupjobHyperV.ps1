@@ -6,7 +6,7 @@ function Get-AbrVbrBackupjobHyperV {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.12
+        Version:        0.8.14
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -74,7 +74,7 @@ function Get-AbrVbrBackupjobHyperV {
                                                 $inObj = [ordered] @{
                                                     'Name' = $Bkjob.Name
                                                     'Type' = $Bkjob.TypeToString
-                                                    'Total Backup Size' = ConvertTo-FileSizeString -Size $CommonInfo.IncludedSize
+                                                    'Total Backup Size' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $CommonInfo.IncludedSize
                                                     'Target Address' = $CommonInfo.TargetDir
                                                     'Target File' = $CommonInfo.TargetFile
                                                     'Description' = $CommonInfo.CommonInfo.Description
@@ -126,7 +126,7 @@ function Get-AbrVbrBackupjobHyperV {
                                                     $inObj = [ordered] @{
                                                         'Name' = $Job.Name
                                                         'Type' = $Job.TypeToString
-                                                        'Size' = ConvertTo-FileSizeString -Size $Job.Info.IncludedSize
+                                                        'Size' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $Job.Info.IncludedSize
                                                         'Repository' = $Job.GetTargetRepository().Name
                                                     }
                                                     $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
