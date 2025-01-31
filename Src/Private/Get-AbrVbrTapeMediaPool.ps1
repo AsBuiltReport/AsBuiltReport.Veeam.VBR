@@ -6,7 +6,7 @@ function Get-AbrVbrTapeMediaPool {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.13
+        Version:        0.8.14
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -47,8 +47,8 @@ function Get-AbrVbrTapeMediaPool {
                                     'Name' = $PoolObj.Name
                                     'Type' = $PoolObj.Type
                                     'Tape Count' = ((Get-VBRTapeMediaPool -Id $PoolObj.Id).Medium).count
-                                    'Total Space' = ConvertTo-FileSizeString -Size  $Capacity
-                                    'Free Space' = ConvertTo-FileSizeString -Size  $FreeSpace
+                                    'Total Space' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size  $Capacity
+                                    'Free Space' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size  $FreeSpace
                                     'Tape Library' = ($PoolObj.GlobalOptions.LibraryId | ForEach-Object { Get-VBRTapeLibrary -Id $_ }).Name
                                 }
 
@@ -114,8 +114,8 @@ function Get-AbrVbrTapeMediaPool {
                                                             'Drives' = $TapeDrives -join ', '
                                                             'Slots' = $TapeLibraryObj.Slots
                                                             'Tape Count' = ((Get-VBRTapeMediaPool -Id $PoolObj.Id).Medium).count
-                                                            'Total Space' = ConvertTo-FileSizeString -Size  $Capacity
-                                                            'Free Space' = ConvertTo-FileSizeString -Size  $FreeSpace
+                                                            'Total Space' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size  $Capacity
+                                                            'Free Space' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size  $FreeSpace
                                                             'Add Tape from Free Media Pool Automatically when more Tape are Required' = $PoolObj.MoveFromFreePool
                                                             'Description' = Switch ([string]::IsNullOrEmpty($TapeLibraryObj.Description)) {
                                                                 $true { "--" }
@@ -181,8 +181,8 @@ function Get-AbrVbrTapeMediaPool {
                                                                                 $inObj = [ordered] @{
                                                                                     'Name' = $TapeMedium.Name
                                                                                     'Is Worm?' = $TapeMedium.IsWorm
-                                                                                    'Total Space' = ConvertTo-FileSizeString -Size  $TapeMedium.Capacity
-                                                                                    'Free Space' = ConvertTo-FileSizeString -Size  $TapeMedium.Free
+                                                                                    'Total Space' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size  $TapeMedium.Capacity
+                                                                                    'Free Space' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size  $TapeMedium.Free
                                                                                     'Tape Library' = Switch ($TapeMedium.LibraryId) {
                                                                                         $Null { '--' }
                                                                                         '00000000-0000-0000-0000-000000000000' { 'Unknown' }

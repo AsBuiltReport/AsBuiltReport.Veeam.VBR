@@ -120,18 +120,41 @@ function ConvertTo-FileSizeString {
         [Parameter (
             Position = 0,
             Mandatory)]
-        [int64]
-        $Size
+        [int64] $Size,
+        [Parameter(
+            Position = 1,
+            Mandatory = $false,
+            HelpMessage = 'Please provide the source space unit'
+        )]
+        [ValidateSet('MB', 'GB', 'TB', 'PB')]
+        [string] $SourceSpaceUnit,
+        [Parameter(
+            Position = 2,
+            Mandatory = $false,
+            HelpMessage = 'Please provide the space unit to output'
+        )]
+        [ValidateSet('MB', 'GB', 'TB', 'PB')]
+        [string] $TargetSpaceUnit,
+        [Parameter(
+            Position = 3,
+            Mandatory = $false,
+            HelpMessage = 'Please provide the value to round the storage unit'
+        )]
+        [int] $RoundUnits = 0
     )
 
-    $Unit = Switch ($Size) {
-        { $Size -gt 1PB } { 'PB' ; Break }
-        { $Size -gt 1TB } { 'TB' ; Break }
-        { $Size -gt 1GB } { 'GB' ; Break }
-        { $Size -gt 1Mb } { 'MB' ; Break }
-        Default { 'KB' }
+    if ($SourceSpaceUnit) {
+        return "$([math]::Round(($Size * $("1" + $SourceSpaceUnit) / $("1" + $TargetSpaceUnit)), $RoundUnits)) $TargetSpaceUnit"
+    } else {
+        $Unit = Switch ($Size) {
+            { $Size -gt 1PB } { 'PB' ; Break }
+            { $Size -gt 1TB } { 'TB' ; Break }
+            { $Size -gt 1GB } { 'GB' ; Break }
+            { $Size -gt 1Mb } { 'MB' ; Break }
+            Default { 'KB' }
+        }
+        return "$([math]::Round(($Size / $("1" + $Unit)), $RoundUnits)) $Unit"
     }
-    return "$([math]::Round(($Size / $("1" + $Unit)), 0)) $Unit"
 } # end
 function Get-VeeamNetStat {
     <#

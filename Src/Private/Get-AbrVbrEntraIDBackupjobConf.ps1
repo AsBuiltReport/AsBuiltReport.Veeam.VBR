@@ -6,7 +6,7 @@ function Get-AbrVbrEntraIDBackupjobConf {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.13
+        Version:        0.8.14
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -27,8 +27,8 @@ function Get-AbrVbrEntraIDBackupjobConf {
     process {
         try {
             if ($Bkjobs = Get-VBREntraIDTenantBackupJob | Sort-Object -Property 'Name') {
-                Section -Style Heading3 'EntraID Tenant Backup Jobs Configuration' {
-                    Paragraph "The following section details the configuration of backup copy jobs."
+                Section -Style Heading3 'Entra ID Tenant Backup Jobs Configuration' {
+                    Paragraph "The following section details the configuration of entra id backup jobs."
                     BlankLine
                     $OutObj = @()
                     foreach ($Bkjob in $Bkjobs) {

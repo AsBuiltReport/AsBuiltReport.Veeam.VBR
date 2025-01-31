@@ -6,7 +6,7 @@ function Get-AbrVbrBackupCopyjobConf {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.12
+        Version:        0.8.14
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -98,7 +98,7 @@ function Get-AbrVbrBackupCopyjobConf {
                                                     $inObj = [ordered] @{
                                                         'Name' = $LinkedBkJob.Name
                                                         'Type' = $LinkedBkJob.TypeToString
-                                                        'Size' = ConvertTo-FileSizeString -Size $LinkedBkJob.Info.IncludedSize
+                                                        'Size' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $LinkedBkJob.Info.IncludedSize
                                                         'Repository' = $LinkedBkJob.GetTargetRepository().Name
                                                     }
                                                     $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
@@ -132,13 +132,13 @@ function Get-AbrVbrBackupCopyjobConf {
                                                         $inObj = [ordered] @{
                                                             'Name' = $LinkedRepository.Name
                                                             'Type' = "ScaleOut"
-                                                            'Size' = ConvertTo-FileSizeString -Size $LinkedRepository.GetContainer().CachedTotalSpace.InBytesAsUInt64
+                                                            'Size' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $LinkedRepository.GetContainer().CachedTotalSpace.InBytesAsUInt64
                                                         }
                                                     } else {
                                                         $inObj = [ordered] @{
                                                             'Name' = $LinkedRepository.Name
                                                             'Type' = "Standard"
-                                                            'Size' = ConvertTo-FileSizeString -Size $LinkedRepository.GetContainer().CachedTotalSpace.InBytesAsUInt64
+                                                            'Size' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $LinkedRepository.GetContainer().CachedTotalSpace.InBytesAsUInt64
                                                         }
                                                     }
                                                     $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)

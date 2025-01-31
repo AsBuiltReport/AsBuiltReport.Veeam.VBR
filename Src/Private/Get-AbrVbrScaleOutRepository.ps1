@@ -6,7 +6,7 @@ function Get-AbrVbrScaleOutRepository {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.12
+        Version:        0.8.14
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -143,8 +143,8 @@ function Get-AbrVbrScaleOutRepository {
                                                         'Name' = $Extent.Name
                                                         'Repository' = $Extent.Repository.Name
                                                         'Path' = $Extent.Repository.FriendlyPath
-                                                        'Total Space' = ConvertTo-FileSizeString -Size (($Extent).Repository).GetContainer().CachedTotalSpace.InBytesAsUInt64
-                                                        'Used Space' = ConvertTo-FileSizeString -Size (($Extent).Repository).GetContainer().CachedFreeSpace.InBytesAsUInt64
+                                                        'Total Space' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size (($Extent).Repository).GetContainer().CachedTotalSpace.InBytesAsUInt64
+                                                        'Used Space' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size (($Extent).Repository).GetContainer().CachedFreeSpace.InBytesAsUInt64
                                                         'Status' = $Extent.Status
                                                     }
                                                     $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
