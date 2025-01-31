@@ -55,7 +55,7 @@
     RequiredModules = @(
         @{
             ModuleName = 'AsBuiltReport.Core';
-            ModuleVersion = '1.4.1'
+            ModuleVersion = '1.4.2'
         }
         @{
             ModuleName = 'PScriboCharts';

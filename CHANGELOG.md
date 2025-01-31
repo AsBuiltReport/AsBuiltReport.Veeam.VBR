@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ##### This project is community maintained and has no sponsorship from Veeam, its employees or any of its affiliates.
 
-## [0.8.14] - Unreleased
+## [0.8.14] - 2025-01-30
 
 ### Added
 
@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Storage units in the report are set to 1 round by default
+- Increase AsBuiltReport.Core to v1.4.2
 
 ### Fixed
 

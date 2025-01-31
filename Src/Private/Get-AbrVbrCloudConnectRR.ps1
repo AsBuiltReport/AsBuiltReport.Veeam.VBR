@@ -45,10 +45,10 @@ function Get-AbrVbrCloudConnectRR {
                                     }
                                     'Memory' = Switch ([string]::IsNullOrEmpty($CloudObject.Memory)) {
                                         $true { 'Unlimited' }
-                                        $false { ConvertTo-FileSizeString -Size $CloudObject.Memory -RoundUnits $Options.RoundUnits }
+                                        $false { ConvertTo-FileSizeString -Size (Convert-Size -From MB -To Bytes -Value $CloudObject.Memory) -RoundUnits $Options.RoundUnits }
                                         default { '--' }
                                     }
-                                    'Storage Quota' = ConvertTo-FileSizeString -Size ($CloudObject.Datastore.Quota | Measure-Object -Sum).Sum -RoundUnits $Options.RoundUnits
+                                    'Storage Quota' = ConvertTo-FileSizeString -Size (Convert-Size -From GB -To Bytes -Value ($CloudObject.Datastore.Quota | Measure-Object -Sum).Sum) -RoundUnits $Options.RoundUnits
                                     'Network Count' = $CloudObject.NumberOfNetWithInternet + $CloudObject.NumberOfNetWithoutInternet
                                     'Subscribers Count' = ($CloudObject.SubscribedTenantId).count
                                 }
@@ -96,7 +96,7 @@ function Get-AbrVbrCloudConnectRR {
                                                             }
                                                             'Memory' = Switch ([string]::IsNullOrEmpty($CloudObject.Memory)) {
                                                                 $true { 'Unlimited' }
-                                                                $false { ConvertTo-FileSizeString -Size $CloudObject.Memory -RoundUnits $Options.RoundUnits }
+                                                                $false { ConvertTo-FileSizeString -Size (Convert-Size -From MB -To Bytes -Value $CloudObject.Memory) -RoundUnits $Options.RoundUnits}
                                                                 default { '--' }
                                                             }
                                                             'Network Count' = $CloudObject.NumberOfNetWithInternet + $CloudObject.NumberOfNetWithoutInternet
@@ -137,7 +137,7 @@ function Get-AbrVbrCloudConnectRR {
                                                                 'Datastore Name' = $Storage.Datastore
                                                                 'Friendly Name' = $Storage.FriendlyName
                                                                 'Platform' = $Storage.Platform
-                                                                'Storage Quota' = ConvertTo-FileSizeString -Size $Storage.Quota -RoundUnits $Options.RoundUnits
+                                                                'Storage Quota' = ConvertTo-FileSizeString -Size (Convert-Size -From GB -To Bytes -Value $Storage.Quota) -RoundUnits $Options.RoundUnits
                                                                 'Storage Policy' = Switch ([string]::IsNullOrEmpty($Storage.StoragePolicy.Name)) {
                                                                     $true { '--' }
                                                                     $false { $Storage.StoragePolicy.Name }

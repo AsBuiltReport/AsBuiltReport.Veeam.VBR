@@ -221,7 +221,7 @@ function Get-AbrVbrCloudConnectTenant {
                                                                     $inObj = [ordered] @{
                                                                         'Repository' = $CloudBackupRepo.Repository.Name
                                                                         'Friendly Name' = $CloudBackupRepo.RepositoryFriendlyName
-                                                                        'Quota' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $CloudBackupRepo.RepositoryQuota -SourceSpaceUnit MB -TargetSpaceUnit GB
+                                                                        'Quota' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size (Convert-Size -From MB -To Bytes -Value $CloudBackupRepo.RepositoryQuota)
                                                                         'Quota Path' = $CloudBackupRepo.RepositoryQuotaPath
                                                                         'Use Wan Acceleration' = $CloudBackupRepo.WanAccelerationEnabled
                                                                     }

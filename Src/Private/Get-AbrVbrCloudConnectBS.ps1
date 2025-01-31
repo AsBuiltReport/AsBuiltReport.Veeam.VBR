@@ -85,10 +85,10 @@ function Get-AbrVbrCloudConnectBS {
                                                         foreach ($Storage in ($Tenant.Resources | Where-Object { $_.Repository.Name -eq $CloudObject.Name })) {
                                                             $inObj = [ordered] @{
                                                                 'Name' = $Tenant.Name
-                                                                'Quota' = ConvertTo-FileSizeString -Size $Storage.RepositoryQuota -RoundUnits $Options.RoundUnits
+                                                                'Quota' = ConvertTo-FileSizeString -Size (Convert-Size -From MB -To Bytes -Value $Storage.RepositoryQuota) -RoundUnits $Options.RoundUnits
                                                                 'Used Space' = Switch ([string]::IsNullOrEmpty($Storage.UsedSpace)) {
                                                                     $true { '--' }
-                                                                    $false { ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $Storage.UsedSpace }
+                                                                    $false { ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size (Convert-Size -From MB -To Bytes -Value $Storage.UsedSpace) }
                                                                     default { 'Unknown' }
                                                                 }
                                                                 'Used Space %' = $Storage.UsedSpacePercentage
