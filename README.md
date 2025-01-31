@@ -155,21 +155,22 @@ The **Report** schema provides configuration of the Veeam VBR report information
 
 The **Options** schema allows certain options within the report to be toggled on or off.
 
-| Sub-Schema              | Setting             | Default | Description                                                                    |
-| ----------------------- | ------------------- | ------- | ------------------------------------------------------------------------------ |
-| BackupServerPort        | TCP Port            | 9392    | Set the backup server service's custom port.                                   |
-| PSDefaultAuthentication | Negotiate/Kerberos  | Default | Set the PSRemoting authentication method                                       |
-| EnableHardwareInventory | true / false        | false   | Toggle to enable/disable of Hardware information                               |
-| ReportStyle             | Veeam/AsBuiltReport | Veeam   | Allow to set report style template.                                            |
-| EnableDiagrams          | true / false        | false   | Toggle to enable/disable of Infrastructure Diagrams                            |
-| EnableDiagramsDebug     | true/false          | false   | Toggle to enable/disable diagram debug option.                                 |
-| DiagramTheme            | string              | White   | Used to set the diagram theme. (Black/White/Neon)                              |
-| DiagramWaterMark        | string              | empty   | Used to set the diagram waterMark.                                             |
-| ExportDiagrams          | true/false          | true    | Toggle to enable/disable diagram export option.                                |
-| ExportDiagramsFormat    | string array        | png     | Set the format used to export the infrastructure diagram. (dot, png, pdf, svg) |
-| EnableDiagramSignature  | true/false          | false   | Toggle to enable/disable diagram signature (button right corner)               |
-| SignatureAuthorName     | string              | empty   | Toggle to set signature author name.                                           |
-| SignatureCompanyName    | string              | empty   | Toggle to set signature company name.                                          |
+| Sub-Schema              | Setting                    | Default | Description                                                                    |
+| ----------------------- | -------------------------- | ------- | ------------------------------------------------------------------------------ |
+| BackupServerPort        | TCP Port                   | 9392    | Set the backup server service's custom port.                                   |
+| PSDefaultAuthentication | Default/Kerberos/Negotiate | Default | Set the PSRemoting authentication method                                       |
+| EnableHardwareInventory | true / false               | false   | Toggle to enable/disable of Hardware information                               |
+| ReportStyle             | Veeam/AsBuiltReport        | Veeam   | Allow to set report style template.                                            |
+| EnableDiagrams          | true / false               | false   | Toggle to enable/disable of Infrastructure Diagrams                            |
+| EnableDiagramsDebug     | true/false                 | false   | Toggle to enable/disable diagram debug option.                                 |
+| DiagramTheme            | string                     | White   | Used to set the diagram theme. (Black/White/Neon)                              |
+| DiagramWaterMark        | string                     | empty   | Used to set the diagram waterMark.                                             |
+| ExportDiagrams          | true/false                 | true    | Toggle to enable/disable diagram export option.                                |
+| ExportDiagramsFormat    | string array               | png     | Set the format used to export the infrastructure diagram. (dot, png, pdf, svg) |
+| EnableDiagramSignature  | true/false                 | false   | Toggle to enable/disable diagram signature (button right corner)               |
+| SignatureAuthorName     | string                     | empty   | Toggle to set signature author name.                                           |
+| SignatureCompanyName    | string                     | empty   | Toggle to set signature company name.                                          |
+| RoundUnits              | int                        | 1       | Set value to round the storage unit.                                           |
 
 ### InfoLevel
 

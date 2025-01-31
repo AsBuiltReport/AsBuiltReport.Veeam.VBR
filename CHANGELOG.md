@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ##### This project is community maintained and has no sponsorship from Veeam, its employees or any of its affiliates.
 
+## [0.8.14] - 2025-01-30
+
+### Added
+
+- Add support for vMWare Cloud Director backup jobs
+- Add option to set the RoundUnits of the storage usages
+
+### Changed
+
+- Storage units in the report are set to 1 round by default
+- Increase AsBuiltReport.Core to v1.4.2
+
+### Fixed
+
+- Fix [#197](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/197)
+- Fix [#198](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/198)
+
 ## [0.8.13] - 2024-12-11
 
 ### Added

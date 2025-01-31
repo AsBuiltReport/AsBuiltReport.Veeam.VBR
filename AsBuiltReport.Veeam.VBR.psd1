@@ -12,7 +12,7 @@
     RootModule = 'AsBuiltReport.Veeam.VBR.psm1'
 
     # Version number of this module.
-    ModuleVersion = '0.8.13'
+    ModuleVersion = '0.8.14'
 
     # Supported PSEditions
     # CompatiblePSEditions = @()
@@ -55,7 +55,7 @@
     RequiredModules = @(
         @{
             ModuleName = 'AsBuiltReport.Core';
-            ModuleVersion = '1.4.1'
+            ModuleVersion = '1.4.2'
         }
         @{
             ModuleName = 'PScriboCharts';
