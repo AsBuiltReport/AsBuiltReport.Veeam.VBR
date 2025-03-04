@@ -79,12 +79,17 @@ function Get-AbrVbrRequiredModule {
         }
         # Check if the required version of VMware PowerCLI is installed
         $RequiredModule = Get-Module -ListAvailable -Name $Name
-        $ModuleVersion = "$($RequiredModule.Version.Major)" + "." + "$($RequiredModule.Version.Minor)"
+        $ModuleVersion = "{0}.{1}" -f $RequiredModule.Version.Major, $RequiredModule.Version.Minor
         if ($ModuleVersion -eq ".") {
             throw "$Name $Version or higher is required to run the Veeam VBR As Built Report. Install the Veeam Backup & Replication console that provide the required modules."
         }
+
         if ($ModuleVersion -lt $Version) {
             throw "$Name $Version or higher is required to run the Veeam VBR As Built Report. Update the Veeam Backup & Replication console that provide the required modules."
+        }
+
+        if ($ModuleVersion -ge 13) {
+            throw "Veeam VBR As Built Report is not compatible with Veeam Backup & Replication 13 or higher."
         }
     }
     end {}

@@ -55,7 +55,7 @@
     RequiredModules = @(
         @{
             ModuleName = 'AsBuiltReport.Core';
-            ModuleVersion = '1.4.2'
+            ModuleVersion = '1.4.2.1'
         }
         @{
             ModuleName = 'PScriboCharts';
@@ -63,11 +63,11 @@
         }
         @{
             ModuleName = 'Diagrammer.Core';
-            ModuleVersion = '0.2.13'
+            ModuleVersion = '0.2.17'
         }
         @{
             ModuleName = 'Veeam.Diagrammer';
-            ModuleVersion = '0.6.18'
+            ModuleVersion = '0.6.19'
         }
     )
 
