@@ -7,19 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ##### This project is community maintained and has no sponsorship from Veeam, its employees or any of its affiliates.
 
-## [0.8.15] - Unreleased
+## [0.8.15] - 2025-03-03
 
 ### Changed
 
-- Increase Diagrammer.Core  minimum requirement to v0.2.16
+- Increase Diagrammer.Core  minimum requirement to v0.2.17
 - Increase Veeam.Diagrammer minimum requirement to v0.6.19
 - Increase AsBuiltReport.Core to v1.4.2.1
+- Flag report as incompatible with Veeam Backup & Replication v13
 
 ## [0.8.14] - 2025-01-30
 
 ### Added
 
-- Add support for vMWare Cloud Director backup jobs
+- Add support for vMWare Cloud Director backup job
 - Add option to set the RoundUnits of the storage usages
 
 ### Changed
