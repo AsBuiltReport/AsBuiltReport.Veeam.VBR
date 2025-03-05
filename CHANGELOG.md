@@ -7,12 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ##### This project is community maintained and has no sponsorship from Veeam, its employees or any of its affiliates.
 
-## [0.8.15] - 2025-03-03
+## [0.8.15] - 2025-03-05
 
 ### Changed
 
-- Increase Diagrammer.Core  minimum requirement to v0.2.17
-- Increase Veeam.Diagrammer minimum requirement to v0.6.19
+- Increase Diagrammer.Core  minimum requirement to v0.2.19
+- Increase Veeam.Diagrammer minimum requirement to v0.6.20
 - Increase AsBuiltReport.Core to v1.4.2.1
 - Flag report as incompatible with Veeam Backup & Replication v13
 
