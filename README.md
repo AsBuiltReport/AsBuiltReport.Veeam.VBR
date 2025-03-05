@@ -27,17 +27,19 @@
 </p>
 
 > [!WARNING]
-> I recently made the decision to not apply to the Veeam Vanguard program which was one of the main reasons for developing and maintaining this project. For this reason I will not be maintaining or updating this report. At this time until someone is identified to maintain the project, this report will be frozen in terms of new capabilities.
+> I recently decided not to apply to the Veeam Vanguard program, which was one of the main reasons for developing and maintaining this project. Therefore, I will not be maintaining or updating this report. Until someone is identified to maintain the project, this report will be frozen in terms of new capabilities.
 
-#### This project is community maintained and has no sponsorship from Veeam, its employees or any of its affiliates.
+#### Community Maintained Project
+
+This project is maintained by the community and is not sponsored by Veeam, its employees, or any affiliates.
 
 # Veeam VBR As Built Report
 
-Veeam VBR As Built Report is a PowerShell module which works in conjunction with [AsBuiltReport.Core](https://github.com/AsBuiltReport/AsBuiltReport.Core).
+Veeam VBR As Built Report is a PowerShell module that works in conjunction with [AsBuiltReport.Core](https://github.com/AsBuiltReport/AsBuiltReport.Core).
 
-[AsBuiltReport](https://github.com/AsBuiltReport/AsBuiltReport) is an open-sourced community project which utilises PowerShell to produce as-built documentation in multiple document formats for multiple vendors and technologies.
+[AsBuiltReport](https://github.com/AsBuiltReport/AsBuiltReport) is an open-source community project that utilizes PowerShell to produce as-built documentation in multiple formats for various vendors and technologies.
 
-Please refer to the AsBuiltReport [website](https://www.asbuiltreport.com) for more detailed information about this project.
+For more detailed information about this project, please visit the AsBuiltReport [website](https://www.asbuiltreport.com).
 
 # :books: Sample Reports
 
@@ -53,48 +55,47 @@ Sample Veeam VBR As Built Report Diagram file: [Sample Diagram](Samples/AsBuiltR
 
 # :beginner: Getting Started
 
-Below are the instructions on how to install, configure and generate a Veeam VBR As Built report.
+Below are the instructions on how to install, configure, and generate a Veeam VBR As Built report.
 
 ## :floppy_disk: Supported Versions
-<!-- ********** Update supported Veeam versions ********** -->
-The Veeam VBR As Built Report supports the following Veeam Backup & Replication version;
+
+The Veeam VBR As Built Report supports the following Veeam Backup & Replication versions:
 
 - Veeam Backup & Replication v11+ (Standard, Enterprise & Enterprise Plus Edition)
 - Veeam Backup & Replication v12+ (Standard, Enterprise & Enterprise Plus Edition)
 
-:exclamation:Community Edition is not supported:exclamation:
+:exclamation: Community Edition is not supported :exclamation:
 
 ## :no_entry_sign: Unsupported Versions
 
-The versions 10 are no longer supported by Veeam. So I will not be performing compatibility tests with these version. The report may work on previous versions but I do not guarantee and will not address issues related to pre-v11.
+- Veeam versions 10 and earlier are no longer supported. Compatibility with these versions is not guaranteed, and any issues related to versions prior to v11 will not be addressed.
+- Veeam version 13 and later are not supported.
 
 [Veeam Product Lifecycle Policy](https://www.veeam.com/product-lifecycle.html)
 
 ### PowerShell
 
-This report is compatible with the following PowerShell versions;
+This report is compatible with the following PowerShell versions:
 
-<!-- ********** Update supported PowerShell versions ********** -->
 | Windows PowerShell 5.1 | PowerShell 7 |
 | :--------------------: | :----------: |
 |   :white_check_mark:   |     :x:      |
 
 ## :wrench: System Requirements
 
-PowerShell 5.1 and the following PowerShell modules are required for generating a Veeam VBR As Built report.
+PowerShell 5.1 and the following PowerShell modules are required to generate a Veeam VBR As Built report:
 
-- [Veeam.Backup.PowerShell Module](https://helpcenter.veeam.com/docs/backup/powershell/getting_started.html?ver=110)
+- [AsBuiltReport.Core Module](https://github.com/AsBuiltReport/AsBuiltReport.Core)
+- [Diagrammer.Core Module](https://github.com/rebelinux/Diagrammer.Core)
 - [PScribo Module](https://github.com/iainbrighton/PScribo)
 - [PScriboCharts Module](https://github.com/iainbrighton/PScriboCharts)
 - [PSGraph Module](https://github.com/KevinMarquette/PSGraph)
-- [AsBuiltReport.Core Module](https://github.com/AsBuiltReport/AsBuiltReport.Core)
+- [Veeam.Backup.PowerShell Module](https://helpcenter.veeam.com/docs/backup/powershell/getting_started.html?ver=110)
 - [Veeam.Diagrammer Module](https://github.com/rebelinux/Veeam.Diagrammer)
-- [Diagrammer.Core Module](https://github.com/rebelinux/Diagrammer.Core)
-
 
 ### :closed_lock_with_key: Required Privileges
 
-Only users with Veeam Backup Administrator role assigned can generate a Veeam VBR As Built Report.
+Only users with the Veeam Backup Administrator role can generate a Veeam VBR As Built Report.
 
 ## :package: Module Installation
 
@@ -106,12 +107,12 @@ Install-Module -Name AsBuiltReport.Veeam.VBR
 
 ### GitHub
 
-If you are unable to use the PowerShell Gallery, you can still install the module manually. Ensure you repeat the following steps for the [system requirements](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR#wrench-system-requirements) also.
+If you cannot use the PowerShell Gallery, you can install the module manually. Ensure you repeat the following steps for the [system requirements](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR#wrench-system-requirements) as well.
 
-1. Download the code package / [latest release](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/releases/latest) zip from GitHub
-2. Extract the zip file
-3. Copy the folder `AsBuiltReport.Veeam.VBR` to a path that is set in `$env:PSModulePath`.
-4. Open a PowerShell terminal window and unblock the downloaded files with
+1. Download the code package / [latest release](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/releases/latest) zip from GitHub.
+2. Extract the zip file.
+3. Copy the folder `AsBuiltReport.Veeam.VBR` to a path set in `$env:PSModulePath`.
+4. Open a PowerShell terminal window and unblock the downloaded files with:
 
     ```powershell
     $path = (Get-Module -Name AsBuiltReport.Veeam.VBR -ListAvailable).ModuleBase; Unblock-File -Path $path\*.psd1; Unblock-File -Path $path\Src\Public\*.ps1; Unblock-File -Path $path\Src\Private\*.ps1
@@ -119,23 +120,23 @@ If you are unable to use the PowerShell Gallery, you can still install the modul
 
 5. Close and reopen the PowerShell terminal window.
 
-_Note: You are not limited to installing the module to those example paths, you can add a new entry to the environment variable PSModulePath if you want to use another path._
+_Note: You can install the module to other paths by adding a new entry to the environment variable PSModulePath._
 
 ## :pencil2: Configuration
 
-The Veeam VBR As Built Report utilizes a JSON file to allow configuration of report information, options, detail and healthchecks.
+The Veeam VBR As Built Report uses a JSON file to configure report information, options, detail, and health checks.
 
-A Veeam VBR report configuration file can be generated by executing the following command;
+A Veeam VBR report configuration file can be generated by executing the following command:
 
 ```powershell
 New-AsBuiltReportConfig -Report Veeam.VBR -FolderPath <User specified folder> -Filename <Optional>
 ```
 
-Executing this command will copy the default Veeam VBR report JSON configuration to a user specified folder.
+Executing this command will copy the default Veeam VBR report JSON configuration to a user-specified folder.
 
 All report settings can then be configured via the JSON file.
 
-The following provides information of how to configure each schema within the report's JSON file.
+The following provides information on how to configure each schema within the report's JSON file.
 
 ### Report
 
@@ -155,28 +156,29 @@ The **Report** schema provides configuration of the Veeam VBR report information
 
 The **Options** schema allows certain options within the report to be toggled on or off.
 
-| Sub-Schema              | Setting                    | Default | Description                                                                    |
-| ----------------------- | -------------------------- | ------- | ------------------------------------------------------------------------------ |
-| BackupServerPort        | TCP Port                   | 9392    | Set the backup server service's custom port.                                   |
-| PSDefaultAuthentication | Default/Kerberos/Negotiate | Default | Set the PSRemoting authentication method                                       |
-| EnableHardwareInventory | true / false               | false   | Toggle to enable/disable of Hardware information                               |
-| ReportStyle             | Veeam/AsBuiltReport        | Veeam   | Allow to set report style template.                                            |
-| EnableDiagrams          | true / false               | false   | Toggle to enable/disable of Infrastructure Diagrams                            |
-| EnableDiagramsDebug     | true/false                 | false   | Toggle to enable/disable diagram debug option.                                 |
-| DiagramTheme            | string                     | White   | Used to set the diagram theme. (Black/White/Neon)                              |
-| DiagramWaterMark        | string                     | empty   | Used to set the diagram waterMark.                                             |
-| ExportDiagrams          | true/false                 | true    | Toggle to enable/disable diagram export option.                                |
-| ExportDiagramsFormat    | string array               | png     | Set the format used to export the infrastructure diagram. (dot, png, pdf, svg) |
-| EnableDiagramSignature  | true/false                 | false   | Toggle to enable/disable diagram signature (button right corner)               |
-| SignatureAuthorName     | string                     | empty   | Toggle to set signature author name.                                           |
-| SignatureCompanyName    | string                     | empty   | Toggle to set signature company name.                                          |
-| RoundUnits              | int                        | 1       | Set value to round the storage unit.                                           |
+| Sub-Schema              | Setting                    | Default | Description                                                                   |
+| Sub-Schema              | Setting                    | Default | Description                                                                   |
+| ----------------------- | -------------------------- | ------- | ----------------------------------------------------------------------------- |
+| BackupServerPort        | TCP Port                   | 9392    | Set the backup server service's custom port.                                  |
+| DiagramTheme            | string                     | White   | Set the diagram theme (Black/White/Neon)                                      |
+| DiagramWaterMark        | string                     | empty   | Set the diagram watermark                                                     |
+| EnableDiagrams          | true / false               | false   | Toggle to enable/disable infrastructure diagrams                              |
+| EnableDiagramsDebug     | true / false               | false   | Toggle to enable/disable diagram debug option                                 |
+| EnableDiagramSignature  | true / false               | false   | Toggle to enable/disable diagram signature (bottom right corner)              |
+| EnableHardwareInventory | true / false               | false   | Toggle to enable/disable hardware information                                 |
+| ExportDiagrams          | true / false               | true    | Toggle to enable/disable diagram export option                                |
+| ExportDiagramsFormat    | string array               | png     | Set the format used to export the infrastructure diagram (dot, png, pdf, svg) |
+| PSDefaultAuthentication | Default/Kerberos/Negotiate | Default | Set the PSRemoting authentication method                                      |
+| ReportStyle             | Veeam/AsBuiltReport        | Veeam   | Set the report style template                                                 |
+| RoundUnits              | int                        | 1       | Set the value to round the storage unit                                       |
+| SignatureAuthorName     | string                     | empty   | Set the signature author name                                                 |
+| SignatureCompanyName    | string                     | empty   | Set the signature company name                                                |
 
 ### InfoLevel
 
 The **InfoLevel** schema allows configuration of each section of the report at a granular level. The following sections can be set.
 
-There are 4 levels (0-3) of detail granularity for each section as follows;
+There are 4 levels (0-3) of detail granularity for each section as follows:
 
 | Setting | InfoLevel   | Description                                                          |
 | :-----: | ----------- | -------------------------------------------------------------------- |
@@ -189,74 +191,74 @@ The table below outlines the default and maximum **InfoLevel** settings for each
 
 | Sub-Schema      | Default Setting | Maximum Setting |
 | --------------- | :-------------: | :-------------: |
-| BackupServe     |        1        |        3        |
-| Proxy           |        1        |        3        |
-| Settings        |        1        |        2        |
+| BackupServer    |        1        |        3        |
 | BR              |        1        |        2        |
 | Licenses        |        1        |        1        |
-| SOBR            |        1        |        2        |
-| WANAccel        |        1        |        1        |
+| Proxy           |        1        |        3        |
 | ServiceProvider |        1        |        2        |
+| Settings        |        1        |        2        |
+| SOBR            |        1        |        2        |
 | SureBackup      |        1        |        2        |
+| WANAccel        |        1        |        1        |
 
 The table below outlines the default and maximum **InfoLevel** settings for each Tape Infrastructure section.
 
 | Sub-Schema | Default Setting | Maximum Setting |
-| ---------- | :-------------: | :-------------: |
-| Server     |        1        |        1        |
+| --------------- | :-------------: | :-------------: |
 | Library    |        1        |        2        |
 | MediaPool  |        1        |        2        |
-| Vault      |        1        |        1        |
 | NDMP       |        1        |        1        |
+| Server     |        1        |        1        |
+| Vault      |        1        |        1        |
 
 The table below outlines the default and maximum **InfoLevel** settings for each Inventory section.
 
 | Sub-Schema | Default Setting | Maximum Setting |
-| ---------- | :-------------: | :-------------: |
-| VI         |        1        |        1        |
-| PHY        |        1        |        2        |
-| FileShare  |        1        |        1        |
+| --------------- | :-------------: | :-------------: |
 | EntraID    |        1        |        1        |
+| FileShare  |        1        |        1        |
+| PHY        |        1        |        2        |
+| VI         |        1        |        1        |
 
 The table below outlines the default and maximum **InfoLevel** settings for each Storage Infrastructure section.
 
 | Sub-Schema | Default Setting | Maximum Setting |
 | ---------- | :-------------: | :-------------: |
-| ONTAP      |        1        |        2        |
 | ISILON     |        1        |        2        |
+| ONTAP      |        1        |        2        |
 
 The table below outlines the default and maximum **InfoLevel** settings for each Backup Jobs section.
 
 | Sub-Schema  | Default Setting | Maximum Setting |
 | ----------- | :-------------: | :-------------: |
+| Agent       |        1        |        2        |
 | Backup      |        1        |        2        |
 | BackupCopy  |        1        |        2        |
-| Tape        |        1        |        2        |
-| Surebackup  |        1        |        2        |
-| Agent       |        1        |        2        |
+| EntraID     |        1        |        2        |
 | FileShare   |        1        |        2        |
 | Replication |        1        |        2        |
 | Restores    |        0        |        1        |
-| EntraID     |        1        |        2        |
+| Surebackup  |        1        |        2        |
+| Tape        |        1        |        2        |
 
 The table below outlines the default and maximum **InfoLevel** settings for each Replication section.
 
 | Sub-Schema   | Default Setting | Maximum Setting |
 | ------------ | :-------------: | :-------------: |
-| Replica      |        1        |        2        |
 | FailoverPlan |        1        |        1        |
+| Replica      |        1        |        2        |
 
 The table below outlines the default and maximum **InfoLevel** settings for each Cloud Connect section.
 
 | Sub-Schema       | Default Setting | Maximum Setting |
-| ---------------- | :-------------: | :-------------: |
+| --------------- | :-------------: | :-------------: |
+| BackupStorage    |        1        |        1        |
 | Certificate      |        1        |        1        |
-| PublicIP         |        1        |        1        |
 | CloudGateway     |        1        |        2        |
 | GatewayPools     |        1        |        1        |
-| Tenants          |        1        |        2        |
-| BackupStorage    |        1        |        1        |
+| PublicIP         |        1        |        1        |
 | ReplicaResources |        1        |        2        |
+| Tenants          |        1        |        2        |
 
 ### Healthcheck
 
@@ -264,7 +266,7 @@ The **Healthcheck** schema is used to toggle health checks on or off.
 
 ## :computer: Examples
 
-There are a few examples listed below on running the AsBuiltReport script against a Veeam Backup Server. Refer to the `README.md` file in the main AsBuiltReport project repository for more examples.
+Below are a few examples of running the AsBuiltReport script against a Veeam Backup Server. Refer to the `README.md` file in the main AsBuiltReport project repository for more examples.
 
 ```powershell
 # Generate a Veeam VBR As Built Report for Backup Server 'veeam-vbr.pharmax.local' using specified credentials. Export report to HTML & DOCX formats. Use default report style. Append timestamp to report filename. Save reports to 'C:\Users\Jon\Documents'
@@ -279,11 +281,10 @@ PS C:\> New-AsBuiltReport -Report Veeam.VBR -Target veeam-vbr.pharmax.local -Cre
 
 # Generate a Veeam VBR As Built Report for Backup Server veeam-vbr.pharmax.local using stored credentials. Export report to HTML & DOCX formats. Use default report style. Reports are saved to the user profile folder by default. Attach and send reports via e-mail.
 PS C:\> New-AsBuiltReport -Report Veeam.VBR -Target veeam-vbr.pharmax.local -Username 'Domain\veeam_admin' -Password 'P@ssw0rd' -Format Html,Word -OutputFolderPath 'C:\Users\Jon\Documents' -SendEmail
-
 ```
 
 ## :x: Known Issues
 
-- Since many of Veeam's features depend on the Standard+ license, the Community edition is not supported.
-- If the Veeam Backup Server is not joined to an Active Directory domain (WorkGroup Auth), the PSDefaultAuthentication option must be set to Negotiate. If it is not, some of the report sections will be missing.
-- This project uses the PScribo module to generate the report. It has been detected that the EvotecIT PSWriteWord module uses the same cmdlet names. For this report to be generated correctly it is required to uninstall the PSWriteWord module.
+- Many of Veeam's features depend on the Standard+ license, so the Community edition is not supported.
+- If the Veeam Backup Server is not joined to an Active Directory domain (WorkGroup Auth), the PSDefaultAuthentication option must be set to Negotiate. Otherwise, some report sections will be missing.
+- This project uses the PScribo module to generate the report. It has been detected that the EvotecIT PSWriteWord module uses the same cmdlet names. To generate the report correctly, it is required to uninstall the PSWriteWord module.
