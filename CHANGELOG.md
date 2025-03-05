@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ##### This project is community maintained and has no sponsorship from Veeam, its employees or any of its affiliates.
 
+## [0.8.16] - Unreleased
+
+### Fixed
+
+- Fix Syslog Event Filter section displaying content when no configuration is available
+
 ## [0.8.15] - 2025-03-05
 
 ### Changed
