@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Fix Syslog Event Filter section displaying content when no configuration is available
+- Fix issue where the Syslog Event Filter section displayed content even when no configuration was available
 
 ## [0.8.15] - 2025-03-05
 

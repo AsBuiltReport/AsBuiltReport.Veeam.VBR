@@ -63,7 +63,8 @@ function Get-AbrVbrReplFailoverPlan {
                             }
                             $OutObj | Table @TableParams
                             if ($HealthCheck.Replication.BestPractice) {
-                                if ($OutObj | Where-Object { $_.'Description' -match 'Created by' -or $_.'Description' -eq '--' }) {                                    Paragraph "Health Check:" -Bold -Underline
+                                if ($OutObj | Where-Object { $_.'Description' -match 'Created by' -or $_.'Description' -eq '--' }) {
+                                    Paragraph "Health Check:" -Bold -Underline
                                     BlankLine
                                     Paragraph {
                                         Text "Best Practice:" -Bold
