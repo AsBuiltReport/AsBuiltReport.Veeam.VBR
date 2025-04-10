@@ -6,7 +6,7 @@ function Get-AbrVbrConfigurationBackupSetting {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.13
+        Version:        0.8.16
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -61,9 +61,29 @@ function Get-AbrVbrConfigurationBackupSetting {
                     }
 
                     if ($HealthCheck.Infrastructure.Settings) {
-                        $OutObj | Where-Object { $_.'Enabled' -like 'No' } | Set-Style -Style Warning -Property 'Enabled'
+                        $List = @()
+                        $Num = 0
                         $OutObj | Where-Object { $_.'Run Job Automatically' -like 'No' } | Set-Style -Style Warning -Property 'Run Job Automatically'
-                        $OutObj | Where-Object { $_.'Encryption Enabled' -like 'No' } | Set-Style -Style Critical -Property 'Encryption Enabled'
+                        foreach ( $OBJ in ($OutObj | Where-Object { $_.'Run Job Automatically' -like 'No' })) {
+                            $Num++
+                            $OBJ.'Run Job Automatically' = $OBJ.'Run Job Automatically' + " ($Num)"
+                            $List += "It's a recommended best practice to activate the 'Run job automatically' option of the Backup Configuration job."
+                        }
+
+                        $OutObj | Where-Object { $_.'Encryption Enabled' -like 'No' } | Set-Style -Style Warning -Property 'Encryption Enabled'
+                        foreach ( $OBJ in ($OutObj | Where-Object { $_.'Encryption Enabled' -like 'No' })) {
+                            $Num++
+                            $OBJ.'Encryption Enabled' = $OBJ.'Encryption Enabled' + " ($Num)"
+                            $List += "Whenever possible, enable configuration backup encryption."
+                        }
+
+                        $OutObj | Where-Object { $_.'Enabled' -like 'No' } | Set-Style -Style Warning -Property 'Enabled'
+                        foreach ( $OBJ in ($OutObj | Where-Object { $_.'Enabled' -eq 'No' })) {
+                            $Num++
+                            $OBJ.'Enabled' = $OBJ.'Enabled' + " ($Num)"
+                            $List += "It's a recommended best practice to enable the Backup Configuration job"
+                        }
+
                         $OutObj | Where-Object { $_.'LastResult' -like 'Warning' } | Set-Style -Style Warning -Property 'LastResult'
                         $OutObj | Where-Object { $_.'LastResult' -like 'Failed' } | Set-Style -Style Critical -Property 'LastResult'
                     }
@@ -77,32 +97,11 @@ function Get-AbrVbrConfigurationBackupSetting {
                         $TableParams['Caption'] = "- $($TableParams.Name)"
                     }
                     $OutObj | Table @TableParams
-                    if ($HealthCheck.Infrastructure.BestPractice) {
-                        if ($OutObj | Where-Object { $_.'Encryption Enabled' -like 'No' -or $_.'Run Job Automatically' -like 'No' -or $_.'Enabled' -like 'No' }) {
-                            Paragraph "Health Check:" -Bold -Underline
-                            BlankLine
-                            if ($OutObj | Where-Object { $_.'Encryption Enabled' -like 'No' } ) {
-                                Paragraph {
-                                    Text "Best Practice:" -Bold
-                                    Text "Whenever possible, enable configuration backup encryption."
-                                }
-                                BlankLine
-                            }
-                            if ($OutObj | Where-Object { $_.'Run Job Automatically' -like 'No' }) {
-                                Paragraph {
-                                    Text "Best Practice:" -Bold
-                                    Text "It's a recommended best practice to activate the 'Run job automatically' option of the Backup Configuration job."
-                                }
-                                BlankLine
-                            }
-                            if ($OutObj | Where-Object { $_.'Enabled' -like 'No' }) {
-                                Paragraph {
-                                    Text "Best Practice:" -Bold
-                                    Text "It's a recommended best practice to enable the Backup Configuration job"
-                                }
-                                BlankLine
-                            }
-                        }
+                    if ($HealthCheck.Infrastructure.BestPractice -and $List) {
+                        Paragraph "Health Check:" -Bold -Underline
+                        BlankLine
+                        Paragraph "Best Practice:" -Bold
+                        List -Item $List -Numbered
                     }
                 }
             }

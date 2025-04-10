@@ -6,7 +6,7 @@ function Get-AbrVbrUserRoleAssignment {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.12
+        Version:        0.8.16
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -46,7 +46,13 @@ function Get-AbrVbrUserRoleAssignment {
                 }
 
                 if ($HealthCheck.Infrastructure.Settings) {
+                    $List = @()
                     $OutObj | Where-Object { $_.'Name' -eq 'BUILTIN\Administrators' } | Set-Style -Style Warning -Property 'Name'
+                    foreach ( $OBJ in ($OutObj | Where-Object { $_.'Name' -eq 'BUILTIN\Administrators' })) {
+                        $OBJ.'Name' = $OBJ.'Name' + " (1)"
+                        $List += "Veeam recommends to give every Veeam admin his own admin account or add their admin account to the appropriate security group within Veeam and to remove the default 'Veeam Backup Administrator' role from local Administrators group, for traceability and easy adding and removal"
+
+                    }
                 }
 
                 $TableParams = @{
@@ -58,25 +64,19 @@ function Get-AbrVbrUserRoleAssignment {
                     $TableParams['Caption'] = "- $($TableParams.Name)"
                 }
                 $OutObj | Sort-Object -Property 'Name' | Table @TableParams
-                if ($HealthCheck.Infrastructure.BestPractice -and ($OutObj | Where-Object { $_.'Name' -eq 'BUILTIN\Administrators' })) {
+                if ($HealthCheck.Infrastructure.BestPractice -and ($OutObj | Where-Object { $_.'Name' -eq 'BUILTIN\Administrators (1)' })) {
                     Paragraph "Health Check:" -Bold -Underline
                     BlankLine
                     Paragraph "Security Best Practice:" -Bold
-                    BlankLine
-                    if ($OutObj | Where-Object { $_.'Name' -eq 'BUILTIN\Administrators' }) {
-                        Paragraph {
-                            Text "Veeam recommends to give every Veeam admin his own admin account or add their admin account to the appropriate security group within Veeam and to remove the default 'Veeam Backup Administrator' role from local Administrators group, for traceability and easy adding and removal"
-                        }
-                        BlankLine
-                        Paragraph {
-                            Text -Bold "Reference:"
-                        }
-                        BlankLine
-                        Paragraph {
-                            Text "https://bp.veeam.com/security/Design-and-implementation/Roles_And_Users.html#roles-and-users"
-                        }
-                        BlankLine
+                    List -Item $List -Numbered
+                    Paragraph {
+                        Text -Bold "Reference:"
                     }
+                    BlankLine
+                    Paragraph {
+                        Text "https://bp.veeam.com/security/Design-and-implementation/Roles_And_Users.html#roles-and-users"
+                    }
+                    BlankLine
                 }
                 if ($VbrVersion -ge 12) {
                     try {
@@ -105,17 +105,27 @@ function Get-AbrVbrUserRoleAssignment {
                             }
 
                             if ($HealthCheck.Infrastructure.Settings) {
+                                $List = @()
+                                $Num = 0
                                 $OutObj | Where-Object { $_.'Is MFA globally enabled?' -like 'No' } | Set-Style -Style Warning -Property 'Is MFA globally enabled?'
                                 foreach ( $OBJ in ($OutObj | Where-Object { $_.'Is MFA globally enabled?' -eq 'No' })) {
-                                    $OBJ.'Is MFA globally enabled?' = "* " + $OBJ.'Is MFA globally enabled?'
+                                    $Num++
+                                    $OBJ.'Is MFA globally enabled?' = $OBJ.'Is MFA globally enabled?' + " ($Num)"
+                                    $List += "To ensure comprehensive security, it's crucial to implement MFA across all user accounts. By using a combination of different authentication factors like passwords, biometrics, and one-time passcodes, you create layers of security that make it harder for attackers to gain unauthorized access."
+
                                 }
                                 $OutObj | Where-Object { $_.'Is auto logoff on inactivity enabled?' -like 'No' } | Set-Style -Style Warning -Property 'Is auto logoff on inactivity enabled?'
                                 foreach ( $OBJ in ($OutObj | Where-Object { $_.'Is auto logoff on inactivity enabled?' -eq 'No' })) {
-                                    $OBJ.'Is auto logoff on inactivity enabled?' = "** " + $OBJ.'Is auto logoff on inactivity enabled?'
+                                    $Num++
+                                    $OBJ.'Is auto logoff on inactivity enabled?' = $OBJ.'Is auto logoff on inactivity enabled?' + " ($Num)"
+                                    $List += "Limiting the length of inactive sessions can help protect sensitive information and prevent unauthorized account access."
+
                                 }
                                 $OutObj | Where-Object { $_.'Is Four-eye Authorization enabled?' -like 'No' } | Set-Style -Style Warning -Property 'Is Four-eye Authorization enabled?'
                                 foreach ( $OBJ in ($OutObj | Where-Object { $_.'Is Four-eye Authorization enabled?' -eq 'No' })) {
-                                    $OBJ.'Is Four-eye Authorization enabled?' = "*** " + $OBJ.'Is Four-eye Authorization enabled?'
+                                    $Num++
+                                    $OBJ.'Is Four-eye Authorization enabled?' = $OBJ.'Is Four-eye Authorization enabled?' + " ($Num)"
+                                    $List += "Veeam recommends configuring Four-eye Authorization to be able to protect against accidental deletion of backup and repositories by requiring an approval from another Backup Administrator."
                                 }
                             }
 
@@ -128,29 +138,11 @@ function Get-AbrVbrUserRoleAssignment {
                                 $TableParams['Caption'] = "- $($TableParams.Name)"
                             }
                             $OutObj | Table @TableParams
-                            if ($HealthCheck.Infrastructure.BestPractice -and ($OutObj | Where-Object { $_.'Is MFA globally enabled?' -eq '* No' -or $_.'Is auto logoff on inactivity enabled?' -eq '** No' -or $_.'Is Four-eye Authorization enabled?' -eq '*** No' })) {
+                            if ($HealthCheck.Infrastructure.BestPractice -and $List) {
                                 Paragraph "Health Check:" -Bold -Underline
                                 BlankLine
                                 Paragraph "Security Best Practice:" -Bold
-                                BlankLine
-                                if ($OutObj | Where-Object { $_.'Is MFA globally enabled?' -eq '* No' }) {
-                                    Paragraph {
-                                        Text "* To ensure comprehensive security, it's crucial to implement MFA across all user accounts. By using a combination of different authentication factors like passwords, biometrics, and one-time passcodes, you create layers of security that make it harder for attackers to gain unauthorized access."
-                                    }
-                                    BlankLine
-                                }
-                                if ($OutObj | Where-Object { $_.'Is auto logoff on inactivity enabled?' -eq '** No' }) {
-                                    Paragraph {
-                                        Text "** Limiting the length of inactive sessions can help protect sensitive information and prevent unauthorized account access."
-                                    }
-                                    BlankLine
-                                }
-                                if ($OutObj | Where-Object { $_.'Is Four-eye Authorization enabled?' -eq '*** No' }) {
-                                    Paragraph {
-                                        Text "*** Veeam recommends configuring Four-eye Authorization to be able to protect against accidental deletion of backup and repositories by requiring an approval from another Backup Administrator."
-                                    }
-                                    BlankLine
-                                }
+                                List -Item $List -Numbered
                             }
                         }
                     } catch {

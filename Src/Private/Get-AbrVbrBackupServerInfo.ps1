@@ -6,7 +6,7 @@ function Get-AbrVbrBackupServerInfo {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.14
+        Version:        0.8.16
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -21,31 +21,36 @@ function Get-AbrVbrBackupServerInfo {
     )
 
     begin {
-        Write-PScriboMessage "Discovering Veeam V&R Server information from $System."
+        Write-PScriboMessage "Discovering Veeam VB&R Server information from $System."
     }
 
     process {
         try {
             if ($script:BackupServers = Get-VBRServer -Type Local) {
                 Section -Style Heading3 'Backup Server' {
+                    Paragraph "The following table details information about Veeam Backup & Replication configuration status."
+                    BlankLine
                     $OutObj = @()
                     try {
                         foreach ($BackupServer in $BackupServers) {
-                            if (Test-WSMan -Credential $Credential -Authentication $Options.PSDefaultAuthentication -ComputerName $BackupServer.Name -ErrorAction SilentlyContinue) {
-                                $CimSession = try { New-CimSession $BackupServer.Name -Credential $Credential -Authentication $Options.PSDefaultAuthentication -Name 'CIMBackupServer' -ErrorAction Stop } catch { Write-PScriboMessage -IsWarning "Backup Server Section: New-CimSession: Unable to connect to $($BackupServer.Name): $($_.Exception.MessageId)" }
+                            $CimSession = try { New-CimSession $BackupServer.Name -Credential $Credential -Authentication $Options.PSDefaultAuthentication -Name 'CIMBackupServer' -ErrorAction Stop } catch { Write-PScriboMessage -IsWarning "Backup Server Section: New-CimSession: Unable to connect to $($BackupServer.Name): $($_.Exception.MessageId)" }
 
-                                $PssSession = try { New-PSSession $BackupServer.Name -Credential $Credential -Authentication $Options.PSDefaultAuthentication -ErrorAction Stop -Name 'PSSBackupServer' } catch {
-                                    if (-Not $_.Exception.MessageId) {
-                                        $ErrorMessage = $_.FullyQualifiedErrorId
-                                    } else { $ErrorMessage = $_.Exception.MessageId }
-                                    Write-PScriboMessage -IsWarning "Backup Server Section: New-PSSession: Unable to connect to $($BackupServer.Name): $ErrorMessage"
-                                }
-                                $SecurityOptions = Get-VBRSecurityOptions
+                            $PssSession = try { New-PSSession $BackupServer.Name -Credential $Credential -Authentication $Options.PSDefaultAuthentication -ErrorAction Stop -Name 'PSSBackupServer' } catch {
+                                if (-Not $_.Exception.MessageId) {
+                                    $ErrorMessage = $_.FullyQualifiedErrorId
+                                } else { $ErrorMessage = $_.Exception.MessageId }
+                                Write-PScriboMessage -IsWarning "Backup Server Section: New-PSSession: Unable to connect to $($BackupServer.Name): $ErrorMessage"
+                            }
+                            $SecurityOptions = Get-VBRSecurityOptions
+                            if ($CimSession) {
                                 try { $DomainJoined = Get-CimInstance -Class Win32_ComputerSystem -Property PartOfDomain -CimSession $CimSession } catch { 'Unknown' }
+                            }
                                 Write-PScriboMessage "Collecting Backup Server information from $($BackupServer.Name)."
+
+                            if ($PssSession) {
                                 try {
                                     $script:VeeamVersion = Invoke-Command -Session $PssSession -ErrorAction SilentlyContinue -ScriptBlock { Get-ChildItem -Recurse HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall | Get-ItemProperty | Where-Object { $_.DisplayName -match 'Veeam Backup & Replication Server' } | Select-Object -Property DisplayVersion }
-                                } catch { Write-PScriboMessage -IsWarning "Backup Server Inkoke-Command Section: $($_.Exception.Message)" }
+                                } catch { Write-PScriboMessage -IsWarning "Backup Server Invoke-Command Section: $($_.Exception.Message)" }
                                 try {
                                     $VeeamInfo = Invoke-Command -Session $PssSession -ErrorAction SilentlyContinue -ScriptBlock { Get-ItemProperty -Path 'HKLM:\SOFTWARE\Veeam\Veeam Backup and Replication' }
                                 } catch { Write-PScriboMessage -IsWarning "Backup Server Invoke-Command Section: $($_.Exception.Message)" }
@@ -55,8 +60,11 @@ function Get-AbrVbrBackupServerInfo {
                                 try {
                                     $VeeamDBInfo = Invoke-Command -Session $PssSession -ErrorAction SilentlyContinue -ScriptBlock { Get-ItemProperty -Path "HKLM:\SOFTWARE\Veeam\Veeam Backup and Replication\DatabaseConfigurations\$(($Using:VeeamDBFlavor).SqlActiveConfiguration)" }
                                 } catch { Write-PScriboMessage -IsWarning "Backup Server Invoke-Command Section: $($_.Exception.Message)" }
-                                Write-PScriboMessage "Discovered $($BackupServer.Name) Server."
-                            } else { Write-PScriboMessage -IsWarning "Backup Server Section: Unable to connect to Backup Server throuth WinRM" }
+                            } else {
+                                Write-PScriboMessage -IsWarning "Backup Server Section: Unable to get Backup Server information: WinRM disabled or not configured on $($BackupServer.Name)."
+                            }
+
+                            Write-PScriboMessage "Discovered $($BackupServer.Name) Server."
                             $inObj = [ordered] @{
                                 'Server Name' = $BackupServer.Name
                                 'Is Domain Joined?' = $DomainJoined.PartOfDomain
@@ -149,10 +157,14 @@ function Get-AbrVbrBackupServerInfo {
                         if ($Options.EnableHardwareInventory) {
                             $BackupServer = Get-VBRServer -Type Local
                             Write-PScriboMessage "Collecting Backup Server Inventory Summary from $($BackupServer.Name)."
-                            $License = Get-CimInstance -Query 'Select * from SoftwareLicensingProduct' -CimSession $CimSession | Where-Object { $_.LicenseStatus -eq 1 }
-                            $HWCPU = Get-CimInstance -Class Win32_Processor -CimSession $CimSession
-                            $HWBIOS = Get-CimInstance -Class Win32_Bios -CimSession $CimSession
-                            if ($HW = Invoke-Command -Session $PssSession -ScriptBlock { Get-ComputerInfo }) {
+
+                            if ($CimSession) {
+                                $License = Get-CimInstance -Query 'Select * from SoftwareLicensingProduct' -CimSession $CimSession | Where-Object { $_.LicenseStatus -eq 1 }
+                                $HWCPU = Get-CimInstance -Class Win32_Processor -CimSession $CimSession
+                                $HWBIOS = Get-CimInstance -Class Win32_Bios -CimSession $CimSession
+                            }
+
+                            if ($PssSession -and ($HW = Invoke-Command -Session $PssSession -ScriptBlock { Get-ComputerInfo })) {
                                 Section -Style Heading4 'Hardware & Software Inventory' {
                                     $OutObj = @()
                                     $inObj = [ordered] @{
@@ -386,6 +398,8 @@ function Get-AbrVbrBackupServerInfo {
                                         }
                                     }
                                 }
+                            } else {
+                                Write-PScriboMessage -IsWarning "Backup Server Section: Unable to get Backup Server Hardware information: WinRM disabled or not configured on $($BackupServer.Name)."
                             }
                         }
                     } catch {
