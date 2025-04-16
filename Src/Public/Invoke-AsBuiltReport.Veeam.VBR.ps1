@@ -5,7 +5,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.16
+        Version:        0.8.17
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -162,7 +162,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                         if ($Options.EnableDiagrams -and ((Get-VBRWANAccelerator).count -gt 0)) {
                             Try {
                                 Try {
-                                    $Graph = New-VeeamDiagram -Target $System -Credential $Credential -Format base64 -Direction top-to-bottom -DiagramType "Backup-to-WanAccelerator" -DiagramTheme $DiagramTheme
+                                    $Graph = Get-AbrVbrDiagrammer -DiagramType 'Backup-to-WanAccelerator' -DiagramOutput base64
                                 } Catch {
                                     Write-PScriboMessage -IsWarning "Wan Accelerator Diagram: $($_.Exception.Message)"
                                 }
@@ -190,7 +190,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                         if ($Options.EnableDiagrams) {
                             Try {
                                 Try {
-                                    $Graph = New-VeeamDiagram -Target $System -Credential $Credential -Format base64 -Direction top-to-bottom -DiagramType "Backup-to-Repository" -DiagramTheme $DiagramTheme
+                                    $Graph = Get-AbrVbrDiagrammer -DiagramType 'Backup-to-Repository' -DiagramOutput base64
                                 } Catch {
                                     Write-PScriboMessage -IsWarning "Backup Repository Diagram: $($_.Exception.Message)"
                                 }
@@ -213,7 +213,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                         if ($Options.EnableDiagrams -and (Get-VBRBackupRepository -ScaleOut)) {
                             Try {
                                 Try {
-                                    $Graph = New-VeeamDiagram -Target $System -Credential $Credential -Format base64 -Direction top-to-bottom -DiagramType "Backup-to-Sobr" -DiagramTheme $DiagramTheme
+                                    $Graph = Get-AbrVbrDiagrammer -DiagramType 'Backup-to-Sobr' -DiagramOutput base64
                                 } Catch {
                                     Write-PScriboMessage -IsWarning "ScaleOut Backup Repository Diagram: $($_.Exception.Message)"
                                 }
@@ -269,7 +269,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                         if ($Options.EnableDiagrams -and ((Get-VBRTapeServer).count -gt 0) -and ((Get-VBRTapeLibrary).count -gt 0)) {
                             Try {
                                 Try {
-                                    $Graph = New-VeeamDiagram -Target $System -Credential $Credential -Format base64 -Direction top-to-bottom -DiagramType "Backup-to-Tape" -DiagramTheme $DiagramTheme
+                                    $Graph = Get-AbrVbrDiagrammer -DiagramType 'Backup-to-Tape' -DiagramOutput base64
                                 } Catch {
                                     Write-PScriboMessage -IsWarning "Tape Infrastructure Diagram: $($_.Exception.Message)"
                                 }
@@ -314,7 +314,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                             if ($Options.EnableDiagrams -and $InventObjs) {
                                 Try {
                                     Try {
-                                        $Graph = New-VeeamDiagram -Target $System -Credential $Credential -Format base64 -Direction top-to-bottom -DiagramType "Backup-to-ProtectedGroup" -DiagramTheme $DiagramTheme
+                                        $Graph = Get-AbrVbrDiagrammer -DiagramType 'Backup-to-ProtectedGroup' -DiagramOutput base64
                                     } Catch {
                                         Write-PScriboMessage -IsWarning "Physical Infrastructure Diagram: $($_.Exception.Message)"
                                     }
@@ -503,44 +503,10 @@ function Invoke-AsBuiltReport.Veeam.VBR {
             #                          Backup Infrastructure Diagram Section                              #
             #---------------------------------------------------------------------------------------------#
 
-            if (-Not $Options.ExportDiagramsFormat) {
-                $DiagramFormat = 'png'
-            } else {
-                $DiagramFormat = $Options.ExportDiagramsFormat
-            }
-            $DiagramParams = @{
-                'OutputFolderPath' = $OutputFolderPath
-                'Credential' = $Credential
-                'Target' = $System
-                'Direction' = 'top-to-bottom'
-                'DiagramType' = 'Backup-Infrastructure'
-                'WaterMarkText' = $Options.DiagramWaterMark
-                'WaterMarkColor' = 'DarkGreen'
-                'DiagramTheme' = $DiagramTheme
-            }
+            Get-AbrVbrDiagrammer -DiagramType 'All'
 
-            if ($Options.EnableDiagramDebug) {
-                $DiagramParams.Add('EnableEdgeDebug', $True)
-                $DiagramParams.Add('EnableSubGraphDebug', $True)
-            }
-
-            if ($Options.EnableDiagramSignature) {
-                $DiagramParams.Add('Signature', $True)
-                $DiagramParams.Add('AuthorName', $Options.SignatureAuthorName)
-                $DiagramParams.Add('CompanyName', $Options.SignatureCompanyName)
-            }
-
-            try {
-                foreach ($Format in $DiagramFormat) {
-                    $Graph = New-VeeamDiagram @DiagramParams -Format $Format -Filename "AsBuiltReport.Veeam.VBR.$($Format)"
-                    if ($Graph) {
-                        Write-Information "Saved 'AsBuiltReport.Veeam.VBR.$($Format)' diagram to '$($OutputFolderPath)'." -InformationAction Continue
-                    }
-                }
-            } catch {
-                Write-PScriboMessage -IsWarning "Unable to export the Infrastructure Diagram: $($_.Exception.Message)"
-            }
         }
+
         if ((Get-VBRServerSession).Server) {
             Write-PScriboMessage "Disconecting section from $((Get-VBRServerSession).Server)"
             # Disconnect-VBRServer

@@ -455,7 +455,7 @@ function Get-AbrVbrBackupProxy {
                             if ($Options.EnableDiagrams) {
                                 Try {
                                     Try {
-                                        $Graph = New-VeeamDiagram -Target $System -Credential $Credential -Format base64 -Direction top-to-bottom -DiagramType "Backup-to-vSphere-Proxy" -DiagramTheme $DiagramTheme
+                                        $Graph = Get-AbrVbrDiagrammer -DiagramType 'Backup-to-vSphere-Proxy' -DiagramOutput base64
                                     } Catch {
                                         Write-PScriboMessage -IsWarning "VMware Backup Proxy Diagram: $($_.Exception.Message)"
                                     }
@@ -909,7 +909,7 @@ function Get-AbrVbrBackupProxy {
                                 if ($Options.EnableDiagrams) {
                                     Try {
                                         Try {
-                                            $Graph = New-VeeamDiagram -Target $System -Credential $Credential -Format base64 -Direction top-to-bottom -DiagramType "Backup-to-HyperV-Proxy" -DiagramTheme $DiagramTheme
+                                            $Graph = Get-AbrVbrDiagrammer -DiagramType 'Backup-to-HyperV-Proxy' -DiagramOutput base64
                                         } Catch {
                                             Write-PScriboMessage -IsWarning "HyperV Backup Proxy Diagram: $($_.Exception.Message)"
                                         }

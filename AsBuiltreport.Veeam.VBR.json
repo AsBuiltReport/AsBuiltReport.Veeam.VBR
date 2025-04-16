@@ -12,12 +12,25 @@
         "ReportStyle": "Veeam",
         "BackupServerPort": 9392,
         "EnableHardwareInventory": false,
-        "EnableDiagrams": false,
+        "EnableDiagrams": true,
         "EnableDiagramDebug": false,
         "DiagramTheme": "White",
         "DiagramWaterMark": "",
+        "DiagramType": {
+            "Backup-Infrastructure": true,
+            "Backup-to-File-Proxy": false,
+            "Backup-to-HyperV-Proxy": false,
+            "Backup-to-Repository": false,
+            "Backup-to-Sobr": false,
+            "Backup-to-Tape": false,
+            "Backup-to-ProtectedGroup": false,
+            "Backup-to-vSphere-Proxy": false,
+            "Backup-to-WanAccelerator": false
+        },
         "ExportDiagrams": true,
-        "ExportDiagramsFormat": ["png"],
+        "ExportDiagramsFormat": [
+            "png"
+        ],
         "EnableDiagramSignature": false,
         "SignatureAuthorName": "",
         "SignatureCompanyName": "",
@@ -25,7 +38,7 @@
         "RoundUnits": 1
     },
     "InfoLevel": {
-		"_comment_": "Please refer to the AsBuiltReport project contributing guide for information about how to define InfoLevels.",
+        "_comment_": "Please refer to the AsBuiltReport project contributing guide for information about how to define InfoLevels.",
         "_comment_": "0 = Disabled, 1 = Enabled, 2 = Adv Summary, 3 = Detailed",
         "Infrastructure": {
             "BackupServer": 1,
@@ -37,7 +50,6 @@
             "ServiceProvider": 1,
             "SureBackup": 1,
             "WANAccel": 1
-
         },
         "Tape": {
             "Library": 1,
