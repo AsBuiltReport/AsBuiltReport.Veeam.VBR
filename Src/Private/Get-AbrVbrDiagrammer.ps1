@@ -24,7 +24,8 @@ function Get-AbrVbrDiagrammer {
         [Parameter(Mandatory = $false, Position = 1)]
         [ValidateNotNullOrEmpty()]
         [ValidateSet('png', 'pdf', 'base64', 'jpg', 'svg')]
-        [string]$DiagramOutput = 'png'
+        [string]$DiagramOutput = 'png',
+        [Switch]$ExportPath = $false
     )
 
     begin {
@@ -94,13 +95,22 @@ function Get-AbrVbrDiagrammer {
                             } else {
                                 $Graph = New-VeeamDiagram @DiagramParams -DiagramType $DiagramTypeItem  -Format $Format -Filename "AsBuiltReport.Veeam.VBR-($($DiagramTypeHash[$DiagramTypeItem])).$($Format)"
                                 if ($Graph) {
-                                    Write-Information "Saved 'AsBuiltReport.Veeam.VBR-($($DiagramTypeHash[$DiagramTypeItem])).$($Format)' diagram to '$($OutputFolderPath)'." -InformationAction Continue
+                                    if ($ExportPath) {
+                                        $FilePath = Join-Path -Path $OutputFolderPath -ChildPath "AsBuiltReport.Veeam.VBR-($($DiagramTypeHash[$DiagramTypeItem])).$($Format)"
+                                        if (Test-Path -Path $FilePath) {
+                                            $FilePath
+                                        } else {
+                                            Write-PScriboMessage -IsWarning "Unable to export the $DiagramTypeHash Diagram: $($_.Exception.Message)"
+                                        }
+                                    } else {
+                                        Write-Information "Saved 'AsBuiltReport.Veeam.VBR-($($DiagramTypeHash[$DiagramTypeItem])).$($Format)' diagram to '$($OutputFolderPath)'." -InformationAction Continue
+                                    }
                                 }
                             }
                         }
                     }
                 } catch {
-                    Write-PScriboMessage -IsWarning "Unable to export the Infrastructure Diagram: $($_.Exception.Message)"
+                    Write-PScriboMessage -IsWarning "Unable to export the $DiagramTypeHash Diagram: $($_.Exception.Message)"
                 }
             } else {
                 try {
@@ -113,16 +123,25 @@ function Get-AbrVbrDiagrammer {
                         } else {
                             $Graph = New-VeeamDiagram @DiagramParams -DiagramType $DiagramType -Format $Format -Filename "AsBuiltReport.Veeam.VBR-($($DiagramTypeHash[$DiagramType])).$($Format)"
                             if ($Graph) {
-                                Write-Information "Saved 'AsBuiltReport.Veeam.VBR-($($DiagramTypeHash[$DiagramType])).$($Format)' diagram to '$($OutputFolderPath)'." -InformationAction Continue
+                                if ($ExportPath) {
+                                    $FilePath = Join-Path -Path $OutputFolderPath -ChildPath "AsBuiltReport.Veeam.VBR-($($DiagramTypeHash[$DiagramType])).$($Format)"
+                                    if (Test-Path -Path $FilePath) {
+                                        $FilePath
+                                    } else {
+                                        Write-PScriboMessage -IsWarning "Unable to export the $DiagramTypeHash Diagram: $($_.Exception.Message)"
+                                    }
+                                } else {
+                                    Write-Information "Saved 'AsBuiltReport.Veeam.VBR-($($DiagramTypeHash[$DiagramType])).$($Format)' diagram to '$($OutputFolderPath)'." -InformationAction Continue
+                                }
                             }
                         }
                     }
                 } catch {
-                    Write-PScriboMessage -IsWarning "Unable to export the Infrastructure Diagram: $($_.Exception.Message)"
+                    Write-PScriboMessage -IsWarning "Unable to export the $DiagramTypeHash Diagram: $($_.Exception.Message)"
                 }
             }
         } catch {
-            Write-PScriboMessage -IsWarning "Unable to get the Infrastructure Diagram: $($_.Exception.Message)"
+            Write-PScriboMessage -IsWarning "Unable to get the $DiagramTypeHash Diagram: $($_.Exception.Message)"
         }
     }
     end {}

@@ -6,7 +6,7 @@ function Get-AbrVbrBackupProxy {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.14
+        Version:        0.8.17
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -390,7 +390,7 @@ function Get-AbrVbrBackupProxy {
                             #---------------------------------------------------------------------------------------------#
                             if ($HealthCheck.Infrastructure.Server) {
                                 try {
-                                    if ($InfoLevel.Infrastructure.Proxy -ge 1) {
+                                    if ($InfoLevel.Infrastructure.Proxy -ge 1 -and $Options.EnableHardwareInventory) {
                                         Write-PScriboMessage "Backup Proxy InfoLevel set at $($InfoLevel.Infrastructure.Proxy)."
                                         Write-PScriboMessage "Collecting Veeam Services Information."
                                         $BackupProxies = Get-VBRViProxy | Where-Object { $_.Host.Type -eq "Windows" } | Sort-Object -Property Name
@@ -460,7 +460,7 @@ function Get-AbrVbrBackupProxy {
                                         Write-PScriboMessage -IsWarning "VMware Backup Proxy Diagram: $($_.Exception.Message)"
                                     }
                                     if ($Graph) {
-                                        If ((Get-DiaImagePercent -GraphObj $Graph).Width -gt 1500) { $ImagePrty = 15 } else { $ImagePrty = 50 }
+                                        If ((Get-DiaImagePercent -GraphObj $Graph).Width -gt 1500) { $ImagePrty = 10 } else { $ImagePrty = 50 }
                                         Section -Style Heading3 "VMware Backup Proxy Diagram." {
                                             Image -Base64 $Graph -Text "VMware Backup Proxy Diagram" -Percent $ImagePrty -Align Center
                                             Paragraph "Image preview: Opens the image in a new tab to view it at full resolution." -Tabs 2
@@ -845,7 +845,7 @@ function Get-AbrVbrBackupProxy {
                                 #---------------------------------------------------------------------------------------------#
                                 if ($HealthCheck.Infrastructure.Server) {
                                     try {
-                                        if ($InfoLevel.Infrastructure.Proxy -ge 1) {
+                                        if ($InfoLevel.Infrastructure.Proxy -ge 1 -and ($Options.EnableHardwareInventory)) {
                                             Write-PScriboMessage "Backup Proxy InfoLevel set at $($InfoLevel.Infrastructure.Proxy)."
                                             Write-PScriboMessage "Collecting Veeam Service Information."
                                             $BackupProxies = Get-VBRHvProxy | Sort-Object -Property Name
@@ -914,7 +914,7 @@ function Get-AbrVbrBackupProxy {
                                             Write-PScriboMessage -IsWarning "HyperV Backup Proxy Diagram: $($_.Exception.Message)"
                                         }
                                         if ($Graph) {
-                                            If ((Get-DiaImagePercent -GraphObj $Graph).Width -gt 1500) { $ImagePrty = 15 } else { $ImagePrty = 50 }
+                                            If ((Get-DiaImagePercent -GraphObj $Graph).Width -gt 1500) { $ImagePrty = 10 } else { $ImagePrty = 50 }
                                             Section -Style Heading3 "HyperV Backup Proxy Diagram." {
                                                 Image -Base64 $Graph -Text "HyperV Backup Proxy Diagram" -Percent $ImagePrty -Align Center
                                                 Paragraph "Image preview: Opens the image in a new tab to view it at full resolution." -Tabs 2

@@ -70,7 +70,7 @@ The Veeam VBR As Built Report supports the following Veeam Backup & Replication 
 ## :no_entry_sign: Unsupported Versions
 
 - Veeam versions 10 and earlier are no longer supported. Compatibility with these versions is not guaranteed, and any issues related to versions prior to v11 will not be addressed.
-- Veeam version 13 and later are not supported.
+- Veeam version 13 is not supported.
 
 [Veeam Product Lifecycle Policy](https://www.veeam.com/product-lifecycle.html)
 
@@ -163,6 +163,7 @@ The **Options** schema allows certain options within the report to be toggled on
 | BackupServerPort        | TCP Port                   | 9392    | Set the backup server service's custom port.                                  |
 | DiagramTheme            | string                     | White   | Set the diagram theme (Black/White/Neon)                                      |
 | DiagramWaterMark        | string                     | empty   | Set the diagram watermark                                                     |
+| DiagramType             | Array                      | true    | Set the diagram type                                                          |
 | EnableDiagrams          | true / false               | false   | Toggle to enable/disable infrastructure diagrams                              |
 | EnableDiagramsDebug     | true / false               | false   | Toggle to enable/disable diagram debug option                                 |
 | EnableDiagramSignature  | true / false               | false   | Toggle to enable/disable diagram signature (bottom right corner)              |
@@ -205,7 +206,7 @@ The table below outlines the default and maximum **InfoLevel** settings for each
 The table below outlines the default and maximum **InfoLevel** settings for each Tape Infrastructure section.
 
 | Sub-Schema | Default Setting | Maximum Setting |
-| --------------- | :-------------: | :-------------: |
+| ---------- | :-------------: | :-------------: |
 | Library    |        1        |        2        |
 | MediaPool  |        1        |        2        |
 | NDMP       |        1        |        1        |
@@ -215,7 +216,7 @@ The table below outlines the default and maximum **InfoLevel** settings for each
 The table below outlines the default and maximum **InfoLevel** settings for each Inventory section.
 
 | Sub-Schema | Default Setting | Maximum Setting |
-| --------------- | :-------------: | :-------------: |
+| ---------- | :-------------: | :-------------: |
 | EntraID    |        1        |        1        |
 | FileShare  |        1        |        1        |
 | PHY        |        1        |        2        |
@@ -252,7 +253,7 @@ The table below outlines the default and maximum **InfoLevel** settings for each
 The table below outlines the default and maximum **InfoLevel** settings for each Cloud Connect section.
 
 | Sub-Schema       | Default Setting | Maximum Setting |
-| --------------- | :-------------: | :-------------: |
+| ---------------- | :-------------: | :-------------: |
 | BackupStorage    |        1        |        1        |
 | Certificate      |        1        |        1        |
 | CloudGateway     |        1        |        2        |
