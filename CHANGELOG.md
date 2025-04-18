@@ -7,12 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ##### This project is community maintained and has no sponsorship from Veeam, its employees or any of its affiliates.
 
-## [0.8.17] - Unreleased
+## [0.8.17] - 2025-04-18
+
+### Added
+
+- Add Backup Infrastructure diagram to the main report
 
 ### Changed
 
-- Increase Diagrammer.Core minimum requirement to v0.2.23
-- Increase Veeam.Diagrammer minimum requirement to v0.6.22
+- Increase Diagrammer.Core minimum requirement to v0.2.24
+- Increase Veeam.Diagrammer minimum requirement to v0.6.24
 - Increase AsBuiltReport.Core to v1.4.3
 - Introduce Get-AbrVbrDiagrammer function for improved diagram handling
 - Refactor Invoke-AsBuiltReport.Veeam.VBR to utilize new Get-AbrVbrDiagrammer function

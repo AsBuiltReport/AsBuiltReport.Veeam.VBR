@@ -412,7 +412,7 @@ function Get-AbrVbrBackupServerInfo {
                     }
                     try {
                         Write-PScriboMessage "Infrastructure Backup Server InfoLevel set at $($InfoLevel.Infrastructure.BackupServer)."
-                        if ($InfoLevel.Infrastructure.BackupServer -ge 3) {
+                        if ($InfoLevel.Infrastructure.BackupServer -ge 3 -and $Options.EnableHardwareInventory) {
                             if ($PssSession) {
                                 $VeeamInfo = Invoke-Command -Session $PssSession -ErrorAction SilentlyContinue -ScriptBlock { Get-ItemProperty -Path 'HKLM:\SOFTWARE\Veeam\Veeam Backup and Replication' }
                                 $DefaultRegistryHash = @{
@@ -499,7 +499,7 @@ function Get-AbrVbrBackupServerInfo {
                     #---------------------------------------------------------------------------------------------#
                     if ($HealthCheck.Infrastructure.Server) {
                         $BackupServer = Get-VBRServer -Type Local
-                        if ($PssSession) {
+                        if ($PssSession -and $Options.EnableHardwareInventory) {
                             try {
                                 Write-PScriboMessage "Infrastructure Backup Server InfoLevel set at $($InfoLevel.Infrastructure.BackupServer)."
                                 if ($InfoLevel.Infrastructure.BackupServer -ge 2) {

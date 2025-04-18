@@ -24,7 +24,7 @@ function Get-AbrVbrDiagrammer {
         [Parameter(Mandatory = $false, Position = 1)]
         [ValidateNotNullOrEmpty()]
         [ValidateSet('png', 'pdf', 'base64', 'jpg', 'svg')]
-        [string]$DiagramOutput = 'png',
+        [string]$DiagramOutput,
         [Switch]$ExportPath = $false
     )
 
