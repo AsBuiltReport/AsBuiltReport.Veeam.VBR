@@ -45,7 +45,7 @@ function Get-AbrVbrBackupServerInfo {
                             if ($CimSession) {
                                 try { $DomainJoined = Get-CimInstance -Class Win32_ComputerSystem -Property PartOfDomain -CimSession $CimSession } catch { 'Unknown' }
                             }
-                                Write-PScriboMessage "Collecting Backup Server information from $($BackupServer.Name)."
+                            Write-PScriboMessage "Collecting Backup Server information from $($BackupServer.Name)."
 
                             if ($PssSession) {
                                 try {
@@ -72,19 +72,24 @@ function Get-AbrVbrBackupServerInfo {
                                     0 { "--" }
                                     default { $VeeamVersion.DisplayVersion }
                                 }
-                                'Database Server' = Switch ([string]::IsNullOrEmpty($VeeamDBInfo.SqlServerName)) {
+                                'Database Type' = Switch ([string]::IsNullOrEmpty($VeeamDBFlavor.SqlActiveConfiguration)) {
                                     $true { "--" }
-                                    $false { $VeeamDBInfo.SqlServerName }
-                                    default { 'Unknown' }
-                                }
-                                'Database Instance' = Switch ([string]::IsNullOrEmpty($VeeamDBInfo.SqlInstanceName)) {
-                                    $true { "--" }
-                                    $false { $VeeamDBInfo.SqlInstanceName }
+                                    $false { $VeeamDBFlavor.SqlActiveConfiguration }
                                     default { 'Unknown' }
                                 }
                                 'Database Name' = Switch ([string]::IsNullOrEmpty($VeeamDBInfo.SqlDatabaseName)) {
                                     $true { "--" }
                                     $false { $VeeamDBInfo.SqlDatabaseName }
+                                    default { 'Unknown' }
+                                }
+                                'Database Server' = Switch ([string]::IsNullOrEmpty($VeeamDBInfo.SqlHostName)) {
+                                    $true { "--" }
+                                    $false { $VeeamDBInfo.SqlHostName }
+                                    default { 'Unknown' }
+                                }
+                                'Database Port' = Switch ([string]::IsNullOrEmpty($VeeamDBInfo.SqlHostPort)) {
+                                    $true { "--" }
+                                    $false { "$($VeeamDBInfo.SqlHostPort)/TCP" }
                                     default { 'Unknown' }
                                 }
                                 'Connection Ports' = Switch (($VeeamInfo.BackupServerPort).count) {
@@ -407,7 +412,7 @@ function Get-AbrVbrBackupServerInfo {
                     }
                     try {
                         Write-PScriboMessage "Infrastructure Backup Server InfoLevel set at $($InfoLevel.Infrastructure.BackupServer)."
-                        if ($InfoLevel.Infrastructure.BackupServer -ge 3) {
+                        if ($InfoLevel.Infrastructure.BackupServer -ge 3 -and $Options.EnableHardwareInventory) {
                             if ($PssSession) {
                                 $VeeamInfo = Invoke-Command -Session $PssSession -ErrorAction SilentlyContinue -ScriptBlock { Get-ItemProperty -Path 'HKLM:\SOFTWARE\Veeam\Veeam Backup and Replication' }
                                 $DefaultRegistryHash = @{
@@ -494,7 +499,7 @@ function Get-AbrVbrBackupServerInfo {
                     #---------------------------------------------------------------------------------------------#
                     if ($HealthCheck.Infrastructure.Server) {
                         $BackupServer = Get-VBRServer -Type Local
-                        if ($PssSession) {
+                        if ($PssSession -and $Options.EnableHardwareInventory) {
                             try {
                                 Write-PScriboMessage "Infrastructure Backup Server InfoLevel set at $($InfoLevel.Infrastructure.BackupServer)."
                                 if ($InfoLevel.Infrastructure.BackupServer -ge 2) {
