@@ -64,19 +64,21 @@ function Get-AbrVbrUserRoleAssignment {
                     $TableParams['Caption'] = "- $($TableParams.Name)"
                 }
                 $OutObj | Sort-Object -Property 'Name' | Table @TableParams
-                if ($HealthCheck.Infrastructure.BestPractice -and ($OutObj | Where-Object { $_.'Name' -eq 'BUILTIN\Administrators (1)' })) {
+                if ($HealthCheck.Infrastructure.BestPractice -and $List) {
                     Paragraph "Health Check:" -Bold -Underline
                     BlankLine
                     Paragraph "Security Best Practice:" -Bold
                     List -Item $List -Numbered
-                    Paragraph {
-                        Text -Bold "Reference:"
+                    if ($List ) {
+                        Paragraph {
+                            Text -Bold "Reference:"
+                        }
+                        BlankLine
+                        Paragraph {
+                            Text "https://bp.veeam.com/security/Design-and-implementation/Roles_And_Users.html#roles-and-users"
+                        }
+                        BlankLine
                     }
-                    BlankLine
-                    Paragraph {
-                        Text "https://bp.veeam.com/security/Design-and-implementation/Roles_And_Users.html#roles-and-users"
-                    }
-                    BlankLine
                 }
                 if ($VbrVersion -ge 12) {
                     try {
