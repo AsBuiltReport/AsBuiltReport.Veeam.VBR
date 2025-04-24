@@ -59,10 +59,11 @@
             "Vault": 1
         },
         "Inventory": {
+            "EntraID": 1,
             "FileShare": 1,
+            "Nutanix": 0,
             "PHY": 1,
-            "VI": 1,
-            "EntraID": 1
+            "VI": 1
         },
         "Storage": {
             "ISILON": 1,

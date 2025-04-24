@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add diagram exporting option to the report
+- Enhance Veeam report configuration and diagram functionality by adding EntraID and Nutanix options
+- Refining diagram theme handling in the diagrammer function.
+
 ### Changed
 
 ## [0.8.17] - 2025-04-18

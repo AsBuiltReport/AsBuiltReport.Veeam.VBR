@@ -82,13 +82,6 @@ function Invoke-AsBuiltReport.Veeam.VBR {
         }
     }
 
-    # Set default theme styles
-    if (-Not $Options.DiagramTheme) {
-        $DiagramTheme = 'White'
-    } else {
-        $DiagramTheme = $Options.DiagramTheme
-    }
-
     # Used to set values to TitleCase where required
     $script:TextInfo = (Get-Culture).TextInfo
 
@@ -526,11 +519,12 @@ function Invoke-AsBuiltReport.Veeam.VBR {
             }
 
             #---------------------------------------------------------------------------------------------#
-            #                          Backup Infrastructure Diagram Section                              #
+            #                          Export Diagram Section                                             #
             #---------------------------------------------------------------------------------------------#
 
-            Get-AbrVbrDiagrammer -DiagramType 'Backup-Infrastructure'
-
+            if ($Options.ExportDiagrams) {
+                $Options.DiagramType.PSobject.Properties | ForEach-Object { if ($_.Value) { Get-AbrVbrDiagrammer -DiagramType $_.Name } }
+            }
         }
 
         if ((Get-VBRServerSession).Server) {
