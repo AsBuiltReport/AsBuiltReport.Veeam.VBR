@@ -17,17 +17,17 @@
         "DiagramTheme": "White",
         "DiagramWaterMark": "",
         "DiagramType": {
-            "Backup-Infrastructure": true,
-            "Backup-to-File-Proxy": false,
-            "Backup-to-HyperV-Proxy": false,
-            "Backup-to-Repository": false,
-            "Backup-to-Sobr": false,
-            "Backup-to-Tape": false,
-            "Backup-to-ProtectedGroup": false,
-            "Backup-to-vSphere-Proxy": false,
-            "Backup-to-WanAccelerator": false
+            "Infrastructure": true,
+            "FileProxy": true,
+            "HyperVProxy": true,
+            "Repository": true,
+            "Sobr": true,
+            "Tape": true,
+            "ProtectedGroup": true,
+            "vSphereProxy": true,
+            "WanAccelerator": true
         },
-        "ExportDiagrams": true,
+        "ExportDiagrams": false,
         "ExportDiagramsFormat": [
             "png"
         ],
