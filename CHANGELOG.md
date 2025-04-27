@@ -7,11 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ##### This project is community maintained and has no sponsorship from Veeam, its employees or any of its affiliates.
 
-## [0.8.18] - Unreleased
+## [0.8.18] - 2025-04-27
 
 ### Added
 
-### Changed
+- Add code to allow the exporting of the Veeam diagram
+  - Infrastructure
+  - FileProxy
+  - HyperVProxy
+  - Repository
+  - Sobr
+  - Tape
+  - ProtectedGroup
+  - vSphereProxy
+  - WanAccelerator
+- Enhance Veeam report configuration and diagram functionality by adding EntraID and Nutanix options
+- Refining diagram theme handling in the diagrammer function.
 
 ## [0.8.17] - 2025-04-18
 

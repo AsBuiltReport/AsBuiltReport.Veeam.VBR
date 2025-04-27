@@ -34,6 +34,12 @@ function Get-AbrVbrDiagrammer {
 
     process {
         try {
+            # Set default theme styles
+            if (-Not $Options.DiagramTheme) {
+                $DiagramTheme = 'White'
+            } else {
+                $DiagramTheme = $Options.DiagramTheme
+            }
             $DiagramTypeArray = @()
             $DiagramTypeHash = @{
                 'Backup-Infrastructure' = 'Infrastructure'

@@ -5,7 +5,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.17
+        Version:        0.8.18
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -82,13 +82,6 @@ function Invoke-AsBuiltReport.Veeam.VBR {
         }
     }
 
-    # Set default theme styles
-    if (-Not $Options.DiagramTheme) {
-        $DiagramTheme = 'White'
-    } else {
-        $DiagramTheme = $Options.DiagramTheme
-    }
-
     # Used to set values to TitleCase where required
     $script:TextInfo = (Get-Culture).TextInfo
 
@@ -107,12 +100,12 @@ function Invoke-AsBuiltReport.Veeam.VBR {
         if ($Options.EnableDiagrams) {
             Try {
                 Try {
-                    $Graph = Get-AbrVbrDiagrammer -DiagramType Backup-Infrastructure -DiagramOutput base64
+                    $Graph = Get-AbrVbrDiagrammer -DiagramType 'Backup-Infrastructure' -DiagramOutput base64
                 } Catch {
                     Write-PScriboMessage -IsWarning "Backup Infrastructure Diagram: $($_.Exception.Message)"
                 }
                 if ($Graph) {
-                    If ((Get-DiaImagePercent -GraphObj $Graph).Width -gt 1500) { $ImagePrty = 10 } else { $ImagePrty = 40 }
+                    If ((Get-DiaImagePercent -GraphObj $Graph).Width -gt 1500) { $ImagePrty = 10 } else { $ImagePrty = 30 }
                     Section -Style Heading1 "Backup Infrastructure Diagram." -Orientation Landscape {
                         Image -Base64 $Graph -Text "Backup Infrastructure Diagram" -Percent $ImagePrty -Align Center
                         Paragraph "Image preview: Opens the image in a new tab to view it at full resolution." -Tabs 2
@@ -195,7 +188,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                                 if ($Graph) {
                                     If ((Get-DiaImagePercent -GraphObj $Graph).Width -gt 1500) { $ImagePrty = 10 } else { $ImagePrty = 50 }
                                     Section -Style Heading3 "Wan Accelerator Diagram." {
-                                        Image -Base64 $Graph -Text "Wan Accelerator Diagram" -Align Center -Width 600 -Height 400
+                                        Image -Base64 $Graph -Text "Wan Accelerator Diagram" -Percent $ImagePrty -Align Center
                                         Paragraph "Image preview: Opens the image in a new tab to view it at full resolution." -Tabs 2
                                     }
                                     BlankLine
@@ -526,11 +519,31 @@ function Invoke-AsBuiltReport.Veeam.VBR {
             }
 
             #---------------------------------------------------------------------------------------------#
-            #                          Backup Infrastructure Diagram Section                              #
+            #                          Export Diagram Section                                             #
             #---------------------------------------------------------------------------------------------#
 
-            Get-AbrVbrDiagrammer -DiagramType 'Backup-Infrastructure'
-
+            if ($Options.ExportDiagrams) {
+                $DiagramTypeHash = @{
+                    'Infrastructure' = 'Backup-Infrastructure'
+                    'FileProxy' = 'Backup-to-File-Proxy'
+                    'HyperVProxy' = 'Backup-to-HyperV-Proxy'
+                    'ProtectedGroup' = 'Backup-to-ProtectedGroup'
+                    'Repository' = 'Backup-to-Repository'
+                    'Sobr' = 'Backup-to-Sobr'
+                    'Tape' = 'Backup-to-Tape'
+                    'vSphereProxy' = 'Backup-to-vSphere-Proxy'
+                    'WanAccelerator' = 'Backup-to-WanAccelerator'
+                }
+                $Options.DiagramType.PSobject.Properties | ForEach-Object {
+                    try {
+                        if ($_.Value) {
+                            Get-AbrVbrDiagrammer -DiagramType $DiagramTypeHash[$_.Name]
+                        }
+                    } catch {
+                        Write-PScriboMessage -IsWarning "Export Diagram $($_.Name) Error: $($_.Exception.Message)"
+                    }
+                }
+            }
         }
 
         if ((Get-VBRServerSession).Server) {
