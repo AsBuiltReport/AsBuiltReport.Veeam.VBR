@@ -6,7 +6,7 @@ function Get-AbrVbrDiagrammer {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.17
+        Version:        0.8.19
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -19,7 +19,7 @@ function Get-AbrVbrDiagrammer {
     param (
         [Parameter(Mandatory = $false, Position = 0)]
         [ValidateNotNullOrEmpty()]
-        [ValidateSet('Backup-to-Tape', 'Backup-to-File-Proxy', 'Backup-to-HyperV-Proxy', 'Backup-to-vSphere-Proxy', 'Backup-to-Repository', 'Backup-to-Sobr', 'Backup-to-WanAccelerator', 'Backup-to-ProtectedGroup', 'Backup-Infrastructure', 'All')]
+        [ValidateSet('Backup-to-Tape', 'Backup-to-File-Proxy', 'Backup-to-HyperV-Proxy', 'Backup-to-vSphere-Proxy', 'Backup-to-Repository', 'Backup-to-Sobr', 'Backup-to-WanAccelerator', 'Backup-to-ProtectedGroup', 'Backup-Infrastructure')]
         [string]$DiagramType = 'Backup-Infrastructure',
         [Parameter(Mandatory = $false, Position = 1)]
         [ValidateNotNullOrEmpty()]
@@ -29,7 +29,7 @@ function Get-AbrVbrDiagrammer {
     )
 
     begin {
-        Write-PScriboMessage "Getting Veeam diagram for $System."
+        Write-PScriboMessage "Generating Veeam diagram ($DiagramType) from Backup Server $System."
     }
 
     process {
@@ -88,66 +88,34 @@ function Get-AbrVbrDiagrammer {
                 $DiagramParams.Add('AuthorName', $Options.SignatureAuthorName)
                 $DiagramParams.Add('CompanyName', $Options.SignatureCompanyName)
             }
-
-            if ($DiagramType -eq 'All') {
-                try {
-                    foreach ($DiagramTypeItem in $DiagramTypeHash.Keys) {
-                        foreach ($Format in $DiagramFormat) {
-                            if ($Format -eq "base64") {
-                                $Graph = New-VeeamDiagram @DiagramParams -DiagramType $DiagramTypeItem -Format $Format
-                                if ($Graph) {
-                                    $Graph
+            try {
+                foreach ($Format in $DiagramFormat) {
+                    if ($Format -eq "base64") {
+                        $Graph = New-VeeamDiagram @DiagramParams -DiagramType $DiagramType -Format $Format
+                        if ($Graph) {
+                            $Graph
+                        }
+                    } else {
+                        $Graph = New-VeeamDiagram @DiagramParams -DiagramType $DiagramType -Format $Format -Filename "AsBuiltReport.Veeam.VBR-$($DiagramTypeHash[$DiagramType]).$($Format)"
+                        if ($Graph) {
+                            if ($ExportPath) {
+                                $FilePath = Join-Path -Path $OutputFolderPath -ChildPath "AsBuiltReport.Veeam.VBR-$($DiagramTypeHash[$DiagramType]).$($Format)"
+                                if (Test-Path -Path $FilePath) {
+                                    $FilePath
+                                } else {
+                                    Write-PScriboMessage -IsWarning "Unable to export the $DiagramType Diagram: $($_.Exception.Message)"
                                 }
                             } else {
-                                $Graph = New-VeeamDiagram @DiagramParams -DiagramType $DiagramTypeItem  -Format $Format -Filename "AsBuiltReport.Veeam.VBR-($($DiagramTypeHash[$DiagramTypeItem])).$($Format)"
-                                if ($Graph) {
-                                    if ($ExportPath) {
-                                        $FilePath = Join-Path -Path $OutputFolderPath -ChildPath "AsBuiltReport.Veeam.VBR-($($DiagramTypeHash[$DiagramTypeItem])).$($Format)"
-                                        if (Test-Path -Path $FilePath) {
-                                            $FilePath
-                                        } else {
-                                            Write-PScriboMessage -IsWarning "Unable to export the $DiagramTypeHash Diagram: $($_.Exception.Message)"
-                                        }
-                                    } else {
-                                        Write-Information "Saved 'AsBuiltReport.Veeam.VBR-($($DiagramTypeHash[$DiagramTypeItem])).$($Format)' diagram to '$($OutputFolderPath)'." -InformationAction Continue
-                                    }
-                                }
+                                Write-Information "Saved 'AsBuiltReport.Veeam.VBR-$($DiagramTypeHash[$DiagramType]).$($Format)' diagram to '$($OutputFolderPath)'." -InformationAction Continue
                             }
                         }
                     }
-                } catch {
-                    Write-PScriboMessage -IsWarning "Unable to export the $DiagramTypeHash Diagram: $($_.Exception.Message)"
                 }
-            } else {
-                try {
-                    foreach ($Format in $DiagramFormat) {
-                        if ($Format -eq "base64") {
-                            $Graph = New-VeeamDiagram @DiagramParams -DiagramType $DiagramType -Format $Format
-                            if ($Graph) {
-                                $Graph
-                            }
-                        } else {
-                            $Graph = New-VeeamDiagram @DiagramParams -DiagramType $DiagramType -Format $Format -Filename "AsBuiltReport.Veeam.VBR-($($DiagramTypeHash[$DiagramType])).$($Format)"
-                            if ($Graph) {
-                                if ($ExportPath) {
-                                    $FilePath = Join-Path -Path $OutputFolderPath -ChildPath "AsBuiltReport.Veeam.VBR-($($DiagramTypeHash[$DiagramType])).$($Format)"
-                                    if (Test-Path -Path $FilePath) {
-                                        $FilePath
-                                    } else {
-                                        Write-PScriboMessage -IsWarning "Unable to export the $DiagramTypeHash Diagram: $($_.Exception.Message)"
-                                    }
-                                } else {
-                                    Write-Information "Saved 'AsBuiltReport.Veeam.VBR-($($DiagramTypeHash[$DiagramType])).$($Format)' diagram to '$($OutputFolderPath)'." -InformationAction Continue
-                                }
-                            }
-                        }
-                    }
-                } catch {
-                    Write-PScriboMessage -IsWarning "Unable to export the $DiagramTypeHash Diagram: $($_.Exception.Message)"
-                }
+            } catch {
+                Write-PScriboMessage -IsWarning "Unable to export the $($DiagramTypeHash[$DiagramType]) Diagram: $($_.Exception.Message)"
             }
         } catch {
-            Write-PScriboMessage -IsWarning "Unable to get the $DiagramTypeHash Diagram: $($_.Exception.Message)"
+            Write-PScriboMessage -IsWarning "Unable to get the $($DiagramTypeHash[$DiagramType]) Diagram: $($_.Exception.Message)"
         }
     }
     end {}

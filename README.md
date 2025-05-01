@@ -158,12 +158,11 @@ The **Report** schema provides configuration of the Veeam VBR report information
 The **Options** schema allows certain options within the report to be toggled on or off.
 
 | Sub-Schema              | Setting                    | Default | Description                                                                   |
-| Sub-Schema              | Setting                    | Default | Description                                                                   |
 | ----------------------- | -------------------------- | ------- | ----------------------------------------------------------------------------- |
 | BackupServerPort        | TCP Port                   | 9392    | Set the backup server service's custom port.                                  |
 | DiagramTheme            | string                     | White   | Set the diagram theme (Black/White/Neon)                                      |
 | DiagramWaterMark        | string                     | empty   | Set the diagram watermark                                                     |
-| DiagramType             | Array                      | true    | Set the diagram type                                                          |
+| DiagramType             | true / false               | true    | Toggle to enable/disable the export of individual diagram diagrams            |
 | EnableDiagrams          | true / false               | false   | Toggle to enable/disable infrastructure diagrams                              |
 | EnableDiagramsDebug     | true / false               | false   | Toggle to enable/disable diagram debug option                                 |
 | EnableDiagramSignature  | true / false               | false   | Toggle to enable/disable diagram signature (bottom right corner)              |
