@@ -5,7 +5,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.18
+        Version:        0.8.19
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -105,9 +105,9 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                     Write-PScriboMessage -IsWarning "Backup Infrastructure Diagram: $($_.Exception.Message)"
                 }
                 if ($Graph) {
-                    If ((Get-DiaImagePercent -GraphObj $Graph).Width -gt 1500) { $ImagePrty = 10 } else { $ImagePrty = 30 }
+                    If ((Get-DiaImagePercent -GraphObj $Graph).Width -gt 800) { $ImagePrty = 9 } else { $ImagePrty = 20 }
                     Section -Style Heading1 "Backup Infrastructure Diagram." -Orientation Landscape {
-                        Image -Base64 $Graph -Text "Backup Infrastructure Diagram" -Percent $ImagePrty -Align Center
+                        Image -Base64 $Graph -Text "Backup Infrastructure Diagram" -Align Center -Percent $ImagePrty
                         Paragraph "Image preview: Opens the image in a new tab to view it at full resolution." -Tabs 2
                     }
                     BlankLine
