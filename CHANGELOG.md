@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ##### This project is community maintained and has no sponsorship from Veeam, its employees or any of its affiliates.
 
+## [0.8.19] - 2025-04-30
+
+### Changed
+
+- Bump module version to 0.8.19
+- Bump Veeam.Diagrammer module version to 0.6.26
+- Enhance diagram generation messages
+- Improve diagram image quality settings
+
 ## [0.8.18] - 2025-04-27
 
 ### Added
