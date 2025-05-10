@@ -12,7 +12,7 @@
     RootModule = 'AsBuiltReport.Veeam.VBR.psm1'
 
     # Version number of this module.
-    ModuleVersion = '0.8.19'
+    ModuleVersion = '0.8.20'
 
     # Supported PSEditions
     # CompatiblePSEditions = @()
@@ -27,7 +27,7 @@
     #CompanyName = 'Unknown'
 
     # Copyright statement for this module
-    Copyright = '(c) 2024 Jonathan Colon. All rights reserved.'
+    Copyright = '(c) 2025 Jonathan Colon. All rights reserved.'
 
     # Description of the functionality provided by this module
     Description = 'A PowerShell module to generate an as built report on the configuration of Veeam VBR.'
@@ -63,11 +63,11 @@
         }
         @{
             ModuleName = 'Diagrammer.Core';
-            ModuleVersion = '0.2.24'
+            ModuleVersion = '0.2.26'
         }
         @{
             ModuleName = 'Veeam.Diagrammer';
-            ModuleVersion = '0.6.26'
+            ModuleVersion = '0.6.27'
         }
     )
 

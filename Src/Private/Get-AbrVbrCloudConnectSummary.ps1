@@ -5,7 +5,7 @@ function Get-AbrVbrCloudConnectSummary {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.12
+        Version:        0.8.20
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -21,6 +21,7 @@ function Get-AbrVbrCloudConnectSummary {
 
     begin {
         Write-PScriboMessage "Discovering Veeam VBR Cloud Connect Summary from $System."
+        Show-AbrDebugExecutionTime -Start -TitleMessage "Cloud Connect Summary"
     }
 
     process {
@@ -62,6 +63,8 @@ function Get-AbrVbrCloudConnectSummary {
             Write-PScriboMessage -IsWarning "Cloud Connect Summary Section: $($_.Exception.Message)"
         }
     }
-    end {}
+    end {
+        Show-AbrDebugExecutionTime -End -TitleMessage "Cloud Connect Summary"
+    }
 
 }

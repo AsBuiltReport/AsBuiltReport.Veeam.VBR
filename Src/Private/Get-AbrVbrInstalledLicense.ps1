@@ -6,7 +6,7 @@ function Get-AbrVbrInstalledLicense {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.12
+        Version:        0.8.20
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -22,6 +22,7 @@ function Get-AbrVbrInstalledLicense {
 
     begin {
         Write-PScriboMessage "Discovering Veeam V&R License information from $System."
+        Show-AbrDebugExecutionTime -Start -TitleMessage 'License information'
     }
 
     process {
@@ -267,6 +268,8 @@ function Get-AbrVbrInstalledLicense {
         }
     }
 
-    end {}
+    end {
+        Show-AbrDebugExecutionTime -End -TitleMessage 'License information'
+    }
 
 }

@@ -5,7 +5,7 @@ function Get-AbrVbrCloudConnectBS {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.14
+        Version:        0.8.20
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -21,6 +21,7 @@ function Get-AbrVbrCloudConnectBS {
 
     begin {
         Write-PScriboMessage "Discovering Veeam VBR Cloud Backup Storage information from $System."
+        Show-AbrDebugExecutionTime -Start -TitleMessage "Cloud Backup Storage"
     }
 
     process {
@@ -137,6 +138,7 @@ function Get-AbrVbrCloudConnectBS {
             }
         } catch {
             Write-PScriboMessage -IsWarning "Cloud Backup Storage Section: $($_.Exception.Message)"
+            Show-AbrDebugExecutionTime -End -TitleMessage "Cloud Backup Storage"
         }
     }
     end {}

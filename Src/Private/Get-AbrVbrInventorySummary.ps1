@@ -6,7 +6,7 @@ function Get-AbrVbrInventorySummary {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.12
+        Version:        0.8.20
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -22,6 +22,7 @@ function Get-AbrVbrInventorySummary {
 
     begin {
         Write-PScriboMessage "Discovering Veeam VBR Inventory Summary from $System."
+        Show-AbrDebugExecutionTime -Start -TitleMessage 'Inventory Summary'
     }
 
     process {
@@ -80,6 +81,9 @@ function Get-AbrVbrInventorySummary {
             Write-PScriboMessage -IsWarning "Inventory Summary Section: $($_.Exception.Message)"s
         }
     }
-    end {}
+    end {
+        Show-AbrDebugExecutionTime -End -TitleMessage 'Inventory Summary'
+
+    }
 
 }

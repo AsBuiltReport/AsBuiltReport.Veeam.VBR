@@ -22,6 +22,7 @@ function Get-AbrVbrReplReplica {
 
     begin {
         Write-PScriboMessage "Discovering Veeam VBR Replicas from $System."
+        Show-AbrDebugExecutionTime -Start -TitleMessage 'Replicas'
     }
 
     process {
@@ -110,6 +111,8 @@ function Get-AbrVbrReplReplica {
             Write-PScriboMessage -IsWarning "Replica Section: $($_.Exception.Message)"
         }
     }
-    end {}
+    end {
+        Show-AbrDebugExecutionTime -End -TitleMessage 'Replicas'
+    }
 
 }

@@ -9,6 +9,7 @@
         "ShowTableCaptions": true
     },
     "Options": {
+        "ShowExecutionTime": false,
         "ReportStyle": "Veeam",
         "BackupServerPort": 9392,
         "EnableHardwareInventory": false,
@@ -86,7 +87,7 @@
             "Agent": 1,
             "Backup": 1,
             "BackupCopy": 1,
-            "EntraID": 3,
+            "EntraID": 1,
             "FileShare": 1,
             "Surebackup": 1,
             "Replication": 1,

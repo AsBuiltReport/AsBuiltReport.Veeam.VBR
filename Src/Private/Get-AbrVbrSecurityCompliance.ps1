@@ -22,6 +22,8 @@ function Get-AbrVbrSecurityCompliance {
 
     begin {
         Write-PScriboMessage "Discovering Veeam VBR Security & Compliance Summary from $System."
+        Show-AbrDebugExecutionTime -Start -TitleMessage 'Security & Compliance summary'
+
     }
 
     process {
@@ -144,6 +146,8 @@ function Get-AbrVbrSecurityCompliance {
             Write-PScriboMessage -IsWarning "Infrastructure Summary Section: $($_.Exception.Message)"
         }
     }
-    end {}
+    end {
+        Show-AbrDebugExecutionTime -End -TitleMessage 'Security & Compliance summary'
+    }
 
 }

@@ -6,7 +6,7 @@ function Get-AbrVbrCredential {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.12
+        Version:        0.8.20
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -22,6 +22,7 @@ function Get-AbrVbrCredential {
 
     begin {
         Write-PScriboMessage "Discovering Veeam VBR credential information from $System."
+        Show-AbrDebugExecutionTime -Start -TitleMessage "Veeam VBR Credential"
     }
 
     process {
@@ -95,6 +96,7 @@ function Get-AbrVbrCredential {
             }
         } catch {
             Write-PScriboMessage -IsWarning "Security Credentials Section: $($_.Exception.Message)"
+            Show-AbrDebugExecutionTime -End -TitleMessage "Veeam VBR Credential"
         }
     }
     end {}

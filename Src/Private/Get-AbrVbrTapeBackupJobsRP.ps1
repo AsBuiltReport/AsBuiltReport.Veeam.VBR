@@ -5,7 +5,7 @@ function Get-AbrVbrTapeBackupJobsRP {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.14
+        Version:        0.8.20
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -20,6 +20,7 @@ function Get-AbrVbrTapeBackupJobsRP {
 
     begin {
         Write-PScriboMessage "RestorePoint InfoLevel set at $($InfoLevel.Jobs.Restores)."
+        Show-AbrDebugExecutionTime -Start -TitleMessage 'Tape Backup Restore Points'
     }
 
     process {
@@ -63,7 +64,7 @@ function Get-AbrVbrTapeBackupJobsRP {
                     }
                 }
                 if ($TapeRestorePoints) {
-                    Section -Style Heading3 'Tape Backup Restore Points ' {
+                    Section -Style Heading3 'Tape Backup Restore Points' {
                         Paragraph "The following section details per Tape Backup Job restore points."
                         BlankLine
                         $TapeRestorePoints
@@ -74,5 +75,7 @@ function Get-AbrVbrTapeBackupJobsRP {
             Write-PScriboMessage -IsWarning "Tape Restore Point Section: $($_.Exception.Message)"
         }
     }
-    end {}
+    end {
+        Show-AbrDebugExecutionTime -End -TitleMessage 'Tape Backup Restore Points'
+    }
 }

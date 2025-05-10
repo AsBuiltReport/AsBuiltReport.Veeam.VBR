@@ -22,6 +22,7 @@ function Get-AbrVbrObjectRepository {
 
     begin {
         Write-PScriboMessage "Discovering Veeam V&R Object Storage Repository information from $System."
+        Show-AbrDebugExecutionTime -Start -TitleMessage 'Object Storage Repository'
     }
 
     process {
@@ -261,6 +262,8 @@ function Get-AbrVbrObjectRepository {
             Write-PScriboMessage -IsWarning "Object Storage Repository Section: $($_.Exception.Message)"
         }
     }
-    end {}
+    end {
+        Show-AbrDebugExecutionTime -End -TitleMessage 'Object Storage Repository'
+    }
 
 }
