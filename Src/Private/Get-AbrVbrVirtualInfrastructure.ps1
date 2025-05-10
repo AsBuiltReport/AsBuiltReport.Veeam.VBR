@@ -22,6 +22,7 @@ function Get-AbrVbrVirtualInfrastructure {
 
     begin {
         Write-PScriboMessage "Discovering Veeam VBR Virtual Infrastructure inventory from $System."
+        Show-AbrDebugExecutionTime -Start -TitleMessage 'Virtual Infrastructure'
     }
 
     process {
@@ -198,6 +199,8 @@ function Get-AbrVbrVirtualInfrastructure {
             Write-PScriboMessage -IsWarning "Virtual Infrastructure Section: $($_.Exception.Message)"
         }
     }
-    end {}
+    end {
+        Show-AbrDebugExecutionTime -End -TitleMessage 'Virtual Infrastructure'
+    }
 
 }

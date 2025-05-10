@@ -5,7 +5,7 @@ function Get-AbrVbrEventForwarding {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.16
+        Version:        0.8.20
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -21,6 +21,7 @@ function Get-AbrVbrEventForwarding {
 
     begin {
         Write-PScriboMessage "Discovering Veeam VBR Event Forwarding settings information from $System."
+        Show-AbrDebugExecutionTime -Start -TitleMessage "Event Forwarding"
     }
 
     process {
@@ -113,6 +114,8 @@ function Get-AbrVbrEventForwarding {
             Write-PScriboMessage -IsWarning "Event Forwarding Section: $($_.Exception.Message)"
         }
     }
-    end {}
+    end {
+        Show-AbrDebugExecutionTime -End -TitleMessage "Event Forwarding"
+    }
 
 }

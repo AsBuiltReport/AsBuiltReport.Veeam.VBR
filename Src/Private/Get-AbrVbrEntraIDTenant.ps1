@@ -22,6 +22,7 @@ function Get-AbrVbrEntraIDTenant {
 
     begin {
         Write-PScriboMessage "Discovering Veeam VBR EntraID information from $System."
+        Show-AbrDebugExecutionTime -Start -TitleMessage "EntraID Tenant"
     }
 
     process {
@@ -81,6 +82,8 @@ function Get-AbrVbrEntraIDTenant {
             }
         }
     }
-    end {}
+    end {
+        Show-AbrDebugExecutionTime -End -TitleMessage "EntraID Tenant"
+    }
 
 }

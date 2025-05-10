@@ -6,7 +6,7 @@ function Get-AbrVbrGlobalNotificationSetting {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.12
+        Version:        0.8.20
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -22,6 +22,7 @@ function Get-AbrVbrGlobalNotificationSetting {
 
     begin {
         Write-PScriboMessage "Discovering Veeam VBR Global Notification option information from $System."
+        Show-AbrDebugExecutionTime -Start -TitleMessage 'Global Notification options'
     }
 
     process {
@@ -164,6 +165,9 @@ function Get-AbrVbrGlobalNotificationSetting {
             Write-PScriboMessage -IsWarning "Global Notifications Section: $($_.Exception.Message)"
         }
     }
-    end {}
+    end {
+        Show-AbrDebugExecutionTime -End -TitleMessage 'Global Notification options'
+
+    }
 
 }

@@ -22,6 +22,7 @@ function Get-AbrVbrEntraIDBackupjob {
 
     begin {
         Write-PScriboMessage "Discovering Veeam VBR EntraID Tenant Backup jobs information from $System."
+        Show-AbrDebugExecutionTime -Start -TitleMessage "EntraID Tenant Backup Jobs"
     }
 
     process {
@@ -63,5 +64,7 @@ function Get-AbrVbrEntraIDBackupjob {
             Write-PScriboMessage -IsWarning "EntraID Tenant Backup Jobs Section: $($_.Exception.Message)"
         }
     }
-    end {}
+    end {
+        Show-AbrDebugExecutionTime -End -TitleMessage "EntraID Tenant Backup Jobs"
+    }
 }

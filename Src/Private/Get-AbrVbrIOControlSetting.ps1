@@ -6,7 +6,7 @@ function Get-AbrVbrIOControlSetting {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.12
+        Version:        0.8.20
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -22,6 +22,7 @@ function Get-AbrVbrIOControlSetting {
 
     begin {
         Write-PScriboMessage "Discovering Veeam VBR storage latency control settings information from $System."
+        Show-AbrDebugExecutionTime -Start -TitleMessage 'Storage latency control settings'
     }
 
     process {

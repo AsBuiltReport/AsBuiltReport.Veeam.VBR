@@ -6,7 +6,7 @@ function Get-AbrVbrUserRoleAssignment {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.16
+        Version:        0.8.20
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -22,6 +22,7 @@ function Get-AbrVbrUserRoleAssignment {
 
     begin {
         Write-PScriboMessage "Discovering Veeam VBR Roles information from $System."
+        Show-AbrDebugExecutionTime -Start -TitleMessage 'Roles and Users'
     }
 
     process {
@@ -156,6 +157,8 @@ function Get-AbrVbrUserRoleAssignment {
             Write-PScriboMessage -IsWarning "Roles and Users Section: $($_.Exception.Message)"
         }
     }
-    end {}
+    end {
+        Show-AbrDebugExecutionTime -End -TitleMessage 'Roles and Users'
+    }
 
 }

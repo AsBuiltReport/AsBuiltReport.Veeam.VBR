@@ -6,7 +6,7 @@ function Get-AbrVbrStorageInfraSummary {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.12
+        Version:        0.8.20
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -22,6 +22,7 @@ function Get-AbrVbrStorageInfraSummary {
 
     begin {
         Write-PScriboMessage "Discovering Veeam VBR Storage Infrastructure Summary from $System."
+        Show-AbrDebugExecutionTime -Start -TitleMessage 'Storage Infrastructure Summary'
     }
 
     process {
@@ -57,6 +58,8 @@ function Get-AbrVbrStorageInfraSummary {
             Write-PScriboMessage -IsWarning "Storage Infrastructure Summary Section: $($_.Exception.Message)"
         }
     }
-    end {}
+    end {
+        Show-AbrDebugExecutionTime -End -TitleMessage 'Storage Infrastructure Summary'
+    }
 
 }

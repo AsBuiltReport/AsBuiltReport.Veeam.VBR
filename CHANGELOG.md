@@ -14,7 +14,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Bump module version to 0.8.20
 - Bump Veeam.Diagrammer module version to 0.6.27
 - Bump Diagrammer.Core module version to 0.2.26
-
+- Modify copyright year
+- Enhance execution time logging in Veeam report functions
 
 ## [0.8.19] - 2025-04-30
 

@@ -6,7 +6,7 @@ function Get-AbrVbrCloudConnectRR {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.14
+        Version:        0.8.20
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -22,6 +22,7 @@ function Get-AbrVbrCloudConnectRR {
 
     begin {
         Write-PScriboMessage "Discovering Veeam VBR Cloud Connect Replica Resources information from $System."
+        Show-AbrDebugExecutionTime -Start -TitleMessage "Cloud Connect Replica Resources"
     }
 
     process {
@@ -249,6 +250,8 @@ function Get-AbrVbrCloudConnectRR {
             }
         }
     }
-    end {}
+    end {
+        Show-AbrDebugExecutionTime -End -TitleMessage "Cloud Connect Replica Resources"
+    }
 
 }
