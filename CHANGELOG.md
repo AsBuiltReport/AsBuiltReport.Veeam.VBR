@@ -17,6 +17,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Modify copyright year
 - Enhance execution time logging in Veeam report functions
 
+### Fixed
+
+- Fix #215
+
 ## [0.8.19] - 2025-04-30
 
 ### Changed
