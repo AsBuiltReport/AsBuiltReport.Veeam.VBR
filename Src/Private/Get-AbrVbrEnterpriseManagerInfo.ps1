@@ -6,7 +6,7 @@ function Get-AbrVbrEnterpriseManagerInfo {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.12
+        Version:        0.8.20
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -22,6 +22,7 @@ function Get-AbrVbrEnterpriseManagerInfo {
 
     begin {
         Write-PScriboMessage "Discovering Enterprise Manager information from $System."
+        Show-AbrDebugExecutionTime -Start -TitleMessage "Enterprise Manager Information"
     }
 
     process {
@@ -83,6 +84,8 @@ function Get-AbrVbrEnterpriseManagerInfo {
             Write-PScriboMessage -IsWarning "Enterprise Manager Information Section: $($_.Exception.Message)"
         }
     }
-    end {}
+    end {
+        Show-AbrDebugExecutionTime -End -TitleMessage "Enterprise Manager Information"
+    }
 
 }

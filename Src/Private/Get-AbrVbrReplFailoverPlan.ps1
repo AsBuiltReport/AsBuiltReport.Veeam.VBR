@@ -22,6 +22,7 @@ function Get-AbrVbrReplFailoverPlan {
 
     begin {
         Write-PScriboMessage "Discovering Veeam VBR Failover Plans from $System."
+        Show-AbrDebugExecutionTime -Start -TitleMessage 'Failover Plans'
     }
 
     process {
@@ -127,6 +128,8 @@ function Get-AbrVbrReplFailoverPlan {
             }
         }
     }
-    end {}
+    end {
+        Show-AbrDebugExecutionTime -End -TitleMessage 'Failover Plans'
+    }
 
 }

@@ -22,6 +22,7 @@ function Get-AbrVbrUnstructuredDataInfo {
 
     begin {
         Write-PScriboMessage "Discovering Veeam VBR Unstructured Data information from $System."
+        Show-AbrDebugExecutionTime -Start -TitleMessage 'Unstructured Data'
     }
 
     process {
@@ -216,6 +217,8 @@ function Get-AbrVbrUnstructuredDataInfo {
             }
         }
     }
-    end {}
+    end {
+        Show-AbrDebugExecutionTime -End -TitleMessage 'Unstructured Data'
+    }
 
 }

@@ -22,6 +22,7 @@ function Get-AbrVbrTapeVault {
 
     begin {
         Write-PScriboMessage "Discovering Veeam VBR Tape Vault information from $System."
+        Show-AbrDebugExecutionTime -Start -TitleMessage 'Tape Vaults'
     }
 
     process {
@@ -82,6 +83,8 @@ function Get-AbrVbrTapeVault {
             Write-PScriboMessage -IsWarning "Tape Vaults Document: $($_.Exception.Message)"
         }
     }
-    end {}
+    end {
+        Show-AbrDebugExecutionTime -End -TitleMessage 'Tape Vaults'
+    }
 
 }

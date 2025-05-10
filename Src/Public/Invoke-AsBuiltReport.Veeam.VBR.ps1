@@ -5,7 +5,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.19
+        Version:        0.8.20
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -37,11 +37,11 @@ function Invoke-AsBuiltReport.Veeam.VBR {
 
     Get-AbrVbrRequiredModule -Name 'Veeam.Backup.PowerShell' -Version '1.0'
 
-    Write-PScriboMessage -Plugin "Module" -IsWarning "Please refer to the AsBuiltReport.Veeam.VBR github website for more detailed information about this project."
-    Write-PScriboMessage -Plugin "Module" -IsWarning "Do not forget to update your report configuration file after each new version release."
-    Write-PScriboMessage -Plugin "Module" -IsWarning "Documentation: https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR"
-    Write-PScriboMessage -Plugin "Module" -IsWarning "Issues or bug reporting: https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues"
-    Write-PScriboMessage -Plugin "Module" -IsWarning "This project is community maintained and has no sponsorship from Veeam, its employees or any of its affiliates."
+    Write-Host "- Please refer to the AsBuiltReport.Veeam.VBR github website for more detailed information about this project."
+    Write-Host "- Do not forget to update your report configuration file after each new version release."
+    Write-Host "- Documentation: https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR"
+    Write-Host "- Issues or bug reporting: https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues"
+    Write-Host "- This project is community maintained and has no sponsorship from Veeam, its employees or any of its affiliates."
 
 
     # Check the current AsBuiltReport.Veeam.VBR module
@@ -49,11 +49,11 @@ function Invoke-AsBuiltReport.Veeam.VBR {
         $InstalledVersion = Get-Module -ListAvailable -Name AsBuiltReport.Veeam.VBR -ErrorAction SilentlyContinue | Sort-Object -Property Version -Descending | Select-Object -First 1 -ExpandProperty Version
 
         if ($InstalledVersion) {
-            Write-PScriboMessage -Plugin "Module" -IsWarning "AsBuiltReport.Veeam.VBR $($InstalledVersion.ToString()) is currently installed."
+            Write-Host "- AsBuiltReport.Veeam.VBR module v$($InstalledVersion.ToString()) is currently installed."
             $LatestVersion = Find-Module -Name AsBuiltReport.Veeam.VBR -Repository PSGallery -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Version
             if ($InstalledVersion -lt $LatestVersion) {
-                Write-PScriboMessage -Plugin "Module" -IsWarning "AsBuiltReport.Veeam.VBR $($LatestVersion.ToString()) is available."
-                Write-PScriboMessage -Plugin "Module" -IsWarning "Run 'Update-Module -Name AsBuiltReport.Veeam.VBR -Force' to install the latest version."
+                Write-Host "- AsBuiltReport.Veeam.VBR module v$($LatestVersion.ToString()) is available." -ForegroundColor Red
+                Write-Host "- Run 'Update-Module -Name AsBuiltReport.Veeam.VBR -Force' to install the latest version." -ForegroundColor Red
             }
         }
     } Catch {
@@ -128,7 +128,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                     Paragraph "The following section details configuration information about the Backup Server: $($VeeamBackupServer)"
                     BlankLine
                     if ($InfoLevel.Infrastructure.BackupServer -ge 1) {
-                        Get-AbrVbrInfrastructureSummary
+                        # Get-AbrVbrInfrastructureSummary
                         if ($VbrVersion -ge 12) {
                             Get-AbrVbrSecurityCompliance
                         }

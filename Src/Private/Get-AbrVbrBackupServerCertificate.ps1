@@ -6,7 +6,7 @@ function Get-AbrVbrBackupServerCertificate {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.12
+        Version:        0.8.20
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -22,6 +22,7 @@ function Get-AbrVbrBackupServerCertificate {
 
     begin {
         Write-PScriboMessage "Discovering Veeam VBR TLS certificates information from $System."
+        Show-AbrDebugExecutionTime -Start -TitleMessage "Backup Server TLS Certificate"
     }
 
     process {
@@ -65,6 +66,8 @@ function Get-AbrVbrBackupServerCertificate {
             Write-PScriboMessage -IsWarning "Backup Server TLS Certificate Section: $($_.Exception.Message)"
         }
     }
-    end {}
+    end {
+        Show-AbrDebugExecutionTime -End -TitleMessage "Backup Server TLS Certificate"
+    }
 
 }

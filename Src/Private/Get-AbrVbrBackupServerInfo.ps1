@@ -6,7 +6,7 @@ function Get-AbrVbrBackupServerInfo {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.16
+        Version:        0.8.20
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -22,6 +22,7 @@ function Get-AbrVbrBackupServerInfo {
 
     begin {
         Write-PScriboMessage "Discovering Veeam VB&R Server information from $System."
+        Show-AbrDebugExecutionTime -Start -TitleMessage "Backup Server"
     }
 
     process {
@@ -600,6 +601,7 @@ function Get-AbrVbrBackupServerInfo {
     end {
         if ($PssSession) { Remove-PSSession -Session $PssSession }
         if ($CimSession) { Remove-CimSession $CimSession }
+        Show-AbrDebugExecutionTime -End -TitleMessage "Backup Server Inventory Summary"
     }
 
 }

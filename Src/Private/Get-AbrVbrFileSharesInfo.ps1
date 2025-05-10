@@ -22,6 +22,7 @@ function Get-AbrVbrFileSharesInfo {
 
     begin {
         Write-PScriboMessage "Discovering Veeam VBR File Share information from $System."
+        Show-AbrDebugExecutionTime -Start -TitleMessage 'File Share'
     }
 
     process {
@@ -82,6 +83,8 @@ function Get-AbrVbrFileSharesInfo {
             }
         }
     }
-    end {}
+    end {
+        Show-AbrDebugExecutionTime -End -TitleMessage 'File Share'
+    }
 
 }

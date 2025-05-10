@@ -6,7 +6,7 @@ function Get-AbrVbrBackupjobVMware {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.14
+        Version:        0.8.20
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -22,17 +22,18 @@ function Get-AbrVbrBackupjobVMware {
 
     begin {
         Write-PScriboMessage "Discovering Veeam VBR VMware Backup jobs information from $System."
+        Show-AbrDebugExecutionTime -Start -TitleMessage "VMware Backup Jobs"
     }
 
     process {
         try {
-            if ($Bkjobs = Get-VBRJob -WarningAction SilentlyContinue | Where-Object { $_.TypeToString -eq "VMware Backup" -or $_.TypeToString -eq "VMware Backup Copy" -or $_.TypeToString -eq "VM Copy" -or $_.TypeToString -eq "Cloud Director Backup"} | Sort-Object -Property Name) {
+            if ($Bkjobs = Get-VBRJob -WarningAction SilentlyContinue | Where-Object { $_.TypeToString -eq "VMware Backup" -or $_.TypeToString -eq "VMware Backup Copy" -or $_.TypeToString -eq "VM Copy" -or $_.TypeToString -eq "Cloud Director Backup" } | Sort-Object -Property Name) {
                 Section -Style Heading3 'VMware Backup Jobs Configuration' {
                     Paragraph "The following section details the configuration of VMware type backup jobs."
                     BlankLine
                     $OutObj = @()
                     try {
-                        if ($VMcounts = Get-VBRBackup | Where-Object { $_.TypeToString -eq "VMware Backup" -or $_.TypeToString -eq "VMware Backup Copy" -or $_.TypeToString -eq "VM Copy" -or $_.TypeToString -eq "Cloud Director Backup"}) {
+                        if ($VMcounts = Get-VBRBackup | Where-Object { $_.TypeToString -eq "VMware Backup" -or $_.TypeToString -eq "VMware Backup Copy" -or $_.TypeToString -eq "VM Copy" -or $_.TypeToString -eq "Cloud Director Backup" }) {
                             foreach ($VMcount in $VMcounts) {
                                 try {
                                     Write-PScriboMessage "Discovered $($VMcount.Name) ."
@@ -660,7 +661,7 @@ function Get-AbrVbrBackupjobVMware {
                                                 $inObj = [ordered] @{
                                                     'Name' = $VSSObj.Name
                                                     'Enabled' = $VSSObj.VssOptions.Enabled
-                                                    'Resource Type' = &{
+                                                    'Resource Type' = & {
                                                         if (($Bkjob.GetViOijs() | Where-Object { $_.Name -eq $VSSObj.Name -and ($_.Type -eq "Include" -or $_.Type -eq "VssChild") }).TypeDisplayName) {
                                                             ($Bkjob.GetViOijs() | Where-Object { $_.Name -eq $VSSObj.Name -and ($_.Type -eq "Include" -or $_.Type -eq "VssChild") }).TypeDisplayName
                                                         } elseif (($Bkjob.GetViOijs() | Where-Object { $_.Name -eq $VSSObj.Name -and ($_.Type -eq "Include" -or $_.Type -eq "VssChild") }).Object) {
@@ -876,6 +877,8 @@ function Get-AbrVbrBackupjobVMware {
             Write-PScriboMessage -IsWarning $_.Exception.Message
         }
     }
-    end {}
+    end {
+        Show-AbrDebugExecutionTime -End -TitleMessage "VMware Backup Jobs"
+    }
 
 }

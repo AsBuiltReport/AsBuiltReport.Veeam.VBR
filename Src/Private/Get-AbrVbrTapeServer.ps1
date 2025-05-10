@@ -22,6 +22,7 @@ function Get-AbrVbrTapeServer {
 
     begin {
         Write-PScriboMessage "Discovering Veeam VBR Tape Server information from $System."
+        Show-AbrDebugExecutionTime -Start -TitleMessage 'Tape Servers'
     }
 
     process {
@@ -83,6 +84,8 @@ function Get-AbrVbrTapeServer {
             Write-PScriboMessage -IsWarning "Tape Servers Section: $($_.Exception.Message)"
         }
     }
-    end {}
+    end {
+        Show-AbrDebugExecutionTime -End -TitleMessage 'Tape Servers'
+    }
 
 }

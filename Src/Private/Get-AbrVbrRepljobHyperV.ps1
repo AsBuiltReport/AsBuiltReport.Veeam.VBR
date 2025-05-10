@@ -6,7 +6,7 @@ function Get-AbrVbrRepljobHyperV {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.14
+        Version:        0.8.20
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -22,6 +22,7 @@ function Get-AbrVbrRepljobHyperV {
 
     begin {
         Write-PScriboMessage "Discovering Veeam VBR Hyper-V replication jobs information from $System."
+        Show-AbrDebugExecutionTime -Start -TitleMessage 'Hyper-V Replication Jobs Configuration'
     }
 
     process {
@@ -858,6 +859,8 @@ function Get-AbrVbrRepljobHyperV {
             Write-PScriboMessage -IsWarning "Hyper-V Replication Jobs Configuration Document: $($_.Exception.Message)"
         }
     }
-    end {}
+    end {
+        Show-AbrDebugExecutionTime -End -TitleMessage 'Hyper-V Replication Jobs Configuration'
+    }
 
 }

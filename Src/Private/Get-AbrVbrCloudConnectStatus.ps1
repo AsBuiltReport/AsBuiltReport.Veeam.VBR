@@ -6,7 +6,7 @@ function Get-AbrVbrCloudConnectStatus {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.12
+        Version:        0.8.20
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -22,6 +22,7 @@ function Get-AbrVbrCloudConnectStatus {
 
     begin {
         Write-PScriboMessage "Discovering Veeam VBR Cloud Connect Service Status information from $System."
+        Show-AbrDebugExecutionTime -Start -TitleMessage "Cloud Connect Service Status"
     }
 
     process {
@@ -69,6 +70,8 @@ function Get-AbrVbrCloudConnectStatus {
             }
         }
     }
-    end {}
+    end {
+        Show-AbrDebugExecutionTime -End -TitleMessage "Cloud Connect Service Status"
+    }
 
 }
