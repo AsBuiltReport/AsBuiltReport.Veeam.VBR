@@ -12,7 +12,7 @@
     RootModule = 'AsBuiltReport.Veeam.VBR.psm1'
 
     # Version number of this module.
-    ModuleVersion = '0.8.20'
+    ModuleVersion = '0.8.21'
 
     # Supported PSEditions
     # CompatiblePSEditions = @()
@@ -67,7 +67,7 @@
         }
         @{
             ModuleName = 'Veeam.Diagrammer';
-            ModuleVersion = '0.6.27'
+            ModuleVersion = '0.6.29'
         }
     )
 
