@@ -160,6 +160,7 @@ The **Options** schema allows certain options within the report to be toggled on
 | Sub-Schema              | Setting                    | Default | Description                                                                   |
 | ----------------------- | -------------------------- | ------- | ----------------------------------------------------------------------------- |
 | BackupServerPort        | TCP Port                   | 9392    | Set the backup server service's custom port.                                  |
+| DiagramColumnSize       | int                        | 3       | Set the diagram node table size                                               |
 | DiagramTheme            | string                     | White   | Set the diagram theme (Black/White/Neon)                                      |
 | DiagramWaterMark        | string                     | empty   | Set the diagram watermark                                                     |
 | DiagramType             | true / false               | true    | Toggle to enable/disable the export of individual diagram diagrams            |

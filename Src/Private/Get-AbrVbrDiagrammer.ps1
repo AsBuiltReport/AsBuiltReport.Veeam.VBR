@@ -76,7 +76,16 @@ function Get-AbrVbrDiagrammer {
                 'WaterMarkText' = $Options.DiagramWaterMark
                 'WaterMarkColor' = 'DarkGreen'
                 'DiagramTheme' = $DiagramTheme
-                "ColumnSize" = $Options.DiagramColumnSize
+                "ColumnSize" = Switch ([string]::IsNullOrEmpty($Options.DiagramColumnSize)) {
+                    $true { 3 }
+                    $false {
+                        Switch ($Options.DiagramColumnSize) {
+                            0 { 3 }
+                            default { $Options.DiagramColumnSize }
+                        }
+                    }
+                    default { 3 }
+                }
             }
 
             if ($Options.EnableDiagramDebug) {
