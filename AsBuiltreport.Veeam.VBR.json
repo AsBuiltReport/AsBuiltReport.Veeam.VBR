@@ -15,6 +15,7 @@
         "EnableHardwareInventory": false,
         "EnableDiagrams": true,
         "EnableDiagramDebug": false,
+        "DiagramColumnSize": 3,
         "DiagramTheme": "White",
         "DiagramWaterMark": "",
         "DiagramType": {

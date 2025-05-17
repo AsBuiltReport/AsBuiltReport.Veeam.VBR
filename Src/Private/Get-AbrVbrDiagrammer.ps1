@@ -6,7 +6,7 @@ function Get-AbrVbrDiagrammer {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.19
+        Version:        0.8.21
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -76,6 +76,7 @@ function Get-AbrVbrDiagrammer {
                 'WaterMarkText' = $Options.DiagramWaterMark
                 'WaterMarkColor' = 'DarkGreen'
                 'DiagramTheme' = $DiagramTheme
+                "ColumnSize" = $Options.DiagramColumnSize
             }
 
             if ($Options.EnableDiagramDebug) {

@@ -11,19 +11,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Add condition to check dependency module verion
+- Add a condition to verify the version of dependent modules
+- Add DiagramColumnSize option
+- Refine dependency version checks
 
 ### Changed
 
-- Bump module version to 0.8.21.
-- Bump Veeam.Diagrammer module to version 0.6.28.
-- Improve handling of diagram image resolution calculations.
+- Bump module version to 0.8.21
+- Bump Veeam.Diagrammer module to version 0.6.29
+- Improve handling of diagram image resolution calculations
 
 ### Fixed
 
-- Resolve an error occurring in the infrastructure diagram when exporting to Word format.
-- Resolve [#217](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/217).
-- Resolve an issue where the Infrastructure Summary was unintentionally disabled.
+- Resolve an error occurring in the infrastructure diagram when exporting to Word format
+- Resolve [#217](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/217)
+- Resolve an issue where the Infrastructure Summary was unintentionally disabled
 
 ## [0.8.20] - 2025-05-10
 

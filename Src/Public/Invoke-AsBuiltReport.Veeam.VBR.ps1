@@ -44,7 +44,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
     Write-Host "- This project is community maintained and has no sponsorship from Veeam, its employees or any of its affiliates."
 
 
-    # Check the dependency module version
+    # Check the version of the dependency modules
     $ModuleArray = @('AsBuiltReport.Veeam.VBR', 'Veeam.Diagrammer', 'Diagrammer.Core')
 
     foreach ($Module in $ModuleArray) {
