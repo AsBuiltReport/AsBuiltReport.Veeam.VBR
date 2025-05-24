@@ -417,6 +417,25 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                         Section -Style Heading2 'Cloud Connect' {
                             Paragraph "The following section provides information about Cloud Connect components from server $VeeamBackupServer."
                             BlankLine
+                            if ($Options.EnableDiagrams) {
+                                Try {
+                                    Try {
+                                        $Graph = Get-AbrVbrDiagrammer -DiagramType 'Backup-to-CloudConnect' -DiagramOutput base64
+                                    } Catch {
+                                        Write-PScriboMessage -IsWarning "Cloud Connect Infrastructure Diagram: $($_.Exception.Message)"
+                                    }
+                                    if ($Graph) {
+                                        If ((Get-DiaImagePercent -GraphObj $Graph).Width -gt 600) { $ImagePrty = 10 } else { $ImagePrty = 20 }
+                                        Section -Style Heading3 "Cloud Connect Infrastructure Diagram." {
+                                            Image -Base64 $Graph -Text "Cloud Connect Infrastructure Diagram" -Percent $ImagePrty -Align Center
+                                            Paragraph "Image preview: Opens the image in a new tab to view it at full resolution." -Tabs 2
+                                        }
+                                        BlankLine
+                                    }
+                                } Catch {
+                                    Write-PScriboMessage -IsWarning "Cloud Connect Infrastructure Diagram Section: $($_.Exception.Message)"
+                                }
+                            }
                             Get-AbrVbrCloudConnectSummary
                             Get-AbrVbrCloudConnectStatus
                             Write-PScriboMessage "Cloud Certificate InfoLevel set at $($InfoLevel.CloudConnect.Certificate)."
@@ -526,7 +545,10 @@ function Invoke-AsBuiltReport.Veeam.VBR {
             #---------------------------------------------------------------------------------------------#
 
             if ($Options.ExportDiagrams) {
+                Write-Host " "
+                Write-Host "ExportDiagrams option enabled: Exporting diagrams:"
                 $DiagramTypeHash = @{
+                    'CloudConnect' = 'Backup-to-CloudConnect'
                     'Infrastructure' = 'Backup-Infrastructure'
                     'FileProxy' = 'Backup-to-File-Proxy'
                     'HyperVProxy' = 'Backup-to-HyperV-Proxy'
@@ -546,6 +568,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                         Write-PScriboMessage -IsWarning "Export Diagram $($_.Name) Error: $($_.Exception.Message)"
                     }
                 }
+                Write-Host " "
             }
         }
 

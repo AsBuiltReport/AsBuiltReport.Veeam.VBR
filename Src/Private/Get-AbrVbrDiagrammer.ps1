@@ -19,7 +19,7 @@ function Get-AbrVbrDiagrammer {
     param (
         [Parameter(Mandatory = $false, Position = 0)]
         [ValidateNotNullOrEmpty()]
-        [ValidateSet('Backup-to-Tape', 'Backup-to-File-Proxy', 'Backup-to-HyperV-Proxy', 'Backup-to-vSphere-Proxy', 'Backup-to-Repository', 'Backup-to-Sobr', 'Backup-to-WanAccelerator', 'Backup-to-ProtectedGroup', 'Backup-Infrastructure')]
+        [ValidateSet('Backup-to-Tape', 'Backup-to-File-Proxy', 'Backup-to-HyperV-Proxy', 'Backup-to-vSphere-Proxy', 'Backup-to-Repository', 'Backup-to-Sobr', 'Backup-to-WanAccelerator', 'Backup-to-ProtectedGroup', 'Backup-Infrastructure', 'Backup-to-CloudConnect')]
         [string]$DiagramType = 'Backup-Infrastructure',
         [Parameter(Mandatory = $false, Position = 1)]
         [ValidateNotNullOrEmpty()]
@@ -51,6 +51,7 @@ function Get-AbrVbrDiagrammer {
                 'Backup-to-Tape' = 'Tape'
                 'Backup-to-vSphere-Proxy' = 'vSphereProxy'
                 'Backup-to-WanAccelerator' = 'WanAccelerator'
+                'Backup-to-CloudConnect' = 'CloudConnect'
             }
 
             if (-Not $Options.DiagramType) {

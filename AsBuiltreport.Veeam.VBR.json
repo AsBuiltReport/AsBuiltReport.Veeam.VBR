@@ -19,6 +19,7 @@
         "DiagramTheme": "White",
         "DiagramWaterMark": "",
         "DiagramType": {
+            "CloudConnect": true,
             "Infrastructure": true,
             "FileProxy": true,
             "HyperVProxy": true,

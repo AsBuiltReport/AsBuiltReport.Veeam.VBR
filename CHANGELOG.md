@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ##### This project is community maintained and has no sponsorship from Veeam, its employees or any of its affiliates.
 
+## [0.8.22] - 2025-05-XX
+
+### Added
+
+- Add Cloud Connect infrastructure diagram
+
+### Changed
+
+- Bump module version to 0.8.22
+- Bump Veeam.Diagrammer module to version 0.6.30
+
 ## [0.8.21] - 2025-05-17
 
 ### Added
