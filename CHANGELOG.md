@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Modified Invoke-AsBuiltReport to handle tenant-specific diagrams
 - Improved handling of diagram parameters and outputs
 - Updated changelog and version numbers across scripts
+- Refactor diagram section in Get-AbrVbrCloudConnectTenant function for improved error handling and clarity
 
 ### Changed
 

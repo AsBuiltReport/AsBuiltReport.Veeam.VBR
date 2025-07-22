@@ -457,26 +457,26 @@ function Get-AbrVbrCloudConnectTenant {
                                             } catch {
                                                 Write-PScriboMessage -IsWarning "Tenants $($CloudObject.Name) Configuration Section: $($_.Exception.Message)"
                                             }
-                                        }
-                                        ##############################################################################
-                                        #                              Diagram section                               #
-                                        ##############################################################################
-                                        if ($Options.EnableDiagrams) {
-                                            try {
+                                            ##############################################################################
+                                            #                              Diagram section                               #
+                                            ##############################################################################
+                                            if ($Options.EnableDiagrams) {
                                                 try {
-                                                    $Graph = Get-AbrVbrDiagrammer -DiagramType 'Backup-to-CloudConnect-Tenant' -Tenant $CloudObject.Name -DiagramOutput base64 -Direction 'left-to-right'
-                                                } catch {
-                                                    Write-PScriboMessage -IsWarning "Backup CloudConnect Tenant $($CloudObject.Name) Diagram: $($_.Exception.Message)"
-                                                }
-                                                if ($Graph) {
-                                                    if ((Get-DiaImagePercent -GraphObj $Graph).Width -gt 600) { $ImagePrty = 10 } else { $ImagePrty = 20 }
-                                                    Section -Style Heading5 "$($CloudObject.Name) Diagram." {
-                                                        Image -Base64 $Graph -Text "Backup CloudConnect Tenant Diagram" -Align Center -Percent $ImagePrty
-                                                        Paragraph "Image preview: Opens the image in a new tab to view it at full resolution." -Tabs 2
+                                                    try {
+                                                        $Graph = Get-AbrVbrDiagrammer -DiagramType 'Backup-to-CloudConnect-Tenant' -Tenant $CloudObject.Name -DiagramOutput base64 -Direction 'left-to-right'
+                                                    } catch {
+                                                        Write-PScriboMessage -IsWarning "Backup CloudConnect Tenant $($CloudObject.Name) Diagram: $($_.Exception.Message)"
                                                     }
+                                                    if ($Graph) {
+                                                        if ((Get-DiaImagePercent -GraphObj $Graph).Width -gt 600) { $ImagePrty = 10 } else { $ImagePrty = 20 }
+                                                        Section -Style Heading6 "Diagram" {
+                                                            Image -Base64 $Graph -Text "Backup CloudConnect Tenant Diagram" -Align Center -Percent $ImagePrty
+                                                            Paragraph "Image preview: Opens the image in a new tab to view it at full resolution." -Tabs 2
+                                                        }
+                                                    }
+                                                } catch {
+                                                    Write-PScriboMessage -IsWarning "Backup CloudConnect Tenant  $($CloudObject.Name) Diagram Section: $($_.Exception.Message)"
                                                 }
-                                            } catch {
-                                                Write-PScriboMessage -IsWarning "Backup CloudConnect Tenant  $($CloudObject.Name) Diagram Section: $($_.Exception.Message)"
                                             }
                                         }
                                     }
