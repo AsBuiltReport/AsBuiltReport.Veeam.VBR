@@ -468,7 +468,7 @@ function Get-AbrVbrCloudConnectTenant {
                                                         Write-PScriboMessage -IsWarning "Backup CloudConnect Tenant $($CloudObject.Name) Diagram: $($_.Exception.Message)"
                                                     }
                                                     if ($Graph) {
-                                                        if ((Get-DiaImagePercent -GraphObj $Graph).Width -gt 600) { $ImagePrty = 10 } else { $ImagePrty = 20 }
+                                                        if ((Get-DiaImagePercent -GraphObj $Graph).Width -gt 600) { $ImagePrty = 15 } else { $ImagePrty = 20 }
                                                         Section -Style Heading6 "Diagram" {
                                                             Image -Base64 $Graph -Text "Backup CloudConnect Tenant Diagram" -Align Center -Percent $ImagePrty
                                                             Paragraph "Image preview: Opens the image in a new tab to view it at full resolution." -Tabs 2

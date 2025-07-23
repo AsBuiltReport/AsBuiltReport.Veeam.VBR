@@ -1,3 +1,4 @@
 - [ ] Improve Paragraph section
-- [ ] Add per tenant diagram to the Tenant Configuration section
-  - [ ] Fix Diagram Export
+- [x] Fix Tenant diagram size mismatch
+- [x] Add per tenant diagram to the Tenant Configuration section
+  - [x] Fix Diagram Export

@@ -108,7 +108,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
             if ($Options.EnableDiagrams) {
                 try {
                     try {
-                        # $Graph = Get-AbrVbrDiagrammer -DiagramType 'Backup-Infrastructure' -DiagramOutput base64
+                        $Graph = Get-AbrVbrDiagrammer -DiagramType 'Backup-Infrastructure' -DiagramOutput base64
                     } catch {
                         Write-PScriboMessage -IsWarning "Backup Infrastructure Diagram: $($_.Exception.Message)"
                     }
@@ -131,7 +131,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                     Paragraph "This section provides detailed configuration information for the Backup Server: $($VeeamBackupServer)."
                     BlankLine
                     if ($InfoLevel.Infrastructure.BackupServer -ge 1) {
-                        # Get-AbrVbrInfrastructureSummary
+                        Get-AbrVbrInfrastructureSummary
                         if ($VbrVersion -ge 12) {
                             Get-AbrVbrSecurityCompliance
                         }
