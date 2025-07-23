@@ -27,6 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Bump module to v0.8.22
 - Bump Veeam.Diagrammer module to v0.6.30
 - Bump Diagrammer.Core module to v0.2.27
+- Update workflow to use Windows 2022 for publishing PowerShell module
 
 
 ## [0.8.21] - 2025-05-17
