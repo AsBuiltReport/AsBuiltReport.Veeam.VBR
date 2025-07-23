@@ -27,7 +27,7 @@ function Get-AbrVbrCloudConnectRR {
 
     process {
         if ($VbrLicenses | Where-Object { $_.CloudConnect -ne "Disabled" }) {
-            if ($CloudObjects = Get-VBRCloudHardwarePlan) {
+            if ($CloudObjects = Get-VBRCloudHardwarePlan | Sort-Object -Property Name) {
                 Section -Style Heading3 'Replica Resources' {
                     Paragraph "The following table provides a summary of Replica Resources."
                     BlankLine

@@ -7,6 +7,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ##### This project is community maintained and has no sponsorship from Veeam, its employees or any of its affiliates.
 
+## [0.8.22] - 2025-07-23
+
+### Added
+
+- Add Cloud Connect infrastructure diagram
+- Add per Tenant resources diagram
+
+### Changed
+
+- Updated Get-AbrVbrCloudConnectTenant to include diagram generation
+- Modified Invoke-AsBuiltReport to handle tenant-specific diagrams
+- Improved handling of diagram parameters and outputs
+- Updated changelog and version numbers across scripts
+- Refactor diagram section in Get-AbrVbrCloudConnectTenant function for improved error handling and clarity
+
+### Changed
+
+- Bump module to v0.8.22
+- Bump Veeam.Diagrammer module to v0.6.30
+- Bump Diagrammer.Core module to v0.2.27
+- Update workflow to use Windows 2022 for publishing PowerShell module
+
+
 ## [0.8.21] - 2025-05-17
 
 ### Added

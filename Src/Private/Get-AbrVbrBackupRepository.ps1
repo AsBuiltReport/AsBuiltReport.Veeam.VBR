@@ -202,7 +202,7 @@ function Get-AbrVbrBackupRepository {
                                                         default { 'Unknown' }
                                                     }
                                                     'Connection Type' = $BackupRepo.Type
-                                                    'Max Task Count' = Switch ([string]::IsNullOrEmpty($BackupRepo.Options.MaxTaskCount)) {
+                                                    'Max Task Count' = Switch ([string]::IsNullOrEmpty($BackupRepo.Options.IsTaskCountUnlim)) {
                                                         $true {
                                                             Switch ([string]::IsNullOrEmpty($BackupRepo.Options.MaxTasksCount)) {
                                                                 $true { '--' }
@@ -212,6 +212,11 @@ function Get-AbrVbrBackupRepository {
                                                         }
                                                         $false { $BackupRepo.Options.MaxTaskCount }
                                                         default { 'Unknown' }
+                                                    }
+                                                    'Data Rate Limit' = Switch ($BackupRepo.Options.CombinedDataRateLimit) {
+                                                        $Null { 'Unlimited' }
+                                                        0 { 'Unlimited' }
+                                                        default { "$($BackupRepo.Options.CombinedDataRateLimit) MB/s" }
                                                     }
                                                     'Use Nfs On Mount Host' = $BackupRepo.UseNfsOnMountHost
                                                     'San Snapshot Only' = $BackupRepo.IsSanSnapshotOnly

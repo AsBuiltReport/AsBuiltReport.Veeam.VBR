@@ -6,7 +6,7 @@ function Get-AbrVbrCloudConnectTenant {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.20
+        Version:        0.8.22
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -38,7 +38,7 @@ function Get-AbrVbrCloudConnectTenant {
                                 Write-PScriboMessage "Discovered $($CloudObject.Name) Cloud Tenants information."
                                 $inObj = [ordered] @{
                                     'Name' = $CloudObject.Name
-                                    'Type' = Switch ($CloudObject.Type) {
+                                    'Type' = switch ($CloudObject.Type) {
                                         'Ad' { 'Active Directory' }
                                         'General' { 'Standalone' }
                                         'vCD' { 'vCloud Director' }
@@ -96,18 +96,18 @@ function Get-AbrVbrCloudConnectTenant {
                                                     Write-PScriboMessage "Discovered $($CloudObject.Name) Cloud Tenants information."
                                                     $inObj = [ordered] @{
                                                         'Name' = $CloudObject.Name
-                                                        'Type' = Switch ($CloudObject.Type) {
+                                                        'Type' = switch ($CloudObject.Type) {
                                                             'Ad' { 'Active Directory' }
                                                             'General' { 'Standalone' }
                                                             'vCD' { 'vCloud Director' }
                                                             default { 'Unknown' }
                                                         }
-                                                        'Status' = Switch ($CloudObject.Enabled) {
+                                                        'Status' = switch ($CloudObject.Enabled) {
                                                             'True' { 'Enabled' }
                                                             'False' { 'Disabled' }
                                                             default { 'Unknown' }
                                                         }
-                                                        'Expiration Date' = Switch ([string]::IsNullOrEmpty($CloudObject.LeaseExpirationDate)) {
+                                                        'Expiration Date' = switch ([string]::IsNullOrEmpty($CloudObject.LeaseExpirationDate)) {
                                                             $true { 'Never' }
                                                             $false {
                                                                 & {
@@ -119,7 +119,7 @@ function Get-AbrVbrCloudConnectTenant {
                                                             default { '--' }
                                                         }
                                                         'Backup Storage (Cloud Backup Repository)' = $CloudObject.ResourcesEnabled
-                                                        'Replication Resource (Cloud Host)' = Switch ($CloudObject.ReplicationResourcesEnabled -or $CloudObject.vCDReplicationResourcesEnabled) {
+                                                        'Replication Resource (Cloud Host)' = switch ($CloudObject.ReplicationResourcesEnabled -or $CloudObject.vCDReplicationResourcesEnabled) {
                                                             'True' { 'Yes' }
                                                             'False' { 'No' }
                                                             default { '--' }
@@ -173,7 +173,7 @@ function Get-AbrVbrCloudConnectTenant {
 
                                                             if ($CloudObject.ThrottlingEnabled) {
                                                                 $inObj.add('Limit network traffic from this tenant?', ($CloudObject.ThrottlingEnabled))
-                                                                Switch ($CloudObject.ThrottlingUnit) {
+                                                                switch ($CloudObject.ThrottlingUnit) {
                                                                     'MbytePerSec' { $inObj.add('Throttling network traffic to', "$($CloudObject.ThrottlingValue) MB/s") }
                                                                     'KbytePerSec' { $inObj.add('Throttling network traffic to', "$($CloudObject.ThrottlingValue) KB/s") }
                                                                     'MbitPerSec' { $inObj.add('Throttling network traffic to', "$($CloudObject.ThrottlingValue) Mbps") }
@@ -181,9 +181,9 @@ function Get-AbrVbrCloudConnectTenant {
                                                             }
 
                                                             if ($CloudObject.GatewaySelectionType -eq 'StandaloneGateways') {
-                                                                $inObj.add('Gateway Pool', 'Automatic')
+                                                                $inObj.add('Gateway Pool (Standalone Server)', 'Automatic')
                                                             } else {
-                                                                $GatewayPool = Switch ([string]::IsNullOrEmpty($CloudObject.GatewayPool.Name)) {
+                                                                $GatewayPool = switch ([string]::IsNullOrEmpty($CloudObject.GatewayPool.Name)) {
                                                                     $true { '--' }
                                                                     $false { $CloudObject.GatewayPool.Name }
                                                                     default { 'Unknown' }
@@ -299,10 +299,11 @@ function Get-AbrVbrCloudConnectTenant {
                                                                         'Organization vDC Name' = $CloudRepliRes.OrganizationvDCName
                                                                         'Allocation Model' = $CloudRepliRes.AllocationModel
                                                                         'WAN Accelaration?' = $CloudRepliRes.WANAccelarationEnabled
-                                                                    }
-
-                                                                    if ($CloudRepliRes.WANAccelarationEnabled) {
-                                                                        $inObj.add('WAN Accelerator', $CloudRepliRes.WANAccelerator.Name)
+                                                                        'WAN Accelerator' = switch ([string]::IsNullOrEmpty($CloudRepliRes.WANAccelerator.Name)) {
+                                                                            $true { '--' }
+                                                                            $false { $CloudRepliRes.WANAccelerator.Name }
+                                                                            default { 'Unknown' }
+                                                                        }
                                                                     }
 
                                                                     $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
@@ -339,14 +340,14 @@ function Get-AbrVbrCloudConnectTenant {
                                                                             'Platform' = $TenantNetworkAppliance.Platform
                                                                         }
 
-                                                                        if (-Not $CloudObject.vCDReplicationResource.TenantNetworkAppliance) {
+                                                                        if (-not $CloudObject.vCDReplicationResource.TenantNetworkAppliance) {
                                                                             $inObj.add('Hardware Plan', (Get-VBRCloudHardwarePlan -Id $TenantNetworkAppliance.HardwarePlanId).Name)
                                                                         }
 
                                                                         $inObj.add('Production Network', $TenantNetworkAppliance.ProductionNetwork.Name)
                                                                         $inObj.add('Obtain Ip Address Automatically', ($TenantNetworkAppliance.ObtainIpAddressAutomatically))
 
-                                                                        if (-Not $TenantNetworkAppliance.ObtainIpAddressAutomatically) {
+                                                                        if (-not $TenantNetworkAppliance.ObtainIpAddressAutomatically) {
                                                                             $inObj.add('Ip Address', $TenantNetworkAppliance.IpAddress)
                                                                             $inObj.add('Subnet Mask', $TenantNetworkAppliance.SubnetMask)
                                                                             $inObj.add('Default Gateway', $TenantNetworkAppliance.DefaultGateway)
@@ -389,7 +390,7 @@ function Get-AbrVbrCloudConnectTenant {
                                                                         'Quota' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $CloudSubTenant.Resources.RepositoryQuota
                                                                         'Quota Path' = $CloudSubTenant.Resources.RepositoryQuotaPath
                                                                         'Used Space %' = $CloudSubTenant.Resources.UsedSpacePercentage
-                                                                        'Status' = Switch ($CloudSubTenant.Enabled) {
+                                                                        'Status' = switch ($CloudSubTenant.Enabled) {
                                                                             'True' { 'Enabled' }
                                                                             'False' { 'Disabled' }
                                                                             default { '--' }
@@ -455,6 +456,27 @@ function Get-AbrVbrCloudConnectTenant {
                                                 }
                                             } catch {
                                                 Write-PScriboMessage -IsWarning "Tenants $($CloudObject.Name) Configuration Section: $($_.Exception.Message)"
+                                            }
+                                            ##############################################################################
+                                            #                              Diagram section                               #
+                                            ##############################################################################
+                                            if ($Options.EnableDiagrams) {
+                                                try {
+                                                    try {
+                                                        $Graph = Get-AbrVbrDiagrammer -DiagramType 'Backup-to-CloudConnect-Tenant' -Tenant $CloudObject.Name -DiagramOutput base64 -Direction 'left-to-right'
+                                                    } catch {
+                                                        Write-PScriboMessage -IsWarning "Backup CloudConnect Tenant $($CloudObject.Name) Diagram: $($_.Exception.Message)"
+                                                    }
+                                                    if ($Graph) {
+                                                        if ((Get-DiaImagePercent -GraphObj $Graph).Width -gt 600) { $ImagePrty = 15 } else { $ImagePrty = 20 }
+                                                        Section -Style Heading6 "Diagram" {
+                                                            Image -Base64 $Graph -Text "Backup CloudConnect Tenant Diagram" -Align Center -Percent $ImagePrty
+                                                            Paragraph "Image preview: Opens the image in a new tab to view it at full resolution." -Tabs 2
+                                                        }
+                                                    }
+                                                } catch {
+                                                    Write-PScriboMessage -IsWarning "Backup CloudConnect Tenant  $($CloudObject.Name) Diagram Section: $($_.Exception.Message)"
+                                                }
                                             }
                                         }
                                     }
