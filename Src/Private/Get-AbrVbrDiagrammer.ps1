@@ -19,13 +19,16 @@ function Get-AbrVbrDiagrammer {
     param (
         [Parameter(Mandatory = $false, Position = 0)]
         [ValidateNotNullOrEmpty()]
-        [ValidateSet('Backup-to-Tape', 'Backup-to-File-Proxy', 'Backup-to-HyperV-Proxy', 'Backup-to-vSphere-Proxy', 'Backup-to-Repository', 'Backup-to-Sobr', 'Backup-to-WanAccelerator', 'Backup-to-ProtectedGroup', 'Backup-Infrastructure')]
+        [ValidateSet('Backup-to-Tape', 'Backup-to-File-Proxy', 'Backup-to-HyperV-Proxy', 'Backup-to-vSphere-Proxy', 'Backup-to-Repository', 'Backup-to-Sobr', 'Backup-to-WanAccelerator', 'Backup-to-ProtectedGroup', 'Backup-Infrastructure', 'Backup-to-CloudConnect', 'Backup-to-CloudConnect-Tenant')]
         [string]$DiagramType = 'Backup-Infrastructure',
         [Parameter(Mandatory = $false, Position = 1)]
         [ValidateNotNullOrEmpty()]
         [ValidateSet('png', 'pdf', 'base64', 'jpg', 'svg')]
         [string]$DiagramOutput,
-        [Switch]$ExportPath = $false
+        [Switch]$ExportPath = $false,
+        [string]$Tenant,
+        [ValidateSet('top-to-bottom', 'left-to-right')]
+        [string] $Direction = 'top-to-bottom'
     )
 
     begin {
@@ -35,7 +38,7 @@ function Get-AbrVbrDiagrammer {
     process {
         try {
             # Set default theme styles
-            if (-Not $Options.DiagramTheme) {
+            if (-not $Options.DiagramTheme) {
                 $DiagramTheme = 'White'
             } else {
                 $DiagramTheme = $Options.DiagramTheme
@@ -51,9 +54,11 @@ function Get-AbrVbrDiagrammer {
                 'Backup-to-Tape' = 'Tape'
                 'Backup-to-vSphere-Proxy' = 'vSphereProxy'
                 'Backup-to-WanAccelerator' = 'WanAccelerator'
+                'Backup-to-CloudConnect' = 'CloudConnect'
+                'Backup-to-CloudConnect-Tenant' = 'CloudConnectTenant'
             }
 
-            if (-Not $Options.DiagramType) {
+            if (-not $Options.DiagramType) {
                 $DiagramTypeArray += 'All'
             } elseif ($Options.DiagramType) {
                 $DiagramTypeArray = $Options.DiagramType
@@ -61,7 +66,7 @@ function Get-AbrVbrDiagrammer {
                 $DiagramType = 'All'
             }
 
-            if (-Not $Options.ExportDiagramsFormat) {
+            if (-not $Options.ExportDiagramsFormat) {
                 $DiagramFormat = 'png'
             } elseif ($DiagramOutput) {
                 $DiagramFormat = $DiagramOutput
@@ -72,14 +77,14 @@ function Get-AbrVbrDiagrammer {
                 'OutputFolderPath' = $OutputFolderPath
                 'Credential' = $Credential
                 'Target' = $System
-                'Direction' = 'top-to-bottom'
+                'Direction' = $Direction
                 'WaterMarkText' = $Options.DiagramWaterMark
                 'WaterMarkColor' = 'DarkGreen'
                 'DiagramTheme' = $DiagramTheme
-                "ColumnSize" = Switch ([string]::IsNullOrEmpty($Options.DiagramColumnSize)) {
+                "ColumnSize" = switch ([string]::IsNullOrEmpty($Options.DiagramColumnSize)) {
                     $true { 3 }
                     $false {
-                        Switch ($Options.DiagramColumnSize) {
+                        switch ($Options.DiagramColumnSize) {
                             0 { 3 }
                             default { $Options.DiagramColumnSize }
                         }
@@ -91,6 +96,10 @@ function Get-AbrVbrDiagrammer {
             if ($Options.EnableDiagramDebug) {
                 $DiagramParams.Add('EnableEdgeDebug', $True)
                 $DiagramParams.Add('EnableSubGraphDebug', $True)
+            }
+
+            if ($Tenant) {
+                $DiagramParams.Add('Tenant', $Tenant)
             }
 
             if ($Options.EnableDiagramSignature) {
@@ -106,17 +115,33 @@ function Get-AbrVbrDiagrammer {
                             $Graph
                         }
                     } else {
-                        $Graph = New-VeeamDiagram @DiagramParams -DiagramType $DiagramType -Format $Format -Filename "AsBuiltReport.Veeam.VBR-$($DiagramTypeHash[$DiagramType]).$($Format)"
+                        $Graph = & {
+                            if ($Tenant) {
+                                New-VeeamDiagram @DiagramParams -DiagramType $DiagramType -Format $Format -Filename "AsBuiltReport.Veeam.VBR-$($DiagramTypeHash[$DiagramType])-$(Remove-SpecialChar -String $Tenant -SpecialChars '\').$($Format)"
+                            } else {
+                                New-VeeamDiagram @DiagramParams -DiagramType $DiagramType -Format $Format -Filename "AsBuiltReport.Veeam.VBR-$($DiagramTypeHash[$DiagramType]).$($Format)"
+                            }
+                        }
                         if ($Graph) {
                             if ($ExportPath) {
-                                $FilePath = Join-Path -Path $OutputFolderPath -ChildPath "AsBuiltReport.Veeam.VBR-$($DiagramTypeHash[$DiagramType]).$($Format)"
+                                $FilePath = & {
+                                    if ($Tenant) {
+                                        Join-Path -Path $OutputFolderPath -ChildPath "AsBuiltReport.Veeam.VBR-$($DiagramTypeHash[$DiagramType])-$(Remove-SpecialChar -String $Tenant -SpecialChars '\').$($Format)"
+                                    } else {
+                                        Join-Path -Path $OutputFolderPath -ChildPath "AsBuiltReport.Veeam.VBR-$($DiagramTypeHash[$DiagramType]).$($Format)"
+                                    }
+                                }
                                 if (Test-Path -Path $FilePath) {
                                     $FilePath
                                 } else {
                                     Write-PScriboMessage -IsWarning "Unable to export the $DiagramType Diagram: $($_.Exception.Message)"
                                 }
                             } else {
-                                Write-Information "Saved 'AsBuiltReport.Veeam.VBR-$($DiagramTypeHash[$DiagramType]).$($Format)' diagram to '$($OutputFolderPath)'." -InformationAction Continue
+                                if ($Tenant) {
+                                    Write-Information "Saved 'AsBuiltReport.Veeam.VBR-$($DiagramTypeHash[$DiagramType])-$(Remove-SpecialChar -String $Tenant -SpecialChars '\').$($Format)' diagram to '$($OutputFolderPath)'." -InformationAction Continue
+                                } else {
+                                    Write-Information "Saved 'AsBuiltReport.Veeam.VBR-$($DiagramTypeHash[$DiagramType]).$($Format)' diagram to '$($OutputFolderPath)'." -InformationAction Continue
+                                }
                             }
                         }
                     }
