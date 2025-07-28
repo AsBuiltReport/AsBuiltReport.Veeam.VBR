@@ -5,7 +5,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.22
+        Version:        0.8.23
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -131,9 +131,9 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                     Paragraph "This section provides detailed configuration information for the Backup Server: $($VeeamBackupServer)."
                     BlankLine
                     if ($InfoLevel.Infrastructure.BackupServer -ge 1) {
-                        Get-AbrVbrInfrastructureSummary
+                        # Get-AbrVbrInfrastructureSummary
                         if ($VbrVersion -ge 12) {
-                            Get-AbrVbrSecurityCompliance
+                            # Get-AbrVbrSecurityCompliance
                         }
                         Get-AbrVbrBackupServerInfo
                         Get-AbrVbrEnterpriseManagerInfo
@@ -476,7 +476,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
             if ($InfoLevel.Jobs.PSObject.Properties.Value -ne 0) {
                 if (((Get-VBRJob -WarningAction SilentlyContinue).count -gt 0) -or ((Get-VBRTapeJob).count -gt 0) -or ((Get-VBRSureBackupJob).count -gt 0)) {
                     Section -Style Heading2 'Jobs Summary' {
-                        Paragraph "The following section provides information about the configured jobs in Veeam Server: $VeeamBackupServer."
+                        Paragraph "This section details all configured jobs in Veeam Backup & Replication on server $VeeamBackupServer."
                         BlankLine
                         Write-PScriboMessage "Backup Jobs InfoLevel set at $($InfoLevel.Jobs.Backup)."
                         if ($InfoLevel.Jobs.Backup -ge 1) {
@@ -515,6 +515,11 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                         if ($InfoLevel.Jobs.EntraID -ge 1 -and ($VbrVersion -ge 12.3)) {
                             Get-AbrVbrEntraIDBackupjob
                             Get-AbrVbrEntraIDBackupjobConf
+                        }
+                        Write-PScriboMessage "Nutanix Jobs InfoLevel set at $($InfoLevel.Jobs.Nutanix)."
+                        if ($InfoLevel.Jobs.Nutanix -ge 1 -and ($VbrVersion -ge 12)) {
+                            Get-AbrVbrBackupjobNutanix
+                            Get-AbrVbrBackupjobNutanixConf
                         }
                         Write-PScriboMessage "Backup Copy Jobs InfoLevel set at $($InfoLevel.Jobs.BackupCopy)."
                         if ($InfoLevel.Jobs.BackupCopy -ge 1 -and ($VbrVersion -ge 12)) {

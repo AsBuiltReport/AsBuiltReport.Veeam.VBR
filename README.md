@@ -238,6 +238,7 @@ The table below outlines the default and maximum **InfoLevel** settings for each
 | BackupCopy  |        1        |        2        |
 | EntraID     |        1        |        2        |
 | FileShare   |        1        |        2        |
+| Nutanix     |        1        |        2        |
 | Replication |        1        |        2        |
 | Restores    |        0        |        1        |
 | Surebackup  |        1        |        2        |

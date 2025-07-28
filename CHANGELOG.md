@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ##### This project is community maintained and has no sponsorship from Veeam, its employees or any of its affiliates.
 
+## [0.8.23] - 2025-07-28
+
+### Added
+
+- Add Nutanix backup jobs
+
+### Changed
+
+- Bump module to v0.8.23
+- Bump Veeam.Diagrammer module to v0.6.32
+- Bump Diagrammer.Core module to v0.2.28
+### Fixed
+
+- Fix #205
+
 ## [0.8.22] - 2025-07-23
 
 ### Added

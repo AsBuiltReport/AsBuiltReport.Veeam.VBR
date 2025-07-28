@@ -91,6 +91,7 @@ function Get-AbrVbrDiagrammer {
                     }
                     default { 3 }
                 }
+                "NewIcons" = $Options.NewIcons
             }
 
             if ($Options.EnableDiagramDebug) {
