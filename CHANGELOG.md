@@ -18,9 +18,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Bump module to v0.8.23
 - Bump Veeam.Diagrammer module to v0.6.32
 - Bump Diagrammer.Core module to v0.2.28
+
 ### Fixed
 
-- Fix #205
+- Close #205
 
 ## [0.8.22] - 2025-07-23
 
