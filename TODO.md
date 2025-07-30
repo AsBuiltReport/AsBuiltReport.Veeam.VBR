@@ -1,4 +1,10 @@
 - [ ] Improve Paragraph section
+- [ ] Add Job RansomwareOptions
 - [x] Fix Tenant diagram size mismatch
 - [x] Add per tenant diagram to the Tenant Configuration section
   - [x] Fix Diagram Export
+- [ ] Nutanix Backup Jobs
+  - [ ] Fix
+    - [x] Backup Proxy	(Unknown)
+    - [ ] Validate Data Transfer (Wan Accelerators)
+    - [x] Backup Repository	(Snap mode)

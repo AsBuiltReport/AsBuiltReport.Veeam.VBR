@@ -39,7 +39,8 @@
         "SignatureAuthorName": "",
         "SignatureCompanyName": "",
         "PSDefaultAuthentication": "Default",
-        "RoundUnits": 1
+        "RoundUnits": 1,
+        "NewIcons": false
     },
     "InfoLevel": {
         "_comment_": "Please refer to the AsBuiltReport project contributing guide for information about how to define InfoLevels.",
@@ -92,6 +93,7 @@
             "BackupCopy": 1,
             "EntraID": 1,
             "FileShare": 1,
+            "Nutanix": 1,
             "Surebackup": 1,
             "Replication": 1,
             "Restores": 0,
