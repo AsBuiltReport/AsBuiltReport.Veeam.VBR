@@ -170,6 +170,7 @@ The **Options** schema allows certain options within the report to be toggled on
 | EnableHardwareInventory | true / false               | false   | Toggle to enable/disable hardware information                                 |
 | ExportDiagrams          | true / false               | true    | Toggle to enable/disable diagram export option                                |
 | ExportDiagramsFormat    | string array               | png     | Set the format used to export the infrastructure diagram (dot, png, pdf, svg) |
+| NewIcons                | true / false               | false   | Set to true to enable the new Veeam icons                                     |
 | PSDefaultAuthentication | Default/Kerberos/Negotiate | Default | Set the PSRemoting authentication method                                      |
 | ReportStyle             | Veeam/AsBuiltReport        | Veeam   | Set the report style template                                                 |
 | RoundUnits              | int                        | 1       | Set the value to round the storage unit                                       |

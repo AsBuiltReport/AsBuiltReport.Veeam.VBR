@@ -17,7 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Update module version to v0.8.23
-- Upgrade Veeam.Diagrammer module to v0.6.32
+- Upgrade Veeam.Diagrammer module to v0.6.33
 - Upgrade Diagrammer.Core module to v0.2.28
 
 ### Fixed
