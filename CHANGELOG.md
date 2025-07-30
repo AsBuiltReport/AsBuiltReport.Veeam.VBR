@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ##### This project is community maintained and has no sponsorship from Veeam, its employees or any of its affiliates.
 
+## [0.8.23] - 2025-07-XX
+
+### Added
+
+- Add support for Nutanix backup jobs
+- Add option to enable use of updated Veeam icons in generated diagrams
+
+### Changed
+
+- Update module version to v0.8.23
+- Upgrade Veeam.Diagrammer module to v0.6.33
+- Upgrade Diagrammer.Core module to v0.2.28
+
+### Fixed
+
+- Close #205
+
 ## [0.8.22] - 2025-07-23
 
 ### Added
