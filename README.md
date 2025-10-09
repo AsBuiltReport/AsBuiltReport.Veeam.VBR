@@ -26,10 +26,6 @@
 > [!WARNING]
 > I was recently contacted regarding the status of this project. Maintaining this report and the associated tools requires significant time and resources. If you would like to help keep this project active, please consider supporting its development by donating through Ko-fi.
 
-<p align="center">
-    <a href='https://ko-fi.com/F1F8DEV80' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://ko-fi.com/img/githubbutton_sm.svg' border='0' alt='Want to keep alive this project? Support me on Ko-fi' /></a>
-</p>
-
 #### Community Maintained Project
 
 This project is maintained by the community and is not sponsored by Veeam, its employees, or any affiliates.
