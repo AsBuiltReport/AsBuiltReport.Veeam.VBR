@@ -19,6 +19,8 @@ function Invoke-AsBuiltReport.Veeam.VBR {
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSAvoidUsingUserNameAndPassWordParams", "", Scope = "Function")]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSAvoidUsingPlainTextForPassword", "", Scope = "Function")]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseShouldProcessForStateChangingFunctions", "", Scope = "Function")]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSAvoidUsingCmdletAliases", "", Scope = "Script")]
+
 
     # Do not remove or add to these parameters
     param (
@@ -101,7 +103,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
         $VeeamBackupServer = ((Get-VBRServerSession).Server).ToString().ToUpper().Split(".")[0]
         $script:VbrLicenses = Get-VBRInstalledLicense
 
-        Section -Style Heading1 $($VeeamBackupServer) -Orientation Portrait {
+        Section -Style Heading1 $($VeeamBackupServer) {
             Paragraph "This section provides an overview of the key components implemented in Veeam Backup & Replication."
             BlankLine
 

@@ -16,7 +16,7 @@ function Get-AbrVbrRequiredModule {
     #>
     [CmdletBinding()]
 
-    Param
+    param
     (
         [Parameter(Mandatory = $true, ValueFromPipeline = $false)]
         [ValidateNotNullOrEmpty()]
@@ -33,13 +33,13 @@ function Get-AbrVbrRequiredModule {
         # Loading Module or PSSnapin
         # Make sure PSModulePath includes Veeam Console
         #Code taken from @vMarkus_K
-        if (Test-path "C:\Program Files\Veeam\Backup and Replication\Console\" ) {
+        if (Test-Path "C:\Program Files\Veeam\Backup and Replication\Console\" ) {
             $MyModulePath = "C:\Program Files\Veeam\Backup and Replication\Console\"
             $env:PSModulePath = $env:PSModulePath + "$([System.IO.Path]::PathSeparator)$MyModulePath"
-        } elseif (Test-path "D:\Program Files\Veeam\Backup and Replication\Console\" ) {
+        } elseif (Test-Path "D:\Program Files\Veeam\Backup and Replication\Console\" ) {
             $MyModulePath = "D:\Program Files\Veeam\Backup and Replication\Console\"
             $env:PSModulePath = $env:PSModulePath + "$([System.IO.Path]::PathSeparator)$MyModulePath"
-        } elseif (Test-path "E:\Program Files\Veeam\Backup and Replication\Console\" ) {
+        } elseif (Test-Path "E:\Program Files\Veeam\Backup and Replication\Console\" ) {
             $MyModulePath = "E:\Program Files\Veeam\Backup and Replication\Console\"
             $env:PSModulePath = $env:PSModulePath + "$([System.IO.Path]::PathSeparator)$MyModulePath"
         }
@@ -88,9 +88,9 @@ function Get-AbrVbrRequiredModule {
             throw "$Name $Version or higher is required to run the Veeam VBR As Built Report. Update the Veeam Backup & Replication console that provide the required modules."
         }
 
-        if ($ModuleVersion -ge 13) {
-            throw "Veeam VBR As Built Report is not compatible with Veeam Backup & Replication 13 or higher."
-        }
+        # if ($ModuleVersion -ge 13) {
+        #     throw "Veeam VBR As Built Report is not compatible with Veeam Backup & Replication 13 or higher."
+        # }
     }
     end {}
 }
