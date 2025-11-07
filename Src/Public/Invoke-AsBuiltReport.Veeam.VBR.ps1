@@ -44,6 +44,8 @@ function Invoke-AsBuiltReport.Veeam.VBR {
     Write-Host "- Documentation: https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR"
     Write-Host "- Issues or bug reporting: https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues"
     Write-Host "- This project is community maintained and has no sponsorship from Veeam, its employees or any of its affiliates."
+    Write-Host "- To sponsor this project, please visit: https://ko-fi.com/F1F8DEV80"
+    Write-Host "- Getting dependency information:"
 
 
     # Check the version of the dependency modules
@@ -54,11 +56,11 @@ function Invoke-AsBuiltReport.Veeam.VBR {
             $InstalledVersion = Get-Module -ListAvailable -Name $Module -ErrorAction SilentlyContinue | Sort-Object -Property Version -Descending | Select-Object -First 1 -ExpandProperty Version
 
             if ($InstalledVersion) {
-                Write-Host "- $Module module v$($InstalledVersion.ToString()) is currently installed."
+                Write-Host "  - $Module module v$($InstalledVersion.ToString()) is currently installed."
                 $LatestVersion = Find-Module -Name $Module -Repository PSGallery -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Version
                 if ($InstalledVersion -lt $LatestVersion) {
-                    Write-Host "  - $Module module v$($LatestVersion.ToString()) is available." -ForegroundColor Red
-                    Write-Host "  - Run 'Update-Module -Name $Module -Force' to install the latest version." -ForegroundColor Red
+                    Write-Host "    - $Module module v$($LatestVersion.ToString()) is available." -ForegroundColor Red
+                    Write-Host "    - Run 'Update-Module -Name $Module -Force' to install the latest version." -ForegroundColor Red
                 }
             }
         } catch {
