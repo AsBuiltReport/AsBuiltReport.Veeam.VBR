@@ -5,7 +5,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.23
+        Version:        0.8.24
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -44,7 +44,8 @@ function Invoke-AsBuiltReport.Veeam.VBR {
     Write-Host "- Documentation: https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR"
     Write-Host "- Issues or bug reporting: https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues"
     Write-Host "- This project is community maintained and has no sponsorship from Veeam, its employees or any of its affiliates."
-    Write-Host "- To sponsor this project, please visit: https://ko-fi.com/F1F8DEV80"
+    Write-Host "- To sponsor this project, please visit: " -NoNewline
+    Write-Host "https://ko-fi.com/F1F8DEV80" -ForegroundColor Cyan
     Write-Host "- Getting dependency information:"
 
 
