@@ -13,12 +13,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add dependency version check
 - Add sponsor information to the module header
+- Add CompatiblePSEditions to module manifest
 
 ### Changed
 
 - Update module version to v0.8.24
 - Upgrade Veeam.Diagrammer module to v0.6.36
-- Upgrade Diagrammer.Core module to v0.2.34
+- Upgrade Diagrammer.Core module to v0.2.35
 - Update GitHub release workflow to use latest checkout action version
 - Update GitHub release workflow to use latest bluesky-post-action version
 - Update GitHub CodeQL workflow to use latest checkout action version

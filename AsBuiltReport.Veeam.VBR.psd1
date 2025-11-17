@@ -15,7 +15,7 @@
     ModuleVersion = '0.8.24'
 
     # Supported PSEditions
-    # CompatiblePSEditions = @()
+    CompatiblePSEditions = @('Desktop')
 
     # ID used to uniquely identify this module
     GUID = '7f25f32e-70cb-49e6-a71b-eec42e0595c1'
@@ -63,7 +63,7 @@
         }
         @{
             ModuleName = 'Diagrammer.Core';
-            ModuleVersion = '0.2.34'
+            ModuleVersion = '0.2.35'
         }
         @{
             ModuleName = 'Veeam.Diagrammer';
