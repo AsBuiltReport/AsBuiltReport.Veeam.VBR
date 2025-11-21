@@ -6,7 +6,7 @@ function Get-AbrVbrUserRoleAssignment {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.20
+        Version:        0.8.24
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -88,8 +88,18 @@ function Get-AbrVbrUserRoleAssignment {
                             $OutObj = @()
                             try {
                                 try { $MFAGlobalSetting = [Veeam.Backup.Core.SBackupOptions]::get_GlobalMFA() } catch { Out-Null }
-                                try { $AutoTerminateSession = [Veeam.Backup.Core.SBackupOptions]::get_AutomaticallyTerminateSession() } catch { Out-Null }
-                                try { $AutoTerminateSessionMin = [Veeam.Backup.Core.SBackupOptions]::get_AutomaticallyTerminateSessionTimeoutMinutes() } catch { Out-Null }
+                                try {
+                                    $AutoTerminateSession = switch ($VbrVersion) {
+                                        { $_ -ge 13 } { [Veeam.Backup.Core.SBackupOptions]::GetAutomaticallyTerminateSession() }
+                                        default { [Veeam.Backup.Core.SBackupOptions]::get_AutoTerminateSession() }
+                                    }
+                                } catch { Out-Null }
+                                try {
+                                    $AutoTerminateSessionMin = switch ($VbrVersion) {
+                                        { $_ -ge 13 } { [Veeam.Backup.Core.SBackupOptions]::GetAutomaticallyTerminateSessionTimeoutMinutes() }
+                                        default { [Veeam.Backup.Core.SBackupOptions]::get_AutoTerminateSessionMinutes() }
+                                    }
+                                } catch { Out-Null }
                                 try { $UserActionNotification = [Veeam.Backup.Core.SBackupOptions]::get_UserActionNotification() } catch { Out-Null }
                                 try { $UserActionRetention = [Veeam.Backup.Core.SBackupOptions]::get_UserActionRetention() } catch { Out-Null }
                                 foreach ($RoleAssignment in $RoleAssignments) {

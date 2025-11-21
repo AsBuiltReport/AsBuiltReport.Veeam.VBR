@@ -28,8 +28,6 @@ function Invoke-AsBuiltReport.Veeam.VBR {
         [PSCredential] $Credential
     )
 
-    #Requires -Version 5.1
-    #Requires -PSEdition Desktop
     #Requires -RunAsAdministrator
 
     if ($psISE) {
@@ -39,18 +37,15 @@ function Invoke-AsBuiltReport.Veeam.VBR {
 
     Get-AbrVbrRequiredModule -Name 'Veeam.Backup.PowerShell' -Version '1.0'
 
-    Write-Host "- Please refer to the AsBuiltReport.Veeam.VBR github website for more detailed information about this project."
-    Write-Host "- Do not forget to update your report configuration file after each new version release."
-    Write-Host "- Documentation: https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR"
-    Write-Host "- Issues or bug reporting: https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues"
-    Write-Host "- This project is community maintained and has no sponsorship from Veeam, its employees or any of its affiliates."
+    # Check the version of the dependency modules
+    Write-ReportModuleInfo -ModuleName 'Veeam.VBR'
     Write-Host "- To sponsor this project, please visit: " -NoNewline
     Write-Host "https://ko-fi.com/F1F8DEV80" -ForegroundColor Cyan
     Write-Host "- Getting dependency information:"
 
 
     # Check the version of the dependency modules
-    $ModuleArray = @('AsBuiltReport.Veeam.VBR', 'Veeam.Diagrammer', 'Diagrammer.Core')
+    $ModuleArray = @('Veeam.Diagrammer', 'Diagrammer.Core')
 
     foreach ($Module in $ModuleArray) {
         try {
@@ -136,9 +131,9 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                     Paragraph "This section provides detailed configuration information for the Backup Server: $($VeeamBackupServer)."
                     BlankLine
                     if ($InfoLevel.Infrastructure.BackupServer -ge 1) {
-                        Get-AbrVbrInfrastructureSummary
+                        # Get-AbrVbrInfrastructureSummary
                         if ($VbrVersion -ge 12) {
-                            Get-AbrVbrSecurityCompliance
+                            # Get-AbrVbrSecurityCompliance
                         }
                         Get-AbrVbrBackupServerInfo
                         Get-AbrVbrEnterpriseManagerInfo
