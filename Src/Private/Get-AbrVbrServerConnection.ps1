@@ -21,11 +21,11 @@ function Get-AbrVbrServerConnection {
 
     begin {
         Write-PScriboMessage "Establishing initial connection to Backup Server: $($System)."
-        Switch ($VbrVersion) {
-            {$_ -ge 13} {
+        switch ($VbrVersion) {
+            { $_ -ge 13 } {
                 $Port = 443
             }
-            Default {
+            default {
                 $Port = $Options.BackupServerPort
             }
         }

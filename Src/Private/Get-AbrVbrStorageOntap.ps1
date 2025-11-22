@@ -39,13 +39,13 @@ function Get-AbrVbrStorageOntap {
                                 $UsedCred = Get-VBRCredentials | Where-Object { $_.Id -eq $OntapHost.Info.CredsId }
                                 $OntapOptions = [xml]$OntapHost.info.Options
                                 $inObj = [ordered] @{
-                                    'DNS Name' = Switch (($OntapHost.Info.HostInstanceId).count) {
+                                    'DNS Name' = switch (($OntapHost.Info.HostInstanceId).count) {
                                         0 { $OntapHost.Info.DnsName }
                                         default { $OntapHost.Info.HostInstanceId }
                                     }
                                     'Description' = $OntapHost.Description
                                     'Storage Type' = $OntapHost.NaOptions.HostType
-                                    'Used Credential' = Switch (($UsedCred).count) {
+                                    'Used Credential' = switch (($UsedCred).count) {
                                         0 { "--" }
                                         default { "$($UsedCred.Name) - ($($UsedCred.Description))" }
                                     }

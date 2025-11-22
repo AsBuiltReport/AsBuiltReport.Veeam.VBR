@@ -37,7 +37,7 @@ function Get-AbrVbrUnstructuredDataInfo {
                             $inObj = [ordered] @{
                                 'Name' = $ShareObj.Name
                                 'Backup IO Control' = $ShareObj.BackupIOControlLevel
-                                'Credentials' = Switch ([string]::IsNullOrEmpty($ShareObj.Server.ProxyServicesCreds.Name)) {
+                                'Credentials' = switch ([string]::IsNullOrEmpty($ShareObj.Server.ProxyServicesCreds.Name)) {
                                     $true { "--" }
                                     $false { $ShareObj.Server.ProxyServicesCreds.Name }
                                     default { "Unknown" }
@@ -88,10 +88,10 @@ function Get-AbrVbrUnstructuredDataInfo {
                                     "SMB" { "SMB Share" }
                                     "NFS" { "NFS Share" }
                                     "SANNFS" { "NAS Filler" }
-                                    Default { $ShareObj.Type }
+                                    default { $ShareObj.Type }
                                 }
                                 'Backup IO Control' = $ShareObj.BackupIOControlLevel
-                                'Credentials' = Switch (($AccessCredentials).count) {
+                                'Credentials' = switch (($AccessCredentials).count) {
                                     0 { "None" }
                                     default { $AccessCredentials }
                                 }
@@ -142,10 +142,10 @@ function Get-AbrVbrUnstructuredDataInfo {
                                     "SMB" { "SMB Share" }
                                     "NFS" { "NFS Share" }
                                     "SANNFS" { "NAS Filler" }
-                                    Default { $ShareObj.Type }
+                                    default { $ShareObj.Type }
                                 }
                                 'Backup IO Control' = $ShareObj.BackupIOControlLevel
-                                'Credentials' = Switch (($AccessCredentials).count) {
+                                'Credentials' = switch (($AccessCredentials).count) {
                                     0 { "None" }
                                     default { $AccessCredentials }
                                 }
@@ -183,7 +183,7 @@ function Get-AbrVbrUnstructuredDataInfo {
                             $inObj = [ordered] @{
                                 'Name' = $ShareObj.FriendlyName
                                 'Region' = $ShareObj.Info
-                                'Account' = Switch ([string]::IsNullOrEmpty($ShareObj.Account.Name)) {
+                                'Account' = switch ([string]::IsNullOrEmpty($ShareObj.Account.Name)) {
                                     $true { "--" }
                                     $false { $ShareObj.Account.Name }
                                     default { "Unknown" }

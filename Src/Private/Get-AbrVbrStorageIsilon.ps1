@@ -38,12 +38,12 @@ function Get-AbrVbrStorageIsilon {
                             $UsedCred = Get-VBRCredentials | Where-Object { $_.Id -eq $IsilonHost.Info.CredsId }
                             $IsilonOptions = [xml]$IsilonHost.info.Options
                             $inObj = [ordered] @{
-                                'DNS Name' = Switch (($IsilonHost.Info.HostInstanceId).count) {
+                                'DNS Name' = switch (($IsilonHost.Info.HostInstanceId).count) {
                                     0 { $IsilonHost.Info.DnsName }
                                     default { $IsilonHost.Info.HostInstanceId }
                                 }
                                 'Description' = $IsilonHost.Description
-                                'Used Credential' = Switch (($UsedCred).count) {
+                                'Used Credential' = switch (($UsedCred).count) {
                                     0 { "--" }
                                     default { "$($UsedCred.Name) - ($($UsedCred.Description))" }
                                 }

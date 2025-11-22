@@ -38,12 +38,12 @@ function Get-AbrVbrRepljob {
                             $inObj = [ordered] @{
                                 'Name' = $Bkjob.Name
                                 'Type' = $Bkjob.TypeToString
-                                'Status' = Switch ($Bkjob.IsScheduleEnabled) {
+                                'Status' = switch ($Bkjob.IsScheduleEnabled) {
                                     'False' { 'Disabled' }
                                     'True' { 'Enabled' }
                                 }
                                 'Latest Result' = $Bkjob.info.LatestStatus
-                                'Last Run' = Switch ($Bkjob.FindLastSession().EndTimeUTC) {
+                                'Last Run' = switch ($Bkjob.FindLastSession().EndTimeUTC) {
                                     $null { 'Never' }
                                     default { $Bkjob.FindLastSession().EndTimeUTC }
                                 }

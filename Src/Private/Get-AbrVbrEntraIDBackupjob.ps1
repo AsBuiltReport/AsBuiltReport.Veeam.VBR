@@ -38,7 +38,7 @@ function Get-AbrVbrEntraIDBackupjob {
                             $inObj = [ordered] @{
                                 'Name' = $Bkjob.Name
                                 'Tenant' = $Bkjob.Tenant.Name
-                                'Schedule Status' = Switch ($Bkjob.EnableSchedule) {
+                                'Schedule Status' = switch ($Bkjob.EnableSchedule) {
                                     'False' { 'Not Scheduled' }
                                     'True' { 'Scheduled' }
                                 }

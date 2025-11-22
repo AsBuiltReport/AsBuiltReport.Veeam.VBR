@@ -45,7 +45,7 @@ function Get-AbrVbrBackupProxy {
                                             'Type' = $BackupProxy.Type
                                             'Max Tasks Count' = $BackupProxy.MaxTasksCount
                                             'Disabled' = $BackupProxy.IsDisabled
-                                            'Status' = Switch (($BackupProxy.Host).IsUnavailable) {
+                                            'Status' = switch (($BackupProxy.Host).IsUnavailable) {
                                                 'False' { 'Available' }
                                                 'True' { 'Unavailable' }
                                                 default { ($BackupProxy.Host).IsUnavailable }
@@ -84,7 +84,7 @@ function Get-AbrVbrBackupProxy {
                                             'Chassis Type' = $BackupProxy.ChassisType
                                             'OS Type' = $BackupProxy.Host.Type
                                             'Services Credential' = $BackupProxy.Host.ProxyServicesCreds.Name
-                                            'Status' = Switch (($BackupProxy.Host).IsUnavailable) {
+                                            'Status' = switch (($BackupProxy.Host).IsUnavailable) {
                                                 'False' { 'Available' }
                                                 'True' { 'Unavailable' }
                                                 default { ($BackupProxy.Host).IsUnavailable }
@@ -126,7 +126,7 @@ function Get-AbrVbrBackupProxy {
                                                     $CimSession = try { New-CimSession $BackupProxy.Host.Name -Credential $Credential -Authentication $Options.PSDefaultAuthentication -Name 'HardwareInventory' -ErrorAction Stop } catch { Write-PScriboMessage -IsWarning "VMware Backup Proxies Hardware/Software Section: New-CimSession: Unable to connect to $($BackupProxy.Host.Name): $($_.Exception.MessageId)" }
 
                                                     $PssSession = try { New-PSSession $BackupProxy.Host.Name -Credential $Credential -Authentication $Options.PSDefaultAuthentication -ErrorAction Stop -Name 'VMwareHardwareInventory' } catch {
-                                                        if (-Not $_.Exception.MessageId) {
+                                                        if (-not $_.Exception.MessageId) {
                                                             $ErrorMessage = $_.FullyQualifiedErrorId
                                                         } else { $ErrorMessage = $_.Exception.MessageId }
                                                         Write-PScriboMessage -IsWarning "VMware Backup Proxies Hardware/Software Section: New-PSSession: Unable to connect to $($BackupProxy.Host.Name): $ErrorMessage"
@@ -187,7 +187,7 @@ function Get-AbrVbrBackupProxy {
                                                                     if ($HostDisks) {
                                                                         Section -Style NOTOCHeading6 -ExcludeFromTOC 'Local Disks' {
                                                                             $LocalDiskReport = @()
-                                                                            ForEach ($Disk in $HostDisks) {
+                                                                            foreach ($Disk in $HostDisks) {
                                                                                 try {
                                                                                     $TempLocalDiskReport = [PSCustomObject]@{
                                                                                         'Disk Number' = $Disk.Number
@@ -219,11 +219,11 @@ function Get-AbrVbrBackupProxy {
                                                                 #                       Backup Proxy SAN Disk Inventory Section                              #
                                                                 #---------------------------------------------------------------------------------------------#
                                                                 try {
-                                                                    $SanDisks = Invoke-Command -Session $PssSession -ScriptBlock { Get-Disk | Where-Object { $_.BusType -Eq "iSCSI" -or $_.BusType -Eq "Fibre Channel" } }
+                                                                    $SanDisks = Invoke-Command -Session $PssSession -ScriptBlock { Get-Disk | Where-Object { $_.BusType -eq "iSCSI" -or $_.BusType -eq "Fibre Channel" } }
                                                                     if ($SanDisks) {
                                                                         Section -Style NOTOCHeading6 -ExcludeFromTOC 'SAN Disks' {
                                                                             $SanDiskReport = @()
-                                                                            ForEach ($Disk in $SanDisks) {
+                                                                            foreach ($Disk in $SanDisks) {
                                                                                 try {
                                                                                     $TempSanDiskReport = [PSCustomObject]@{
                                                                                         'Disk Number' = $Disk.Number
@@ -257,7 +257,7 @@ function Get-AbrVbrBackupProxy {
                                                                 if ($HostVolumes) {
                                                                     Section -Style NOTOCHeading6 -ExcludeFromTOC 'Host Volumes' {
                                                                         $HostVolumeReport = @()
-                                                                        ForEach ($HostVolume in $HostVolumes) {
+                                                                        foreach ($HostVolume in $HostVolumes) {
                                                                             try {
                                                                                 $TempHostVolumeReport = [PSCustomObject]@{
                                                                                     'Drive Letter' = $HostVolume.DriveLetter
@@ -295,7 +295,7 @@ function Get-AbrVbrBackupProxy {
                                                                     if ($HostAdapters) {
                                                                         Section -Style NOTOCHeading4 -ExcludeFromTOC 'Network Adapters' {
                                                                             $HostAdaptersReport = @()
-                                                                            ForEach ($HostAdapter in $HostAdapters) {
+                                                                            foreach ($HostAdapter in $HostAdapters) {
                                                                                 try {
                                                                                     $TempHostAdaptersReport = [PSCustomObject]@{
                                                                                         'Adapter Name' = $HostAdapter.Name
@@ -323,16 +323,16 @@ function Get-AbrVbrBackupProxy {
                                                                     Write-PScriboMessage -IsWarning "VMware Backup Proxies Network Adapter Section: $($_.Exception.Message)"
                                                                 }
                                                                 try {
-                                                                    $NetIPs = Invoke-Command -Session $PssSession { Get-NetIPConfiguration | Where-Object -FilterScript { ($_.NetAdapter.Status -Eq "Up") } }
+                                                                    $NetIPs = Invoke-Command -Session $PssSession { Get-NetIPConfiguration | Where-Object -FilterScript { ($_.NetAdapter.Status -eq "Up") } }
                                                                     if ($NetIPs) {
                                                                         Section -Style NOTOCHeading4 -ExcludeFromTOC 'IP Address' {
                                                                             $NetIpsReport = @()
-                                                                            ForEach ($NetIp in $NetIps) {
+                                                                            foreach ($NetIp in $NetIps) {
                                                                                 try {
                                                                                     $TempNetIpsReport = [PSCustomObject]@{
                                                                                         'Interface Name' = $NetIp.InterfaceAlias
                                                                                         'Interface Description' = $NetIp.InterfaceDescription
-                                                                                        'IPv4 Addresses' = $NetIp.IPv4Address.IPAddress -Join ","
+                                                                                        'IPv4 Addresses' = $NetIp.IPv4Address.IPAddress -join ","
                                                                                         'Subnet Mask' = $NetIp.IPv4Address[0].PrefixLength
                                                                                         'IPv4 Gateway' = $NetIp.IPv4DefaultGateway.NextHop
                                                                                     }
@@ -400,7 +400,7 @@ function Get-AbrVbrBackupProxy {
                                                 try {
                                                     # $PssSession = New-PSSession $BackupProxy.Host.Name -Credential $Credential -Authentication $Options.PSDefaultAuthentication -ErrorAction SilentlyContinue
                                                     $PssSession = try { New-PSSession $BackupProxy.Host.Name -Credential $Credential -Authentication $Options.PSDefaultAuthentication -ErrorAction Stop -Name 'VMwareBackupProxyService' } catch {
-                                                        if (-Not $_.Exception.MessageId) {
+                                                        if (-not $_.Exception.MessageId) {
                                                             $ErrorMessage = $_.FullyQualifiedErrorId
                                                         } else { $ErrorMessage = $_.Exception.MessageId }
                                                         Write-PScriboMessage -IsWarning "Backup Proxy Service Section: New-PSSession: Unable to connect to $($BackupProxy.Host.Name): $ErrorMessage"
@@ -492,7 +492,7 @@ function Get-AbrVbrBackupProxy {
                                                 'Type' = $BackupProxy.Type
                                                 'Max Tasks Count' = $BackupProxy.MaxTasksCount
                                                 'Disabled' = $BackupProxy.IsDisabled
-                                                'Status' = Switch (($BackupProxy.Host).IsUnavailable) {
+                                                'Status' = switch (($BackupProxy.Host).IsUnavailable) {
                                                     'False' { 'Available' }
                                                     'True' { 'Unavailable' }
                                                     default { ($BackupProxy.Host).IsUnavailable }
@@ -534,7 +534,7 @@ function Get-AbrVbrBackupProxy {
                                                 'AutoDetect Volumes' = $BackupProxy.Options.IsAutoDetectVolumes
                                                 'OS Type' = $BackupProxy.Host.Type
                                                 'Services Credential' = $BackupProxy.Host.ProxyServicesCreds.Name
-                                                'Status' = Switch (($BackupProxy.Host).IsUnavailable) {
+                                                'Status' = switch (($BackupProxy.Host).IsUnavailable) {
                                                     'False' { 'Available' }
                                                     'True' { 'Unavailable' }
                                                     default { ($BackupProxy.Host).IsUnavailable }
@@ -578,7 +578,7 @@ function Get-AbrVbrBackupProxy {
                                                         $CimSession = try { New-CimSession $BackupProxy.Host.Name -Credential $Credential -Authentication $Options.PSDefaultAuthentication -Name 'HardwareInventory' -ErrorAction Stop } catch { Write-PScriboMessage -IsWarning "Hyper-V Backup Proxies Hardware/Software Section: New-CimSession: Unable to connect to $($BackupProxy.Host.Name): $($_.Exception.MessageId)" }
 
                                                         $PssSession = try { New-PSSession $BackupProxy.Host.Name -Credential $Credential -Authentication $Options.PSDefaultAuthentication -ErrorAction Stop -Name 'HyperVHardwareInventory' } catch {
-                                                            if (-Not $_.Exception.MessageId) {
+                                                            if (-not $_.Exception.MessageId) {
                                                                 $ErrorMessage = $_.FullyQualifiedErrorId
                                                             } else { $ErrorMessage = $_.Exception.MessageId }
                                                             Write-PScriboMessage -IsWarning "Hyper-V Backup Proxies Hardware/Software Section: New-PSSession: Unable to connect to $($BackupProxy.Host.Name): $ErrorMessage"
@@ -639,7 +639,7 @@ function Get-AbrVbrBackupProxy {
                                                                         if ($HostDisks) {
                                                                             Section -Style NOTOCHeading6 -ExcludeFromTOC 'Local Disks' {
                                                                                 $LocalDiskReport = @()
-                                                                                ForEach ($Disk in $HostDisks) {
+                                                                                foreach ($Disk in $HostDisks) {
                                                                                     try {
                                                                                         $TempLocalDiskReport = [PSCustomObject]@{
                                                                                             'Disk Number' = $Disk.Number
@@ -671,11 +671,11 @@ function Get-AbrVbrBackupProxy {
                                                                     #                       Backup Proxy SAN Disk Inventory Section                              #
                                                                     #---------------------------------------------------------------------------------------------#
                                                                     try {
-                                                                        $SanDisks = Invoke-Command -Session $PssSession -ScriptBlock { Get-Disk | Where-Object { $_.BusType -Eq "iSCSI" -or $_.BusType -Eq "Fibre Channel" } }
+                                                                        $SanDisks = Invoke-Command -Session $PssSession -ScriptBlock { Get-Disk | Where-Object { $_.BusType -eq "iSCSI" -or $_.BusType -eq "Fibre Channel" } }
                                                                         if ($SanDisks) {
                                                                             Section -Style NOTOCHeading6 -ExcludeFromTOC 'SAN Disks' {
                                                                                 $SanDiskReport = @()
-                                                                                ForEach ($Disk in $SanDisks) {
+                                                                                foreach ($Disk in $SanDisks) {
                                                                                     try {
                                                                                         $TempSanDiskReport = [PSCustomObject]@{
                                                                                             'Disk Number' = $Disk.Number
@@ -712,7 +712,7 @@ function Get-AbrVbrBackupProxy {
                                                                     if ($HostVolumes) {
                                                                         Section -Style NOTOCHeading6 -ExcludeFromTOC 'Host Volumes' {
                                                                             $HostVolumeReport = @()
-                                                                            ForEach ($HostVolume in $HostVolumes) {
+                                                                            foreach ($HostVolume in $HostVolumes) {
                                                                                 try {
                                                                                     $TempHostVolumeReport = [PSCustomObject]@{
                                                                                         'Drive Letter' = $HostVolume.DriveLetter
@@ -750,7 +750,7 @@ function Get-AbrVbrBackupProxy {
                                                                         if ($HostAdapters) {
                                                                             Section -Style NOTOCHeading6 -ExcludeFromTOC 'Network Adapters' {
                                                                                 $HostAdaptersReport = @()
-                                                                                ForEach ($HostAdapter in $HostAdapters) {
+                                                                                foreach ($HostAdapter in $HostAdapters) {
                                                                                     try {
                                                                                         $TempHostAdaptersReport = [PSCustomObject]@{
                                                                                             'Adapter Name' = $HostAdapter.Name
@@ -778,16 +778,16 @@ function Get-AbrVbrBackupProxy {
                                                                         Write-PScriboMessage -IsWarning "Hyper-V Backup Proxies Network Adapter Section: $($_.Exception.Message)"
                                                                     }
                                                                     try {
-                                                                        $NetIPs = Invoke-Command -Session $PssSession { Get-NetIPConfiguration | Where-Object -FilterScript { ($_.NetAdapter.Status -Eq "Up") } }
+                                                                        $NetIPs = Invoke-Command -Session $PssSession { Get-NetIPConfiguration | Where-Object -FilterScript { ($_.NetAdapter.Status -eq "Up") } }
                                                                         if ($NetIPs) {
                                                                             Section -Style NOTOCHeading6 -ExcludeFromTOC 'IP Address' {
                                                                                 $NetIpsReport = @()
-                                                                                ForEach ($NetIp in $NetIps) {
+                                                                                foreach ($NetIp in $NetIps) {
                                                                                     try {
                                                                                         $TempNetIpsReport = [PSCustomObject]@{
                                                                                             'Interface Name' = $NetIp.InterfaceAlias
                                                                                             'Interface Description' = $NetIp.InterfaceDescription
-                                                                                            'IPv4 Addresses' = $NetIp.IPv4Address.IPAddress -Join ","
+                                                                                            'IPv4 Addresses' = $NetIp.IPv4Address.IPAddress -join ","
                                                                                             'Subnet Mask' = $NetIp.IPv4Address[0].PrefixLength
                                                                                             'IPv4 Gateway' = $NetIp.IPv4DefaultGateway.NextHop
                                                                                         }
@@ -854,7 +854,7 @@ function Get-AbrVbrBackupProxy {
                                                 if (Test-WSMan -Credential $Credential -Authentication $Options.PSDefaultAuthentication -ComputerName $BackupProxy.Host.Name -ErrorAction SilentlyContinue) {
                                                     try {
                                                         $PssSession = try { New-PSSession $BackupProxy.Host.Name -Credential $Credential -Authentication $Options.PSDefaultAuthentication -ErrorAction Stop -Name 'HyperVBackupProxyService' } catch {
-                                                            if (-Not $_.Exception.MessageId) {
+                                                            if (-not $_.Exception.MessageId) {
                                                                 $ErrorMessage = $_.FullyQualifiedErrorId
                                                             } else { $ErrorMessage = $_.Exception.MessageId }
                                                             Write-PScriboMessage -IsWarning "Hyper-V Backup Proxy Service Section: New-PSSession: Unable to connect to $($BackupProxy.Host.Name): $ErrorMessage"
@@ -908,21 +908,21 @@ function Get-AbrVbrBackupProxy {
                                     }
                                 }
                                 if ($Options.EnableDiagrams) {
-                                    Try {
-                                        Try {
+                                    try {
+                                        try {
                                             $Graph = Get-AbrVbrDiagrammer -DiagramType 'Backup-to-HyperV-Proxy' -DiagramOutput base64
-                                        } Catch {
+                                        } catch {
                                             Write-PScriboMessage -IsWarning "HyperV Backup Proxy Diagram: $($_.Exception.Message)"
                                         }
                                         if ($Graph) {
-                                            If ((Get-DiaImagePercent -GraphObj $Graph).Width -gt 600) { $ImagePrty = 20 } else { $ImagePrty = 30 }
+                                            if ((Get-DiaImagePercent -GraphObj $Graph).Width -gt 600) { $ImagePrty = 20 } else { $ImagePrty = 30 }
                                             Section -Style Heading3 "HyperV Backup Proxy Diagram." {
                                                 Image -Base64 $Graph -Text "HyperV Backup Proxy Diagram" -Percent $ImagePrty -Align Center
                                                 Paragraph "Image preview: Opens the image in a new tab to view it at full resolution." -Tabs 2
                                             }
                                             BlankLine
                                         }
-                                    } Catch {
+                                    } catch {
                                         Write-PScriboMessage -IsWarning "HyperV Backup Proxy Diagram Section: $($_.Exception.Message)"
                                     }
                                 }

@@ -37,7 +37,7 @@ function Get-AbrVbrCredential {
                             Write-PScriboMessage "Discovered $($Credential.Name) Server."
                             $inObj = [ordered] @{
                                 'Name' = $Credential.Name
-                                'Change Time' = Switch ($Credential.ChangeTimeUtc) {
+                                'Change Time' = switch ($Credential.ChangeTimeUtc) {
                                     "" { "--"; break }
                                     $Null { '--'; break }
                                     default { $Credential.ChangeTimeUtc.ToShortDateString() }

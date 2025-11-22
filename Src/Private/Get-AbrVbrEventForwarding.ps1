@@ -33,12 +33,12 @@ function Get-AbrVbrEventForwarding {
                     $OutObj = @()
 
                     $inObj = [ordered] @{
-                        'SNMP Servers' = Switch ([string]::IsNullOrEmpty($SNMPSettings)) {
+                        'SNMP Servers' = switch ([string]::IsNullOrEmpty($SNMPSettings)) {
                             $true { "--" }
                             $false { $SNMPSettings | ForEach-Object { "Receiver: $($_.ReceiverIP), Port: $($_.ReceiverPort), Community: $($_.CommunityString)" } }
                             default { "Unknown" }
                         }
-                        'Syslog Servers' = Switch ([string]::IsNullOrEmpty($SyslogSettings)) {
+                        'Syslog Servers' = switch ([string]::IsNullOrEmpty($SyslogSettings)) {
                             $true { "--" }
                             $false { $SyslogSettings | ForEach-Object { "Receiver: $($_.ServerHost), Port: $($_.Port), Protocol: $($_.Protocol)" } }
                             default { "Unknown" }

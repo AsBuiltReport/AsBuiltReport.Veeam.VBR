@@ -39,12 +39,12 @@ function Get-AbrVbrCloudConnectRR {
                                 $inObj = [ordered] @{
                                     'Name' = $CloudObject.Name
                                     'Platform' = $CloudObject.Platform
-                                    'CPU' = Switch ([string]::IsNullOrEmpty($CloudObject.CPU)) {
+                                    'CPU' = switch ([string]::IsNullOrEmpty($CloudObject.CPU)) {
                                         $true { 'Unlimited' }
                                         $false { "$([math]::Round($CloudObject.CPU / 1000, 1)) Ghz" }
                                         default { '--' }
                                     }
-                                    'Memory' = Switch ([string]::IsNullOrEmpty($CloudObject.Memory)) {
+                                    'Memory' = switch ([string]::IsNullOrEmpty($CloudObject.Memory)) {
                                         $true { 'Unlimited' }
                                         $false { ConvertTo-FileSizeString -Size (Convert-Size -From MB -To Bytes -Value $CloudObject.Memory) -RoundUnits $Options.RoundUnits }
                                         default { '--' }
@@ -90,18 +90,18 @@ function Get-AbrVbrCloudConnectRR {
                                                         $inObj = [ordered] @{
                                                             'Host or Cluster' = "$($CloudObject.Host.Name) ($($CloudObject.Host.Type))"
                                                             'Platform' = $CloudObject.Platform
-                                                            'CPU' = Switch ([string]::IsNullOrEmpty($CloudObject.CPU)) {
+                                                            'CPU' = switch ([string]::IsNullOrEmpty($CloudObject.CPU)) {
                                                                 $true { 'Unlimited' }
                                                                 $false { "$([math]::Round($CloudObject.CPU / 1000, 1)) Ghz" }
                                                                 default { '--' }
                                                             }
-                                                            'Memory' = Switch ([string]::IsNullOrEmpty($CloudObject.Memory)) {
+                                                            'Memory' = switch ([string]::IsNullOrEmpty($CloudObject.Memory)) {
                                                                 $true { 'Unlimited' }
-                                                                $false { ConvertTo-FileSizeString -Size (Convert-Size -From MB -To Bytes -Value $CloudObject.Memory) -RoundUnits $Options.RoundUnits}
+                                                                $false { ConvertTo-FileSizeString -Size (Convert-Size -From MB -To Bytes -Value $CloudObject.Memory) -RoundUnits $Options.RoundUnits }
                                                                 default { '--' }
                                                             }
                                                             'Network Count' = $CloudObject.NumberOfNetWithInternet + $CloudObject.NumberOfNetWithoutInternet
-                                                            'Subscribed Tenant' = Switch ([string]::IsNullOrEmpty($CloudObject.SubscribedTenantId)) {
+                                                            'Subscribed Tenant' = switch ([string]::IsNullOrEmpty($CloudObject.SubscribedTenantId)) {
                                                                 $true { 'None' }
                                                                 $false { ($CloudObject.SubscribedTenantId | ForEach-Object { Get-VBRCloudTenant -Id $_ }).Name -join ", " }
                                                                 default { 'Unknown' }
@@ -139,7 +139,7 @@ function Get-AbrVbrCloudConnectRR {
                                                                 'Friendly Name' = $Storage.FriendlyName
                                                                 'Platform' = $Storage.Platform
                                                                 'Storage Quota' = ConvertTo-FileSizeString -Size (Convert-Size -From GB -To Bytes -Value $Storage.Quota) -RoundUnits $Options.RoundUnits
-                                                                'Storage Policy' = Switch ([string]::IsNullOrEmpty($Storage.StoragePolicy.Name)) {
+                                                                'Storage Policy' = switch ([string]::IsNullOrEmpty($Storage.StoragePolicy.Name)) {
                                                                     $true { '--' }
                                                                     $false { $Storage.StoragePolicy.Name }
                                                                     default { 'Unknown' }

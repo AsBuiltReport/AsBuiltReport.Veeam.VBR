@@ -131,22 +131,22 @@ function Get-AbrVbrFileShareBackupjobConf {
                                                 Write-PScriboMessage "Discovered $($OBJ.Name) object to backup."
                                                 $inObj = [ordered] @{
                                                     'Name' = $OBJ.Server.FriendlyName
-                                                    'Path' = Switch ([string]::IsNullOrEmpty($OBJ.Path)) {
+                                                    'Path' = switch ([string]::IsNullOrEmpty($OBJ.Path)) {
                                                         $true { "--" }
                                                         $false { $OBJ.Path }
                                                         default { "Unknown" }
                                                     }
-                                                    'Container' = Switch ([string]::IsNullOrEmpty($OBJ.Container)) {
+                                                    'Container' = switch ([string]::IsNullOrEmpty($OBJ.Container)) {
                                                         $true { "--" }
                                                         $false { $OBJ.Container }
                                                         default { "Unknown" }
                                                     }
-                                                    'Inclusion Mask' = Switch ([string]::IsNullOrEmpty($OBJ.InclusionMask)) {
+                                                    'Inclusion Mask' = switch ([string]::IsNullOrEmpty($OBJ.InclusionMask)) {
                                                         $true { "--" }
                                                         $false { $OBJ.InclusionMask }
                                                         default { "Unknown" }
                                                     }
-                                                    'Exclusion Mask' = Switch ([string]::IsNullOrEmpty($OBJ.ExclusionMask)) {
+                                                    'Exclusion Mask' = switch ([string]::IsNullOrEmpty($OBJ.ExclusionMask)) {
                                                         $true { "--" }
                                                         $false { $OBJ.ExclusionMask }
                                                         default { "Unknown" }
@@ -174,7 +174,7 @@ function Get-AbrVbrFileShareBackupjobConf {
                                 try {
                                     Write-PScriboMessage "Discovered $($Bkjob.Name) storage options."
                                     $inObj = [ordered] @{
-                                        'Backup Repository' = Switch ($Bkjob.info.TargetRepositoryId) {
+                                        'Backup Repository' = switch ($Bkjob.info.TargetRepositoryId) {
                                             '00000000-0000-0000-0000-000000000000' { $Bkjob.TargetDir }
                                             { $Null -eq (Get-VBRBackupRepository | Where-Object { $_.Id -eq $Bkjob.info.TargetRepositoryId }).Name } { (Get-VBRBackupRepository -ScaleOut | Where-Object { $_.Id -eq $Bkjob.info.TargetRepositoryId }).Name }
                                             default { (Get-VBRBackupRepository | Where-Object { $_.Id -eq $Bkjob.info.TargetRepositoryId }).Name }
@@ -182,7 +182,7 @@ function Get-AbrVbrFileShareBackupjobConf {
                                         'Keep all file versions for the last' = "$($Bkjob.Options.NasBackupRetentionPolicy.ShortTermRetention) $($Bkjob.Options.NasBackupRetentionPolicy.ShortTermRetentionUnit)"
                                     }
 
-                                    $FiletoArchive = Switch ($Bkjob.Options.NasBackupRetentionPolicy.ArchiveFileExtensionsScope) {
+                                    $FiletoArchive = switch ($Bkjob.Options.NasBackupRetentionPolicy.ArchiveFileExtensionsScope) {
                                         'ExceptSpecified' { "All file exept the following extension: $($Bkjob.Options.NasBackupRetentionPolicy.ExcludedFileExtensions)" }
                                         'Any' { 'All Files: *.*' }
                                         'Specified' { "File with the following extension only: $($Bkjob.Options.NasBackupRetentionPolicy.IncludedFileExtensions)" }
@@ -215,7 +215,7 @@ function Get-AbrVbrFileShareBackupjobConf {
                                             $OutObj = @()
                                             try {
                                                 Write-PScriboMessage "Discovered $($Bkjob.Name) File Version options."
-                                                $FileVersionsRetentionScope = Switch ($Bkjob.Options.NasBackupRetentionPolicy.FileVersionsRetentionScope) {
+                                                $FileVersionsRetentionScope = switch ($Bkjob.Options.NasBackupRetentionPolicy.FileVersionsRetentionScope) {
                                                     'LongTermOnly' { 'Limit the number of archived file versions only' }
                                                     'None' { 'Keep all file versions' }
                                                     'All' { 'Limit the number of both recent and archived file versions' }
@@ -251,7 +251,7 @@ function Get-AbrVbrFileShareBackupjobConf {
                                             try {
                                                 Write-PScriboMessage "Discovered $($Bkjob.Name) acl handling options."
                                                 $inObj = [ordered] @{
-                                                    'Permissions and attribute backup' = Switch ($Bkjob.Options.NasBackupOptions.FileAttributesChangeTrackingMode) {
+                                                    'Permissions and attribute backup' = switch ($Bkjob.Options.NasBackupOptions.FileAttributesChangeTrackingMode) {
                                                         'TrackOnlyFolderAttributesChanges' { 'Folder-level only (recommended)' }
                                                         'TrackEverythingAttributesChanges' { 'File and folders (slower)' }
                                                         default { "--" }
@@ -280,7 +280,7 @@ function Get-AbrVbrFileShareBackupjobConf {
                                                 Write-PScriboMessage "Discovered $($Bkjob.Name) storage options."
                                                 $inObj = [ordered] @{
                                                     'Inline Data Deduplication' = $Bkjob.Options.BackupStorageOptions.EnableDeduplication
-                                                    'Compression Level' = Switch ($Bkjob.Options.BackupStorageOptions.CompressionLevel) {
+                                                    'Compression Level' = switch ($Bkjob.Options.BackupStorageOptions.CompressionLevel) {
                                                         0 { 'NONE' }
                                                         -1 { 'AUTO' }
                                                         4 { 'DEDUPE_friendly' }
@@ -289,7 +289,7 @@ function Get-AbrVbrFileShareBackupjobConf {
                                                         9 { 'EXTREME' }
                                                     }
                                                     'Enabled Backup File Encryption' = $Bkjob.Options.BackupStorageOptions.StorageEncryptionEnabled
-                                                    'Encryption Key' = Switch ($Bkjob.Options.BackupStorageOptions.StorageEncryptionEnabled) {
+                                                    'Encryption Key' = switch ($Bkjob.Options.BackupStorageOptions.StorageEncryptionEnabled) {
                                                         $false { 'None' }
                                                         default { (Get-VBREncryptionKey | Where-Object { $_.id -eq $Bkjob.Info.PwdKeyId }).Description }
                                                     }
@@ -528,7 +528,7 @@ function Get-AbrVbrFileShareBackupjobConf {
                                         $inObj = [ordered] @{
                                             'Retry Failed item' = $Bkjob.ScheduleOptions.RetryTimes
                                             'Wait before each retry' = "$($Bkjob.ScheduleOptions.RetryTimeout)/min"
-                                            'Backup Window' = Switch ($Bkjob.TypeToString) {
+                                            'Backup Window' = switch ($Bkjob.TypeToString) {
                                                 "Backup Copy" { $Bkjob.ScheduleOptions.OptionsContinuous.Enabled }
                                                 default { $Bkjob.ScheduleOptions.OptionsBackupWindow.IsEnabled }
                                             }

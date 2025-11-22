@@ -36,7 +36,7 @@ function Get-AbrVbrManagedServer {
                             $inObj = [ordered] @{
                                 'Name' = $ManagedServer.Name
                                 'Description' = $ManagedServer.Info.TypeDescription
-                                'Status' = Switch ($ManagedServer.IsUnavailable) {
+                                'Status' = switch ($ManagedServer.IsUnavailable) {
                                     'False' { 'Available' }
                                     'True' { 'Unavailable' }
                                     default { $ManagedServer.IsUnavailable }

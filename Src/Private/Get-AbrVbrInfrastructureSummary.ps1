@@ -41,14 +41,14 @@ function Get-AbrVbrInfrastructureSummary {
                 $WANAccels = (Get-VBRWANAccelerator).count
                 try {
                     $ServiceProviders = (Get-VBRCloudProvider).count
-                } Catch {
+                } catch {
                     Write-PScriboMessage -IsWarning "Infrastructure Service Providers Summary Section: $($_.Exception.Message)"
                     $ServiceProviders = 0
                 }
                 try {
                     $SureBackupAGs = (Get-VBRApplicationGroup).count
                     $SureBackupVLs = (Get-VBRVirtualLab).count
-                } Catch {
+                } catch {
                     Write-PScriboMessage -IsWarning "Infrastructure SureBackup Summary Section: $($_.Exception.Message)"
                     $SureBackupAGs = 0
                     $SureBackupVLs = 0
