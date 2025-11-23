@@ -27,7 +27,7 @@ function Get-AbrVbrEnterpriseManagerInfo {
 
     process {
         try {
-            if ($BackupServers = Get-VBRServer -Type Local) {
+            if ($BackupServers) {
                 Section -Style Heading3 'Enterprise Manager Information' {
                     Paragraph "The following table details information about Veeam Enterprise Manager configuration status"
                     BlankLine
