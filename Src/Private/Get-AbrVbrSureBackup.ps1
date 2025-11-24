@@ -82,7 +82,7 @@ function Get-AbrVbrSureBackup {
                                                             'Credentials' = $VMSetting.Credentials
                                                             'Role' = ($VMSetting.Role -join ", ")
                                                             'Test Script' = ($VMSetting.TestScript.PredefinedApplication -join ", ")
-                                                            'Startup Options' = SWitch ($VMSetting.StartupOptions) {
+                                                            'Startup Options' = switch ($VMSetting.StartupOptions) {
                                                                 "" { "--"; break }
                                                                 $Null { "--"; break }
                                                                 default { $VMSetting.StartupOptions | ForEach-Object { "Allocated Memory: $($_.AllocatedMemory)`r`nHeartbeat Check: $($_.VMHeartBeatCheckEnabled)`r`nMaximum Boot Time: $($_.MaximumBootTime)`r`nApp Init Timeout: $($_.ApplicationInitializationTimeout)`r`nPing Check: $($_.VMPingCheckEnabled)" } }

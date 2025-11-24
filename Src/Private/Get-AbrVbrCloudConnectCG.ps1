@@ -49,7 +49,7 @@ function Get-AbrVbrCloudConnectCG {
 
                                     if ($InfoLevel.CloudConnect.CloudGateway -ge 2) {
                                         $CloudGPObjects = Get-VBRCloudGatewayPool
-                                        $CGPool = Switch ([string]::IsNullOrEmpty(($CloudGPObjects | Where-Object { $CloudObject.Name -in $_.CloudGateways.Name }).Name)) {
+                                        $CGPool = switch ([string]::IsNullOrEmpty(($CloudGPObjects | Where-Object { $CloudObject.Name -in $_.CloudGateways.Name }).Name)) {
                                             $true { '--' }
                                             $false { ($CloudGPObjects | Where-Object { $CloudObject.Name -in $_.CloudGateways.Name }).Name }
                                             default { '--' }

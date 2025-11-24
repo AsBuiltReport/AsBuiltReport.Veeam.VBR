@@ -38,11 +38,11 @@ function Get-AbrVbrScaleOutRepository {
                             $inObj = [ordered] @{
                                 'Name' = $BackupRepo.Name
                                 'Performance Tier' = $BackupRepo.Extent.Name
-                                'Capacity Tier' = Switch ($BackupRepo.CapacityExtents.Repository.Name) {
+                                'Capacity Tier' = switch ($BackupRepo.CapacityExtents.Repository.Name) {
                                     $null { 'Not configured' }
                                     default { $BackupRepo.CapacityExtents.Repository.Name }
                                 }
-                                'Archive Tier' = Switch ($BackupRepo.ArchiveExtent.Repository.Name) {
+                                'Archive Tier' = switch ($BackupRepo.ArchiveExtent.Repository.Name) {
                                     $null { 'Not configured' }
                                     default { $BackupRepo.ArchiveExtent.Repository.Name }
                                 }
@@ -88,7 +88,7 @@ function Get-AbrVbrScaleOutRepository {
                                                     'Perform Full When Extent Offline' = $BackupRepo.PerformFullWhenExtentOffline
                                                     'Use Capacity Tier' = $BackupRepo.EnableCapacityTier
                                                     'Encrypt data uploaded to Object Storage' = $BackupRepo.EncryptionEnabled
-                                                    'Encryption Key' = Switch ($BackupRepo.EncryptionKey.Description) {
+                                                    'Encryption Key' = switch ($BackupRepo.EncryptionKey.Description) {
                                                         $null { 'Disabled' }
                                                         default { $BackupRepo.EncryptionKey.Description }
                                                     }
@@ -182,7 +182,7 @@ function Get-AbrVbrScaleOutRepository {
                                                         'Type' = ($CapacityExtent.Repository).Type
                                                         'Amazon S3 Folder' = ($CapacityExtent.Repository).AmazonS3Folder
                                                         'Use Gateway Server' = ($CapacityExtent.Repository).UseGatewayServer
-                                                        'Gateway Server' = Switch ((($CapacityExtent.Repository).GatewayServer.Name).length) {
+                                                        'Gateway Server' = switch ((($CapacityExtent.Repository).GatewayServer.Name).length) {
                                                             0 { "Auto" }
                                                             default { ($CapacityExtent.Repository).GatewayServer.Name }
                                                         }
@@ -275,7 +275,7 @@ function Get-AbrVbrScaleOutRepository {
                                                         'Name' = ($ArchiveExtent.Repository).Name
                                                         'Type' = ($ArchiveExtent.Repository).ArchiveType
                                                         'Use Gateway Server' = ($ArchiveExtent.Repository).UseGatewayServer
-                                                        'Gateway Server' = Switch ((($ArchiveExtent.Repository).GatewayServer.Name).length) {
+                                                        'Gateway Server' = switch ((($ArchiveExtent.Repository).GatewayServer.Name).length) {
                                                             0 { "Auto" }
                                                             default { ($ArchiveExtent.Repository).GatewayServer.Name }
                                                         }

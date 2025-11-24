@@ -51,10 +51,10 @@ function Get-AbrVbrFileSharesInfo {
                                     "SMB" { "SMB Share" }
                                     "NFS" { "NFS Share" }
                                     "SANNFS" { "NAS Filler" }
-                                    Default { $ShareObj.Type }
+                                    default { $ShareObj.Type }
                                 }
                                 'Backup IO Control' = $ShareObj.BackupIOControlLevel
-                                'Credentials' = Switch (($AccessCredentials).count) {
+                                'Credentials' = switch (($AccessCredentials).count) {
                                     0 { "None" }
                                     default { $AccessCredentials }
                                 }

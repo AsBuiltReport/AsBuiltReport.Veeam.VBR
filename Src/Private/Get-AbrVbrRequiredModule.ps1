@@ -5,7 +5,7 @@ function Get-AbrVbrRequiredModule {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.11
+        Version:        0.8.24
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -87,10 +87,6 @@ function Get-AbrVbrRequiredModule {
         if ($ModuleVersion -lt $Version) {
             throw "$Name $Version or higher is required to run the Veeam VBR As Built Report. Update the Veeam Backup & Replication console that provide the required modules."
         }
-
-        # if ($ModuleVersion -ge 13) {
-        #     throw "Veeam VBR As Built Report is not compatible with Veeam Backup & Replication 13 or higher."
-        # }
     }
     end {}
 }

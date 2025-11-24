@@ -41,7 +41,7 @@ function Get-AbrVbrNDMPInfo {
                                         'Port' = $NDMPObj.Port
                                         'Gateway' = switch ($NDMPObj.SelectedGatewayId) {
                                             "00000000-0000-0000-0000-000000000000" { "Automatic" }
-                                            Default { (Get-VBRServer | Where-Object { $_.Id -eq $NDMPObj.SelectedGatewayId }).Name }
+                                            default { (Get-VBRServer | Where-Object { $_.Id -eq $NDMPObj.SelectedGatewayId }).Name }
                                         }
                                     }
 

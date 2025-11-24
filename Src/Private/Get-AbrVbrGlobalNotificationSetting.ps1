@@ -32,7 +32,7 @@ function Get-AbrVbrGlobalNotificationSetting {
                     Section -ExcludeFromTOC -Style NOTOCHeading5 'Backup Storage' {
                         $OutObj = @()
                         $inObj = [ordered] @{
-                            'Warn me when free disk space is below' = Switch ($GlobalNotifications.StorageSpaceThresholdEnabled) {
+                            'Warn me when free disk space is below' = switch ($GlobalNotifications.StorageSpaceThresholdEnabled) {
                                 $true { "$($GlobalNotifications.StorageSpaceThreshold)%" }
                                 $false { 'Disabled' }
                                 default { 'Unknown' }
@@ -66,12 +66,12 @@ function Get-AbrVbrGlobalNotificationSetting {
                     Section -ExcludeFromTOC -Style NOTOCHeading5 'Production Datastore' {
                         $OutObj = @()
                         $inObj = [ordered] @{
-                            'Warn me when free disk space is below' = Switch ($GlobalNotifications.DatastoreSpaceThresholdEnabled) {
+                            'Warn me when free disk space is below' = switch ($GlobalNotifications.DatastoreSpaceThresholdEnabled) {
                                 $true { "$($GlobalNotifications.DatastoreSpaceThreshold)%" }
                                 $false { 'Disabled' }
                                 default { 'Unknown' }
                             }
-                            'Skip VM processig when free disk space is below' = Switch ($GlobalNotifications.SkipVMSpaceThresholdEnabled) {
+                            'Skip VM processig when free disk space is below' = switch ($GlobalNotifications.SkipVMSpaceThresholdEnabled) {
                                 $true { "$($GlobalNotifications.SkipVMSpaceThreshold)%" }
                                 $false { 'Disabled' }
                                 default { 'Unknown' }

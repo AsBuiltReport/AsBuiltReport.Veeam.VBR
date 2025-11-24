@@ -6,7 +6,7 @@ function Get-AbrVbrWANAccelerator {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.20
+        Version:        0.8.24
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -52,15 +52,20 @@ function Get-AbrVbrWANAccelerator {
                                     'Name' = $WANAccel.Name
                                     'Host Name' = $WANAccel.GetHost().Name
                                     'Is Public' = $WANAccel.GetType().IsPublic
-                                    'Management Port' = "$($WANAccel.GetWaMgmtPort())\TCP"
+                                    'Management Port' = & {
+                                        switch ($VbrVersion) {
+                                            { $_ -ge 13 } { try { "$($WANAccel.GetMgmtConnSpec().Endpoints.Port)\TCP" } catch { Out-Null } }
+                                            default { try { "$($WANAccel.GetWaMgmtPort())\TCP" } catch { Out-Null } }
+                                        }
+                                    }
                                     'Service IP Address' = $ServiceIPAddress
-                                    'Traffic Port' = "$($WANAccel.GetWaTrafficPort())\TCP"
-                                    'Max Tasks Count' = $WANAccel.FindWaHostComp().Options.MaxTasksCount
-                                    'Download Stream Count' = $WANAccel.FindWaHostComp().Options.DownloadStreamCount
-                                    'Enable Performance Mode' = $WANAccel.FindWaHostComp().Options.EnablePerformanceMode
+                                    'Traffic Port' = & { try { "$($WANAccel.GetWaTrafficPort())\TCP" } catch { Out-Null } }
+                                    'Max Tasks Count' = & { try { $WANAccel.FindWaHostComp().Options.MaxTasksCount } catch { Out-Null } }
+                                    'Download Stream Count' = & { try { $WANAccel.FindWaHostComp().Options.DownloadStreamCount } catch { Out-Null } }
+                                    'Enable Performance Mode' = & { try { $WANAccel.FindWaHostComp().Options.EnablePerformanceMode } catch { Out-Null } }
                                     'Configured Cache' = $IsWaHasAnyCaches
-                                    'Cache Path' = $WANAccel.FindWaHostComp().Options.CachePath
-                                    'Max Cache Size' = "$($WANAccel.FindWaHostComp().Options.MaxCacheSize) $($WANAccel.FindWaHostComp().Options.SizeUnit)"
+                                    'Cache Path' = & { try { $WANAccel.FindWaHostComp().Options.CachePath } catch { Out-Null } }
+                                    'Max Cache Size' = & { try { "$($WANAccel.FindWaHostComp().Options.MaxCacheSize) $($WANAccel.FindWaHostComp().Options.SizeUnit)" } catch { Out-Null } }
                                 }
                                 $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 

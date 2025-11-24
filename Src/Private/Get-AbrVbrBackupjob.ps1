@@ -35,12 +35,12 @@ function Get-AbrVbrBackupjob {
                         $inObj = [ordered] @{
                             'Name' = $Bkjob.Name
                             'Type' = $Bkjob.TypeToString
-                            'Status' = Switch ($Bkjob.IsScheduleEnabled) {
+                            'Status' = switch ($Bkjob.IsScheduleEnabled) {
                                 'False' { 'Disabled' }
                                 'True' { 'Enabled' }
                             }
                             'Latest Result' = $Bkjob.info.LatestStatus
-                            'Scheduled?' = Switch ($Bkjob.IsScheduleEnabled) {
+                            'Scheduled?' = switch ($Bkjob.IsScheduleEnabled) {
                                 'True' { 'Yes' }
                                 'False' { 'No' }
                                 default { 'Unknown' }

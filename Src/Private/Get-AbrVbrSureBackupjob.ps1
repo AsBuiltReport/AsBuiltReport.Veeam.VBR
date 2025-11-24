@@ -37,16 +37,16 @@ function Get-AbrVbrSureBackupjob {
                             Write-PScriboMessage "Discovered $($SBkjob.Name) location."
                             $inObj = [ordered] @{
                                 'Name' = $SBkjob.Name
-                                'Status' = Switch ($SBkjob.IsEnabled) {
+                                'Status' = switch ($SBkjob.IsEnabled) {
                                     'False' { 'Disabled' }
                                     'True' { 'Enabled' }
                                 }
-                                'Schedule Enabled' = Switch ($SBkjob.ScheduleEnabled) {
+                                'Schedule Enabled' = switch ($SBkjob.ScheduleEnabled) {
                                     'False' { 'Not Scheduled' }
                                     'True' { 'Scheduled' }
                                 }
                                 'Latest Result' = $SBkjob.LastResult
-                                'Virtual Lab' = Switch ($SBkjob.VirtualLab.Name) {
+                                'Virtual Lab' = switch ($SBkjob.VirtualLab.Name) {
                                     $true { "Not applicable" }
                                     $false { $SBkjob.VirtualLab.Name }
                                     default { "--" }

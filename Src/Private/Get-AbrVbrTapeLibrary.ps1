@@ -45,7 +45,7 @@ function Get-AbrVbrTapeLibrary {
                                         'Number of Slots' = $TapeObj.Slots
                                         'Connected to' = $TapeServer
                                         'Enabled' = $TapeObj.Enabled
-                                        'Status' = Switch ($TapeObj.State) {
+                                        'Status' = switch ($TapeObj.State) {
                                             'Online' { 'Available' }
                                             'Offline' { 'Unavailable' }
                                             default { $TapeObj.State }
@@ -86,7 +86,7 @@ function Get-AbrVbrTapeLibrary {
                                                             'Medium' = switch ([string]::IsNullOrEmpty($DriveObj.Medium)) {
                                                                 $true { '--' }
                                                                 $false { $DriveObj.Medium }
-                                                                Default { 'Unknown' }
+                                                                default { 'Unknown' }
                                                             }
                                                             'Enabled' = $DriveObj.Enabled
                                                             'Is Locked' = $DriveObj.IsLocked
@@ -132,7 +132,7 @@ function Get-AbrVbrTapeLibrary {
                                                             Write-PScriboMessage "Discovered $($MediumObj.Name) Type Medium."
                                                             $inObj = [ordered] @{
                                                                 'Name' = $MediumObj.Name
-                                                                'Expiration Date' = Switch (($MediumObj.ExpirationDate).count) {
+                                                                'Expiration Date' = switch (($MediumObj.ExpirationDate).count) {
                                                                     0 { "--" }
                                                                     default { $MediumObj.ExpirationDate.ToShortDateString() }
                                                                 }

@@ -5,7 +5,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.23
+        Version:        0.8.24
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -28,8 +28,6 @@ function Invoke-AsBuiltReport.Veeam.VBR {
         [PSCredential] $Credential
     )
 
-    #Requires -Version 5.1
-    #Requires -PSEdition Desktop
     #Requires -RunAsAdministrator
 
     if ($psISE) {
@@ -39,26 +37,26 @@ function Invoke-AsBuiltReport.Veeam.VBR {
 
     Get-AbrVbrRequiredModule -Name 'Veeam.Backup.PowerShell' -Version '1.0'
 
-    Write-Host "- Please refer to the AsBuiltReport.Veeam.VBR github website for more detailed information about this project."
-    Write-Host "- Do not forget to update your report configuration file after each new version release."
-    Write-Host "- Documentation: https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR"
-    Write-Host "- Issues or bug reporting: https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues"
-    Write-Host "- This project is community maintained and has no sponsorship from Veeam, its employees or any of its affiliates."
+    # Check the version of the dependency modules
+    Write-ReportModuleInfo -ModuleName 'Veeam.VBR'
+    Write-Host "  - To sponsor this project, please visit: " -NoNewline
+    Write-Host "https://ko-fi.com/F1F8DEV80" -ForegroundColor Cyan
+    Write-Host "  - Getting dependency information:"
 
 
     # Check the version of the dependency modules
-    $ModuleArray = @('AsBuiltReport.Veeam.VBR', 'Veeam.Diagrammer', 'Diagrammer.Core')
+    $ModuleArray = @('Veeam.Diagrammer', 'Diagrammer.Core')
 
     foreach ($Module in $ModuleArray) {
         try {
             $InstalledVersion = Get-Module -ListAvailable -Name $Module -ErrorAction SilentlyContinue | Sort-Object -Property Version -Descending | Select-Object -First 1 -ExpandProperty Version
 
             if ($InstalledVersion) {
-                Write-Host "- $Module module v$($InstalledVersion.ToString()) is currently installed."
+                Write-Host "    - $Module module v$($InstalledVersion.ToString()) is currently installed."
                 $LatestVersion = Find-Module -Name $Module -Repository PSGallery -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Version
                 if ($InstalledVersion -lt $LatestVersion) {
-                    Write-Host "  - $Module module v$($LatestVersion.ToString()) is available." -ForegroundColor Red
-                    Write-Host "  - Run 'Update-Module -Name $Module -Force' to install the latest version." -ForegroundColor Red
+                    Write-Host "      - $Module module v$($LatestVersion.ToString()) is available." -ForegroundColor Red
+                    Write-Host "      - Run 'Update-Module -Name $Module -Force' to install the latest version." -ForegroundColor Red
                 }
             }
         } catch {

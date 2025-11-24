@@ -46,7 +46,7 @@ function Get-AbrVbrConfigurationBackupSetting {
                             'Encryption Key' = $BackupSettings.EncryptionOptions.Key.Description
                             'Additional Address' = $BackupSettings.NotificationOptions.AdditionalAddress
                             'Email Subject' = $BackupSettings.NotificationOptions.NotificationSubject
-                            'Notify On' = Switch ($BackupSettings.NotificationOptions.EnableAdditionalNotification) {
+                            'Notify On' = switch ($BackupSettings.NotificationOptions.EnableAdditionalNotification) {
                                 "" { "--"; break }
                                 $Null { "--"; break }
                                 default { "Notify On Success: $($BackupSettings.NotificationOptions.NotifyOnSuccess)`r`nNotify On Warning: $($BackupSettings.NotificationOptions.NotifyOnWarning)`r`nNotify On Error: $($BackupSettings.NotificationOptions.NotifyOnError)`r`nNotify On Last Retry Only: $($BackupSettings.NotificationOptions.NotifyOnLastRetryOnly)" }

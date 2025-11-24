@@ -5,7 +5,7 @@ function Get-AbrVbrServerConnection {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.22
+        Version:        0.8.24
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -21,6 +21,14 @@ function Get-AbrVbrServerConnection {
 
     begin {
         Write-PScriboMessage "Establishing initial connection to Backup Server: $($System)."
+        switch ($VbrVersion) {
+            { $_ -ge 13 } {
+                $Port = 443
+            }
+            default {
+                $Port = $Options.BackupServerPort
+            }
+        }
     }
 
     process {
@@ -33,29 +41,37 @@ function Get-AbrVbrServerConnection {
             Write-PScriboMessage "No existing veeam server connection found"
             try {
                 Write-PScriboMessage "Connecting to $($System) with $($Credential.USERNAME) credentials"
-                Connect-VBRServer -Server $System -Credential $Credential -Port $Options.BackupServerPort
+                if ($VbrVersion -ge 13) {
+                    Connect-VBRServer -Server $System -Credential $Credential -Port $Port -ForceAcceptTlsCertificate
+                } else {
+                    Connect-VBRServer -Server $System -Credential $Credential -Port $Port
+                }
             } catch {
                 Write-PScriboMessage -IsWarning $_.Exception.Message
-                Throw "Failed to connect to Veeam Backup Server Host $($System):$($Options.BackupServerPort) with username $($Credential.USERNAME)"
+                throw "Failed to connect to Veeam Backup Server Host $($System):$($Port) with username $($Credential.USERNAME)"
             }
         } else {
             Write-PScriboMessage "Actual veeam server connection not equal to $($System). Disconecting connection."
             Disconnect-VBRServer
             try {
                 Write-PScriboMessage "Trying to open a new connection to $($System)"
-                Connect-VBRServer -Server $System -Credential $Credential -Port $Options.BackupServerPort
+                if ($VbrVersion -ge 13) {
+                    Connect-VBRServer -Server $System -Credential $Credential -Port $Port -ForceAcceptTlsCertificate
+                } else {
+                    Connect-VBRServer -Server $System -Credential $Credential -Port $Port
+                }
             } catch {
                 Write-PScriboMessage -IsWarning $_.Exception.Message
-                Throw "Failed to connect to Veeam Backup Server Host $($System):$($Options.BackupServerPort) with username $($Credential.USERNAME)"
+                throw "Failed to connect to Veeam Backup Server Host $($System):$($Port) with username $($Credential.USERNAME)"
             }
         }
         Write-PScriboMessage "Validating connection to $($System)"
         $NewConnection = (Get-VBRServerSession).Server
         if ($null -eq $NewConnection) {
             Write-PScriboMessage -IsWarning $_.Exception.Message
-            Throw "Failed to connect to Veeam Backup Server Host $($System):$($Options.BackupServerPort) with username $($Credential.USERNAME)"
+            throw "Failed to connect to Veeam Backup Server Host $($System):$($Port) with username $($Credential.USERNAME)"
         } elseif ($NewConnection) {
-            Write-PScriboMessage "Successfully connected to $($System):$($Options.BackupServerPort) Backup Server."
+            Write-PScriboMessage "Successfully connected to $($System):$($Port) Backup Server."
         }
     }
     end {}

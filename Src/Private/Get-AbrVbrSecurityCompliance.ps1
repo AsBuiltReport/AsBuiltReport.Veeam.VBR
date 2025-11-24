@@ -6,7 +6,7 @@ function Get-AbrVbrSecurityCompliance {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.13
+        Version:        0.8.24
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -31,11 +31,19 @@ function Get-AbrVbrSecurityCompliance {
             try {
                 try {
                     # Force new scan
-                    Start-VBRSecurityComplianceAnalyzer -ErrorAction SilentlyContinue -WarningAction SilentlyContinue -InformationAction SilentlyContinue
+                    $Null = Start-VBRSecurityComplianceAnalyzer -ErrorAction SilentlyContinue -WarningAction SilentlyContinue -InformationAction SilentlyContinue
                     Start-Sleep -Seconds 15
                     # Capture scanner results
-                    $SecurityCompliances = [Veeam.Backup.DBManager.CDBManager]::Instance.BestPractices.GetAll()
-                } Catch {
+                    $SecurityCompliances = switch ($VbrVersion) {
+                        { $_ -ge 13 } {
+                            Get-VBRSecurityComplianceAnalyzerResults -ErrorAction SilentlyContinue -WarningAction SilentlyContinue -InformationAction SilentlyContinue
+                        }
+                        default {
+                            [Veeam.Backup.DBManager.CDBManager]::Instance.BestPractices.GetAll()
+                        }
+
+                    }
+                } catch {
                     Write-PScriboMessage -IsWarning "Security & Compliance summary command: $($_.Exception.Message)"
                 }
                 $RuleTypes = @{

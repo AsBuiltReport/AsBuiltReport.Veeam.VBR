@@ -175,7 +175,7 @@ function Get-AbrVbrBackupCopyjobConf {
                                         }
                                         $inObj = [ordered] @{
                                             'Backup Repository' = $Bkjob.Target
-                                            'Retention Type' = SWitch ($Bkjob.RetentionType) {
+                                            'Retention Type' = switch ($Bkjob.RetentionType) {
                                                 'RestoreDays' { 'Restore Days' }
                                                 'RestorePoints' { 'Restore Points' }
                                                 default { 'Unknown' }
@@ -183,17 +183,17 @@ function Get-AbrVbrBackupCopyjobConf {
                                             $RetainString = $Retains
                                         }
                                         if ($Bkjob.GFSOptions) {
-                                            if (-Not $Bkjob.GFSOptions.WeeklyGFSEnabled) {
+                                            if (-not $Bkjob.GFSOptions.WeeklyGFSEnabled) {
                                                 $inObj.add('Keep Weekly full backup', ('Disabled'))
                                             } else {
                                                 $inObj.add('Keep Weekly full backup for', ("$($Bkjob.GFSOptions.WeeklyOptions.RetentionPeriod) weeks,`r`nCreate weekly full on this day: $($Bkjob.GFSOptions.WeeklyOptions.SelectedDay)"))
                                             }
-                                            if (-Not $Bkjob.GFSOptions.MonthlyGFSEnabled) {
+                                            if (-not $Bkjob.GFSOptions.MonthlyGFSEnabled) {
                                                 $inObj.add('Keep Monthly full backup', ('Disabled'))
                                             } else {
                                                 $inObj.add('Keep Monthly full backup for', ("$($Bkjob.GFSOptions.MonthlyOptions.RetentionPeriod) months,`r`nUse weekly full backup from the following week of the month: $($Bkjob.GFSOptions.MonthlyOptions.SelectedWeek)"))
                                             }
-                                            if (-Not $Bkjob.GFSOptions.YearlyGFSEnabled) {
+                                            if (-not $Bkjob.GFSOptions.YearlyGFSEnabled) {
                                                 $inObj.add('Keep Yearly full backup', ('Disabled'))
                                             } else {
                                                 $inObj.add('Keep Yearly full backup for', ("$($Bkjob.GFSOptions.YearlyOptions.RetentionPeriod) years,`r`nUse monthly full backup from the following month: $($Bkjob.GFSOptions.YearlyOptions.SelectedMonth)"))
@@ -341,7 +341,7 @@ function Get-AbrVbrBackupCopyjobConf {
                                                     $inObj = [ordered] @{
                                                         'Send Snmp Notification' = $Bkjob.NotificationOptions.EnableSnmpNotification
                                                         'Send Email Notification' = $Bkjob.NotificationOptions.EnableAdditionalNotification
-                                                        'Email Notification Additional Addresses' = Switch ($Bkjob.NotificationOptions.AdditionalAddress) {
+                                                        'Email Notification Additional Addresses' = switch ($Bkjob.NotificationOptions.AdditionalAddress) {
                                                             $Null { '--' }
                                                             default { $Bkjob.NotificationOptions.AdditionalAddress }
                                                         }
@@ -351,7 +351,7 @@ function Get-AbrVbrBackupCopyjobConf {
                                                         'Notify On Success' = $Bkjob.NotificationOptions.NotifyOnSuccess
                                                         'Notify On Warning' = $Bkjob.NotificationOptions.NotifyOnWarning
                                                         'Notify On Error' = $Bkjob.NotificationOptions.NotifyOnError
-                                                        'Send notification' = Switch ($Bkjob.NotificationOptions.EnableDailyNotification) {
+                                                        'Send notification' = switch ($Bkjob.NotificationOptions.EnableDailyNotification) {
                                                             'False' { 'Immediately after each copied backup' }
                                                             'True' { 'Daily as a summary' }
                                                             default { 'Unknown' }
@@ -421,7 +421,7 @@ function Get-AbrVbrBackupCopyjobConf {
                                         try {
                                             Write-PScriboMessage "Discovered $($Bkjob.Name) data transfer."
                                             $inObj = [ordered] @{
-                                                'Use Wan accelerator' = Switch ($Bkjob.DataTransferMode) {
+                                                'Use Wan accelerator' = switch ($Bkjob.DataTransferMode) {
                                                     'ThroughWanAccelerators' { 'Yes' }
                                                     'Direct' { 'No' }
                                                     default { 'Unkwnown' }
