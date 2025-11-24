@@ -13,7 +13,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add dependency version check
 - Add sponsor information to the module header
-- Add CompatiblePSEditions to module manifest
 - Add initial support for Veeam Backup & Replication v13 on Windows systems
 - Add timeout handling for vSphere inventory queries
 
