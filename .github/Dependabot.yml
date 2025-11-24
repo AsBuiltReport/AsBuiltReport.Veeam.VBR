@@ -16,21 +16,3 @@ updates:
       prefix: "ci"
       include: "scope"
     open-pull-requests-limit: 5
-
-  # Monitor PowerShell modules (via manifest)
-  - package-ecosystem: "nuget"
-    directory: "/"
-    schedule:
-      interval: "weekly"
-      day: "monday"
-    labels:
-      - "dependencies"
-      - "powershell"
-    commit-message:
-      prefix: "deps"
-      include: "scope"
-    open-pull-requests-limit: 5
-    ignore:
-      # PScribo updates should be reviewed manually
-      - dependency-name: "PScribo"
-        update-types: ["version-update:semver-major"]

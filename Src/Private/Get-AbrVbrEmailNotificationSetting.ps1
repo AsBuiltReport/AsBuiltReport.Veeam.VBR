@@ -41,7 +41,7 @@ function Get-AbrVbrEmailNotificationSetting {
                             'Credentials' = $EmailSetting.Credentials.Name
                             'Daily Reports Time' = $EmailSetting.DailyReportsTime.ToShortTimeString()
                             'Enabled' = $EmailSetting.Enabled
-                            'Notify On' = Switch ($EmailSetting.NotifyOnSuccess) {
+                            'Notify On' = switch ($EmailSetting.NotifyOnSuccess) {
                                 "" { "--"; break }
                                 $Null { "--"; break }
                                 default { "Notify On Success: $($EmailSetting.NotifyOnSuccess)`r`nNotify On Warning: $($EmailSetting.NotifyOnWarning)`r`nNotify On Failure: $($EmailSetting.NotifyOnFailure)`r`nNotify On Last Retry Only: $($EmailSetting.NotifyOnLastRetryOnly)" }

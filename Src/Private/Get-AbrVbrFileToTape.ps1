@@ -42,7 +42,7 @@ function Get-AbrVbrFileToTape {
                                         $inObj = [ordered] @{
                                             'Name' = $TBkjob.Name
                                             'Type' = $TBkjob.Type
-                                            'Next Run' = Switch ($TBkjob.Enabled) {
+                                            'Next Run' = switch ($TBkjob.Enabled) {
                                                 'False' { 'Disabled' }
                                                 default { $TBkjob.NextRun }
                                             }
@@ -104,7 +104,7 @@ function Get-AbrVbrFileToTape {
                                                     try {
                                                         Write-PScriboMessage "Discovered $($NDMP.Name) NDMP to process."
                                                         $inObj2 = [ordered] @{
-                                                            'Name' = Switch ((Get-VBRNDMPServer -Id $NDMP.ServerId).Name) {
+                                                            'Name' = switch ((Get-VBRNDMPServer -Id $NDMP.ServerId).Name) {
                                                                 $Null { 'NDMP Object' }
                                                                 default { (Get-VBRNDMPServer -Id $NDMP.ServerId).Name }
                                                             }
@@ -155,7 +155,7 @@ function Get-AbrVbrFileToTape {
                                                         if ($TBkjob.FullBackupPolicy.Type -eq 'Daily') {
                                                             $inObj.add('Daily at this Time', ("$($TBkjob.FullBackupPolicy.DailyOptions.Period) - $($TBkjob.FullBackupPolicy.DailyOptions.DayOfWeek -join ", ")"))
                                                         } elseif ($TBkjob.FullBackupPolicy.Type -eq 'Monthly') {
-                                                            $Months = Switch (($TBkjob.FullBackupPolicy.MonthlyOptions.Months).count) {
+                                                            $Months = switch (($TBkjob.FullBackupPolicy.MonthlyOptions.Months).count) {
                                                                 12 { 'Every Month' }
                                                                 default { $TBkjob.FullBackupPolicy.MonthlyOptions.Months -join ", " }
                                                             }
@@ -206,7 +206,7 @@ function Get-AbrVbrFileToTape {
                                                         if ($TBkjob.IncrementalBackupPolicy.Type -eq 'Daily') {
                                                             $inObj.add('Daily at this Time', ("$($TBkjob.IncrementalBackupPolicy.DailyOptions.Period) - $($TBkjob.IncrementalBackupPolicy.DailyOptions.DayOfWeek -join ", ")"))
                                                         } elseif ($TBkjob.IncrementalBackupPolicy.Type -eq 'Monthly') {
-                                                            $Months = Switch (($TBkjob.IncrementalBackupPolicy.MonthlyOptions.Months).count) {
+                                                            $Months = switch (($TBkjob.IncrementalBackupPolicy.MonthlyOptions.Months).count) {
                                                                 12 { 'Every Month' }
                                                                 default { $TBkjob.IncrementalBackupPolicy.MonthlyOptions.Months -join ", " }
                                                             }

@@ -83,8 +83,8 @@ function Get-AbrVbrReplFailoverPlan {
                                                 try {
                                                     if ($FailOverPlan.Platform -eq 'VMWare') {
                                                         Write-PScriboMessage "Discovering $($FailOverPlan.Name) VMware VM information."
-                                                        $VMInfo = Find-VBRViEntity -Name $FailOverPlansVM
-                                                    } Else {
+                                                        $VMInfo = Invoke-FindVBRViEntityWithTimeout -TimeoutSeconds 20 -Name $FailOverPlansVM
+                                                    } else {
                                                         Write-PScriboMessage "Discovering $($FailOverPlan.Name) Hyper-V VM information."
                                                         $VMInfo = Find-VBRHvEntity -Name $FailOverPlansVM
                                                     }
@@ -92,7 +92,7 @@ function Get-AbrVbrReplFailoverPlan {
                                                         Write-PScriboMessage "Discovered $($VMInfo.Name) VM information."
                                                     }
                                                     $inObj = [ordered] @{
-                                                        'VM Name' = Switch ($VMInfo.Name) {
+                                                        'VM Name' = switch ($VMInfo.Name) {
                                                             $Null { 'Unknown' }
                                                             default { $VMInfo.Name }
                                                         }

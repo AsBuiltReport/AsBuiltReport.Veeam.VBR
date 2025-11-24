@@ -42,7 +42,7 @@ function Get-AbrVbrSureBackupjobconf {
                                         $inObj = [ordered] @{
                                             'Name' = $SBkjob.Name
                                             'Last Run' = $SBkjob.LastRun
-                                            'Next Run' = Switch ($SBkjob.Enabled) {
+                                            'Next Run' = switch ($SBkjob.Enabled) {
                                                 'False' { 'Disabled' }
                                                 default { $SBkjob.NextRun }
                                             }
@@ -147,7 +147,7 @@ function Get-AbrVbrSureBackupjobconf {
                                                 Write-PScriboMessage "Discovered $($LinkedJob.Job.Name) linked job."
                                                 $inObj = [ordered] @{
                                                     'Name' = $LinkedJob.Job.Name
-                                                    'Roles' = Switch ([string]::IsNullOrEmpty($LinkedJob.Role)) {
+                                                    'Roles' = switch ([string]::IsNullOrEmpty($LinkedJob.Role)) {
                                                         $true { 'Not Defined' }
                                                         $false { $LinkedJob.Role -join "," }
                                                         default { 'Unknown' }
@@ -180,12 +180,12 @@ function Get-AbrVbrSureBackupjobconf {
                                                                 'VM respond to ping on any interface' = $LinkedJob.StartupOptions.VMPingCheckEnabled
                                                                 'Automatically disable Windows Firewall' = $LinkedJob.StartupOptions.WindowsFirewallDisabled
                                                                 'VM Role' = ($LinkedJob.ScriptOptions.PredefinedApplication -join ", ")
-                                                                'VM Test Script' = Switch ([string]::IsNullOrEmpty(($LinkedJob.ScriptOptions | ForEach-Object { if ($_.Name) { $_.Name } }))) {
+                                                                'VM Test Script' = switch ([string]::IsNullOrEmpty(($LinkedJob.ScriptOptions | ForEach-Object { if ($_.Name) { $_.Name } }))) {
                                                                     $true { '--' }
                                                                     $false { ($LinkedJob.ScriptOptions) | ForEach-Object { if ($_.Name) { "Name: $($_.Name), Path: $($_.Path), Argument: $($_.Argument)" } } }
                                                                     default { "Uknown" }
                                                                 }
-                                                                'Credentials' = Switch ($LinkedJob.Credentials.Description) {
+                                                                'Credentials' = switch ($LinkedJob.Credentials.Description) {
                                                                     $Null { 'None' }
                                                                     default { $LinkedJob.Credentials.Description }
                                                                 }
@@ -212,12 +212,12 @@ function Get-AbrVbrSureBackupjobconf {
                                                                     'VM Name' = $LinkedJobVM.Name
                                                                     'Excluded' = $LinkedJobVM.IsExcluded
                                                                     'VM Role' = ($LinkedJobVM.Role -join ", ")
-                                                                    'VM Test Script' = Switch ([string]::IsNullOrEmpty(($LinkedJobVM.TestScript | ForEach-Object { if ($_.Name) { $_.Name } }))) {
+                                                                    'VM Test Script' = switch ([string]::IsNullOrEmpty(($LinkedJobVM.TestScript | ForEach-Object { if ($_.Name) { $_.Name } }))) {
                                                                         $true { '--' }
                                                                         $false { ($LinkedJobVM.TestScript) | ForEach-Object { if ($_.Name) { "Name: $($_.Name),Path: $($_.Path),Argument: $($_.Argument)" } } }
                                                                         default { "Uknown" }
                                                                     }
-                                                                    'Credentials' = Switch ($LinkedJobVM.Credentials.Description) {
+                                                                    'Credentials' = switch ($LinkedJobVM.Credentials.Description) {
                                                                         $Null { 'None' }
                                                                         default { $LinkedJobVM.Credentials.Description }
                                                                     }
@@ -303,7 +303,7 @@ function Get-AbrVbrSureBackupjobconf {
                                                     $Schedule = "Monthly at this time: $($SBkjob.ScheduleOptions.MonthlyOptions.Period),`r`nDays Number of Month: $($SBkjob.ScheduleOptions.MonthlyOptions.DayNumberInMonth),`r`nDay Of Week: $($SBkjob.ScheduleOptions.MonthlyOptions.DayOfWeek),`r`nMonth: $($SBkjob.ScheduleOptions.MonthlyOptions.Months)"
                                                 }
                                             } elseif ($SBkjob.ScheduleOptions.Type -eq "AfterJob") {
-                                                $Schedule = Switch ($SBkjob.ScheduleOptions.AfterJobId) {
+                                                $Schedule = switch ($SBkjob.ScheduleOptions.AfterJobId) {
                                                     $Null { 'Unknown' }
                                                     default { " After Job: $((Get-VBRJob -WarningAction SilentlyContinue | Where-Object {$_.Id -eq $SBkjob.ScheduleOptions.AfterJobId}).Name)" }
                                                 }

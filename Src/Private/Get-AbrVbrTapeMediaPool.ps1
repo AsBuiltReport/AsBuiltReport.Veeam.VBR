@@ -118,12 +118,12 @@ function Get-AbrVbrTapeMediaPool {
                                                             'Total Space' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size  $Capacity
                                                             'Free Space' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size  $FreeSpace
                                                             'Add Tape from Free Media Pool Automatically when more Tape are Required' = $PoolObj.MoveFromFreePool
-                                                            'Description' = Switch ([string]::IsNullOrEmpty($TapeLibraryObj.Description)) {
+                                                            'Description' = switch ([string]::IsNullOrEmpty($TapeLibraryObj.Description)) {
                                                                 $true { "--" }
                                                                 $false { $TapeLibraryObj.Description }
                                                                 default { "Unknown" }
                                                             }
-                                                            'Library Mode' = Switch ($PoolObj.GlobalOptions.Mode) {
+                                                            'Library Mode' = switch ($PoolObj.GlobalOptions.Mode) {
                                                                 'CrossLibraryParalleing' { 'Active (Used Always)' }
                                                                 'Failover' { 'Passive (Used for Failover Only)' }
                                                             }
@@ -185,7 +185,7 @@ function Get-AbrVbrTapeMediaPool {
                                                                                     'Is Worm?' = $TapeMedium.IsWorm
                                                                                     'Total Space' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size  $TapeMedium.Capacity
                                                                                     'Free Space' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size  $TapeMedium.Free
-                                                                                    'Tape Library' = Switch ($TapeMedium.LibraryId) {
+                                                                                    'Tape Library' = switch ($TapeMedium.LibraryId) {
                                                                                         $Null { '--' }
                                                                                         '00000000-0000-0000-0000-000000000000' { 'Unknown' }
                                                                                         default { (Get-VBRTapeLibrary -Id $TapeMedium.LibraryId).Name }
@@ -211,7 +211,7 @@ function Get-AbrVbrTapeMediaPool {
                                                                     }
                                                                 }
                                                             }
-                                                        } Catch {
+                                                        } catch {
                                                             Write-PScriboMessage -IsWarning "Tape Medium Section: $($_.Exception.Message)"
                                                         }
                                                     }
@@ -232,11 +232,11 @@ function Get-AbrVbrTapeMediaPool {
                                                 $OutObj = @()
                                                 $inObj = [ordered] @{
                                                     'Name' = $PoolObj.MediaSetName
-                                                    'Automatically Create New Media Set' = Switch ($PoolObj.MediaSetCreationPolicy.Type) {
+                                                    'Automatically Create New Media Set' = switch ($PoolObj.MediaSetCreationPolicy.Type) {
                                                         'Never' { 'Do not Create, Always continue using current Media Set' }
                                                         'Always' { 'Create new Media Set for every backup session' }
                                                         'Daily' {
-                                                            Switch ($PoolObj.MediaSetCreationPolicy.DailyOptions.Type) {
+                                                            switch ($PoolObj.MediaSetCreationPolicy.DailyOptions.Type) {
                                                                 'Everyday' { "Daily at $($PoolObj.MediaSetCreationPolicy.DailyOptions.Period.ToString()) Everyday" }
                                                                 'SelectedDays' { "Daily at $($PoolObj.MediaSetCreationPolicy.DailyOptions.Period.ToString()), on these days [$($PoolObj.MediaSetCreationPolicy.DailyOptions.DayOfWeek)]" }
                                                                 default { 'Unknown' }
@@ -295,7 +295,7 @@ function Get-AbrVbrTapeMediaPool {
                                                 }
                                             }
                                         }
-                                    } Catch {
+                                    } catch {
                                         Write-PScriboMessage -IsWarning "Tape Media Set $($PoolObj.MediaSetName) Section - $($_.Exception.Message)"
                                     }
                                     #---------------------------------------------------------------------------------------------#
@@ -306,7 +306,7 @@ function Get-AbrVbrTapeMediaPool {
                                             Section -ExcludeFromTOC -Style NOTOCHeading5 'Retention' {
                                                 $OutObj = @()
                                                 $inObj = [ordered] @{
-                                                    'Data Retention Policy' = Switch ($PoolObj.RetentionPolicy.Type) {
+                                                    'Data Retention Policy' = switch ($PoolObj.RetentionPolicy.Type) {
                                                         'Never' { 'Never Overwrite Data' }
                                                         'Cyclic' { 'Do not Protect Data (Cyclically Overwrite Tape as Required)' }
                                                         'Period' { "Protect Data for $($PoolObj.RetentionPolicy.Value) $($PoolObj.RetentionPolicy.Period)" }
@@ -332,7 +332,7 @@ function Get-AbrVbrTapeMediaPool {
                                                 }
                                                 $OutObj | Sort-Object -Property 'Name' | Table @TableParams
                                             }
-                                        } Catch {
+                                        } catch {
                                             Write-PScriboMessage -IsWarning "Tape Media Set $($PoolObj.Name) Retention Section: $($_.Exception.Message)"
                                         }
                                     }
@@ -366,7 +366,7 @@ function Get-AbrVbrTapeMediaPool {
                                             }
                                             $OutObj | Sort-Object -Property 'Name' | Table @TableParams
                                         }
-                                    } Catch {
+                                    } catch {
                                         Write-PScriboMessage -IsWarning "Tape Media Set $($PoolObj.Name) Options Section: $($_.Exception.Message)"
                                     }
                                 }

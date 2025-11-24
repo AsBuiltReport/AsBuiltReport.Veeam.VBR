@@ -36,7 +36,7 @@ function Get-AbrVbrTapeServer {
                             $inObj = [ordered] @{
                                 'Name' = $TapeObj.Name
                                 'Description' = $TapeObj.Description
-                                'Status' = Switch ($TapeObj.IsAvailable) {
+                                'Status' = switch ($TapeObj.IsAvailable) {
                                     'True' { 'Available' }
                                     'False' { 'Unavailable' }
                                     default { $TapeObj.IsUnavailable }

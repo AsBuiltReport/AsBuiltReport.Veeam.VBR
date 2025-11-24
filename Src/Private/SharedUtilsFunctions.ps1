@@ -15,7 +15,7 @@ function ConvertTo-TextYN {
     #>
     [CmdletBinding()]
     [OutputType([String])]
-    Param (
+    param (
         [Parameter (
             Position = 0,
             Mandatory)]
@@ -58,7 +58,7 @@ function ConvertTo-EmptyToFiller {
     #>
     [CmdletBinding()]
     [OutputType([String])]
-    Param
+    param
     (
         [Parameter (
             Position = 0,
@@ -87,7 +87,7 @@ function ConvertTo-VIobject {
     #>
     [CmdletBinding()]
     [OutputType([String])]
-    Param
+    param
     (
         [Parameter (
             Position = 0,
@@ -115,7 +115,7 @@ function ConvertTo-FileSizeString {
     #>
     [CmdletBinding()]
     [OutputType([String])]
-    Param
+    param
     (
         [Parameter (
             Position = 0,
@@ -146,12 +146,12 @@ function ConvertTo-FileSizeString {
     if ($SourceSpaceUnit) {
         return "$([math]::Round(($Size * $("1" + $SourceSpaceUnit) / $("1" + $TargetSpaceUnit)), $RoundUnits)) $TargetSpaceUnit"
     } else {
-        $Unit = Switch ($Size) {
-            { $Size -gt 1PB } { 'PB' ; Break }
-            { $Size -gt 1TB } { 'TB' ; Break }
-            { $Size -gt 1GB } { 'GB' ; Break }
-            { $Size -gt 1Mb } { 'MB' ; Break }
-            Default { 'KB' }
+        $Unit = switch ($Size) {
+            { $Size -gt 1PB } { 'PB' ; break }
+            { $Size -gt 1TB } { 'TB' ; break }
+            { $Size -gt 1GB } { 'GB' ; break }
+            { $Size -gt 1Mb } { 'MB' ; break }
+            default { 'KB' }
         }
         return "$([math]::Round(($Size / $("1" + $Unit)), $RoundUnits)) $Unit"
     }
@@ -185,9 +185,9 @@ function Get-VeeamNetStat {
 
         $item = $_.Line.Split(  " ", [System.StringSplitOptions]::RemoveEmptyEntries )
 
-        if ( $item[1] -NotMatch '^\[::' ) {
+        if ( $item[1] -notmatch '^\[::' ) {
 
-            if ( ( $la -eq $item[1] -As [ipaddress] ).AddressFamily -Eq 'InterNetworkV6' ) {
+            if ( ( $la -eq $item[1] -as [ipaddress] ).AddressFamily -eq 'InterNetworkV6' ) {
                 $localAddress = $la.IPAddressToString
                 $localPort = $item[1].Split( '\]:' )[-1]
             } else {
@@ -195,7 +195,7 @@ function Get-VeeamNetStat {
                 $localPort = $item[1].Split( ':' )[-1]
             }
 
-            if ( ( $ra -eq $item[2] -As [ipaddress] ).AddressFamily -Eq 'InterNetworkV6' ) {
+            if ( ( $ra -eq $item[2] -as [ipaddress] ).AddressFamily -eq 'InterNetworkV6' ) {
                 $remoteAddress = $ra.IPAddressToString
                 $remotePort = $item[2].Split( '\]:' )[-1]
             } else {
@@ -211,7 +211,7 @@ function Get-VeeamNetStat {
                 LocalPort = $localPort
                 RemoteAddress = $remoteAddress
                 RemotePort = $remotePort
-                State = if ( $item[0] -Eq 'tcp' ) { $item[3] } else { $Null }
+                State = if ( $item[0] -eq 'tcp' ) { $item[3] } else { $Null }
             } | Select-Object -Property $properties
         }
     }
@@ -261,7 +261,7 @@ function Get-PieChart {
     #>
     [CmdletBinding()]
     [OutputType([System.String])]
-    Param
+    param
     (
         [Parameter (
             Position = 0,
@@ -380,7 +380,12 @@ function Get-PieChart {
 
     $ChartImage = Export-Chart -Chart $exampleChart -Path $TempPath.Path -Format "PNG" -PassThru
 
-    $Base64Image = [convert]::ToBase64String((Get-Content $ChartImage -Encoding byte))
+    $ChartImageByte = switch ($PSVersionTable.PSEdition) {
+        'Desktop' { Get-Content $ChartImage -Encoding byte }
+        'Core' { Get-Content $ChartImage -AsByteStream -Raw }
+    }
+
+    $Base64Image = [convert]::ToBase64String($ChartImageByte)
 
     Remove-Item -Path $ChartImage.FullName
 
@@ -401,7 +406,7 @@ function Get-ColumnChart {
     #>
     [CmdletBinding()]
     [OutputType([System.String])]
-    Param
+    param
     (
         [Parameter (
             Position = 0,
@@ -523,7 +528,12 @@ function Get-ColumnChart {
         Write-Output -InputObject $chartFileItem
     }
 
-    $Base64Image = [convert]::ToBase64String((Get-Content $ChartImage -Encoding byte))
+    $ChartImageByte = switch ($PSVersionTable.PSEdition) {
+        'Desktop' { Get-Content $ChartImage -Encoding byte }
+        'Core' { Get-Content $ChartImage -AsByteStream -Raw }
+    }
+
+    $Base64Image = [convert]::ToBase64String($ChartImageByte)
 
     Remove-Item -Path $ChartImage.FullName
 
@@ -543,7 +553,7 @@ function Get-WindowsTimePeriod {
     .LINK
     #>
     [CmdletBinding()]
-    Param
+    param
     (
         [Parameter (
             Position = 0,
@@ -614,7 +624,7 @@ function Get-TimeDuration {
     #>
 
     [CmdletBinding()]
-    Param
+    param
     (
         [Parameter (
             Position = 0,
@@ -644,7 +654,7 @@ function Get-TimeDurationSum {
     #>
 
     [CmdletBinding()]
-    Param
+    param
     (
         [Parameter (
             Position = 0,
@@ -677,7 +687,7 @@ function Get-AvgTimeDuration {
     #>
 
     [CmdletBinding()]
-    Param
+    param
     (
         [Parameter (
             Position = 0,
@@ -714,7 +724,7 @@ function Get-StrdDevDuration {
     #>
 
     [CmdletBinding()]
-    Param
+    param
     (
         [Parameter (
             Position = 0,
@@ -788,7 +798,7 @@ function Get-StandardDeviation {
         $avgCount = $value | Measure-Object -Average | Select-Object Average, Count
 
         #Iterate through each of the numbers and get part of the variance via some PowerShell math.
-        ForEach ($number in $value) {
+        foreach ($number in $value) {
 
             $newNumbers += [Math]::Pow(($number - $avgCount.Average), 2)
 
@@ -810,7 +820,7 @@ function Get-StandardDeviation {
         $formattedObjectArray.Add($fpO) | Out-Null
 
         #Return the array object with the selected objects defined, as well as formatting.
-        Return $formattedObjectArray
+        return $formattedObjectArray
 
     } else {
 
@@ -884,7 +894,7 @@ function New-VBRConnection {
     #>
 
     [CmdletBinding()]
-    Param(
+    param(
 
         [Parameter(Position = 0, mandatory = $true)]
         [string]$Endpoint,
@@ -1002,7 +1012,7 @@ function ConvertTo-HashToYN {
     #>
     [CmdletBinding()]
     [OutputType([System.Collections.Specialized.OrderedDictionary])]
-    Param (
+    param (
         [Parameter (Position = 0, Mandatory)]
         [AllowEmptyString()]
         [System.Collections.Specialized.OrderedDictionary] $TEXT
@@ -1020,3 +1030,163 @@ function ConvertTo-HashToYN {
         return $result
     } else { return $TEXT }
 } # end
+function Invoke-FindVBRViEntityWithTimeout {
+    <#
+        .SYNOPSIS
+        Specifies connection and filtering options for retrieving vSphere inventory objects.
+
+        .DESCRIPTION
+        Use these parameters to control which categories of vSphere inventory objects are returned and how long to wait for a server response. Only one (or a meaningful combination) of the scope switches should typically be used to narrow the query. If multiple conflicting switches are supplied the implementation should define precedence or raise an error.
+
+        .PARAMETER TimeoutSeconds
+        Maximum number of seconds to wait for the operation (such as connecting to the vCenter/ESXi host or fetching inventory) before timing out. Defaults to 30 seconds.
+
+        .PARAMETER Server
+        The target vCenter or ESXi server hostname or IP address against which the inventory query or connection is performed.
+
+        .PARAMETER Name
+        Optional name filter used to match inventory objects. Supports exact or pattern matching depending on implementation.
+
+        .PARAMETER HostsAndDatastoresOnly
+        When specified, limits the result set to host systems and datastores only.
+
+        .PARAMETER VMAndTemplatesOnly
+        When specified, returns only virtual machines and VM templates.
+
+        .PARAMETER DatastoresAndVMsOnly
+        When specified, limits results to datastores plus virtual machines (excluding other object types).
+
+        .PARAMETER HostsAndClustersOnly
+        When specified, returns only ESXi hosts and cluster objects.
+
+        .PARAMETER ResourcePoolsOnly
+        When specified, returns only resource pool objects.
+
+        .PARAMETER ServersOnly
+        When specified, returns only top-level server (vCenter / ESXi) objects, excluding subordinate inventory items.
+
+        .NOTES
+        Choose only the switch or combination that matches the desired inventory scope to avoid unnecessary data retrieval. TimeoutSeconds may need adjustment for large environments.
+
+        .EXAMPLE
+        # Retrieve only hosts and clusters from a specified vCenter within a 60 second timeout.
+        # (Example usage assumes these parameters belong to a function.)
+        Invoke-FindVBRViEntityWithTimeout -Server vcsa01.lab.local -TimeoutSeconds 60 -HostsAndClustersOnly
+
+        .EXAMPLE
+        # Fetch virtual machines matching a name pattern.
+        Invoke-FindVBRViEntityWithTimeout -Server vcsa01.lab.local -Name "Web*" -VMAndTemplatesOnly
+    #>
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    param(
+        [Parameter(ParameterSetName = 'HostsAndDatastoresOnly')]
+        [Parameter(ParameterSetName = 'VMAndTemplatesOnly')]
+        [Parameter(ParameterSetName = 'DatastoresAndVMsOnly')]
+        [Parameter(ParameterSetName = 'HostsAndClustersOnly')]
+        [Parameter(ParameterSetName = 'ResourcePoolsOnly')]
+        [Parameter(ParameterSetName = 'ServersOnly')]
+        [Parameter(HelpMessage = 'Maximum number of seconds to wait before timing out. Default is 30.', ParameterSetName = 'Default')]
+        [int]$TimeoutSeconds = 30,
+
+        [Parameter(ParameterSetName = 'HostsAndDatastoresOnly')]
+        [Parameter(ParameterSetName = 'VMAndTemplatesOnly')]
+        [Parameter(ParameterSetName = 'DatastoresAndVMsOnly')]
+        [Parameter(ParameterSetName = 'HostsAndClustersOnly')]
+        [Parameter(ParameterSetName = 'ResourcePoolsOnly')]
+        [Parameter(ParameterSetName = 'ServersOnly')]
+        [Parameter(HelpMessage = 'The target vCenter or ESXi server hostname or IP address.', ParameterSetName = 'Default')]
+        [string]$Server,
+
+        [Parameter(ParameterSetName = 'HostsAndDatastoresOnly')]
+        [Parameter(ParameterSetName = 'VMAndTemplatesOnly')]
+        [Parameter(ParameterSetName = 'DatastoresAndVMsOnly')]
+        [Parameter(ParameterSetName = 'HostsAndClustersOnly')]
+        [Parameter(ParameterSetName = 'ResourcePoolsOnly')]
+        [Parameter(ParameterSetName = 'ServersOnly')]
+        [Parameter(HelpMessage = 'Specifies an array of VMware object names. The cmdlet will return entities with these names.', ParameterSetName = 'Default')]
+        [string]$Name,
+
+        [Parameter(HelpMessage = 'Limits the result set to host systems and datastores only.', ParameterSetName = 'HostsAndDatastoresOnly')]
+        [switch]$HostsAndDatastoresOnly,
+
+        [Parameter(HelpMessage = 'Returns only virtual machines and VM templates.', ParameterSetName = 'VMAndTemplatesOnly')]
+        [switch]$VMAndTemplatesOnly,
+
+        [Parameter(HelpMessage = 'Limits results to datastores plus virtual machines.', ParameterSetName = 'DatastoresAndVMsOnly')]
+        [switch]$DatastoresAndVMsOnly,
+
+        [Parameter(HelpMessage = 'Returns only ESXi hosts and cluster objects.', ParameterSetName = 'HostsAndClustersOnly')]
+        [switch]$HostsAndClustersOnly,
+
+        [Parameter(HelpMessage = 'Returns only resource pool objects.', ParameterSetName = 'ResourcePoolsOnly')]
+        [switch]$ResourcePoolsOnly,
+
+        [Parameter(HelpMessage = 'Returns only top-level server objects (vCenter/ESXi).', ParameterSetName = 'ServersOnly')]
+        [switch]$ServersOnly
+    )
+
+    begin {
+    }
+
+    process {
+        # Prepare an isolated runspace
+        $runspace = [runspacefactory]::CreateRunspace()
+        $runspace.Open()
+
+        # Pass switch state into runspace
+        $runspace.SessionStateProxy.SetVariable('HostsAndDatastoresOnly', $HostsAndDatastoresOnly.IsPresent)
+        $runspace.SessionStateProxy.SetVariable('VMAndTemplatesOnly', $VMAndTemplatesOnly.IsPresent)
+        $runspace.SessionStateProxy.SetVariable('DatastoresAndVMsOnly', $DatastoresAndVMsOnly.IsPresent)
+        $runspace.SessionStateProxy.SetVariable('HostsAndClustersOnly', $HostsAndClustersOnly.IsPresent)
+        $runspace.SessionStateProxy.SetVariable('ResourcePoolsOnly', $ResourcePoolsOnly.IsPresent)
+        $runspace.SessionStateProxy.SetVariable('ServersOnly', $ServersOnly.IsPresent)
+        $runspace.SessionStateProxy.SetVariable('Server', $Server)
+        $runspace.SessionStateProxy.SetVariable('Name', $Name)
+
+        $ps = [powershell]::Create()
+        $ps.Runspace = $runspace
+
+        # Build the script to execute
+        $null = $ps.AddScript({
+                $CommandSet = @{}
+                if ($Server) {
+                    $CommandSet.Add('Server', $Server )
+                }
+
+                if ($Name) {
+                    $CommandSet.Add('Name', $Name )
+                }
+                if ($HostsAndDatastoresOnly) {
+                    Find-VBRViEntity @CommandSet -HostsAndDatastores
+                } elseif ($VMAndTemplatesOnly) {
+                    Find-VBRViEntity @CommandSet -VMsAndTemplates
+                } elseif ($DatastoresAndVMsOnly) {
+                    Find-VBRViEntity @CommandSet -DatastoresAndVMs
+                } elseif ($HostsAndClustersOnly) {
+                    Find-VBRViEntity @CommandSet -HostsAndClusters
+                } elseif ($ResourcePoolsOnly) {
+                    Find-VBRViEntity @CommandSet -ResourcePools
+                } elseif ($ServersOnly) {
+                    Find-VBRViEntity @CommandSet -Servers
+                } else {
+                    Find-VBRViEntity @CommandSet
+                }
+            })
+
+        # Start async invocation
+        $async = $ps.BeginInvoke()
+
+        # Wait for completion up to timeout
+        if (-not $async.AsyncWaitHandle.WaitOne($TimeoutSeconds * 1000)) {
+            try { $ps.Stop() } catch { Out-Null }
+            $runspace.Close()
+            Write-Verbose "Timeout after $TimeoutSeconds seconds waiting for Find-VBRViEntity."
+        }
+
+        # Collect results
+        $result = $ps.EndInvoke($async)
+        $runspace.Close()
+        return $result
+    }
+    end {}
+}

@@ -48,7 +48,7 @@ function Get-AbrVbrBackupToTape {
                                             'Name' = $TBkjob.Name
                                             'Type' = $TBkjob.Type
                                             'Total Backup Size' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $TotalBackupSize
-                                            'Next Run' = Switch ($TBkjob.Enabled) {
+                                            'Next Run' = switch ($TBkjob.Enabled) {
                                                 'False' { 'Disabled' }
                                                 default { $TBkjob.NextRun }
                                             }
@@ -195,7 +195,7 @@ function Get-AbrVbrBackupToTape {
                                                         'Tape Count' = (Get-VBRTapeMedium -MediaPool $BackupMediaPool.Name).count
                                                         'Free Space' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size ((Get-VBRTapeMedium -MediaPool $BackupMediaPool.Name).Free | Measure-Object -Sum).Sum
                                                         'Encryption Enabled' = $BackupMediaPool.EncryptionOptions.Enabled
-                                                        'Encryption Key' = Switch ($BackupMediaPool.EncryptionOptions.Enabled) {
+                                                        'Encryption Key' = switch ($BackupMediaPool.EncryptionOptions.Enabled) {
                                                             'True' { (Get-VBREncryptionKey | Where-Object { $_.Id -eq $BackupMediaPool.EncryptionOptions.Key.Id }).Description }
                                                             'False' { 'Disabled' }
                                                             default { $BackupMediaPool.EncryptionOptions.Key.Id }
@@ -211,17 +211,17 @@ function Get-AbrVbrBackupToTape {
                                                         $inObj.add('Yearly', ("$($TBkjob.FullBackupMediaPool.YearlyMediaSetOptions.OverwritePeriod) days; $YearlyMoveFromMediaPoolAutomatically; $YearlyAppendToCurrentTape; $YearlyMoveOfflineToVault"))
                                                     }
                                                     if ($BackupMediaPool.Type -eq "Custom") {
-                                                        $Vault = Switch (($TBkjob.FullBackupMediaPool.Vault).count) {
+                                                        $Vault = switch (($TBkjob.FullBackupMediaPool.Vault).count) {
                                                             0 { "Disabled" }
                                                             default { $TBkjob.FullBackupMediaPool.Vault }
                                                         }
-                                                        $Retention = Switch ($TBkjob.FullBackupMediaPool.RetentionPolicy.Type) {
+                                                        $Retention = switch ($TBkjob.FullBackupMediaPool.RetentionPolicy.Type) {
                                                             $Null { "Disabled" }
                                                             'Period' { "Protect data for $($TBkjob.FullBackupMediaPool.RetentionPolicy.Value) $($TBkjob.FullBackupMediaPool.RetentionPolicy.Period)" }
                                                             'Cyclic' { 'Do not protect data (cyclically overwrite tape as required)' }
                                                             'Never' { 'Never Overwrite Data' }
                                                         }
-                                                        $MediaSetPolicy = Switch ($TBkjob.FullBackupMediaPool.MediaSetCreationPolicy.Type) {
+                                                        $MediaSetPolicy = switch ($TBkjob.FullBackupMediaPool.MediaSetCreationPolicy.Type) {
                                                             $Null { "Disabled" }
                                                             'Always' { "Create new media set for every backup session" }
                                                             'Daily' { "Daily at $($TBkjob.FullBackupMediaPool.MediaSetCreationPolicy.DailyOptions.Period), $($TBkjob.FullBackupMediaPool.MediaSetCreationPolicy.DailyOptions.Type)" }
@@ -236,13 +236,13 @@ function Get-AbrVbrBackupToTape {
                                                             $inObj.add('On these days', ($TBkjob.FullBackupMediaPool.MediaSetCreationPolicy.DailyOptions.DayOfWeek -join ", "))
                                                         }
                                                         if ($TBkjob.FullBackupPolicy.Type -eq 'WeeklyOnDays') {
-                                                            $DayOfWeek = Switch (($TBkjob.FullBackupPolicy.WeeklyOnDays).count) {
+                                                            $DayOfWeek = switch (($TBkjob.FullBackupPolicy.WeeklyOnDays).count) {
                                                                 7 { 'Everyday' }
                                                                 default { $TBkjob.FullBackupPolicy.WeeklyOnDays -join ", " }
                                                             }
                                                             $inObj.add('Full Backup Schedule', ("Weekly on selected days: $DayOfWeek"))
                                                         } else {
-                                                            $Months = Switch (($TBkjob.FullBackupPolicy.MonthlyOptions.Months).count) {
+                                                            $Months = switch (($TBkjob.FullBackupPolicy.MonthlyOptions.Months).count) {
                                                                 12 { 'Every Month' }
                                                                 default { $TBkjob.FullBackupPolicy.MonthlyOptions.Months -join ", " }
                                                             }
@@ -335,7 +335,7 @@ function Get-AbrVbrBackupToTape {
                                                         'Tape Count' = (Get-VBRTapeMedium -MediaPool $BackupMediaPool.Name).count
                                                         'Free Space' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size ((Get-VBRTapeMedium -MediaPool $BackupMediaPool.Name).Free | Measure-Object -Sum).Sum
                                                         'Encryption Enabled' = $BackupMediaPool.EncryptionOptions.Enabled
-                                                        'Encryption Key' = Switch ($BackupMediaPool.EncryptionOptions.Enabled) {
+                                                        'Encryption Key' = switch ($BackupMediaPool.EncryptionOptions.Enabled) {
                                                             'True' { (Get-VBREncryptionKey | Where-Object { $_.Id -eq $BackupMediaPool.EncryptionOptions.Key.Id }).Description }
                                                             'False' { 'Disabled' }
                                                             default { $BackupMediaPool.EncryptionOptions.Key.Id }
@@ -351,17 +351,17 @@ function Get-AbrVbrBackupToTape {
                                                         $inObj.add('Yearly', ("$($TBkjob.IncrementalBackupMediaPool.YearlyMediaSetOptions.OverwritePeriod) days; $YearlyMoveFromMediaPoolAutomatically; $YearlyAppendToCurrentTape; $YearlyMoveOfflineToVault"))
                                                     }
                                                     if ($BackupMediaPool.Type -eq "Custom") {
-                                                        $Vault = Switch (($TBkjob.IncrementalBackupMediaPool.Vault).count) {
+                                                        $Vault = switch (($TBkjob.IncrementalBackupMediaPool.Vault).count) {
                                                             0 { "Disabled" }
                                                             default { $TBkjob.IncrementalBackupMediaPool.Vault }
                                                         }
-                                                        $Retention = Switch ($TBkjob.IncrementalBackupMediaPool.RetentionPolicy.Type) {
+                                                        $Retention = switch ($TBkjob.IncrementalBackupMediaPool.RetentionPolicy.Type) {
                                                             $Null { "Disabled" }
                                                             'Period' { "Protect data for $($TBkjob.IncrementalBackupMediaPool.RetentionPolicy.Value) $($TBkjob.IncrementalBackupMediaPool.RetentionPolicy.Period)" }
                                                             'Cyclic' { 'Do not protect data (cyclically overwrite tape as required)' }
                                                             'Never' { 'Never Overwrite Data' }
                                                         }
-                                                        $MediaSetPolicy = Switch ($TBkjob.IncrementalBackupMediaPool.MediaSetCreationPolicy.Type) {
+                                                        $MediaSetPolicy = switch ($TBkjob.IncrementalBackupMediaPool.MediaSetCreationPolicy.Type) {
                                                             $Null { "Disabled" }
                                                             'Always' { "Create new media set for every backup session" }
                                                             'Daily' { "Daily at $($TBkjob.IncrementalBackupMediaPool.MediaSetCreationPolicy.DailyOptions.Period), $($TBkjob.IncrementalBackupMediaPool.MediaSetCreationPolicy.DailyOptions.Type)" }
@@ -541,7 +541,7 @@ function Get-AbrVbrBackupToTape {
                                                         $Schedule = "Monthly at this time: $($TBkjob.ScheduleOptions.MonthlyOptions.Period),`r`nDays Number of Month: $($TBkjob.ScheduleOptions.MonthlyOptions.DayNumberInMonth),`r`nDay Of Week: $($TBkjob.ScheduleOptions.MonthlyOptions.DayOfWeek),`r`nMonth: $($TBkjob.ScheduleOptions.MonthlyOptions.Months)"
                                                     }
                                                 } elseif ($TBkjob.ScheduleOptions.Type -eq "AfterJob") {
-                                                    $Schedule = Switch ($TBkjob.ScheduleOptions.JobId) {
+                                                    $Schedule = switch ($TBkjob.ScheduleOptions.JobId) {
                                                         $Null { 'Unknown' }
                                                         default { " After Job: $((Get-VBRJob -WarningAction SilentlyContinue | Where-Object {$_.Id -eq $TBkjob.ScheduleOptions.JobId}).Name)" }
                                                     }

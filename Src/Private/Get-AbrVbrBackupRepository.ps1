@@ -6,7 +6,7 @@ function Get-AbrVbrBackupRepository {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.20
+        Version:        0.8.24
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -51,7 +51,7 @@ function Get-AbrVbrBackupRepository {
                             'Free Space' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $BackupRepo.GetContainer().CachedFreeSpace.InBytesAsUInt64
                             'Used Space %' = $PercentFree
                             'Free Space %' = 100 - $PercentFree
-                            'Status' = Switch ($BackupRepo.IsUnavailable) {
+                            'Status' = switch ($BackupRepo.IsUnavailable) {
                                 'False' { 'Available' }
                                 'True' { 'Unavailable' }
                                 default { $BackupRepo.IsUnavailable }
@@ -159,7 +159,12 @@ function Get-AbrVbrBackupRepository {
                             $ChartImage = Export-Chart -Chart $exampleChart -Path $TempPath.Path -Format "PNG" -PassThru
 
                             try {
-                                $chartFileItem = [convert]::ToBase64String((Get-Content $ChartImage -Encoding byte))
+                                $chartFileItemByte = switch ($PSVersionTable.PSEdition) {
+                                    'Desktop' { Get-Content $ChartImage -Encoding byte }
+                                    'Core' { Get-Content $ChartImage -AsByteStream -Raw }
+                                }
+
+                                $chartFileItem = [convert]::ToBase64String($chartFileItemByte)
                             } catch {
                                 Write-PScriboMessage -IsWarning "Backup Repository Base64String: $($_.Exception.Message)"
                             }
@@ -190,21 +195,21 @@ function Get-AbrVbrBackupRepository {
                                                 Write-PScriboMessage "Discovered $($BackupRepo.Name) Backup Repository."
                                                 $inObj = [ordered] @{
                                                     'Extent of ScaleOut Backup Repository' = (($ScaleOuts | Where-Object { ($Extents | Where-Object { $_.name -eq $BackupRepo.Name }).ParentId -eq $_.Id }).Name)
-                                                    'Backup Proxy' = Switch ([string]::IsNullOrEmpty(($BackupRepo.Host).Name)) {
+                                                    'Backup Proxy' = switch ([string]::IsNullOrEmpty(($BackupRepo.Host).Name)) {
                                                         $true { '--' }
                                                         $false { ($BackupRepo.Host).Name }
                                                         default { 'Unknown' }
                                                     }
                                                     'Integration Type' = $BackupRepo.TypeDisplay
-                                                    'Path' = Switch ([string]::IsNullOrEmpty($BackupRepo.FriendlyPath)) {
+                                                    'Path' = switch ([string]::IsNullOrEmpty($BackupRepo.FriendlyPath)) {
                                                         $true { '--' }
                                                         $false { $BackupRepo.FriendlyPath }
                                                         default { 'Unknown' }
                                                     }
                                                     'Connection Type' = $BackupRepo.Type
-                                                    'Max Task Count' = Switch ([string]::IsNullOrEmpty($BackupRepo.Options.IsTaskCountUnlim)) {
+                                                    'Max Task Count' = switch ([string]::IsNullOrEmpty($BackupRepo.Options.IsTaskCountUnlim)) {
                                                         $true {
-                                                            Switch ([string]::IsNullOrEmpty($BackupRepo.Options.MaxTasksCount)) {
+                                                            switch ([string]::IsNullOrEmpty($BackupRepo.Options.MaxTasksCount)) {
                                                                 $true { '--' }
                                                                 $false { $BackupRepo.Options.MaxTasksCount }
                                                                 default { 'Unknown' }
@@ -213,7 +218,7 @@ function Get-AbrVbrBackupRepository {
                                                         $false { $BackupRepo.Options.MaxTaskCount }
                                                         default { 'Unknown' }
                                                     }
-                                                    'Data Rate Limit' = Switch ($BackupRepo.Options.CombinedDataRateLimit) {
+                                                    'Data Rate Limit' = switch ($BackupRepo.Options.CombinedDataRateLimit) {
                                                         $Null { 'Unlimited' }
                                                         0 { 'Unlimited' }
                                                         default { "$($BackupRepo.Options.CombinedDataRateLimit) MB/s" }

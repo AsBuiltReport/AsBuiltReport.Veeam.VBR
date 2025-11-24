@@ -170,12 +170,12 @@ function Get-AbrVbrBackupjobHyperV {
                                                 }
                                                 $inObj = [ordered] @{
                                                     'Use Wan accelerator' = $Bkjob.IsWanAcceleratorEnabled()
-                                                    'Source Wan accelerator' = Switch ($Bkjob.IsWanAcceleratorEnabled()) {
+                                                    'Source Wan accelerator' = switch ($Bkjob.IsWanAcceleratorEnabled()) {
                                                         'False' { 'Direct Mode' }
                                                         'True' { $SourceWanAccelerator }
                                                         default { 'Unknown' }
                                                     }
-                                                    'Target Wan accelerator' = Switch ($Bkjob.IsWanAcceleratorEnabled()) {
+                                                    'Target Wan accelerator' = switch ($Bkjob.IsWanAcceleratorEnabled()) {
                                                         'False' { 'Direct Mode' }
                                                         'True' { $TargetWanAccelerator }
                                                         default { 'Unknown' }
@@ -245,12 +245,12 @@ function Get-AbrVbrBackupjobHyperV {
                                             $Retains = $Bkjob.BackupStorageOptions.RetainCycles
                                         }
                                         $inObj = [ordered] @{
-                                            'Backup Proxy' = Switch (($Bkjob.GetProxy().Name).count) {
+                                            'Backup Proxy' = switch (($Bkjob.GetProxy().Name).count) {
                                                 0 { "Unknown" }
                                                 { $_ -gt 1 } { "Automatic" }
                                                 default { $Bkjob.GetProxy().Name }
                                             }
-                                            'Backup Repository' = Switch ($Bkjob.info.TargetRepositoryId) {
+                                            'Backup Repository' = switch ($Bkjob.info.TargetRepositoryId) {
                                                 '00000000-0000-0000-0000-000000000000' { $Bkjob.TargetDir }
                                                 { $Null -eq (Get-VBRBackupRepository | Where-Object { $_.Id -eq $Bkjob.info.TargetRepositoryId }).Name } { (Get-VBRBackupRepository -ScaleOut | Where-Object { $_.Id -eq $Bkjob.info.TargetRepositoryId }).Name }
                                                 default { (Get-VBRBackupRepository | Where-Object { $_.Id -eq $Bkjob.info.TargetRepositoryId }).Name }
@@ -261,7 +261,7 @@ function Get-AbrVbrBackupjobHyperV {
                                             'Enable Full Backup' = $Bkjob.BackupStorageOptions.EnableFullBackup
                                             'Integrity Checks' = $Bkjob.BackupStorageOptions.EnableIntegrityChecks
                                             'Storage Encryption' = $Bkjob.BackupStorageOptions.StorageEncryptionEnabled
-                                            'Backup Mode' = Switch ($Bkjob.Options.BackupTargetOptions.Algorithm) {
+                                            'Backup Mode' = switch ($Bkjob.Options.BackupTargetOptions.Algorithm) {
                                                 'Syntethic' { "Reverse Incremental" }
                                                 'Increment' { 'Incremental' }
                                             }
@@ -275,17 +275,17 @@ function Get-AbrVbrBackupjobHyperV {
                                         }
                                         if ($Bkjob.Options.GfsPolicy.IsEnabled) {
                                             $inObj.add('Keep certain full backup longer for archival purposes (GFS)', ($Bkjob.Options.GfsPolicy.IsEnabled))
-                                            if (-Not $Bkjob.Options.GfsPolicy.Weekly.IsEnabled) {
+                                            if (-not $Bkjob.Options.GfsPolicy.Weekly.IsEnabled) {
                                                 $inObj.add('Keep Weekly full backup', ('Disabled'))
                                             } else {
                                                 $inObj.add('Keep Weekly full backup for', ("$($Bkjob.Options.GfsPolicy.Weekly.KeepBackupsForNumberOfWeeks) weeks,`r`nIf multiple backup exist use the one from: $($Bkjob.Options.GfsPolicy.Weekly.DesiredTime)"))
                                             }
-                                            if (-Not $Bkjob.Options.GfsPolicy.Monthly.IsEnabled) {
+                                            if (-not $Bkjob.Options.GfsPolicy.Monthly.IsEnabled) {
                                                 $inObj.add('Keep Monthly full backup', ('Disabled'))
                                             } else {
                                                 $inObj.add('Keep Monthly full backup for', ("$($Bkjob.Options.GfsPolicy.Monthly.KeepBackupsForNumberOfMonths) months,`r`nUse weekly full backup from the following week of the month: $($Bkjob.Options.GfsPolicy.Monthly.DesiredTime)"))
                                             }
-                                            if (-Not $Bkjob.Options.GfsPolicy.Yearly.IsEnabled) {
+                                            if (-not $Bkjob.Options.GfsPolicy.Yearly.IsEnabled) {
                                                 $inObj.add('Keep Yearly full backup', ('Disabled'))
                                             } else {
                                                 $inObj.add('Keep Yearly full backup for', ("$($Bkjob.Options.GfsPolicy.Yearly.KeepBackupsForNumberOfYears) years,`r`nUse monthly full backup from the following month: $($Bkjob.Options.GfsPolicy.Yearly.DesiredTime)"))
@@ -358,7 +358,7 @@ function Get-AbrVbrBackupjobHyperV {
                                                         'Inline Data Deduplication' = $Bkjob.Options.BackupStorageOptions.EnableDeduplication
                                                         'Exclude Swap Files Block' = $Bkjob.HvSourceOptions.ExcludeSwapFile
                                                         'Exclude Deleted Files Block' = $Bkjob.HvSourceOptions.DirtyBlocksNullingEnabled
-                                                        'Compression Level' = Switch ($Bkjob.Options.BackupStorageOptions.CompressionLevel) {
+                                                        'Compression Level' = switch ($Bkjob.Options.BackupStorageOptions.CompressionLevel) {
                                                             0 { 'NONE' }
                                                             -1 { 'AUTO' }
                                                             4 { 'DEDUPE_friendly' }
@@ -366,7 +366,7 @@ function Get-AbrVbrBackupjobHyperV {
                                                             6 { 'High' }
                                                             9 { 'EXTREME' }
                                                         }
-                                                        'Storage optimization' = Switch ($Bkjob.Options.BackupStorageOptions.StgBlockSize) {
+                                                        'Storage optimization' = switch ($Bkjob.Options.BackupStorageOptions.StgBlockSize) {
                                                             'KbBlockSize1024' { 'Local target' }
                                                             'KbBlockSize512' { 'LAN target' }
                                                             'KbBlockSize256' { 'WAN target' }
@@ -374,7 +374,7 @@ function Get-AbrVbrBackupjobHyperV {
                                                             default { $Bkjob.Options.BackupStorageOptions.StgBlockSize }
                                                         }
                                                         'Enabled Backup File Encryption' = $Bkjob.Options.BackupStorageOptions.StorageEncryptionEnabled
-                                                        'Encryption Key' = Switch ($Bkjob.Options.BackupStorageOptions.StorageEncryptionEnabled) {
+                                                        'Encryption Key' = switch ($Bkjob.Options.BackupStorageOptions.StorageEncryptionEnabled) {
                                                             $false { 'None' }
                                                             default { (Get-VBREncryptionKey | Where-Object { $_.id -eq $Bkjob.Info.PwdKeyId }).Description }
                                                         }
@@ -617,16 +617,16 @@ function Get-AbrVbrBackupjobHyperV {
                                                     'Resource Type' = ($Bkjob.GetHvOijs() | Where-Object { $_.Name -eq $VSSObj.Name -and ($_.Type -eq "Include" -or $_.Type -eq "VssChild") }).TypeDisplayName
                                                     'Ignore Errors' = $VSSObj.VssOptions.IgnoreErrors
                                                     'Guest Proxy Auto Detect' = $VSSObj.VssOptions.GuestProxyAutoDetect
-                                                    'Default Credential' = Switch ((Get-VBRCredentials | Where-Object { $_.Id -eq $Bkjob.VssOptions.WinCredsId.Guid }).count) {
+                                                    'Default Credential' = switch ((Get-VBRCredentials | Where-Object { $_.Id -eq $Bkjob.VssOptions.WinCredsId.Guid }).count) {
                                                         0 { 'None' }
-                                                        Default { Get-VBRCredentials | Where-Object { $_.Id -eq $Bkjob.VssOptions.WinCredsId.Guid } }
+                                                        default { Get-VBRCredentials | Where-Object { $_.Id -eq $Bkjob.VssOptions.WinCredsId.Guid } }
                                                     }
-                                                    'Object Credential' = Switch ($VSSObj.VssOptions.WinCredsId.Guid) {
+                                                    'Object Credential' = switch ($VSSObj.VssOptions.WinCredsId.Guid) {
                                                         '00000000-0000-0000-0000-000000000000' { 'Default Credential' }
                                                         default { Get-VBRCredentials | Where-Object { $_.Id -eq $VSSObj.VssOptions.WinCredsId.Guid } }
                                                     }
                                                     'Application Processing' = $VSSObj.VssOptions.VssSnapshotOptions.ApplicationProcessingEnabled
-                                                    'Transaction Logs' = Switch ($VSSObj.VssOptions.VssSnapshotOptions.IsCopyOnly) {
+                                                    'Transaction Logs' = switch ($VSSObj.VssOptions.VssSnapshotOptions.IsCopyOnly) {
                                                         'False' { 'Process Transaction Logs' }
                                                         'True' { 'Perform Copy Only' }
                                                     }
@@ -634,12 +634,12 @@ function Get-AbrVbrBackupjobHyperV {
                                                 }
                                                 if ($InfoLevel.Jobs.Backup -ge 2) {
                                                     if (!$VSSObj.VssOptions.VssSnapshotOptions.IsCopyOnly) {
-                                                        $TransactionLogsProcessing = Switch ($VSSObj.VssOptions.SqlBackupOptions.TransactionLogsProcessing) {
+                                                        $TransactionLogsProcessing = switch ($VSSObj.VssOptions.SqlBackupOptions.TransactionLogsProcessing) {
                                                             'TruncateOnlyOnSuccessJob' { 'Truncate logs' }
                                                             'Backup' { 'Backup logs periodically' }
                                                             'NeverTruncate' { 'Do not truncate logs' }
                                                         }
-                                                        $RetainLogBackups = Switch ($VSSObj.VssOptions.SqlBackupOptions.UseDbBackupRetention) {
+                                                        $RetainLogBackups = switch ($VSSObj.VssOptions.SqlBackupOptions.UseDbBackupRetention) {
                                                             'True' { 'Until the corresponding image-level backup is deleted' }
                                                             'False' { "Keep Only Last $($VSSObj.VssOptions.SqlBackupOptions.RetainDays) days of log backups" }
                                                         }
@@ -648,17 +648,17 @@ function Get-AbrVbrBackupjobHyperV {
                                                         $inObj.add('SQL Retain Log Backups', $($RetainLogBackups))
                                                     }
                                                     if ($VSSObj.VssOptions.OracleBackupOptions.BackupLogsEnabled -or $VSSObj.VssOptions.OracleBackupOptions.ArchivedLogsTruncation) {
-                                                        $ArchivedLogsTruncation = Switch ($VSSObj.VssOptions.OracleBackupOptions.ArchivedLogsTruncation) {
+                                                        $ArchivedLogsTruncation = switch ($VSSObj.VssOptions.OracleBackupOptions.ArchivedLogsTruncation) {
                                                             'ByAge' { "Delete Log Older Than $($VSSObj.VssOptions.OracleBackupOptions.ArchivedLogsMaxAgeHours) hours" }
                                                             'BySize' { "Delete Log Over $([Math]::Round($VSSObj.VssOptions.OracleBackupOptions.ArchivedLogsMaxSizeMb / 1024, 0)) GB" }
                                                             default { $VSSObj.VssOptions.OracleBackupOptions.ArchivedLogsTruncation }
 
                                                         }
-                                                        $SysdbaCredsId = Switch ($VSSObj.VssOptions.OracleBackupOptions.SysdbaCredsId) {
+                                                        $SysdbaCredsId = switch ($VSSObj.VssOptions.OracleBackupOptions.SysdbaCredsId) {
                                                             '00000000-0000-0000-0000-000000000000' { 'Guest OS Credential' }
                                                             default { (Get-VBRCredentials | Where-Object { $_.Id -eq $VSSObj.VssOptions.OracleBackupOptions.SysdbaCredsId }).Description }
                                                         }
-                                                        $RetainLogBackups = Switch ($VSSObj.VssOptions.OracleBackupOptions.UseDbBackupRetention) {
+                                                        $RetainLogBackups = switch ($VSSObj.VssOptions.OracleBackupOptions.UseDbBackupRetention) {
                                                             'True' { 'Until the corresponding image-level backup is deleted' }
                                                             'False' { "Keep Only Last $($VSSObj.VssOptions.OracleBackupOptions.RetainDays) days of log backups" }
                                                         }
@@ -679,7 +679,7 @@ function Get-AbrVbrBackupjobHyperV {
                                                         }
                                                     }
                                                     if ($VSSObj.VssOptions.GuestScriptsOptions.ScriptingMode -ne 'Disabled') {
-                                                        $ScriptingMode = Switch ($VSSObj.VssOptions.GuestScriptsOptions.ScriptingMode) {
+                                                        $ScriptingMode = switch ($VSSObj.VssOptions.GuestScriptsOptions.ScriptingMode) {
                                                             'FailJobOnError' { 'Require successfull script execution' }
                                                             'IgnoreErrors' { 'Ignore script execution failures' }
                                                             'Disabled' { 'Disable script execution' }
@@ -734,7 +734,7 @@ function Get-AbrVbrBackupjobHyperV {
                                             $inObj = [ordered] @{
                                                 'Retry Failed item' = $Bkjob.ScheduleOptions.RetryTimes
                                                 'Wait before each retry' = "$($Bkjob.ScheduleOptions.RetryTimeout)/min"
-                                                'Backup Window' = Switch ($Bkjob.TypeToString) {
+                                                'Backup Window' = switch ($Bkjob.TypeToString) {
                                                     "Hyper-V Backup Copy" { $Bkjob.ScheduleOptions.OptionsContinuous.Enabled }
                                                     default { $Bkjob.ScheduleOptions.OptionsBackupWindow.IsEnabled }
                                                 }

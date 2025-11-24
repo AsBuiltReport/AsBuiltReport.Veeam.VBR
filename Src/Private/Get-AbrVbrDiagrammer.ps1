@@ -95,8 +95,8 @@ function Get-AbrVbrDiagrammer {
             }
 
             if ($Options.EnableDiagramDebug) {
-                $DiagramParams.Add('EnableEdgeDebug', $True)
-                $DiagramParams.Add('EnableSubGraphDebug', $True)
+                $DiagramParams.Add('DraftMode', $True)
+                $DiagramParams.Add('EnableErrorDebug', $True)
             }
 
             if ($Tenant) {

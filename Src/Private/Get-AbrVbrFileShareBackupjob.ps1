@@ -43,12 +43,12 @@ function Get-AbrVbrFileShareBackupjob {
                             $inObj = [ordered] @{
                                 'Name' = $FSBkjob.Name
                                 'Type' = $FSBkjob.TypeToString
-                                'Status' = Switch ($FSBkjob.IsScheduleEnabled) {
+                                'Status' = switch ($FSBkjob.IsScheduleEnabled) {
                                     'False' { 'Disabled' }
                                     'True' { 'Enabled' }
                                 }
                                 'Latest Result' = $FSBkjob.info.LatestStatus
-                                'Last Run' = Switch ($FSBkjob.FindLastSession()) {
+                                'Last Run' = switch ($FSBkjob.FindLastSession()) {
                                     $Null { 'Unknown' }
                                     default { $FSBkjob.FindLastSession().EndTimeUTC }
                                 }

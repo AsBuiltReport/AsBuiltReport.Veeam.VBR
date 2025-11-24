@@ -133,16 +133,16 @@ function Get-AbrVbrServiceProvider {
                                                     Write-PScriboMessage -IsWarning "Service Providers $($CloudProvider.DNSName) BaaS Resources Table: $($_.Exception.Message)"
                                                 }
                                             }
-                                            if ($CloudProvider.ReplicationResourcesEnabled -and (-Not $CloudProvider.vCDReplicationResources)) {
+                                            if ($CloudProvider.ReplicationResourcesEnabled -and (-not $CloudProvider.vCDReplicationResources)) {
                                                 try {
                                                     Section -ExcludeFromTOC -Style NOTOCHeading6 'DRaaS Resources' {
                                                         $OutObj = @()
-                                                        $CPU = Switch ([string]::IsNullOrEmpty($CloudProvider.ReplicationResources.CPU)) {
+                                                        $CPU = switch ([string]::IsNullOrEmpty($CloudProvider.ReplicationResources.CPU)) {
                                                             $true { 'Unlimited' }
                                                             $false { "$([math]::Round($CloudProvider.ReplicationResources.CPU / 1000, 1)) Ghz" }
                                                             default { '--' }
                                                         }
-                                                        $Memory = Switch ([string]::IsNullOrEmpty($CloudProvider.ReplicationResources.Memory)) {
+                                                        $Memory = switch ([string]::IsNullOrEmpty($CloudProvider.ReplicationResources.Memory)) {
                                                             $true { 'Unlimited' }
                                                             $false { ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $CloudProvider.ReplicationResources.Memory }
                                                             default { '--' }
@@ -161,7 +161,7 @@ function Get-AbrVbrServiceProvider {
                                                         }
 
                                                         if ($CloudProvider.ReplicationResources.PublicIpEnabled) {
-                                                            $PublicIP = Switch ([string]::IsNullOrEmpty($CloudProvider.ReplicationResources.PublicIp)) {
+                                                            $PublicIP = switch ([string]::IsNullOrEmpty($CloudProvider.ReplicationResources.PublicIp)) {
                                                                 $true { '--' }
                                                                 $false { $CloudProvider.ReplicationResources.PublicIp }
                                                                 default { 'Unknown' }

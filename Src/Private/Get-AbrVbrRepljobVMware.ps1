@@ -105,10 +105,10 @@ function Get-AbrVbrRepljobVMware {
                                             try {
                                                 Write-PScriboMessage "Discovered $($Bkjob.Name) destination information."
                                                 if (!$Destination.ClusterName) {
-                                                    $HostorCluster = (Find-VBRViEntity -ErrorAction SilentlyContinue | Where-Object { $_.Reference -eq $Destination.HostReference }).Name
+                                                    $HostorCluster = (Invoke-FindVBRViEntityWithTimeout -TimeoutSeconds 20 -ErrorAction SilentlyContinue | Where-Object { $_.Reference -eq $Destination.HostReference }).Name
                                                 } else { $HostorCluster = $Destination.ClusterName }
                                                 $inObj = [ordered]  @{
-                                                    'Host or Cluster' = Switch ($HostorCluster) {
+                                                    'Host or Cluster' = switch ($HostorCluster) {
                                                         $Null { 'Unknown' }
                                                         default { $HostorCluster }
                                                     }
@@ -280,7 +280,7 @@ function Get-AbrVbrRepljobVMware {
                                             $Retains = $Bkjob.BackupStorageOptions.RetainCycles
                                         }
                                         $inObj = [ordered] @{
-                                            'Repository for replica metadata' = Switch ($Bkjob.info.TargetRepositoryId) {
+                                            'Repository for replica metadata' = switch ($Bkjob.info.TargetRepositoryId) {
                                                 '00000000-0000-0000-0000-000000000000' { $Bkjob.TargetDir }
                                                 { $Null -eq (Get-VBRBackupRepository | Where-Object { $_.Id -eq $Bkjob.info.TargetRepositoryId }).Name } { (Get-VBRBackupRepository -ScaleOut | Where-Object { $_.Id -eq $Bkjob.info.TargetRepositoryId }).Name }
                                                 default { (Get-VBRBackupRepository | Where-Object { $_.Id -eq $Bkjob.info.TargetRepositoryId }).Name }
@@ -358,7 +358,7 @@ function Get-AbrVbrRepljobVMware {
                                                         'Inline Data Deduplication' = $Bkjob.Options.BackupStorageOptions.EnableDeduplication
                                                         'Exclude Swap Files Block' = $Bkjob.ViSourceOptions.ExcludeSwapFile
                                                         'Exclude Deleted Files Block' = $Bkjob.ViSourceOptions.DirtyBlocksNullingEnabled
-                                                        'Compression Level' = Switch ($Bkjob.Options.BackupStorageOptions.CompressionLevel) {
+                                                        'Compression Level' = switch ($Bkjob.Options.BackupStorageOptions.CompressionLevel) {
                                                             0 { 'NONE' }
                                                             -1 { 'AUTO' }
                                                             4 { 'DEDUPE_friendly' }
@@ -366,7 +366,7 @@ function Get-AbrVbrRepljobVMware {
                                                             6 { 'High' }
                                                             9 { 'EXTREME' }
                                                         }
-                                                        'Storage optimization' = Switch ($Bkjob.Options.BackupStorageOptions.StgBlockSize) {
+                                                        'Storage optimization' = switch ($Bkjob.Options.BackupStorageOptions.StgBlockSize) {
                                                             'KbBlockSize1024' { 'Local target' }
                                                             'KbBlockSize512' { 'LAN target' }
                                                             'KbBlockSize256' { 'WAN target' }
@@ -374,7 +374,7 @@ function Get-AbrVbrRepljobVMware {
                                                             default { $Bkjob.Options.BackupStorageOptions.StgBlockSize }
                                                         }
                                                         'Enabled Backup File Encryption' = $Bkjob.Options.BackupStorageOptions.StorageEncryptionEnabled
-                                                        'Encryption Key' = Switch ($Bkjob.Options.BackupStorageOptions.StorageEncryptionEnabled) {
+                                                        'Encryption Key' = switch ($Bkjob.Options.BackupStorageOptions.StorageEncryptionEnabled) {
                                                             $false { 'None' }
                                                             default { (Get-VBREncryptionKey | Where-Object { $_.id -eq $Bkjob.Info.PwdKeyId }).Description }
                                                         }
@@ -576,12 +576,12 @@ function Get-AbrVbrRepljobVMware {
                                         $OutObj = @()
                                         Write-PScriboMessage "Discovered $($Bkjob.Name) data transfer."
                                         $inObj = [ordered] @{
-                                            'Source Proxy' = Switch (($Bkjob.GetProxy().Name).count) {
+                                            'Source Proxy' = switch (($Bkjob.GetProxy().Name).count) {
                                                 0 { "Unknown" }
                                                 { $_ -gt 1 } { "Automatic" }
                                                 default { $Bkjob.GetProxy().Name }
                                             }
-                                            'Target Proxy' = Switch (($Bkjob.GetTargetProxies().Name).count) {
+                                            'Target Proxy' = switch (($Bkjob.GetTargetProxies().Name).count) {
                                                 0 { "Unknown" }
                                                 { $_ -gt 1 } { "Automatic" }
                                                 default { $Bkjob.GetTargetProxies().Name }
@@ -661,16 +661,16 @@ function Get-AbrVbrRepljobVMware {
                                                     'Resource Type' = ($Bkjob.GetViOijs() | Where-Object { $_.Name -eq $VSSObj.Name -and ($_.Type -eq "Include" -or $_.Type -eq "VssChild") }).TypeDisplayName
                                                     'Ignore Errors' = $VSSObj.VssOptions.IgnoreErrors
                                                     'Guest Proxy Auto Detect' = $VSSObj.VssOptions.GuestProxyAutoDetect
-                                                    'Default Credential' = Switch ((Get-VBRCredentials | Where-Object { $_.Id -eq $Bkjob.VssOptions.WinCredsId.Guid }).count) {
+                                                    'Default Credential' = switch ((Get-VBRCredentials | Where-Object { $_.Id -eq $Bkjob.VssOptions.WinCredsId.Guid }).count) {
                                                         0 { 'None' }
-                                                        Default { Get-VBRCredentials | Where-Object { $_.Id -eq $Bkjob.VssOptions.WinCredsId.Guid } }
+                                                        default { Get-VBRCredentials | Where-Object { $_.Id -eq $Bkjob.VssOptions.WinCredsId.Guid } }
                                                     }
-                                                    'Object Credential' = Switch ($VSSObj.VssOptions.WinCredsId.Guid) {
+                                                    'Object Credential' = switch ($VSSObj.VssOptions.WinCredsId.Guid) {
                                                         '00000000-0000-0000-0000-000000000000' { 'Default Credential' }
                                                         default { Get-VBRCredentials | Where-Object { $_.Id -eq $VSSObj.VssOptions.WinCredsId.Guid } }
                                                     }
                                                     'Application Processing' = $VSSObj.VssOptions.VssSnapshotOptions.ApplicationProcessingEnabled
-                                                    'Transaction Logs' = Switch ($VSSObj.VssOptions.VssSnapshotOptions.IsCopyOnly) {
+                                                    'Transaction Logs' = switch ($VSSObj.VssOptions.VssSnapshotOptions.IsCopyOnly) {
                                                         'False' { 'Process Transaction Logs' }
                                                         'True' { 'Perform Copy Only' }
                                                     }
@@ -678,12 +678,12 @@ function Get-AbrVbrRepljobVMware {
                                                 }
                                                 if ($InfoLevel.Jobs.Replication -ge 2) {
                                                     if (!$VSSObj.VssOptions.VssSnapshotOptions.IsCopyOnly) {
-                                                        $TransactionLogsProcessing = Switch ($VSSObj.VssOptions.SqlBackupOptions.TransactionLogsProcessing) {
+                                                        $TransactionLogsProcessing = switch ($VSSObj.VssOptions.SqlBackupOptions.TransactionLogsProcessing) {
                                                             'TruncateOnlyOnSuccessJob' { 'Truncate logs' }
                                                             'Backup' { 'Backup logs periodically' }
                                                             'NeverTruncate' { 'Do not truncate logs' }
                                                         }
-                                                        $RetainLogBackups = Switch ($VSSObj.VssOptions.SqlBackupOptions.UseDbBackupRetention) {
+                                                        $RetainLogBackups = switch ($VSSObj.VssOptions.SqlBackupOptions.UseDbBackupRetention) {
                                                             'True' { 'Until the corresponding image-level backup is deleted' }
                                                             'False' { "Keep Only Last $($VSSObj.VssOptions.SqlBackupOptions.RetainDays) days of log backups" }
                                                         }
@@ -692,17 +692,17 @@ function Get-AbrVbrRepljobVMware {
                                                         $inObj.add('SQL Retain Log Backups', $($RetainLogBackups))
                                                     }
                                                     if ($VSSObj.VssOptions.OracleBackupOptions.BackupLogsEnabled -or $VSSObj.VssOptions.OracleBackupOptions.ArchivedLogsTruncation) {
-                                                        $ArchivedLogsTruncation = Switch ($VSSObj.VssOptions.OracleBackupOptions.ArchivedLogsTruncation) {
+                                                        $ArchivedLogsTruncation = switch ($VSSObj.VssOptions.OracleBackupOptions.ArchivedLogsTruncation) {
                                                             'ByAge' { "Delete Log Older Than $($VSSObj.VssOptions.OracleBackupOptions.ArchivedLogsMaxAgeHours) hours" }
                                                             'BySize' { "Delete Log Over $([Math]::Round($VSSObj.VssOptions.OracleBackupOptions.ArchivedLogsMaxSizeMb / 1024, 0)) GB" }
                                                             default { $VSSObj.VssOptions.OracleBackupOptions.ArchivedLogsTruncation }
 
                                                         }
-                                                        $SysdbaCredsId = Switch ($VSSObj.VssOptions.OracleBackupOptions.SysdbaCredsId) {
+                                                        $SysdbaCredsId = switch ($VSSObj.VssOptions.OracleBackupOptions.SysdbaCredsId) {
                                                             '00000000-0000-0000-0000-000000000000' { 'Guest OS Credential' }
                                                             default { (Get-VBRCredentials | Where-Object { $_.Id -eq $VSSObj.VssOptions.OracleBackupOptions.SysdbaCredsId }).Description }
                                                         }
-                                                        $RetainLogBackups = Switch ($VSSObj.VssOptions.OracleBackupOptions.UseDbBackupRetention) {
+                                                        $RetainLogBackups = switch ($VSSObj.VssOptions.OracleBackupOptions.UseDbBackupRetention) {
                                                             'True' { 'Until the corresponding image-level backup is deleted' }
                                                             'False' { "Keep Only Last $($VSSObj.VssOptions.OracleBackupOptions.RetainDays) days of log backups" }
                                                         }
@@ -723,7 +723,7 @@ function Get-AbrVbrRepljobVMware {
                                                         }
                                                     }
                                                     if ($VSSObj.VssOptions.GuestScriptsOptions.ScriptingMode -ne 'Disabled') {
-                                                        $ScriptingMode = Switch ($VSSObj.VssOptions.GuestScriptsOptions.ScriptingMode) {
+                                                        $ScriptingMode = switch ($VSSObj.VssOptions.GuestScriptsOptions.ScriptingMode) {
                                                             'FailJobOnError' { 'Require successfull script execution' }
                                                             'IgnoreErrors' { 'Ignore script execution failures' }
                                                             'Disabled' { 'Disable script execution' }

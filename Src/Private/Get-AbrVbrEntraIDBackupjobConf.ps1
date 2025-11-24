@@ -177,7 +177,7 @@ function Get-AbrVbrEntraIDBackupjobConf {
                                                 $inObj = [ordered] @{
                                                     'Send Snmp Notification' = $Bkjob.NotificationOptions.EnableSnmpNotification
                                                     'Send Email Notification' = $Bkjob.NotificationOptions.EnableAdditionalNotification
-                                                    'Email Notification Additional Addresses' = Switch ($Bkjob.NotificationOptions.AdditionalAddress) {
+                                                    'Email Notification Additional Addresses' = switch ($Bkjob.NotificationOptions.AdditionalAddress) {
                                                         $Null { '--' }
                                                         default { $Bkjob.NotificationOptions.AdditionalAddress }
                                                     }
@@ -187,7 +187,7 @@ function Get-AbrVbrEntraIDBackupjobConf {
                                                     'Notify On Success' = $Bkjob.NotificationOptions.NotifyOnSuccess
                                                     'Notify On Warning' = $Bkjob.NotificationOptions.NotifyOnWarning
                                                     'Notify On Error' = $Bkjob.NotificationOptions.NotifyOnError
-                                                    'Send notification' = Switch ($Bkjob.NotificationOptions.EnableDailyNotification) {
+                                                    'Send notification' = switch ($Bkjob.NotificationOptions.EnableDailyNotification) {
                                                         'False' { 'Immediately after each copied backup' }
                                                         'True' { 'Daily as a summary' }
                                                         default { 'Unknown' }

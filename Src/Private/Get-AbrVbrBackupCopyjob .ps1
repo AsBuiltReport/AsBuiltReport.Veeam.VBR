@@ -38,7 +38,7 @@ function Get-AbrVbrBackupCopyjob {
                             $inObj = [ordered] @{
                                 'Name' = $BkCopyjob.Name
                                 'Copy Mode' = $BkCopyjob.Mode
-                                'Status' = Switch ($BkCopyjob.JobEnabled) {
+                                'Status' = switch ($BkCopyjob.JobEnabled) {
                                     'False' { 'Disabled' }
                                     'True' { 'Enabled' }
                                 }

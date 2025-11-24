@@ -48,7 +48,7 @@ function Get-AbrVbrCloudConnectBS {
 
                                         $inObj = [ordered] @{
                                             'Type' = $CloudObject.TypeDisplay
-                                            'Path' = Switch ([string]::IsNullOrEmpty($CloudObject.FriendlyPath)) {
+                                            'Path' = switch ([string]::IsNullOrEmpty($CloudObject.FriendlyPath)) {
                                                 $true { '--' }
                                                 $false { $CloudObject.FriendlyPath }
                                                 default { 'Unknown' }
@@ -56,7 +56,7 @@ function Get-AbrVbrCloudConnectBS {
                                             'Total Space' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $CloudObject.GetContainer().CachedTotalSpace.InBytesAsUInt64
                                             'Free Space' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $CloudObject.GetContainer().CachedFreeSpace.InBytesAsUInt64
                                             'Used Space %' = $PercentFree
-                                            'Status' = Switch ($CloudObject.IsUnavailable) {
+                                            'Status' = switch ($CloudObject.IsUnavailable) {
                                                 'False' { 'Available' }
                                                 'True' { 'Unavailable' }
                                                 default { $CloudObject.IsUnavailable }
@@ -87,13 +87,13 @@ function Get-AbrVbrCloudConnectBS {
                                                             $inObj = [ordered] @{
                                                                 'Name' = $Tenant.Name
                                                                 'Quota' = ConvertTo-FileSizeString -Size (Convert-Size -From MB -To Bytes -Value $Storage.RepositoryQuota) -RoundUnits $Options.RoundUnits
-                                                                'Used Space' = Switch ([string]::IsNullOrEmpty($Storage.UsedSpace)) {
+                                                                'Used Space' = switch ([string]::IsNullOrEmpty($Storage.UsedSpace)) {
                                                                     $true { '--' }
                                                                     $false { ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size (Convert-Size -From MB -To Bytes -Value $Storage.UsedSpace) }
                                                                     default { 'Unknown' }
                                                                 }
                                                                 'Used Space %' = $Storage.UsedSpacePercentage
-                                                                'Path' = Switch ([string]::IsNullOrEmpty($Storage.RepositoryQuotaPath)) {
+                                                                'Path' = switch ([string]::IsNullOrEmpty($Storage.RepositoryQuotaPath)) {
                                                                     $true { '--' }
                                                                     $false { $Storage.RepositoryQuotaPath }
                                                                     default { 'Unknown' }

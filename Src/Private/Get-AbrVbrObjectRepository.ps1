@@ -40,7 +40,7 @@ function Get-AbrVbrObjectRepository {
                                     'Name' = $ObjectRepo.Name
                                     'Type' = $ObjectRepo.Type
                                     'Connection Type' = $ObjectRepo.ConnectionType
-                                    'Gateway Server' = Switch ($ObjectRepo.ConnectionType) {
+                                    'Gateway Server' = switch ($ObjectRepo.ConnectionType) {
                                         'Direct' { 'Direct Mode' }
                                         'Gateway' { $ObjectRepo.GatewayServer.Name }
                                         default { 'Unknown' }
@@ -58,7 +58,7 @@ function Get-AbrVbrObjectRepository {
                                     'Name' = $ObjectRepo.Name
                                     'Type' = $ObjectRepo.Type
                                     'Use Gateway Server' = $ObjectRepo.UseGatewayServer
-                                    'Gateway Server' = Switch ($ObjectRepo.GatewayServer.Name) {
+                                    'Gateway Server' = switch ($ObjectRepo.GatewayServer.Name) {
                                         "" { "--"; break }
                                         $Null { "--"; break }
                                         default { $ObjectRepo.GatewayServer.Name.split(".")[0] }
@@ -192,7 +192,7 @@ function Get-AbrVbrObjectRepository {
                                         $OutObj = @()
                                         Write-PScriboMessage "Discovered $($ObjectRepoArchive.Name) Backup Repository."
                                         $inObj = [ordered] @{
-                                            'Gateway Server' = Switch ($ObjectRepoArchive.GatewayServer.Name) {
+                                            'Gateway Server' = switch ($ObjectRepoArchive.GatewayServer.Name) {
                                                 "" { "Auto Selected"; break }
                                                 $Null { "Auto Selected"; break }
                                                 default { $ObjectRepoArchive.GatewayServer.Name.split(".")[0] }

@@ -665,7 +665,7 @@ function Get-AbrVbrBackupjobNutanixConf {
                                                     'Guest Proxy Auto Detect' = $VSSObj.VssOptions.GuestProxyAutoDetect
                                                     'Default Credential' = switch ((Get-VBRCredentials | Where-Object { $_.Id -eq $Bkjob.VssOptions.WinCredsId.Guid }).count) {
                                                         0 { 'None' }
-                                                        Default { Get-VBRCredentials | Where-Object { $_.Id -eq $Bkjob.VssOptions.WinCredsId.Guid } }
+                                                        default { Get-VBRCredentials | Where-Object { $_.Id -eq $Bkjob.VssOptions.WinCredsId.Guid } }
                                                     }
                                                     'Object Credential' = switch ($VSSObj.VssOptions.WinCredsId.Guid) {
                                                         '00000000-0000-0000-0000-000000000000' { 'Default Credential' }
