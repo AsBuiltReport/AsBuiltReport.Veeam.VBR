@@ -46,7 +46,7 @@ function Get-AbrVbrRequiredModule {
         if ($Modules = Get-Module -ListAvailable -Name Veeam.Backup.PowerShell) {
             try {
                 Write-PScriboMessage "Trying to import Veeam B&R modules."
-                $Modules | Import-Module -WarningAction SilentlyContinue
+                $Modules | Import-Module -DisableNameChecking -Global -WarningAction SilentlyContinue
             } catch {
                 Write-PScriboMessage -IsWarning "Failed to load Veeam Modules"
             }

@@ -105,7 +105,7 @@ function Get-AbrVbrRepljobVMware {
                                             try {
                                                 Write-PScriboMessage "Discovered $($Bkjob.Name) destination information."
                                                 if (!$Destination.ClusterName) {
-                                                    $HostorCluster = (Invoke-FindVBRViEntityWithTimeout -TimeoutSeconds 20 -ErrorAction SilentlyContinue | Where-Object { $_.Reference -eq $Destination.HostReference }).Name
+                                                    $HostorCluster = (Invoke-FindVBRViEntityWithTimeout -TimeoutSeconds 120 -ErrorAction SilentlyContinue | Where-Object { $_.Reference -eq $Destination.HostReference }).Name
                                                 } else { $HostorCluster = $Destination.ClusterName }
                                                 $inObj = [ordered]  @{
                                                     'Host or Cluster' = switch ($HostorCluster) {
