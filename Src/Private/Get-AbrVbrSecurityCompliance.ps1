@@ -85,6 +85,21 @@ function Get-AbrVbrSecurityCompliance {
                     'HardenedRepositoryNotContainsNBDProxies' = 'Hardened repositories should not be used as backup proxy servers due to expanded attack surface'
                     'PostgreSqlUseRecommendedSettings' = 'PostgreSQL server should be configured with recommended settings'
                     'PasswordsComplexityRules' = 'Backup encryption password length and complexity recommendations should be followed'
+                    'FirewallEnabled' = 'Firewall should be enabled'
+                    'EncryptionPasswordsComplexityRules' = 'Local accounts credentials should follow password length and complexity recommendations'
+                    'CredentialsPasswordsComplexityRules' = 'Credentials and encryption passwords should be rotated at least annually'
+                    'CredentialsGuardConfigured' = 'Credentials Guard should be configured'
+                    'LinuxAuditBinariesOwnerIsRoot' = 'Audit binaries should be owned by root'
+                    'LinuxAuditdConfigured' = 'Audits should be enabled and configured to forward audit logs'
+                    'LinuxDisableProblematicServices' = 'Services with known issues should be disabled'
+                    'LinuxOsHasVaRandomization' = 'Address space layout randomization (ASLR) should be used'
+                    'LinuxOsIsFipsEnabled' = 'OS should be in FIPS mode'
+                    'LinuxOsUsesTcpSyncookies'= 'OS should be configured to use TCP syncookies'
+                    'LinuxUsePasswordPolicy' = 'Linux servers should have password-based authentication disabled'
+                    'SecureBootEnable' = 'Secure Boot should be enabled'
+                    'LinuxUseSecurityModule' = 'System should use a security module'
+                    'LinuxWorldDirectoriesPermissions' = 'World-writable directories should not be executable'
+                    'BackupServerHighAvailabilityEnabled' = 'High Availability cluster should be configured for this backup server'
                 }
                 $StatusObj = @{
                     'Ok' = "Passed"
