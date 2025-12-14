@@ -6,7 +6,7 @@ function Get-AbrVbrFileShareBackupjobConf {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.20
+        Version:        0.8.24
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -44,7 +44,7 @@ function Get-AbrVbrFileShareBackupjobConf {
                                     $CommonInfos = (Get-VBRJob -WarningAction SilentlyContinue -Name $Bkjob.Name | Where-Object { $_.TypeToString -ne 'Windows Agent Backup' }).Info
                                     foreach ($CommonInfo in $CommonInfos) {
                                         try {
-                                            Write-PScriboMessage "Discovered $($Bkjob.Name) common information."
+
                                             $inObj = [ordered] @{
                                                 'Name' = $Bkjob.Name
                                                 'Type' = $Bkjob.TypeToString
@@ -95,7 +95,7 @@ function Get-AbrVbrFileShareBackupjobConf {
                                         $OutObj = @()
                                         try {
                                             foreach ($OBJ in ($Bkjob.GetObjectsInJob() | Where-Object { $_.Type -eq "Include" -or $_.Type -eq "Exclude" })) {
-                                                Write-PScriboMessage "Discovered $($OBJ.Name) files and folders to backup."
+
                                                 $inObj = [ordered] @{
                                                     'Name' = $OBJ.Name
                                                     'Resource Type' = $OBJ.TypeDisplayName
@@ -128,7 +128,7 @@ function Get-AbrVbrFileShareBackupjobConf {
                                         $OutObj = @()
                                         try {
                                             foreach ($OBJ in ((Get-VBRUnstructuredBackupJob -Id $Bkjob.Id).BackupObject)) {
-                                                Write-PScriboMessage "Discovered $($OBJ.Name) object to backup."
+
                                                 $inObj = [ordered] @{
                                                     'Name' = $OBJ.Server.FriendlyName
                                                     'Path' = switch ([string]::IsNullOrEmpty($OBJ.Path)) {
@@ -172,7 +172,7 @@ function Get-AbrVbrFileShareBackupjobConf {
                             Section -Style NOTOCHeading5 -ExcludeFromTOC 'Storage' {
                                 $OutObj = @()
                                 try {
-                                    Write-PScriboMessage "Discovered $($Bkjob.Name) storage options."
+
                                     $inObj = [ordered] @{
                                         'Backup Repository' = switch ($Bkjob.info.TargetRepositoryId) {
                                             '00000000-0000-0000-0000-000000000000' { $Bkjob.TargetDir }
@@ -214,7 +214,7 @@ function Get-AbrVbrFileShareBackupjobConf {
                                         Section -Style NOTOCHeading6 -ExcludeFromTOC "Advanced Settings ($FLVersion)" {
                                             $OutObj = @()
                                             try {
-                                                Write-PScriboMessage "Discovered $($Bkjob.Name) File Version options."
+
                                                 $FileVersionsRetentionScope = switch ($Bkjob.Options.NasBackupRetentionPolicy.FileVersionsRetentionScope) {
                                                     'LongTermOnly' { 'Limit the number of archived file versions only' }
                                                     'None' { 'Keep all file versions' }
@@ -249,7 +249,7 @@ function Get-AbrVbrFileShareBackupjobConf {
                                         Section -Style NOTOCHeading6 -ExcludeFromTOC "Advanced Settings (ACL Handling)" {
                                             $OutObj = @()
                                             try {
-                                                Write-PScriboMessage "Discovered $($Bkjob.Name) acl handling options."
+
                                                 $inObj = [ordered] @{
                                                     'Permissions and attribute backup' = switch ($Bkjob.Options.NasBackupOptions.FileAttributesChangeTrackingMode) {
                                                         'TrackOnlyFolderAttributesChanges' { 'Folder-level only (recommended)' }
@@ -277,7 +277,7 @@ function Get-AbrVbrFileShareBackupjobConf {
                                         Section -Style NOTOCHeading6 -ExcludeFromTOC "Advanced Settings (Storage)" {
                                             $OutObj = @()
                                             try {
-                                                Write-PScriboMessage "Discovered $($Bkjob.Name) storage options."
+
                                                 $inObj = [ordered] @{
                                                     'Inline Data Deduplication' = $Bkjob.Options.BackupStorageOptions.EnableDeduplication
                                                     'Compression Level' = switch ($Bkjob.Options.BackupStorageOptions.CompressionLevel) {
@@ -314,7 +314,7 @@ function Get-AbrVbrFileShareBackupjobConf {
                                         Section -Style NOTOCHeading6 -ExcludeFromTOC "Advanced Settings (Maintenance)" {
                                             $OutObj = @()
                                             try {
-                                                Write-PScriboMessage "Discovered $($Bkjob.Name) maintenance options."
+
                                                 $inObj = [ordered] @{
                                                     'Storage-Level Corruption Guard (SLCG)' = $Bkjob.Options.GenerationPolicy.EnableRechek
                                                     'SLCG Schedule Type' = $Bkjob.Options.GenerationPolicy.RecheckScheduleKind
@@ -361,7 +361,7 @@ function Get-AbrVbrFileShareBackupjobConf {
                                         Section -Style NOTOCHeading6 -ExcludeFromTOC "Advanced Settings (Notification)" {
                                             $OutObj = @()
                                             try {
-                                                Write-PScriboMessage "Discovered $($Bkjob.Name) notification options."
+
                                                 $inObj = [ordered] @{
                                                     'Send Snmp Notification' = $Bkjob.Options.NotificationOptions.SnmpNotification
                                                     'Send Email Notification' = $Bkjob.Options.NotificationOptions.SendEmailNotification2AdditionalAddresses
@@ -404,7 +404,7 @@ function Get-AbrVbrFileShareBackupjobConf {
                                                     $FrequencyValue = $Bkjob.Options.JobScriptCommand.Frequency
                                                     $FrequencyText = 'Run Script Every Backup Session'
                                                 }
-                                                Write-PScriboMessage "Discovered $($Bkjob.Name) script options."
+
                                                 $inObj = [ordered] @{
                                                     'Run the Following Script Before' = $Bkjob.Options.JobScriptCommand.PreScriptEnabled
                                                     'Run Script Before the Job' = $Bkjob.Options.JobScriptCommand.PreScriptCommandLine
@@ -439,7 +439,7 @@ function Get-AbrVbrFileShareBackupjobConf {
                                 Section -Style NOTOCHeading5 -ExcludeFromTOC "Archive Repository" {
                                     $OutObj = @()
                                     try {
-                                        Write-PScriboMessage "Discovered $($Bkjob.Name) archive repository."
+
                                         try {
                                             $inObj = [ordered] @{
                                                 'Backup Repository	' = $ArchiveRepoTarget.LongTermBackupRepository.Name
@@ -480,7 +480,7 @@ function Get-AbrVbrFileShareBackupjobConf {
                                     $OutObj = @()
                                     try {
                                         foreach ($SecondaryTarget in $SecondaryTargets) {
-                                            Write-PScriboMessage "Discovered $($Bkjob.Name) secondary target."
+
                                             try {
                                                 $inObj = [ordered] @{
                                                     'Job Name' = $SecondaryTarget.Name
@@ -511,7 +511,7 @@ function Get-AbrVbrFileShareBackupjobConf {
                                 Section -Style NOTOCHeading5 -ExcludeFromTOC "Schedule" {
                                     $OutObj = @()
                                     try {
-                                        Write-PScriboMessage "Discovered $($Bkjob.Name) schedule options."
+
                                         if ($Bkjob.ScheduleOptions.OptionsDaily.Enabled -eq "True") {
                                             $ScheduleType = "Daily"
                                             $Schedule = "Kind: $($Bkjob.ScheduleOptions.OptionsDaily.Kind),`r`nDays: $($Bkjob.ScheduleOptions.OptionsDaily.DaysSrv)"

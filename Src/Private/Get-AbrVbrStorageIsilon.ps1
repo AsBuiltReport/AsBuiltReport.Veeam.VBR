@@ -6,7 +6,7 @@ function Get-AbrVbrStorageIsilon {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.20
+        Version:        0.8.24
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -34,7 +34,7 @@ function Get-AbrVbrStorageIsilon {
                 foreach ($IsilonHost in $IsilonHosts) {
                     Section -Style Heading4 $($IsilonHost.Name) {
                         try {
-                            Write-PScriboMessage "Discovered $($IsilonHost.Name) Isilon Host."
+
                             $UsedCred = Get-VBRCredentials | Where-Object { $_.Id -eq $IsilonHost.Info.CredsId }
                             $IsilonOptions = [xml]$IsilonHost.info.Options
                             $inObj = [ordered] @{
@@ -70,7 +70,7 @@ function Get-AbrVbrStorageIsilon {
                                             $OutObj = @()
                                             foreach ($IsilonVol in $IsilonVols) {
                                                 try {
-                                                    Write-PScriboMessage "Discovered $($IsilonVol.Name) NetApp Volume."
+
                                                     $inObj = [ordered] @{
                                                         'Name' = $IsilonVol.Name
                                                         'Total Space' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size  $IsilonVol.Size

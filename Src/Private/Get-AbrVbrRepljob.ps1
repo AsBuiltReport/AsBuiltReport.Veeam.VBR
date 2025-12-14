@@ -6,7 +6,7 @@ function Get-AbrVbrRepljob {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.20
+        Version:        0.8.24
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -34,7 +34,7 @@ function Get-AbrVbrRepljob {
                     $OutObj = @()
                     foreach ($Bkjob in $Bkjobs) {
                         try {
-                            Write-PScriboMessage "Discovered $($Bkjob.Name) replication job."
+
                             $inObj = [ordered] @{
                                 'Name' = $Bkjob.Name
                                 'Type' = $Bkjob.TypeToString

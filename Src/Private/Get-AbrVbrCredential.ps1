@@ -6,7 +6,7 @@ function Get-AbrVbrCredential {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.20
+        Version:        0.8.24
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -34,7 +34,7 @@ function Get-AbrVbrCredential {
                     $OutObj = @()
                     foreach ($Credential in $Credentials) {
                         try {
-                            Write-PScriboMessage "Discovered $($Credential.Name) Server."
+
                             $inObj = [ordered] @{
                                 'Name' = $Credential.Name
                                 'Change Time' = switch ($Credential.ChangeTimeUtc) {
@@ -67,7 +67,7 @@ function Get-AbrVbrCredential {
                                 $OutObj = @()
                                 foreach ($CloudCredential in $CloudCredentials) {
                                     try {
-                                        Write-PScriboMessage "Discovered $($CloudCredential.Name) Server."
+
                                         $inObj = [ordered] @{
                                             'Name' = $CloudCredential.Name
                                             'Description' = $CloudCredential.Description

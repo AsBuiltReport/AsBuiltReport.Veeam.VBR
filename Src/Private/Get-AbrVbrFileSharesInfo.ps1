@@ -6,7 +6,7 @@ function Get-AbrVbrFileSharesInfo {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.13
+        Version:        0.8.24
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -42,7 +42,7 @@ function Get-AbrVbrFileSharesInfo {
                                 $Path = Get-VBRNASServerPath -Server $ShareObj
                                 $AccessCredentials = $ShareObj.AccessCredentials
                             }
-                            Write-PScriboMessage "Discovered $($Path) Share."
+
                             $inObj = [ordered] @{
                                 'Path' = $Path
                                 'Type' = switch ($ShareObj.Type) {

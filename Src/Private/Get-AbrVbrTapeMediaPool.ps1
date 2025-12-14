@@ -6,7 +6,7 @@ function Get-AbrVbrTapeMediaPool {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.20
+        Version:        0.8.24
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -43,7 +43,7 @@ function Get-AbrVbrTapeMediaPool {
                                     $Capacity = $PoolObj.Capacity
                                     $FreeSpace = $PoolObj.FreeSpace
                                 }
-                                Write-PScriboMessage "Discovered $($PoolObj.Name) Media Pool."
+
                                 $inObj = [ordered] @{
                                     'Name' = $PoolObj.Name
                                     'Type' = $PoolObj.Type
@@ -105,7 +105,7 @@ function Get-AbrVbrTapeMediaPool {
                                                         foreach ($Drive in $TapeLibraryObj.Drives) {
                                                             $TapeDrives += "Drive $($Drive.Address + 1)"
                                                         }
-                                                        Write-PScriboMessage "Discovered $($TapeLibraryObj.Name) Tape Library Configuration."
+
                                                         $inObj = [ordered] @{
                                                             'Library Name' = $TapeLibraryObj.Name
                                                             'Library Id' = $TapeLibraryObj.Id
@@ -179,7 +179,7 @@ function Get-AbrVbrTapeMediaPool {
                                                                     if ($TapeMediums) {
                                                                         foreach ($TapeMedium in $TapeMediums) {
                                                                             try {
-                                                                                Write-PScriboMessage "Discovered $($TapeMedium.Name) Medium."
+
                                                                                 $inObj = [ordered] @{
                                                                                     'Name' = $TapeMedium.Name
                                                                                     'Is Worm?' = $TapeMedium.IsWorm

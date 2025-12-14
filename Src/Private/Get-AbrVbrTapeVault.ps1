@@ -6,7 +6,7 @@ function Get-AbrVbrTapeVault {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.13
+        Version:        0.8.24
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -34,7 +34,7 @@ function Get-AbrVbrTapeVault {
                         try {
                             foreach ($TapeObj in $TapeObjs) {
                                 try {
-                                    Write-PScriboMessage "Discovered $($TapeObj.Name) Type Vault."
+
                                     $inObj = [ordered] @{
                                         'Name' = $TapeObj.Name
                                         'Description' = $TapeObj.Description

@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add initial support for Veeam Backup & Replication v13 on Windows systems
 - Add timeout handling for vSphere inventory queries
 - Add additional security compliance checks for Veeam VBR Linux appliance
+- Add option to control the module update check process
 
 ### Changed
 
@@ -27,6 +28,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Update GitHub CodeQL workflow to use latest checkout action version
 - Refactor Veeam Backup & Replication scripts to improve server information retrieval
 - Update TODO list with new tasks for security and compliance improvements
+
+### Removed
+
+- Removed noisy logging messages during report execution
 
 ## [0.8.23] - 2025-07-30
 

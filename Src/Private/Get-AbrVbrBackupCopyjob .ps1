@@ -6,7 +6,7 @@ function Get-AbrVbrBackupCopyjob {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.20
+        Version:        0.8.24
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -34,7 +34,7 @@ function Get-AbrVbrBackupCopyjob {
                     $OutObj = @()
                     foreach ($BkCopyjob in $BkCopyjobs) {
                         try {
-                            Write-PScriboMessage "Discovered $($BkCopyjob.Name) backup copy."
+
                             $inObj = [ordered] @{
                                 'Name' = $BkCopyjob.Name
                                 'Copy Mode' = $BkCopyjob.Mode

@@ -6,7 +6,7 @@ function Get-AbrVbrInstalledLicense {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.20
+        Version:        0.8.24
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -35,7 +35,7 @@ function Get-AbrVbrInstalledLicense {
                         $OutObj = @()
                         try {
                             foreach ($License in $VbrLicenses) {
-                                Write-PScriboMessage "Discovered $($License.Edition) license."
+
                                 $inObj = [ordered] @{
                                     'Licensed To' = $License.LicensedTo
                                     'Edition' = $License.Edition
@@ -85,7 +85,7 @@ function Get-AbrVbrInstalledLicense {
                                 $OutObj = @()
                                 try {
                                     foreach ($License in $Licenses) {
-                                        Write-PScriboMessage "Discovered $($Licenses.LicensedInstancesNumber) Instance licenses."
+
                                         $inObj = [ordered] @{
                                             'Instances Capacity' = $License.LicensedInstancesNumber
                                             'Used Instances' = $License.UsedInstancesNumber
@@ -131,7 +131,7 @@ function Get-AbrVbrInstalledLicense {
                                                     $OutObj = @()
                                                     try {
                                                         foreach ($License in $Licenses) {
-                                                            Write-PScriboMessage "Discovered $($Licenses.Type) Instance licenses."
+
                                                             $inObj = [ordered] @{
                                                                 'Type' = $License.Type
                                                                 'Count' = $License.Count
@@ -173,7 +173,7 @@ function Get-AbrVbrInstalledLicense {
                                 $OutObj = @()
                                 try {
                                     foreach ($License in $Licenses) {
-                                        Write-PScriboMessage "Discovered $($Licenses.LicensedSocketsNumber) CPU Socket licenses."
+
                                         $inObj = [ordered] @{
                                             'Licensed Sockets' = $License.LicensedSocketsNumber
                                             'Used Sockets Licenses' = $License.UsedSocketsNumber
@@ -221,7 +221,7 @@ function Get-AbrVbrInstalledLicense {
                                 $OutObj = @()
                                 try {
                                     foreach ($License in $Licenses) {
-                                        Write-PScriboMessage "Discovered $($Licenses.LicensedCapacityTb) Capacity licenses."
+
                                         $inObj = [ordered] @{
                                             'Licensed Capacity in TB' = $License.LicensedCapacityTb
                                             'Used Capacity in TB' = $License.UsedCapacityTb

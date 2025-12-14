@@ -94,7 +94,7 @@ function Get-AbrVbrSecurityCompliance {
                     'LinuxDisableProblematicServices' = 'Services with known issues should be disabled'
                     'LinuxOsHasVaRandomization' = 'Address space layout randomization (ASLR) should be used'
                     'LinuxOsIsFipsEnabled' = 'OS should be in FIPS mode'
-                    'LinuxOsUsesTcpSyncookies'= 'OS should be configured to use TCP syncookies'
+                    'LinuxOsUsesTcpSyncookies' = 'OS should be configured to use TCP syncookies'
                     'LinuxUsePasswordPolicy' = 'Linux servers should have password-based authentication disabled'
                     'SecureBootEnable' = 'Secure Boot should be enabled'
                     'LinuxUseSecurityModule' = 'System should use a security module'
@@ -110,7 +110,6 @@ function Get-AbrVbrSecurityCompliance {
                 $OutObj = @()
                 foreach ($SecurityCompliance in $SecurityCompliances) {
                     try {
-                        # Write-PscriboMessage -IsWarning "$($SecurityCompliance.Type) = $($RuleTypes[$SecurityCompliance.Type.ToString()])"
                         $inObj = [ordered] @{
                             'Best Practices' = $RuleTypes[$SecurityCompliance.Type.ToString()]
                             'Status' = $StatusObj[$SecurityCompliance.Status.ToString()]

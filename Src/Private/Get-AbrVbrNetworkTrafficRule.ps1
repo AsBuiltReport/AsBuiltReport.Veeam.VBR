@@ -6,7 +6,7 @@ function Get-AbrVbrNetworkTrafficRule {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.20
+        Version:        0.8.24
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -135,7 +135,7 @@ function Get-AbrVbrNetworkTrafficRule {
                                             $PreferedNetworks = Get-VBRPreferredNetwork
                                             foreach ($PreferedNetwork in $PreferedNetworks) {
                                                 try {
-                                                    Write-PScriboMessage "Discovered $($PreferedNetwork.CIDRNotation) Prefered Network."
+
                                                     $inObj = [ordered] @{
                                                         'IP Address' = $PreferedNetwork.IpAddress
                                                         'Subnet Mask' = $PreferedNetwork.SubnetMask

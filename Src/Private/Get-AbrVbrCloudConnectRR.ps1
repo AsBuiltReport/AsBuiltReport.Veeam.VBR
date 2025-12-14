@@ -6,7 +6,7 @@ function Get-AbrVbrCloudConnectRR {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.20
+        Version:        0.8.24
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -35,7 +35,7 @@ function Get-AbrVbrCloudConnectRR {
                         $OutObj = @()
                         foreach ($CloudObject in $CloudObjects) {
                             try {
-                                Write-PScriboMessage "Discovered $($CloudObject.Name) Cloud Connect Replica Resources information."
+
                                 $inObj = [ordered] @{
                                     'Name' = $CloudObject.Name
                                     'Platform' = $CloudObject.Platform
@@ -86,7 +86,7 @@ function Get-AbrVbrCloudConnectRR {
                                             Section -Style Heading5 $CloudObject.Name {
                                                 try {
                                                     Section -ExcludeFromTOC -Style NOTOCHeading6 'Host Hardware Quota' {
-                                                        Write-PScriboMessage "Discovered $($CloudObject.Name) Cloud Connect Hardware Quota information."
+
                                                         $inObj = [ordered] @{
                                                             'Host or Cluster' = "$($CloudObject.Host.Name) ($($CloudObject.Host.Type))"
                                                             'Platform' = $CloudObject.Platform
@@ -132,7 +132,7 @@ function Get-AbrVbrCloudConnectRR {
                                                 try {
                                                     Section -ExcludeFromTOC -Style NOTOCHeading6 'Storage Quota' {
                                                         $OutObj = @()
-                                                        Write-PScriboMessage "Discovered $($CloudObject.Name) Cloud Connect Storage Quota information."
+
                                                         foreach ($Storage in $CloudObject.Datastore) {
                                                             $inObj = [ordered] @{
                                                                 'Datastore Name' = $Storage.Datastore
@@ -167,7 +167,7 @@ function Get-AbrVbrCloudConnectRR {
                                                     Section -ExcludeFromTOC -Style NOTOCHeading6 'Network Quota' {
                                                         $OutObj = @()
                                                         $VlanConfiguration = Get-VBRCloudVLANConfiguration | Where-Object { $_.Host.Name -eq $CloudObject.Host.Name }
-                                                        Write-PScriboMessage "Discovered $($CloudObject.Name) Cloud Connect Network Quota information."
+
                                                         $inObj = [ordered] @{
                                                             'Specify number of networks with Internet Access' = $CloudObject.NumberOfNetWithInternet + $CloudObject.NumberOfNetWithoutInternet
                                                             'Specify number of internal networks' = $CloudObject.NumberOfNetWithoutInternet

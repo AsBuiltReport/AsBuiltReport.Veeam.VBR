@@ -6,7 +6,7 @@ function Get-AbrVbrCloudConnectStatus {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.20
+        Version:        0.8.24
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -35,7 +35,7 @@ function Get-AbrVbrCloudConnectStatus {
                         $CloudConnectInfraServiceStatus = Get-VBRCloudInfrastructureServiceState
                         $OutObj = @()
                         try {
-                            Write-PScriboMessage "Discovered $($CloudObject.DisplayName) Cloud Connect Service Status information."
+
                             $inObj = [ordered] @{
                                 'Server Name' = $VeeamBackupServer
                                 'Global Status' = $CloudConnectInfraStatus

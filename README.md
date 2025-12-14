@@ -171,6 +171,7 @@ The **Options** schema allows certain options within the report to be toggled on
 | RoundUnits              | int                        | 1       | Set the value to round the storage unit                                       |
 | SignatureAuthorName     | string                     | empty   | Set the signature author name                                                 |
 | SignatureCompanyName    | string                     | empty   | Set the signature company name                                                |
+| UpdateCheck             | true / false               | true    | Toggle to enable/disable module update check messages                         |
 
 ### InfoLevel
 
@@ -286,4 +287,5 @@ PS C:\> New-AsBuiltReport -Report Veeam.VBR -Target veeam-vbr.pharmax.local -Use
 
 - Many of Veeam's features depend on the Standard+ license, so the Community edition is not supported.
 - If the Veeam Backup Server is not joined to an Active Directory domain (WorkGroup Auth), the PSDefaultAuthentication option must be set to Negotiate. Otherwise, some report sections will be missing.
-- This project uses the PScribo module to generate the report. It has been detected that the EvotecIT PSWriteWord module uses the same cmdlet names. To generate the report correctly, it is required to uninstall the PSWriteWord module.
+- This project uses the PScribo module to generate the report. If you have the EvotecIT PSWriteWord module installed, uninstall it, as it contains conflicting cmdlet names that will prevent the report from generating correctly.
+

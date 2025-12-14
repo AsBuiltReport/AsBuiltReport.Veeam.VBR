@@ -33,14 +33,15 @@
         },
         "ExportDiagrams": false,
         "ExportDiagramsFormat": [
-            "png"
+            "pdf"
         ],
         "EnableDiagramSignature": false,
         "SignatureAuthorName": "",
         "SignatureCompanyName": "",
         "PSDefaultAuthentication": "Default",
         "RoundUnits": 1,
-        "NewIcons": false
+        "NewIcons": false,
+        "UpdateCheck": true
     },
     "InfoLevel": {
         "_comment_": "Please refer to the AsBuiltReport project contributing guide for information about how to define InfoLevels.",

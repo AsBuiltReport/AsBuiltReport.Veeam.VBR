@@ -6,7 +6,7 @@ function Get-AbrVbrBackupProxy {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.20
+        Version:        0.8.24
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -39,7 +39,7 @@ function Get-AbrVbrBackupProxy {
                                     Write-PScriboMessage "Backup Proxy InfoLevel set at $($InfoLevel.Infrastructure.Proxy)."
                                     Write-PScriboMessage "Collecting Summary Information."
                                     foreach ($BackupProxy in $BackupProxies) {
-                                        Write-PScriboMessage "Discovered $($BackupProxy.Name) Repository."
+
                                         $inObj = [ordered] @{
                                             'Name' = $BackupProxy.Name
                                             'Type' = $BackupProxy.Type
@@ -70,7 +70,6 @@ function Get-AbrVbrBackupProxy {
                                 }
                                 if ($InfoLevel.Infrastructure.Proxy -ge 2) {
                                     Write-PScriboMessage "Backup Proxy InfoLevel set at $($InfoLevel.Infrastructure.Proxy)."
-                                    Write-PScriboMessage "Collecting Detailed Information."
                                     foreach ($BackupProxy in $BackupProxies) {
                                         $inObj = [ordered] @{
                                             'Name' = $BackupProxy.Name
@@ -454,21 +453,21 @@ function Get-AbrVbrBackupProxy {
                                 }
                             }
                             if ($Options.EnableDiagrams) {
-                                Try {
-                                    Try {
+                                try {
+                                    try {
                                         $Graph = Get-AbrVbrDiagrammer -DiagramType 'Backup-to-vSphere-Proxy' -DiagramOutput base64
-                                    } Catch {
+                                    } catch {
                                         Write-PScriboMessage -IsWarning "VMware Backup Proxy Diagram: $($_.Exception.Message)"
                                     }
                                     if ($Graph) {
-                                        If ((Get-DiaImagePercent -GraphObj $Graph).Width -gt 600) { $ImagePrty = 20 } else { $ImagePrty = 30 }
+                                        if ((Get-DiaImagePercent -GraphObj $Graph).Width -gt 600) { $ImagePrty = 20 } else { $ImagePrty = 30 }
                                         Section -Style Heading3 "VMware Backup Proxy Diagram." {
                                             Image -Base64 $Graph -Text "VMware Backup Proxy Diagram" -Percent $ImagePrty -Align Center
                                             Paragraph "Image preview: Opens the image in a new tab to view it at full resolution." -Tabs 2
                                         }
                                         BlankLine
                                     }
-                                } Catch {
+                                } catch {
                                     Write-PScriboMessage -IsWarning "VMware Backup Proxy Diagram Section: $($_.Exception.Message)"
                                 }
                             }
@@ -486,7 +485,7 @@ function Get-AbrVbrBackupProxy {
                                     Write-PScriboMessage "Collecting Summary Information."
                                     foreach ($BackupProxy in $BackupProxies) {
                                         try {
-                                            Write-PScriboMessage "Discovered $($BackupProxy.Name) Proxy."
+
                                             $inObj = [ordered] @{
                                                 'Name' = $BackupProxy.Name
                                                 'Type' = $BackupProxy.Type
@@ -521,10 +520,9 @@ function Get-AbrVbrBackupProxy {
                                 }
                                 if ($InfoLevel.Infrastructure.Proxy -ge 2) {
                                     Write-PScriboMessage "Backup Proxy InfoLevel set at $($InfoLevel.Infrastructure.Proxy)."
-                                    Write-PScriboMessage "Collecting Detailed Information."
                                     foreach ($BackupProxy in $BackupProxies) {
                                         try {
-                                            Write-PScriboMessage "Discovered $($BackupProxy.Name) Repository."
+
                                             $inObj = [ordered] @{
                                                 'Name' = $BackupProxy.Name
                                                 'Host Name' = $BackupProxy.Host.Name

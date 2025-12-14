@@ -11,3 +11,4 @@
 - [x] Fix Security & Compliance Best Practices section
 - [ ] Fix Immutability Supported column in Repositories table
 - [ ] Fix Storage-Level Corruption Guard (SLCG)
+- [ ] Integrate Veeam.Diagrammer diagrams to the main report

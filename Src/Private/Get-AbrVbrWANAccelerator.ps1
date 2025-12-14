@@ -37,7 +37,7 @@ function Get-AbrVbrWANAccelerator {
                         foreach ($WANAccel in $WANAccels) {
                             $IsWaHasAnyCaches = 'Unknown'
                             try {
-                                Write-PScriboMessage "Discovered $($WANAccel.Name) Wan Accelerator."
+
                                 try {
                                     $IsWaHasAnyCaches = $WANAccel.IsWaHasAnyCaches()
                                 } catch {

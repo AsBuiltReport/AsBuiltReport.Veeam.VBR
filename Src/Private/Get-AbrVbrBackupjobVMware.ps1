@@ -6,7 +6,7 @@ function Get-AbrVbrBackupjobVMware {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.20
+        Version:        0.8.24
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -36,7 +36,7 @@ function Get-AbrVbrBackupjobVMware {
                         if ($VMcounts = Get-VBRBackup | Where-Object { $_.TypeToString -eq "VMware Backup" -or $_.TypeToString -eq "VMware Backup Copy" -or $_.TypeToString -eq "VM Copy" -or $_.TypeToString -eq "Cloud Director Backup" }) {
                             foreach ($VMcount in $VMcounts) {
                                 try {
-                                    Write-PScriboMessage "Discovered $($VMcount.Name) ."
+
                                     $inObj = [ordered] @{
                                         'Name' = $VMcount.Name
                                         'Creation Time' = $VMcount.CreationTime
@@ -71,7 +71,7 @@ function Get-AbrVbrBackupjobVMware {
                                         $CommonInfos = (Get-VBRJob -WarningAction SilentlyContinue -Name $Bkjob.Name | Where-Object { $_.TypeToString -ne 'Windows Agent Backup' }).Info
                                         foreach ($CommonInfo in $CommonInfos) {
                                             try {
-                                                Write-PScriboMessage "Discovered $($Bkjob.Name) common information."
+
                                                 $inObj = [ordered] @{
                                                     'Name' = $Bkjob.Name
                                                     'Type' = $Bkjob.TypeToString
@@ -122,7 +122,7 @@ function Get-AbrVbrBackupjobVMware {
                                         try {
                                             foreach ($LinkedBkJob in $Bkjob.LinkedJobs) {
                                                 try {
-                                                    Write-PScriboMessage "Discovered $($Bkjob.Name) linked backup job."
+
                                                     $Job = Get-VBRJob -WarningAction SilentlyContinue | Where-Object { $_.Id -eq $LinkedBkJob.info.LinkedObjectId }
                                                     $inObj = [ordered] @{
                                                         'Name' = $Job.Name
@@ -156,7 +156,7 @@ function Get-AbrVbrBackupjobVMware {
                                         try {
                                             foreach ($LinkedRepository in $Bkjob.LinkedRepositories.LinkedRepositoryId) {
                                                 try {
-                                                    Write-PScriboMessage "Discovered $($Bkjob.Name) linked repository."
+
                                                     if ($Repo = Get-VBRBackupRepository | Where-Object { $_.Id -eq $LinkedRepository }) {
                                                         $inObj = [ordered] @{
                                                             'Name' = $Repo.Name
@@ -196,7 +196,7 @@ function Get-AbrVbrBackupjobVMware {
                                         $OutObj = @()
                                         try {
                                             try {
-                                                Write-PScriboMessage "Discovered $($Bkjob.Name) data transfer."
+
                                                 if ($Bkjob.IsWanAcceleratorEnabled()) {
                                                     try {
                                                         $TargetWanAccelerator = $Bkjob.GetTargetWanAccelerator().Name
@@ -246,7 +246,7 @@ function Get-AbrVbrBackupjobVMware {
                                         $OutObj = @()
                                         try {
                                             foreach ($OBJ in ($Bkjob.GetViOijs() | Where-Object { $_.Type -eq "Include" -or $_.Type -eq "Exclude" } )) {
-                                                Write-PScriboMessage "Discovered $($OBJ.Name) object to backup."
+
                                                 $inObj = [ordered] @{
                                                     'Name' = $OBJ.Name
                                                     'Resource Type' = & {
@@ -283,7 +283,7 @@ function Get-AbrVbrBackupjobVMware {
                                 Section -Style NOTOCHeading5 -ExcludeFromTOC $Storage {
                                     $OutObj = @()
                                     try {
-                                        Write-PScriboMessage "Discovered $($Bkjob.Name) storage options."
+
                                         if ($Bkjob.BackupStorageOptions.RetentionType -eq "Days") {
                                             $RetainString = 'Retain Days To Keep'
                                             $Retains = $Bkjob.BackupStorageOptions.RetainDaysToKeep
@@ -353,7 +353,7 @@ function Get-AbrVbrBackupjobVMware {
                                             Section -Style NOTOCHeading6 -ExcludeFromTOC "Advanced Settings (Maintenance)" {
                                                 $OutObj = @()
                                                 try {
-                                                    Write-PScriboMessage "Discovered $($Bkjob.Name) maintenance options."
+
                                                     $inObj = [ordered] @{
                                                         'Storage-Level Corruption Guard (SLCG)' = $Bkjob.Options.GenerationPolicy.EnableRechek
                                                         'SLCG Schedule Type' = $Bkjob.Options.GenerationPolicy.RecheckScheduleKind
@@ -400,7 +400,7 @@ function Get-AbrVbrBackupjobVMware {
                                             Section -Style NOTOCHeading6 -ExcludeFromTOC "Advanced Settings (Storage)" {
                                                 $OutObj = @()
                                                 try {
-                                                    Write-PScriboMessage "Discovered $($Bkjob.Name) storage options."
+
                                                     $inObj = [ordered] @{
                                                         'Inline Data Deduplication' = $Bkjob.Options.BackupStorageOptions.EnableDeduplication
                                                         'Exclude Swap Files Block' = $Bkjob.ViSourceOptions.ExcludeSwapFile
@@ -463,7 +463,7 @@ function Get-AbrVbrBackupjobVMware {
                                             Section -Style NOTOCHeading6 -ExcludeFromTOC "Advanced Settings (Notification)" {
                                                 $OutObj = @()
                                                 try {
-                                                    Write-PScriboMessage "Discovered $($Bkjob.Name) notification options."
+
                                                     $inObj = [ordered] @{
                                                         'Send Snmp Notification' = $Bkjob.Options.NotificationOptions.SnmpNotification
                                                         'Send Email Notification' = $Bkjob.Options.NotificationOptions.SendEmailNotification2AdditionalAddresses
@@ -499,7 +499,7 @@ function Get-AbrVbrBackupjobVMware {
                                             Section -Style NOTOCHeading6 -ExcludeFromTOC "Advanced Settings (vSphere)" {
                                                 $OutObj = @()
                                                 try {
-                                                    Write-PScriboMessage "Discovered $($Bkjob.Name) vSphere options."
+
                                                     $inObj = [ordered] @{
                                                         'Enable VMware Tools Quiescence' = $Bkjob.Options.ViSourceOptions.VMToolsQuiesce
                                                         'Use Change Block Tracking' = $Bkjob.Options.ViSourceOptions.UseChangeTracking
@@ -526,7 +526,7 @@ function Get-AbrVbrBackupjobVMware {
                                             Section -Style NOTOCHeading6 -ExcludeFromTOC "Advanced Settings (Integration)" {
                                                 $OutObj = @()
                                                 try {
-                                                    Write-PScriboMessage "Discovered $($Bkjob.Name) Integration options."
+
                                                     $inObj = [ordered] @{
                                                         'Enable Backup from Storage Snapshots' = $Bkjob.Options.SanIntegrationOptions.UseSanSnapshots
                                                         'Limit processed VM count per Storage Snapshot' = $Bkjob.Options.SanIntegrationOptions.MultipleStorageSnapshotEnabled
@@ -561,7 +561,7 @@ function Get-AbrVbrBackupjobVMware {
                                                         $FrequencyValue = $Bkjob.Options.JobScriptCommand.Frequency
                                                         $FrequencyText = 'Run Script Every Backup Session'
                                                     }
-                                                    Write-PScriboMessage "Discovered $($Bkjob.Name) script options."
+
                                                     $inObj = [ordered] @{
                                                         'Run the Following Script Before' = $Bkjob.Options.JobScriptCommand.PreScriptEnabled
                                                         'Run Script Before the Job' = $Bkjob.Options.JobScriptCommand.PreScriptCommandLine
@@ -591,7 +591,7 @@ function Get-AbrVbrBackupjobVMware {
                                             Section -Style NOTOCHeading6 -ExcludeFromTOC "Advanced Settings (RPO Monitor)" {
                                                 $OutObj = @()
                                                 try {
-                                                    Write-PScriboMessage "Discovered $($Bkjob.Name) rpo monitor options."
+
                                                     $inObj = [ordered] @{
                                                         'RPO Monitor Enabled' = $Bkjob.Options.RpoOptions.Enabled
                                                         'If Backup is not Copied Within' = "$($Bkjob.Options.RpoOptions.Value) $($Bkjob.Options.RpoOptions.TimeUnit)"
@@ -624,7 +624,7 @@ function Get-AbrVbrBackupjobVMware {
                                         $OutObj = @()
                                         try {
                                             foreach ($SecondaryTarget in $SecondaryTargets) {
-                                                Write-PScriboMessage "Discovered $($Bkjob.Name) secondary target."
+
                                                 try {
                                                     $inObj = [ordered] @{
                                                         'Job Name' = $SecondaryTarget.Name
@@ -657,7 +657,7 @@ function Get-AbrVbrBackupjobVMware {
                                         try {
                                             $VSSObjs = Get-VBRJobObject -Job $Bkjob.Name | Where-Object { $_.Type -eq "Include" -or $_.Type -eq "VssChild" } | Sort-Object -Property Name
                                             foreach ($VSSObj in $VSSObjs) {
-                                                Write-PScriboMessage "Discovered $($Bkjob.Name) guest processing."
+
                                                 $inObj = [ordered] @{
                                                     'Name' = $VSSObj.Name
                                                     'Enabled' = $VSSObj.VssOptions.Enabled
@@ -770,7 +770,7 @@ function Get-AbrVbrBackupjobVMware {
                                     Section -Style NOTOCHeading5 -ExcludeFromTOC "Schedule" {
                                         $OutObj = @()
                                         try {
-                                            Write-PScriboMessage "Discovered $($Bkjob.Name) schedule options."
+
                                             if ($Bkjob.ScheduleOptions.OptionsDaily.Enabled -eq "True") {
                                                 $ScheduleType = "Daily"
                                                 $Schedule = "Kind: $($Bkjob.ScheduleOptions.OptionsDaily.Kind),`r`nDays: $($Bkjob.ScheduleOptions.OptionsDaily.DaysSrv)"

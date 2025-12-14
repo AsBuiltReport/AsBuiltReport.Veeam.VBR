@@ -34,7 +34,7 @@ function Get-AbrVbrUserRoleAssignment {
                 try {
                     $RoleAssignments = Get-VBRUserRoleAssignment
                     foreach ($RoleAssignment in $RoleAssignments) {
-                        Write-PScriboMessage "Discovered $($RoleAssignment.Name) Server."
+
                         $inObj = [ordered] @{
                             'Name' = $RoleAssignment.Name
                             'Type' = $RoleAssignment.Type
@@ -103,7 +103,7 @@ function Get-AbrVbrUserRoleAssignment {
                                 try { $UserActionNotification = [Veeam.Backup.Core.SBackupOptions]::get_UserActionNotification() } catch { Out-Null }
                                 try { $UserActionRetention = [Veeam.Backup.Core.SBackupOptions]::get_UserActionRetention() } catch { Out-Null }
                                 foreach ($RoleAssignment in $RoleAssignments) {
-                                    Write-PScriboMessage "Discovered Roles and Users Settings."
+
                                     $inObj = [ordered] @{
                                         'Is MFA globally enabled?' = $MFAGlobalSetting
                                         'Is auto logoff on inactivity enabled?' = $AutoTerminateSession

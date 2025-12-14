@@ -5,7 +5,7 @@ function Get-AbrVbrCloudConnectBS {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.20
+        Version:        0.8.24
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -44,7 +44,7 @@ function Get-AbrVbrCloudConnectBS {
                                 Section -Style Heading4 $CloudObject.Name {
                                     $OutObj = @()
                                     try {
-                                        Write-PScriboMessage "Discovered $($CloudObject.Name) Cloud Backup Storage information."
+
 
                                         $inObj = [ordered] @{
                                             'Type' = $CloudObject.TypeDisplay
@@ -82,7 +82,7 @@ function Get-AbrVbrCloudConnectBS {
                                                 $OutObj = @()
                                                 try {
                                                     foreach ($Tenant in ($CloudTenant | Where-Object { $_.Resources.Repository.Name -eq $CloudObject.Name })) {
-                                                        Write-PScriboMessage "Discovered $($CloudObject.Name) Cloud Tenant utilization."
+
                                                         foreach ($Storage in ($Tenant.Resources | Where-Object { $_.Repository.Name -eq $CloudObject.Name })) {
                                                             $inObj = [ordered] @{
                                                                 'Name' = $Tenant.Name

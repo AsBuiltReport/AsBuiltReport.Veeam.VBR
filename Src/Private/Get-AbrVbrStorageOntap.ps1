@@ -6,7 +6,7 @@ function Get-AbrVbrStorageOntap {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.20
+        Version:        0.8.24
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -35,7 +35,7 @@ function Get-AbrVbrStorageOntap {
                     foreach ($OntapHost in $OntapHosts) {
                         Section -Style Heading4 $($OntapHost.Name) {
                             try {
-                                Write-PScriboMessage "Discovered $($OntapHost.Name) NetApp Host."
+
                                 $UsedCred = Get-VBRCredentials | Where-Object { $_.Id -eq $OntapHost.Info.CredsId }
                                 $OntapOptions = [xml]$OntapHost.info.Options
                                 $inObj = [ordered] @{
@@ -74,7 +74,7 @@ function Get-AbrVbrStorageOntap {
                                                 $OutObj = @()
                                                 foreach ($OntapVol in $OntapVols) {
                                                     try {
-                                                        Write-PScriboMessage "Discovered $($OntapVol.Name) NetApp Volume."
+
                                                         $inObj = [ordered] @{
                                                             'Name' = $OntapVol.Name
                                                             'Total Space' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size  $OntapVol.Size

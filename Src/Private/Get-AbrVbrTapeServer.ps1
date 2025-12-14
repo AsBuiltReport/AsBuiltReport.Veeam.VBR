@@ -6,7 +6,7 @@ function Get-AbrVbrTapeServer {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.13
+        Version:        0.8.24
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -32,7 +32,7 @@ function Get-AbrVbrTapeServer {
                     $OutObj = @()
                     try {
                         foreach ($TapeObj in $TapeObjs) {
-                            Write-PScriboMessage "Discovered $($TapeObj.Name) Type Server."
+
                             $inObj = [ordered] @{
                                 'Name' = $TapeObj.Name
                                 'Description' = $TapeObj.Description

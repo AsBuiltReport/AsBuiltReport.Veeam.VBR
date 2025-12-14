@@ -6,7 +6,7 @@ function Get-AbrVbrScaleOutRepository {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.20
+        Version:        0.8.24
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -34,7 +34,7 @@ function Get-AbrVbrScaleOutRepository {
                     $OutObj = @()
                     try {
                         foreach ($BackupRepo in $BackupRepos) {
-                            Write-PScriboMessage "Discovered $($BackupRepo.Name) Repository."
+
                             $inObj = [ordered] @{
                                 'Name' = $BackupRepo.Name
                                 'Performance Tier' = $BackupRepo.Extent.Name
@@ -81,7 +81,7 @@ function Get-AbrVbrScaleOutRepository {
                                             #---------------------------------------------------------------------------------------------#
                                             Section -Style NOTOCHeading6 -ExcludeFromTOC "General Settings" {
                                                 $OutObj = @()
-                                                Write-PScriboMessage "Discovered $($BackupRepo.Name) General Settings."
+
                                                 $inObj = [ordered] @{
                                                     'Placement Policy' = ($BackupRepo.PolicyType -creplace '([A-Z\W_]|\d+)(?<![a-z])', ' $&').trim()
                                                     'Use Per VM Backup Files' = $BackupRepo.UsePerVMBackupFiles
@@ -139,7 +139,7 @@ function Get-AbrVbrScaleOutRepository {
                                                 #---------------------------------------------------------------------------------------------#
                                                 Section -Style NOTOCHeading6 -ExcludeFromTOC "Performance Tier" {
                                                     $OutObj = @()
-                                                    Write-PScriboMessage "Discovered $($Extent.Name) Performance Tier."
+
                                                     $inObj = [ordered] @{
                                                         'Name' = $Extent.Name
                                                         'Repository' = $Extent.Repository.Name
@@ -175,7 +175,7 @@ function Get-AbrVbrScaleOutRepository {
                                             try {
                                                 Section -Style NOTOCHeading6 -ExcludeFromTOC "Capacity Tier" {
                                                     $OutObj = @()
-                                                    Write-PScriboMessage "Discovered $(($CapacityExtent.Repository).Name) Capacity Tier."
+
                                                     $inObj = [ordered] @{
                                                         'Name' = ($CapacityExtent.Repository).Name
                                                         'Service Point' = ($CapacityExtent.Repository).ServicePoint
@@ -270,7 +270,7 @@ function Get-AbrVbrScaleOutRepository {
                                             try {
                                                 Section -Style NOTOCHeading6 -ExcludeFromTOC "Archive Tier" {
                                                     $OutObj = @()
-                                                    Write-PScriboMessage "Discovered $(($ArchiveExtent.Repository).Name) Archive Tier."
+
                                                     $inObj = [ordered] @{
                                                         'Name' = ($ArchiveExtent.Repository).Name
                                                         'Type' = ($ArchiveExtent.Repository).ArchiveType

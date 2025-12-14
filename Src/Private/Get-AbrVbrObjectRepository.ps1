@@ -6,7 +6,7 @@ function Get-AbrVbrObjectRepository {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.13
+        Version:        0.8.24
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -35,7 +35,7 @@ function Get-AbrVbrObjectRepository {
                     foreach ($ObjectRepo in $ObjectRepos) {
                         if ($Null -ne $ObjectRepo.ConnectionType) {
                             try {
-                                Write-PScriboMessage "Discovered $($ObjectRepo.Name) Repository."
+
                                 $inObj = [ordered] @{
                                     'Name' = $ObjectRepo.Name
                                     'Type' = $ObjectRepo.Type
@@ -53,7 +53,7 @@ function Get-AbrVbrObjectRepository {
                             }
                         } else {
                             try {
-                                Write-PScriboMessage "Discovered $($ObjectRepo.Name) Repository."
+
                                 $inObj = [ordered] @{
                                     'Name' = $ObjectRepo.Name
                                     'Type' = $ObjectRepo.Type
@@ -100,7 +100,7 @@ function Get-AbrVbrObjectRepository {
                                         try {
                                             Section -Style NOTOCHeading4 -ExcludeFromTOC "$($ObjectRepo.Name)" {
                                                 $OutObj = @()
-                                                Write-PScriboMessage "Discovered $($ObjectRepo.Name) Object Backup Repository."
+
                                                 $inObj = [ordered] @{
                                                     'Name' = ($ObjectRepo).Name
                                                     'Service Point' = ($ObjectRepo).ServicePoint
@@ -190,7 +190,7 @@ function Get-AbrVbrObjectRepository {
                                 try {
                                     Section -Style NOTOCHeading4 -ExcludeFromTOC "$($ObjectRepoArchive.Name)" {
                                         $OutObj = @()
-                                        Write-PScriboMessage "Discovered $($ObjectRepoArchive.Name) Backup Repository."
+
                                         $inObj = [ordered] @{
                                             'Gateway Server' = switch ($ObjectRepoArchive.GatewayServer.Name) {
                                                 "" { "Auto Selected"; break }

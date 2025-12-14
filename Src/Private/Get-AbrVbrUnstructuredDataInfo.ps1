@@ -6,7 +6,7 @@ function Get-AbrVbrUnstructuredDataInfo {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.13
+        Version:        0.8.24
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -33,7 +33,7 @@ function Get-AbrVbrUnstructuredDataInfo {
                 try {
                     foreach ($ShareObj in $ShareObjs | Where-Object { $_.Type -eq "FileServer" }) {
                         try {
-                            Write-PScriboMessage "Discovered $($ShareObj.Name) Server."
+
                             $inObj = [ordered] @{
                                 'Name' = $ShareObj.Name
                                 'Backup IO Control' = $ShareObj.BackupIOControlLevel
@@ -79,7 +79,7 @@ function Get-AbrVbrUnstructuredDataInfo {
                                 $Path = Get-VBRNASServerPath -Server $ShareObj
                                 $AccessCredentials = $ShareObj.AccessCredentials
                             }
-                            Write-PScriboMessage "Discovered $($Path) Share."
+
                             $inObj = [ordered] @{
                                 'Path' = $Path
                                 'Type' = switch ($ShareObj.Type) {
@@ -133,7 +133,7 @@ function Get-AbrVbrUnstructuredDataInfo {
                                 $Path = Get-VBRNASServerPath -Server $ShareObj
                                 $AccessCredentials = $ShareObj.AccessCredentials
                             }
-                            Write-PScriboMessage "Discovered $($Path) Share."
+
                             $inObj = [ordered] @{
                                 'Path' = $Path
                                 'Type' = switch ($ShareObj.Type) {
@@ -179,7 +179,7 @@ function Get-AbrVbrUnstructuredDataInfo {
                 try {
                     foreach ($ShareObj in $ShareObjs | Where-Object { $_.Type -eq "AzureBlobServer" -or $_.Type -eq "AmazonS3Server" -or $_.Type -eq "S3CompatibleServer" }) {
                         try {
-                            Write-PScriboMessage "Discovered $($ShareObj.Name) Server."
+
                             $inObj = [ordered] @{
                                 'Name' = $ShareObj.FriendlyName
                                 'Region' = $ShareObj.Info

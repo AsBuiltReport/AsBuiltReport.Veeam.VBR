@@ -6,7 +6,7 @@ function Get-AbrVbrFileToTape {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.20
+        Version:        0.8.24
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -38,7 +38,7 @@ function Get-AbrVbrFileToTape {
                                 Section -Style NOTOCHeading5 -ExcludeFromTOC 'Backups Information' {
                                     $OutObj = @()
                                     try {
-                                        Write-PScriboMessage "Discovered $($TBkjob.Name) common information."
+
                                         $inObj = [ordered] @{
                                             'Name' = $TBkjob.Name
                                             'Type' = $TBkjob.Type
@@ -85,7 +85,7 @@ function Get-AbrVbrFileToTape {
                                             $OutObj = @()
                                             foreach ($File in $TBkjob.Object) {
                                                 try {
-                                                    Write-PScriboMessage "Discovered $($File.Name) files and folders to process."
+
                                                     $inObj = [ordered] @{
                                                         'Name' = $File.Server.Name
                                                         'Type' = $File.Server.Type
@@ -102,7 +102,7 @@ function Get-AbrVbrFileToTape {
                                             if ($TBkjob.NdmpObject) {
                                                 foreach ($NDMP in $TBkjob.NdmpObject) {
                                                     try {
-                                                        Write-PScriboMessage "Discovered $($NDMP.Name) NDMP to process."
+
                                                         $inObj2 = [ordered] @{
                                                             'Name' = switch ((Get-VBRNDMPServer -Id $NDMP.ServerId).Name) {
                                                                 $Null { 'NDMP Object' }
@@ -141,7 +141,7 @@ function Get-AbrVbrFileToTape {
                                             $OutObj = @()
                                             foreach ($BackupMediaPool in $TBkjob.FullBackupMediaPool) {
                                                 try {
-                                                    Write-PScriboMessage "Discovered $($TBkjob.Name) media pool."
+
                                                     $inObj = [ordered] @{
                                                         'Name' = $BackupMediaPool.Name
                                                         'Pool Type' = $BackupMediaPool.Type
@@ -192,7 +192,7 @@ function Get-AbrVbrFileToTape {
                                             $OutObj = @()
                                             foreach ($BackupMediaPool in $TBkjob.IncrementalBackupMediaPool) {
                                                 try {
-                                                    Write-PScriboMessage "Discovered $($TBkjob.Name) incremental backup."
+
                                                     $inObj = [ordered] @{
                                                         'Name' = $BackupMediaPool.Name
                                                         'Pool Type' = $BackupMediaPool.Type
@@ -241,7 +241,7 @@ function Get-AbrVbrFileToTape {
                                     Section -Style NOTOCHeading5 -ExcludeFromTOC 'Options' {
                                         $OutObj = @()
                                         try {
-                                            Write-PScriboMessage "Discovered $($TBkjob.Name) options."
+
                                             $inObj = [ordered] @{
                                                 'Use Microsoft volume shadow copy (VSS)' = $TBkjob.UseVss
                                                 'Eject Tape Media Upon Job Completion' = $TBkjob.EjectCurrentMedium
@@ -266,7 +266,7 @@ function Get-AbrVbrFileToTape {
                                                 Section -Style NOTOCHeading6 -ExcludeFromTOC 'Advanced Settings (Notifications)' {
                                                     $OutObj = @()
                                                     try {
-                                                        Write-PScriboMessage "Discovered $($TBkjob.Name) notification options."
+
                                                         $inObj = [ordered] @{
                                                             'Send Email Notification' = $TBkjob.NotificationOptions.EnableAdditionalNotification
                                                             'Email Notification Additional Recipients' = $TBkjob.NotificationOptions.AdditionalAddress -join ","
@@ -306,7 +306,7 @@ function Get-AbrVbrFileToTape {
                                                 Section -Style NOTOCHeading6 -ExcludeFromTOC 'Advanced Settings (Advanced)' {
                                                     $OutObj = @()
                                                     try {
-                                                        Write-PScriboMessage "Discovered $($TBkjob.Name) advanced options."
+
                                                         $inObj = [ordered] @{
                                                             'Use Hardware Compression when available' = $TBkjob.UseHardwareCompression
                                                         }

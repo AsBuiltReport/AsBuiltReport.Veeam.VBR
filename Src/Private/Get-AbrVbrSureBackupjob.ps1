@@ -6,7 +6,7 @@ function Get-AbrVbrSureBackupjob {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.20
+        Version:        0.8.24
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -34,7 +34,7 @@ function Get-AbrVbrSureBackupjob {
                     $OutObj = @()
                     foreach ($SBkjob in $SBkjobs) {
                         try {
-                            Write-PScriboMessage "Discovered $($SBkjob.Name) location."
+
                             $inObj = [ordered] @{
                                 'Name' = $SBkjob.Name
                                 'Status' = switch ($SBkjob.IsEnabled) {

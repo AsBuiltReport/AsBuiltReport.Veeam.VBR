@@ -6,7 +6,7 @@ function Get-AbrVbrEntraIDBackupjobConf {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.20
+        Version:        0.8.24
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -39,7 +39,7 @@ function Get-AbrVbrEntraIDBackupjobConf {
                                     $OutObj = @()
                                     try {
                                         try {
-                                            Write-PScriboMessage "Discovered $($Bkjob.Name) common information."
+
                                             $inObj = [ordered] @{
                                                 'Name' = $Bkjob.Name
                                                 'Id' = $Bkjob.Id
@@ -83,7 +83,7 @@ function Get-AbrVbrEntraIDBackupjobConf {
                                 Section -Style NOTOCHeading4 -ExcludeFromTOC 'Tenant' {
                                     $OutObj = @()
                                     try {
-                                        Write-PScriboMessage "Discovered $($Bkjob.Tenant.Name) EntraID Tenant."
+
                                         $inObj = [ordered] @{
                                             'Name' = $Bkjob.Tenant.Name
                                             'Azure Tenant Id' = $Bkjob.Tenant.AzureTenantId
@@ -129,7 +129,7 @@ function Get-AbrVbrEntraIDBackupjobConf {
                                         Section -Style NOTOCHeading5 -ExcludeFromTOC 'Advanced Settings (Encryption)' {
                                             $OutObj = @()
                                             try {
-                                                Write-PScriboMessage "Discovered $($Bkjob.Tenant.Name) EntraID Encryption."
+
                                                 $inObj = [ordered] @{
                                                     'Enabled' = $Bkjob.EncryptionOptions.Enabled
                                                     'Id' = $Bkjob.EncryptionOptions.key.Id
@@ -173,7 +173,7 @@ function Get-AbrVbrEntraIDBackupjobConf {
                                         Section -Style NOTOCHeading5 -ExcludeFromTOC "Advanced Settings (Notification)" {
                                             $OutObj = @()
                                             try {
-                                                Write-PScriboMessage "Discovered $($Bkjob.Name) notification options."
+
                                                 $inObj = [ordered] @{
                                                     'Send Snmp Notification' = $Bkjob.NotificationOptions.EnableSnmpNotification
                                                     'Send Email Notification' = $Bkjob.NotificationOptions.EnableAdditionalNotification
@@ -213,7 +213,7 @@ function Get-AbrVbrEntraIDBackupjobConf {
                                         Section -Style NOTOCHeading5 -ExcludeFromTOC "Schedule" {
                                             $OutObj = @()
                                             try {
-                                                Write-PScriboMessage "Discovered $($Bkjob.Name) schedule options."
+
                                                 if ($Bkjob.ScheduleOptions.OptionsDaily.Enabled -eq "True") {
                                                     $ScheduleType = "Daily"
                                                     $Schedule = "Kind: $($Bkjob.ScheduleOptions.OptionsDaily.Kind),`r`nDays: $($Bkjob.ScheduleOptions.OptionsDaily.DaysSrv)"

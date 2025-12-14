@@ -6,7 +6,7 @@ function Get-AbrVbrSureBackupjobconf {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.20
+        Version:        0.8.24
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -38,7 +38,7 @@ function Get-AbrVbrSureBackupjobconf {
                                 try {
                                     Section -Style NOTOCHeading5 -ExcludeFromTOC 'Common Information' {
                                         $OutObj = @()
-                                        Write-PScriboMessage "Discovered $($SBkjob.Name) common information."
+
                                         $inObj = [ordered] @{
                                             'Name' = $SBkjob.Name
                                             'Last Run' = $SBkjob.LastRun
@@ -83,7 +83,7 @@ function Get-AbrVbrSureBackupjobconf {
                                     if ($SBkjob.VirtualLab) {
                                         Section -Style NOTOCHeading5 -ExcludeFromTOC 'Virtual Lab' {
                                             $OutObj = @()
-                                            Write-PScriboMessage "Discovered $($SBkjob.VirtualLab.Name) virtual lab."
+
                                             $inObj = [ordered] @{
                                                 'Name' = $SBkjob.VirtualLab.Name
                                                 'Description' = $SBkjob.VirtualLab.Description
@@ -116,7 +116,7 @@ function Get-AbrVbrSureBackupjobconf {
                                     try {
                                         Section -Style NOTOCHeading5 -ExcludeFromTOC 'Application Group' {
                                             $OutObj = @()
-                                            Write-PScriboMessage "Discovered $($SBkjob.ApplicationGroup.Name) application group."
+
                                             $inObj = [ordered] @{
                                                 'Name' = $SBkjob.ApplicationGroup.Name
                                                 'Virtual Machines' = $SBkjob.ApplicationGroup.VM -join ", "
@@ -144,7 +144,7 @@ function Get-AbrVbrSureBackupjobconf {
                                         Section -Style NOTOCHeading5 -ExcludeFromTOC 'Linked Jobs' {
                                             $OutObj = @()
                                             foreach ($LinkedJob in $SBkjob.LinkedJob) {
-                                                Write-PScriboMessage "Discovered $($LinkedJob.Job.Name) linked job."
+
                                                 $inObj = [ordered] @{
                                                     'Name' = $LinkedJob.Job.Name
                                                     'Roles' = switch ([string]::IsNullOrEmpty($LinkedJob.Role)) {
@@ -170,7 +170,7 @@ function Get-AbrVbrSureBackupjobconf {
                                                     Section -Style NOTOCHeading6 -ExcludeFromTOC 'Verification Options' {
                                                         $OutObj = @()
                                                         foreach ($LinkedJob in $SBkjob.LinkedJob) {
-                                                            Write-PScriboMessage "Discovered $($LinkedJob.Job.Name) verification options."
+
                                                             $inObj = [ordered] @{
                                                                 'Job Name' = $LinkedJob.Job.Name
                                                                 'Amount of memory to Allocate to VM' = "$($LinkedJob.StartupOptions.AllocatedMemory) percent"
@@ -207,7 +207,7 @@ function Get-AbrVbrSureBackupjobconf {
                                                         Section -Style NOTOCHeading6 -ExcludeFromTOC 'Per VM Verification Rules' {
                                                             $OutObj = @()
                                                             foreach ($LinkedJobVM in $SBkjob.LinkedJob.VM) {
-                                                                Write-PScriboMessage "Discovered $($LinkedJobVM.Name) verification rules."
+
                                                                 $inObj = [ordered] @{
                                                                     'VM Name' = $LinkedJobVM.Name
                                                                     'Excluded' = $LinkedJobVM.IsExcluded
@@ -248,7 +248,7 @@ function Get-AbrVbrSureBackupjobconf {
                                 try {
                                     Section -Style NOTOCHeading5 -ExcludeFromTOC 'Settings' {
                                         $OutObj = @()
-                                        Write-PScriboMessage "Discovered $($SBkjob.Name) job settings."
+
                                         $inObj = [ordered] @{
                                             'Backup file integrity scan' = $SBkjob.VerificationOptions.EnableDiskContentValidation
                                             'Skip validation for application group VM' = $SBkjob.VerificationOptions.DisableApplicationGroupValidation
@@ -289,7 +289,7 @@ function Get-AbrVbrSureBackupjobconf {
                                     Section -Style NOTOCHeading5 -ExcludeFromTOC 'Schedule' {
                                         $OutObj = @()
                                         try {
-                                            Write-PScriboMessage "Discovered $($SBkjob.Name) schedule options."
+
                                             $inObj = [ordered] @{
                                                 'Wait for backup jobs' = "$($SBkjob.ScheduleOptions.WaitTimeMinutes) minutes"
                                             }

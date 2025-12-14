@@ -6,7 +6,7 @@ function Get-AbrVbrSureBackup {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.20
+        Version:        0.8.24
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -28,7 +28,7 @@ function Get-AbrVbrSureBackup {
     process {
         try {
             $SureBackupAGs = Get-VBRApplicationGroup | Sort-Object -Property Name
-            $SureBackupVLs = Get-VBRVirtualLab  | Sort-Object -Property Name
+            $SureBackupVLs = Get-VBRVirtualLab | Sort-Object -Property Name
             if ($SureBackupAGs -or $SureBackupVLs) {
                 Section -Style Heading3 'SureBackup Configuration' {
                     Paragraph "The following section provides configuration information about SureBackup."
@@ -41,7 +41,7 @@ function Get-AbrVbrSureBackup {
                                 $OutObj = @()
                                 try {
                                     foreach ($SureBackupAG in $SureBackupAGs) {
-                                        Write-PScriboMessage "Discovered $($SureBackupAG.Name) Application Group."
+
                                         $inObj = [ordered] @{
                                             'Name' = $SureBackupAG.Name
                                             'VM List' = $SureBackupAG.VM -join ", "
@@ -76,7 +76,7 @@ function Get-AbrVbrSureBackup {
                                                 try {
                                                     Section -Style NOTOCHeading4 -ExcludeFromTOC $($VMSetting.Name) {
                                                         $OutObj = @()
-                                                        Write-PScriboMessage "Discovered $($VMSetting.Name) Application Group VM Setting."
+
                                                         $inObj = [ordered] @{
                                                             'VM Name' = $VMSetting.Name
                                                             'Credentials' = $VMSetting.Credentials
@@ -122,7 +122,7 @@ function Get-AbrVbrSureBackup {
                                 $OutObj = @()
                                 try {
                                     foreach ($SureBackupVL in $SureBackupVLs) {
-                                        Write-PScriboMessage "Discovered $($SureBackupVL.Name) Virtual Lab."
+
                                         $inObj = [ordered] @{
                                             'Name' = $SureBackupVL.Name
                                             'Platform' = $SureBackupVL.Platform
@@ -153,7 +153,7 @@ function Get-AbrVbrSureBackup {
                                                     try {
                                                         Section -Style Heading6 "$($SureBackupVLC.Name) Settings" {
                                                             $OutObj = @()
-                                                            Write-PScriboMessage "Discovered $($SureBackupVLC.Name) Virtual Lab."
+
                                                             $inObj = [ordered] @{
                                                                 'Host' = $SureBackupVLC.Server.Name
                                                                 'Resource Pool' = $SureBackupVLC.DesignatedResourcePoolName
@@ -269,7 +269,7 @@ function Get-AbrVbrSureBackup {
                                                     try {
                                                         Section -Style Heading6 "$($SureBackupHvVLC.Name) Settings" {
                                                             $OutObj = @()
-                                                            Write-PScriboMessage "Discovered $($SureBackupHvVLC.Name) Virtual Lab."
+
                                                             $inObj = [ordered] @{
                                                                 'Host' = $SureBackupHvVLC.Server.Info.DNSName
                                                                 'Path' = $SureBackupHvVLC.Path

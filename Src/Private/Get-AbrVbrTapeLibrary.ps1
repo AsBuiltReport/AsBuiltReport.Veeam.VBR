@@ -6,7 +6,7 @@ function Get-AbrVbrTapeLibrary {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.20
+        Version:        0.8.24
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -36,7 +36,7 @@ function Get-AbrVbrTapeLibrary {
                         foreach ($TapeObj in $TapeObjs) {
                             try {
                                 Section -Style Heading4 $($TapeObj.Name) {
-                                    Write-PScriboMessage "Discovered $($TapeObj.Name) Type Library."
+
                                     $TapeServer = (Get-VBRTapeServer | Where-Object { $_.Id -eq $TapeObj.TapeServerId }).Name
                                     $inObj = [ordered] @{
                                         'Library Name' = $TapeObj.Name
@@ -78,7 +78,7 @@ function Get-AbrVbrTapeLibrary {
                                                 $OutObj = @()
                                                 try {
                                                     foreach ($DriveObj in $DriveObjs) {
-                                                        Write-PScriboMessage "Discovered $($DriveObj.Name) Type Drive."
+
                                                         $inObj = [ordered] @{
                                                             'Name' = $DriveObj.Name
                                                             'Model' = $DriveObj.Model
@@ -129,7 +129,7 @@ function Get-AbrVbrTapeLibrary {
                                                     foreach ($MediumObj in $MediumObjs) {
                                                         try {
 
-                                                            Write-PScriboMessage "Discovered $($MediumObj.Name) Type Medium."
+
                                                             $inObj = [ordered] @{
                                                                 'Name' = $MediumObj.Name
                                                                 'Expiration Date' = switch (($MediumObj.ExpirationDate).count) {

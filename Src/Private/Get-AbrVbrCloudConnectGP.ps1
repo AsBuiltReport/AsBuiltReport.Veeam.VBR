@@ -6,7 +6,7 @@ function Get-AbrVbrCloudConnectGP {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.20
+        Version:        0.8.24
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -36,7 +36,7 @@ function Get-AbrVbrCloudConnectGP {
                             $OutObj = @()
                             foreach ($CloudObject in $CloudObjects) {
                                 try {
-                                    Write-PScriboMessage "Discovered $($CloudObject.Name) Cloud Gateway Pools information."
+
 
                                     $inObj = [ordered] @{
                                         'Name' = $CloudObject.Name

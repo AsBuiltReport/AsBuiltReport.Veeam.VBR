@@ -6,7 +6,7 @@ function Get-AbrVbrBackupToTape {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.20
+        Version:        0.8.24
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -38,7 +38,7 @@ function Get-AbrVbrBackupToTape {
                                 Section -Style NOTOCHeading5 -ExcludeFromTOC 'Backups Information' {
                                     $OutObj = @()
                                     try {
-                                        Write-PScriboMessage "Discovered $($TBkjob.Name) common information."
+
                                         if ($TBkjob.Object.Group -eq 'BackupRepository') {
                                             $RepoSize = $TBkjob.Object | Where-Object { $_.Group -eq 'BackupRepository' }
                                             $TotalBackupSize = (($TBkjob.Object.info.IncludedSize | Measure-Object -Sum ).Sum) + ($RepoSize.GetContainer().CachedTotalSpace.InBytes - $RepoSize.GetContainer().CachedFreeSpace.InBytes)
@@ -91,7 +91,7 @@ function Get-AbrVbrBackupToTape {
                                             $OutObj = @()
                                             foreach ($LinkedBkJob in $TBkjob.Object) {
                                                 try {
-                                                    Write-PScriboMessage "Discovered $($LinkedBkJob.Name) backup objects."
+
                                                     if ($LinkedBkJob.Type) {
                                                         $Repository = $LinkedBkJob.Name
                                                         $Type = 'Repository'
@@ -135,7 +135,7 @@ function Get-AbrVbrBackupToTape {
                                             $OutObj = @()
                                             foreach ($BackupMediaPool in $TBkjob.FullBackupMediaPool) {
                                                 try {
-                                                    Write-PScriboMessage "Discovered $($TBkjob.Name) media pool."
+
                                                     #Todo Fix this mess!
                                                     if ($BackupMediaPool.Type -eq "Gfs") {
                                                         if ($BackupMediaPool.DailyMediaSetOptions.MediaSetPolicy.MoveFromMediaPoolAutomatically) {
@@ -275,7 +275,7 @@ function Get-AbrVbrBackupToTape {
                                             $OutObj = @()
                                             foreach ($BackupMediaPool in $TBkjob.IncrementalBackupMediaPool) {
                                                 try {
-                                                    Write-PScriboMessage "Discovered $($TBkjob.Name) incremental backup."
+
                                                     #Todo Fix this mess!
                                                     if ($BackupMediaPool.Type -eq "Gfs") {
                                                         if ($BackupMediaPool.DailyMediaSetOptions.MediaSetPolicy.MoveFromMediaPoolAutomatically) {
@@ -400,7 +400,7 @@ function Get-AbrVbrBackupToTape {
                                     Section -Style NOTOCHeading5 -ExcludeFromTOC 'Options' {
                                         $OutObj = @()
                                         try {
-                                            Write-PScriboMessage "Discovered $($TBkjob.Name) options."
+
                                             $inObj = [ordered] @{
                                                 'Eject Tape Media Upon Job Completion' = $TBkjob.EjectCurrentMedium
                                                 'Export the following MediaSet Upon Job Completion' = $TBkjob.ExportCurrentMediaSet
@@ -426,7 +426,7 @@ function Get-AbrVbrBackupToTape {
                                                 Section -Style NOTOCHeading6 -ExcludeFromTOC 'Advanced Settings (Notifications)' {
                                                     $OutObj = @()
                                                     try {
-                                                        Write-PScriboMessage "Discovered $($TBkjob.Name) notification options."
+
                                                         $inObj = [ordered] @{
                                                             'Send Email Notification' = $TBkjob.NotificationOptions.EnableAdditionalNotification
                                                             'Email Notification Additional Recipients' = $TBkjob.NotificationOptions.AdditionalAddress -join ","
@@ -466,7 +466,7 @@ function Get-AbrVbrBackupToTape {
                                                 Section -Style NOTOCHeading6 -ExcludeFromTOC 'Advanced Settings (Advanced)' {
                                                     $OutObj = @()
                                                     try {
-                                                        Write-PScriboMessage "Discovered $($TBkjob.Name) advanced options."
+
                                                         $inObj = [ordered] @{
                                                             'Process the most recent Restore Point instead of waiting' = $TBkjob.AlwaysCopyFromLatestFull
                                                             'Use Hardware Compression when available' = $TBkjob.UseHardwareCompression
@@ -518,7 +518,7 @@ function Get-AbrVbrBackupToTape {
                                     Section -Style NOTOCHeading5 -ExcludeFromTOC 'Schedule' {
                                         $OutObj = @()
                                         try {
-                                            Write-PScriboMessage "Discovered $($TBkjob.Name) schedule options."
+
                                             $inObj = [ordered] @{
                                                 'Prevent this job from being interrupted by source backup job' = $TBkjob.WaitForBackupJobs
                                             }

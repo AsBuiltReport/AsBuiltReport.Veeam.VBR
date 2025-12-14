@@ -6,7 +6,7 @@ function Get-AbrVbrBackupCopyjobConf {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.20
+        Version:        0.8.24
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -39,7 +39,7 @@ function Get-AbrVbrBackupCopyjobConf {
                                     $OutObj = @()
                                     try {
                                         try {
-                                            Write-PScriboMessage "Discovered $($Bkjob.Name) common information."
+
                                             $inObj = [ordered] @{
                                                 'Name' = $Bkjob.Name
                                                 'Id' = $Bkjob.Id
@@ -95,7 +95,7 @@ function Get-AbrVbrBackupCopyjobConf {
                                         try {
                                             foreach ($LinkedBkJob in $Bkjob.BackupJob) {
                                                 try {
-                                                    Write-PScriboMessage "Discovered $($LinkedBkJob.Name) linked backup job objects."
+
                                                     $inObj = [ordered] @{
                                                         'Name' = $LinkedBkJob.Name
                                                         'Type' = $LinkedBkJob.TypeToString
@@ -128,7 +128,7 @@ function Get-AbrVbrBackupCopyjobConf {
                                         try {
                                             foreach ($LinkedRepository in $Bkjob.SourceRepository) {
                                                 try {
-                                                    Write-PScriboMessage "Discovered $($LinkedRepository.Name) linked repository objects."
+
                                                     if ($LinkedRepository.Type -eq "ExtendableRepository") {
                                                         $inObj = [ordered] @{
                                                             'Name' = $LinkedRepository.Name
@@ -165,7 +165,7 @@ function Get-AbrVbrBackupCopyjobConf {
                                 Section -Style NOTOCHeading5 -ExcludeFromTOC 'Target' {
                                     $OutObj = @()
                                     try {
-                                        Write-PScriboMessage "Discovered $($Bkjob.Name) Target options."
+
                                         if ($Bkjob.RetentionType -eq "RestoreDays") {
                                             $RetainString = 'Retain Days To Keep'
                                             $Retains = $Bkjob.RetentionNumber
@@ -215,7 +215,7 @@ function Get-AbrVbrBackupCopyjobConf {
                                             Section -Style NOTOCHeading6 -ExcludeFromTOC "Advanced Settings (Maintenance)" {
                                                 $OutObj = @()
                                                 try {
-                                                    Write-PScriboMessage "Discovered $($Bkjob.Name) maintenance options."
+
                                                     $inObj = [ordered] @{
                                                         'Storage-Level Corruption Guard (SLCG)' = $Bkjob.HealthCheckOptions.Enabled
                                                         'SLCG Schedule Type' = $Bkjob.HealthCheckOptions.ScheduleType
@@ -264,7 +264,7 @@ function Get-AbrVbrBackupCopyjobConf {
                                             Section -Style NOTOCHeading6 -ExcludeFromTOC "Advanced Settings (Storage)" {
                                                 $OutObj = @()
                                                 try {
-                                                    Write-PScriboMessage "Discovered $($Bkjob.Name) storage options."
+
                                                     $inObj = [ordered] @{
                                                         'Inline Data Deduplication' = $Bkjob.StorageOptions.DataDeduplicationEnabled
                                                         'Compression Level' = $Bkjob.StorageOptions.CompressionLevel
@@ -307,7 +307,7 @@ function Get-AbrVbrBackupCopyjobConf {
                                             Section -Style NOTOCHeading6 -ExcludeFromTOC "Advanced Settings (RPO Monitor)" {
                                                 $OutObj = @()
                                                 try {
-                                                    Write-PScriboMessage "Discovered $($Bkjob.Name) rpo monitor options."
+
                                                     $BackupJob = $Bkjob.RpoWarningOptions | Where-Object { $_.RpoType -eq 'BackupJob' }
                                                     $BackupLogJob = $Bkjob.RpoWarningOptions | Where-Object { $_.RpoType -eq 'BackupLogJob' }
 
@@ -337,7 +337,7 @@ function Get-AbrVbrBackupCopyjobConf {
                                             Section -Style NOTOCHeading6 -ExcludeFromTOC "Advanced Settings (Notification)" {
                                                 $OutObj = @()
                                                 try {
-                                                    Write-PScriboMessage "Discovered $($Bkjob.Name) notification options."
+
                                                     $inObj = [ordered] @{
                                                         'Send Snmp Notification' = $Bkjob.NotificationOptions.EnableSnmpNotification
                                                         'Send Email Notification' = $Bkjob.NotificationOptions.EnableAdditionalNotification
@@ -385,7 +385,7 @@ function Get-AbrVbrBackupCopyjobConf {
                                                         $FrequencyValue = $Bkjob.ScriptOptions.Frequency
                                                         $FrequencyText = 'Run Script Every Backup Session'
                                                     }
-                                                    Write-PScriboMessage "Discovered $($Bkjob.Name) script options."
+
                                                     $inObj = [ordered] @{
                                                         'Run the Following Script Before' = $Bkjob.ScriptOptions.PreScriptEnabled
                                                         'Run Script Before the Job' = $Bkjob.ScriptOptions.PreCommand
@@ -419,7 +419,7 @@ function Get-AbrVbrBackupCopyjobConf {
                                     $OutObj = @()
                                     try {
                                         try {
-                                            Write-PScriboMessage "Discovered $($Bkjob.Name) data transfer."
+
                                             $inObj = [ordered] @{
                                                 'Use Wan accelerator' = switch ($Bkjob.DataTransferMode) {
                                                     'ThroughWanAccelerators' { 'Yes' }
@@ -451,7 +451,7 @@ function Get-AbrVbrBackupCopyjobConf {
                                     Section -Style NOTOCHeading5 -ExcludeFromTOC "Schedule" {
                                         $OutObj = @()
                                         try {
-                                            Write-PScriboMessage "Discovered $($Bkjob.Name) schedule options."
+
                                             if ($Bkjob.ScheduleOptions.Type -eq "Daily") {
                                                 $ScheduleType = "Daily"
                                                 $Schedule = "Kind: $($Bkjob.ScheduleOptions.DailyOptions.Type) at $($Bkjob.ScheduleOptions.DailyOptions.Period.ToString()), Days of Week: $($Bkjob.ScheduleOptions.DailyOptions.DayOfWeek)"
@@ -533,7 +533,7 @@ function Get-AbrVbrBackupCopyjobConf {
                                     Section -Style NOTOCHeading5 -ExcludeFromTOC "Schedule" {
                                         $OutObj = @()
                                         try {
-                                            Write-PScriboMessage "Discovered $($Bkjob.Name) schedule options."
+
                                             $inObj = [ordered] @{
                                                 'Retry Failed Enabled?' = $Bkjob.ScheduleOptions.RetryEnabled
                                                 'Retry Failed item processing' = $Bkjob.ScheduleOptions.RetryCount

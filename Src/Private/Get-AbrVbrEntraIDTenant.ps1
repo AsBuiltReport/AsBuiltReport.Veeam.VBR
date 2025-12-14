@@ -6,7 +6,7 @@ function Get-AbrVbrEntraIDTenant {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.13
+        Version:        0.8.24
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -34,7 +34,7 @@ function Get-AbrVbrEntraIDTenant {
                 try {
                     foreach ($EntraIDObj in $EntraIDObjs) {
                         try {
-                            Write-PScriboMessage "Discovered $($EntraIDObj.Name) EntraID Tenant."
+
                             $inObj = [ordered] @{
                                 'Name' = $EntraIDObj.Name
                                 'Azure Tenant Id' = $EntraIDObj.AzureTenantId
