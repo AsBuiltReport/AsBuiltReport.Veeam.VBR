@@ -42,7 +42,7 @@ function Get-AbrVbrServerConnection {
             try {
                 Write-PScriboMessage "Connecting to $($System) with $($Credential.USERNAME) credentials"
                 if ($VbrVersion -ge 13) {
-                    Connect-VBRServer -Server $System -Credential $Credential -Port $Port -ForceAcceptTlsCertificate
+                    Connect-VBRServer -Server $System -User $Credential.UserName -Password (ConvertFrom-SecureString -SecureString  $Credential.Password -AsPlainText) -Port $Port -ForceAcceptTlsCertificate
                 } else {
                     Connect-VBRServer -Server $System -Credential $Credential -Port $Port
                 }

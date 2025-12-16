@@ -61,13 +61,17 @@ function Get-AbrVbrBackupServerInfo {
                     try {
                         foreach ($BackupServer in $BackupServers) {
                             if (-not ($BackupServer.Type -eq 'Linux' -and $BackupServer.Description -eq 'Backup server')) {
-                                $CimSession = try { New-CimSession $BackupServer.Name -Credential $Credential -Authentication $Options.PSDefaultAuthentication -Name 'CIMBackupServer' -ErrorAction Stop } catch { Write-PScriboMessage -IsWarning "Backup Server Section: New-CimSession: Unable to connect to $($BackupServer.Name): $($_.Exception.MessageId)" }
+                                if ($ClientOSVersion -eq "Win32NT") {
+                                    $CimSession = try { New-CimSession $BackupServer.Name -Credential $Credential -Authentication $Options.PSDefaultAuthentication -Name 'CIMBackupServer' -ErrorAction Stop } catch { Write-PScriboMessage -IsWarning "Backup Server Section: New-CimSession: Unable to connect to $($BackupServer.Name): $($_.Exception.MessageId)" }
+                                }
 
-                                $PssSession = try { New-PSSession $BackupServer.Name -Credential $Credential -Authentication $Options.PSDefaultAuthentication -ErrorAction Stop -Name 'PSSBackupServer' } catch {
-                                    if (-not $_.Exception.MessageId) {
-                                        $ErrorMessage = $_.FullyQualifiedErrorId
-                                    } else { $ErrorMessage = $_.Exception.MessageId }
-                                    Write-PScriboMessage -IsWarning "Backup Server Section: New-PSSession: Unable to connect to $($BackupServer.Name): $ErrorMessage"
+                                if ($ClientOSVersion -eq "Win32NT") {
+                                    $PssSession = try { New-PSSession $BackupServer.Name -Credential $Credential -Authentication $Options.PSDefaultAuthentication -ErrorAction Stop -Name 'PSSBackupServer' } catch {
+                                        if (-not $_.Exception.MessageId) {
+                                            $ErrorMessage = $_.FullyQualifiedErrorId
+                                        } else { $ErrorMessage = $_.Exception.MessageId }
+                                        Write-PScriboMessage -IsWarning "Backup Server Section: New-PSSession: Unable to connect to $($BackupServer.Name): $ErrorMessage"
+                                    }
                                 }
                             }
                             $SecurityOptions = Get-VBRSecurityOptions

@@ -37,6 +37,13 @@ function Invoke-AsBuiltReport.Veeam.VBR {
 
     Get-AbrVbrRequiredModule -Name 'Veeam.Backup.PowerShell' -Version '1.0'
 
+
+    # Import Report Configuration
+    $script:Report = $ReportConfig.Report
+    $script:InfoLevel = $ReportConfig.InfoLevel
+    $script:Options = $ReportConfig.Options
+
+
     # Check the version of the dependency modules
     if ($Options.UpdateCheck) {
         Write-ReportModuleInfo -ModuleName 'Veeam.VBR'
@@ -67,11 +74,6 @@ function Invoke-AsBuiltReport.Veeam.VBR {
         }
     }
 
-    # Import Report Configuration
-    $script:Report = $ReportConfig.Report
-    $script:InfoLevel = $ReportConfig.InfoLevel
-    $script:Options = $ReportConfig.Options
-
     # Set Custom styles for Veeam theme template
     if ($Options.ReportStyle -eq "Veeam") {
         & "$PSScriptRoot\..\..\AsBuiltReport.Veeam.VBR.Style.ps1"
@@ -91,9 +93,6 @@ function Invoke-AsBuiltReport.Veeam.VBR {
 
     # Used to set values to TitleCase where required
     $script:TextInfo = (Get-Culture).TextInfo
-
-    # Identify installed Veeam module version
-    $script:VbrVersion = (Get-Module -ListAvailable -Name Veeam.Backup.PowerShell).Version.ToString()
 
     #region foreach loop
     foreach ($System in $Target) {

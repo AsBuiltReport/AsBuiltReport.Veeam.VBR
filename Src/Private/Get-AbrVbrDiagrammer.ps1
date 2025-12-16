@@ -99,6 +99,14 @@ function Get-AbrVbrDiagrammer {
                 $DiagramParams.Add('EnableErrorDebug', $True)
             }
 
+            if ($Options.IsLocalServer) {
+                $DiagramParams.Add('IsLocalServer', $True)
+            }
+
+            if ($Options.UpdateCheck) {
+                $DiagramParams.Add('UpdateCheck', $True)
+            }
+
             if ($Tenant) {
                 $DiagramParams.Add('Tenant', $Tenant)
             }

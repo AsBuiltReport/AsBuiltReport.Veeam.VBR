@@ -17,12 +17,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add timeout handling for vSphere inventory queries
 - Add additional security compliance checks for Veeam VBR Linux appliance
 - Add option to control the module update check process
+- Add support for running the report from Linux using `Veeam PowerShell module for Linux`
+
 
 ### Changed
 
-- Update module version to v0.8.24
-- Upgrade Veeam.Diagrammer module to v0.6.36
-- Upgrade Diagrammer.Core module to v0.2.35
+- Update module version to `v0.8.24`
+- Upgrade Veeam.Diagrammer module to `v0.6.36`
+- Upgrade Diagrammer.Core module to `v0.2.35`
 - Update GitHub release workflow to use latest checkout action version
 - Update GitHub release workflow to use latest bluesky-post-action version
 - Update GitHub CodeQL workflow to use latest checkout action version
@@ -32,6 +34,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 
 - Removed noisy logging messages during report execution
+
+### Fixed
+
+- Fix error in Unix system not finding default report configuration file
 
 ## [0.8.23] - 2025-07-30
 

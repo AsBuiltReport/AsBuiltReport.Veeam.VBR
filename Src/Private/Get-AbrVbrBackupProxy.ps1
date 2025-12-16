@@ -119,260 +119,262 @@ function Get-AbrVbrBackupProxy {
                                     Write-PScriboMessage "Collecting Hardware/Software Inventory Summary."
                                     if ($BackupProxies = Get-VBRViProxy | Where-Object { $_.Host.Type -eq "Windows" } | Sort-Object -Property Name) {
                                         $vSphereVBProxyObj = foreach ($BackupProxy in $BackupProxies) {
-                                            if (Test-WSMan -Credential $Credential -Authentication $Options.PSDefaultAuthentication -ComputerName $BackupProxy.Host.Name -ErrorAction SilentlyContinue) {
-                                                try {
-                                                    Write-PScriboMessage "Collecting Backup Proxy Inventory Summary from $($BackupProxy.Host.Name)."
-                                                    $CimSession = try { New-CimSession $BackupProxy.Host.Name -Credential $Credential -Authentication $Options.PSDefaultAuthentication -Name 'HardwareInventory' -ErrorAction Stop } catch { Write-PScriboMessage -IsWarning "VMware Backup Proxies Hardware/Software Section: New-CimSession: Unable to connect to $($BackupProxy.Host.Name): $($_.Exception.MessageId)" }
+                                            if ($ClientOSVersion -eq "Win32NT") {
+                                                if (Test-WSMan -Credential $Credential -Authentication $Options.PSDefaultAuthentication -ComputerName $BackupProxy.Host.Name -ErrorAction SilentlyContinue) {
+                                                    try {
+                                                        Write-PScriboMessage "Collecting Backup Proxy Inventory Summary from $($BackupProxy.Host.Name)."
+                                                        $CimSession = try { New-CimSession $BackupProxy.Host.Name -Credential $Credential -Authentication $Options.PSDefaultAuthentication -Name 'HardwareInventory' -ErrorAction Stop } catch { Write-PScriboMessage -IsWarning "VMware Backup Proxies Hardware/Software Section: New-CimSession: Unable to connect to $($BackupProxy.Host.Name): $($_.Exception.MessageId)" }
 
-                                                    $PssSession = try { New-PSSession $BackupProxy.Host.Name -Credential $Credential -Authentication $Options.PSDefaultAuthentication -ErrorAction Stop -Name 'VMwareHardwareInventory' } catch {
-                                                        if (-not $_.Exception.MessageId) {
-                                                            $ErrorMessage = $_.FullyQualifiedErrorId
-                                                        } else { $ErrorMessage = $_.Exception.MessageId }
-                                                        Write-PScriboMessage -IsWarning "VMware Backup Proxies Hardware/Software Section: New-PSSession: Unable to connect to $($BackupProxy.Host.Name): $ErrorMessage"
-                                                    }
-                                                    if ($PssSession) {
-                                                        $HW = Invoke-Command -Session $PssSession -ScriptBlock { Get-ComputerInfo }
-                                                    } else { Write-PScriboMessage -IsWarning "VMware Backup Proxies Hardware/Software Inventory: Unable to connect to $($BackupProxy.Host.Name)" }
-                                                    if ($HW) {
-                                                        $License = Get-CimInstance -Query 'Select * from SoftwareLicensingProduct' -CimSession $CimSession | Where-Object { $_.LicenseStatus -eq 1 }
-                                                        $HWCPU = Get-CimInstance -Class Win32_Processor -CimSession $CimSession
-                                                        $HWBIOS = Get-CimInstance -Class Win32_Bios -CimSession $CimSession
-                                                        Section -Style Heading5 $($BackupProxy.Host.Name.Split(".")[0]) {
-                                                            $OutObj = @()
-                                                            $inObj = [ordered] @{
-                                                                'Name' = $HW.CsDNSHostName
-                                                                'Windows Product Name' = $HW.WindowsProductName
-                                                                'Windows Current Version' = $HW.WindowsCurrentVersion
-                                                                'Windows Build Number' = $HW.OsVersion
-                                                                'Windows Install Type' = $HW.WindowsInstallationType
-                                                                'Active Directory Domain' = $HW.CsDomain
-                                                                'Windows Installation Date' = $HW.OsInstallDate
-                                                                'Time Zone' = $HW.TimeZone
-                                                                'License Type' = $License.ProductKeyChannel
-                                                                'Partial Product Key' = $License.PartialProductKey
-                                                                'Manufacturer' = $HW.CsManufacturer
-                                                                'Model' = $HW.CsModel
-                                                                'Serial Number' = $HWBIOS.SerialNumber
-                                                                'Bios Type' = $HW.BiosFirmwareType
-                                                                'BIOS Version' = $HWBIOS.Version
-                                                                'Processor Manufacturer' = $HWCPU[0].Manufacturer
-                                                                'Processor Model' = $HWCPU[0].Name
-                                                                'Number of CPU Cores' = $HWCPU[0].NumberOfCores
-                                                                'Number of Logical Cores' = $HWCPU[0].NumberOfLogicalProcessors
-                                                                'Physical Memory (GB)' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $HW.CsTotalPhysicalMemory
-                                                            }
-                                                            $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
-
-                                                            if ($HealthCheck.Infrastructure.Server) {
-                                                                $OutObj | Where-Object { $_.'Number of CPU Cores' -lt 4 } | Set-Style -Style Warning -Property 'Number of CPU Cores'
-                                                                if ([int]([regex]::Matches($OutObj.'Physical Memory (GB)', "\d+(?!.*\d+)").value) -lt 8) { $OutObj | Set-Style -Style Warning -Property 'Physical Memory (GB)' }
-                                                            }
-
-                                                            $TableParams = @{
-                                                                Name = "Backup Proxy Inventory - $($BackupProxy.Host.Name.Split(".")[0])"
-                                                                List = $true
-                                                                ColumnWidths = 40, 60
-                                                            }
-                                                            if ($Report.ShowTableCaptions) {
-                                                                $TableParams['Caption'] = "- $($TableParams.Name)"
-                                                            }
-                                                            $OutObj | Table @TableParams
-                                                            #---------------------------------------------------------------------------------------------#
-                                                            #                       Backup Proxy Local Disk Inventory Section                            #
-                                                            #---------------------------------------------------------------------------------------------#
-                                                            if ($InfoLevel.Infrastructure.Proxy -ge 3) {
-                                                                try {
-                                                                    $HostDisks = Invoke-Command -Session $PssSession -ScriptBlock { Get-Disk | Where-Object { $_.BusType -ne "iSCSI" -and $_.BusType -ne "Fibre Channel" } }
-                                                                    if ($HostDisks) {
-                                                                        Section -Style NOTOCHeading6 -ExcludeFromTOC 'Local Disks' {
-                                                                            $LocalDiskReport = @()
-                                                                            foreach ($Disk in $HostDisks) {
-                                                                                try {
-                                                                                    $TempLocalDiskReport = [PSCustomObject]@{
-                                                                                        'Disk Number' = $Disk.Number
-                                                                                        'Model' = $Disk.Model
-                                                                                        'Serial Number' = $Disk.SerialNumber
-                                                                                        'Partition Style' = $Disk.PartitionStyle
-                                                                                        'Disk Size' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $Disk.Size
-                                                                                    }
-                                                                                    $LocalDiskReport += $TempLocalDiskReport
-                                                                                } catch {
-                                                                                    Write-PScriboMessage -IsWarning "VMware Backup Proxies Local Disks $($Disk.Number) Section: $($_.Exception.Message)"
-                                                                                }
-                                                                            }
-                                                                            $TableParams = @{
-                                                                                Name = "Local Disks - $($BackupProxies.Host.Name.Split(".")[0])"
-                                                                                List = $false
-                                                                                ColumnWidths = 20, 20, 20, 20, 20
-                                                                            }
-                                                                            if ($Report.ShowTableCaptions) {
-                                                                                $TableParams['Caption'] = "- $($TableParams.Name)"
-                                                                            }
-                                                                            $LocalDiskReport | Sort-Object -Property 'Disk Number' | Table @TableParams
-                                                                        }
-                                                                    }
-                                                                } catch {
-                                                                    Write-PScriboMessage -IsWarning "VMware Backup Proxies Fibre Channel Section: $($_.Exception.Message)"
-                                                                }
-                                                                #---------------------------------------------------------------------------------------------#
-                                                                #                       Backup Proxy SAN Disk Inventory Section                              #
-                                                                #---------------------------------------------------------------------------------------------#
-                                                                try {
-                                                                    $SanDisks = Invoke-Command -Session $PssSession -ScriptBlock { Get-Disk | Where-Object { $_.BusType -eq "iSCSI" -or $_.BusType -eq "Fibre Channel" } }
-                                                                    if ($SanDisks) {
-                                                                        Section -Style NOTOCHeading6 -ExcludeFromTOC 'SAN Disks' {
-                                                                            $SanDiskReport = @()
-                                                                            foreach ($Disk in $SanDisks) {
-                                                                                try {
-                                                                                    $TempSanDiskReport = [PSCustomObject]@{
-                                                                                        'Disk Number' = $Disk.Number
-                                                                                        'Model' = $Disk.Model
-                                                                                        'Serial Number' = $Disk.SerialNumber
-                                                                                        'Partition Style' = $Disk.PartitionStyle
-                                                                                        'Disk Size' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $Disk.Size
-                                                                                    }
-                                                                                    $SanDiskReport += $TempSanDiskReport
-                                                                                } catch {
-                                                                                    Write-PScriboMessage -IsWarning "VMware Backup Proxies Fibre Channel $($Disk.Number) Section: $($_.Exception.Message)"
-                                                                                }
-                                                                            }
-                                                                            $TableParams = @{
-                                                                                Name = "SAN Disks - $($BackupProxies.Host.Name.Split(".")[0])"
-                                                                                List = $false
-                                                                                ColumnWidths = 20, 20, 20, 20, 20
-                                                                            }
-                                                                            if ($Report.ShowTableCaptions) {
-                                                                                $TableParams['Caption'] = "- $($TableParams.Name)"
-                                                                            }
-                                                                            $SanDiskReport | Sort-Object -Property 'Disk Number' | Table @TableParams
-                                                                        }
-                                                                    }
-                                                                } catch {
-                                                                    Write-PScriboMessage -IsWarning "VMware Backup Proxies Fibre Channel Section: $($_.Exception.Message)"
-                                                                }
-                                                            }
-                                                            try {
-                                                                $HostVolumes = Invoke-Command -Session $PssSession -ScriptBlock { Get-Volume | Where-Object { $_.DriveType -ne "CD-ROM" -and $NUll -ne $_.DriveLetter } }
-                                                                if ($HostVolumes) {
-                                                                    Section -Style NOTOCHeading6 -ExcludeFromTOC 'Host Volumes' {
-                                                                        $HostVolumeReport = @()
-                                                                        foreach ($HostVolume in $HostVolumes) {
-                                                                            try {
-                                                                                $TempHostVolumeReport = [PSCustomObject]@{
-                                                                                    'Drive Letter' = $HostVolume.DriveLetter
-                                                                                    'File System Label' = $HostVolume.FileSystemLabel
-                                                                                    'File System' = $HostVolume.FileSystem
-                                                                                    'Size' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $HostVolume.Size
-                                                                                    'Free Space' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $HostVolume.SizeRemaining
-                                                                                    'Health Status' = $HostVolume.HealthStatus
-                                                                                }
-                                                                                $HostVolumeReport += $TempHostVolumeReport
-                                                                            } catch {
-                                                                                Write-PScriboMessage -IsWarning "VMware Backup Proxies Host Volumes $($HostVolume.DriveLetter) Section: $($_.Exception.Message)"
-                                                                            }
-                                                                        }
-                                                                        $TableParams = @{
-                                                                            Name = "Volumes - $($BackupProxies.Host.Name.Split(".")[0])"
-                                                                            List = $false
-                                                                            ColumnWidths = 15, 15, 15, 20, 20, 15
-                                                                        }
-                                                                        if ($Report.ShowTableCaptions) {
-                                                                            $TableParams['Caption'] = "- $($TableParams.Name)"
-                                                                        }
-                                                                        $HostVolumeReport | Sort-Object -Property 'Drive Letter' | Table @TableParams
-                                                                    }
-                                                                }
-                                                            } catch {
-                                                                Write-PScriboMessage -IsWarning "VMware Backup Proxies Host Volumes Section: $($_.Exception.Message)"
-                                                            }
-                                                            #---------------------------------------------------------------------------------------------#
-                                                            #                       Backup Proxy Network Inventory Section                               #
-                                                            #---------------------------------------------------------------------------------------------#
-                                                            if ($InfoLevel.Infrastructure.Proxy -ge 2) {
-                                                                try {
-                                                                    $HostAdapters = Invoke-Command -Session $PssSession { Get-NetAdapter }
-                                                                    if ($HostAdapters) {
-                                                                        Section -Style NOTOCHeading4 -ExcludeFromTOC 'Network Adapters' {
-                                                                            $HostAdaptersReport = @()
-                                                                            foreach ($HostAdapter in $HostAdapters) {
-                                                                                try {
-                                                                                    $TempHostAdaptersReport = [PSCustomObject]@{
-                                                                                        'Adapter Name' = $HostAdapter.Name
-                                                                                        'Adapter Description' = $HostAdapter.InterfaceDescription
-                                                                                        'Mac Address' = $HostAdapter.MacAddress
-                                                                                        'Link Speed' = $HostAdapter.LinkSpeed
-                                                                                    }
-                                                                                    $HostAdaptersReport += $TempHostAdaptersReport
-                                                                                } catch {
-                                                                                    Write-PScriboMessage -IsWarning "VMware Backup Proxies Network Adapter $($HostAdapter.Name) Section: $($_.Exception.Message)"
-                                                                                }
-                                                                            }
-                                                                            $TableParams = @{
-                                                                                Name = "Network Adapters - $($BackupProxies.Host.Name.Split(".")[0])"
-                                                                                List = $false
-                                                                                ColumnWidths = 30, 35, 20, 15
-                                                                            }
-                                                                            if ($Report.ShowTableCaptions) {
-                                                                                $TableParams['Caption'] = "- $($TableParams.Name)"
-                                                                            }
-                                                                            $HostAdaptersReport | Sort-Object -Property 'Adapter Name' | Table @TableParams
-                                                                        }
-                                                                    }
-                                                                } catch {
-                                                                    Write-PScriboMessage -IsWarning "VMware Backup Proxies Network Adapter Section: $($_.Exception.Message)"
-                                                                }
-                                                                try {
-                                                                    $NetIPs = Invoke-Command -Session $PssSession { Get-NetIPConfiguration | Where-Object -FilterScript { ($_.NetAdapter.Status -eq "Up") } }
-                                                                    if ($NetIPs) {
-                                                                        Section -Style NOTOCHeading4 -ExcludeFromTOC 'IP Address' {
-                                                                            $NetIpsReport = @()
-                                                                            foreach ($NetIp in $NetIps) {
-                                                                                try {
-                                                                                    $TempNetIpsReport = [PSCustomObject]@{
-                                                                                        'Interface Name' = $NetIp.InterfaceAlias
-                                                                                        'Interface Description' = $NetIp.InterfaceDescription
-                                                                                        'IPv4 Addresses' = $NetIp.IPv4Address.IPAddress -join ","
-                                                                                        'Subnet Mask' = $NetIp.IPv4Address[0].PrefixLength
-                                                                                        'IPv4 Gateway' = $NetIp.IPv4DefaultGateway.NextHop
-                                                                                    }
-                                                                                    $NetIpsReport += $TempNetIpsReport
-                                                                                } catch {
-                                                                                    Write-PScriboMessage -IsWarning "VMware Backup Proxies IP Address $($NetIp.InterfaceAlias) Section: $($_.Exception.Message)"
-                                                                                }
-                                                                            }
-                                                                            $TableParams = @{
-                                                                                Name = "IP Address - $($BackupProxies.Host.Name.Split(".")[0])"
-                                                                                List = $false
-                                                                                ColumnWidths = 25, 25, 20, 10, 20
-                                                                            }
-                                                                            if ($Report.ShowTableCaptions) {
-                                                                                $TableParams['Caption'] = "- $($TableParams.Name)"
-                                                                            }
-                                                                            $NetIpsReport | Sort-Object -Property 'Interface Name' | Table @TableParams
-                                                                        }
-                                                                    }
-                                                                } catch {
-                                                                    Write-PScriboMessage -IsWarning "VMware Backup Proxies IP Address Section: $($_.Exception.Message)"
-                                                                }
-                                                            }
+                                                        $PssSession = try { New-PSSession $BackupProxy.Host.Name -Credential $Credential -Authentication $Options.PSDefaultAuthentication -ErrorAction Stop -Name 'VMwareHardwareInventory' } catch {
+                                                            if (-not $_.Exception.MessageId) {
+                                                                $ErrorMessage = $_.FullyQualifiedErrorId
+                                                            } else { $ErrorMessage = $_.Exception.MessageId }
+                                                            Write-PScriboMessage -IsWarning "VMware Backup Proxies Hardware/Software Section: New-PSSession: Unable to connect to $($BackupProxy.Host.Name): $ErrorMessage"
                                                         }
                                                         if ($PssSession) {
-                                                            # Remove used PSSession
-                                                            Write-PScriboMessage "Clearing PowerShell Session $($PssSession.Id)"
-                                                            Remove-PSSession -Session $PssSession
-                                                        }
+                                                            $HW = Invoke-Command -Session $PssSession -ScriptBlock { Get-ComputerInfo }
+                                                        } else { Write-PScriboMessage -IsWarning "VMware Backup Proxies Hardware/Software Inventory: Unable to connect to $($BackupProxy.Host.Name)" }
+                                                        if ($HW) {
+                                                            $License = Get-CimInstance -Query 'Select * from SoftwareLicensingProduct' -CimSession $CimSession | Where-Object { $_.LicenseStatus -eq 1 }
+                                                            $HWCPU = Get-CimInstance -Class Win32_Processor -CimSession $CimSession
+                                                            $HWBIOS = Get-CimInstance -Class Win32_Bios -CimSession $CimSession
+                                                            Section -Style Heading5 $($BackupProxy.Host.Name.Split(".")[0]) {
+                                                                $OutObj = @()
+                                                                $inObj = [ordered] @{
+                                                                    'Name' = $HW.CsDNSHostName
+                                                                    'Windows Product Name' = $HW.WindowsProductName
+                                                                    'Windows Current Version' = $HW.WindowsCurrentVersion
+                                                                    'Windows Build Number' = $HW.OsVersion
+                                                                    'Windows Install Type' = $HW.WindowsInstallationType
+                                                                    'Active Directory Domain' = $HW.CsDomain
+                                                                    'Windows Installation Date' = $HW.OsInstallDate
+                                                                    'Time Zone' = $HW.TimeZone
+                                                                    'License Type' = $License.ProductKeyChannel
+                                                                    'Partial Product Key' = $License.PartialProductKey
+                                                                    'Manufacturer' = $HW.CsManufacturer
+                                                                    'Model' = $HW.CsModel
+                                                                    'Serial Number' = $HWBIOS.SerialNumber
+                                                                    'Bios Type' = $HW.BiosFirmwareType
+                                                                    'BIOS Version' = $HWBIOS.Version
+                                                                    'Processor Manufacturer' = $HWCPU[0].Manufacturer
+                                                                    'Processor Model' = $HWCPU[0].Name
+                                                                    'Number of CPU Cores' = $HWCPU[0].NumberOfCores
+                                                                    'Number of Logical Cores' = $HWCPU[0].NumberOfLogicalProcessors
+                                                                    'Physical Memory (GB)' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $HW.CsTotalPhysicalMemory
+                                                                }
+                                                                $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
 
-                                                        if ($CimSession) {
-                                                            # Remove used CIMSession
-                                                            Write-PScriboMessage "Clearing CIM Session $($CimSession.Id)"
-                                                            Remove-CimSession -CimSession $CimSession
+                                                                if ($HealthCheck.Infrastructure.Server) {
+                                                                    $OutObj | Where-Object { $_.'Number of CPU Cores' -lt 4 } | Set-Style -Style Warning -Property 'Number of CPU Cores'
+                                                                    if ([int]([regex]::Matches($OutObj.'Physical Memory (GB)', "\d+(?!.*\d+)").value) -lt 8) { $OutObj | Set-Style -Style Warning -Property 'Physical Memory (GB)' }
+                                                                }
+
+                                                                $TableParams = @{
+                                                                    Name = "Backup Proxy Inventory - $($BackupProxy.Host.Name.Split(".")[0])"
+                                                                    List = $true
+                                                                    ColumnWidths = 40, 60
+                                                                }
+                                                                if ($Report.ShowTableCaptions) {
+                                                                    $TableParams['Caption'] = "- $($TableParams.Name)"
+                                                                }
+                                                                $OutObj | Table @TableParams
+                                                                #---------------------------------------------------------------------------------------------#
+                                                                #                       Backup Proxy Local Disk Inventory Section                            #
+                                                                #---------------------------------------------------------------------------------------------#
+                                                                if ($InfoLevel.Infrastructure.Proxy -ge 3) {
+                                                                    try {
+                                                                        $HostDisks = Invoke-Command -Session $PssSession -ScriptBlock { Get-Disk | Where-Object { $_.BusType -ne "iSCSI" -and $_.BusType -ne "Fibre Channel" } }
+                                                                        if ($HostDisks) {
+                                                                            Section -Style NOTOCHeading6 -ExcludeFromTOC 'Local Disks' {
+                                                                                $LocalDiskReport = @()
+                                                                                foreach ($Disk in $HostDisks) {
+                                                                                    try {
+                                                                                        $TempLocalDiskReport = [PSCustomObject]@{
+                                                                                            'Disk Number' = $Disk.Number
+                                                                                            'Model' = $Disk.Model
+                                                                                            'Serial Number' = $Disk.SerialNumber
+                                                                                            'Partition Style' = $Disk.PartitionStyle
+                                                                                            'Disk Size' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $Disk.Size
+                                                                                        }
+                                                                                        $LocalDiskReport += $TempLocalDiskReport
+                                                                                    } catch {
+                                                                                        Write-PScriboMessage -IsWarning "VMware Backup Proxies Local Disks $($Disk.Number) Section: $($_.Exception.Message)"
+                                                                                    }
+                                                                                }
+                                                                                $TableParams = @{
+                                                                                    Name = "Local Disks - $($BackupProxies.Host.Name.Split(".")[0])"
+                                                                                    List = $false
+                                                                                    ColumnWidths = 20, 20, 20, 20, 20
+                                                                                }
+                                                                                if ($Report.ShowTableCaptions) {
+                                                                                    $TableParams['Caption'] = "- $($TableParams.Name)"
+                                                                                }
+                                                                                $LocalDiskReport | Sort-Object -Property 'Disk Number' | Table @TableParams
+                                                                            }
+                                                                        }
+                                                                    } catch {
+                                                                        Write-PScriboMessage -IsWarning "VMware Backup Proxies Fibre Channel Section: $($_.Exception.Message)"
+                                                                    }
+                                                                    #---------------------------------------------------------------------------------------------#
+                                                                    #                       Backup Proxy SAN Disk Inventory Section                              #
+                                                                    #---------------------------------------------------------------------------------------------#
+                                                                    try {
+                                                                        $SanDisks = Invoke-Command -Session $PssSession -ScriptBlock { Get-Disk | Where-Object { $_.BusType -eq "iSCSI" -or $_.BusType -eq "Fibre Channel" } }
+                                                                        if ($SanDisks) {
+                                                                            Section -Style NOTOCHeading6 -ExcludeFromTOC 'SAN Disks' {
+                                                                                $SanDiskReport = @()
+                                                                                foreach ($Disk in $SanDisks) {
+                                                                                    try {
+                                                                                        $TempSanDiskReport = [PSCustomObject]@{
+                                                                                            'Disk Number' = $Disk.Number
+                                                                                            'Model' = $Disk.Model
+                                                                                            'Serial Number' = $Disk.SerialNumber
+                                                                                            'Partition Style' = $Disk.PartitionStyle
+                                                                                            'Disk Size' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $Disk.Size
+                                                                                        }
+                                                                                        $SanDiskReport += $TempSanDiskReport
+                                                                                    } catch {
+                                                                                        Write-PScriboMessage -IsWarning "VMware Backup Proxies Fibre Channel $($Disk.Number) Section: $($_.Exception.Message)"
+                                                                                    }
+                                                                                }
+                                                                                $TableParams = @{
+                                                                                    Name = "SAN Disks - $($BackupProxies.Host.Name.Split(".")[0])"
+                                                                                    List = $false
+                                                                                    ColumnWidths = 20, 20, 20, 20, 20
+                                                                                }
+                                                                                if ($Report.ShowTableCaptions) {
+                                                                                    $TableParams['Caption'] = "- $($TableParams.Name)"
+                                                                                }
+                                                                                $SanDiskReport | Sort-Object -Property 'Disk Number' | Table @TableParams
+                                                                            }
+                                                                        }
+                                                                    } catch {
+                                                                        Write-PScriboMessage -IsWarning "VMware Backup Proxies Fibre Channel Section: $($_.Exception.Message)"
+                                                                    }
+                                                                }
+                                                                try {
+                                                                    $HostVolumes = Invoke-Command -Session $PssSession -ScriptBlock { Get-Volume | Where-Object { $_.DriveType -ne "CD-ROM" -and $NUll -ne $_.DriveLetter } }
+                                                                    if ($HostVolumes) {
+                                                                        Section -Style NOTOCHeading6 -ExcludeFromTOC 'Host Volumes' {
+                                                                            $HostVolumeReport = @()
+                                                                            foreach ($HostVolume in $HostVolumes) {
+                                                                                try {
+                                                                                    $TempHostVolumeReport = [PSCustomObject]@{
+                                                                                        'Drive Letter' = $HostVolume.DriveLetter
+                                                                                        'File System Label' = $HostVolume.FileSystemLabel
+                                                                                        'File System' = $HostVolume.FileSystem
+                                                                                        'Size' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $HostVolume.Size
+                                                                                        'Free Space' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $HostVolume.SizeRemaining
+                                                                                        'Health Status' = $HostVolume.HealthStatus
+                                                                                    }
+                                                                                    $HostVolumeReport += $TempHostVolumeReport
+                                                                                } catch {
+                                                                                    Write-PScriboMessage -IsWarning "VMware Backup Proxies Host Volumes $($HostVolume.DriveLetter) Section: $($_.Exception.Message)"
+                                                                                }
+                                                                            }
+                                                                            $TableParams = @{
+                                                                                Name = "Volumes - $($BackupProxies.Host.Name.Split(".")[0])"
+                                                                                List = $false
+                                                                                ColumnWidths = 15, 15, 15, 20, 20, 15
+                                                                            }
+                                                                            if ($Report.ShowTableCaptions) {
+                                                                                $TableParams['Caption'] = "- $($TableParams.Name)"
+                                                                            }
+                                                                            $HostVolumeReport | Sort-Object -Property 'Drive Letter' | Table @TableParams
+                                                                        }
+                                                                    }
+                                                                } catch {
+                                                                    Write-PScriboMessage -IsWarning "VMware Backup Proxies Host Volumes Section: $($_.Exception.Message)"
+                                                                }
+                                                                #---------------------------------------------------------------------------------------------#
+                                                                #                       Backup Proxy Network Inventory Section                               #
+                                                                #---------------------------------------------------------------------------------------------#
+                                                                if ($InfoLevel.Infrastructure.Proxy -ge 2) {
+                                                                    try {
+                                                                        $HostAdapters = Invoke-Command -Session $PssSession { Get-NetAdapter }
+                                                                        if ($HostAdapters) {
+                                                                            Section -Style NOTOCHeading4 -ExcludeFromTOC 'Network Adapters' {
+                                                                                $HostAdaptersReport = @()
+                                                                                foreach ($HostAdapter in $HostAdapters) {
+                                                                                    try {
+                                                                                        $TempHostAdaptersReport = [PSCustomObject]@{
+                                                                                            'Adapter Name' = $HostAdapter.Name
+                                                                                            'Adapter Description' = $HostAdapter.InterfaceDescription
+                                                                                            'Mac Address' = $HostAdapter.MacAddress
+                                                                                            'Link Speed' = $HostAdapter.LinkSpeed
+                                                                                        }
+                                                                                        $HostAdaptersReport += $TempHostAdaptersReport
+                                                                                    } catch {
+                                                                                        Write-PScriboMessage -IsWarning "VMware Backup Proxies Network Adapter $($HostAdapter.Name) Section: $($_.Exception.Message)"
+                                                                                    }
+                                                                                }
+                                                                                $TableParams = @{
+                                                                                    Name = "Network Adapters - $($BackupProxies.Host.Name.Split(".")[0])"
+                                                                                    List = $false
+                                                                                    ColumnWidths = 30, 35, 20, 15
+                                                                                }
+                                                                                if ($Report.ShowTableCaptions) {
+                                                                                    $TableParams['Caption'] = "- $($TableParams.Name)"
+                                                                                }
+                                                                                $HostAdaptersReport | Sort-Object -Property 'Adapter Name' | Table @TableParams
+                                                                            }
+                                                                        }
+                                                                    } catch {
+                                                                        Write-PScriboMessage -IsWarning "VMware Backup Proxies Network Adapter Section: $($_.Exception.Message)"
+                                                                    }
+                                                                    try {
+                                                                        $NetIPs = Invoke-Command -Session $PssSession { Get-NetIPConfiguration | Where-Object -FilterScript { ($_.NetAdapter.Status -eq "Up") } }
+                                                                        if ($NetIPs) {
+                                                                            Section -Style NOTOCHeading4 -ExcludeFromTOC 'IP Address' {
+                                                                                $NetIpsReport = @()
+                                                                                foreach ($NetIp in $NetIps) {
+                                                                                    try {
+                                                                                        $TempNetIpsReport = [PSCustomObject]@{
+                                                                                            'Interface Name' = $NetIp.InterfaceAlias
+                                                                                            'Interface Description' = $NetIp.InterfaceDescription
+                                                                                            'IPv4 Addresses' = $NetIp.IPv4Address.IPAddress -join ","
+                                                                                            'Subnet Mask' = $NetIp.IPv4Address[0].PrefixLength
+                                                                                            'IPv4 Gateway' = $NetIp.IPv4DefaultGateway.NextHop
+                                                                                        }
+                                                                                        $NetIpsReport += $TempNetIpsReport
+                                                                                    } catch {
+                                                                                        Write-PScriboMessage -IsWarning "VMware Backup Proxies IP Address $($NetIp.InterfaceAlias) Section: $($_.Exception.Message)"
+                                                                                    }
+                                                                                }
+                                                                                $TableParams = @{
+                                                                                    Name = "IP Address - $($BackupProxies.Host.Name.Split(".")[0])"
+                                                                                    List = $false
+                                                                                    ColumnWidths = 25, 25, 20, 10, 20
+                                                                                }
+                                                                                if ($Report.ShowTableCaptions) {
+                                                                                    $TableParams['Caption'] = "- $($TableParams.Name)"
+                                                                                }
+                                                                                $NetIpsReport | Sort-Object -Property 'Interface Name' | Table @TableParams
+                                                                            }
+                                                                        }
+                                                                    } catch {
+                                                                        Write-PScriboMessage -IsWarning "VMware Backup Proxies IP Address Section: $($_.Exception.Message)"
+                                                                    }
+                                                                }
+                                                            }
+                                                            if ($PssSession) {
+                                                                # Remove used PSSession
+                                                                Write-PScriboMessage "Clearing PowerShell Session $($PssSession.Id)"
+                                                                Remove-PSSession -Session $PssSession
+                                                            }
+
+                                                            if ($CimSession) {
+                                                                # Remove used CIMSession
+                                                                Write-PScriboMessage "Clearing CIM Session $($CimSession.Id)"
+                                                                Remove-CimSession -CimSession $CimSession
+                                                            }
                                                         }
+                                                    } catch {
+                                                        Write-PScriboMessage -IsWarning "VMware Backup Proxies Section: $($_.Exception.Message)"
                                                     }
-                                                } catch {
-                                                    Write-PScriboMessage -IsWarning "VMware Backup Proxies Section: $($_.Exception.Message)"
+                                                } else {
+                                                    Write-PScriboMessage -IsWarning "VMware Backup Proxies Section: Unable to connect to $($BackupProxies.Host.Name) throuth WinRM, removing server from Hardware Inventory section"
                                                 }
-                                            } else {
-                                                Write-PScriboMessage -IsWarning "VMware Backup Proxies Section: Unable to connect to $($BackupProxies.Host.Name) throuth WinRM, removing server from Hardware Inventory section"
                                             }
                                         }
                                         if ($vSphereVBProxyObj) {
@@ -395,56 +397,58 @@ function Get-AbrVbrBackupProxy {
                                         Write-PScriboMessage "Collecting Veeam Services Information."
                                         $BackupProxies = Get-VBRViProxy | Where-Object { $_.Host.Type -eq "Windows" } | Sort-Object -Property Name
                                         foreach ($BackupProxy in $BackupProxies) {
-                                            if (Test-WSMan -Credential $Credential -Authentication $Options.PSDefaultAuthentication -ComputerName $BackupProxy.Host.Name -ErrorAction SilentlyContinue) {
-                                                try {
-                                                    # $PssSession = New-PSSession $BackupProxy.Host.Name -Credential $Credential -Authentication $Options.PSDefaultAuthentication -ErrorAction SilentlyContinue
-                                                    $PssSession = try { New-PSSession $BackupProxy.Host.Name -Credential $Credential -Authentication $Options.PSDefaultAuthentication -ErrorAction Stop -Name 'VMwareBackupProxyService' } catch {
-                                                        if (-not $_.Exception.MessageId) {
-                                                            $ErrorMessage = $_.FullyQualifiedErrorId
-                                                        } else { $ErrorMessage = $_.Exception.MessageId }
-                                                        Write-PScriboMessage -IsWarning "Backup Proxy Service Section: New-PSSession: Unable to connect to $($BackupProxy.Host.Name): $ErrorMessage"
-                                                    }
-                                                    if ($PssSession) {
-                                                        $Available = Invoke-Command -Session $PssSession -ScriptBlock { Get-Service "W32Time" | Select-Object DisplayName, Name, Status }
-                                                        Write-PScriboMessage "Collecting Backup Proxy Service information from $($BackupProxy.Name)."
-                                                        $Services = Invoke-Command -Session $PssSession -ScriptBlock { Get-Service Veeam* }
+                                            if ($ClientOSVersion -eq "Win32NT") {
+                                                if (Test-WSMan -Credential $Credential -Authentication $Options.PSDefaultAuthentication -ComputerName $BackupProxy.Host.Name -ErrorAction SilentlyContinue) {
+                                                    try {
+                                                        # $PssSession = New-PSSession $BackupProxy.Host.Name -Credential $Credential -Authentication $Options.PSDefaultAuthentication -ErrorAction SilentlyContinue
+                                                        $PssSession = try { New-PSSession $BackupProxy.Host.Name -Credential $Credential -Authentication $Options.PSDefaultAuthentication -ErrorAction Stop -Name 'VMwareBackupProxyService' } catch {
+                                                            if (-not $_.Exception.MessageId) {
+                                                                $ErrorMessage = $_.FullyQualifiedErrorId
+                                                            } else { $ErrorMessage = $_.Exception.MessageId }
+                                                            Write-PScriboMessage -IsWarning "Backup Proxy Service Section: New-PSSession: Unable to connect to $($BackupProxy.Host.Name): $ErrorMessage"
+                                                        }
                                                         if ($PssSession) {
-                                                            Remove-PSSession -Session $PssSession
-                                                        }
-                                                        if ($Available -and $Services) {
-                                                            Section -Style NOTOCHeading4 -ExcludeFromTOC "HealthCheck - $($BackupProxy.Host.Name.Split(".")[0]) Services Status" {
-                                                                $OutObj = @()
-                                                                foreach ($Service in $Services) {
-                                                                    Write-PScriboMessage "Collecting '$($Service.DisplayName)' status on $($BackupProxy.Name)."
-                                                                    $inObj = [ordered] @{
-                                                                        'Display Name' = $Service.DisplayName
-                                                                        'Short Name' = $Service.Name
-                                                                        'Status' = $Service.Status
-                                                                    }
-                                                                    $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
-                                                                }
-
-                                                                if ($HealthCheck.Infrastructure.Server) {
-                                                                    $OutObj | Where-Object { $_.'Status' -notlike 'Running' } | Set-Style -Style Warning -Property 'Status'
-                                                                }
-
-                                                                $TableParams = @{
-                                                                    Name = "HealthCheck - Services Status - $($BackupProxy.Host.Name.Split(".")[0])"
-                                                                    List = $false
-                                                                    ColumnWidths = 45, 35, 20
-                                                                }
-                                                                if ($Report.ShowTableCaptions) {
-                                                                    $TableParams['Caption'] = "- $($TableParams.Name)"
-                                                                }
-                                                                $OutObj | Sort-Object -Property 'Display Name' | Table @TableParams
+                                                            $Available = Invoke-Command -Session $PssSession -ScriptBlock { Get-Service "W32Time" | Select-Object DisplayName, Name, Status }
+                                                            Write-PScriboMessage "Collecting Backup Proxy Service information from $($BackupProxy.Name)."
+                                                            $Services = Invoke-Command -Session $PssSession -ScriptBlock { Get-Service Veeam* }
+                                                            if ($PssSession) {
+                                                                Remove-PSSession -Session $PssSession
                                                             }
-                                                        }
-                                                    } else { Write-PScriboMessage -IsWarning "VMware Backup Proxies Services Status Section: Unable to connect to $($BackupProxy.Host.Name)" }
-                                                } catch {
-                                                    Write-PScriboMessage -IsWarning "VMware Backup Proxies $($BackupProxy.Host.Name) Services Status Section: $($_.Exception.Message)"
+                                                            if ($Available -and $Services) {
+                                                                Section -Style NOTOCHeading4 -ExcludeFromTOC "HealthCheck - $($BackupProxy.Host.Name.Split(".")[0]) Services Status" {
+                                                                    $OutObj = @()
+                                                                    foreach ($Service in $Services) {
+                                                                        Write-PScriboMessage "Collecting '$($Service.DisplayName)' status on $($BackupProxy.Name)."
+                                                                        $inObj = [ordered] @{
+                                                                            'Display Name' = $Service.DisplayName
+                                                                            'Short Name' = $Service.Name
+                                                                            'Status' = $Service.Status
+                                                                        }
+                                                                        $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
+                                                                    }
+
+                                                                    if ($HealthCheck.Infrastructure.Server) {
+                                                                        $OutObj | Where-Object { $_.'Status' -notlike 'Running' } | Set-Style -Style Warning -Property 'Status'
+                                                                    }
+
+                                                                    $TableParams = @{
+                                                                        Name = "HealthCheck - Services Status - $($BackupProxy.Host.Name.Split(".")[0])"
+                                                                        List = $false
+                                                                        ColumnWidths = 45, 35, 20
+                                                                    }
+                                                                    if ($Report.ShowTableCaptions) {
+                                                                        $TableParams['Caption'] = "- $($TableParams.Name)"
+                                                                    }
+                                                                    $OutObj | Sort-Object -Property 'Display Name' | Table @TableParams
+                                                                }
+                                                            }
+                                                        } else { Write-PScriboMessage -IsWarning "VMware Backup Proxies Services Status Section: Unable to connect to $($BackupProxy.Host.Name)" }
+                                                    } catch {
+                                                        Write-PScriboMessage -IsWarning "VMware Backup Proxies $($BackupProxy.Host.Name) Services Status Section: $($_.Exception.Message)"
+                                                    }
+                                                } else {
+                                                    Write-PScriboMessage -IsWarning "VMware Backup Proxies Section: Unable to connect to $($BackupProxies.Host.Name) throuth WinRM, removing server from Veeam Services section"
                                                 }
-                                            } else {
-                                                Write-PScriboMessage -IsWarning "VMware Backup Proxies Section: Unable to connect to $($BackupProxies.Host.Name) throuth WinRM, removing server from Veeam Services section"
                                             }
                                         }
                                     }
@@ -568,265 +572,267 @@ function Get-AbrVbrBackupProxy {
                                         Write-PScriboMessage "Collecting Hardware/Software Inventory Summary."
                                         if ($BackupProxies = Get-VBRHvProxy | Sort-Object -Property Name) {
                                             $HyperVBProxyObj = foreach ($BackupProxy in $BackupProxies) {
-                                                if (Test-WSMan -Credential $Credential -Authentication $Options.PSDefaultAuthentication -ComputerName $BackupProxy.Host.Name -ErrorAction SilentlyContinue) {
-                                                    try {
-                                                        Write-PScriboMessage "Collecting Backup Proxy Inventory Summary from $($BackupProxy.Host.Name)."
-                                                        # $CimSession = New-CimSession $BackupProxy.Host.Name -Credential $Credential -Authentication $Options.PSDefaultAuthentication
-                                                        # $PssSession = New-PSSession $BackupProxy.Host.Name -Credential $Credential -Authentication $Options.PSDefaultAuthentication -ErrorAction SilentlyContinue
-                                                        $CimSession = try { New-CimSession $BackupProxy.Host.Name -Credential $Credential -Authentication $Options.PSDefaultAuthentication -Name 'HardwareInventory' -ErrorAction Stop } catch { Write-PScriboMessage -IsWarning "Hyper-V Backup Proxies Hardware/Software Section: New-CimSession: Unable to connect to $($BackupProxy.Host.Name): $($_.Exception.MessageId)" }
+                                                if ($ClientOSVersion -eq "Win32NT") {
+                                                    if (Test-WSMan -Credential $Credential -Authentication $Options.PSDefaultAuthentication -ComputerName $BackupProxy.Host.Name -ErrorAction SilentlyContinue) {
+                                                        try {
+                                                            Write-PScriboMessage "Collecting Backup Proxy Inventory Summary from $($BackupProxy.Host.Name)."
+                                                            # $CimSession = New-CimSession $BackupProxy.Host.Name -Credential $Credential -Authentication $Options.PSDefaultAuthentication
+                                                            # $PssSession = New-PSSession $BackupProxy.Host.Name -Credential $Credential -Authentication $Options.PSDefaultAuthentication -ErrorAction SilentlyContinue
+                                                            $CimSession = try { New-CimSession $BackupProxy.Host.Name -Credential $Credential -Authentication $Options.PSDefaultAuthentication -Name 'HardwareInventory' -ErrorAction Stop } catch { Write-PScriboMessage -IsWarning "Hyper-V Backup Proxies Hardware/Software Section: New-CimSession: Unable to connect to $($BackupProxy.Host.Name): $($_.Exception.MessageId)" }
 
-                                                        $PssSession = try { New-PSSession $BackupProxy.Host.Name -Credential $Credential -Authentication $Options.PSDefaultAuthentication -ErrorAction Stop -Name 'HyperVHardwareInventory' } catch {
-                                                            if (-not $_.Exception.MessageId) {
-                                                                $ErrorMessage = $_.FullyQualifiedErrorId
-                                                            } else { $ErrorMessage = $_.Exception.MessageId }
-                                                            Write-PScriboMessage -IsWarning "Hyper-V Backup Proxies Hardware/Software Section: New-PSSession: Unable to connect to $($BackupProxy.Host.Name): $ErrorMessage"
-                                                        }
-                                                        if ($PssSession) {
-                                                            $HW = Invoke-Command -Session $PssSession -ScriptBlock { Get-ComputerInfo }
-                                                        } else { Write-PScriboMessage -IsWarning "Hyper-V Backup Proxies Inventory Section: Unable to connect to $($BackupProxy.Host.Name)" }
-                                                        if ($HW) {
-                                                            $License = Get-CimInstance -Query 'Select * from SoftwareLicensingProduct' -CimSession $CimSession | Where-Object { $_.LicenseStatus -eq 1 }
-                                                            $HWCPU = Get-CimInstance -Class Win32_Processor -CimSession $CimSession
-                                                            $HWBIOS = Get-CimInstance -Class Win32_Bios -CimSession $CimSession
-                                                            Section -Style Heading5 $($BackupProxy.Host.Name.Split(".")[0]) {
-                                                                $OutObj = @()
-                                                                $inObj = [ordered] @{
-                                                                    'Name' = $HW.CsDNSHostName
-                                                                    'Windows Product Name' = $HW.WindowsProductName
-                                                                    'Windows Current Version' = $HW.WindowsCurrentVersion
-                                                                    'Windows Build Number' = $HW.OsVersion
-                                                                    'Windows Install Type' = $HW.WindowsInstallationType
-                                                                    'Active Directory Domain' = $HW.CsDomain
-                                                                    'Windows Installation Date' = $HW.OsInstallDate
-                                                                    'Time Zone' = $HW.TimeZone
-                                                                    'License Type' = $License.ProductKeyChannel
-                                                                    'Partial Product Key' = $License.PartialProductKey
-                                                                    'Manufacturer' = $HW.CsManufacturer
-                                                                    'Model' = $HW.CsModel
-                                                                    'Serial Number' = $HWBIOS.SerialNumber
-                                                                    'Bios Type' = $HW.BiosFirmwareType
-                                                                    'BIOS Version' = $HWBIOS.Version
-                                                                    'Processor Manufacturer' = $HWCPU[0].Manufacturer
-                                                                    'Processor Model' = $HWCPU[0].Name
-                                                                    'Number of CPU Cores' = $HWCPU[0].NumberOfCores
-                                                                    'Number of Logical Cores' = $HWCPU[0].NumberOfLogicalProcessors
-                                                                    'Physical Memory (GB)' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $HW.CsTotalPhysicalMemory
-                                                                }
-                                                                $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
-
-                                                                if ($HealthCheck.Infrastructure.Server) {
-                                                                    $OutObj | Where-Object { $_.'Number of CPU Cores' -lt 4 } | Set-Style -Style Warning -Property 'Number of CPU Cores'
-                                                                    if ([int]([regex]::Matches($OutObj.'Physical Memory (GB)', "\d+(?!.*\d+)").value) -lt 8) { $OutObj | Set-Style -Style Warning -Property 'Physical Memory (GB)' }
-                                                                }
-
-                                                                $TableParams = @{
-                                                                    Name = "Backup Proxy Inventory - $($BackupProxy.Host.Name.Split(".")[0])"
-                                                                    List = $true
-                                                                    ColumnWidths = 40, 60
-                                                                }
-                                                                if ($Report.ShowTableCaptions) {
-                                                                    $TableParams['Caption'] = "- $($TableParams.Name)"
-                                                                }
-                                                                $OutObj | Table @TableParams
-                                                                #---------------------------------------------------------------------------------------------#
-                                                                #                       Backup Proxy Local Disk Inventory Section                            #
-                                                                #---------------------------------------------------------------------------------------------#
-                                                                if ($InfoLevel.Infrastructure.Proxy -ge 3) {
-                                                                    try {
-                                                                        $HostDisks = Invoke-Command -Session $PssSession -ScriptBlock { Get-Disk | Where-Object { $_.BusType -ne "iSCSI" -and $_.BusType -ne "Fibre Channel" } }
-                                                                        if ($HostDisks) {
-                                                                            Section -Style NOTOCHeading6 -ExcludeFromTOC 'Local Disks' {
-                                                                                $LocalDiskReport = @()
-                                                                                foreach ($Disk in $HostDisks) {
-                                                                                    try {
-                                                                                        $TempLocalDiskReport = [PSCustomObject]@{
-                                                                                            'Disk Number' = $Disk.Number
-                                                                                            'Model' = $Disk.Model
-                                                                                            'Serial Number' = $Disk.SerialNumber
-                                                                                            'Partition Style' = $Disk.PartitionStyle
-                                                                                            'Disk Size' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $Disk.Size
-                                                                                        }
-                                                                                        $LocalDiskReport += $TempLocalDiskReport
-                                                                                    } catch {
-                                                                                        Write-PScriboMessage -IsWarning "Hyper-V Backup Proxies Local Disk $($Disk.Number) Section: $($_.Exception.Message)"
-                                                                                    }
-                                                                                }
-                                                                                $TableParams = @{
-                                                                                    Name = "Local Disks - $($BackupProxies.Host.Name.Split(".")[0])"
-                                                                                    List = $false
-                                                                                    ColumnWidths = 20, 20, 20, 20, 20
-                                                                                }
-                                                                                if ($Report.ShowTableCaptions) {
-                                                                                    $TableParams['Caption'] = "- $($TableParams.Name)"
-                                                                                }
-                                                                                $LocalDiskReport | Sort-Object -Property 'Disk Number' | Table @TableParams
-                                                                            }
-                                                                        }
-                                                                    } catch {
-                                                                        Write-PScriboMessage -IsWarning "Hyper-V Backup Proxies Local Disk Section: $($_.Exception.Message)"
-                                                                    }
-                                                                    #---------------------------------------------------------------------------------------------#
-                                                                    #                       Backup Proxy SAN Disk Inventory Section                              #
-                                                                    #---------------------------------------------------------------------------------------------#
-                                                                    try {
-                                                                        $SanDisks = Invoke-Command -Session $PssSession -ScriptBlock { Get-Disk | Where-Object { $_.BusType -eq "iSCSI" -or $_.BusType -eq "Fibre Channel" } }
-                                                                        if ($SanDisks) {
-                                                                            Section -Style NOTOCHeading6 -ExcludeFromTOC 'SAN Disks' {
-                                                                                $SanDiskReport = @()
-                                                                                foreach ($Disk in $SanDisks) {
-                                                                                    try {
-                                                                                        $TempSanDiskReport = [PSCustomObject]@{
-                                                                                            'Disk Number' = $Disk.Number
-                                                                                            'Model' = $Disk.Model
-                                                                                            'Serial Number' = $Disk.SerialNumber
-                                                                                            'Partition Style' = $Disk.PartitionStyle
-                                                                                            'Disk Size' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $Disk.Size
-                                                                                        }
-                                                                                        $SanDiskReport += $TempSanDiskReport
-                                                                                    } catch {
-                                                                                        Write-PScriboMessage -IsWarning "Hyper-V Backup Proxies SAN Disk $($Disk.Number) Section: $($_.Exception.Message)"
-                                                                                    }
-                                                                                }
-                                                                                $TableParams = @{
-                                                                                    Name = "SAN Disks - $($BackupProxies.Host.Name.Split(".")[0])"
-                                                                                    List = $false
-                                                                                    ColumnWidths = 20, 20, 20, 20, 20
-                                                                                }
-                                                                                if ($Report.ShowTableCaptions) {
-                                                                                    $TableParams['Caption'] = "- $($TableParams.Name)"
-                                                                                }
-                                                                                $SanDiskReport | Sort-Object -Property 'Disk Number' | Table @TableParams
-                                                                            }
-                                                                        }
-                                                                    } catch {
-                                                                        Write-PScriboMessage -IsWarning "Hyper-V Backup Proxies Local Disk Section: $($_.Exception.Message)"
-                                                                    }
-                                                                }
-                                                                #---------------------------------------------------------------------------------------------#
-                                                                #                       Backup Proxy Volume Inventory Section                                #
-                                                                #---------------------------------------------------------------------------------------------#
-                                                                try {
-                                                                    $HostVolumes = Invoke-Command -Session $PssSession -ScriptBlock { Get-Volume | Where-Object { $_.DriveType -ne "CD-ROM" -and $NUll -ne $_.DriveLetter } }
-                                                                    if ($HostVolumes) {
-                                                                        Section -Style NOTOCHeading6 -ExcludeFromTOC 'Host Volumes' {
-                                                                            $HostVolumeReport = @()
-                                                                            foreach ($HostVolume in $HostVolumes) {
-                                                                                try {
-                                                                                    $TempHostVolumeReport = [PSCustomObject]@{
-                                                                                        'Drive Letter' = $HostVolume.DriveLetter
-                                                                                        'File System Label' = $HostVolume.FileSystemLabel
-                                                                                        'File System' = $HostVolume.FileSystem
-                                                                                        'Size' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $HostVolume.Size
-                                                                                        'Free Space' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $HostVolume.SizeRemaining
-                                                                                        'Health Status' = $HostVolume.HealthStatus
-                                                                                    }
-                                                                                    $HostVolumeReport += $TempHostVolumeReport
-                                                                                } catch {
-                                                                                    Write-PScriboMessage -IsWarning "Hyper-V Backup Proxies Host Volume $($HostVolume.DriveLetter) Section: $($_.Exception.Message)"
-                                                                                }
-                                                                            }
-                                                                            $TableParams = @{
-                                                                                Name = "Volumes - $($BackupProxies.Host.Name.Split(".")[0])"
-                                                                                List = $false
-                                                                                ColumnWidths = 15, 15, 15, 20, 20, 15
-                                                                            }
-                                                                            if ($Report.ShowTableCaptions) {
-                                                                                $TableParams['Caption'] = "- $($TableParams.Name)"
-                                                                            }
-                                                                            $HostVolumeReport | Sort-Object -Property 'Drive Letter' | Table @TableParams
-                                                                        }
-                                                                    }
-                                                                } catch {
-                                                                    Write-PScriboMessage -IsWarning "Hyper-V Backup Proxies Host Volume Section: $($_.Exception.Message)"
-                                                                }
-                                                                #---------------------------------------------------------------------------------------------#
-                                                                #                       Backup Proxy Network Inventory Section                               #
-                                                                #---------------------------------------------------------------------------------------------#
-                                                                if ($InfoLevel.Infrastructure.Proxy -ge 2) {
-                                                                    try {
-                                                                        $HostAdapters = Invoke-Command -Session $PssSession { Get-NetAdapter }
-                                                                        if ($HostAdapters) {
-                                                                            Section -Style NOTOCHeading6 -ExcludeFromTOC 'Network Adapters' {
-                                                                                $HostAdaptersReport = @()
-                                                                                foreach ($HostAdapter in $HostAdapters) {
-                                                                                    try {
-                                                                                        $TempHostAdaptersReport = [PSCustomObject]@{
-                                                                                            'Adapter Name' = $HostAdapter.Name
-                                                                                            'Adapter Description' = $HostAdapter.InterfaceDescription
-                                                                                            'Mac Address' = $HostAdapter.MacAddress
-                                                                                            'Link Speed' = $HostAdapter.LinkSpeed
-                                                                                        }
-                                                                                        $HostAdaptersReport += $TempHostAdaptersReport
-                                                                                    } catch {
-                                                                                        Write-PScriboMessage -IsWarning "Hyper-V Backup Proxies Network Adapter $($HostAdapter.Name) Section: $($_.Exception.Message)"
-                                                                                    }
-                                                                                }
-                                                                                $TableParams = @{
-                                                                                    Name = "Network Adapters - $($BackupProxies.Host.Name.Split(".")[0])"
-                                                                                    List = $false
-                                                                                    ColumnWidths = 30, 35, 20, 15
-                                                                                }
-                                                                                if ($Report.ShowTableCaptions) {
-                                                                                    $TableParams['Caption'] = "- $($TableParams.Name)"
-                                                                                }
-                                                                                $HostAdaptersReport | Sort-Object -Property 'Adapter Name' | Table @TableParams
-                                                                            }
-                                                                        }
-                                                                    } catch {
-                                                                        Write-PScriboMessage -IsWarning "Hyper-V Backup Proxies Network Adapter Section: $($_.Exception.Message)"
-                                                                    }
-                                                                    try {
-                                                                        $NetIPs = Invoke-Command -Session $PssSession { Get-NetIPConfiguration | Where-Object -FilterScript { ($_.NetAdapter.Status -eq "Up") } }
-                                                                        if ($NetIPs) {
-                                                                            Section -Style NOTOCHeading6 -ExcludeFromTOC 'IP Address' {
-                                                                                $NetIpsReport = @()
-                                                                                foreach ($NetIp in $NetIps) {
-                                                                                    try {
-                                                                                        $TempNetIpsReport = [PSCustomObject]@{
-                                                                                            'Interface Name' = $NetIp.InterfaceAlias
-                                                                                            'Interface Description' = $NetIp.InterfaceDescription
-                                                                                            'IPv4 Addresses' = $NetIp.IPv4Address.IPAddress -join ","
-                                                                                            'Subnet Mask' = $NetIp.IPv4Address[0].PrefixLength
-                                                                                            'IPv4 Gateway' = $NetIp.IPv4DefaultGateway.NextHop
-                                                                                        }
-                                                                                        $NetIpsReport += $TempNetIpsReport
-                                                                                    } catch {
-                                                                                        Write-PScriboMessage -IsWarning "Hyper-V Backup Proxies IP Address $($NetIp.InterfaceAlias) Section: $($_.Exception.Message)"
-                                                                                    }
-                                                                                }
-                                                                                $TableParams = @{
-                                                                                    Name = "IP Address - $($BackupProxies.Host.Name.Split(".")[0])"
-                                                                                    List = $false
-                                                                                    ColumnWidths = 25, 25, 20, 10, 20
-                                                                                }
-                                                                                if ($Report.ShowTableCaptions) {
-                                                                                    $TableParams['Caption'] = "- $($TableParams.Name)"
-                                                                                }
-                                                                                $NetIpsReport | Sort-Object -Property 'Interface Name' | Table @TableParams
-                                                                            }
-                                                                        }
-                                                                    } catch {
-                                                                        Write-PScriboMessage -IsWarning "Hyper-V Backup Proxies IP Address Section: $($_.Exception.Message)"
-                                                                    }
-                                                                }
+                                                            $PssSession = try { New-PSSession $BackupProxy.Host.Name -Credential $Credential -Authentication $Options.PSDefaultAuthentication -ErrorAction Stop -Name 'HyperVHardwareInventory' } catch {
+                                                                if (-not $_.Exception.MessageId) {
+                                                                    $ErrorMessage = $_.FullyQualifiedErrorId
+                                                                } else { $ErrorMessage = $_.Exception.MessageId }
+                                                                Write-PScriboMessage -IsWarning "Hyper-V Backup Proxies Hardware/Software Section: New-PSSession: Unable to connect to $($BackupProxy.Host.Name): $ErrorMessage"
                                                             }
                                                             if ($PssSession) {
-                                                                # Remove used PSSession
-                                                                Write-PScriboMessage "Clearing PowerShell Session $($PssSession.Id)"
-                                                                Remove-PSSession -Session $PssSession
-                                                            }
+                                                                $HW = Invoke-Command -Session $PssSession -ScriptBlock { Get-ComputerInfo }
+                                                            } else { Write-PScriboMessage -IsWarning "Hyper-V Backup Proxies Inventory Section: Unable to connect to $($BackupProxy.Host.Name)" }
+                                                            if ($HW) {
+                                                                $License = Get-CimInstance -Query 'Select * from SoftwareLicensingProduct' -CimSession $CimSession | Where-Object { $_.LicenseStatus -eq 1 }
+                                                                $HWCPU = Get-CimInstance -Class Win32_Processor -CimSession $CimSession
+                                                                $HWBIOS = Get-CimInstance -Class Win32_Bios -CimSession $CimSession
+                                                                Section -Style Heading5 $($BackupProxy.Host.Name.Split(".")[0]) {
+                                                                    $OutObj = @()
+                                                                    $inObj = [ordered] @{
+                                                                        'Name' = $HW.CsDNSHostName
+                                                                        'Windows Product Name' = $HW.WindowsProductName
+                                                                        'Windows Current Version' = $HW.WindowsCurrentVersion
+                                                                        'Windows Build Number' = $HW.OsVersion
+                                                                        'Windows Install Type' = $HW.WindowsInstallationType
+                                                                        'Active Directory Domain' = $HW.CsDomain
+                                                                        'Windows Installation Date' = $HW.OsInstallDate
+                                                                        'Time Zone' = $HW.TimeZone
+                                                                        'License Type' = $License.ProductKeyChannel
+                                                                        'Partial Product Key' = $License.PartialProductKey
+                                                                        'Manufacturer' = $HW.CsManufacturer
+                                                                        'Model' = $HW.CsModel
+                                                                        'Serial Number' = $HWBIOS.SerialNumber
+                                                                        'Bios Type' = $HW.BiosFirmwareType
+                                                                        'BIOS Version' = $HWBIOS.Version
+                                                                        'Processor Manufacturer' = $HWCPU[0].Manufacturer
+                                                                        'Processor Model' = $HWCPU[0].Name
+                                                                        'Number of CPU Cores' = $HWCPU[0].NumberOfCores
+                                                                        'Number of Logical Cores' = $HWCPU[0].NumberOfLogicalProcessors
+                                                                        'Physical Memory (GB)' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $HW.CsTotalPhysicalMemory
+                                                                    }
+                                                                    $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
 
-                                                            if ($CimSession) {
-                                                                # Remove used CIMSession
-                                                                Write-PScriboMessage "Clearing CIM Session $($CimSession.Id)"
-                                                                Remove-CimSession -CimSession $CimSession
+                                                                    if ($HealthCheck.Infrastructure.Server) {
+                                                                        $OutObj | Where-Object { $_.'Number of CPU Cores' -lt 4 } | Set-Style -Style Warning -Property 'Number of CPU Cores'
+                                                                        if ([int]([regex]::Matches($OutObj.'Physical Memory (GB)', "\d+(?!.*\d+)").value) -lt 8) { $OutObj | Set-Style -Style Warning -Property 'Physical Memory (GB)' }
+                                                                    }
+
+                                                                    $TableParams = @{
+                                                                        Name = "Backup Proxy Inventory - $($BackupProxy.Host.Name.Split(".")[0])"
+                                                                        List = $true
+                                                                        ColumnWidths = 40, 60
+                                                                    }
+                                                                    if ($Report.ShowTableCaptions) {
+                                                                        $TableParams['Caption'] = "- $($TableParams.Name)"
+                                                                    }
+                                                                    $OutObj | Table @TableParams
+                                                                    #---------------------------------------------------------------------------------------------#
+                                                                    #                       Backup Proxy Local Disk Inventory Section                            #
+                                                                    #---------------------------------------------------------------------------------------------#
+                                                                    if ($InfoLevel.Infrastructure.Proxy -ge 3) {
+                                                                        try {
+                                                                            $HostDisks = Invoke-Command -Session $PssSession -ScriptBlock { Get-Disk | Where-Object { $_.BusType -ne "iSCSI" -and $_.BusType -ne "Fibre Channel" } }
+                                                                            if ($HostDisks) {
+                                                                                Section -Style NOTOCHeading6 -ExcludeFromTOC 'Local Disks' {
+                                                                                    $LocalDiskReport = @()
+                                                                                    foreach ($Disk in $HostDisks) {
+                                                                                        try {
+                                                                                            $TempLocalDiskReport = [PSCustomObject]@{
+                                                                                                'Disk Number' = $Disk.Number
+                                                                                                'Model' = $Disk.Model
+                                                                                                'Serial Number' = $Disk.SerialNumber
+                                                                                                'Partition Style' = $Disk.PartitionStyle
+                                                                                                'Disk Size' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $Disk.Size
+                                                                                            }
+                                                                                            $LocalDiskReport += $TempLocalDiskReport
+                                                                                        } catch {
+                                                                                            Write-PScriboMessage -IsWarning "Hyper-V Backup Proxies Local Disk $($Disk.Number) Section: $($_.Exception.Message)"
+                                                                                        }
+                                                                                    }
+                                                                                    $TableParams = @{
+                                                                                        Name = "Local Disks - $($BackupProxies.Host.Name.Split(".")[0])"
+                                                                                        List = $false
+                                                                                        ColumnWidths = 20, 20, 20, 20, 20
+                                                                                    }
+                                                                                    if ($Report.ShowTableCaptions) {
+                                                                                        $TableParams['Caption'] = "- $($TableParams.Name)"
+                                                                                    }
+                                                                                    $LocalDiskReport | Sort-Object -Property 'Disk Number' | Table @TableParams
+                                                                                }
+                                                                            }
+                                                                        } catch {
+                                                                            Write-PScriboMessage -IsWarning "Hyper-V Backup Proxies Local Disk Section: $($_.Exception.Message)"
+                                                                        }
+                                                                        #---------------------------------------------------------------------------------------------#
+                                                                        #                       Backup Proxy SAN Disk Inventory Section                              #
+                                                                        #---------------------------------------------------------------------------------------------#
+                                                                        try {
+                                                                            $SanDisks = Invoke-Command -Session $PssSession -ScriptBlock { Get-Disk | Where-Object { $_.BusType -eq "iSCSI" -or $_.BusType -eq "Fibre Channel" } }
+                                                                            if ($SanDisks) {
+                                                                                Section -Style NOTOCHeading6 -ExcludeFromTOC 'SAN Disks' {
+                                                                                    $SanDiskReport = @()
+                                                                                    foreach ($Disk in $SanDisks) {
+                                                                                        try {
+                                                                                            $TempSanDiskReport = [PSCustomObject]@{
+                                                                                                'Disk Number' = $Disk.Number
+                                                                                                'Model' = $Disk.Model
+                                                                                                'Serial Number' = $Disk.SerialNumber
+                                                                                                'Partition Style' = $Disk.PartitionStyle
+                                                                                                'Disk Size' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $Disk.Size
+                                                                                            }
+                                                                                            $SanDiskReport += $TempSanDiskReport
+                                                                                        } catch {
+                                                                                            Write-PScriboMessage -IsWarning "Hyper-V Backup Proxies SAN Disk $($Disk.Number) Section: $($_.Exception.Message)"
+                                                                                        }
+                                                                                    }
+                                                                                    $TableParams = @{
+                                                                                        Name = "SAN Disks - $($BackupProxies.Host.Name.Split(".")[0])"
+                                                                                        List = $false
+                                                                                        ColumnWidths = 20, 20, 20, 20, 20
+                                                                                    }
+                                                                                    if ($Report.ShowTableCaptions) {
+                                                                                        $TableParams['Caption'] = "- $($TableParams.Name)"
+                                                                                    }
+                                                                                    $SanDiskReport | Sort-Object -Property 'Disk Number' | Table @TableParams
+                                                                                }
+                                                                            }
+                                                                        } catch {
+                                                                            Write-PScriboMessage -IsWarning "Hyper-V Backup Proxies Local Disk Section: $($_.Exception.Message)"
+                                                                        }
+                                                                    }
+                                                                    #---------------------------------------------------------------------------------------------#
+                                                                    #                       Backup Proxy Volume Inventory Section                                #
+                                                                    #---------------------------------------------------------------------------------------------#
+                                                                    try {
+                                                                        $HostVolumes = Invoke-Command -Session $PssSession -ScriptBlock { Get-Volume | Where-Object { $_.DriveType -ne "CD-ROM" -and $NUll -ne $_.DriveLetter } }
+                                                                        if ($HostVolumes) {
+                                                                            Section -Style NOTOCHeading6 -ExcludeFromTOC 'Host Volumes' {
+                                                                                $HostVolumeReport = @()
+                                                                                foreach ($HostVolume in $HostVolumes) {
+                                                                                    try {
+                                                                                        $TempHostVolumeReport = [PSCustomObject]@{
+                                                                                            'Drive Letter' = $HostVolume.DriveLetter
+                                                                                            'File System Label' = $HostVolume.FileSystemLabel
+                                                                                            'File System' = $HostVolume.FileSystem
+                                                                                            'Size' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $HostVolume.Size
+                                                                                            'Free Space' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $HostVolume.SizeRemaining
+                                                                                            'Health Status' = $HostVolume.HealthStatus
+                                                                                        }
+                                                                                        $HostVolumeReport += $TempHostVolumeReport
+                                                                                    } catch {
+                                                                                        Write-PScriboMessage -IsWarning "Hyper-V Backup Proxies Host Volume $($HostVolume.DriveLetter) Section: $($_.Exception.Message)"
+                                                                                    }
+                                                                                }
+                                                                                $TableParams = @{
+                                                                                    Name = "Volumes - $($BackupProxies.Host.Name.Split(".")[0])"
+                                                                                    List = $false
+                                                                                    ColumnWidths = 15, 15, 15, 20, 20, 15
+                                                                                }
+                                                                                if ($Report.ShowTableCaptions) {
+                                                                                    $TableParams['Caption'] = "- $($TableParams.Name)"
+                                                                                }
+                                                                                $HostVolumeReport | Sort-Object -Property 'Drive Letter' | Table @TableParams
+                                                                            }
+                                                                        }
+                                                                    } catch {
+                                                                        Write-PScriboMessage -IsWarning "Hyper-V Backup Proxies Host Volume Section: $($_.Exception.Message)"
+                                                                    }
+                                                                    #---------------------------------------------------------------------------------------------#
+                                                                    #                       Backup Proxy Network Inventory Section                               #
+                                                                    #---------------------------------------------------------------------------------------------#
+                                                                    if ($InfoLevel.Infrastructure.Proxy -ge 2) {
+                                                                        try {
+                                                                            $HostAdapters = Invoke-Command -Session $PssSession { Get-NetAdapter }
+                                                                            if ($HostAdapters) {
+                                                                                Section -Style NOTOCHeading6 -ExcludeFromTOC 'Network Adapters' {
+                                                                                    $HostAdaptersReport = @()
+                                                                                    foreach ($HostAdapter in $HostAdapters) {
+                                                                                        try {
+                                                                                            $TempHostAdaptersReport = [PSCustomObject]@{
+                                                                                                'Adapter Name' = $HostAdapter.Name
+                                                                                                'Adapter Description' = $HostAdapter.InterfaceDescription
+                                                                                                'Mac Address' = $HostAdapter.MacAddress
+                                                                                                'Link Speed' = $HostAdapter.LinkSpeed
+                                                                                            }
+                                                                                            $HostAdaptersReport += $TempHostAdaptersReport
+                                                                                        } catch {
+                                                                                            Write-PScriboMessage -IsWarning "Hyper-V Backup Proxies Network Adapter $($HostAdapter.Name) Section: $($_.Exception.Message)"
+                                                                                        }
+                                                                                    }
+                                                                                    $TableParams = @{
+                                                                                        Name = "Network Adapters - $($BackupProxies.Host.Name.Split(".")[0])"
+                                                                                        List = $false
+                                                                                        ColumnWidths = 30, 35, 20, 15
+                                                                                    }
+                                                                                    if ($Report.ShowTableCaptions) {
+                                                                                        $TableParams['Caption'] = "- $($TableParams.Name)"
+                                                                                    }
+                                                                                    $HostAdaptersReport | Sort-Object -Property 'Adapter Name' | Table @TableParams
+                                                                                }
+                                                                            }
+                                                                        } catch {
+                                                                            Write-PScriboMessage -IsWarning "Hyper-V Backup Proxies Network Adapter Section: $($_.Exception.Message)"
+                                                                        }
+                                                                        try {
+                                                                            $NetIPs = Invoke-Command -Session $PssSession { Get-NetIPConfiguration | Where-Object -FilterScript { ($_.NetAdapter.Status -eq "Up") } }
+                                                                            if ($NetIPs) {
+                                                                                Section -Style NOTOCHeading6 -ExcludeFromTOC 'IP Address' {
+                                                                                    $NetIpsReport = @()
+                                                                                    foreach ($NetIp in $NetIps) {
+                                                                                        try {
+                                                                                            $TempNetIpsReport = [PSCustomObject]@{
+                                                                                                'Interface Name' = $NetIp.InterfaceAlias
+                                                                                                'Interface Description' = $NetIp.InterfaceDescription
+                                                                                                'IPv4 Addresses' = $NetIp.IPv4Address.IPAddress -join ","
+                                                                                                'Subnet Mask' = $NetIp.IPv4Address[0].PrefixLength
+                                                                                                'IPv4 Gateway' = $NetIp.IPv4DefaultGateway.NextHop
+                                                                                            }
+                                                                                            $NetIpsReport += $TempNetIpsReport
+                                                                                        } catch {
+                                                                                            Write-PScriboMessage -IsWarning "Hyper-V Backup Proxies IP Address $($NetIp.InterfaceAlias) Section: $($_.Exception.Message)"
+                                                                                        }
+                                                                                    }
+                                                                                    $TableParams = @{
+                                                                                        Name = "IP Address - $($BackupProxies.Host.Name.Split(".")[0])"
+                                                                                        List = $false
+                                                                                        ColumnWidths = 25, 25, 20, 10, 20
+                                                                                    }
+                                                                                    if ($Report.ShowTableCaptions) {
+                                                                                        $TableParams['Caption'] = "- $($TableParams.Name)"
+                                                                                    }
+                                                                                    $NetIpsReport | Sort-Object -Property 'Interface Name' | Table @TableParams
+                                                                                }
+                                                                            }
+                                                                        } catch {
+                                                                            Write-PScriboMessage -IsWarning "Hyper-V Backup Proxies IP Address Section: $($_.Exception.Message)"
+                                                                        }
+                                                                    }
+                                                                }
+                                                                if ($PssSession) {
+                                                                    # Remove used PSSession
+                                                                    Write-PScriboMessage "Clearing PowerShell Session $($PssSession.Id)"
+                                                                    Remove-PSSession -Session $PssSession
+                                                                }
+
+                                                                if ($CimSession) {
+                                                                    # Remove used CIMSession
+                                                                    Write-PScriboMessage "Clearing CIM Session $($CimSession.Id)"
+                                                                    Remove-CimSession -CimSession $CimSession
+                                                                }
                                                             }
+                                                        } catch {
+                                                            Write-PScriboMessage -IsWarning "Hyper-V Backup Proxies Hardware & Software Inventory Section: $($_.Exception.Message)"
                                                         }
-                                                    } catch {
-                                                        Write-PScriboMessage -IsWarning "Hyper-V Backup Proxies Hardware & Software Inventory Section: $($_.Exception.Message)"
+                                                    } else {
+                                                        Write-PScriboMessage -IsWarning "Hyper-V Backup Proxies Section: Unable to connect to $($BackupProxies.Host.Name) throuth WinRM, removing server from Hardware Inventory section"
                                                     }
-                                                } else {
-                                                    Write-PScriboMessage -IsWarning "Hyper-V Backup Proxies Section: Unable to connect to $($BackupProxies.Host.Name) throuth WinRM, removing server from Hardware Inventory section"
                                                 }
                                             }
                                             if ($HyperVBProxyObj) {
@@ -849,55 +855,58 @@ function Get-AbrVbrBackupProxy {
                                             Write-PScriboMessage "Collecting Veeam Service Information."
                                             $BackupProxies = Get-VBRHvProxy | Sort-Object -Property Name
                                             foreach ($BackupProxy in $BackupProxies) {
-                                                if (Test-WSMan -Credential $Credential -Authentication $Options.PSDefaultAuthentication -ComputerName $BackupProxy.Host.Name -ErrorAction SilentlyContinue) {
-                                                    try {
-                                                        $PssSession = try { New-PSSession $BackupProxy.Host.Name -Credential $Credential -Authentication $Options.PSDefaultAuthentication -ErrorAction Stop -Name 'HyperVBackupProxyService' } catch {
-                                                            if (-not $_.Exception.MessageId) {
-                                                                $ErrorMessage = $_.FullyQualifiedErrorId
-                                                            } else { $ErrorMessage = $_.Exception.MessageId }
-                                                            Write-PScriboMessage -IsWarning "Hyper-V Backup Proxy Service Section: New-PSSession: Unable to connect to $($BackupProxy.Host.Name): $ErrorMessage"
-                                                        }
-                                                        if ($PssSession) {
-                                                            $Available = Invoke-Command -Session $PssSession -ScriptBlock { Get-Service "W32Time" | Select-Object DisplayName, Name, Status }
-                                                            Write-PScriboMessage "Collecting Backup Proxy Service information from $($BackupProxy.Name)."
-                                                            $Services = Invoke-Command -Session $PssSession -ScriptBlock { Get-Service Veeam* }
+                                                if ($ClientOSVersion -eq "Win32NT") {
+
+                                                    if (Test-WSMan -Credential $Credential -Authentication $Options.PSDefaultAuthentication -ComputerName $BackupProxy.Host.Name -ErrorAction SilentlyContinue) {
+                                                        try {
+                                                            $PssSession = try { New-PSSession $BackupProxy.Host.Name -Credential $Credential -Authentication $Options.PSDefaultAuthentication -ErrorAction Stop -Name 'HyperVBackupProxyService' } catch {
+                                                                if (-not $_.Exception.MessageId) {
+                                                                    $ErrorMessage = $_.FullyQualifiedErrorId
+                                                                } else { $ErrorMessage = $_.Exception.MessageId }
+                                                                Write-PScriboMessage -IsWarning "Hyper-V Backup Proxy Service Section: New-PSSession: Unable to connect to $($BackupProxy.Host.Name): $ErrorMessage"
+                                                            }
                                                             if ($PssSession) {
-                                                                Remove-PSSession -Session $PssSession
-                                                            }
-                                                            if ($Available -and $Services) {
-                                                                Section -Style NOTOCHeading4 -ExcludeFromTOC "HealthCheck - $($BackupProxy.Host.Name.Split(".")[0]) Services Status" {
-                                                                    $OutObj = @()
-                                                                    foreach ($Service in $Services) {
-                                                                        Write-PScriboMessage "Collecting '$($Service.DisplayName)' status on $($BackupProxy.Name)."
-                                                                        $inObj = [ordered] @{
-                                                                            'Display Name' = $Service.DisplayName
-                                                                            'Short Name' = $Service.Name
-                                                                            'Status' = $Service.Status
-                                                                        }
-                                                                        $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
-                                                                    }
-
-                                                                    if ($HealthCheck.Infrastructure.Server) {
-                                                                        $OutObj | Where-Object { $_.'Status' -notlike 'Running' } | Set-Style -Style Warning -Property 'Status'
-                                                                    }
-
-                                                                    $TableParams = @{
-                                                                        Name = "HealthCheck - Services Status - $($BackupProxy.Host.Name.Split(".")[0])"
-                                                                        List = $false
-                                                                        ColumnWidths = 45, 35, 20
-                                                                    }
-                                                                    if ($Report.ShowTableCaptions) {
-                                                                        $TableParams['Caption'] = "- $($TableParams.Name)"
-                                                                    }
-                                                                    $OutObj | Sort-Object -Property 'Display Name' | Table @TableParams
+                                                                $Available = Invoke-Command -Session $PssSession -ScriptBlock { Get-Service "W32Time" | Select-Object DisplayName, Name, Status }
+                                                                Write-PScriboMessage "Collecting Backup Proxy Service information from $($BackupProxy.Name)."
+                                                                $Services = Invoke-Command -Session $PssSession -ScriptBlock { Get-Service Veeam* }
+                                                                if ($PssSession) {
+                                                                    Remove-PSSession -Session $PssSession
                                                                 }
-                                                            }
-                                                        } else { Write-PScriboMessage -IsWarning "VMware Backup Proxies Services Status Section: Unable to connect to $($BackupProxy.Host.Name)" }
-                                                    } catch {
-                                                        Write-PScriboMessage -IsWarning "Hyper-V Backup Proxies Services Status - $($BackupProxy.Host.Name.Split(".")[0]) Section: $($_.Exception.Message)"
+                                                                if ($Available -and $Services) {
+                                                                    Section -Style NOTOCHeading4 -ExcludeFromTOC "HealthCheck - $($BackupProxy.Host.Name.Split(".")[0]) Services Status" {
+                                                                        $OutObj = @()
+                                                                        foreach ($Service in $Services) {
+                                                                            Write-PScriboMessage "Collecting '$($Service.DisplayName)' status on $($BackupProxy.Name)."
+                                                                            $inObj = [ordered] @{
+                                                                                'Display Name' = $Service.DisplayName
+                                                                                'Short Name' = $Service.Name
+                                                                                'Status' = $Service.Status
+                                                                            }
+                                                                            $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
+                                                                        }
+
+                                                                        if ($HealthCheck.Infrastructure.Server) {
+                                                                            $OutObj | Where-Object { $_.'Status' -notlike 'Running' } | Set-Style -Style Warning -Property 'Status'
+                                                                        }
+
+                                                                        $TableParams = @{
+                                                                            Name = "HealthCheck - Services Status - $($BackupProxy.Host.Name.Split(".")[0])"
+                                                                            List = $false
+                                                                            ColumnWidths = 45, 35, 20
+                                                                        }
+                                                                        if ($Report.ShowTableCaptions) {
+                                                                            $TableParams['Caption'] = "- $($TableParams.Name)"
+                                                                        }
+                                                                        $OutObj | Sort-Object -Property 'Display Name' | Table @TableParams
+                                                                    }
+                                                                }
+                                                            } else { Write-PScriboMessage -IsWarning "VMware Backup Proxies Services Status Section: Unable to connect to $($BackupProxy.Host.Name)" }
+                                                        } catch {
+                                                            Write-PScriboMessage -IsWarning "Hyper-V Backup Proxies Services Status - $($BackupProxy.Host.Name.Split(".")[0]) Section: $($_.Exception.Message)"
+                                                        }
+                                                    } else {
+                                                        Write-PScriboMessage -IsWarning "Hyper-V Backup Proxies Section: Unable to connect to $($BackupProxies.Host.Name) throuth WinRM, removing server from Veeam Services section"
                                                     }
-                                                } else {
-                                                    Write-PScriboMessage -IsWarning "Hyper-V Backup Proxies Section: Unable to connect to $($BackupProxies.Host.Name) throuth WinRM, removing server from Veeam Services section"
                                                 }
                                             }
                                         }
