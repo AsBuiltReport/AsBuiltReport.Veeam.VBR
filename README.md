@@ -25,6 +25,7 @@
 
 > [!WARNING]
 > I was recently contacted regarding the status of this project. Maintaining this report and the associated tools requires significant time and resources. If you would like to help keep this project active, please consider supporting its development by donating through Ko-fi.
+> https://ko-fi.com/jcolonfzenpr/goal?g=0
 
 #### Community Maintained Project
 
