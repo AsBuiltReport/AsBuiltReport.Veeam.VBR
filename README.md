@@ -24,7 +24,7 @@
 </p>
 
 > [!WARNING]
-> I was recently contacted regarding the status of this project. Maintaining this report and the associated tools requires significant time and resources. If you would like to help keep this project active, please consider supporting its development by donating through Ko-fi.
+> Veeam Backup & Replication v13 introduces several new features and improvements, one of which is support for .Net Core. To support this version of .Net, it is necessary to update the AsBuiltReport.Veeam.VBR report to work in PowerShell v7. This effort requires many hours of work that place an additional burden on my already heavy work schedule. If you wish to support this effort, please do not hesitate to donate!
 > https://ko-fi.com/jcolonfzenpr/goal?g=0
 
 #### Community Maintained Project
