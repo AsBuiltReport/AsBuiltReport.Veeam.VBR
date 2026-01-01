@@ -83,7 +83,21 @@ function Get-AbrVbrReplFailoverPlan {
                                                 try {
                                                     if ($FailOverPlan.Platform -eq 'VMWare') {
                                                         Write-PScriboMessage "Discovering $($FailOverPlan.Name) VMware VM information."
-                                                        $VMInfo = Invoke-FindVBRViEntityWithTimeout -TimeoutSeconds 120 -Name $FailOverPlansVM
+                                                        $VMInfo = switch ($PSVersionTable.PSEdition) {
+                                                            'Core' {
+                                                                switch ($PSVersionTable.Platform) {
+                                                                    'Unix' {
+                                                                        Find-VBRHvEntity -Name $FailOverPlansVM
+                                                                    }
+                                                                    'Win32NT' {
+                                                                        Invoke-FindVBRViEntityWithTimeout -TimeoutSeconds 120 -Name $FailOverPlansVM
+                                                                    }
+                                                                }
+                                                            }
+                                                            'Desktop' {
+                                                                Invoke-FindVBRViEntityWithTimeout -TimeoutSeconds 120 -Name $FailOverPlansVM
+                                                            }
+                                                        }
                                                     } else {
                                                         Write-PScriboMessage "Discovering $($FailOverPlan.Name) Hyper-V VM information."
                                                         $VMInfo = Find-VBRHvEntity -Name $FailOverPlansVM

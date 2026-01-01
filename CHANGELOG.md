@@ -38,6 +38,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Fix error in Unix system not finding default report configuration file
+- Fix Invoke-FindVBRViEntityWithTimeout not finding object in Unix based OS
 
 ## [0.8.23] - 2025-07-30
 
