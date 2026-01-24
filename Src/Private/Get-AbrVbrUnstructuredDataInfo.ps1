@@ -6,7 +6,7 @@ function Get-AbrVbrUnstructuredDataInfo {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.13
+        Version:        0.8.24
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -31,16 +31,16 @@ function Get-AbrVbrUnstructuredDataInfo {
                 Paragraph "The following table provides a summary about the unstructured data backed-up by Veeam Server $VeeamBackupServer."
                 $OutObj = @()
                 try {
-                    foreach ($ShareObj in $ShareObjs | Where-Object { $_.Type -eq "FileServer" }) {
+                    foreach ($ShareObj in $ShareObjs | Where-Object { $_.Type -eq 'FileServer' }) {
                         try {
-                            Write-PScriboMessage "Discovered $($ShareObj.Name) Server."
+
                             $inObj = [ordered] @{
                                 'Name' = $ShareObj.Name
                                 'Backup IO Control' = $ShareObj.BackupIOControlLevel
                                 'Credentials' = switch ([string]::IsNullOrEmpty($ShareObj.Server.ProxyServicesCreds.Name)) {
-                                    $true { "--" }
+                                    $true { '--' }
                                     $false { $ShareObj.Server.ProxyServicesCreds.Name }
-                                    default { "Unknown" }
+                                    default { 'Unknown' }
                                 }
                                 'Cache Repository' = $ShareObj.CacheRepository.Name
                             }
@@ -69,7 +69,7 @@ function Get-AbrVbrUnstructuredDataInfo {
                 }
                 $OutObj = @()
                 try {
-                    foreach ($ShareObj in $ShareObjs | Where-Object { $_.Type -eq "SANSMB" }) {
+                    foreach ($ShareObj in $ShareObjs | Where-Object { $_.Type -eq 'SANSMB' }) {
                         $Path = $Null
                         try {
                             if ($ShareObj.Type -eq 'FileServer') {
@@ -79,20 +79,20 @@ function Get-AbrVbrUnstructuredDataInfo {
                                 $Path = Get-VBRNASServerPath -Server $ShareObj
                                 $AccessCredentials = $ShareObj.AccessCredentials
                             }
-                            Write-PScriboMessage "Discovered $($Path) Share."
+
                             $inObj = [ordered] @{
                                 'Path' = $Path
                                 'Type' = switch ($ShareObj.Type) {
-                                    "FileServer" { "File Server" }
-                                    "SANSMB" { "NAS Filler" }
-                                    "SMB" { "SMB Share" }
-                                    "NFS" { "NFS Share" }
-                                    "SANNFS" { "NAS Filler" }
+                                    'FileServer' { 'File Server' }
+                                    'SANSMB' { 'NAS Filler' }
+                                    'SMB' { 'SMB Share' }
+                                    'NFS' { 'NFS Share' }
+                                    'SANNFS' { 'NAS Filler' }
                                     default { $ShareObj.Type }
                                 }
                                 'Backup IO Control' = $ShareObj.BackupIOControlLevel
                                 'Credentials' = switch (($AccessCredentials).count) {
-                                    0 { "None" }
+                                    0 { 'None' }
                                     default { $AccessCredentials }
                                 }
                                 'Cache Repository' = $ShareObj.CacheRepository.Name
@@ -123,7 +123,7 @@ function Get-AbrVbrUnstructuredDataInfo {
                 }
                 $OutObj = @()
                 try {
-                    foreach ($ShareObj in $ShareObjs | Where-Object { $_.Type -eq "SMB" -or $_.Type -eq "NFS" }) {
+                    foreach ($ShareObj in $ShareObjs | Where-Object { $_.Type -eq 'SMB' -or $_.Type -eq 'NFS' }) {
                         $Path = $Null
                         try {
                             if ($ShareObj.Type -eq 'FileServer') {
@@ -133,20 +133,20 @@ function Get-AbrVbrUnstructuredDataInfo {
                                 $Path = Get-VBRNASServerPath -Server $ShareObj
                                 $AccessCredentials = $ShareObj.AccessCredentials
                             }
-                            Write-PScriboMessage "Discovered $($Path) Share."
+
                             $inObj = [ordered] @{
                                 'Path' = $Path
                                 'Type' = switch ($ShareObj.Type) {
-                                    "FileServer" { "File Server" }
-                                    "SANSMB" { "NAS Filler" }
-                                    "SMB" { "SMB Share" }
-                                    "NFS" { "NFS Share" }
-                                    "SANNFS" { "NAS Filler" }
+                                    'FileServer' { 'File Server' }
+                                    'SANSMB' { 'NAS Filler' }
+                                    'SMB' { 'SMB Share' }
+                                    'NFS' { 'NFS Share' }
+                                    'SANNFS' { 'NAS Filler' }
                                     default { $ShareObj.Type }
                                 }
                                 'Backup IO Control' = $ShareObj.BackupIOControlLevel
                                 'Credentials' = switch (($AccessCredentials).count) {
-                                    0 { "None" }
+                                    0 { 'None' }
                                     default { $AccessCredentials }
                                 }
                                 'Cache Repository' = $ShareObj.CacheRepository.Name
@@ -177,16 +177,16 @@ function Get-AbrVbrUnstructuredDataInfo {
                 }
                 $OutObj = @()
                 try {
-                    foreach ($ShareObj in $ShareObjs | Where-Object { $_.Type -eq "AzureBlobServer" -or $_.Type -eq "AmazonS3Server" -or $_.Type -eq "S3CompatibleServer" }) {
+                    foreach ($ShareObj in $ShareObjs | Where-Object { $_.Type -eq 'AzureBlobServer' -or $_.Type -eq 'AmazonS3Server' -or $_.Type -eq 'S3CompatibleServer' }) {
                         try {
-                            Write-PScriboMessage "Discovered $($ShareObj.Name) Server."
+
                             $inObj = [ordered] @{
                                 'Name' = $ShareObj.FriendlyName
                                 'Region' = $ShareObj.Info
                                 'Account' = switch ([string]::IsNullOrEmpty($ShareObj.Account.Name)) {
-                                    $true { "--" }
+                                    $true { '--' }
                                     $false { $ShareObj.Account.Name }
-                                    default { "Unknown" }
+                                    default { 'Unknown' }
                                 }
                                 'Backup IO Control' = $ShareObj.BackupIOControlLevel
                                 'Cache Repository' = $ShareObj.CacheRepository.Name

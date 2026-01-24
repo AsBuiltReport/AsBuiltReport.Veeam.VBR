@@ -6,7 +6,7 @@ function Get-AbrVbrEntraIDBackupjob {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.13
+        Version:        0.8.24
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -22,19 +22,19 @@ function Get-AbrVbrEntraIDBackupjob {
 
     begin {
         Write-PScriboMessage "Discovering Veeam VBR EntraID Tenant Backup jobs information from $System."
-        Show-AbrDebugExecutionTime -Start -TitleMessage "EntraID Tenant Backup Jobs"
+        Show-AbrDebugExecutionTime -Start -TitleMessage 'EntraID Tenant Backup Jobs'
     }
 
     process {
         try {
             if ($Bkjobs = Get-VBREntraIDTenantBackupJob | Sort-Object -Property 'Name') {
                 Section -Style Heading3 'EntraID Tenant Backup Jobs' {
-                    Paragraph "The following section list entraid tenant jobs created in Veeam Backup & Replication."
+                    Paragraph 'The following section list entraid tenant jobs created in Veeam Backup & Replication.'
                     BlankLine
                     $OutObj = @()
                     foreach ($Bkjob in $Bkjobs) {
                         try {
-                            Write-PScriboMessage "Discovered $($Bkjob.Name) Backup Job."
+
                             $inObj = [ordered] @{
                                 'Name' = $Bkjob.Name
                                 'Tenant' = $Bkjob.Tenant.Name
@@ -65,6 +65,6 @@ function Get-AbrVbrEntraIDBackupjob {
         }
     }
     end {
-        Show-AbrDebugExecutionTime -End -TitleMessage "EntraID Tenant Backup Jobs"
+        Show-AbrDebugExecutionTime -End -TitleMessage 'EntraID Tenant Backup Jobs'
     }
 }

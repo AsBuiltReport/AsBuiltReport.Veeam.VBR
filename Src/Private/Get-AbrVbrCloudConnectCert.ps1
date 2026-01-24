@@ -6,7 +6,7 @@ function Get-AbrVbrCloudConnectCert {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.20
+        Version:        0.8.24
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -22,21 +22,21 @@ function Get-AbrVbrCloudConnectCert {
 
     begin {
         Write-PScriboMessage "Discovering Veeam VBR Cloud SSL Certificate information from $System."
-        Show-AbrDebugExecutionTime -Start -TitleMessage "Cloud Connect SSL Certificate"
+        Show-AbrDebugExecutionTime -Start -TitleMessage 'Cloud Connect SSL Certificate'
     }
 
     process {
         try {
-            if ($VbrLicenses | Where-Object { $_.CloudConnect -ne "Disabled" }) {
+            if ($VbrLicenses | Where-Object { $_.CloudConnect -ne 'Disabled' }) {
                 if ($CloudObjects = Get-VBRCloudGatewayCertificate) {
                     Section -Style Heading3 'Gateway Certificate' {
-                        Paragraph "The following section provides information about Cloud Gateways SSL Certificate."
+                        Paragraph 'The following section provides information about Cloud Gateways SSL Certificate.'
                         BlankLine
                         try {
                             $OutObj = @()
                             foreach ($CloudObject in $CloudObjects) {
                                 try {
-                                    Write-PScriboMessage "Discovered $($CloudObject.DisplayName) Cloud Gateway SSL Certificate information."
+
 
                                     $inObj = [ordered] @{
                                         'Name' = $CloudObject.DisplayName
@@ -73,7 +73,7 @@ function Get-AbrVbrCloudConnectCert {
             }
         } catch {
             Write-PScriboMessage -IsWarning "Gateway Certificate Section: $($_.Exception.Message)"
-            Show-AbrDebugExecutionTime -End -TitleMessage "Cloud Connect SSL Certificate"
+            Show-AbrDebugExecutionTime -End -TitleMessage 'Cloud Connect SSL Certificate'
         }
     }
     end {}

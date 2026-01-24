@@ -20,19 +20,19 @@ function Get-AbrVbrBackupJobsRP {
 
     begin {
         Write-PScriboMessage "RestorePoint InfoLevel set at $($InfoLevel.Jobs.Restores)."
-        Show-AbrDebugExecutionTime -Start -TitleMessage "Backup Restore Points"
+        Show-AbrDebugExecutionTime -Start -TitleMessage 'Backup Restore Points'
     }
 
     process {
         try {
             if ($BackupJobs = Get-VBRBackup | Sort-Object -Property Name) {
-                Write-PScriboMessage "Collecting Veeam VBR Restore Point."
+                Write-PScriboMessage 'Collecting Veeam VBR Restore Point.'
                 Section -Style Heading3 'Backup Restore Points' {
-                    Paragraph "The following section details per Backup Job restore points."
+                    Paragraph 'The following section details per Backup Job restore points.'
                     BlankLine
                     foreach ($BackupJob in $BackupJobs) {
                         if ($BackupJobRestorePoints = Get-VBRRestorePoint -Backup $BackupJob | Sort-Object -Property VMName, CreationTimeUt, Type) {
-                            Section -ExcludeFromTOC -Style NOTOCHeading4  $BackupJob.Name {
+                            Section -ExcludeFromTOC -Style NOTOCHeading4 $BackupJob.Name {
                                 $RestorePointInfo = @()
                                 foreach ($RestorePoint in $BackupJobRestorePoints) {
                                     try {
@@ -74,6 +74,6 @@ function Get-AbrVbrBackupJobsRP {
         }
     }
     end {
-        Show-AbrDebugExecutionTime -End -TitleMessage "Backup Restore Points"
+        Show-AbrDebugExecutionTime -End -TitleMessage 'Backup Restore Points'
     }
 }

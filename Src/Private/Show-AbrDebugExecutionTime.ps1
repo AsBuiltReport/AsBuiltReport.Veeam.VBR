@@ -34,7 +34,7 @@ function Show-AbrDebugExecutionTime {
         [Switch]$End,
 
         [Parameter(Mandatory = $false)]
-        [string]$TitleMessage = "Operation"
+        [string]$TitleMessage = 'Operation'
     )
 
     begin {
@@ -53,7 +53,7 @@ function Show-AbrDebugExecutionTime {
                 $script:SectionEndTime = Get-Date
                 # Write-Host "Ending $($TitleMessage) section: $($SectionEndTime)" -ForegroundColor Cyan
                 $elapsedTime = New-TimeSpan -Start $SectionStartTime -End $SectionEndTime
-                Write-Host -ForegroundColor Cyan "$($TitleMessage) section execution time [hh:mm:ss]: $($elapsedTime.tostring("hh")):$($elapsedTime.tostring("mm")):$($elapsedTime.tostring("ss"))"
+                Write-Host -ForegroundColor Cyan "$($TitleMessage) section execution time [hh:mm:ss]: $($elapsedTime.tostring('hh')):$($elapsedTime.tostring('mm')):$($elapsedTime.tostring('ss'))"
             }
         } catch { Out-Null }
     }

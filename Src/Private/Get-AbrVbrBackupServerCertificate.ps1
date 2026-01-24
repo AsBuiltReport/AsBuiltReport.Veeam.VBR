@@ -22,7 +22,7 @@ function Get-AbrVbrBackupServerCertificate {
 
     begin {
         Write-PScriboMessage "Discovering Veeam VBR TLS certificates information from $System."
-        Show-AbrDebugExecutionTime -Start -TitleMessage "Backup Server TLS Certificate"
+        Show-AbrDebugExecutionTime -Start -TitleMessage 'Backup Server TLS Certificate'
     }
 
     process {
@@ -67,7 +67,7 @@ function Get-AbrVbrBackupServerCertificate {
         }
     }
     end {
-        Show-AbrDebugExecutionTime -End -TitleMessage "Backup Server TLS Certificate"
+        Show-AbrDebugExecutionTime -End -TitleMessage 'Backup Server TLS Certificate'
     }
 
 }

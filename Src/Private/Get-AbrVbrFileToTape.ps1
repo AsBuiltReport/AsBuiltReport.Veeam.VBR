@@ -6,7 +6,7 @@ function Get-AbrVbrFileToTape {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.20
+        Version:        0.8.24
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -29,7 +29,7 @@ function Get-AbrVbrFileToTape {
         try {
             if ($TBkjobs = Get-VBRTapeJob | Where-Object { $_.Type -eq 'FileToTape' } | Sort-Object -Property Name) {
                 Section -Style Heading3 'File To Tape Job Configuration' {
-                    Paragraph "The following section details the configuration about file to tape jobs."
+                    Paragraph 'The following section details the configuration about file to tape jobs.'
                     BlankLine
                     $OutObj = @()
                     if ($TBkjobs) {
@@ -38,7 +38,7 @@ function Get-AbrVbrFileToTape {
                                 Section -Style NOTOCHeading5 -ExcludeFromTOC 'Backups Information' {
                                     $OutObj = @()
                                     try {
-                                        Write-PScriboMessage "Discovered $($TBkjob.Name) common information."
+
                                         $inObj = [ordered] @{
                                             'Name' = $TBkjob.Name
                                             'Type' = $TBkjob.Type
@@ -51,8 +51,8 @@ function Get-AbrVbrFileToTape {
                                         $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                         if ($HealthCheck.Jobs.BestPractice) {
-                                            $OutObj | Where-Object { $_.'Description' -eq "--" } | Set-Style -Style Warning -Property 'Description'
-                                            $OutObj | Where-Object { $_.'Description' -match "Created by" } | Set-Style -Style Warning -Property 'Description'
+                                            $OutObj | Where-Object { $_.'Description' -eq '--' } | Set-Style -Style Warning -Property 'Description'
+                                            $OutObj | Where-Object { $_.'Description' -match 'Created by' } | Set-Style -Style Warning -Property 'Description'
                                         }
 
                                         $TableParams = @{
@@ -65,12 +65,12 @@ function Get-AbrVbrFileToTape {
                                         }
                                         $OutObj | Table @TableParams
                                         if ($HealthCheck.Jobs.BestPractice) {
-                                            if ($OutObj | Where-Object { $_.'Description' -match 'Created by' -or $_.'Description' -eq "--" }) {
-                                                Paragraph "Health Check:" -Bold -Underline
+                                            if ($OutObj | Where-Object { $_.'Description' -match 'Created by' -or $_.'Description' -eq '--' }) {
+                                                Paragraph 'Health Check:' -Bold -Underline
                                                 BlankLine
                                                 Paragraph {
-                                                    Text "Best Practice:" -Bold
-                                                    Text "It is a general rule of good practice to establish well-defined descriptions. This helps to speed up the fault identification process, as well as enabling better documentation of the environment."
+                                                    Text 'Best Practice:' -Bold
+                                                    Text 'It is a general rule of good practice to establish well-defined descriptions. This helps to speed up the fault identification process, as well as enabling better documentation of the environment.'
                                                 }
                                                 BlankLine
                                             }
@@ -85,7 +85,7 @@ function Get-AbrVbrFileToTape {
                                             $OutObj = @()
                                             foreach ($File in $TBkjob.Object) {
                                                 try {
-                                                    Write-PScriboMessage "Discovered $($File.Name) files and folders to process."
+
                                                     $inObj = [ordered] @{
                                                         'Name' = $File.Server.Name
                                                         'Type' = $File.Server.Type
@@ -102,7 +102,7 @@ function Get-AbrVbrFileToTape {
                                             if ($TBkjob.NdmpObject) {
                                                 foreach ($NDMP in $TBkjob.NdmpObject) {
                                                     try {
-                                                        Write-PScriboMessage "Discovered $($NDMP.Name) NDMP to process."
+
                                                         $inObj2 = [ordered] @{
                                                             'Name' = switch ((Get-VBRNDMPServer -Id $NDMP.ServerId).Name) {
                                                                 $Null { 'NDMP Object' }
@@ -141,23 +141,23 @@ function Get-AbrVbrFileToTape {
                                             $OutObj = @()
                                             foreach ($BackupMediaPool in $TBkjob.FullBackupMediaPool) {
                                                 try {
-                                                    Write-PScriboMessage "Discovered $($TBkjob.Name) media pool."
+
                                                     $inObj = [ordered] @{
                                                         'Name' = $BackupMediaPool.Name
                                                         'Pool Type' = $BackupMediaPool.Type
                                                         'Tape Count' = (Get-VBRTapeMedium -MediaPool $BackupMediaPool.Name).count
                                                         'Capacity' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $BackupMediaPool.Capacity
-                                                        'Remaining' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size  $BackupMediaPool.FreeSpace
+                                                        'Remaining' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $BackupMediaPool.FreeSpace
                                                         'Is WORM' = $BackupMediaPool.Worm
                                                         'Schedule Enabled' = $TBkjob.FullBackupPolicy.Enabled
                                                     }
-                                                    if ($BackupMediaPool.Type -eq "Custom" -and $TBkjob.FullBackupPolicy.Enabled) {
+                                                    if ($BackupMediaPool.Type -eq 'Custom' -and $TBkjob.FullBackupPolicy.Enabled) {
                                                         if ($TBkjob.FullBackupPolicy.Type -eq 'Daily') {
-                                                            $inObj.add('Daily at this Time', ("$($TBkjob.FullBackupPolicy.DailyOptions.Period) - $($TBkjob.FullBackupPolicy.DailyOptions.DayOfWeek -join ", ")"))
+                                                            $inObj.add('Daily at this Time', ("$($TBkjob.FullBackupPolicy.DailyOptions.Period) - $($TBkjob.FullBackupPolicy.DailyOptions.DayOfWeek -join ', ')"))
                                                         } elseif ($TBkjob.FullBackupPolicy.Type -eq 'Monthly') {
                                                             $Months = switch (($TBkjob.FullBackupPolicy.MonthlyOptions.Months).count) {
                                                                 12 { 'Every Month' }
-                                                                default { $TBkjob.FullBackupPolicy.MonthlyOptions.Months -join ", " }
+                                                                default { $TBkjob.FullBackupPolicy.MonthlyOptions.Months -join ', ' }
                                                             }
                                                             if ($TBkjob.FullBackupPolicy.MonthlyOptions.DayNumberInMonth -eq 'OnDay') {
                                                                 $inObj.add('Monthly at this Time', ("At $($TBkjob.FullBackupPolicy.DailyOptions.Period), Monthly on the: $($TBkjob.FullBackupPolicy.MonthlyOptions.DayOfMonth) day of $Months"))
@@ -192,23 +192,23 @@ function Get-AbrVbrFileToTape {
                                             $OutObj = @()
                                             foreach ($BackupMediaPool in $TBkjob.IncrementalBackupMediaPool) {
                                                 try {
-                                                    Write-PScriboMessage "Discovered $($TBkjob.Name) incremental backup."
+
                                                     $inObj = [ordered] @{
                                                         'Name' = $BackupMediaPool.Name
                                                         'Pool Type' = $BackupMediaPool.Type
                                                         'Tape Count' = (Get-VBRTapeMedium -MediaPool $BackupMediaPool.Name).count
-                                                        'Capacity' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size  $BackupMediaPool.Capacity
-                                                        'Remaining' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size  $BackupMediaPool.FreeSpace
+                                                        'Capacity' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $BackupMediaPool.Capacity
+                                                        'Remaining' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $BackupMediaPool.FreeSpace
                                                         'Is WORM' = $BackupMediaPool.Worm
                                                         'Schedule Enabled' = $TBkjob.IncrementalBackupPolicy.Enabled
                                                     }
-                                                    if ($BackupMediaPool.Type -eq "Custom" -and $TBkjob.IncrementalBackupPolicy.Enabled) {
+                                                    if ($BackupMediaPool.Type -eq 'Custom' -and $TBkjob.IncrementalBackupPolicy.Enabled) {
                                                         if ($TBkjob.IncrementalBackupPolicy.Type -eq 'Daily') {
-                                                            $inObj.add('Daily at this Time', ("$($TBkjob.IncrementalBackupPolicy.DailyOptions.Period) - $($TBkjob.IncrementalBackupPolicy.DailyOptions.DayOfWeek -join ", ")"))
+                                                            $inObj.add('Daily at this Time', ("$($TBkjob.IncrementalBackupPolicy.DailyOptions.Period) - $($TBkjob.IncrementalBackupPolicy.DailyOptions.DayOfWeek -join ', ')"))
                                                         } elseif ($TBkjob.IncrementalBackupPolicy.Type -eq 'Monthly') {
                                                             $Months = switch (($TBkjob.IncrementalBackupPolicy.MonthlyOptions.Months).count) {
                                                                 12 { 'Every Month' }
-                                                                default { $TBkjob.IncrementalBackupPolicy.MonthlyOptions.Months -join ", " }
+                                                                default { $TBkjob.IncrementalBackupPolicy.MonthlyOptions.Months -join ', ' }
                                                             }
                                                             if ($TBkjob.IncrementalBackupPolicy.MonthlyOptions.DayNumberInMonth -eq 'OnDay') {
                                                                 $inObj.add('Monthly at this Time', ("At $($TBkjob.IncrementalBackupPolicy.DailyOptions.Period), Monthly on the: $($TBkjob.IncrementalBackupPolicy.MonthlyOptions.DayOfMonth) day of $Months"))
@@ -241,7 +241,7 @@ function Get-AbrVbrFileToTape {
                                     Section -Style NOTOCHeading5 -ExcludeFromTOC 'Options' {
                                         $OutObj = @()
                                         try {
-                                            Write-PScriboMessage "Discovered $($TBkjob.Name) options."
+
                                             $inObj = [ordered] @{
                                                 'Use Microsoft volume shadow copy (VSS)' = $TBkjob.UseVss
                                                 'Eject Tape Media Upon Job Completion' = $TBkjob.EjectCurrentMedium
@@ -266,10 +266,10 @@ function Get-AbrVbrFileToTape {
                                                 Section -Style NOTOCHeading6 -ExcludeFromTOC 'Advanced Settings (Notifications)' {
                                                     $OutObj = @()
                                                     try {
-                                                        Write-PScriboMessage "Discovered $($TBkjob.Name) notification options."
+
                                                         $inObj = [ordered] @{
                                                             'Send Email Notification' = $TBkjob.NotificationOptions.EnableAdditionalNotification
-                                                            'Email Notification Additional Recipients' = $TBkjob.NotificationOptions.AdditionalAddress -join ","
+                                                            'Email Notification Additional Recipients' = $TBkjob.NotificationOptions.AdditionalAddress -join ','
                                                         }
                                                         if (!$TBkjob.NotificationOptions.UseNotificationOptions) {
                                                             $inObj.add('Use Global Notification Settings', ($TBkjob.NotificationOptions.UseNotificationOptions))
@@ -306,7 +306,7 @@ function Get-AbrVbrFileToTape {
                                                 Section -Style NOTOCHeading6 -ExcludeFromTOC 'Advanced Settings (Advanced)' {
                                                     $OutObj = @()
                                                     try {
-                                                        Write-PScriboMessage "Discovered $($TBkjob.Name) advanced options."
+
                                                         $inObj = [ordered] @{
                                                             'Use Hardware Compression when available' = $TBkjob.UseHardwareCompression
                                                         }
@@ -322,7 +322,7 @@ function Get-AbrVbrFileToTape {
                                                         }
                                                         if ($TBkjob.JobScriptOptions.PreScriptEnabled -or $TBkjob.JobScriptOptions.PostScriptEnabled) {
                                                             if ($TBkjob.JobScriptOptions.Periodicity -eq 'Days') {
-                                                                $FrequencyValue = $TBkjob.JobScriptOptions.Day -join ", "
+                                                                $FrequencyValue = $TBkjob.JobScriptOptions.Day -join ', '
                                                                 $FrequencyText = 'Run Script on the Selected Days'
                                                             } elseif ($TBkjob.JobScriptOptions.Periodicity -eq 'Cycles') {
                                                                 $FrequencyValue = "Every $($TBkjob.JobScriptOptions.Frequency) backup session"

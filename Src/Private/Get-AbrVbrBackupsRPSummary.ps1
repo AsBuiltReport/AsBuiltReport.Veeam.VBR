@@ -20,7 +20,7 @@ function Get-AbrVbrBackupsRPSummary {
 
     begin {
         Write-PScriboMessage "RestorePoint InfoLevel set at $($InfoLevel.Jobs.Restores)."
-        Show-AbrDebugExecutionTime -Start -TitleMessage "Backup Restore Points"
+        Show-AbrDebugExecutionTime -Start -TitleMessage 'Backup Restore Points'
     }
 
     process {
@@ -29,12 +29,12 @@ function Get-AbrVbrBackupsRPSummary {
             $BackupJobs += Get-VBRTapeBackup -WarningAction SilentlyContinue | Sort-Object -Property Name
 
             if ($BackupJobs) {
-                Write-PScriboMessage "Collecting Veeam VBR Restore Point."
+                Write-PScriboMessage 'Collecting Veeam VBR Restore Point.'
                 $RestorePointInfo = @()
                 foreach ($BackupJob in $BackupJobs) {
                     if ($BackupJobRestorePoints = Get-VBRRestorePoint -Backup $BackupJob) {
                         try {
-                            if ($FullRP = $BackupJobRestorePoints |  Where-Object { $_.Type -eq 'Full' -and -Not $_.IsCorrupted -and $_.CompletionTimeUtc -gt $_.CreationTimeUTC }) {
+                            if ($FullRP = $BackupJobRestorePoints | Where-Object { $_.Type -eq 'Full' -and -not $_.IsCorrupted -and $_.CompletionTimeUtc -gt $_.CreationTimeUTC }) {
                                 try {
                                     $FullDuration = Get-TimeDurationSum -InputObject $FullRP -StartTime 'CreationTimeUTC' -EndTime 'CompletionTimeUtc'
                                     $FullDurationAvg = Get-TimeDuration -TimeSpan ([timespan]::fromseconds(($FullDuration / $FullRP.Count)))
@@ -45,7 +45,7 @@ function Get-AbrVbrBackupsRPSummary {
                                 $FullDurationAvg = '--'
                             }
 
-                            if ($IncrementRP = $BackupJobRestorePoints |  Where-Object { $_.Type -eq 'Increment' -and -Not $_.IsCorrupted -and $_.CompletionTimeUtc -gt $_.CreationTimeUTC } ) {
+                            if ($IncrementRP = $BackupJobRestorePoints | Where-Object { $_.Type -eq 'Increment' -and -not $_.IsCorrupted -and $_.CompletionTimeUtc -gt $_.CreationTimeUTC } ) {
                                 try {
                                     $IncrementDuration = Get-TimeDurationSum -InputObject $IncrementRP -StartTime 'CreationTimeUTC' -EndTime 'CompletionTimeUtc'
                                     $IncrementDurationAvg = Get-TimeDuration -TimeSpan ([timespan]::fromseconds(($IncrementDuration / $IncrementRP.Count)))
@@ -60,8 +60,8 @@ function Get-AbrVbrBackupsRPSummary {
                                 'Job Name' = $BackupJob.Name
                                 'Oldest Backup' = $BackupJobRestorePoints[0].CreationTimeUTC
                                 'Newest Backup' = $BackupJobRestorePoints[-1].CreationTimeUTC
-                                'Full Count' = ($BackupJobRestorePoints |  Where-Object { $_.Type -eq 'Full' }).Count
-                                'Increment Count ' = ($BackupJobRestorePoints |  Where-Object { $_.Type -eq 'Increment' }).Count
+                                'Full Count' = ($BackupJobRestorePoints | Where-Object { $_.Type -eq 'Full' }).Count
+                                'Increment Count ' = ($BackupJobRestorePoints | Where-Object { $_.Type -eq 'Increment' }).Count
                                 'Average Full Duration' = $FullDurationAvg
                                 'Average Increment Duration ' = $IncrementDurationAvg
                             }
@@ -89,6 +89,6 @@ function Get-AbrVbrBackupsRPSummary {
         }
     }
     end {
-        Show-AbrDebugExecutionTime -End -TitleMessage "Backup Restore Points"
+        Show-AbrDebugExecutionTime -End -TitleMessage 'Backup Restore Points'
     }
 }

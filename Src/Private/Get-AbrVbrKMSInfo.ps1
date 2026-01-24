@@ -6,7 +6,7 @@ function Get-AbrVbrKMSInfo {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.20
+        Version:        0.8.24
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -29,12 +29,12 @@ function Get-AbrVbrKMSInfo {
         try {
             if ($KMSServers = Get-VBRKMSServer | Sort-Object -Property Name) {
                 Section -Style Heading3 'Key Management Servers' {
-                    Paragraph "The following table provide information about the kms configured in Veeam Backup & Replication."
+                    Paragraph 'The following table provide information about the kms configured in Veeam Backup & Replication.'
                     BlankLine
                     $OutObj = @()
                     foreach ($KMSServer in $KMSServers) {
                         try {
-                            Write-PScriboMessage "Discovered $($KMSServer.Name) KMS Server."
+
                             $inObj = [ordered] @{
                                 'Name' = $KMSServer.Name
                                 'CA Certificate' = $KMSServer.CACertificate
@@ -54,7 +54,7 @@ function Get-AbrVbrKMSInfo {
                         if ($Report.ShowTableCaptions) {
                             $TableParams['Caption'] = "- $($TableParams.Name)"
                         }
-                        $OutObj |  Table @TableParams
+                        $OutObj | Table @TableParams
                     }
                 }
             }

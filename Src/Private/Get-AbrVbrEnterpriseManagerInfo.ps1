@@ -22,14 +22,14 @@ function Get-AbrVbrEnterpriseManagerInfo {
 
     begin {
         Write-PScriboMessage "Discovering Enterprise Manager information from $System."
-        Show-AbrDebugExecutionTime -Start -TitleMessage "Enterprise Manager Information"
+        Show-AbrDebugExecutionTime -Start -TitleMessage 'Enterprise Manager Information'
     }
 
     process {
         try {
             if ($BackupServers) {
                 Section -Style Heading3 'Enterprise Manager Information' {
-                    Paragraph "The following table details information about Veeam Enterprise Manager configuration status"
+                    Paragraph 'The following table details information about Veeam Enterprise Manager configuration status'
                     BlankLine
                     $OutObj = @()
                     foreach ($BackupServer in $BackupServers) {
@@ -59,7 +59,7 @@ function Get-AbrVbrEnterpriseManagerInfo {
                             }
 
                             $TableParams = @{
-                                Name = "Enterprise Manager - $($BackupServer.Name.Split(".")[0])"
+                                Name = "Enterprise Manager - $($BackupServer.Name.Split('.')[0])"
                                 List = $true
                                 ColumnWidths = 40, 60
                             }
@@ -68,11 +68,11 @@ function Get-AbrVbrEnterpriseManagerInfo {
                             }
                             $OutObj | Table @TableParams
                             if ($HealthCheck.Infrastructure.BestPractice -and ($OutObj | Where-Object { $_.'Skip License Push' -eq 'Yes' })) {
-                                Paragraph "Health Check:" -Bold -Underline
+                                Paragraph 'Health Check:' -Bold -Underline
                                 BlankLine
                                 Paragraph {
-                                    Text "Best Practice:" -Bold
-                                    Text "Veeam recommends centralized license management through Enterprise Manager."
+                                    Text 'Best Practice:' -Bold
+                                    Text 'Veeam recommends centralized license management through Enterprise Manager.'
                                 }
                                 BlankLine
                             }
@@ -85,7 +85,7 @@ function Get-AbrVbrEnterpriseManagerInfo {
         }
     }
     end {
-        Show-AbrDebugExecutionTime -End -TitleMessage "Enterprise Manager Information"
+        Show-AbrDebugExecutionTime -End -TitleMessage 'Enterprise Manager Information'
     }
 
 }

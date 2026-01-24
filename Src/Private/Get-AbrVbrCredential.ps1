@@ -6,7 +6,7 @@ function Get-AbrVbrCredential {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.20
+        Version:        0.8.24
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -22,23 +22,23 @@ function Get-AbrVbrCredential {
 
     begin {
         Write-PScriboMessage "Discovering Veeam VBR credential information from $System."
-        Show-AbrDebugExecutionTime -Start -TitleMessage "Veeam VBR Credential"
+        Show-AbrDebugExecutionTime -Start -TitleMessage 'Veeam VBR Credential'
     }
 
     process {
         try {
             if ($Credentials = Get-VBRCredentials) {
                 Section -Style Heading3 'Security Credentials' {
-                    Paragraph "The following table provide information about the credentials managed by Veeam Backup & Replication."
+                    Paragraph 'The following table provide information about the credentials managed by Veeam Backup & Replication.'
                     BlankLine
                     $OutObj = @()
                     foreach ($Credential in $Credentials) {
                         try {
-                            Write-PScriboMessage "Discovered $($Credential.Name) Server."
+
                             $inObj = [ordered] @{
                                 'Name' = $Credential.Name
                                 'Change Time' = switch ($Credential.ChangeTimeUtc) {
-                                    "" { "--"; break }
+                                    '' { '--'; break }
                                     $Null { '--'; break }
                                     default { $Credential.ChangeTimeUtc.ToShortDateString() }
                                 }
@@ -62,12 +62,12 @@ function Get-AbrVbrCredential {
                     try {
                         if ($CloudCredentials = Get-VBRCloudProviderCredentials) {
                             Section -Style Heading3 'Service Provider Credentials' {
-                                Paragraph "The following table provide information about the service provider credentials managed by Veeam Backup & Replication."
+                                Paragraph 'The following table provide information about the service provider credentials managed by Veeam Backup & Replication.'
                                 BlankLine
                                 $OutObj = @()
                                 foreach ($CloudCredential in $CloudCredentials) {
                                     try {
-                                        Write-PScriboMessage "Discovered $($CloudCredential.Name) Server."
+
                                         $inObj = [ordered] @{
                                             'Name' = $CloudCredential.Name
                                             'Description' = $CloudCredential.Description
@@ -96,7 +96,7 @@ function Get-AbrVbrCredential {
             }
         } catch {
             Write-PScriboMessage -IsWarning "Security Credentials Section: $($_.Exception.Message)"
-            Show-AbrDebugExecutionTime -End -TitleMessage "Veeam VBR Credential"
+            Show-AbrDebugExecutionTime -End -TitleMessage 'Veeam VBR Credential'
         }
     }
     end {}

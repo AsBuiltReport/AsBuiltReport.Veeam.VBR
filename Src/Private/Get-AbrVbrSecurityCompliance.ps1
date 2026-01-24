@@ -94,7 +94,7 @@ function Get-AbrVbrSecurityCompliance {
                     'LinuxDisableProblematicServices' = 'Services with known issues should be disabled'
                     'LinuxOsHasVaRandomization' = 'Address space layout randomization (ASLR) should be used'
                     'LinuxOsIsFipsEnabled' = 'OS should be in FIPS mode'
-                    'LinuxOsUsesTcpSyncookies'= 'OS should be configured to use TCP syncookies'
+                    'LinuxOsUsesTcpSyncookies' = 'OS should be configured to use TCP syncookies'
                     'LinuxUsePasswordPolicy' = 'Linux servers should have password-based authentication disabled'
                     'SecureBootEnable' = 'Secure Boot should be enabled'
                     'LinuxUseSecurityModule' = 'System should use a security module'
@@ -102,15 +102,14 @@ function Get-AbrVbrSecurityCompliance {
                     'BackupServerHighAvailabilityEnabled' = 'High Availability cluster should be configured for this backup server'
                 }
                 $StatusObj = @{
-                    'Ok' = "Passed"
-                    'Violation' = "Not Implemented"
-                    'UnableToCheck' = "Unable to detect"
-                    'Suppressed' = "Suppressed"
+                    'Ok' = 'Passed'
+                    'Violation' = 'Not Implemented'
+                    'UnableToCheck' = 'Unable to detect'
+                    'Suppressed' = 'Suppressed'
                 }
                 $OutObj = @()
                 foreach ($SecurityCompliance in $SecurityCompliances) {
                     try {
-                        # Write-PscriboMessage -IsWarning "$($SecurityCompliance.Type) = $($RuleTypes[$SecurityCompliance.Type.ToString()])"
                         $inObj = [ordered] @{
                             'Best Practices' = $RuleTypes[$SecurityCompliance.Type.ToString()]
                             'Status' = $StatusObj[$SecurityCompliance.Status.ToString()]
@@ -142,10 +141,10 @@ function Get-AbrVbrSecurityCompliance {
             try {
 
                 $sampleData = [ordered]@{
-                    'Passed' = ($OutObj.status | Where-Object { $_ -eq "Passed" } | Measure-Object).Count
-                    'Unable to detect' = ($OutObj.status | Where-Object { $_ -eq "Unable to detect" } | Measure-Object).Count
-                    'Not Implemented' = ($OutObj.status | Where-Object { $_ -eq "Not Implemented" } | Measure-Object).Count
-                    'Suppressed' = ($OutObj.status | Where-Object { $_ -eq "Suppressed" } | Measure-Object).Count
+                    'Passed' = ($OutObj.status | Where-Object { $_ -eq 'Passed' } | Measure-Object).Count
+                    'Unable to detect' = ($OutObj.status | Where-Object { $_ -eq 'Unable to detect' } | Measure-Object).Count
+                    'Not Implemented' = ($OutObj.status | Where-Object { $_ -eq 'Not Implemented' } | Measure-Object).Count
+                    'Suppressed' = ($OutObj.status | Where-Object { $_ -eq 'Suppressed' } | Measure-Object).Count
                 }
 
                 $sampleDataObj = $sampleData.GetEnumerator() | Select-Object @{ Name = 'Category'; Expression = { $_.key } }, @{ Name = 'Value'; Expression = { $_.value } }

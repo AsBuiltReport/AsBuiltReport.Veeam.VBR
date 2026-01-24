@@ -6,7 +6,7 @@ function Get-AbrVbrLocation {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.20
+        Version:        0.8.24
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -29,13 +29,13 @@ function Get-AbrVbrLocation {
         try {
             if ($Locations = Get-VBRLocation) {
                 Section -Style Heading3 'Geographical Locations' {
-                    Paragraph "The following section provide a summary about geographical locations."
+                    Paragraph 'The following section provide a summary about geographical locations.'
                     BlankLine
                     try {
                         $OutObj = @()
                         foreach ($Location in $Locations) {
                             try {
-                                Write-PScriboMessage "Discovered $($Location.Name) location."
+
                                 $inObj = [ordered] @{
                                     'Name' = $Location.Name
                                     'id' = $Location.id
@@ -66,7 +66,6 @@ function Get-AbrVbrLocation {
     }
     end {
         Show-AbrDebugExecutionTime -End -TitleMessage 'Geographical Locations'
-
     }
 
 }

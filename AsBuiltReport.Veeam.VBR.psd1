@@ -27,7 +27,7 @@
     #CompanyName = 'Unknown'
 
     # Copyright statement for this module
-    Copyright = '(c) 2025 Jonathan Colon. All rights reserved.'
+    Copyright = '(c) 2026 Jonathan Colon. All rights reserved.'
 
     # Description of the functionality provided by this module
     Description = 'A PowerShell module to generate an as built report on the configuration of Veeam VBR.'
@@ -55,7 +55,7 @@
     RequiredModules = @(
         @{
             ModuleName = 'AsBuiltReport.Core';
-            ModuleVersion = '1.5.0'
+            ModuleVersion = '1.5.1'
         }
         @{
             ModuleName = 'PScriboCharts';
@@ -63,7 +63,7 @@
         }
         @{
             ModuleName = 'Diagrammer.Core';
-            ModuleVersion = '0.2.35'
+            ModuleVersion = '0.2.36.1'
         }
         @{
             ModuleName = 'Veeam.Diagrammer';

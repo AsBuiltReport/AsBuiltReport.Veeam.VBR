@@ -6,7 +6,7 @@ function Get-AbrVbrCloudConnectStatus {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.20
+        Version:        0.8.24
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -22,20 +22,20 @@ function Get-AbrVbrCloudConnectStatus {
 
     begin {
         Write-PScriboMessage "Discovering Veeam VBR Cloud Connect Service Status information from $System."
-        Show-AbrDebugExecutionTime -Start -TitleMessage "Cloud Connect Service Status"
+        Show-AbrDebugExecutionTime -Start -TitleMessage 'Cloud Connect Service Status'
     }
 
     process {
-        if ($VbrLicenses | Where-Object { $_.CloudConnect -ne "Disabled" }) {
+        if ($VbrLicenses | Where-Object { $_.CloudConnect -ne 'Disabled' }) {
             if ($CloudConnectInfraStatus = Get-VBRCloudInfrastructureState) {
                 Section -Style Heading3 'Service Status' {
-                    Paragraph "The following section provides information about Cloud Gateways SSL Certificate."
+                    Paragraph 'The following section provides information about Cloud Gateways SSL Certificate.'
                     BlankLine
                     try {
                         $CloudConnectInfraServiceStatus = Get-VBRCloudInfrastructureServiceState
                         $OutObj = @()
                         try {
-                            Write-PScriboMessage "Discovered $($CloudObject.DisplayName) Cloud Connect Service Status information."
+
                             $inObj = [ordered] @{
                                 'Server Name' = $VeeamBackupServer
                                 'Global Status' = $CloudConnectInfraStatus
@@ -71,7 +71,7 @@ function Get-AbrVbrCloudConnectStatus {
         }
     }
     end {
-        Show-AbrDebugExecutionTime -End -TitleMessage "Cloud Connect Service Status"
+        Show-AbrDebugExecutionTime -End -TitleMessage 'Cloud Connect Service Status'
     }
 
 }

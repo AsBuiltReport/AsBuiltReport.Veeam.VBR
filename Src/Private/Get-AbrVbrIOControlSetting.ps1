@@ -27,7 +27,7 @@ function Get-AbrVbrIOControlSetting {
 
     process {
         try {
-            if ($VbrLicenses | Where-Object { $_.Edition -in @("EnterprisePlus", "Enterprise") -and $_.Status -ne "Expired" }) {
+            if ($VbrLicenses | Where-Object { $_.Edition -in @('EnterprisePlus', 'Enterprise') -and $_.Status -ne 'Expired' }) {
                 if ($StorageLatencyControls = Get-VBRStorageLatencyControlOptions) {
                     Section -Style Heading4 'Storage Latency Control' {
                         $OutObj = @()
@@ -62,13 +62,28 @@ function Get-AbrVbrIOControlSetting {
                         #---------------------------------------------------------------------------------------------#
                         try {
                             $StorageLatencyControls = Get-VBRAdvancedLatencyOptions
-                            if (($VbrLicenses | Where-Object { $_.Edition -eq "EnterprisePlus" }) -and $StorageLatencyControls) {
+                            if (($VbrLicenses | Where-Object { $_.Edition -eq 'EnterprisePlus' }) -and $StorageLatencyControls) {
                                 Section -Style NOTOCHeading5 -ExcludeFromTOC 'Per Datastore Latency Control Options' {
                                     $OutObj = @()
-                                    $Timeout = 60
-
                                     try {
-                                        $Datastores = Invoke-FindVBRViEntityWithTimeout -DatastoresAndVMs -TimeoutSeconds 60 | Where-Object { ($_.type -eq "Datastore") }
+                                        $Datastores = switch ($PSVersionTable.PSEdition) {
+                                            'Core' {
+                                                switch ($PSVersionTable.Platform) {
+                                                    'Unix' {
+                                                        Find-VbrViEntity -DatastoresAndVMs | Where-Object { ($_.type -eq 'Datastore') }
+                                                    }
+                                                    'Win32NT' {
+                                                        Invoke-FindVBRViEntityWithTimeout -DatastoresAndVMs -TimeoutSeconds 120 | Where-Object { ($_.type -eq 'Datastore')
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                            'Desktop' {
+                                                Invoke-FindVBRViEntityWithTimeout -DatastoresAndVMs -TimeoutSeconds 120 | Where-Object { ($_.type -eq 'Datastore')
+                                                }
+                                            }
+                                        }
+
                                     } catch {
                                         Write-PScriboMessage -IsWarning "Per Datastore Latency Control Options Section: $($_.Exception.Message)"
                                     }

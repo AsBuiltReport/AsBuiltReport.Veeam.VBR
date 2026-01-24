@@ -81,7 +81,7 @@ function Get-AbrVbrDiagrammer {
                 'WaterMarkText' = $Options.DiagramWaterMark
                 'WaterMarkColor' = 'DarkGreen'
                 'DiagramTheme' = $DiagramTheme
-                "ColumnSize" = switch ([string]::IsNullOrEmpty($Options.DiagramColumnSize)) {
+                'ColumnSize' = switch ([string]::IsNullOrEmpty($Options.DiagramColumnSize)) {
                     $true { 3 }
                     $false {
                         switch ($Options.DiagramColumnSize) {
@@ -91,12 +91,20 @@ function Get-AbrVbrDiagrammer {
                     }
                     default { 3 }
                 }
-                "NewIcons" = $Options.NewIcons
+                'NewIcons' = $Options.NewIcons
             }
 
             if ($Options.EnableDiagramDebug) {
                 $DiagramParams.Add('DraftMode', $True)
                 $DiagramParams.Add('EnableErrorDebug', $True)
+            }
+
+            if ($Options.IsLocalServer) {
+                $DiagramParams.Add('IsLocalServer', $True)
+            }
+
+            if ($Options.UpdateCheck) {
+                $DiagramParams.Add('UpdateCheck', $True)
             }
 
             if ($Tenant) {
@@ -110,7 +118,7 @@ function Get-AbrVbrDiagrammer {
             }
             try {
                 foreach ($Format in $DiagramFormat) {
-                    if ($Format -eq "base64") {
+                    if ($Format -eq 'base64') {
                         $Graph = New-VeeamDiagram @DiagramParams -DiagramType $DiagramType -Format $Format
                         if ($Graph) {
                             $Graph

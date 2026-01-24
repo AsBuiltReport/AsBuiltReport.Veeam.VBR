@@ -37,7 +37,7 @@ function Get-AbrVbrBackupRepository {
                 $OutObj = @()
                 try {
                     foreach ($BackupRepo in $BackupRepos) {
-                        Write-PScriboMessage "Discovered $($BackupRepo.Name) Repository."
+
                         $PercentFree = 0
                         if (@($($BackupRepo.GetContainer().CachedTotalSpace.InGigabytes), $($BackupRepo.GetContainer().CachedFreeSpace.InGigabytes)) -ne 0) {
                             $UsedSpace = ($($BackupRepo.GetContainer().CachedTotalSpace.InGigabytes - $($BackupRepo.GetContainer().CachedFreeSpace.InGigabytes)))
@@ -192,7 +192,7 @@ function Get-AbrVbrBackupRepository {
                                         try {
                                             Section -Style NOTOCHeading5 -ExcludeFromTOC $($BackupRepo.Name) {
                                                 $OutObj = @()
-                                                Write-PScriboMessage "Discovered $($BackupRepo.Name) Backup Repository."
+
                                                 $inObj = [ordered] @{
                                                     'Extent of ScaleOut Backup Repository' = (($ScaleOuts | Where-Object { ($Extents | Where-Object { $_.name -eq $BackupRepo.Name }).ParentId -eq $_.Id }).Name)
                                                     'Backup Proxy' = switch ([string]::IsNullOrEmpty(($BackupRepo.Host).Name)) {

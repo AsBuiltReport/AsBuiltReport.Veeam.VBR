@@ -6,7 +6,7 @@ function Get-AbrVbrTapeLibrary {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.20
+        Version:        0.8.24
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -29,14 +29,14 @@ function Get-AbrVbrTapeLibrary {
         try {
             if ($TapeObjs = Get-VBRTapeLibrary | Sort-Object -Property Name) {
                 Section -Style Heading3 'Tape Libraries' {
-                    Paragraph "The following section provides summary information about Tape Server connected Tape Library."
+                    Paragraph 'The following section provides summary information about Tape Server connected Tape Library.'
                     BlankLine
                     $OutObj = @()
                     try {
                         foreach ($TapeObj in $TapeObjs) {
                             try {
                                 Section -Style Heading4 $($TapeObj.Name) {
-                                    Write-PScriboMessage "Discovered $($TapeObj.Name) Type Library."
+
                                     $TapeServer = (Get-VBRTapeServer | Where-Object { $_.Id -eq $TapeObj.TapeServerId }).Name
                                     $inObj = [ordered] @{
                                         'Library Name' = $TapeObj.Name
@@ -74,11 +74,11 @@ function Get-AbrVbrTapeLibrary {
                                     try {
                                         if ($DriveObjs = Get-VBRTapeDrive -Library $TapeObj.Id) {
                                             Write-PScriboMessage "Collecting $($TapeObj.Name) Tape Drives"
-                                            Section -Style NOTOCHeading5 -ExcludeFromTOC "Tape Drives" {
+                                            Section -Style NOTOCHeading5 -ExcludeFromTOC 'Tape Drives' {
                                                 $OutObj = @()
                                                 try {
                                                     foreach ($DriveObj in $DriveObjs) {
-                                                        Write-PScriboMessage "Discovered $($DriveObj.Name) Type Drive."
+
                                                         $inObj = [ordered] @{
                                                             'Name' = $DriveObj.Name
                                                             'Model' = $DriveObj.Model
@@ -124,20 +124,20 @@ function Get-AbrVbrTapeLibrary {
                                         if ($InfoLevel.Tape.Library -ge 2) {
                                             if ($MediumObjs = Get-VBRTapeMedium -Library $TapeObj.Id) {
                                                 Write-PScriboMessage "Collecting $($TapeObj.Name) Tape Medium"
-                                                Section -Style NOTOCHeading5 -ExcludeFromTOC "Tape Mediums" {
+                                                Section -Style NOTOCHeading5 -ExcludeFromTOC 'Tape Mediums' {
                                                     $OutObj = @()
                                                     foreach ($MediumObj in $MediumObjs) {
                                                         try {
 
-                                                            Write-PScriboMessage "Discovered $($MediumObj.Name) Type Medium."
+
                                                             $inObj = [ordered] @{
                                                                 'Name' = $MediumObj.Name
                                                                 'Expiration Date' = switch (($MediumObj.ExpirationDate).count) {
-                                                                    0 { "--" }
+                                                                    0 { '--' }
                                                                     default { $MediumObj.ExpirationDate.ToShortDateString() }
                                                                 }
-                                                                'Total Space' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size  $MediumObj.Capacity
-                                                                'Free Space' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size  $MediumObj.Free
+                                                                'Total Space' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $MediumObj.Capacity
+                                                                'Free Space' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $MediumObj.Free
                                                                 'Locked' = $MediumObj.IsLocked
                                                                 'Retired' = $MediumObj.IsRetired
                                                                 'Worm' = $MediumObj.IsWorm

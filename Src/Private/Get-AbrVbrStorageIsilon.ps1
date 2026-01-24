@@ -6,7 +6,7 @@ function Get-AbrVbrStorageIsilon {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.20
+        Version:        0.8.24
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -28,13 +28,13 @@ function Get-AbrVbrStorageIsilon {
     process {
         if ($IsilonHosts = Get-VBRIsilonHost) {
             Section -Style Heading3 'Dell Isilon Storage' {
-                Paragraph "The following section details information about Dell storage infrastructure."
+                Paragraph 'The following section details information about Dell storage infrastructure.'
                 BlankLine
                 $OutObj = @()
                 foreach ($IsilonHost in $IsilonHosts) {
                     Section -Style Heading4 $($IsilonHost.Name) {
                         try {
-                            Write-PScriboMessage "Discovered $($IsilonHost.Name) Isilon Host."
+
                             $UsedCred = Get-VBRCredentials | Where-Object { $_.Id -eq $IsilonHost.Info.CredsId }
                             $IsilonOptions = [xml]$IsilonHost.info.Options
                             $inObj = [ordered] @{
@@ -44,10 +44,10 @@ function Get-AbrVbrStorageIsilon {
                                 }
                                 'Description' = $IsilonHost.Description
                                 'Used Credential' = switch (($UsedCred).count) {
-                                    0 { "--" }
+                                    0 { '--' }
                                     default { "$($UsedCred.Name) - ($($UsedCred.Description))" }
                                 }
-                                'Connection Address' = $IsilonOptions.IsilonHostOptions.AdditionalAddresses.IP -join ", "
+                                'Connection Address' = $IsilonOptions.IsilonHostOptions.AdditionalAddresses.IP -join ', '
                                 'Connection Port' = "$($IsilonOptions.IsilonHostOptions.Port)\TCP"
                             }
 
@@ -70,11 +70,11 @@ function Get-AbrVbrStorageIsilon {
                                             $OutObj = @()
                                             foreach ($IsilonVol in $IsilonVols) {
                                                 try {
-                                                    Write-PScriboMessage "Discovered $($IsilonVol.Name) NetApp Volume."
+
                                                     $inObj = [ordered] @{
                                                         'Name' = $IsilonVol.Name
-                                                        'Total Space' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size  $IsilonVol.Size
-                                                        'Used Space' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size  $IsilonVol.ConsumedSpace
+                                                        'Total Space' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $IsilonVol.Size
+                                                        'Used Space' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $IsilonVol.ConsumedSpace
                                                         'Thin Provision' = $IsilonVol.IsThinProvision
                                                     }
 

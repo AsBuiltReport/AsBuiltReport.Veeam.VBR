@@ -1,4 +1,3 @@
-
 function Get-AbrVbrRepljobHyperV {
     <#
     .SYNOPSIS
@@ -6,7 +5,7 @@ function Get-AbrVbrRepljobHyperV {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.20
+        Version:        0.8.24
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -29,13 +28,13 @@ function Get-AbrVbrRepljobHyperV {
         try {
             if ($Bkjobs = Get-VBRJob -WarningAction SilentlyContinue | Where-Object { $_.TypeToString -eq 'Hyper-V Replication' } | Sort-Object -Property Name) {
                 Section -Style Heading3 'Hyper-V Replication Jobs Configuration' {
-                    Paragraph "The following section details the configuration about Hyper-V replication jobs."
+                    Paragraph 'The following section details the configuration about Hyper-V replication jobs.'
                     BlankLine
                     $OutObj = @()
                     try {
                         foreach ($VMcount in $Bkjobs) {
                             try {
-                                Write-PScriboMessage "Discovered $($VMcount.Name) ."
+
                                 $inObj = [ordered] @{
                                     'Name' = $VMcount.Name
                                     'Creation Time' = $VMcount.CreationTime
@@ -69,11 +68,11 @@ function Get-AbrVbrRepljobHyperV {
                                         $CommonInfos = (Get-VBRJob -WarningAction SilentlyContinue | Where-Object { $_.TypeToString -eq 'Hyper-V Replication' }).Info
                                         foreach ($CommonInfo in $CommonInfos) {
                                             try {
-                                                Write-PScriboMessage "Discovered $($Bkjob.Name) common information."
+
                                                 $inObj = [ordered] @{
                                                     'Name' = $Bkjob.Name
                                                     'Type' = $Bkjob.TypeToString
-                                                    'Total Backup Size' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size  $CommonInfo.IncludedSize
+                                                    'Total Backup Size' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $CommonInfo.IncludedSize
                                                     'Target Address' = $CommonInfo.TargetDir
                                                     'Target File' = $CommonInfo.TargetFile
                                                     'Description' = $CommonInfo.CommonInfo.Description
@@ -103,7 +102,7 @@ function Get-AbrVbrRepljobHyperV {
                                     try {
                                         foreach ($Destination in $Bkjob.HvReplicaTargetOptions) {
                                             try {
-                                                Write-PScriboMessage "Discovered $($Bkjob.Name) destination information."
+
                                                 if (!$Destination.ClusterName) {
                                                     $HostorCluster = (Find-VBRHvEntity -ErrorAction SilentlyContinue | Where-Object { $_.Reference -eq $Destination.HostReference }).Name
                                                 } else { $HostorCluster = $Destination.ClusterName }
@@ -140,7 +139,7 @@ function Get-AbrVbrRepljobHyperV {
                                         try {
                                             foreach ($NetMapping in $Bkjob.Options.HvNetworkMappingOptions.NetworkMapping) {
                                                 try {
-                                                    Write-PScriboMessage "Discovered $($Bkjob.Name) network mapping information."
+
                                                     $inObj = [ordered] @{
                                                         'Source Network' = $NetMapping.SourceNetwork.NetworkName
                                                         'Target Network' = $NetMapping.TargetNetwork.NetworkName
@@ -172,7 +171,7 @@ function Get-AbrVbrRepljobHyperV {
                                             try {
                                                 foreach ($ReIpRule in $Bkjob.Options.ReIPRulesOptions.Rules) {
                                                     try {
-                                                        Write-PScriboMessage "Discovered $($Bkjob.Name) re-ip rules $($ReIpRule.Source.IPAddress) information."
+
                                                         $inObj = [ordered] @{
                                                             'Source IP Address' = $ReIpRule.Source.IPAddress
                                                             'Source Subnet Mask' = $ReIpRule.Source.SubnetMask
@@ -207,7 +206,7 @@ function Get-AbrVbrRepljobHyperV {
                                             try {
                                                 foreach ($ReIpRule in $Bkjob.Options.ReIPRulesOptions.RulesIPv4) {
                                                     try {
-                                                        Write-PScriboMessage "Discovered $($Bkjob.Name) re-ip rules $($ReIpRule.Source.IPAddress) information."
+
                                                         $inObj = [ordered] @{
                                                             'Source IP Address' = $ReIpRule.Source.IPAddress
                                                             'Source Subnet Mask' = $ReIpRule.Source.SubnetMask
@@ -238,11 +237,11 @@ function Get-AbrVbrRepljobHyperV {
                                     }
                                 }
                                 if ($Bkjob.GetHvOijs()) {
-                                    Section -Style NOTOCHeading5 -ExcludeFromTOC "Virtual Machines" {
+                                    Section -Style NOTOCHeading5 -ExcludeFromTOC 'Virtual Machines' {
                                         $OutObj = @()
                                         try {
-                                            foreach ($OBJ in ($Bkjob.GetHvOijs() | Where-Object { $_.Type -eq "Include" -or $_.Type -eq "Exclude" } )) {
-                                                Write-PScriboMessage "Discovered $($OBJ.Object.Name) object to replicate."
+                                            foreach ($OBJ in ($Bkjob.GetHvOijs() | Where-Object { $_.Type -eq 'Include' -or $_.Type -eq 'Exclude' } )) {
+
                                                 $inObj = [ordered] @{
                                                     'Name' = $OBJ.Object.Name
                                                     'Resource Type' = $OBJ.Object.Type
@@ -270,11 +269,11 @@ function Get-AbrVbrRepljobHyperV {
                                 Section -Style NOTOCHeading5 -ExcludeFromTOC 'Job Settings' {
                                     $OutObj = @()
                                     try {
-                                        Write-PScriboMessage "Discovered $($Bkjob.Name) storage options."
-                                        if ($Bkjob.BackupStorageOptions.RetentionType -eq "Days") {
+
+                                        if ($Bkjob.BackupStorageOptions.RetentionType -eq 'Days') {
                                             $RetainString = 'Restore Point To Keep'
                                             $Retains = $Bkjob.BackupStorageOptions.RetainDaysToKeep
-                                        } elseif ($Bkjob.BackupStorageOptions.RetentionType -eq "Cycles") {
+                                        } elseif ($Bkjob.BackupStorageOptions.RetentionType -eq 'Cycles') {
                                             $RetainString = 'Retain Cycles'
                                             $Retains = $Bkjob.BackupStorageOptions.RetainCycles
                                         }
@@ -299,10 +298,10 @@ function Get-AbrVbrRepljobHyperV {
                                         }
                                         $OutObj | Table @TableParams
                                         if ($InfoLevel.Jobs.Replication -ge 2) {
-                                            Section -Style NOTOCHeading6 -ExcludeFromTOC "Advanced Settings (Maintenance)" {
+                                            Section -Style NOTOCHeading6 -ExcludeFromTOC 'Advanced Settings (Maintenance)' {
                                                 $OutObj = @()
                                                 try {
-                                                    Write-PScriboMessage "Discovered $($Bkjob.Name) maintenance options."
+
                                                     $inObj = [ordered] @{
                                                         'Storage-Level Corruption Guard (SLCG)' = $Bkjob.Options.GenerationPolicy.EnableRechek
                                                         'SLCG Schedule Type' = $Bkjob.Options.GenerationPolicy.RecheckScheduleKind
@@ -317,7 +316,7 @@ function Get-AbrVbrRepljobHyperV {
                                                     $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                     if ($HealthCheck.Jobs.BestPractice) {
-                                                        $OutObj | Where-Object { $_.'Storage-Level Corruption Guard (SLCG)' -eq "No" } | Set-Style -Style Warning -Property 'Storage-Level Corruption Guard (SLCG)'
+                                                        $OutObj | Where-Object { $_.'Storage-Level Corruption Guard (SLCG)' -eq 'No' } | Set-Style -Style Warning -Property 'Storage-Level Corruption Guard (SLCG)'
                                                     }
 
                                                     $TableParams = @{
@@ -331,10 +330,10 @@ function Get-AbrVbrRepljobHyperV {
                                                     $OutObj | Table @TableParams
                                                     if ($HealthCheck.Jobs.BestPractice) {
                                                         if ($OutObj | Where-Object { $_.'Storage-Level Corruption Guard (SLCG)' -eq 'No' }) {
-                                                            Paragraph "Health Check:" -Bold -Underline
+                                                            Paragraph 'Health Check:' -Bold -Underline
                                                             BlankLine
                                                             Paragraph {
-                                                                Text "Best Practice:" -Bold
+                                                                Text 'Best Practice:' -Bold
                                                                 Text "It is recommended to use storage-level corruption guard for any backup job with no active full backups scheduled. Synthetic full backups are still 'incremental forever' and may suffer from corruption over time. Storage-level corruption guard was introduced to provide a greater level of confidence in integrity of the backups."
                                                             }
                                                             BlankLine
@@ -346,10 +345,10 @@ function Get-AbrVbrRepljobHyperV {
                                             }
                                         }
                                         if ($InfoLevel.Jobs.Replication -ge 2) {
-                                            Section -Style NOTOCHeading6 -ExcludeFromTOC "Advanced Settings (Traffic)" {
+                                            Section -Style NOTOCHeading6 -ExcludeFromTOC 'Advanced Settings (Traffic)' {
                                                 $OutObj = @()
                                                 try {
-                                                    Write-PScriboMessage "Discovered $($Bkjob.Name) traffic options."
+
                                                     $inObj = [ordered] @{
                                                         'Inline Data Deduplication' = $Bkjob.Options.BackupStorageOptions.EnableDeduplication
                                                         'Exclude Swap Files Block' = $Bkjob.HvSourceOptions.ExcludeSwapFile
@@ -394,11 +393,11 @@ function Get-AbrVbrRepljobHyperV {
                                                     $OutObj | Table @TableParams
                                                     if ($HealthCheck.Jobs.BestPractice) {
                                                         if ($OutObj | Where-Object { $_.'Enabled Backup File Encryption' -eq 'No' }) {
-                                                            Paragraph "Health Check:" -Bold -Underline
+                                                            Paragraph 'Health Check:' -Bold -Underline
                                                             BlankLine
                                                             Paragraph {
-                                                                Text "Best Practice:" -Bold
-                                                                Text "Backup and replica data is a high potential source of vulnerability. To secure data stored in backups and replicas, use Veeam Backup & Replication inbuilt encryption to protect data in backups"
+                                                                Text 'Best Practice:' -Bold
+                                                                Text 'Backup and replica data is a high potential source of vulnerability. To secure data stored in backups and replicas, use Veeam Backup & Replication inbuilt encryption to protect data in backups'
                                                             }
                                                             BlankLine
                                                         }
@@ -409,10 +408,10 @@ function Get-AbrVbrRepljobHyperV {
                                             }
                                         }
                                         if ($InfoLevel.Jobs.Replication -ge 2 -and ($Bkjob.Options.NotificationOptions.SnmpNotification -or $Bkjob.Options.NotificationOptions.SendEmailNotification2AdditionalAddresses)) {
-                                            Section -Style NOTOCHeading6 -ExcludeFromTOC "Advanced Settings (Notification)" {
+                                            Section -Style NOTOCHeading6 -ExcludeFromTOC 'Advanced Settings (Notification)' {
                                                 $OutObj = @()
                                                 try {
-                                                    Write-PScriboMessage "Discovered $($Bkjob.Name) notification options."
+
                                                     $inObj = [ordered] @{
                                                         'Send Snmp Notification' = $Bkjob.Options.NotificationOptions.SnmpNotification
                                                         'Send Email Notification' = $Bkjob.Options.NotificationOptions.SendEmailNotification2AdditionalAddresses
@@ -445,10 +444,10 @@ function Get-AbrVbrRepljobHyperV {
                                             }
                                         }
                                         if ($InfoLevel.Jobs.Replication -ge 2 -and ($Bkjob.Options.HvSourceOptions.EnableHvQuiescence -or $Bkjob.Options.HvSourceOptions.UseChangeTracking)) {
-                                            Section -Style NOTOCHeading6 -ExcludeFromTOC "Advanced Settings (Hyper-V)" {
+                                            Section -Style NOTOCHeading6 -ExcludeFromTOC 'Advanced Settings (Hyper-V)' {
                                                 $OutObj = @()
                                                 try {
-                                                    Write-PScriboMessage "Discovered $($Bkjob.Name) Hyper-V options."
+
                                                     $inObj = [ordered] @{
                                                         'Enable Hyper-V Guest Quiescence' = $Bkjob.Options.HvSourceOptions.EnableHvQuiescence
                                                         'Crash Consistent Backup' = $Bkjob.Options.HvSourceOptions.CanDoCrashConsistent
@@ -472,10 +471,10 @@ function Get-AbrVbrRepljobHyperV {
                                             }
                                         }
                                         if ($InfoLevel.Jobs.Replication -ge 2 -and $Bkjob.Options.SanIntegrationOptions.UseSanSnapshots) {
-                                            Section -Style NOTOCHeading6 -ExcludeFromTOC "Advanced Settings (Integration)" {
+                                            Section -Style NOTOCHeading6 -ExcludeFromTOC 'Advanced Settings (Integration)' {
                                                 $OutObj = @()
                                                 try {
-                                                    Write-PScriboMessage "Discovered $($Bkjob.Name) Integration options."
+
                                                     $inObj = [ordered] @{
                                                         'Enable Backup from Storage Snapshots' = $Bkjob.Options.SanIntegrationOptions.UseSanSnapshots
                                                         'Limit processed VM count per Storage Snapshot' = $Bkjob.Options.SanIntegrationOptions.MultipleStorageSnapshotEnabled
@@ -500,17 +499,17 @@ function Get-AbrVbrRepljobHyperV {
                                             }
                                         }
                                         if ($InfoLevel.Jobs.Replication -ge 2 -and ($Bkjob.Options.JobScriptCommand.PreScriptEnabled -or $Bkjob.Options.JobScriptCommand.PostScriptEnabled)) {
-                                            Section -Style NOTOCHeading6 -ExcludeFromTOC "Advanced Settings (Script)" {
+                                            Section -Style NOTOCHeading6 -ExcludeFromTOC 'Advanced Settings (Script)' {
                                                 $OutObj = @()
                                                 try {
                                                     if ($Bkjob.Options.JobScriptCommand.Periodicity -eq 'Days') {
-                                                        $FrequencyValue = $Bkjob.Options.JobScriptCommand.Days -join ","
+                                                        $FrequencyValue = $Bkjob.Options.JobScriptCommand.Days -join ','
                                                         $FrequencyText = 'Run Script on the Selected Days'
                                                     } elseif ($Bkjob.Options.JobScriptCommand.Periodicity -eq 'Cycles') {
                                                         $FrequencyValue = $Bkjob.Options.JobScriptCommand.Frequency
                                                         $FrequencyText = 'Run Script Every Backup Session'
                                                     }
-                                                    Write-PScriboMessage "Discovered $($Bkjob.Name) script options."
+
                                                     $inObj = [ordered] @{
                                                         'Run the Following Script Before' = $Bkjob.Options.JobScriptCommand.PreScriptEnabled
                                                         'Run Script Before the Job' = $Bkjob.Options.JobScriptCommand.PreScriptCommandLine
@@ -537,10 +536,10 @@ function Get-AbrVbrRepljobHyperV {
                                             }
                                         }
                                         if ($InfoLevel.Jobs.Replication -ge 2 -and ($Bkjob.Options.RpoOptions.Enabled -or $Bkjob.Options.RpoOptions.LogBackupRpoEnabled)) {
-                                            Section -Style NOTOCHeading6 -ExcludeFromTOC "Advanced Settings (RPO Monitor)" {
+                                            Section -Style NOTOCHeading6 -ExcludeFromTOC 'Advanced Settings (RPO Monitor)' {
                                                 $OutObj = @()
                                                 try {
-                                                    Write-PScriboMessage "Discovered $($Bkjob.Name) rpo monitor options."
+
                                                     $inObj = [ordered] @{
                                                         'RPO Monitor Enabled' = $Bkjob.Options.RpoOptions.Enabled
                                                         'If Backup is not Copied Within' = "$($Bkjob.Options.RpoOptions.Value) $($Bkjob.Options.RpoOptions.TimeUnit)"
@@ -570,16 +569,16 @@ function Get-AbrVbrRepljobHyperV {
                                 try {
                                     Section -Style NOTOCHeading5 -ExcludeFromTOC 'Data Transfer' {
                                         $OutObj = @()
-                                        Write-PScriboMessage "Discovered $($Bkjob.Name) data transfer."
+
                                         $inObj = [ordered] @{
                                             'Source Proxy' = switch (($Bkjob.GetProxy().Name).count) {
-                                                0 { "Unknown" }
-                                                { $_ -gt 1 } { "Automatic" }
+                                                0 { 'Unknown' }
+                                                { $_ -gt 1 } { 'Automatic' }
                                                 default { $Bkjob.GetProxy().Name }
                                             }
                                             'Target Proxy' = switch (($Bkjob.GetTargetProxies().Name).count) {
-                                                0 { "Unknown" }
-                                                { $_ -gt 1 } { "Automatic" }
+                                                0 { 'Unknown' }
+                                                { $_ -gt 1 } { 'Automatic' }
                                                 default { $Bkjob.GetTargetProxies().Name }
                                             }
                                             'Use Wan accelerator' = $Bkjob.IsWanAcceleratorEnabled()
@@ -617,7 +616,7 @@ function Get-AbrVbrRepljobHyperV {
                                     try {
                                         Section -Style NOTOCHeading5 -ExcludeFromTOC 'Seeding' {
                                             $OutObj = @()
-                                            Write-PScriboMessage "Discovered $($Bkjob.Name) seeding information."
+
                                             if ($Bkjob.Options.HvReplicaTargetOptions.EnableInitialPass) {
                                                 $SeedRepo = $Bkjob.GetInitialRepository().Name
                                             } else { $SeedRepo = 'Disabled' }
@@ -643,16 +642,16 @@ function Get-AbrVbrRepljobHyperV {
                                     }
                                 }
                                 if ($Bkjob.VssOptions.Enabled) {
-                                    Section -Style NOTOCHeading5 -ExcludeFromTOC "Guest Processing" {
+                                    Section -Style NOTOCHeading5 -ExcludeFromTOC 'Guest Processing' {
                                         $OutObj = @()
                                         try {
-                                            $VSSObjs = Get-VBRJobObject -Job $Bkjob.Name | Where-Object { $_.Type -eq "Include" -or $_.Type -eq "VssChild" } | Sort-Object -Property Name
+                                            $VSSObjs = Get-VBRJobObject -Job $Bkjob.Name | Where-Object { $_.Type -eq 'Include' -or $_.Type -eq 'VssChild' } | Sort-Object -Property Name
                                             foreach ($VSSObj in $VSSObjs) {
-                                                Write-PScriboMessage "Discovered $($Bkjob.Name) guest processing."
+
                                                 $inObj = [ordered] @{
                                                     'Name' = $VSSObj.Name
                                                     'Enabled' = $VSSObj.VssOptions.Enabled
-                                                    'Resource Type' = ($Bkjob.GetHvOijs() | Where-Object { $_.Name -eq $VSSObj.Name -and ($_.Type -eq "Include" -or $_.Type -eq "VssChild") }).Object.Type
+                                                    'Resource Type' = ($Bkjob.GetHvOijs() | Where-Object { $_.Name -eq $VSSObj.Name -and ($_.Type -eq 'Include' -or $_.Type -eq 'VssChild') }).Object.Type
                                                     'Ignore Errors' = $VSSObj.VssOptions.IgnoreErrors
                                                     'Guest Proxy Auto Detect' = $VSSObj.VssOptions.GuestProxyAutoDetect
                                                     'Default Credential' = switch ((Get-VBRCredentials | Where-Object { $_.Id -eq $Bkjob.VssOptions.WinCredsId.Guid }).count) {
@@ -752,22 +751,22 @@ function Get-AbrVbrRepljobHyperV {
                                     }
                                 }
                                 if ($Bkjob.IsScheduleEnabled) {
-                                    Section -Style NOTOCHeading5 -ExcludeFromTOC "Schedule" {
+                                    Section -Style NOTOCHeading5 -ExcludeFromTOC 'Schedule' {
                                         $OutObj = @()
                                         try {
-                                            Write-PScriboMessage "Discovered $($Bkjob.Name) schedule options."
-                                            if ($Bkjob.ScheduleOptions.OptionsDaily.Enabled -eq "True") {
-                                                $ScheduleType = "Daily"
+
+                                            if ($Bkjob.ScheduleOptions.OptionsDaily.Enabled -eq 'True') {
+                                                $ScheduleType = 'Daily'
                                                 $Schedule = "Kind: $($Bkjob.ScheduleOptions.OptionsDaily.Kind),`r`nDays: $($Bkjob.ScheduleOptions.OptionsDaily.DaysSrv)"
-                                            } elseif ($Bkjob.ScheduleOptions.OptionsMonthly.Enabled -eq "True") {
-                                                $ScheduleType = "Monthly"
+                                            } elseif ($Bkjob.ScheduleOptions.OptionsMonthly.Enabled -eq 'True') {
+                                                $ScheduleType = 'Monthly'
                                                 $Schedule = "Day Of Month: $($Bkjob.ScheduleOptions.OptionsMonthly.DayOfMonth),`r`nDay Number In Month: $($Bkjob.ScheduleOptions.OptionsMonthly.DayNumberInMonth),`r`nDay Of Week: $($Bkjob.ScheduleOptions.OptionsMonthly.DayOfWeek)"
-                                            } elseif ($Bkjob.ScheduleOptions.OptionsPeriodically.Enabled -eq "True") {
+                                            } elseif ($Bkjob.ScheduleOptions.OptionsPeriodically.Enabled -eq 'True') {
                                                 $ScheduleType = $Bkjob.ScheduleOptions.OptionsPeriodically.Kind
                                                 $Schedule = "Full Period: $($Bkjob.ScheduleOptions.OptionsPeriodically.FullPeriod),`r`nHourly Offset: $($Bkjob.ScheduleOptions.OptionsPeriodically.HourlyOffset),`r`nUnit: $($Bkjob.ScheduleOptions.OptionsPeriodically.Unit)"
-                                            } elseif ($Bkjob.ScheduleOptions.OptionsContinuous.Enabled -eq "True") {
+                                            } elseif ($Bkjob.ScheduleOptions.OptionsContinuous.Enabled -eq 'True') {
                                                 $ScheduleType = 'Continuous'
-                                                $Schedule = "Schedule Time Period"
+                                                $Schedule = 'Schedule Time Period'
                                             }
                                             $inObj = [ordered] @{
                                                 'Retry Failed item' = $Bkjob.ScheduleOptions.RetryTimes
@@ -790,7 +789,7 @@ function Get-AbrVbrRepljobHyperV {
                                             }
                                             $OutObj | Table @TableParams
                                             if ($Bkjob.ScheduleOptions.OptionsBackupWindow.IsEnabled -or $Bkjob.ScheduleOptions.OptionsContinuous.Enabled) {
-                                                Section -Style NOTOCHeading6 -ExcludeFromTOC "Backup Window Time Period" {
+                                                Section -Style NOTOCHeading6 -ExcludeFromTOC 'Backup Window Time Period' {
                                                     Paragraph -ScriptBlock $Legend
 
                                                     try {
@@ -799,7 +798,7 @@ function Get-AbrVbrRepljobHyperV {
                                                         foreach ($Day in $Days) {
 
                                                             $Regex = [Regex]::new("(?<=<$Day>)(.*)(?=</$Day>)")
-                                                            if ($Bkjob.TypeToString -eq "VMware Backup Copy") {
+                                                            if ($Bkjob.TypeToString -eq 'VMware Backup Copy') {
                                                                 $BackupWindow = $Bkjob.ScheduleOptions.OptionsContinuous.Schedule
                                                             } else { $BackupWindow = $Bkjob.ScheduleOptions.OptionsBackupWindow.BackupWindow }
                                                             $Match = $Regex.Match($BackupWindow)
@@ -821,21 +820,21 @@ function Get-AbrVbrRepljobHyperV {
                                                         }
                                                         if ($OutObj) {
                                                             $OutObj2 = Table -Hashtable $OutObj @TableParams
-                                                            $OutObj2.Rows | Where-Object { $_.Sun -eq "0" } | Set-Style -Style ON -Property "Sun"
-                                                            $OutObj2.Rows | Where-Object { $_.Mon -eq "0" } | Set-Style -Style ON -Property "Mon"
-                                                            $OutObj2.Rows | Where-Object { $_.Tue -eq "0" } | Set-Style -Style ON -Property "Tue"
-                                                            $OutObj2.Rows | Where-Object { $_.Wed -eq "0" } | Set-Style -Style ON -Property "Wed"
-                                                            $OutObj2.Rows | Where-Object { $_.Thu -eq "0" } | Set-Style -Style ON -Property "Thu"
-                                                            $OutObj2.Rows | Where-Object { $_.Fri -eq "0" } | Set-Style -Style ON -Property "Fri"
-                                                            $OutObj2.Rows | Where-Object { $_.Sat -eq "0" } | Set-Style -Style ON -Property "Sat"
+                                                            $OutObj2.Rows | Where-Object { $_.Sun -eq '0' } | Set-Style -Style ON -Property 'Sun'
+                                                            $OutObj2.Rows | Where-Object { $_.Mon -eq '0' } | Set-Style -Style ON -Property 'Mon'
+                                                            $OutObj2.Rows | Where-Object { $_.Tue -eq '0' } | Set-Style -Style ON -Property 'Tue'
+                                                            $OutObj2.Rows | Where-Object { $_.Wed -eq '0' } | Set-Style -Style ON -Property 'Wed'
+                                                            $OutObj2.Rows | Where-Object { $_.Thu -eq '0' } | Set-Style -Style ON -Property 'Thu'
+                                                            $OutObj2.Rows | Where-Object { $_.Fri -eq '0' } | Set-Style -Style ON -Property 'Fri'
+                                                            $OutObj2.Rows | Where-Object { $_.Sat -eq '0' } | Set-Style -Style ON -Property 'Sat'
 
-                                                            $OutObj2.Rows | Where-Object { $_.Sun -eq "1" } | Set-Style -Style OFF -Property "Sun"
-                                                            $OutObj2.Rows | Where-Object { $_.Mon -eq "1" } | Set-Style -Style OFF -Property "Mon"
-                                                            $OutObj2.Rows | Where-Object { $_.Tue -eq "1" } | Set-Style -Style OFF -Property "Tue"
-                                                            $OutObj2.Rows | Where-Object { $_.Wed -eq "1" } | Set-Style -Style OFF -Property "Wed"
-                                                            $OutObj2.Rows | Where-Object { $_.Thu -eq "1" } | Set-Style -Style OFF -Property "Thu"
-                                                            $OutObj2.Rows | Where-Object { $_.Fri -eq "1" } | Set-Style -Style OFF -Property "Fri"
-                                                            $OutObj2.Rows | Where-Object { $_.Sat -eq "1" } | Set-Style -Style OFF -Property "Sat"
+                                                            $OutObj2.Rows | Where-Object { $_.Sun -eq '1' } | Set-Style -Style OFF -Property 'Sun'
+                                                            $OutObj2.Rows | Where-Object { $_.Mon -eq '1' } | Set-Style -Style OFF -Property 'Mon'
+                                                            $OutObj2.Rows | Where-Object { $_.Tue -eq '1' } | Set-Style -Style OFF -Property 'Tue'
+                                                            $OutObj2.Rows | Where-Object { $_.Wed -eq '1' } | Set-Style -Style OFF -Property 'Wed'
+                                                            $OutObj2.Rows | Where-Object { $_.Thu -eq '1' } | Set-Style -Style OFF -Property 'Thu'
+                                                            $OutObj2.Rows | Where-Object { $_.Fri -eq '1' } | Set-Style -Style OFF -Property 'Fri'
+                                                            $OutObj2.Rows | Where-Object { $_.Sat -eq '1' } | Set-Style -Style OFF -Property 'Sat'
                                                             $OutObj2
                                                         }
                                                     } catch {

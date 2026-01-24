@@ -6,7 +6,7 @@ function Get-AbrVbrServiceProvider {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.20
+        Version:        0.8.24
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -28,15 +28,15 @@ function Get-AbrVbrServiceProvider {
     process {
         try {
             $CloudProviders = Get-VBRCloudProvider | Sort-Object -Property 'DNSName'
-            if (($VbrLicenses | Where-Object { $_.Edition -in @("EnterprisePlus") }) -and $CloudProviders) {
+            if (($VbrLicenses | Where-Object { $_.Edition -in @('EnterprisePlus') }) -and $CloudProviders) {
                 Section -Style Heading3 'Service Providers' {
-                    Paragraph "The following section provides a summary about configured Veeam Cloud Service Providers."
+                    Paragraph 'The following section provides a summary about configured Veeam Cloud Service Providers.'
                     BlankLine
                     try {
                         $OutObj = @()
                         foreach ($CloudProvider in $CloudProviders) {
                             try {
-                                Write-PScriboMessage "Discovered $($CloudProvider.DNSName) Service Provider summary information."
+
                                 $inObj = [ordered] @{
                                     'DNS Name' = $CloudProvider.DNSName
                                     'Cloud Connect Type' = & {
@@ -76,7 +76,7 @@ function Get-AbrVbrServiceProvider {
                                             try {
                                                 Section -ExcludeFromTOC -Style NOTOCHeading6 'General Information' {
                                                     $OutObj = @()
-                                                    Write-PScriboMessage "Discovered $($CloudProvider.DNSName) Service Provider general information."
+
                                                     $inObj = [ordered] @{
                                                         'DNS Name' = $CloudProvider.DNSName
                                                         'Ip Address' = $CloudProvider.IpAddress
@@ -107,7 +107,7 @@ function Get-AbrVbrServiceProvider {
                                                 try {
                                                     Section -ExcludeFromTOC -Style NOTOCHeading6 'BaaS Resources' {
                                                         $OutObj = @()
-                                                        Write-PScriboMessage "Discovered $($CloudProvider.DNSName) Service Provider BaaS Resources information."
+
                                                         $inObj = [ordered] @{
                                                             'Resources Enabled' = $CloudProvider.ResourcesEnabled
                                                             'Repository Name' = $CloudProvider.Resources.RepositoryName
@@ -147,7 +147,7 @@ function Get-AbrVbrServiceProvider {
                                                             $false { ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $CloudProvider.ReplicationResources.Memory }
                                                             default { '--' }
                                                         }
-                                                        Write-PScriboMessage "Discovered $($CloudProvider.DNSName) Service Provider DRaaS Resources information."
+
                                                         $inObj = [ordered] @{
                                                             'Resources Enabled' = $CloudProvider.ReplicationResourcesEnabled
                                                             'Hardware Plan Name' = $CloudProvider.ReplicationResources.HardwarePlanName
@@ -190,7 +190,7 @@ function Get-AbrVbrServiceProvider {
                                                 try {
                                                     Section -ExcludeFromTOC -Style NOTOCHeading6 'vCD Resources' {
                                                         $OutObj = @()
-                                                        Write-PScriboMessage "Discovered $($CloudProvider.DNSName) Service Provider vCD Resources information."
+
                                                         $inObj = [ordered] @{
                                                             'Resources Enabled' = $CloudProvider.ReplicationResourcesEnabled
                                                             'Organizationv DC Name' = $CloudProvider.vCDReplicationResources.OrganizationvDCName
@@ -224,7 +224,7 @@ function Get-AbrVbrServiceProvider {
                                                         $OutObj = @()
                                                         foreach ($Gateway in $DefaultGatewayConfig.DefaultGateway) {
                                                             try {
-                                                                Write-PScriboMessage "Discovered $($Gateway.Name) Service Provider Default Gateway Configuration information."
+
                                                                 $inObj = [ordered] @{
                                                                     'Name' = $Gateway.Name
                                                                     'IPv4 Address' = $Gateway.IpAddress
@@ -263,7 +263,7 @@ function Get-AbrVbrServiceProvider {
                                                         $OutObj = @()
                                                         foreach ($Gateway in $CloudSubUserConfig.DefaultGateway) {
                                                             try {
-                                                                Write-PScriboMessage "Discovered $($Gateway.Name) Service Provider Cloud SubUser Default Gateway information."
+
                                                                 $inObj = [ordered] @{
                                                                     'Name' = $Gateway.Name
                                                                     'IPv4 Address' = $Gateway.IpAddress

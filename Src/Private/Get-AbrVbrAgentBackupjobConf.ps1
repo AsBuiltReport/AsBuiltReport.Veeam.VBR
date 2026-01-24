@@ -6,7 +6,7 @@ function Get-AbrVbrAgentBackupjobConf {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.20
+        Version:        0.8.24
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -22,14 +22,14 @@ function Get-AbrVbrAgentBackupjobConf {
 
     begin {
         Write-PScriboMessage "Discovering Veeam VBR Agent Backup jobs configuration information from $System."
-        Show-AbrDebugExecutionTime -Start -TitleMessage "Agent Backup Jobs Configuration"
+        Show-AbrDebugExecutionTime -Start -TitleMessage 'Agent Backup Jobs Configuration'
     }
 
     process {
         try {
             if ($ABkjobs = Get-VBRComputerBackupJob | Sort-Object -Property Name) {
                 Section -Style Heading3 'Agent Backup Jobs Configuration' {
-                    Paragraph "The following section details agent backup jobs configuration created in Veeam Backup & Replication."
+                    Paragraph 'The following section details agent backup jobs configuration created in Veeam Backup & Replication.'
                     BlankLine
                     $OutObj = @()
                     foreach ($ABkjob in $ABkjobs) {
@@ -38,18 +38,17 @@ function Get-AbrVbrAgentBackupjobConf {
                                 Section -Style NOTOCHeading5 -ExcludeFromTOC 'Job Mode' {
                                     $OutObj = @()
                                     try {
-                                        Write-PScriboMessage "Discovered $($ABkjob.Name) common information."
                                         $inObj = [ordered] @{
                                             'Name' = $ABkjob.Name
                                             'Id' = $ABkjob.Id
                                             'Type' = $ABkjob.Type
-                                            'Mode' = Switch ($ABkjob.Mode) {
+                                            'Mode' = switch ($ABkjob.Mode) {
                                                 'ManagedByBackupServer' { 'Managed by Backup Server' }
                                                 'ManagedByAgent' { 'Managed by Agent' }
                                                 default { $ABkjob.Mode }
                                             }
                                             'Description' = $ABkjob.Description
-                                            'Priority' = Switch ($ABkjob.IsHighPriority) {
+                                            'Priority' = switch ($ABkjob.IsHighPriority) {
                                                 'True' { 'High Priority' }
                                                 'False' { 'Normal Priority' }
                                             }
@@ -57,8 +56,8 @@ function Get-AbrVbrAgentBackupjobConf {
                                         $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                         if ($HealthCheck.Jobs.BestPractice) {
-                                            $OutObj | Where-Object { $_.'Description' -eq "--" } | Set-Style -Style Warning -Property 'Description'
-                                            $OutObj | Where-Object { $_.'Description' -match "Created by" } | Set-Style -Style Warning -Property 'Description'
+                                            $OutObj | Where-Object { $_.'Description' -eq '--' } | Set-Style -Style Warning -Property 'Description'
+                                            $OutObj | Where-Object { $_.'Description' -match 'Created by' } | Set-Style -Style Warning -Property 'Description'
                                         }
 
                                         $TableParams = @{
@@ -72,11 +71,11 @@ function Get-AbrVbrAgentBackupjobConf {
                                         $OutObj | Table @TableParams
                                         if ($HealthCheck.Jobs.BestPractice) {
                                             if ($OutObj | Where-Object { $_.'Description' -match 'Created by' -or $_.'Description' -eq '--' }) {
-                                                Paragraph "Health Check:" -Bold -Underline
+                                                Paragraph 'Health Check:' -Bold -Underline
                                                 BlankLine
                                                 Paragraph {
-                                                    Text "Best Practice:" -Bold
-                                                    Text "It is a general rule of good practice to establish well-defined descriptions. This helps to speed up the fault identification process, as well as enabling better documentation of the environment."
+                                                    Text 'Best Practice:' -Bold
+                                                    Text 'It is a general rule of good practice to establish well-defined descriptions. This helps to speed up the fault identification process, as well as enabling better documentation of the environment.'
                                                 }
                                                 BlankLine
                                             }
@@ -90,15 +89,14 @@ function Get-AbrVbrAgentBackupjobConf {
                                         $OutObj = @()
                                         foreach ($BackupObject in $ABkjob.BackupObject) {
                                             try {
-                                                Write-PScriboMessage "Discovered $($BackupObject.Name) protected computer information."
                                                 $inObj = [ordered] @{
                                                     'Name' = $BackupObject.Name
-                                                    'Type' = SWitch ($BackupObject.Type) {
+                                                    'Type' = switch ($BackupObject.Type) {
                                                         $Null { 'Computer' }
                                                         default { $BackupObject.Type }
                                                     }
                                                     'Enabled' = $BackupObject.Enabled
-                                                    'Container' = Switch ($BackupObject.Container) {
+                                                    'Container' = switch ($BackupObject.Container) {
                                                         $Null { 'Individual Computer' }
                                                         'ActiveDirectory' { 'Active Directory' }
                                                         'ManuallyDeployed' { 'Manually Deployed' }
@@ -129,9 +127,8 @@ function Get-AbrVbrAgentBackupjobConf {
                                     Section -Style NOTOCHeading5 -ExcludeFromTOC 'Backup Mode' {
                                         $OutObj = @()
                                         try {
-                                            Write-PScriboMessage "Discovered $($ABkjob.Name) backup mode information."
                                             $inObj = [ordered] @{
-                                                'Backup Mode' = Switch ($ABkjob.BackupType) {
+                                                'Backup Mode' = switch ($ABkjob.BackupType) {
                                                     'EntireComputer' { 'Entire Computer' }
                                                     'SelectedVolumes' { 'Volume Level Backup' }
                                                     'SelectedFiles' { 'File Level Backup (slower)' }
@@ -194,11 +191,10 @@ function Get-AbrVbrAgentBackupjobConf {
                                         $OutObj = @()
                                         if ($ABkjob.Mode -eq 'ManagedByAgent') {
                                             try {
-                                                Write-PScriboMessage "Discovered $($ABkjob.Name) destination information."
-                                                if ($ABkjob.RetentionType -eq "RestoreDays") {
+                                                if ($ABkjob.RetentionType -eq 'RestoreDays') {
                                                     $RetainString = 'Retain Days To Keep'
                                                     $Retains = $ABkjob.RetentionPolicy
-                                                } elseif ($ABkjob.RetentionType -eq "RestorePoints") {
+                                                } elseif ($ABkjob.RetentionType -eq 'RestorePoints') {
                                                     $RetainString = 'Retain Points'
                                                     $Retains = $ABkjob.RetentionPolicy
                                                 }
@@ -206,7 +202,7 @@ function Get-AbrVbrAgentBackupjobConf {
                                                     $DestinationType = 'Veeam Backup Repository'
                                                 }
                                                 if ($ABkjob.Mode -eq 'ManagedByAgent') {
-                                                    $DestinationType = SWitch ($ABkjob.DestinationOptions.DestinationType) {
+                                                    $DestinationType = switch ($ABkjob.DestinationOptions.DestinationType) {
                                                         'BackupRepository' { 'Veeam Backup Repository' }
                                                         'LocalStorage' { 'Local Storage' }
                                                         'NetworkFolder' { 'Shared Folder' }
@@ -218,7 +214,7 @@ function Get-AbrVbrAgentBackupjobConf {
                                                 } else { $SecondaryJobRepo = 'No' }
                                                 $inObj = [ordered] @{
                                                     'Destination Type' = $DestinationType
-                                                    'Retention Policy' = Switch ($ABkjob.RetentionType) {
+                                                    'Retention Policy' = switch ($ABkjob.RetentionType) {
                                                         'RestorePoints' { 'Restore Points' }
                                                         'RestoreDays' { 'Restore Days' }
                                                         default { $ABkjob.RetentionType }
@@ -261,11 +257,10 @@ function Get-AbrVbrAgentBackupjobConf {
                                             $OutObj | Table @TableParams
                                             if ([Veeam.Backup.Core.CBackupJob]::GetSecondDestinationJobs($ABkjob.id)) {
                                                 try {
-                                                    Section -Style NOTOCHeading6 -ExcludeFromTOC "Secondary Target" {
+                                                    Section -Style NOTOCHeading6 -ExcludeFromTOC 'Secondary Target' {
                                                         $OutObj = @()
                                                         $SecondaryTargets = [Veeam.Backup.Core.CBackupJob]::GetSecondDestinationJobs($ABkjob.id)
                                                         foreach ($SecondaryTarget in $SecondaryTargets) {
-                                                            Write-PScriboMessage "Discovered $($ABkjob.Name) job secondary destination $($SecondaryTarget.Name)."
                                                             $inObj = [ordered] @{
                                                                 'Job Name' = $SecondaryTarget.Name
                                                                 'Type' = $SecondaryTarget.TypeToString
@@ -292,11 +287,10 @@ function Get-AbrVbrAgentBackupjobConf {
                                         }
                                         if ($ABkjob.Mode -eq 'ManagedByBackupServer') {
                                             try {
-                                                Write-PScriboMessage "Discovered $($ABkjob.Name) destination information."
-                                                if ($ABkjob.RetentionType -eq "RestoreDays") {
+                                                if ($ABkjob.RetentionType -eq 'RestoreDays') {
                                                     $RetainString = 'Retain Days To Keep'
                                                     $Retains = $ABkjob.RetentionPolicy
-                                                } elseif ($ABkjob.RetentionType -eq "RestorePoints") {
+                                                } elseif ($ABkjob.RetentionType -eq 'RestorePoints') {
                                                     $RetainString = 'Restore Points'
                                                     $Retains = $ABkjob.RetentionPolicy
                                                 }
@@ -304,7 +298,7 @@ function Get-AbrVbrAgentBackupjobConf {
                                                     $DestinationType = 'Veeam Backup Repository'
                                                 }
                                                 if ($ABkjob.Mode -eq 'ManagedByAgent') {
-                                                    $DestinationType = SWitch ($ABkjob.DestinationOptions.DestinationType) {
+                                                    $DestinationType = switch ($ABkjob.DestinationOptions.DestinationType) {
                                                         'BackupRepository' { 'Veeam Backup Repository' }
                                                         'LocalStorage' { 'Local Storage' }
                                                         'NetworkFolder' { 'Shared Folder' }
@@ -317,7 +311,7 @@ function Get-AbrVbrAgentBackupjobConf {
                                                 $inObj = [ordered] @{
                                                     'Backup Repository' = $ABkjob.BackupRepository.Name
                                                     'Repository Type' = $ABkjob.BackupRepository.Type
-                                                    'Retention Policy' = Switch ($ABkjob.RetentionType) {
+                                                    'Retention Policy' = switch ($ABkjob.RetentionType) {
                                                         'RestorePoints' { 'Restore Points' }
                                                         'RestoreDays' { 'Restore Days' }
                                                         default { $ABkjob.RetentionType }
@@ -360,11 +354,10 @@ function Get-AbrVbrAgentBackupjobConf {
                                             $OutObj | Table @TableParams
                                             if ([Veeam.Backup.Core.CBackupJob]::GetSecondDestinationJobs($ABkjob.id)) {
                                                 try {
-                                                    Section -Style NOTOCHeading6 -ExcludeFromTOC "Secondary Target" {
+                                                    Section -Style NOTOCHeading6 -ExcludeFromTOC 'Secondary Target' {
                                                         $OutObj = @()
                                                         $SecondaryTargets = [Veeam.Backup.Core.CBackupJob]::GetSecondDestinationJobs($ABkjob.id)
                                                         foreach ($SecondaryTarget in $SecondaryTargets) {
-                                                            Write-PScriboMessage "Discovered $($ABkjob.Name) job secondary destination $($SecondaryTarget.Name)."
                                                             $inObj = [ordered] @{
                                                                 'Job Name' = $SecondaryTarget.Name
                                                                 'Type' = $SecondaryTarget.TypeToString
@@ -391,16 +384,14 @@ function Get-AbrVbrAgentBackupjobConf {
                                         }
                                         if ($InfoLevel.Jobs.Agent -ge 2) {
                                             try {
-                                                Section -Style NOTOCHeading6 -ExcludeFromTOC "Advanced Settings (Backup)" {
+                                                Section -Style NOTOCHeading6 -ExcludeFromTOC 'Advanced Settings (Backup)' {
                                                     $OutObj = @()
                                                     try {
-                                                        Write-PScriboMessage "Discovered $($ABkjob.Name) backup options."
-
                                                         $inObj = [ordered] @{
                                                             'Syntethic Full Backup' = $ABkjob.SyntheticFullOptions.Enabled
                                                         }
                                                         if ($ABkjob.SyntheticFullOptions.Enabled) {
-                                                            $inObj.add('Create Syntethic on Days', $ABkjob.SyntheticFullOptions.Days -join ", ")
+                                                            $inObj.add('Create Syntethic on Days', $ABkjob.SyntheticFullOptions.Days -join ', ')
                                                         }
                                                         $inObj += [ordered] @{
                                                             'Active Full Backup' = $ABkjob.ActiveFullOptions.Enabled
@@ -433,11 +424,9 @@ function Get-AbrVbrAgentBackupjobConf {
                                                 Write-PScriboMessage -IsWarning "Agent Backup Jobs Advanced Settings (Backup) Section: $($_.Exception.Message)"
                                             }
                                             try {
-                                                Section -Style NOTOCHeading6 -ExcludeFromTOC "Advanced Settings (Maintenance)" {
+                                                Section -Style NOTOCHeading6 -ExcludeFromTOC 'Advanced Settings (Maintenance)' {
                                                     $OutObj = @()
                                                     try {
-                                                        Write-PScriboMessage "Discovered $($ABkjob.Name) maintenance options."
-
                                                         $inObj = [ordered] @{
                                                             'Storage-Level Corruption Guard (SLCG)' = $ABkjob.HealthCheckOptions.Enabled
                                                         }
@@ -462,7 +451,7 @@ function Get-AbrVbrAgentBackupjobConf {
                                                         $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                         if ($HealthCheck.Jobs.BestPractice) {
-                                                            $OutObj | Where-Object { $_.'Storage-Level Corruption Guard (SLCG)' -eq "No" } | Set-Style -Style Warning -Property 'Storage-Level Corruption Guard (SLCG)'
+                                                            $OutObj | Where-Object { $_.'Storage-Level Corruption Guard (SLCG)' -eq 'No' } | Set-Style -Style Warning -Property 'Storage-Level Corruption Guard (SLCG)'
                                                         }
 
                                                         $TableParams = @{
@@ -476,10 +465,10 @@ function Get-AbrVbrAgentBackupjobConf {
                                                         $OutObj | Table @TableParams
                                                         if ($HealthCheck.Jobs.BestPractice) {
                                                             if ($OutObj | Where-Object { $_.'Storage-Level Corruption Guard (SLCG)' -eq 'No' }) {
-                                                                Paragraph "Health Check:" -Bold -Underline
+                                                                Paragraph 'Health Check:' -Bold -Underline
                                                                 BlankLine
                                                                 Paragraph {
-                                                                    Text "Best Practice:" -Bold
+                                                                    Text 'Best Practice:' -Bold
                                                                     Text "It is recommended to use storage-level corruption guard for any backup job with no active full backups scheduled. Synthetic full backups are still 'incremental forever' and may suffer from corruption over time. Storage-level corruption guard was introduced to provide a greater level of confidence in integrity of the backups."
                                                                 }
                                                                 BlankLine
@@ -493,14 +482,14 @@ function Get-AbrVbrAgentBackupjobConf {
                                                 Write-PScriboMessage -IsWarning Write-PscriboMessage -IsWarning "Agent Backup Jobs Advanced Settings (Maintenance) Section: $($_.Exception.Message)"
                                             }
                                             try {
-                                                Section -Style NOTOCHeading6 -ExcludeFromTOC "Advanced Settings (Storage)" {
+                                                Section -Style NOTOCHeading6 -ExcludeFromTOC 'Advanced Settings (Storage)' {
                                                     $OutObj = @()
-                                                    Write-PScriboMessage "Discovered $($ABkjob.Name) storage options."
+
                                                     $inObj = [ordered] @{
                                                         'Compression Level' = $ABkjob.StorageOptions.CompressionLevel
                                                         'Storage optimization' = $ABkjob.StorageOptions.StorageOptimizationType
                                                         'Enabled Backup File Encryption' = $ABkjob.StorageOptions.EncryptionEnabled
-                                                        'Encryption Key' = Switch ($ABkjob.StorageOptions.EncryptionEnabled) {
+                                                        'Encryption Key' = switch ($ABkjob.StorageOptions.EncryptionEnabled) {
                                                             $false { 'None' }
                                                             default { (Get-VBREncryptionKey | Where-Object { $_.id -eq $ABkjob.StorageOptions.EncryptionKey.Id }).Description }
                                                         }
@@ -522,11 +511,11 @@ function Get-AbrVbrAgentBackupjobConf {
                                                     $OutObj | Table @TableParams
                                                     if ($HealthCheck.Jobs.BestPractice) {
                                                         if ($OutObj | Where-Object { $_.'Enabled Backup File Encryption' -eq 'No' }) {
-                                                            Paragraph "Health Check:" -Bold -Underline
+                                                            Paragraph 'Health Check:' -Bold -Underline
                                                             BlankLine
                                                             Paragraph {
-                                                                Text "Best Practice:" -Bold
-                                                                Text "Backup and replica data is a high potential source of vulnerability. To secure data stored in backups and replicas, use Veeam Backup & Replication inbuilt encryption to protect data in backups"
+                                                                Text 'Best Practice:' -Bold
+                                                                Text 'Backup and replica data is a high potential source of vulnerability. To secure data stored in backups and replicas, use Veeam Backup & Replication inbuilt encryption to protect data in backups'
                                                             }
                                                             BlankLine
                                                         }
@@ -536,9 +525,9 @@ function Get-AbrVbrAgentBackupjobConf {
                                                 Write-PScriboMessage -IsWarning "Agent Backup Jobs Advanced Settings (Storage) Section: $($_.Exception.Message)"
                                             }
                                             try {
-                                                Section -Style NOTOCHeading6 -ExcludeFromTOC "Advanced Settings (Notification)" {
+                                                Section -Style NOTOCHeading6 -ExcludeFromTOC 'Advanced Settings (Notification)' {
                                                     $OutObj = @()
-                                                    Write-PScriboMessage "Discovered $($ABkjob.Name) notification options."
+
                                                     $inObj = [ordered] @{
                                                         'Send Snmp Notification' = $ABkjob.NotificationOptions.EnableSnmpNotification
                                                         'Send Email Notification' = $ABkjob.NotificationOptions.EnableAdditionalNotification
@@ -569,9 +558,9 @@ function Get-AbrVbrAgentBackupjobConf {
                                             }
                                             if ($ABkjob.Mode -eq 'ManagedByBackupServer' -and $ABkjob.OSPlatform -eq 'Windows') {
                                                 try {
-                                                    Section -Style NOTOCHeading6 -ExcludeFromTOC "Advanced Settings (Integration)" {
+                                                    Section -Style NOTOCHeading6 -ExcludeFromTOC 'Advanced Settings (Integration)' {
                                                         $OutObj = @()
-                                                        Write-PScriboMessage "Discovered $($ABkjob.Name) Integration options."
+
                                                         $inObj = [ordered] @{
                                                             'Enable Backup from Storage Snapshots' = $ABkjob.SanIntegrationOptions.SanSnapshotsEnabled
                                                         }
@@ -600,16 +589,16 @@ function Get-AbrVbrAgentBackupjobConf {
                                             }
                                             if ($ABkjob.Mode -eq 'ManagedByBackupServer') {
                                                 try {
-                                                    Section -Style NOTOCHeading6 -ExcludeFromTOC "Advanced Settings (Script)" {
+                                                    Section -Style NOTOCHeading6 -ExcludeFromTOC 'Advanced Settings (Script)' {
                                                         $OutObj = @()
                                                         if ($ABkjob.ScriptOptions.Periodicity -eq 'Days') {
-                                                            $FrequencyValue = $ABkjob.ScriptOptions.Day -join ","
+                                                            $FrequencyValue = $ABkjob.ScriptOptions.Day -join ','
                                                             $FrequencyText = 'Run Script on the Selected Days'
                                                         } elseif ($ABkjob.ScriptOptions.Periodicity -eq 'Cycles') {
                                                             $FrequencyValue = $ABkjob.ScriptOptions.Frequency
                                                             $FrequencyText = 'Run Script Every Backup Session'
                                                         }
-                                                        Write-PScriboMessage "Discovered $($ABkjob.Name) script options."
+
                                                         $inObj = [ordered] @{
                                                             'Run the Following Script Before' = $ABkjob.ScriptOptions.PreScriptEnabled
                                                         }
@@ -645,10 +634,10 @@ function Get-AbrVbrAgentBackupjobConf {
                                         }
                                     }
                                     if ($ABkjob.ApplicationProcessingEnabled -or $ABkjob.IndexingEnabled) {
-                                        Section -Style NOTOCHeading5 -ExcludeFromTOC "Guest Processing" {
+                                        Section -Style NOTOCHeading5 -ExcludeFromTOC 'Guest Processing' {
                                             $OutObj = @()
                                             try {
-                                                Write-PScriboMessage "Discovered $($ABkjob.Name) guest processing."
+
                                                 $inObj = [ordered] @{
                                                     'Enabled Application Process Processing' = $ABkjob.ApplicationProcessingEnabled
                                                     'Enabled Guest File System Indexing' = $ABkjob.IndexingEnabled
@@ -672,20 +661,20 @@ function Get-AbrVbrAgentBackupjobConf {
                                     }
                                     if ($ABkjob.ScheduleEnabled) {
                                         if ($ABkjob.Mode -eq 'ManagedByBackupServer') {
-                                            Section -Style NOTOCHeading5 -ExcludeFromTOC "Schedule" {
+                                            Section -Style NOTOCHeading5 -ExcludeFromTOC 'Schedule' {
                                                 $OutObj = @()
                                                 try {
-                                                    Write-PScriboMessage "Discovered $($ABkjob.Name) schedule options."
-                                                    if ($ABkjob.ScheduleOptions.Type -eq "Daily") {
-                                                        $ScheduleType = "Daily"
+
+                                                    if ($ABkjob.ScheduleOptions.Type -eq 'Daily') {
+                                                        $ScheduleType = 'Daily'
                                                         $Schedule = "Recurrence: $($ABkjob.ScheduleOptions.DailyOptions.Type),`r`nDays: $($ABkjob.ScheduleOptions.DailyOptions.DayOfWeek)`r`nAt: $($ABkjob.ScheduleOptions.DailyOptions.Period)"
-                                                    } elseif ($ABkjob.ScheduleOptions.Type -eq "Monthly") {
-                                                        $ScheduleType = "Monthly"
+                                                    } elseif ($ABkjob.ScheduleOptions.Type -eq 'Monthly') {
+                                                        $ScheduleType = 'Monthly'
                                                         $Schedule = "Day Of Month: $($ABkjob.ScheduleOptions.MonthlyOptions.DayOfMonth),`r`nDay Number In Month: $($ABkjob.ScheduleOptions.MonthlyOptions.DayNumberInMonth),`r`nDay Of Week: $($ABkjob.ScheduleOptions.MonthlyOptions.DayOfWeek)`r`nAt: $($ABkjob.ScheduleOptions.DailyOptions.Period)"
-                                                    } elseif ($ABkjob.ScheduleOptions.Type -eq "Periodically") {
+                                                    } elseif ($ABkjob.ScheduleOptions.Type -eq 'Periodically') {
                                                         $ScheduleType = $ABkjob.ScheduleOptions.PeriodicallyOptions.PeriodicallyKind
                                                         $Schedule = "Full Period: $($ABkjob.ScheduleOptions.PeriodicallyOptions.FullPeriod),`r`nHourly Offset: $($ABkjob.ScheduleOptions.PeriodicallyOptions.HourlyOffset)"
-                                                    } elseif ($ABkjob.ScheduleOptions.Type -eq "AfterJob") {
+                                                    } elseif ($ABkjob.ScheduleOptions.Type -eq 'AfterJob') {
                                                         $ScheduleType = 'After Job'
                                                         $Schedule = $ABkjob.ScheduleOptions.Job.Name
                                                     }
@@ -709,7 +698,7 @@ function Get-AbrVbrAgentBackupjobConf {
                                                     $OutObj | Table @TableParams
                                                     if ($ABkjob.ScheduleOptions.BackupTerminationWindowEnabled) {
                                                         try {
-                                                            Section -Style NOTOCHeading6 -ExcludeFromTOC "Backup Window Time Period" {
+                                                            Section -Style NOTOCHeading6 -ExcludeFromTOC 'Backup Window Time Period' {
                                                                 Paragraph -ScriptBlock $Legend
 
                                                                 $OutObj = Get-WindowsTimePeriod -InputTimePeriod $ABkjob.ScheduleOptions.TerminationWindow
@@ -725,21 +714,21 @@ function Get-AbrVbrAgentBackupjobConf {
                                                                 }
                                                                 if ($OutObj) {
                                                                     $OutObj2 = Table -Hashtable $OutObj @TableParams
-                                                                    $OutObj2.Rows | Where-Object { $_.Sun -eq "0" } | Set-Style -Style OFF -Property "Sun"
-                                                                    $OutObj2.Rows | Where-Object { $_.Mon -eq "0" } | Set-Style -Style OFF -Property "Mon"
-                                                                    $OutObj2.Rows | Where-Object { $_.Tue -eq "0" } | Set-Style -Style OFF -Property "Tue"
-                                                                    $OutObj2.Rows | Where-Object { $_.Wed -eq "0" } | Set-Style -Style OFF -Property "Wed"
-                                                                    $OutObj2.Rows | Where-Object { $_.Thu -eq "0" } | Set-Style -Style OFF -Property "Thu"
-                                                                    $OutObj2.Rows | Where-Object { $_.Fri -eq "0" } | Set-Style -Style OFF -Property "Fri"
-                                                                    $OutObj2.Rows | Where-Object { $_.Sat -eq "0" } | Set-Style -Style OFF -Property "Sat"
+                                                                    $OutObj2.Rows | Where-Object { $_.Sun -eq '0' } | Set-Style -Style OFF -Property 'Sun'
+                                                                    $OutObj2.Rows | Where-Object { $_.Mon -eq '0' } | Set-Style -Style OFF -Property 'Mon'
+                                                                    $OutObj2.Rows | Where-Object { $_.Tue -eq '0' } | Set-Style -Style OFF -Property 'Tue'
+                                                                    $OutObj2.Rows | Where-Object { $_.Wed -eq '0' } | Set-Style -Style OFF -Property 'Wed'
+                                                                    $OutObj2.Rows | Where-Object { $_.Thu -eq '0' } | Set-Style -Style OFF -Property 'Thu'
+                                                                    $OutObj2.Rows | Where-Object { $_.Fri -eq '0' } | Set-Style -Style OFF -Property 'Fri'
+                                                                    $OutObj2.Rows | Where-Object { $_.Sat -eq '0' } | Set-Style -Style OFF -Property 'Sat'
 
-                                                                    $OutObj2.Rows | Where-Object { $_.Sun -eq "1" } | Set-Style -Style ON -Property "Sun"
-                                                                    $OutObj2.Rows | Where-Object { $_.Mon -eq "1" } | Set-Style -Style ON -Property "Mon"
-                                                                    $OutObj2.Rows | Where-Object { $_.Tue -eq "1" } | Set-Style -Style ON -Property "Tue"
-                                                                    $OutObj2.Rows | Where-Object { $_.Wed -eq "1" } | Set-Style -Style ON -Property "Wed"
-                                                                    $OutObj2.Rows | Where-Object { $_.Thu -eq "1" } | Set-Style -Style ON -Property "Thu"
-                                                                    $OutObj2.Rows | Where-Object { $_.Fri -eq "1" } | Set-Style -Style ON -Property "Fri"
-                                                                    $OutObj2.Rows | Where-Object { $_.Sat -eq "1" } | Set-Style -Style ON -Property "Sat"
+                                                                    $OutObj2.Rows | Where-Object { $_.Sun -eq '1' } | Set-Style -Style ON -Property 'Sun'
+                                                                    $OutObj2.Rows | Where-Object { $_.Mon -eq '1' } | Set-Style -Style ON -Property 'Mon'
+                                                                    $OutObj2.Rows | Where-Object { $_.Tue -eq '1' } | Set-Style -Style ON -Property 'Tue'
+                                                                    $OutObj2.Rows | Where-Object { $_.Wed -eq '1' } | Set-Style -Style ON -Property 'Wed'
+                                                                    $OutObj2.Rows | Where-Object { $_.Thu -eq '1' } | Set-Style -Style ON -Property 'Thu'
+                                                                    $OutObj2.Rows | Where-Object { $_.Fri -eq '1' } | Set-Style -Style ON -Property 'Fri'
+                                                                    $OutObj2.Rows | Where-Object { $_.Sat -eq '1' } | Set-Style -Style ON -Property 'Sat'
                                                                     $OutObj2
                                                                 }
                                                             }
@@ -754,13 +743,13 @@ function Get-AbrVbrAgentBackupjobConf {
                                         }
                                         if ($ABkjob.BackupCacheOptions.Enabled) {
                                             try {
-                                                Section -Style NOTOCHeading5 -ExcludeFromTOC "Backup Cache" {
+                                                Section -Style NOTOCHeading5 -ExcludeFromTOC 'Backup Cache' {
                                                     $OutObj = @()
-                                                    Write-PScriboMessage "Discovered $($ABkjob.Name) backup cache information."
+
                                                     $inObj = [ordered] @{
                                                         'Maximun Size' = "$($ABkjob.BackupCacheOptions.SizeLimit) $($ABkjob.BackupCacheOptions.SizeUnit)"
                                                         'Type' = $ABkjob.BackupCacheOptions.Type
-                                                        'Path' = Switch ($ABkjob.BackupCacheOptions.Type) {
+                                                        'Path' = switch ($ABkjob.BackupCacheOptions.Type) {
                                                             'Automatic' { 'Auto Selected' }
                                                             default { $ABkjob.BackupCacheOptions.LocalPath }
                                                         }
@@ -782,25 +771,25 @@ function Get-AbrVbrAgentBackupjobConf {
                                             }
                                         }
                                         if ($ABkjob.Mode -eq 'ManagedByAgent') {
-                                            Section -Style NOTOCHeading5 -ExcludeFromTOC "Schedule" {
+                                            Section -Style NOTOCHeading5 -ExcludeFromTOC 'Schedule' {
                                                 $OutObj = @()
                                                 try {
-                                                    Write-PScriboMessage "Discovered $($ABkjob.Name) schedule options."
+
                                                     if ($ABkjob.ScheduleOptions.DailyScheduleEnabled) {
                                                         $ScheduleType = 'Daily'
                                                         $Schedule = "Recurrence: $($ABkjob.ScheduleOptions.DailyOptions.Type),`r`nDays: $($ABkjob.ScheduleOptions.DailyOptions.DayOfWeek)r`nAt: $($ABkjob.ScheduleOptions.DailyOptions.Period)"
                                                     }
 
-                                                    if ($ABkjob.ScheduleOptions.Type -eq "Daily") {
-                                                        $ScheduleType = "Daily"
+                                                    if ($ABkjob.ScheduleOptions.Type -eq 'Daily') {
+                                                        $ScheduleType = 'Daily'
                                                         $Schedule = "Recurrence: $($ABkjob.ScheduleOptions.DailyOptions.Type),`r`nDays: $($ABkjob.ScheduleOptions.DailyOptions.DayOfWeek)`r`nAt: $($ABkjob.ScheduleOptions.DailyOptions.Period)"
-                                                    } elseif ($ABkjob.ScheduleOptions.Type -eq "Monthly") {
-                                                        $ScheduleType = "Monthly"
+                                                    } elseif ($ABkjob.ScheduleOptions.Type -eq 'Monthly') {
+                                                        $ScheduleType = 'Monthly'
                                                         $Schedule = "Day Of Month: $($ABkjob.ScheduleOptions.MonthlyOptions.DayOfMonth),`r`nDay Number In Month: $($ABkjob.ScheduleOptions.MonthlyOptions.DayNumberInMonth),`r`nDay Of Week: $($ABkjob.ScheduleOptions.MonthlyOptions.DayOfWeek)`r`nAt: $($ABkjob.ScheduleOptions.DailyOptions.Period)"
-                                                    } elseif ($ABkjob.ScheduleOptions.Type -eq "Periodically") {
+                                                    } elseif ($ABkjob.ScheduleOptions.Type -eq 'Periodically') {
                                                         $ScheduleType = $ABkjob.ScheduleOptions.PeriodicallyOptions.PeriodicallyKind
                                                         $Schedule = "Full Period: $($ABkjob.ScheduleOptions.PeriodicallyOptions.FullPeriod),`r`nHourly Offset: $($ABkjob.ScheduleOptions.PeriodicallyOptions.HourlyOffset)"
-                                                    } elseif ($ABkjob.ScheduleOptions.Type -eq "AfterJob") {
+                                                    } elseif ($ABkjob.ScheduleOptions.Type -eq 'AfterJob') {
                                                         $ScheduleType = 'After Job'
                                                         $Schedule = $ABkjob.ScheduleOptions.Job.Name
                                                     }
@@ -808,13 +797,13 @@ function Get-AbrVbrAgentBackupjobConf {
                                                     $inObj = [ordered] @{
                                                         'Schedule type' = $ScheduleType
                                                         'Schedule Options' = $Schedule
-                                                        'If Computer is Power Off Action' = SWitch ($ABkjob.ScheduleOptions.PowerOffAction) {
+                                                        'If Computer is Power Off Action' = switch ($ABkjob.ScheduleOptions.PowerOffAction) {
                                                             $null { '--' }
                                                             'SkipBackup' { 'Skip Backup' }
                                                             'BackupAtPowerOn' { 'Backup At Power On' }
                                                             default { $ABkjob.ScheduleOptions.PowerOffAction }
                                                         }
-                                                        'Once Backup is Taken' = Switch ($ABkjob.ScheduleOptions.PostBackupAction) {
+                                                        'Once Backup is Taken' = switch ($ABkjob.ScheduleOptions.PostBackupAction) {
                                                             $null { '--' }
                                                             'KeepRunning' { 'Keep Running' }
                                                             default { $ABkjob.ScheduleOptions.PostBackupAction }
@@ -823,10 +812,10 @@ function Get-AbrVbrAgentBackupjobConf {
                                                         'Backup At Lock' = $ABkjob.ScheduleOptions.BackupAtLock
                                                         'Backup At Target Connection' = $ABkjob.ScheduleOptions.BackupAtTargetConnection
                                                         'Eject Storage After Backup' = $ABkjob.ScheduleOptions.EjectStorageAfterBackup
-                                                        'Backup Timeout' = Switch ([string]::IsNullOrEmpty($ABkjob.ScheduleOptions.BackupTimeout)) {
+                                                        'Backup Timeout' = switch ([string]::IsNullOrEmpty($ABkjob.ScheduleOptions.BackupTimeout)) {
                                                             $true { '--' }
                                                             $false { "$($ABkjob.ScheduleOptions.BackupTimeout) $($ABkjob.ScheduleOptions.BackupTimeoutType)" }
-                                                            default { "Unknown" }
+                                                            default { 'Unknown' }
                                                         }
                                                     }
                                                     $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
@@ -861,7 +850,7 @@ function Get-AbrVbrAgentBackupjobConf {
         }
     }
     end {
-        Show-AbrDebugExecutionTime -End -TitleMessage "Agent Backup Jobs"
+        Show-AbrDebugExecutionTime -End -TitleMessage 'Agent Backup Jobs'
     }
 
 }

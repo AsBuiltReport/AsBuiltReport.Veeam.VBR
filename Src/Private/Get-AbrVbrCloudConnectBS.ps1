@@ -5,7 +5,7 @@ function Get-AbrVbrCloudConnectBS {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.20
+        Version:        0.8.24
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -21,16 +21,16 @@ function Get-AbrVbrCloudConnectBS {
 
     begin {
         Write-PScriboMessage "Discovering Veeam VBR Cloud Backup Storage information from $System."
-        Show-AbrDebugExecutionTime -Start -TitleMessage "Cloud Backup Storage"
+        Show-AbrDebugExecutionTime -Start -TitleMessage 'Cloud Backup Storage'
     }
 
     process {
         try {
-            if ($VbrLicenses | Where-Object { $_.CloudConnect -ne "Disabled" }) {
+            if ($VbrLicenses | Where-Object { $_.CloudConnect -ne 'Disabled' }) {
                 if (((Get-VBRCloudTenant).Resources.Repository).count -gt 0) {
                     $CloudObjects = (Get-VBRCloudTenant).Resources
                     Section -Style Heading3 'Backup Storage' {
-                        Paragraph "The following section provides information about Veeam Cloud Connect configured Backup Storage."
+                        Paragraph 'The following section provides information about Veeam Cloud Connect configured Backup Storage.'
                         BlankLine
                         foreach ($CloudObject in ($CloudObjects.Repository | Sort-Object -Property Name -Unique)) {
                             try {
@@ -44,7 +44,7 @@ function Get-AbrVbrCloudConnectBS {
                                 Section -Style Heading4 $CloudObject.Name {
                                     $OutObj = @()
                                     try {
-                                        Write-PScriboMessage "Discovered $($CloudObject.Name) Cloud Backup Storage information."
+
 
                                         $inObj = [ordered] @{
                                             'Type' = $CloudObject.TypeDisplay
@@ -82,7 +82,7 @@ function Get-AbrVbrCloudConnectBS {
                                                 $OutObj = @()
                                                 try {
                                                     foreach ($Tenant in ($CloudTenant | Where-Object { $_.Resources.Repository.Name -eq $CloudObject.Name })) {
-                                                        Write-PScriboMessage "Discovered $($CloudObject.Name) Cloud Tenant utilization."
+
                                                         foreach ($Storage in ($Tenant.Resources | Where-Object { $_.Repository.Name -eq $CloudObject.Name })) {
                                                             $inObj = [ordered] @{
                                                                 'Name' = $Tenant.Name
@@ -138,7 +138,7 @@ function Get-AbrVbrCloudConnectBS {
             }
         } catch {
             Write-PScriboMessage -IsWarning "Cloud Backup Storage Section: $($_.Exception.Message)"
-            Show-AbrDebugExecutionTime -End -TitleMessage "Cloud Backup Storage"
+            Show-AbrDebugExecutionTime -End -TitleMessage 'Cloud Backup Storage'
         }
     }
     end {}

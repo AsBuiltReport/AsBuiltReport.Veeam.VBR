@@ -6,7 +6,7 @@ function Get-AbrVbrCloudConnectTenant {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.22
+        Version:        0.8.24
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -22,20 +22,20 @@ function Get-AbrVbrCloudConnectTenant {
 
     begin {
         Write-PScriboMessage "Discovering Veeam VBR Cloud Tenants information from $System."
-        Show-AbrDebugExecutionTime -Start -TitleMessage "Cloud Connect Tenants"
+        Show-AbrDebugExecutionTime -Start -TitleMessage 'Cloud Connect Tenants'
     }
 
     process {
         try {
-            if ($VbrLicenses | Where-Object { $_.CloudConnect -ne "Disabled" }) {
+            if ($VbrLicenses | Where-Object { $_.CloudConnect -ne 'Disabled' }) {
                 if ($CloudObjects = Get-VBRCloudTenant | Sort-Object -Property Name) {
                     Section -Style Heading3 'Tenants' {
-                        Paragraph "The following table provides status information about Cloud Connect Tenants."
+                        Paragraph 'The following table provides status information about Cloud Connect Tenants.'
                         BlankLine
                         $OutObj = @()
                         foreach ($CloudObject in $CloudObjects) {
                             try {
-                                Write-PScriboMessage "Discovered $($CloudObject.Name) Cloud Tenants information."
+
                                 $inObj = [ordered] @{
                                     'Name' = $CloudObject.Name
                                     'Type' = switch ($CloudObject.Type) {
@@ -71,10 +71,10 @@ function Get-AbrVbrCloudConnectTenant {
                         $OutObj | Sort-Object -Property 'Name' | Table @TableParams
                         if ($HealthCheck.CloudConnect.BestPractice) {
                             if ($OutObj | Where-Object { $Null -like $_.'Last Active' }) {
-                                Paragraph "Health Check:" -Bold -Underline
+                                Paragraph 'Health Check:' -Bold -Underline
                                 BlankLine
                                 Paragraph {
-                                    Text "Best Practice:" -Bold
+                                    Text 'Best Practice:' -Bold
                                     Text "Validate if the tenant's resources are being utilized"
                                 }
                                 BlankLine
@@ -86,14 +86,14 @@ function Get-AbrVbrCloudConnectTenant {
                         if ($InfoLevel.CloudConnect.Tenants -ge 2) {
                             try {
                                 Section -Style Heading4 'Tenants Configuration' {
-                                    Paragraph "The following section provides detailed configuration information about Cloud Connect Tenants."
+                                    Paragraph 'The following section provides detailed configuration information about Cloud Connect Tenants.'
                                     BlankLine
                                     foreach ($CloudObject in $CloudObjects) {
                                         Section -Style Heading5 $CloudObject.Name {
                                             $OutObj = @()
                                             try {
                                                 Section -ExcludeFromTOC -Style NOTOCHeading6 'General Information' {
-                                                    Write-PScriboMessage "Discovered $($CloudObject.Name) Cloud Tenants information."
+
                                                     $inObj = [ordered] @{
                                                         'Name' = $CloudObject.Name
                                                         'Type' = switch ($CloudObject.Type) {
@@ -135,8 +135,8 @@ function Get-AbrVbrCloudConnectTenant {
                                                     $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                     if ($HealthCheck.CloudConnect.BestPractice) {
-                                                        $OutObj | Where-Object { $_.'Description' -eq "--" } | Set-Style -Style Warning -Property 'Description'
-                                                        $OutObj | Where-Object { $_.'Description' -match "Created by" } | Set-Style -Style Warning -Property 'Description'
+                                                        $OutObj | Where-Object { $_.'Description' -eq '--' } | Set-Style -Style Warning -Property 'Description'
+                                                        $OutObj | Where-Object { $_.'Description' -match 'Created by' } | Set-Style -Style Warning -Property 'Description'
                                                         $OutObj | Where-Object { $_.'Expiration Date' -match '(Expired)' } | Set-Style -Style Warning -Property 'Expiration Date'
                                                     }
 
@@ -152,11 +152,11 @@ function Get-AbrVbrCloudConnectTenant {
                                                     $OutObj | Sort-Object -Property 'Name' | Table @TableParams
                                                     if ($HealthCheck.Jobs.BestPractice) {
                                                         if ($OutObj | Where-Object { $_.'Description' -match 'Created by' -or $_.'Description' -eq '--' }) {
-                                                            Paragraph "Health Check:" -Bold -Underline
+                                                            Paragraph 'Health Check:' -Bold -Underline
                                                             BlankLine
                                                             Paragraph {
-                                                                Text "Best Practice:" -Bold
-                                                                Text "It is a general rule of good practice to establish well-defined descriptions. This helps to speed up the fault identification process, as well as enabling better documentation of the environment."
+                                                                Text 'Best Practice:' -Bold
+                                                                Text 'It is a general rule of good practice to establish well-defined descriptions. This helps to speed up the fault identification process, as well as enabling better documentation of the environment.'
                                                             }
                                                             BlankLine
                                                         }
@@ -166,7 +166,7 @@ function Get-AbrVbrCloudConnectTenant {
                                                     Section -ExcludeFromTOC -Style NOTOCHeading6 'Bandwidth' {
                                                         $OutObj = @()
                                                         try {
-                                                            Write-PScriboMessage "Discovered $($CloudObject.Name) Bandwidth information."
+
                                                             $inObj = [ordered] @{
                                                                 'Max Concurrent Task' = $CloudObject.MaxConcurrentTask
                                                             }
@@ -218,7 +218,7 @@ function Get-AbrVbrCloudConnectTenant {
                                                             $OutObj = @()
                                                             foreach ($CloudBackupRepo in $CloudObject.Resources) {
                                                                 try {
-                                                                    Write-PScriboMessage "Discovered $($CloudBackupRepo.RepositoryFriendlyName) Backup Resources information."
+
                                                                     $inObj = [ordered] @{
                                                                         'Repository' = $CloudBackupRepo.Repository.Name
                                                                         'Friendly Name' = $CloudBackupRepo.RepositoryFriendlyName
@@ -261,9 +261,9 @@ function Get-AbrVbrCloudConnectTenant {
                                                             $OutObj = @()
                                                             foreach ($CloudRepliRes in $CloudObject.ReplicationResources) {
                                                                 try {
-                                                                    Write-PScriboMessage "Discovered $($CloudRepliRes.RepositoryFriendlyName) Replication Resources information."
+
                                                                     $inObj = [ordered] @{
-                                                                        'Hardware Plans' = (Get-VBRCloudHardwarePlan  | Where-Object { $_.SubscribedTenantId -contains $CloudObject.Id }).Name -join ', '
+                                                                        'Hardware Plans' = (Get-VBRCloudHardwarePlan | Where-Object { $_.SubscribedTenantId -contains $CloudObject.Id }).Name -join ', '
                                                                         'Use Veeam Network Extension Capabilities during Partial and Full Site Failover' = $CloudRepliRes.NetworkFailoverResourcesEnabled
                                                                     }
 
@@ -294,7 +294,7 @@ function Get-AbrVbrCloudConnectTenant {
                                                             $OutObj = @()
                                                             foreach ($CloudRepliRes in $CloudObject.vCDReplicationResource.OrganizationvDCOptions) {
                                                                 try {
-                                                                    Write-PScriboMessage "Discovered $($CloudRepliRes.RepositoryFriendlyName) Replication Resources information."
+
                                                                     $inObj = [ordered] @{
                                                                         'Organization vDC Name' = $CloudRepliRes.OrganizationvDCName
                                                                         'Allocation Model' = $CloudRepliRes.AllocationModel
@@ -334,7 +334,7 @@ function Get-AbrVbrCloudConnectTenant {
                                                                 $OutObj = @()
                                                                 foreach ($TenantNetworkAppliance in $TenantNetworkAppliances) {
                                                                     try {
-                                                                        Write-PScriboMessage "Discovered $($TenantNetworkAppliance.Name) Network Extension information."
+
                                                                         $inObj = [ordered] @{
                                                                             'Name' = $TenantNetworkAppliance.Name
                                                                             'Platform' = $TenantNetworkAppliance.Platform
@@ -381,7 +381,7 @@ function Get-AbrVbrCloudConnectTenant {
                                                             $OutObj = @()
                                                             foreach ($CloudSubTenant in $CloudSubTenants) {
                                                                 try {
-                                                                    Write-PScriboMessage "Discovered $($CloudSubTenant.Name) Subtenant information."
+
                                                                     $inObj = [ordered] @{
                                                                         'Name' = $CloudSubTenant.Name
                                                                         'Type' = $CloudSubTenant.Type
@@ -426,7 +426,7 @@ function Get-AbrVbrCloudConnectTenant {
                                                 try {
                                                     Section -ExcludeFromTOC -Style NOTOCHeading6 'Licenses Utilization' {
                                                         $OutObj = @()
-                                                        Write-PScriboMessage "Discovered $($CloudObject.Name) License Utilization information."
+
                                                         $inObj = [ordered] @{
                                                             'New VM Backup' = $CloudObject.NewVMBackupCount
                                                             'New Workstation Backup' = $CloudObject.NewWorkstationBackupCount
@@ -469,9 +469,9 @@ function Get-AbrVbrCloudConnectTenant {
                                                     }
                                                     if ($Graph) {
                                                         if ((Get-DiaImagePercent -GraphObj $Graph).Width -gt 600) { $ImagePrty = 15 } else { $ImagePrty = 20 }
-                                                        Section -Style Heading6 "Diagram" {
-                                                            Image -Base64 $Graph -Text "Backup CloudConnect Tenant Diagram" -Align Center -Percent $ImagePrty
-                                                            Paragraph "Image preview: Opens the image in a new tab to view it at full resolution." -Tabs 2
+                                                        Section -Style Heading6 'Diagram' {
+                                                            Image -Base64 $Graph -Text 'Backup CloudConnect Tenant Diagram' -Align Center -Percent $ImagePrty
+                                                            Paragraph 'Image preview: Opens the image in a new tab to view it at full resolution.' -Tabs 2
                                                         }
                                                     }
                                                 } catch {
@@ -493,7 +493,7 @@ function Get-AbrVbrCloudConnectTenant {
         }
     }
     end {
-        Show-AbrDebugExecutionTime -End -TitleMessage "Cloud Connect Tenants"
+        Show-AbrDebugExecutionTime -End -TitleMessage 'Cloud Connect Tenants'
     }
 
 }

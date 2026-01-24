@@ -6,7 +6,7 @@ function Get-AbrVbrBackupjobNutanixConf {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.23
+        Version:        0.8.24
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -22,21 +22,21 @@ function Get-AbrVbrBackupjobNutanixConf {
 
     begin {
         Write-PScriboMessage "Discovering Veeam VBR Nutanix Backup jobs information from $System."
-        Show-AbrDebugExecutionTime -Start -TitleMessage "Nutanix Backup Jobs"
+        Show-AbrDebugExecutionTime -Start -TitleMessage 'Nutanix Backup Jobs'
     }
 
     process {
         try {
-            if ($Bkjobs = [Veeam.Backup.Core.CBackupJob]::GetAll() | Where-Object { $_.TypeToString -like "*Nutanix*" } | Sort-Object -Property 'Name') {
+            if ($Bkjobs = [Veeam.Backup.Core.CBackupJob]::GetAll() | Where-Object { $_.TypeToString -like '*Nutanix*' } | Sort-Object -Property 'Name') {
                 Section -Style Heading3 'Nutanix Backup Jobs Configuration' {
-                    Paragraph "The following section details the configuration of Nutanix type backup jobs."
+                    Paragraph 'The following section details the configuration of Nutanix type backup jobs.'
                     BlankLine
                     $OutObj = @()
                     try {
-                        if ($VMcounts = Get-VBRBackup | Where-Object { $_.TypeToString -like "Nutanix" }) {
+                        if ($VMcounts = Get-VBRBackup | Where-Object { $_.TypeToString -like 'Nutanix' }) {
                             foreach ($VMcount in $VMcounts) {
                                 try {
-                                    Write-PScriboMessage "Discovered $($VMcount.Name) ."
+
                                     $inObj = [ordered] @{
                                         'Name' = $VMcount.Name
                                         'Creation Time' = $VMcount.CreationTime
@@ -69,7 +69,7 @@ function Get-AbrVbrBackupjobNutanixConf {
                                     $OutObj = @()
                                     try {
                                         try {
-                                            Write-PScriboMessage "Discovered $($Bkjob.Name) common information."
+
                                             $inObj = [ordered] @{
                                                 'Name' = $Bkjob.Name
                                                 'Type' = $Bkjob.TypeToString
@@ -85,8 +85,8 @@ function Get-AbrVbrBackupjobNutanixConf {
                                         }
 
                                         if ($HealthCheck.Jobs.BestPractice) {
-                                            $OutObj | Where-Object { $_.'Description' -eq "--" } | Set-Style -Style Warning -Property 'Description'
-                                            $OutObj | Where-Object { $_.'Description' -match "Created by" } | Set-Style -Style Warning -Property 'Description'
+                                            $OutObj | Where-Object { $_.'Description' -eq '--' } | Set-Style -Style Warning -Property 'Description'
+                                            $OutObj | Where-Object { $_.'Description' -match 'Created by' } | Set-Style -Style Warning -Property 'Description'
                                         }
 
                                         $TableParams = @{
@@ -99,12 +99,12 @@ function Get-AbrVbrBackupjobNutanixConf {
                                         }
                                         $OutObj | Table @TableParams
                                         if ($HealthCheck.Jobs.BestPractice) {
-                                            if ($OutObj | Where-Object { $_.'Description' -match 'Created by' -or $_.'Description' -eq "--" }) {
-                                                Paragraph "Health Check:" -Bold -Underline
+                                            if ($OutObj | Where-Object { $_.'Description' -match 'Created by' -or $_.'Description' -eq '--' }) {
+                                                Paragraph 'Health Check:' -Bold -Underline
                                                 BlankLine
                                                 Paragraph {
-                                                    Text "Best Practice:" -Bold
-                                                    Text "It is a general rule of good practice to establish well-defined descriptions. This helps to speed up the fault identification process, as well as enabling better documentation of the environment."
+                                                    Text 'Best Practice:' -Bold
+                                                    Text 'It is a general rule of good practice to establish well-defined descriptions. This helps to speed up the fault identification process, as well as enabling better documentation of the environment.'
                                                 }
                                                 BlankLine
                                             }
@@ -119,7 +119,7 @@ function Get-AbrVbrBackupjobNutanixConf {
                                         try {
                                             foreach ($LinkedBkJob in $Bkjob.LinkedJobs) {
                                                 try {
-                                                    Write-PScriboMessage "Discovered $($Bkjob.Name) linked backup job."
+
                                                     $Job = $Bkjobs | Where-Object { $_.Id -eq $LinkedBkJob.info.LinkedObjectId.Guid }
                                                     $inObj = [ordered] @{
                                                         'Name' = $Job.Name
@@ -153,18 +153,18 @@ function Get-AbrVbrBackupjobNutanixConf {
                                         try {
                                             foreach ($LinkedRepository in $Bkjob.LinkedRepositories.LinkedRepositoryId) {
                                                 try {
-                                                    Write-PScriboMessage "Discovered $($Bkjob.Name) linked repository."
+
                                                     if ($Repo = Get-VBRBackupRepository | Where-Object { $_.Id -eq $LinkedRepository }) {
                                                         $inObj = [ordered] @{
                                                             'Name' = $Repo.Name
-                                                            'Type' = "Standard"
+                                                            'Type' = 'Standard'
                                                             'Size' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $Repo.GetContainer().CachedTotalSpace.InBytesAsUInt64
                                                         }
                                                     }
                                                     if ($ScaleRepo = Get-VBRBackupRepository -ScaleOut | Where-Object { $_.Id -eq $LinkedRepository }) {
                                                         $inObj = [ordered] @{
                                                             'Name' = $ScaleRepo.Name
-                                                            'Type' = "ScaleOut"
+                                                            'Type' = 'ScaleOut'
                                                             'Size' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size (($ScaleRepo.Extent).Repository).GetContainer().CachedTotalSpace.InBytesAsUInt64
                                                         }
                                                     }
@@ -193,7 +193,7 @@ function Get-AbrVbrBackupjobNutanixConf {
                                         $OutObj = @()
                                         try {
                                             try {
-                                                Write-PScriboMessage "Discovered $($Bkjob.Name) data transfer."
+
                                                 if ($Bkjob.IsWanAcceleratorEnabled()) {
                                                     try {
                                                         $TargetWanAccelerator = $Bkjob.GetTargetWanAccelerator().Name
@@ -239,11 +239,11 @@ function Get-AbrVbrBackupjobNutanixConf {
                                     }
                                 }
                                 if ($Bkjob.GetAhvOijs()) {
-                                    Section -Style NOTOCHeading5 -ExcludeFromTOC "Virtual Machines" {
+                                    Section -Style NOTOCHeading5 -ExcludeFromTOC 'Virtual Machines' {
                                         $OutObj = @()
                                         try {
-                                            foreach ($OBJ in ($Bkjob.GetAhvOijs() | Where-Object { $_.Type -eq "Include" -or $_.Type -eq "Exclude" } )) {
-                                                Write-PScriboMessage "Discovered $($OBJ.Name) object to backup."
+                                            foreach ($OBJ in ($Bkjob.GetAhvOijs() | Where-Object { $_.Type -eq 'Include' -or $_.Type -eq 'Exclude' } )) {
+
                                                 $inObj = [ordered] @{
                                                     'Name' = $OBJ.Name
                                                     'Resource Type' = & {
@@ -274,24 +274,24 @@ function Get-AbrVbrBackupjobNutanixConf {
                                         }
                                     }
                                 }
-                                if ($Bkjob.TypeToString -eq "Nutanix") {
+                                if ($Bkjob.TypeToString -eq 'Nutanix') {
                                     $Storage = 'Target'
                                 } else { $Storage = 'Storage' }
                                 Section -Style NOTOCHeading5 -ExcludeFromTOC $Storage {
                                     $OutObj = @()
                                     try {
-                                        Write-PScriboMessage "Discovered $($Bkjob.Name) storage options."
-                                        if ($Bkjob.BackupStorageOptions.RetentionType -eq "Days") {
+
+                                        if ($Bkjob.BackupStorageOptions.RetentionType -eq 'Days') {
                                             $RetainString = 'Retain Days To Keep'
                                             $Retains = $Bkjob.BackupStorageOptions.RetainDaysToKeep
-                                        } elseif ($Bkjob.BackupStorageOptions.RetentionType -eq "Cycles") {
+                                        } elseif ($Bkjob.BackupStorageOptions.RetentionType -eq 'Cycles') {
                                             $RetainString = 'Retain Cycles'
                                             $Retains = $Bkjob.BackupStorageOptions.RetainCycles
                                         }
                                         $inObj = [ordered] @{
-                                            'Backup Proxy' = "Backup Appliance"
+                                            'Backup Proxy' = 'Backup Appliance'
                                             'Backup Repository' = switch ($Bkjob.info.TargetRepositoryId) {
-                                                '00000000-0000-0000-0000-000000000000' { "Snapshot Backup" }
+                                                '00000000-0000-0000-0000-000000000000' { 'Snapshot Backup' }
                                                 { $Null -eq (Get-VBRBackupRepository | Where-Object { $_.Id -eq $Bkjob.info.TargetRepositoryId }).Name } { (Get-VBRBackupRepository -ScaleOut | Where-Object { $_.Id -eq $Bkjob.info.TargetRepositoryId }).Name }
                                                 default { (Get-VBRBackupRepository | Where-Object { $_.Id -eq $Bkjob.info.TargetRepositoryId }).Name }
                                             }
@@ -302,7 +302,7 @@ function Get-AbrVbrBackupjobNutanixConf {
                                             'Integrity Checks' = $Bkjob.BackupStorageOptions.EnableIntegrityChecks
                                             'Storage Encryption' = $Bkjob.BackupStorageOptions.StorageEncryptionEnabled
                                             'Backup Mode' = switch ($Bkjob.Options.BackupTargetOptions.Algorithm) {
-                                                'Synthetic' { "Reverse Incremental" }
+                                                'Synthetic' { 'Reverse Incremental' }
                                                 'Increment' { 'Incremental' }
                                             }
                                             'Active Full Backup Schedule Kind' = $Bkjob.Options.BackupTargetOptions.FullBackupScheduleKind
@@ -343,10 +343,10 @@ function Get-AbrVbrBackupjobNutanixConf {
                                         }
                                         $OutObj | Table @TableParams
                                         if ($InfoLevel.Jobs.Nutanix -ge 2) {
-                                            Section -Style NOTOCHeading6 -ExcludeFromTOC "Advanced Settings (Maintenance)" {
+                                            Section -Style NOTOCHeading6 -ExcludeFromTOC 'Advanced Settings (Maintenance)' {
                                                 $OutObj = @()
                                                 try {
-                                                    Write-PScriboMessage "Discovered $($Bkjob.Name) maintenance options."
+
                                                     $inObj = [ordered] @{
                                                         'Storage-Level Corruption Guard (SLCG)' = $Bkjob.Options.GenerationPolicy.EnableRechek
                                                         'SLCG Schedule Type' = $Bkjob.Options.GenerationPolicy.RecheckScheduleKind
@@ -361,7 +361,7 @@ function Get-AbrVbrBackupjobNutanixConf {
                                                     $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                     if ($HealthCheck.Jobs.BestPractice) {
-                                                        $OutObj | Where-Object { $_.'Storage-Level Corruption Guard (SLCG)' -eq "No" } | Set-Style -Style Warning -Property 'Storage-Level Corruption Guard (SLCG)'
+                                                        $OutObj | Where-Object { $_.'Storage-Level Corruption Guard (SLCG)' -eq 'No' } | Set-Style -Style Warning -Property 'Storage-Level Corruption Guard (SLCG)'
                                                     }
 
                                                     $TableParams = @{
@@ -375,10 +375,10 @@ function Get-AbrVbrBackupjobNutanixConf {
                                                     $OutObj | Table @TableParams
                                                     if ($HealthCheck.Jobs.BestPractice) {
                                                         if ($OutObj | Where-Object { $_.'Storage-Level Corruption Guard (SLCG)' -eq 'No' }) {
-                                                            Paragraph "Health Check:" -Bold -Underline
+                                                            Paragraph 'Health Check:' -Bold -Underline
                                                             BlankLine
                                                             Paragraph {
-                                                                Text "Best Practice:" -Bold
+                                                                Text 'Best Practice:' -Bold
                                                                 Text "It is recommended to use storage-level corruption guard for any backup job with no active full backups scheduled. Synthetic full backups are still 'incremental forever' and may suffer from corruption over time. Storage-level corruption guard was introduced to provide a greater level of confidence in integrity of the backups."
                                                             }
                                                             BlankLine
@@ -390,10 +390,10 @@ function Get-AbrVbrBackupjobNutanixConf {
                                             }
                                         }
                                         if ($InfoLevel.Jobs.Nutanix -ge 2) {
-                                            Section -Style NOTOCHeading6 -ExcludeFromTOC "Advanced Settings (Storage)" {
+                                            Section -Style NOTOCHeading6 -ExcludeFromTOC 'Advanced Settings (Storage)' {
                                                 $OutObj = @()
                                                 try {
-                                                    Write-PScriboMessage "Discovered $($Bkjob.Name) storage options."
+
                                                     $inObj = [ordered] @{
                                                         'Inline Data Deduplication' = $Bkjob.Options.BackupStorageOptions.EnableDeduplication
                                                         'Exclude Swap Files Block' = $Bkjob.ViSourceOptions.ExcludeSwapFile
@@ -438,11 +438,11 @@ function Get-AbrVbrBackupjobNutanixConf {
                                                     $OutObj | Table @TableParams
                                                     if ($HealthCheck.Jobs.BestPractice) {
                                                         if ($OutObj | Where-Object { $_.'Enabled Backup File Encryption' -eq 'No' }) {
-                                                            Paragraph "Health Check:" -Bold -Underline
+                                                            Paragraph 'Health Check:' -Bold -Underline
                                                             BlankLine
                                                             Paragraph {
-                                                                Text "Best Practice:" -Bold
-                                                                Text "Backup and replica data is a high potential source of vulnerability. To secure data stored in backups and replicas, use Veeam Backup & Replication inbuilt encryption to protect data in backups"
+                                                                Text 'Best Practice:' -Bold
+                                                                Text 'Backup and replica data is a high potential source of vulnerability. To secure data stored in backups and replicas, use Veeam Backup & Replication inbuilt encryption to protect data in backups'
                                                             }
                                                             BlankLine
                                                         }
@@ -453,10 +453,10 @@ function Get-AbrVbrBackupjobNutanixConf {
                                             }
                                         }
                                         if ($InfoLevel.Jobs.Nutanix -ge 2 -and ($Bkjob.Options.NotificationOptions.SnmpNotification -or $Bkjob.Options.NotificationOptions.SendEmailNotification2AdditionalAddresses)) {
-                                            Section -Style NOTOCHeading6 -ExcludeFromTOC "Advanced Settings (Notification)" {
+                                            Section -Style NOTOCHeading6 -ExcludeFromTOC 'Advanced Settings (Notification)' {
                                                 $OutObj = @()
                                                 try {
-                                                    Write-PScriboMessage "Discovered $($Bkjob.Name) notification options."
+
                                                     $inObj = [ordered] @{
                                                         'Send Snmp Notification' = $Bkjob.Options.NotificationOptions.SnmpNotification
                                                         'Send Email Notification' = $Bkjob.Options.NotificationOptions.SendEmailNotification2AdditionalAddresses
@@ -489,10 +489,10 @@ function Get-AbrVbrBackupjobNutanixConf {
                                             }
                                         }
                                         if ($InfoLevel.Jobs.Nutanix -ge 2 -and ($Bkjob.Options.ViSourceOptions.VMToolsQuiesce -or $Bkjob.Options.ViSourceOptions.UseChangeTracking)) {
-                                            Section -Style NOTOCHeading6 -ExcludeFromTOC "Advanced Settings (Nutanix)" {
+                                            Section -Style NOTOCHeading6 -ExcludeFromTOC 'Advanced Settings (Nutanix)' {
                                                 $OutObj = @()
                                                 try {
-                                                    Write-PScriboMessage "Discovered $($Bkjob.Name) Nutanix options."
+
                                                     $inObj = [ordered] @{
                                                         'Enable Nutanix Tools Quiescence' = $Bkjob.Options.ViSourceOptions.VMToolsQuiesce
                                                         'Use Change Block Tracking' = $Bkjob.Options.ViSourceOptions.UseChangeTracking
@@ -516,10 +516,10 @@ function Get-AbrVbrBackupjobNutanixConf {
                                             }
                                         }
                                         if ($InfoLevel.Jobs.Nutanix -ge 2 -and $Bkjob.Options.SanIntegrationOptions.UseSanSnapshots) {
-                                            Section -Style NOTOCHeading6 -ExcludeFromTOC "Advanced Settings (Integration)" {
+                                            Section -Style NOTOCHeading6 -ExcludeFromTOC 'Advanced Settings (Integration)' {
                                                 $OutObj = @()
                                                 try {
-                                                    Write-PScriboMessage "Discovered $($Bkjob.Name) Integration options."
+
                                                     $inObj = [ordered] @{
                                                         'Enable Backup from Storage Snapshots' = $Bkjob.Options.SanIntegrationOptions.UseSanSnapshots
                                                         'Limit processed VM count per Storage Snapshot' = $Bkjob.Options.SanIntegrationOptions.MultipleStorageSnapshotEnabled
@@ -544,17 +544,17 @@ function Get-AbrVbrBackupjobNutanixConf {
                                             }
                                         }
                                         if ($InfoLevel.Jobs.Nutanix -ge 2 -and ($Bkjob.Options.JobScriptCommand.PreScriptEnabled -or $Bkjob.Options.JobScriptCommand.PostScriptEnabled)) {
-                                            Section -Style NOTOCHeading6 -ExcludeFromTOC "Advanced Settings (Script)" {
+                                            Section -Style NOTOCHeading6 -ExcludeFromTOC 'Advanced Settings (Script)' {
                                                 $OutObj = @()
                                                 try {
                                                     if ($Bkjob.Options.JobScriptCommand.Periodicity -eq 'Days') {
-                                                        $FrequencyValue = $Bkjob.Options.JobScriptCommand.Days -join ","
+                                                        $FrequencyValue = $Bkjob.Options.JobScriptCommand.Days -join ','
                                                         $FrequencyText = 'Run Script on the Selected Days'
                                                     } elseif ($Bkjob.Options.JobScriptCommand.Periodicity -eq 'Cycles') {
                                                         $FrequencyValue = $Bkjob.Options.JobScriptCommand.Frequency
                                                         $FrequencyText = 'Run Script Every Backup Session'
                                                     }
-                                                    Write-PScriboMessage "Discovered $($Bkjob.Name) script options."
+
                                                     $inObj = [ordered] @{
                                                         'Run the Following Script Before' = $Bkjob.Options.JobScriptCommand.PreScriptEnabled
                                                         'Run Script Before the Job' = $Bkjob.Options.JobScriptCommand.PreScriptCommandLine
@@ -581,10 +581,10 @@ function Get-AbrVbrBackupjobNutanixConf {
                                             }
                                         }
                                         if ($InfoLevel.Jobs.Nutanix -ge 2 -and ($Bkjob.Options.RpoOptions.Enabled -or $Bkjob.Options.RpoOptions.LogBackupRpoEnabled)) {
-                                            Section -Style NOTOCHeading6 -ExcludeFromTOC "Advanced Settings (RPO Monitor)" {
+                                            Section -Style NOTOCHeading6 -ExcludeFromTOC 'Advanced Settings (RPO Monitor)' {
                                                 $OutObj = @()
                                                 try {
-                                                    Write-PScriboMessage "Discovered $($Bkjob.Name) rpo monitor options."
+
                                                     $inObj = [ordered] @{
                                                         'RPO Monitor Enabled' = $Bkjob.Options.RpoOptions.Enabled
                                                         'If Backup is not Copied Within' = "$($Bkjob.Options.RpoOptions.Value) $($Bkjob.Options.RpoOptions.TimeUnit)"
@@ -613,11 +613,11 @@ function Get-AbrVbrBackupjobNutanixConf {
                                 }
                                 $SecondaryTargets = [Veeam.Backup.Core.CBackupJob]::GetSecondDestinationJobs($Bkjob.Id) | Where-Object { $_.JobType -ne 'SimpleBackupCopyWorker' }
                                 if ($SecondaryTargets) {
-                                    Section -Style NOTOCHeading5 -ExcludeFromTOC "Secondary Target" {
+                                    Section -Style NOTOCHeading5 -ExcludeFromTOC 'Secondary Target' {
                                         $OutObj = @()
                                         try {
                                             foreach ($SecondaryTarget in $SecondaryTargets) {
-                                                Write-PScriboMessage "Discovered $($Bkjob.Name) secondary target."
+
                                                 try {
                                                     $inObj = [ordered] @{
                                                         'Job Name' = $SecondaryTarget.Name
@@ -645,20 +645,20 @@ function Get-AbrVbrBackupjobNutanixConf {
                                     }
                                 }
                                 if ($Bkjob.VssOptions.Enabled) {
-                                    Section -Style NOTOCHeading5 -ExcludeFromTOC "Guest Processing" {
+                                    Section -Style NOTOCHeading5 -ExcludeFromTOC 'Guest Processing' {
                                         $OutObj = @()
                                         try {
-                                            $VSSObjs = Get-VBRJobObject -Job $Bkjob.Name | Where-Object { $_.Type -eq "Include" -or $_.Type -eq "VssChild" } | Sort-Object -Property Name
+                                            $VSSObjs = Get-VBRJobObject -Job $Bkjob.Name | Where-Object { $_.Type -eq 'Include' -or $_.Type -eq 'VssChild' } | Sort-Object -Property Name
                                             foreach ($VSSObj in $VSSObjs) {
-                                                Write-PScriboMessage "Discovered $($Bkjob.Name) guest processing."
+
                                                 $inObj = [ordered] @{
                                                     'Name' = $VSSObj.Name
                                                     'Enabled' = $VSSObj.VssOptions.Enabled
                                                     'Resource Type' = & {
-                                                        if (($Bkjob.GetAhvOijs() | Where-Object { $_.Name -eq $VSSObj.Name -and ($_.Type -eq "Include" -or $_.Type -eq "VssChild") }).TypeDisplayName) {
-                                                            ($Bkjob.GetAhvOijs() | Where-Object { $_.Name -eq $VSSObj.Name -and ($_.Type -eq "Include" -or $_.Type -eq "VssChild") }).TypeDisplayName
-                                                        } elseif (($Bkjob.GetAhvOijs() | Where-Object { $_.Name -eq $VSSObj.Name -and ($_.Type -eq "Include" -or $_.Type -eq "VssChild") }).Object) {
-                                                            ($Bkjob.GetAhvOijs() | Where-Object { $_.Name -eq $VSSObj.Name -and ($_.Type -eq "Include" -or $_.Type -eq "VssChild") }).Object.Type
+                                                        if (($Bkjob.GetAhvOijs() | Where-Object { $_.Name -eq $VSSObj.Name -and ($_.Type -eq 'Include' -or $_.Type -eq 'VssChild') }).TypeDisplayName) {
+                                                            ($Bkjob.GetAhvOijs() | Where-Object { $_.Name -eq $VSSObj.Name -and ($_.Type -eq 'Include' -or $_.Type -eq 'VssChild') }).TypeDisplayName
+                                                        } elseif (($Bkjob.GetAhvOijs() | Where-Object { $_.Name -eq $VSSObj.Name -and ($_.Type -eq 'Include' -or $_.Type -eq 'VssChild') }).Object) {
+                                                            ($Bkjob.GetAhvOijs() | Where-Object { $_.Name -eq $VSSObj.Name -and ($_.Type -eq 'Include' -or $_.Type -eq 'VssChild') }).Object.Type
                                                         }
                                                     }
                                                     'Ignore Errors' = $VSSObj.VssOptions.IgnoreErrors
@@ -760,28 +760,28 @@ function Get-AbrVbrBackupjobNutanixConf {
                                     }
                                 }
                                 if ($Bkjob.IsScheduleEnabled) {
-                                    Section -Style NOTOCHeading5 -ExcludeFromTOC "Schedule" {
+                                    Section -Style NOTOCHeading5 -ExcludeFromTOC 'Schedule' {
                                         $OutObj = @()
                                         try {
-                                            Write-PScriboMessage "Discovered $($Bkjob.Name) schedule options."
-                                            if ($Bkjob.ScheduleOptions.OptionsDaily.Enabled -eq "True") {
-                                                $ScheduleType = "Daily"
+
+                                            if ($Bkjob.ScheduleOptions.OptionsDaily.Enabled -eq 'True') {
+                                                $ScheduleType = 'Daily'
                                                 $Schedule = "Kind: $($Bkjob.ScheduleOptions.OptionsDaily.Kind),`r`nDays: $($Bkjob.ScheduleOptions.OptionsDaily.DaysSrv)"
-                                            } elseif ($Bkjob.ScheduleOptions.OptionsMonthly.Enabled -eq "True") {
-                                                $ScheduleType = "Monthly"
+                                            } elseif ($Bkjob.ScheduleOptions.OptionsMonthly.Enabled -eq 'True') {
+                                                $ScheduleType = 'Monthly'
                                                 $Schedule = "Day Of Month: $($Bkjob.ScheduleOptions.OptionsMonthly.DayOfMonth),`r`nDay Number In Month: $($Bkjob.ScheduleOptions.OptionsMonthly.DayNumberInMonth),`r`nDay Of Week: $($Bkjob.ScheduleOptions.OptionsMonthly.DayOfWeek)"
-                                            } elseif ($Bkjob.ScheduleOptions.OptionsPeriodically.Enabled -eq "True") {
+                                            } elseif ($Bkjob.ScheduleOptions.OptionsPeriodically.Enabled -eq 'True') {
                                                 $ScheduleType = $Bkjob.ScheduleOptions.OptionsPeriodically.Kind
                                                 $Schedule = "Full Period: $($Bkjob.ScheduleOptions.OptionsPeriodically.FullPeriod),`r`nHourly Offset: $($Bkjob.ScheduleOptions.OptionsPeriodically.HourlyOffset),`r`nUnit: $($Bkjob.ScheduleOptions.OptionsPeriodically.Unit)"
-                                            } elseif ($Bkjob.ScheduleOptions.OptionsContinuous.Enabled -eq "True") {
+                                            } elseif ($Bkjob.ScheduleOptions.OptionsContinuous.Enabled -eq 'True') {
                                                 $ScheduleType = 'Continuous'
-                                                $Schedule = "Schedule Time Period"
+                                                $Schedule = 'Schedule Time Period'
                                             }
                                             $inObj = [ordered] @{
                                                 'Retry Failed item' = $Bkjob.ScheduleOptions.RetryTimes
                                                 'Wait before each retry' = "$($Bkjob.ScheduleOptions.RetryTimeout)/min"
                                                 'Backup Window' = switch ($Bkjob.TypeToString) {
-                                                    "Nutanix" { $Bkjob.ScheduleOptions.OptionsContinuous.Enabled }
+                                                    'Nutanix' { $Bkjob.ScheduleOptions.OptionsContinuous.Enabled }
                                                     default { $Bkjob.ScheduleOptions.OptionsBackupWindow.IsEnabled }
                                                 }
                                                 'Shedule type' = $ScheduleType
@@ -802,7 +802,7 @@ function Get-AbrVbrBackupjobNutanixConf {
                                             $OutObj | Table @TableParams
                                             if ($Bkjob.ScheduleOptions.OptionsBackupWindow.IsEnabled -or $Bkjob.ScheduleOptions.OptionsContinuous.Enabled) {
                                                 try {
-                                                    Section -Style NOTOCHeading6 -ExcludeFromTOC "Backup Window Time Period" {
+                                                    Section -Style NOTOCHeading6 -ExcludeFromTOC 'Backup Window Time Period' {
                                                         Paragraph -ScriptBlock $Legend
 
                                                         $ScheduleTimePeriod = @()
@@ -810,7 +810,7 @@ function Get-AbrVbrBackupjobNutanixConf {
                                                         foreach ($Day in $Days) {
 
                                                             $Regex = [Regex]::new("(?<=<$Day>)(.*)(?=</$Day>)")
-                                                            if ($Bkjob.TypeToString -eq "Nutanix") {
+                                                            if ($Bkjob.TypeToString -eq 'Nutanix') {
                                                                 $BackupWindow = $Bkjob.ScheduleOptions.OptionsContinuous.Schedule
                                                             } else { $BackupWindow = $Bkjob.ScheduleOptions.OptionsBackupWindow.BackupWindow }
                                                             $Match = $Regex.Match($BackupWindow)
@@ -832,21 +832,21 @@ function Get-AbrVbrBackupjobNutanixConf {
                                                         }
                                                         if ($OutObj) {
                                                             $OutObj2 = Table -Hashtable $OutObj @TableParams
-                                                            $OutObj2.Rows | Where-Object { $_.Sun -eq "0" } | Set-Style -Style ON -Property "Sun"
-                                                            $OutObj2.Rows | Where-Object { $_.Mon -eq "0" } | Set-Style -Style ON -Property "Mon"
-                                                            $OutObj2.Rows | Where-Object { $_.Tue -eq "0" } | Set-Style -Style ON -Property "Tue"
-                                                            $OutObj2.Rows | Where-Object { $_.Wed -eq "0" } | Set-Style -Style ON -Property "Wed"
-                                                            $OutObj2.Rows | Where-Object { $_.Thu -eq "0" } | Set-Style -Style ON -Property "Thu"
-                                                            $OutObj2.Rows | Where-Object { $_.Fri -eq "0" } | Set-Style -Style ON -Property "Fri"
-                                                            $OutObj2.Rows | Where-Object { $_.Sat -eq "0" } | Set-Style -Style ON -Property "Sat"
+                                                            $OutObj2.Rows | Where-Object { $_.Sun -eq '0' } | Set-Style -Style ON -Property 'Sun'
+                                                            $OutObj2.Rows | Where-Object { $_.Mon -eq '0' } | Set-Style -Style ON -Property 'Mon'
+                                                            $OutObj2.Rows | Where-Object { $_.Tue -eq '0' } | Set-Style -Style ON -Property 'Tue'
+                                                            $OutObj2.Rows | Where-Object { $_.Wed -eq '0' } | Set-Style -Style ON -Property 'Wed'
+                                                            $OutObj2.Rows | Where-Object { $_.Thu -eq '0' } | Set-Style -Style ON -Property 'Thu'
+                                                            $OutObj2.Rows | Where-Object { $_.Fri -eq '0' } | Set-Style -Style ON -Property 'Fri'
+                                                            $OutObj2.Rows | Where-Object { $_.Sat -eq '0' } | Set-Style -Style ON -Property 'Sat'
 
-                                                            $OutObj2.Rows | Where-Object { $_.Sun -eq "1" } | Set-Style -Style OFF -Property "Sun"
-                                                            $OutObj2.Rows | Where-Object { $_.Mon -eq "1" } | Set-Style -Style OFF -Property "Mon"
-                                                            $OutObj2.Rows | Where-Object { $_.Tue -eq "1" } | Set-Style -Style OFF -Property "Tue"
-                                                            $OutObj2.Rows | Where-Object { $_.Wed -eq "1" } | Set-Style -Style OFF -Property "Wed"
-                                                            $OutObj2.Rows | Where-Object { $_.Thu -eq "1" } | Set-Style -Style OFF -Property "Thu"
-                                                            $OutObj2.Rows | Where-Object { $_.Fri -eq "1" } | Set-Style -Style OFF -Property "Fri"
-                                                            $OutObj2.Rows | Where-Object { $_.Sat -eq "1" } | Set-Style -Style OFF -Property "Sat"
+                                                            $OutObj2.Rows | Where-Object { $_.Sun -eq '1' } | Set-Style -Style OFF -Property 'Sun'
+                                                            $OutObj2.Rows | Where-Object { $_.Mon -eq '1' } | Set-Style -Style OFF -Property 'Mon'
+                                                            $OutObj2.Rows | Where-Object { $_.Tue -eq '1' } | Set-Style -Style OFF -Property 'Tue'
+                                                            $OutObj2.Rows | Where-Object { $_.Wed -eq '1' } | Set-Style -Style OFF -Property 'Wed'
+                                                            $OutObj2.Rows | Where-Object { $_.Thu -eq '1' } | Set-Style -Style OFF -Property 'Thu'
+                                                            $OutObj2.Rows | Where-Object { $_.Fri -eq '1' } | Set-Style -Style OFF -Property 'Fri'
+                                                            $OutObj2.Rows | Where-Object { $_.Sat -eq '1' } | Set-Style -Style OFF -Property 'Sat'
                                                             $OutObj2
                                                         }
                                                     }
@@ -871,7 +871,7 @@ function Get-AbrVbrBackupjobNutanixConf {
         }
     }
     end {
-        Show-AbrDebugExecutionTime -End -TitleMessage "Nutanix Backup Jobs"
+        Show-AbrDebugExecutionTime -End -TitleMessage 'Nutanix Backup Jobs'
     }
 
 }

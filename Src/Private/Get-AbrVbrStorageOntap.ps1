@@ -6,7 +6,7 @@ function Get-AbrVbrStorageOntap {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.20
+        Version:        0.8.24
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -28,14 +28,14 @@ function Get-AbrVbrStorageOntap {
     process {
         if ($OntapHosts = Get-NetAppHost) {
             Section -Style Heading3 'NetApp Ontap Storage' {
-                Paragraph "The following section details information about NetApp storage infrastructure."
+                Paragraph 'The following section details information about NetApp storage infrastructure.'
                 BlankLine
                 $OutObj = @()
                 try {
                     foreach ($OntapHost in $OntapHosts) {
                         Section -Style Heading4 $($OntapHost.Name) {
                             try {
-                                Write-PScriboMessage "Discovered $($OntapHost.Name) NetApp Host."
+
                                 $UsedCred = Get-VBRCredentials | Where-Object { $_.Id -eq $OntapHost.Info.CredsId }
                                 $OntapOptions = [xml]$OntapHost.info.Options
                                 $inObj = [ordered] @{
@@ -46,10 +46,10 @@ function Get-AbrVbrStorageOntap {
                                     'Description' = $OntapHost.Description
                                     'Storage Type' = $OntapHost.NaOptions.HostType
                                     'Used Credential' = switch (($UsedCred).count) {
-                                        0 { "--" }
+                                        0 { '--' }
                                         default { "$($UsedCred.Name) - ($($UsedCred.Description))" }
                                     }
-                                    'Connection Address' = $OntapHost.ConnPoints -join ", "
+                                    'Connection Address' = $OntapHost.ConnPoints -join ', '
                                     'Connection Port' = "$($OntapOptions.NaHostOptions.NaHostOptions.NaHostConnectionOptions.Port)\TCP"
                                     'Installed Licenses' = $OntapHost.NaOptions.License
                                 }
@@ -74,11 +74,11 @@ function Get-AbrVbrStorageOntap {
                                                 $OutObj = @()
                                                 foreach ($OntapVol in $OntapVols) {
                                                     try {
-                                                        Write-PScriboMessage "Discovered $($OntapVol.Name) NetApp Volume."
+
                                                         $inObj = [ordered] @{
                                                             'Name' = $OntapVol.Name
-                                                            'Total Space' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size  $OntapVol.Size
-                                                            'Used Space' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size  $OntapVol.ConsumedSpace
+                                                            'Total Space' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $OntapVol.Size
+                                                            'Used Space' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $OntapVol.ConsumedSpace
                                                             'Thin Provision' = $OntapVol.IsThinProvision
                                                         }
 

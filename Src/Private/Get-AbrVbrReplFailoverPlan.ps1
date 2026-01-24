@@ -6,7 +6,7 @@ function Get-AbrVbrReplFailoverPlan {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.13
+        Version:        0.8.24
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -50,8 +50,8 @@ function Get-AbrVbrReplFailoverPlan {
                             }
 
                             if ($HealthCheck.Replication.BestPractice) {
-                                $OutObj | Where-Object { $_.'Description' -eq "--" } | Set-Style -Style Warning -Property 'Description'
-                                $OutObj | Where-Object { $_.'Description' -match "Created by" } | Set-Style -Style Warning -Property 'Description'
+                                $OutObj | Where-Object { $_.'Description' -eq '--' } | Set-Style -Style Warning -Property 'Description'
+                                $OutObj | Where-Object { $_.'Description' -match 'Created by' } | Set-Style -Style Warning -Property 'Description'
                             }
 
                             $TableParams = @{
@@ -65,11 +65,11 @@ function Get-AbrVbrReplFailoverPlan {
                             $OutObj | Table @TableParams
                             if ($HealthCheck.Replication.BestPractice) {
                                 if ($OutObj | Where-Object { $_.'Description' -match 'Created by' -or $_.'Description' -eq '--' }) {
-                                    Paragraph "Health Check:" -Bold -Underline
+                                    Paragraph 'Health Check:' -Bold -Underline
                                     BlankLine
                                     Paragraph {
-                                        Text "Best Practice:" -Bold
-                                        Text "It is a general rule of good practice to establish well-defined descriptions. This helps to speed up the fault identification process, as well as enabling better documentation of the environment."
+                                        Text 'Best Practice:' -Bold
+                                        Text 'It is a general rule of good practice to establish well-defined descriptions. This helps to speed up the fault identification process, as well as enabling better documentation of the environment.'
                                     }
                                     BlankLine
                                 }
@@ -83,13 +83,27 @@ function Get-AbrVbrReplFailoverPlan {
                                                 try {
                                                     if ($FailOverPlan.Platform -eq 'VMWare') {
                                                         Write-PScriboMessage "Discovering $($FailOverPlan.Name) VMware VM information."
-                                                        $VMInfo = Invoke-FindVBRViEntityWithTimeout -TimeoutSeconds 20 -Name $FailOverPlansVM
+                                                        $VMInfo = switch ($PSVersionTable.PSEdition) {
+                                                            'Core' {
+                                                                switch ($PSVersionTable.Platform) {
+                                                                    'Unix' {
+                                                                        Find-VBRHvEntity -Name $FailOverPlansVM
+                                                                    }
+                                                                    'Win32NT' {
+                                                                        Invoke-FindVBRViEntityWithTimeout -TimeoutSeconds 120 -Name $FailOverPlansVM
+                                                                    }
+                                                                }
+                                                            }
+                                                            'Desktop' {
+                                                                Invoke-FindVBRViEntityWithTimeout -TimeoutSeconds 120 -Name $FailOverPlansVM
+                                                            }
+                                                        }
                                                     } else {
                                                         Write-PScriboMessage "Discovering $($FailOverPlan.Name) Hyper-V VM information."
                                                         $VMInfo = Find-VBRHvEntity -Name $FailOverPlansVM
                                                     }
                                                     if ($VMInfo) {
-                                                        Write-PScriboMessage "Discovered $($VMInfo.Name) VM information."
+
                                                     }
                                                     $inObj = [ordered] @{
                                                         'VM Name' = switch ($VMInfo.Name) {

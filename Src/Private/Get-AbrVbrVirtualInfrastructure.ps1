@@ -6,7 +6,7 @@ function Get-AbrVbrVirtualInfrastructure {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.13
+        Version:        0.8.24
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -45,11 +45,11 @@ function Get-AbrVbrVirtualInfrastructure {
                                         $OutObj = @()
                                         foreach ($InventObj in $InventObjs) {
                                             try {
-                                                Write-PScriboMessage "Discovered $($InventObj.Name) vCenter Server."
+
                                                 $inObj = [ordered] @{
                                                     'Name' = $InventObj.Name
                                                     'Version' = ($InventObj).Info.Info
-                                                    'Child Host' = $InventObj.GetChilds().Name -join ", "
+                                                    'Child Host' = $InventObj.GetChilds().Name -join ', '
                                                 }
 
                                                 $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
@@ -80,7 +80,7 @@ function Get-AbrVbrVirtualInfrastructure {
                                             $OutObj = @()
                                             foreach ($InventObj in $InventObjs) {
                                                 try {
-                                                    Write-PScriboMessage "Discovered $($InventObj.Name) ESXi Host."
+
                                                     $inObj = [ordered] @{
                                                         'Name' = $InventObj.Name
                                                         'Version' = ($InventObj).Info.Info
@@ -125,11 +125,11 @@ function Get-AbrVbrVirtualInfrastructure {
                                         $OutObj = @()
                                         foreach ($InventObj in $InventObjs) {
                                             try {
-                                                Write-PScriboMessage "Discovered $($InventObj.Name) Hyper-V Cluster."
+
                                                 $inObj = [ordered] @{
                                                     'Name' = $InventObj.Name
                                                     'Credentials' = ($InventObj).ProxyServicesCreds.Name
-                                                    'Child Host' = $InventObj.GetChilds().Name -join ", "
+                                                    'Child Host' = $InventObj.GetChilds().Name -join ', '
                                                 }
 
                                                 $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
@@ -147,7 +147,7 @@ function Get-AbrVbrVirtualInfrastructure {
                                         if ($Report.ShowTableCaptions) {
                                             $TableParams['Caption'] = "- $($TableParams.Name)"
                                         }
-                                        $OutObj | Sort-Object -Property 'Name' |  Table @TableParams
+                                        $OutObj | Sort-Object -Property 'Name' | Table @TableParams
                                     }
                                 }
                                 #---------------------------------------------------------------------------------------------#
@@ -160,7 +160,7 @@ function Get-AbrVbrVirtualInfrastructure {
                                             $OutObj = @()
                                             foreach ($InventObj in $InventObjs) {
                                                 try {
-                                                    Write-PScriboMessage "Discovered $($InventObj.Name) Hyper-V Host."
+
                                                     $inObj = [ordered] @{
                                                         'Name' = $InventObj.Name
                                                         'Version' = ($InventObj).Info.Info

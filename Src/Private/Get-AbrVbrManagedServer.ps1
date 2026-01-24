@@ -6,7 +6,7 @@ function Get-AbrVbrManagedServer {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.20
+        Version:        0.8.24
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -32,7 +32,7 @@ function Get-AbrVbrManagedServer {
                     $OutObj = @()
                     foreach ($ManagedServer in $ManagedServers) {
                         try {
-                            Write-PScriboMessage "Discovered $($ManagedServer.Name) managed server."
+
                             $inObj = [ordered] @{
                                 'Name' = $ManagedServer.Name
                                 'Description' = $ManagedServer.Info.TypeDescription

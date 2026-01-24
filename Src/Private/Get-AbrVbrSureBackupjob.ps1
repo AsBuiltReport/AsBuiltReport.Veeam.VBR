@@ -6,7 +6,7 @@ function Get-AbrVbrSureBackupjob {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.20
+        Version:        0.8.24
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -29,12 +29,12 @@ function Get-AbrVbrSureBackupjob {
         try {
             if ($SBkjobs = Get-VBRSureBackupJob | Sort-Object -Property 'Job Name') {
                 Section -Style Heading3 'SureBackup Jobs' {
-                    Paragraph "The following section list surebackup jobs created in Veeam Backup & Replication."
+                    Paragraph 'The following section list surebackup jobs created in Veeam Backup & Replication.'
                     BlankLine
                     $OutObj = @()
                     foreach ($SBkjob in $SBkjobs) {
                         try {
-                            Write-PScriboMessage "Discovered $($SBkjob.Name) location."
+
                             $inObj = [ordered] @{
                                 'Name' = $SBkjob.Name
                                 'Status' = switch ($SBkjob.IsEnabled) {
@@ -47,9 +47,9 @@ function Get-AbrVbrSureBackupjob {
                                 }
                                 'Latest Result' = $SBkjob.LastResult
                                 'Virtual Lab' = switch ($SBkjob.VirtualLab.Name) {
-                                    $true { "Not applicable" }
+                                    $true { 'Not applicable' }
                                     $false { $SBkjob.VirtualLab.Name }
-                                    default { "--" }
+                                    default { '--' }
                                 }
                             }
                             $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)

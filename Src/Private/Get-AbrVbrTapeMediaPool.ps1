@@ -6,7 +6,7 @@ function Get-AbrVbrTapeMediaPool {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.20
+        Version:        0.8.24
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -36,20 +36,20 @@ function Get-AbrVbrTapeMediaPool {
                     try {
                         foreach ($PoolObj in $PoolObjs) {
                             try {
-                                if ($PoolObj.Type -ne "Custom") {
+                                if ($PoolObj.Type -ne 'Custom') {
                                     $Capacity = ((Get-VBRTapeMedium -MediaPool $PoolObj.Name).Capacity | Measure-Object -Sum).Sum
                                     $FreeSpace = ((Get-VBRTapeMedium -MediaPool $PoolObj.Name).Free | Measure-Object -Sum).Sum
                                 } else {
                                     $Capacity = $PoolObj.Capacity
                                     $FreeSpace = $PoolObj.FreeSpace
                                 }
-                                Write-PScriboMessage "Discovered $($PoolObj.Name) Media Pool."
+
                                 $inObj = [ordered] @{
                                     'Name' = $PoolObj.Name
                                     'Type' = $PoolObj.Type
                                     'Tape Count' = ((Get-VBRTapeMediaPool -Id $PoolObj.Id).Medium).count
-                                    'Total Space' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size  $Capacity
-                                    'Free Space' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size  $FreeSpace
+                                    'Total Space' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $Capacity
+                                    'Free Space' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $FreeSpace
                                     'Tape Library' = ($PoolObj.GlobalOptions.LibraryId | ForEach-Object { Get-VBRTapeLibrary -Id $_ }).Name
                                 }
 
@@ -78,7 +78,7 @@ function Get-AbrVbrTapeMediaPool {
                 #---------------------------------------------------------------------------------------------#
                 Write-PScriboMessage "Tape MediaPool Configuration InfoLevel set at $($InfoLevel.Tape.MediaPool)."
                 if ($InfoLevel.Tape.MediaPool -ge 2) {
-                    Write-PScriboMessage "Discovering Per Tape Media Pools Configuration."
+                    Write-PScriboMessage 'Discovering Per Tape Media Pools Configuration.'
                     if ($PoolObjs) {
                         Section -Style Heading3 'Tape Media Pools Configuration' {
                             foreach ($PoolObj in ($PoolObjs | Where-Object { $_.Type -eq 'Gfs' -or $_.Type -eq 'Custom' } | Sort-Object -Property 'Name')) {
@@ -94,7 +94,7 @@ function Get-AbrVbrTapeMediaPool {
                                             foreach ($TapeLibrary in $PoolObj.GlobalOptions.LibraryId) {
                                                 try {
                                                     if ($TapeLibraryObj = Get-VBRTapeLibrary -Id $TapeLibrary.Guid) {
-                                                        if ($PoolObj.Type -ne "Custom") {
+                                                        if ($PoolObj.Type -ne 'Custom') {
                                                             $Capacity = ((Get-VBRTapeMedium -MediaPool $PoolObj.Id | Where-Object { $_.LibraryId -eq $TapeLibrary.Guid }).Capacity | Measure-Object -Sum).Sum
                                                             $FreeSpace = ((Get-VBRTapeMedium -MediaPool $PoolObj.Id | Where-Object { $_.LibraryId -eq $TapeLibrary.Guid }).Free | Measure-Object -Sum).Sum
                                                         } else {
@@ -105,7 +105,7 @@ function Get-AbrVbrTapeMediaPool {
                                                         foreach ($Drive in $TapeLibraryObj.Drives) {
                                                             $TapeDrives += "Drive $($Drive.Address + 1)"
                                                         }
-                                                        Write-PScriboMessage "Discovered $($TapeLibraryObj.Name) Tape Library Configuration."
+
                                                         $inObj = [ordered] @{
                                                             'Library Name' = $TapeLibraryObj.Name
                                                             'Library Id' = $TapeLibraryObj.Id
@@ -115,13 +115,13 @@ function Get-AbrVbrTapeMediaPool {
                                                             'Drives' = $TapeDrives -join ', '
                                                             'Slots' = $TapeLibraryObj.Slots
                                                             'Tape Count' = ((Get-VBRTapeMediaPool -Id $PoolObj.Id).Medium).count
-                                                            'Total Space' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size  $Capacity
-                                                            'Free Space' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size  $FreeSpace
+                                                            'Total Space' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $Capacity
+                                                            'Free Space' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $FreeSpace
                                                             'Add Tape from Free Media Pool Automatically when more Tape are Required' = $PoolObj.MoveFromFreePool
                                                             'Description' = switch ([string]::IsNullOrEmpty($TapeLibraryObj.Description)) {
-                                                                $true { "--" }
+                                                                $true { '--' }
                                                                 $false { $TapeLibraryObj.Description }
-                                                                default { "Unknown" }
+                                                                default { 'Unknown' }
                                                             }
                                                             'Library Mode' = switch ($PoolObj.GlobalOptions.Mode) {
                                                                 'CrossLibraryParalleing' { 'Active (Used Always)' }
@@ -144,8 +144,8 @@ function Get-AbrVbrTapeMediaPool {
                                                         $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                         if ($HealthCheck.Tape.BestPractice) {
-                                                            $OutObj | Where-Object { $_.'Description' -eq "--" } | Set-Style -Style Warning -Property 'Description'
-                                                            $OutObj | Where-Object { $_.'Description' -match "Created by" } | Set-Style -Style Warning -Property 'Description'
+                                                            $OutObj | Where-Object { $_.'Description' -eq '--' } | Set-Style -Style Warning -Property 'Description'
+                                                            $OutObj | Where-Object { $_.'Description' -match 'Created by' } | Set-Style -Style Warning -Property 'Description'
                                                         }
 
                                                         $TableParams = @{
@@ -160,11 +160,11 @@ function Get-AbrVbrTapeMediaPool {
                                                         $OutObj | Sort-Object -Property 'Name' | Table @TableParams
                                                         if ($HealthCheck.Tape.BestPractice) {
                                                             if ($OutObj | Where-Object { $_.'Description' -match 'Created by' -or $_.'Description' -eq '--' }) {
-                                                                Paragraph "Health Check:" -Bold -Underline
+                                                                Paragraph 'Health Check:' -Bold -Underline
                                                                 BlankLine
                                                                 Paragraph {
-                                                                    Text "Best Practice:" -Bold
-                                                                    Text "It is a general rule of good practice to establish well-defined descriptions. This helps to speed up the fault identification process, as well as enabling better documentation of the environment."
+                                                                    Text 'Best Practice:' -Bold
+                                                                    Text 'It is a general rule of good practice to establish well-defined descriptions. This helps to speed up the fault identification process, as well as enabling better documentation of the environment.'
                                                                 }
                                                                 BlankLine
                                                             }
@@ -179,12 +179,12 @@ function Get-AbrVbrTapeMediaPool {
                                                                     if ($TapeMediums) {
                                                                         foreach ($TapeMedium in $TapeMediums) {
                                                                             try {
-                                                                                Write-PScriboMessage "Discovered $($TapeMedium.Name) Medium."
+
                                                                                 $inObj = [ordered] @{
                                                                                     'Name' = $TapeMedium.Name
                                                                                     'Is Worm?' = $TapeMedium.IsWorm
-                                                                                    'Total Space' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size  $TapeMedium.Capacity
-                                                                                    'Free Space' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size  $TapeMedium.Free
+                                                                                    'Total Space' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $TapeMedium.Capacity
+                                                                                    'Free Space' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $TapeMedium.Free
                                                                                     'Tape Library' = switch ($TapeMedium.LibraryId) {
                                                                                         $Null { '--' }
                                                                                         '00000000-0000-0000-0000-000000000000' { 'Unknown' }

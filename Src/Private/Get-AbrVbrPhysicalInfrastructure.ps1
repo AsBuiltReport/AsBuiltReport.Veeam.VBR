@@ -6,7 +6,7 @@ function Get-AbrVbrPhysicalInfrastructure {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.20
+        Version:        0.8.24
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -27,16 +27,16 @@ function Get-AbrVbrPhysicalInfrastructure {
 
     process {
         try {
-            if (($VbrLicenses | Where-Object { $_.Status -ne "Expired" }) -and $InventObjs) {
+            if (($VbrLicenses | Where-Object { $_.Status -ne 'Expired' }) -and $InventObjs) {
                 Section -Style Heading3 'Physical Infrastructure' {
-                    Paragraph "The following sections detail configuration information about managed physical infrastructure."
+                    Paragraph 'The following sections detail configuration information about managed physical infrastructure.'
                     BlankLine
                     try {
                         Section -Style Heading4 'Protection Groups Summary' {
                             $OutObj = @()
                             foreach ($InventObj in $InventObjs) {
                                 try {
-                                    Write-PScriboMessage "Discovered $($InventObj.Name) Protection Group."
+
                                     $inObj = [ordered] @{
                                         'Name' = $InventObj.Name
                                         'Type' = $InventObj.Type
@@ -67,20 +67,20 @@ function Get-AbrVbrPhysicalInfrastructure {
                             if ($InfoLevel.Inventory.PHY -ge 2) {
                                 try {
                                     $OutObj = @()
-                                    Section -Style Heading5 "Protection Group Configuration" {
+                                    Section -Style Heading5 'Protection Group Configuration' {
                                         foreach ($InventObj in $InventObjs) {
                                             try {
                                                 if ($InventObj.Type -eq 'Custom' -and $InventObj.Container.Type -eq 'ActiveDirectory') {
                                                     try {
                                                         Section -Style NOTOCHeading6 -ExcludeFromTOC "$($InventObj.Name)" {
-                                                            Write-PScriboMessage "Discovered $($InventObj.Name) Protection Group Setting."
+
                                                             $inObj = [ordered] @{
                                                                 'Domain' = ($InventObj).Container.Domain
                                                                 'Backup Objects' = $InventObj.Container.Entity | ForEach-Object { "Name: $(($_).Name)`r`nType: $(($_).Type)`r`nDistinguished Name: $(($_).DistinguishedName)`r`n" }
                                                                 'Exclude VM' = ($InventObj).Container.ExcludeVMs
                                                                 'Exclude Computers' = ($InventObj).Container.ExcludeComputers
                                                                 'Exclude Offline Computers' = ($InventObj).Container.ExcludeOfflineComputers
-                                                                'Excluded Entity' = ($InventObj).Container.ExcludedEntity -join ", "
+                                                                'Excluded Entity' = ($InventObj).Container.ExcludedEntity -join ', '
                                                                 'Master Credentials' = ($InventObj).Container.MasterCredentials
                                                                 'Deployment Options' = "Install Agent: $($InventObj.DeploymentOptions.InstallAgent)`r`nUpgrade Automatically: $($InventObj.DeploymentOptions.UpgradeAutomatically)`r`nInstall Driver: $($InventObj.DeploymentOptions.InstallDriver)`r`nReboot If Required: $($InventObj.DeploymentOptions.RebootIfRequired)"
                                                             }
@@ -107,7 +107,7 @@ function Get-AbrVbrPhysicalInfrastructure {
                                                 } elseif ($InventObj.Type -eq 'ManuallyAdded' -and $InventObj.Container.Type -eq 'IndividualComputers') {
                                                     try {
                                                         Section -Style NOTOCHeading6 -ExcludeFromTOC "$($InventObj.Name)" {
-                                                            Write-PScriboMessage "Discovered $($InventObj.Name) Protection Group Setting."
+
                                                             $inObj = [ordered] @{
                                                                 'Deployment Options' = "Install Agent: $($InventObj.DeploymentOptions.InstallAgent)`r`nUpgrade Automatically: $($InventObj.DeploymentOptions.UpgradeAutomatically)`r`nInstall Driver: $($InventObj.DeploymentOptions.InstallDriver)`r`nReboot If Required: $($InventObj.DeploymentOptions.RebootIfRequired)"
                                                             }

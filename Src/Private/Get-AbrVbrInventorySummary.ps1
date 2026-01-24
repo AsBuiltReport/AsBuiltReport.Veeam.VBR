@@ -41,10 +41,10 @@ function Get-AbrVbrInventorySummary {
                 if ($VbrVersion -lt 12.1) {
                     $Shares = Get-VBRNASServer -WarningAction SilentlyContinue
                 } else {
-                    $FileServers = Get-VBRUnstructuredServer | Where-Object { $_.Type -eq "FileServer" }
-                    $NASFillers = Get-VBRUnstructuredServer | Where-Object { $_.Type -eq "SANSMB" }
-                    $FileShares = Get-VBRUnstructuredServer | Where-Object { $_.Type -eq "SMB" -or $_.Type -eq "NFS" }
-                    $ObjectStorage = Get-VBRUnstructuredServer | Where-Object { $_.Type -eq "AzureBlobServer" -or $_.Type -eq "AmazonS3Server" -or $_.Type -eq "S3CompatibleServer" }
+                    $FileServers = Get-VBRUnstructuredServer | Where-Object { $_.Type -eq 'FileServer' }
+                    $NASFillers = Get-VBRUnstructuredServer | Where-Object { $_.Type -eq 'SANSMB' }
+                    $FileShares = Get-VBRUnstructuredServer | Where-Object { $_.Type -eq 'SMB' -or $_.Type -eq 'NFS' }
+                    $ObjectStorage = Get-VBRUnstructuredServer | Where-Object { $_.Type -eq 'AzureBlobServer' -or $_.Type -eq 'AmazonS3Server' -or $_.Type -eq 'S3CompatibleServer' }
                 }
                 $inObj = [ordered] @{
                     'vCenter Servers' = ($vCenter | Measure-Object).Count

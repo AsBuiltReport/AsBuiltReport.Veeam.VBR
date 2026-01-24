@@ -22,13 +22,13 @@ function Get-AbrVbrBackupjob {
 
     begin {
         Write-PScriboMessage "Discovering Veeam VBR Backup jobs information from $System."
-        Show-AbrDebugExecutionTime -Start -TitleMessage "Backup Jobs"
+        Show-AbrDebugExecutionTime -Start -TitleMessage 'Backup Jobs'
     }
 
     process {
         try {
             if ($Bkjobs = Get-VBRJob -WarningAction SilentlyContinue | Where-Object { $_.TypeToString -ne 'Windows Agent Backup' -and $_.TypeToString -ne 'Hyper-V Replication' -and $_.TypeToString -ne 'VMware Replication' } | Sort-Object -Property Name) {
-                $Bkjobs += [Veeam.Backup.Core.CBackupJob]::GetAll() | Where-Object { $_.TypeToString -like "*Nutanix*" } | Sort-Object -Property 'Name'
+                $Bkjobs += [Veeam.Backup.Core.CBackupJob]::GetAll() | Where-Object { $_.TypeToString -like '*Nutanix*' } | Sort-Object -Property 'Name'
                 $OutObj = @()
                 foreach ($Bkjob in $Bkjobs) {
                     try {
@@ -81,10 +81,10 @@ function Get-AbrVbrBackupjob {
                     }
 
                     $sampleData = [ordered]@{
-                        'Success' = ($Alljobs | Where-Object { $_ -eq "Success" } | Measure-Object).Count
-                        'Warning' = ($Alljobs | Where-Object { $_ -eq "Warning" } | Measure-Object).Count
-                        'Failed' = ($Alljobs | Where-Object { $_ -eq "Failed" } | Measure-Object).Count
-                        'None' = ($Alljobs | Where-Object { $_ -eq "None" } | Measure-Object).Count
+                        'Success' = ($Alljobs | Where-Object { $_ -eq 'Success' } | Measure-Object).Count
+                        'Warning' = ($Alljobs | Where-Object { $_ -eq 'Warning' } | Measure-Object).Count
+                        'Failed' = ($Alljobs | Where-Object { $_ -eq 'Failed' } | Measure-Object).Count
+                        'None' = ($Alljobs | Where-Object { $_ -eq 'None' } | Measure-Object).Count
                     }
 
                     $sampleDataObj = $sampleData.GetEnumerator() | Select-Object @{ Name = 'Category'; Expression = { $_.key } }, @{ Name = 'Value'; Expression = { $_.value } }
@@ -99,7 +99,7 @@ function Get-AbrVbrBackupjob {
                         Image -Text 'Backup Repository - Chart' -Align 'Center' -Percent 100 -Base64 $chartFileItem
                     }
                     Section -Style Heading3 'Backup Jobs' {
-                        Paragraph "The following section list backup jobs created in Veeam Backup & Replication."
+                        Paragraph 'The following section list backup jobs created in Veeam Backup & Replication.'
                         BlankLine
                         Section -ExcludeFromTOC -Style NOTOCHeading4 'Backup Job Status' {
                             $OutObj | Sort-Object -Property Name | Table @TableParams
@@ -173,7 +173,7 @@ function Get-AbrVbrBackupjob {
         }
     }
     end {
-        Show-AbrDebugExecutionTime -End -TitleMessage "Backup Jobs"
+        Show-AbrDebugExecutionTime -End -TitleMessage 'Backup Jobs'
     }
 
 }

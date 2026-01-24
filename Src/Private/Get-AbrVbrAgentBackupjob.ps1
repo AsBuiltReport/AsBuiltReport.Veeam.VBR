@@ -1,4 +1,3 @@
-
 function Get-AbrVbrAgentBackupjob {
     <#
     .SYNOPSIS
@@ -6,7 +5,7 @@ function Get-AbrVbrAgentBackupjob {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.20
+        Version:        0.8.24
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -22,19 +21,18 @@ function Get-AbrVbrAgentBackupjob {
 
     begin {
         Write-PScriboMessage "Discovering Veeam VBR Agent Backup jobs information from $System."
-        Show-AbrDebugExecutionTime -Start -TitleMessage "Agent Backup Jobs"
+        Show-AbrDebugExecutionTime -Start -TitleMessage 'Agent Backup Jobs'
     }
 
     process {
         try {
             if ($ABkjobs = Get-VBRComputerBackupJob) {
                 Section -Style Heading3 'Agent Backup Jobs' {
-                    Paragraph "The following section list agent backup jobs created in Veeam Backup & Replication."
+                    Paragraph 'The following section list agent backup jobs created in Veeam Backup & Replication.'
                     BlankLine
                     $OutObj = @()
                     foreach ($ABkjob in $ABkjobs) {
                         try {
-                            Write-PScriboMessage "Discovered $($ABkjob.Name) location."
                             $inObj = [ordered] @{
                                 'Name' = $ABkjob.Name
                                 'Type' = $ABkjob.Type
@@ -63,7 +61,7 @@ function Get-AbrVbrAgentBackupjob {
         }
     }
     end {
-        Show-AbrDebugExecutionTime -End -TitleMessage "Agent Backup Jobs"
+        Show-AbrDebugExecutionTime -End -TitleMessage 'Agent Backup Jobs'
     }
 
 }
