@@ -519,8 +519,8 @@ function New-VeeamDiagram {
         $script:NewIcons = $false
 
         $RootPath = Split-Path (Split-Path $PSScriptRoot -Parent) -Parent
-        $IconPath = Join-Path $RootPath 'icons'
-        $ImagePath = Join-Path $RootPath 'src\private\Images.ps1'
+        $IconPath = Join-Path "$RootPath\Tools" 'icons'
+        # $ImagePath = Join-Path $RootPath 'Private\Diagram\Images.ps1'
 
         # . $ImagePath
 
