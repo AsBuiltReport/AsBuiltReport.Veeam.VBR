@@ -65,10 +65,6 @@
             ModuleName = 'Diagrammer.Core';
             ModuleVersion = '0.2.36.1'
         }
-        @{
-            ModuleName = 'Veeam.Diagrammer';
-            ModuleVersion = '0.6.37'
-        }
     )
 
     # Assemblies that must be loaded prior to importing this module

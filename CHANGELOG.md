@@ -29,10 +29,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Refactor Veeam Backup & Replication scripts to improve server information retrieval
 - Update TODO list with new tasks for security and compliance improvements
 - Implement pwsh best practices
+- Migrate Veeam.Diagrammer diagrams to the main report
 
 ### :fontawesome-solid-trash: Remove
 
-- Removed noisy logging messages during report execution
+- Remove noisy logging messages during report execution
+- Remove Veeam.Diagrammer dependency (Project no longer Maintained)
 
 ### :bug: Fixed
 
