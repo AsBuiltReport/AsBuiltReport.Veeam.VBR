@@ -22,14 +22,14 @@ function Get-AbrVbrCloudConnectPublicIP {
 
     begin {
         Write-PScriboMessage "Discovering Veeam VBR Cloud Public IP information from $System."
-        Show-AbrDebugExecutionTime -Start -TitleMessage "Cloud Connect Public IP"
+        Show-AbrDebugExecutionTime -Start -TitleMessage 'Cloud Connect Public IP'
     }
 
     process {
-        if ($VbrLicenses | Where-Object { $_.CloudConnect -ne "Disabled" }) {
+        if ($VbrLicenses | Where-Object { $_.CloudConnect -ne 'Disabled' }) {
             if ((Get-VBRCloudGatewayPool).count -gt 0) {
                 Section -Style Heading3 'Public IP' {
-                    Paragraph "The following section provides information about Cloud Public IP."
+                    Paragraph 'The following section provides information about Cloud Public IP.'
                     BlankLine
                     try {
                         $CloudObjects = Get-VBRCloudPublicIP
@@ -70,7 +70,7 @@ function Get-AbrVbrCloudConnectPublicIP {
         }
     }
     end {
-        Show-AbrDebugExecutionTime -End -TitleMessage "Cloud Connect Public IP"
+        Show-AbrDebugExecutionTime -End -TitleMessage 'Cloud Connect Public IP'
     }
 
 }

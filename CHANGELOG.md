@@ -24,12 +24,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Update module version to `v0.8.24`
 - Upgrade Veeam.Diagrammer module to `v0.6.36`
-- Upgrade Diagrammer.Core module to `v0.2.35`
+- Upgrade Diagrammer.Core module to `v0.2.36.1`
 - Update GitHub release workflow to use latest checkout action version
 - Update GitHub release workflow to use latest bluesky-post-action version
 - Update GitHub CodeQL workflow to use latest checkout action version
 - Refactor Veeam Backup & Replication scripts to improve server information retrieval
 - Update TODO list with new tasks for security and compliance improvements
+- Implement pwsh best practices
 
 ### Removed
 

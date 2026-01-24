@@ -22,14 +22,14 @@ function Get-AbrVbrBackupjobNutanix {
 
     begin {
         Write-PScriboMessage "Discovering Veeam VBR Nutanix Backup jobs information from $System."
-        Show-AbrDebugExecutionTime -Start -TitleMessage "Nutanix Backup Jobs"
+        Show-AbrDebugExecutionTime -Start -TitleMessage 'Nutanix Backup Jobs'
     }
 
     process {
         try {
-            if ($Bkjobs = [Veeam.Backup.Core.CBackupJob]::GetAll() | Where-Object { $_.TypeToString -like "*Nutanix*" } | Sort-Object -Property 'Name') {
+            if ($Bkjobs = [Veeam.Backup.Core.CBackupJob]::GetAll() | Where-Object { $_.TypeToString -like '*Nutanix*' } | Sort-Object -Property 'Name') {
                 Section -Style Heading3 'Nutanix Backup Jobs' {
-                    Paragraph "This section provides detailed information about Nutanix backup jobs configured in Veeam Backup & Replication, including their status and latest results."
+                    Paragraph 'This section provides detailed information about Nutanix backup jobs configured in Veeam Backup & Replication, including their status and latest results.'
                     BlankLine
                     $OutObj = @()
                     foreach ($Bkjob in $Bkjobs) {
@@ -79,7 +79,7 @@ function Get-AbrVbrBackupjobNutanix {
         }
     }
     end {
-        Show-AbrDebugExecutionTime -End -TitleMessage "Nutanix Backup Jobs"
+        Show-AbrDebugExecutionTime -End -TitleMessage 'Nutanix Backup Jobs'
     }
 
 }

@@ -22,7 +22,7 @@ function Get-AbrVbrBackupServerInfo {
 
     begin {
         Write-PScriboMessage "Discovering Veeam VB&R Server information from $System."
-        Show-AbrDebugExecutionTime -Start -TitleMessage "Backup Server"
+        Show-AbrDebugExecutionTime -Start -TitleMessage 'Backup Server'
     }
 
     process {
@@ -55,17 +55,17 @@ function Get-AbrVbrBackupServerInfo {
             }
             if ($BackupServers) {
                 Section -Style Heading3 'Backup Server' {
-                    Paragraph "The following table details information about Veeam Backup & Replication configuration status."
+                    Paragraph 'The following table details information about Veeam Backup & Replication configuration status.'
                     BlankLine
                     $OutObj = @()
                     try {
                         foreach ($BackupServer in $BackupServers) {
                             if (-not ($BackupServer.Type -eq 'Linux' -and $BackupServer.Description -eq 'Backup server')) {
-                                if ($ClientOSVersion -eq "Win32NT") {
+                                if ($ClientOSVersion -eq 'Win32NT') {
                                     $CimSession = try { New-CimSession $BackupServer.Name -Credential $Credential -Authentication $Options.PSDefaultAuthentication -Name 'CIMBackupServer' -ErrorAction Stop } catch { Write-PScriboMessage -IsWarning "Backup Server Section: New-CimSession: Unable to connect to $($BackupServer.Name): $($_.Exception.MessageId)" }
                                 }
 
-                                if ($ClientOSVersion -eq "Win32NT") {
+                                if ($ClientOSVersion -eq 'Win32NT') {
                                     $PssSession = try { New-PSSession $BackupServer.Name -Credential $Credential -Authentication $Options.PSDefaultAuthentication -ErrorAction Stop -Name 'PSSBackupServer' } catch {
                                         if (-not $_.Exception.MessageId) {
                                             $ErrorMessage = $_.FullyQualifiedErrorId
@@ -104,46 +104,46 @@ function Get-AbrVbrBackupServerInfo {
                                 'Server Name' = $BackupServer.Name
                                 'Is Domain Joined?' = $DomainJoined.PartOfDomain
                                 'Version' = switch (($VeeamVersion).count) {
-                                    0 { "--" }
+                                    0 { '--' }
                                     default { $VeeamVersion.DisplayVersion }
                                 }
                                 'Database Type' = switch ([string]::IsNullOrEmpty($VeeamDBFlavor.SqlActiveConfiguration)) {
-                                    $true { "--" }
+                                    $true { '--' }
                                     $false { $VeeamDBFlavor.SqlActiveConfiguration }
                                     default { 'Unknown' }
                                 }
                                 'Database Name' = switch ([string]::IsNullOrEmpty($VeeamDBInfo.SqlDatabaseName)) {
-                                    $true { "--" }
+                                    $true { '--' }
                                     $false { $VeeamDBInfo.SqlDatabaseName }
                                     default { 'Unknown' }
                                 }
                                 'Database Server' = switch ([string]::IsNullOrEmpty($VeeamDBInfo.SqlHostName)) {
-                                    $true { "--" }
+                                    $true { '--' }
                                     $false { $VeeamDBInfo.SqlHostName }
                                     default { 'Unknown' }
                                 }
                                 'Database Port' = switch ([string]::IsNullOrEmpty($VeeamDBInfo.SqlHostPort)) {
-                                    $true { "--" }
+                                    $true { '--' }
                                     $false { "$($VeeamDBInfo.SqlHostPort)/TCP" }
                                     default { 'Unknown' }
                                 }
                                 'Connection Ports' = switch (($VeeamInfo.BackupServerPort).count) {
-                                    0 { "--" }
+                                    0 { '--' }
                                     default { "Backup Server Port: $($VeeamInfo.BackupServerPort)`r`nSecure Connections Port: $($VeeamInfo.SecureConnectionsPort)`r`nCloud Server Port: $($VeeamInfo.CloudServerPort)`r`nCloud Service Port: $($VeeamInfo.CloudSvcPort)" }
                                 }
                                 'Install Path' = switch (($VeeamInfo.CorePath).count) {
-                                    0 { "--" }
+                                    0 { '--' }
                                     default { $VeeamInfo.CorePath }
                                 }
                                 'Audit Logs Path' = $SecurityOptions.AuditLogsPath
                                 'Compress Old Audit Logs' = $SecurityOptions.CompressOldAuditLogs
                                 'Fips Compliant Mode' = switch ($SecurityOptions.FipsCompliantModeEnabled) {
-                                    'True' { "Enabled" }
-                                    'False' { "Disabled" }
+                                    'True' { 'Enabled' }
+                                    'False' { 'Disabled' }
                                 }
                                 'Linux host authentication' = switch ($SecurityOptions.HostPolicy.Type) {
-                                    'All' { "Add all discovered host to the list automatically" }
-                                    'KnownHosts' { "Add unknown host to the list manually" }
+                                    'All' { 'Add all discovered host to the list automatically' }
+                                    'KnownHosts' { 'Add unknown host to the list manually' }
                                 }
                                 'Logging Level' = $VeeamInfo.LoggingLevel
 
@@ -165,7 +165,7 @@ function Get-AbrVbrBackupServerInfo {
                     }
 
                     $TableParams = @{
-                        Name = "Backup Server - $($BackupServer.Name.Split(".")[0])"
+                        Name = "Backup Server - $($BackupServer.Name.Split('.')[0])"
                         List = $true
                         ColumnWidths = 40, 60
                     }
@@ -175,10 +175,10 @@ function Get-AbrVbrBackupServerInfo {
                     $OutObj | Table @TableParams
                     if ($HealthCheck.Infrastructure.BestPractice) {
                         if ($OutObj | Where-Object { $_.'Is Domain Joined?' -eq 'Yes' }) {
-                            Paragraph "Health Check:" -Bold -Underline
+                            Paragraph 'Health Check:' -Bold -Underline
                             BlankLine
                             Paragraph {
-                                Text "Best Practice:" -Bold
+                                Text 'Best Practice:' -Bold
                                 Text "When setting up the Veeam Availability infrastructure keep in mind the principle that a data protection system should not rely on the environment it is meant to protect in any way! This is because when your production environment goes down along with its domain controllers, it will impact your ability to perform actual restores due to the backup server's dependency on those domain controllers for backup console authentication, DNS for name resolution, etc."
                             }
                             BlankLine
@@ -231,11 +231,11 @@ function Get-AbrVbrBackupServerInfo {
 
                                     if ($HealthCheck.Infrastructure.Server) {
                                         $OutObj | Where-Object { $_.'Number of CPU Cores' -lt 2 } | Set-Style -Style Warning -Property 'Number of CPU Cores'
-                                        if ([int]([regex]::Matches($OutObj.'Physical Memory (GB)', "\d+(?!.*\d+)").value) -lt 8) { $OutObj | Set-Style -Style Warning -Property 'Physical Memory (GB)' }
+                                        if ([int]([regex]::Matches($OutObj.'Physical Memory (GB)', '\d+(?!.*\d+)').value) -lt 8) { $OutObj | Set-Style -Style Warning -Property 'Physical Memory (GB)' }
                                     }
 
                                     $TableParams = @{
-                                        Name = "Backup Server Inventory - $($BackupServer.Name.Split(".")[0])"
+                                        Name = "Backup Server Inventory - $($BackupServer.Name.Split('.')[0])"
                                         List = $true
                                         ColumnWidths = 40, 60
                                     }
@@ -244,12 +244,12 @@ function Get-AbrVbrBackupServerInfo {
                                     }
                                     $OutObj | Table @TableParams
                                     if ($HealthCheck.Infrastructure.BestPractice) {
-                                        if (([int]([regex]::Matches($OutObj.'Physical Memory (GB)', "\d+(?!.*\d+)").value) -lt 8) -or ($OutObj | Where-Object { $_.'Number of CPU Cores' -lt 2 })) {
-                                            Paragraph "Health Check:" -Bold -Underline
+                                        if (([int]([regex]::Matches($OutObj.'Physical Memory (GB)', '\d+(?!.*\d+)').value) -lt 8) -or ($OutObj | Where-Object { $_.'Number of CPU Cores' -lt 2 })) {
+                                            Paragraph 'Health Check:' -Bold -Underline
                                             BlankLine
                                             Paragraph {
-                                                Text "Best Practice:" -Bold
-                                                Text "Recommended Veeam Backup Server minimum configuration is two CPU cores and 8GB of RAM."
+                                                Text 'Best Practice:' -Bold
+                                                Text 'Recommended Veeam Backup Server minimum configuration is two CPU cores and 8GB of RAM.'
                                             }
                                             BlankLine
                                         }
@@ -259,7 +259,7 @@ function Get-AbrVbrBackupServerInfo {
                                     #---------------------------------------------------------------------------------------------#
                                     if ($InfoLevel.Infrastructure.BackupServer -ge 3) {
                                         try {
-                                            $HostDisks = Invoke-Command -Session $PssSession -ScriptBlock { Get-Disk | Where-Object { $_.BusType -ne "iSCSI" -and $_.BusType -ne "Fibre Channel" } }
+                                            $HostDisks = Invoke-Command -Session $PssSession -ScriptBlock { Get-Disk | Where-Object { $_.BusType -ne 'iSCSI' -and $_.BusType -ne 'Fibre Channel' } }
                                             if ($HostDisks) {
                                                 Section -Style NOTOCHeading5 -ExcludeFromTOC 'Local Disks' {
                                                     $LocalDiskReport = @()
@@ -278,7 +278,7 @@ function Get-AbrVbrBackupServerInfo {
                                                         }
                                                     }
                                                     $TableParams = @{
-                                                        Name = "Backup Server - Local Disks"
+                                                        Name = 'Backup Server - Local Disks'
                                                         List = $false
                                                         ColumnWidths = 20, 20, 20, 20, 20
                                                     }
@@ -295,7 +295,7 @@ function Get-AbrVbrBackupServerInfo {
                                         #                       Backup Server SAN Disk Inventory Section                              #
                                         #---------------------------------------------------------------------------------------------#
                                         try {
-                                            $SanDisks = Invoke-Command -Session $PssSession -ScriptBlock { Get-Disk | Where-Object { $_.BusType -eq "iSCSI" -or $_.BusType -eq "Fibre Channel" } }
+                                            $SanDisks = Invoke-Command -Session $PssSession -ScriptBlock { Get-Disk | Where-Object { $_.BusType -eq 'iSCSI' -or $_.BusType -eq 'Fibre Channel' } }
                                             if ($SanDisks) {
                                                 Section -Style NOTOCHeading5 -ExcludeFromTOC 'SAN Disks' {
                                                     $SanDiskReport = @()
@@ -314,7 +314,7 @@ function Get-AbrVbrBackupServerInfo {
                                                         }
                                                     }
                                                     $TableParams = @{
-                                                        Name = "Backup Server - SAN Disks"
+                                                        Name = 'Backup Server - SAN Disks'
                                                         List = $false
                                                         ColumnWidths = 20, 20, 20, 20, 20
                                                     }
@@ -332,7 +332,7 @@ function Get-AbrVbrBackupServerInfo {
                                     #                       Backup Server Volume Inventory Section                                #
                                     #---------------------------------------------------------------------------------------------#
                                     try {
-                                        $HostVolumes = Invoke-Command -Session $PssSession -ScriptBlock { Get-Volume | Where-Object { $_.DriveType -ne "CD-ROM" -and $NUll -ne $_.DriveLetter } }
+                                        $HostVolumes = Invoke-Command -Session $PssSession -ScriptBlock { Get-Volume | Where-Object { $_.DriveType -ne 'CD-ROM' -and $NUll -ne $_.DriveLetter } }
                                         if ($HostVolumes) {
                                             Section -Style NOTOCHeading5 -ExcludeFromTOC 'Host Volumes' {
                                                 $HostVolumeReport = @()
@@ -352,7 +352,7 @@ function Get-AbrVbrBackupServerInfo {
                                                     }
                                                 }
                                                 $TableParams = @{
-                                                    Name = "Backup Server - Volumes"
+                                                    Name = 'Backup Server - Volumes'
                                                     List = $false
                                                     ColumnWidths = 15, 15, 15, 20, 20, 15
                                                 }
@@ -388,7 +388,7 @@ function Get-AbrVbrBackupServerInfo {
                                                         }
                                                     }
                                                     $TableParams = @{
-                                                        Name = "Backup Server - Network Adapters"
+                                                        Name = 'Backup Server - Network Adapters'
                                                         List = $false
                                                         ColumnWidths = 30, 35, 20, 15
                                                     }
@@ -402,7 +402,7 @@ function Get-AbrVbrBackupServerInfo {
                                             Write-PScriboMessage -IsWarning "Backup Server Host Volume Section: $($_.Exception.Message)"
                                         }
                                         try {
-                                            $NetIPs = Invoke-Command -Session $PssSession { Get-NetIPConfiguration | Where-Object -FilterScript { ($_.NetAdapter.Status -eq "Up") } }
+                                            $NetIPs = Invoke-Command -Session $PssSession { Get-NetIPConfiguration | Where-Object -FilterScript { ($_.NetAdapter.Status -eq 'Up') } }
                                             if ($NetIPs) {
                                                 Section -Style NOTOCHeading5 -ExcludeFromTOC 'IP Address' {
                                                     $NetIpsReport = @()
@@ -411,7 +411,7 @@ function Get-AbrVbrBackupServerInfo {
                                                             $TempNetIpsReport = [PSCustomObject]@{
                                                                 'Interface Name' = $NetIp.InterfaceAlias
                                                                 'Interface Description' = $NetIp.InterfaceDescription
-                                                                'IPv4 Addresses' = $NetIp.IPv4Address.IPAddress -join ","
+                                                                'IPv4 Addresses' = $NetIp.IPv4Address.IPAddress -join ','
                                                                 'Subnet Mask' = $NetIp.IPv4Address[0].PrefixLength
                                                                 'IPv4 Gateway' = $NetIp.IPv4DefaultGateway.NextHop
                                                             }
@@ -421,7 +421,7 @@ function Get-AbrVbrBackupServerInfo {
                                                         }
                                                     }
                                                     $TableParams = @{
-                                                        Name = "Backup Server - IP Address"
+                                                        Name = 'Backup Server - IP Address'
                                                         List = $false
                                                         ColumnWidths = 25, 25, 20, 10, 20
                                                     }
@@ -449,40 +449,40 @@ function Get-AbrVbrBackupServerInfo {
                             if ($PssSession) {
                                 $VeeamInfo = Invoke-Command -Session $PssSession -ErrorAction SilentlyContinue -ScriptBlock { Get-ItemProperty -Path 'HKLM:\SOFTWARE\Veeam\Veeam Backup and Replication' }
                                 $DefaultRegistryHash = @{
-                                    "AgentLogging" = "1"
-                                    "AgentLogOptions" = "flush"
-                                    "LoggingLevel" = "4"
-                                    "VNXBlockNaviSECCliPath" = "C:\Program Files\Veeam\Backup and Replication\Backup\EMC Navisphere CLI\NaviSECCli.exe"
-                                    "VNXeUemcliPath" = "C:\Program Files\Veeam\Backup and Replication\Backup\EMC Unisphere CLI\3.0.1\uemcli.exe"
-                                    "SqlLockInfo" = ""
-                                    "CloudServerPort" = "10003"
-                                    "SqlDatabaseName" = "VeeamBackup"
-                                    "SqlInstanceName" = "VEEAMSQL2016"
-                                    "SqlServerName" = ""
-                                    "SqlLogin" = ""
-                                    "CorePath" = "C:\Program Files\Veeam\Backup and Replication\Backup\"
-                                    "BackupServerPort" = "9392"
-                                    "SecureConnectionsPort" = "9401"
-                                    "VddkReadBufferSize" = "0"
-                                    "EndPointServerPort" = "10001"
-                                    "SqlSecuredPassword" = ""
-                                    "IsComponentsUpdateRequired" = "0"
-                                    "LicenseAutoUpdate" = "1"
-                                    "CloudSvcPort" = "6169"
-                                    "VBRServiceRestartNeeded" = "0"
-                                    "ImportServers" = "0"
-                                    "MaxLogCount" = "10"
-                                    "MaxLogSize" = "10240"
-                                    "RunspaceId" = "0000"
-                                    "ProviderCredentialsId" = ""
-                                    "ProviderInfo" = ""
-                                    "ProviderId" = ""
-                                    "EntraIdSqlHostName" = "localhost"
-                                    "EntraIdSqlHostPort" = "5432"
-                                    "EntraIdSqlPassword" = ""
-                                    "EntraIdSqlServiceName" = "postgresql-x64-15"
-                                    "EntraIdSqlUserName" = "postgres"
-                                    "HighestDetectedVMCVersion" = ""
+                                    'AgentLogging' = '1'
+                                    'AgentLogOptions' = 'flush'
+                                    'LoggingLevel' = '4'
+                                    'VNXBlockNaviSECCliPath' = 'C:\Program Files\Veeam\Backup and Replication\Backup\EMC Navisphere CLI\NaviSECCli.exe'
+                                    'VNXeUemcliPath' = 'C:\Program Files\Veeam\Backup and Replication\Backup\EMC Unisphere CLI\3.0.1\uemcli.exe'
+                                    'SqlLockInfo' = ''
+                                    'CloudServerPort' = '10003'
+                                    'SqlDatabaseName' = 'VeeamBackup'
+                                    'SqlInstanceName' = 'VEEAMSQL2016'
+                                    'SqlServerName' = ''
+                                    'SqlLogin' = ''
+                                    'CorePath' = 'C:\Program Files\Veeam\Backup and Replication\Backup\'
+                                    'BackupServerPort' = '9392'
+                                    'SecureConnectionsPort' = '9401'
+                                    'VddkReadBufferSize' = '0'
+                                    'EndPointServerPort' = '10001'
+                                    'SqlSecuredPassword' = ''
+                                    'IsComponentsUpdateRequired' = '0'
+                                    'LicenseAutoUpdate' = '1'
+                                    'CloudSvcPort' = '6169'
+                                    'VBRServiceRestartNeeded' = '0'
+                                    'ImportServers' = '0'
+                                    'MaxLogCount' = '10'
+                                    'MaxLogSize' = '10240'
+                                    'RunspaceId' = '0000'
+                                    'ProviderCredentialsId' = ''
+                                    'ProviderInfo' = ''
+                                    'ProviderId' = ''
+                                    'EntraIdSqlHostName' = 'localhost'
+                                    'EntraIdSqlHostPort' = '5432'
+                                    'EntraIdSqlPassword' = ''
+                                    'EntraIdSqlServiceName' = 'postgresql-x64-15'
+                                    'EntraIdSqlUserName' = 'postgres'
+                                    'HighestDetectedVMCVersion' = ''
                                 }
                                 if ($VeeamInfo) {
                                     $OutObj = @()
@@ -509,7 +509,7 @@ function Get-AbrVbrBackupServerInfo {
                                     }
 
                                     $TableParams = @{
-                                        Name = "Non-Default Registry Keys - $($BackupServer.Name.Split(".")[0])"
+                                        Name = "Non-Default Registry Keys - $($BackupServer.Name.Split('.')[0])"
                                         List = $false
                                         ColumnWidths = 50, 50
                                     }
@@ -518,7 +518,7 @@ function Get-AbrVbrBackupServerInfo {
                                     }
                                 }
                                 if ($OutObj) {
-                                    Section -Style Heading4 "Non-Default Registry Keys" {
+                                    Section -Style Heading4 'Non-Default Registry Keys' {
                                         $OutObj | Sort-Object -Property 'Registry Key' | Table @TableParams
                                     }
                                 }
@@ -536,10 +536,10 @@ function Get-AbrVbrBackupServerInfo {
                                 Write-PScriboMessage "Infrastructure Backup Server InfoLevel set at $($InfoLevel.Infrastructure.BackupServer)."
                                 if ($InfoLevel.Infrastructure.BackupServer -ge 2) {
                                     Write-PScriboMessage "Collecting Backup Server Service Summary from $($BackupServer.Name)."
-                                    $Available = Invoke-Command -Session $PssSession -ScriptBlock { Get-Service "W32Time" | Select-Object DisplayName, Name, Status }
+                                    $Available = Invoke-Command -Session $PssSession -ScriptBlock { Get-Service 'W32Time' | Select-Object DisplayName, Name, Status }
                                     if ($Available) {
                                         $Services = Invoke-Command -Session $PssSession -ScriptBlock { Get-Service Veeam* }
-                                        Section -Style Heading4 "HealthCheck - Services Status" {
+                                        Section -Style Heading4 'HealthCheck - Services Status' {
                                             $OutObj = @()
                                             foreach ($Service in $Services) {
                                                 Write-PScriboMessage "Collecting '$($Service.DisplayName)' status on $($BackupServer.Name)."
@@ -556,7 +556,7 @@ function Get-AbrVbrBackupServerInfo {
                                             }
 
                                             $TableParams = @{
-                                                Name = "HealthCheck - Services Status - $($BackupServer.Name.Split(".")[0])"
+                                                Name = "HealthCheck - Services Status - $($BackupServer.Name.Split('.')[0])"
                                                 List = $false
                                                 ColumnWidths = 45, 35, 20
                                             }
@@ -575,7 +575,7 @@ function Get-AbrVbrBackupServerInfo {
                     if ($HealthCheck.Infrastructure.BestPractice -and $PssSession) {
                         try {
                             $UpdObj = @()
-                            $Updates = Invoke-Command -Session $PssSession -ScriptBlock { (New-Object -ComObject Microsoft.Update.Session).CreateupdateSearcher().Search("IsHidden=0 and IsInstalled=0").Updates | Select-Object Title, KBArticleIDs }
+                            $Updates = Invoke-Command -Session $PssSession -ScriptBlock { (New-Object -ComObject Microsoft.Update.Session).CreateupdateSearcher().Search('IsHidden=0 and IsInstalled=0').Updates | Select-Object Title, KBArticleIDs }
                             $UpdObj += if ($Updates) {
                                 $OutObj = @()
                                 foreach ($Update in $Updates) {
@@ -597,7 +597,7 @@ function Get-AbrVbrBackupServerInfo {
                                 $OutObj | Set-Style -Style Warning
 
                                 $TableParams = @{
-                                    Name = "Missing Windows Updates - $($BackupServer.Name.Split(".")[0])"
+                                    Name = "Missing Windows Updates - $($BackupServer.Name.Split('.')[0])"
                                     List = $false
                                     ColumnWidths = 40, 60
                                 }
@@ -608,15 +608,15 @@ function Get-AbrVbrBackupServerInfo {
                             }
                             if ($UpdObj) {
                                 Section -Style Heading4 'Missing Windows Updates' {
-                                    Paragraph "The following table provides a summary of the backup server pending/missing windows updates."
+                                    Paragraph 'The following table provides a summary of the backup server pending/missing windows updates.'
                                     BlankLine
                                     $UpdObj
                                 }
-                                Paragraph "Health Check:" -Bold -Underline
+                                Paragraph 'Health Check:' -Bold -Underline
                                 BlankLine
                                 Paragraph {
-                                    Text "Security Best Practices:" -Bold
-                                    Text "Patch operating systems, software, and firmware on Veeam components. Most hacks succeed because there is already vulnerable software in use which is not up-to-date with current patch levels. So make sure all software and hardware where Veeam components are running are up-to-date. One of the most possible causes of a credential theft are missing guest OS updates and use of outdated authentication protocols."
+                                    Text 'Security Best Practices:' -Bold
+                                    Text 'Patch operating systems, software, and firmware on Veeam components. Most hacks succeed because there is already vulnerable software in use which is not up-to-date with current patch levels. So make sure all software and hardware where Veeam components are running are up-to-date. One of the most possible causes of a credential theft are missing guest OS updates and use of outdated authentication protocols.'
                                 }
                             }
                         } catch {
@@ -632,7 +632,7 @@ function Get-AbrVbrBackupServerInfo {
     end {
         if ($PssSession) { Remove-PSSession -Session $PssSession }
         if ($CimSession) { Remove-CimSession $CimSession }
-        Show-AbrDebugExecutionTime -End -TitleMessage "Backup Server Inventory Summary"
+        Show-AbrDebugExecutionTime -End -TitleMessage 'Backup Server Inventory Summary'
     }
 
 }

@@ -41,7 +41,7 @@ function Get-AbrVbrGlobalNotificationSetting {
                         $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
 
                         if ($HealthCheck.Infrastructure.Settings) {
-                            $OutObj | Where-Object { $_.'Warn me when free disk space is below' -eq "Disabled" } | Set-Style -Style Warning -Property 'Warn me when free disk space is below'
+                            $OutObj | Where-Object { $_.'Warn me when free disk space is below' -eq 'Disabled' } | Set-Style -Style Warning -Property 'Warn me when free disk space is below'
                         }
 
                         $TableParams = @{
@@ -54,11 +54,11 @@ function Get-AbrVbrGlobalNotificationSetting {
                         }
                         $OutObj | Table @TableParams
                         if ($HealthCheck.Infrastructure.BestPractice -and ($OutObj | Where-Object { $_.'Enabled' -eq 'No' })) {
-                            Paragraph "Health Check:" -Bold -Underline
+                            Paragraph 'Health Check:' -Bold -Underline
                             BlankLine
                             Paragraph {
-                                Text "Best Practice:" -Bold
-                                Text "Veeam recommends configuring email notifications to be able to receive alerts with the results of jobs performed on the backup server."
+                                Text 'Best Practice:' -Bold
+                                Text 'Veeam recommends configuring email notifications to be able to receive alerts with the results of jobs performed on the backup server.'
                             }
                             BlankLine
                         }
@@ -94,11 +94,11 @@ function Get-AbrVbrGlobalNotificationSetting {
                         }
                         $OutObj | Table @TableParams
                         if ($HealthCheck.Infrastructure.BestPractice -and ($OutObj | Where-Object { $_.'Enabled' -eq 'No' })) {
-                            Paragraph "Health Check:" -Bold -Underline
+                            Paragraph 'Health Check:' -Bold -Underline
                             BlankLine
                             Paragraph {
-                                Text "Best Practice:" -Bold
-                                Text "Veeam recommends configuring email notifications to be able to receive alerts with the results of jobs performed on the backup server."
+                                Text 'Best Practice:' -Bold
+                                Text 'Veeam recommends configuring email notifications to be able to receive alerts with the results of jobs performed on the backup server.'
                             }
                             BlankLine
                         }
@@ -124,11 +124,11 @@ function Get-AbrVbrGlobalNotificationSetting {
                         }
                         $OutObj | Table @TableParams
                         if ($HealthCheck.Infrastructure.BestPractice -and ($OutObj | Where-Object { $_.'Enabled' -eq 'No' })) {
-                            Paragraph "Health Check:" -Bold -Underline
+                            Paragraph 'Health Check:' -Bold -Underline
                             BlankLine
                             Paragraph {
-                                Text "Best Practice:" -Bold
-                                Text "Veeam recommends configuring email notifications to be able to receive alerts with the results of jobs performed on the backup server."
+                                Text 'Best Practice:' -Bold
+                                Text 'Veeam recommends configuring email notifications to be able to receive alerts with the results of jobs performed on the backup server.'
                             }
                             BlankLine
                         }
@@ -150,11 +150,11 @@ function Get-AbrVbrGlobalNotificationSetting {
                         }
                         $OutObj | Table @TableParams
                         if ($HealthCheck.Infrastructure.BestPractice -and ($OutObj | Where-Object { $_.'Enabled' -eq 'No' })) {
-                            Paragraph "Health Check:" -Bold -Underline
+                            Paragraph 'Health Check:' -Bold -Underline
                             BlankLine
                             Paragraph {
-                                Text "Best Practice:" -Bold
-                                Text "Veeam recommends configuring email notifications to be able to receive alerts with the results of jobs performed on the backup server."
+                                Text 'Best Practice:' -Bold
+                                Text 'Veeam recommends configuring email notifications to be able to receive alerts with the results of jobs performed on the backup server.'
                             }
                             BlankLine
                         }

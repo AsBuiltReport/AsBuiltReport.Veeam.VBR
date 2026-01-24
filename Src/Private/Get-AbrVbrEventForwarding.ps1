@@ -21,27 +21,27 @@ function Get-AbrVbrEventForwarding {
 
     begin {
         Write-PScriboMessage "Discovering Veeam VBR Event Forwarding settings information from $System."
-        Show-AbrDebugExecutionTime -Start -TitleMessage "Event Forwarding"
+        Show-AbrDebugExecutionTime -Start -TitleMessage 'Event Forwarding'
     }
 
     process {
         try {
             $SNMPSettings = (Get-VBRSNMPOptions).Receiver
-            $SyslogSettings = try { Get-VBRSyslogServer } catch { Write-PScriboMessage "No syslog server configured" }
+            $SyslogSettings = try { Get-VBRSyslogServer } catch { Write-PScriboMessage 'No syslog server configured' }
             if ($SNMPSettings -or $SyslogSettings) {
                 Section -Style Heading4 'Event Forwarding' {
                     $OutObj = @()
 
                     $inObj = [ordered] @{
                         'SNMP Servers' = switch ([string]::IsNullOrEmpty($SNMPSettings)) {
-                            $true { "--" }
+                            $true { '--' }
                             $false { $SNMPSettings | ForEach-Object { "Receiver: $($_.ReceiverIP), Port: $($_.ReceiverPort), Community: $($_.CommunityString)" } }
-                            default { "Unknown" }
+                            default { 'Unknown' }
                         }
                         'Syslog Servers' = switch ([string]::IsNullOrEmpty($SyslogSettings)) {
-                            $true { "--" }
+                            $true { '--' }
                             $false { $SyslogSettings | ForEach-Object { "Receiver: $($_.ServerHost), Port: $($_.Port), Protocol: $($_.Protocol)" } }
-                            default { "Unknown" }
+                            default { 'Unknown' }
                         }
                     }
                     $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
@@ -60,16 +60,16 @@ function Get-AbrVbrEventForwarding {
                     }
                     $OutObj | Table @TableParams
                     if ($HealthCheck.Infrastructure.BestPractice -and ($OutObj | Where-Object { $_.'Syslog Servers' -eq '--' })) {
-                        Paragraph "Health Check:" -Bold -Underline
+                        Paragraph 'Health Check:' -Bold -Underline
                         BlankLine
                         Paragraph {
-                            Text "Security Best Practice:" -Bold
-                            Text "It is a recommends best practice to configure Event Forwarding to an external SIEM or Log Collector to increase the organization security posture."
+                            Text 'Security Best Practice:' -Bold
+                            Text 'It is a recommends best practice to configure Event Forwarding to an external SIEM or Log Collector to increase the organization security posture.'
                         }
                         BlankLine
                     }
                     try {
-                        $SyslogEventFilters = try { Get-VBRSyslogEventFilters } catch { Write-PScriboMessage "No syslog event filter configured" }
+                        $SyslogEventFilters = try { Get-VBRSyslogEventFilters } catch { Write-PScriboMessage 'No syslog event filter configured' }
                         if ($SyslogEventFilters) {
                             Section -Style Heading4 'Syslog Event Filter' {
                                 $OutObj = @()
@@ -89,7 +89,7 @@ function Get-AbrVbrEventForwarding {
 
                                     $inObj = [ordered] @{
                                         'EventId' = $SyslogEventFilter.EventId
-                                        'Level' = $SyslogEventFilterLevel -join ", "
+                                        'Level' = $SyslogEventFilterLevel -join ', '
                                     }
                                     $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                                 }
@@ -115,7 +115,7 @@ function Get-AbrVbrEventForwarding {
         }
     }
     end {
-        Show-AbrDebugExecutionTime -End -TitleMessage "Event Forwarding"
+        Show-AbrDebugExecutionTime -End -TitleMessage 'Event Forwarding'
     }
 
 }

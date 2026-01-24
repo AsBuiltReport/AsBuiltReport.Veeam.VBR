@@ -29,7 +29,7 @@ function Get-AbrVbrScaleOutRepository {
         try {
             if ($BackupRepos = Get-VBRBackupRepository -ScaleOut | Sort-Object -Property Name) {
                 Section -Style Heading3 'ScaleOut Backup Repository' {
-                    Paragraph "The following section provides a summary about ScaleOut Backup Repository"
+                    Paragraph 'The following section provides a summary about ScaleOut Backup Repository'
                     BlankLine
                     $OutObj = @()
                     try {
@@ -67,8 +67,8 @@ function Get-AbrVbrScaleOutRepository {
                     #---------------------------------------------------------------------------------------------#
                     if ($InfoLevel.Infrastructure.SOBR -ge 2) {
                         try {
-                            Section -Style Heading4 "ScaleOut Backup Repository Configuration" {
-                                Paragraph "The following section provides a detailed information about the ScaleOut Backup Repository"
+                            Section -Style Heading4 'ScaleOut Backup Repository Configuration' {
+                                Paragraph 'The following section provides a detailed information about the ScaleOut Backup Repository'
                                 BlankLine
                                 #---------------------------------------------------------------------------------------------#
                                 #                                   Per SOBR Section                                          #
@@ -79,7 +79,7 @@ function Get-AbrVbrScaleOutRepository {
                                             #---------------------------------------------------------------------------------------------#
                                             #                               General Configuration Section                                 #
                                             #---------------------------------------------------------------------------------------------#
-                                            Section -Style NOTOCHeading6 -ExcludeFromTOC "General Settings" {
+                                            Section -Style NOTOCHeading6 -ExcludeFromTOC 'General Settings' {
                                                 $OutObj = @()
 
                                                 $inObj = [ordered] @{
@@ -120,11 +120,11 @@ function Get-AbrVbrScaleOutRepository {
 
                                                 $OutObj | Table @TableParams
                                                 if (($HealthCheck.Infrastructure.BestPractice) -and ($OutObj | Where-Object { $_.'Encrypt data uploaded to Object Storage' -like 'No' })) {
-                                                    Paragraph "Health Check:" -Bold -Underline
+                                                    Paragraph 'Health Check:' -Bold -Underline
                                                     BlankLine
                                                     Paragraph {
-                                                        Text "Best Practice:" -Bold
-                                                        Text "Veeam Backup & Replication allows you to encrypt offloaded data. With the Encrypt data uploaded to object storage setting selected, the entire collection of blocks along with the metadata will be encrypted while being offloaded regardless of the jobs encryption settings. This helps you protect the data from an unauthorized access."
+                                                        Text 'Best Practice:' -Bold
+                                                        Text 'Veeam Backup & Replication allows you to encrypt offloaded data. With the Encrypt data uploaded to object storage setting selected, the entire collection of blocks along with the metadata will be encrypted while being offloaded regardless of the jobs encryption settings. This helps you protect the data from an unauthorized access.'
                                                     }
                                                     BlankLine
                                                 }
@@ -137,7 +137,7 @@ function Get-AbrVbrScaleOutRepository {
                                                 #---------------------------------------------------------------------------------------------#
                                                 #                               Performace Tier Section                                       #
                                                 #---------------------------------------------------------------------------------------------#
-                                                Section -Style NOTOCHeading6 -ExcludeFromTOC "Performance Tier" {
+                                                Section -Style NOTOCHeading6 -ExcludeFromTOC 'Performance Tier' {
                                                     $OutObj = @()
 
                                                     $inObj = [ordered] @{
@@ -173,7 +173,7 @@ function Get-AbrVbrScaleOutRepository {
                                         #---------------------------------------------------------------------------------------------#
                                         foreach ($CapacityExtent in $BackupRepo.CapacityExtents) {
                                             try {
-                                                Section -Style NOTOCHeading6 -ExcludeFromTOC "Capacity Tier" {
+                                                Section -Style NOTOCHeading6 -ExcludeFromTOC 'Capacity Tier' {
                                                     $OutObj = @()
 
                                                     $inObj = [ordered] @{
@@ -183,7 +183,7 @@ function Get-AbrVbrScaleOutRepository {
                                                         'Amazon S3 Folder' = ($CapacityExtent.Repository).AmazonS3Folder
                                                         'Use Gateway Server' = ($CapacityExtent.Repository).UseGatewayServer
                                                         'Gateway Server' = switch ((($CapacityExtent.Repository).GatewayServer.Name).length) {
-                                                            0 { "Auto" }
+                                                            0 { 'Auto' }
                                                             default { ($CapacityExtent.Repository).GatewayServer.Name }
                                                         }
                                                         'Immutability Period' = $CapacityExtent.Repository.ImmutabilityPeriod
@@ -218,7 +218,7 @@ function Get-AbrVbrScaleOutRepository {
                                                     }
                                                     $OutObj | Table @TableParams
                                                     if ($BackupRepo.OffloadWindowOptions) {
-                                                        Section -Style NOTOCHeading6 -ExcludeFromTOC "Offload Window Time Period" {
+                                                        Section -Style NOTOCHeading6 -ExcludeFromTOC 'Offload Window Time Period' {
                                                             Paragraph -ScriptBlock $Legend
 
                                                             $OutObj = @()
@@ -236,21 +236,21 @@ function Get-AbrVbrScaleOutRepository {
                                                                 }
                                                                 if ($OutObj) {
                                                                     $OutObj2 = Table -Hashtable $OutObj @TableParams
-                                                                    $OutObj2.Rows | Where-Object { $_.Sun -eq "0" } | Set-Style -Style OFF -Property "Sun"
-                                                                    $OutObj2.Rows | Where-Object { $_.Mon -eq "0" } | Set-Style -Style OFF -Property "Mon"
-                                                                    $OutObj2.Rows | Where-Object { $_.Tue -eq "0" } | Set-Style -Style OFF -Property "Tue"
-                                                                    $OutObj2.Rows | Where-Object { $_.Wed -eq "0" } | Set-Style -Style OFF -Property "Wed"
-                                                                    $OutObj2.Rows | Where-Object { $_.Thu -eq "0" } | Set-Style -Style OFF -Property "Thu"
-                                                                    $OutObj2.Rows | Where-Object { $_.Fri -eq "0" } | Set-Style -Style OFF -Property "Fri"
-                                                                    $OutObj2.Rows | Where-Object { $_.Sat -eq "0" } | Set-Style -Style OFF -Property "Sat"
+                                                                    $OutObj2.Rows | Where-Object { $_.Sun -eq '0' } | Set-Style -Style OFF -Property 'Sun'
+                                                                    $OutObj2.Rows | Where-Object { $_.Mon -eq '0' } | Set-Style -Style OFF -Property 'Mon'
+                                                                    $OutObj2.Rows | Where-Object { $_.Tue -eq '0' } | Set-Style -Style OFF -Property 'Tue'
+                                                                    $OutObj2.Rows | Where-Object { $_.Wed -eq '0' } | Set-Style -Style OFF -Property 'Wed'
+                                                                    $OutObj2.Rows | Where-Object { $_.Thu -eq '0' } | Set-Style -Style OFF -Property 'Thu'
+                                                                    $OutObj2.Rows | Where-Object { $_.Fri -eq '0' } | Set-Style -Style OFF -Property 'Fri'
+                                                                    $OutObj2.Rows | Where-Object { $_.Sat -eq '0' } | Set-Style -Style OFF -Property 'Sat'
 
-                                                                    $OutObj2.Rows | Where-Object { $_.Sun -eq "1" } | Set-Style -Style ON -Property "Sun"
-                                                                    $OutObj2.Rows | Where-Object { $_.Mon -eq "1" } | Set-Style -Style ON -Property "Mon"
-                                                                    $OutObj2.Rows | Where-Object { $_.Tue -eq "1" } | Set-Style -Style ON -Property "Tue"
-                                                                    $OutObj2.Rows | Where-Object { $_.Wed -eq "1" } | Set-Style -Style ON -Property "Wed"
-                                                                    $OutObj2.Rows | Where-Object { $_.Thu -eq "1" } | Set-Style -Style ON -Property "Thu"
-                                                                    $OutObj2.Rows | Where-Object { $_.Fri -eq "1" } | Set-Style -Style ON -Property "Fri"
-                                                                    $OutObj2.Rows | Where-Object { $_.Sat -eq "1" } | Set-Style -Style ON -Property "Sat"
+                                                                    $OutObj2.Rows | Where-Object { $_.Sun -eq '1' } | Set-Style -Style ON -Property 'Sun'
+                                                                    $OutObj2.Rows | Where-Object { $_.Mon -eq '1' } | Set-Style -Style ON -Property 'Mon'
+                                                                    $OutObj2.Rows | Where-Object { $_.Tue -eq '1' } | Set-Style -Style ON -Property 'Tue'
+                                                                    $OutObj2.Rows | Where-Object { $_.Wed -eq '1' } | Set-Style -Style ON -Property 'Wed'
+                                                                    $OutObj2.Rows | Where-Object { $_.Thu -eq '1' } | Set-Style -Style ON -Property 'Thu'
+                                                                    $OutObj2.Rows | Where-Object { $_.Fri -eq '1' } | Set-Style -Style ON -Property 'Fri'
+                                                                    $OutObj2.Rows | Where-Object { $_.Sat -eq '1' } | Set-Style -Style ON -Property 'Sat'
                                                                     $OutObj2
                                                                 }
                                                             } catch {
@@ -268,7 +268,7 @@ function Get-AbrVbrScaleOutRepository {
                                         #---------------------------------------------------------------------------------------------#
                                         foreach ($ArchiveExtent in $BackupRepo.ArchiveExtent) {
                                             try {
-                                                Section -Style NOTOCHeading6 -ExcludeFromTOC "Archive Tier" {
+                                                Section -Style NOTOCHeading6 -ExcludeFromTOC 'Archive Tier' {
                                                     $OutObj = @()
 
                                                     $inObj = [ordered] @{
@@ -276,7 +276,7 @@ function Get-AbrVbrScaleOutRepository {
                                                         'Type' = ($ArchiveExtent.Repository).ArchiveType
                                                         'Use Gateway Server' = ($ArchiveExtent.Repository).UseGatewayServer
                                                         'Gateway Server' = switch ((($ArchiveExtent.Repository).GatewayServer.Name).length) {
-                                                            0 { "Auto" }
+                                                            0 { 'Auto' }
                                                             default { ($ArchiveExtent.Repository).GatewayServer.Name }
                                                         }
                                                     }

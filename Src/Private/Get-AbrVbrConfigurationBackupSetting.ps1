@@ -22,7 +22,7 @@ function Get-AbrVbrConfigurationBackupSetting {
 
     begin {
         Write-PScriboMessage "Discovering Veeam VBR Configuration Backup settings information from $System."
-        Show-AbrDebugExecutionTime -Start -TitleMessage "Configuration Backup"
+        Show-AbrDebugExecutionTime -Start -TitleMessage 'Configuration Backup'
     }
 
     process {
@@ -31,9 +31,9 @@ function Get-AbrVbrConfigurationBackupSetting {
                 Section -Style Heading4 'Configuration Backup' {
                     $OutObj = @()
                     try {
-                        if ($BackupSettings.ScheduleOptions.Type -like "Daily") {
+                        if ($BackupSettings.ScheduleOptions.Type -like 'Daily') {
                             $ScheduleOptions = "Type: $($BackupSettings.ScheduleOptions.DailyOptions.Type)`r`nPeriod: $($BackupSettings.ScheduleOptions.DailyOptions.Period)`r`nDay Of Week: $($BackupSettings.ScheduleOptions.DailyOptions.DayOfWeek)"
-                        } elseif ($BackupSettings.ScheduleOptions.Type -like "Monthly") {
+                        } elseif ($BackupSettings.ScheduleOptions.Type -like 'Monthly') {
                             $ScheduleOptions = "Period: $($BackupSettings.ScheduleOptions.MonthlyOptions.Period)`r`nDay Number In Month: $($BackupSettings.ScheduleOptions.MonthlyOptions.DayNumberInMonth)`r`nDay of Week: $($BackupSettings.ScheduleOptions.MonthlyOptions.DayOfWeek)`r`nDay of Month: $($BackupSettings.ScheduleOptions.MonthlyOptions.DayOfMonth)"
                         }
                         $inObj = [ordered] @{
@@ -47,8 +47,8 @@ function Get-AbrVbrConfigurationBackupSetting {
                             'Additional Address' = $BackupSettings.NotificationOptions.AdditionalAddress
                             'Email Subject' = $BackupSettings.NotificationOptions.NotificationSubject
                             'Notify On' = switch ($BackupSettings.NotificationOptions.EnableAdditionalNotification) {
-                                "" { "--"; break }
-                                $Null { "--"; break }
+                                '' { '--'; break }
+                                $Null { '--'; break }
                                 default { "Notify On Success: $($BackupSettings.NotificationOptions.NotifyOnSuccess)`r`nNotify On Warning: $($BackupSettings.NotificationOptions.NotifyOnWarning)`r`nNotify On Error: $($BackupSettings.NotificationOptions.NotifyOnError)`r`nNotify On Last Retry Only: $($BackupSettings.NotificationOptions.NotifyOnLastRetryOnly)" }
                             }
                             'NextRun' = $BackupSettings.NextRun
@@ -75,7 +75,7 @@ function Get-AbrVbrConfigurationBackupSetting {
                         foreach ( $OBJ in ($OutObj | Where-Object { $_.'Encryption Enabled' -like 'No' })) {
                             $Num++
                             $OBJ.'Encryption Enabled' = $OBJ.'Encryption Enabled' + " ($Num)"
-                            $List += "Whenever possible, enable configuration backup encryption."
+                            $List += 'Whenever possible, enable configuration backup encryption.'
                         }
 
                         $OutObj | Where-Object { $_.'Enabled' -like 'No' } | Set-Style -Style Warning -Property 'Enabled'
@@ -99,9 +99,9 @@ function Get-AbrVbrConfigurationBackupSetting {
                     }
                     $OutObj | Table @TableParams
                     if ($HealthCheck.Infrastructure.BestPractice -and $List) {
-                        Paragraph "Health Check:" -Bold -Underline
+                        Paragraph 'Health Check:' -Bold -Underline
                         BlankLine
-                        Paragraph "Best Practice:" -Bold
+                        Paragraph 'Best Practice:' -Bold
                         List -Item $List -Numbered
                     }
                 }
@@ -111,7 +111,7 @@ function Get-AbrVbrConfigurationBackupSetting {
         }
     }
     end {
-        Show-AbrDebugExecutionTime -End -TitleMessage "Configuration Backup"
+        Show-AbrDebugExecutionTime -End -TitleMessage 'Configuration Backup'
     }
 
 }

@@ -1,4 +1,3 @@
-
 function Get-AbrVbrNDMPInfo {
     <#
     .SYNOPSIS
@@ -27,7 +26,7 @@ function Get-AbrVbrNDMPInfo {
 
     process {
         try {
-            if ($VbrLicenses | Where-Object { $_.Edition -in @("EnterprisePlus", "Enterprise") -and $_.Status -ne "Expired" }) {
+            if ($VbrLicenses | Where-Object { $_.Edition -in @('EnterprisePlus', 'Enterprise') -and $_.Status -ne 'Expired' }) {
                 if ($NDMPObjs = Get-VBRNDMPServer | Sort-Object -Property Name) {
                     Section -Style Heading3 'NDMP Servers' {
                         $OutObj = @()
@@ -40,7 +39,7 @@ function Get-AbrVbrNDMPInfo {
                                         'Credentials' = $NDMPObj.Credentials
                                         'Port' = $NDMPObj.Port
                                         'Gateway' = switch ($NDMPObj.SelectedGatewayId) {
-                                            "00000000-0000-0000-0000-000000000000" { "Automatic" }
+                                            '00000000-0000-0000-0000-000000000000' { 'Automatic' }
                                             default { (Get-VBRServer | Where-Object { $_.Id -eq $NDMPObj.SelectedGatewayId }).Name }
                                         }
                                     }

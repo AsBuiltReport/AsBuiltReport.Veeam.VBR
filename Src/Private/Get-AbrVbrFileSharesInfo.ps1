@@ -46,16 +46,16 @@ function Get-AbrVbrFileSharesInfo {
                             $inObj = [ordered] @{
                                 'Path' = $Path
                                 'Type' = switch ($ShareObj.Type) {
-                                    "FileServer" { "File Server" }
-                                    "SANSMB" { "NAS Filler" }
-                                    "SMB" { "SMB Share" }
-                                    "NFS" { "NFS Share" }
-                                    "SANNFS" { "NAS Filler" }
+                                    'FileServer' { 'File Server' }
+                                    'SANSMB' { 'NAS Filler' }
+                                    'SMB' { 'SMB Share' }
+                                    'NFS' { 'NFS Share' }
+                                    'SANNFS' { 'NAS Filler' }
                                     default { $ShareObj.Type }
                                 }
                                 'Backup IO Control' = $ShareObj.BackupIOControlLevel
                                 'Credentials' = switch (($AccessCredentials).count) {
-                                    0 { "None" }
+                                    0 { 'None' }
                                     default { $AccessCredentials }
                                 }
                                 'Cache Repository' = $ShareObj.CacheRepository.Name

@@ -22,7 +22,7 @@ function Get-AbrVbrFileShareBackupjob {
 
     begin {
         Write-PScriboMessage "Discovering Veeam VBR File Share Backup jobs information from $System."
-        Show-AbrDebugExecutionTime -Start -TitleMessage "File Share Backup Jobs"
+        Show-AbrDebugExecutionTime -Start -TitleMessage 'File Share Backup Jobs'
     }
 
     process {
@@ -82,7 +82,7 @@ function Get-AbrVbrFileShareBackupjob {
         }
     }
     end {
-        Show-AbrDebugExecutionTime -End -TitleMessage "File Share Backup Jobs"
+        Show-AbrDebugExecutionTime -End -TitleMessage 'File Share Backup Jobs'
     }
 
 }

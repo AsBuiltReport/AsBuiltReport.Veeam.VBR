@@ -29,7 +29,7 @@ function Get-AbrVbrObjectRepository {
         try {
             if ($ObjectRepos = Get-VBRObjectStorageRepository | Sort-Object -Property Name) {
                 Section -Style Heading3 'Object Storage Repository' {
-                    Paragraph "The following section provides a summary about the Veeam Object Storage Repository."
+                    Paragraph 'The following section provides a summary about the Veeam Object Storage Repository.'
                     BlankLine
                     $OutObj = @()
                     foreach ($ObjectRepo in $ObjectRepos) {
@@ -59,9 +59,9 @@ function Get-AbrVbrObjectRepository {
                                     'Type' = $ObjectRepo.Type
                                     'Use Gateway Server' = $ObjectRepo.UseGatewayServer
                                     'Gateway Server' = switch ($ObjectRepo.GatewayServer.Name) {
-                                        "" { "--"; break }
-                                        $Null { "--"; break }
-                                        default { $ObjectRepo.GatewayServer.Name.split(".")[0] }
+                                        '' { '--'; break }
+                                        $Null { '--'; break }
+                                        default { $ObjectRepo.GatewayServer.Name.split('.')[0] }
                                     }
                                 }
 
@@ -93,8 +93,8 @@ function Get-AbrVbrObjectRepository {
                     if ($InfoLevel.Infrastructure.BR -ge 2) {
                         try {
                             if ($ObjectRepos) {
-                                Section -Style Heading4 "Object Storage Repository Configuration" {
-                                    Paragraph "The following section provides detailed information about Object Storage Backup Repository"
+                                Section -Style Heading4 'Object Storage Repository Configuration' {
+                                    Paragraph 'The following section provides detailed information about Object Storage Backup Repository'
                                     BlankLine
                                     foreach ($ObjectRepo in $ObjectRepos) {
                                         try {
@@ -158,11 +158,11 @@ function Get-AbrVbrObjectRepository {
                                                 }
                                                 $OutObj | Table @TableParams
                                                 if (($HealthCheck.Infrastructure.BestPractice) -and ($OutObj | Where-Object { $_.'Immutability Enabled' -eq 'No' })) {
-                                                    Paragraph "Health Check:" -Bold -Underline
+                                                    Paragraph 'Health Check:' -Bold -Underline
                                                     BlankLine
                                                     Paragraph {
-                                                        Text "Best Practice:" -Bold
-                                                        Text "Veeam recommend to implement Immutability where it is supported. It is done for increased security: immutability protects your data from loss as a result of attacks, malware activity or any other injurious actions."
+                                                        Text 'Best Practice:' -Bold
+                                                        Text 'Veeam recommend to implement Immutability where it is supported. It is done for increased security: immutability protects your data from loss as a result of attacks, malware activity or any other injurious actions.'
                                                     }
                                                     BlankLine
                                                 }
@@ -183,8 +183,8 @@ function Get-AbrVbrObjectRepository {
                 #---------------------------------------------------------------------------------------------#
                 try {
                     if ($ObjectRepoArchives = Get-VBRArchiveObjectStorageRepository | Sort-Object -Property Name) {
-                        Section -Style Heading3 "Archive Object Storage Repository" {
-                            Paragraph "The following section provides detailed information about Archive Object Storage Backup Repository"
+                        Section -Style Heading3 'Archive Object Storage Repository' {
+                            Paragraph 'The following section provides detailed information about Archive Object Storage Backup Repository'
                             BlankLine
                             foreach ($ObjectRepoArchive in $ObjectRepoArchives) {
                                 try {
@@ -193,9 +193,9 @@ function Get-AbrVbrObjectRepository {
 
                                         $inObj = [ordered] @{
                                             'Gateway Server' = switch ($ObjectRepoArchive.GatewayServer.Name) {
-                                                "" { "Auto Selected"; break }
-                                                $Null { "Auto Selected"; break }
-                                                default { $ObjectRepoArchive.GatewayServer.Name.split(".")[0] }
+                                                '' { 'Auto Selected'; break }
+                                                $Null { 'Auto Selected'; break }
+                                                default { $ObjectRepoArchive.GatewayServer.Name.split('.')[0] }
                                             }
                                             'Gateway Server Enabled' = $ObjectRepoArchive.UseGatewayServer
                                             'Immutability Enabled' = $ObjectRepoArchive.BackupImmutabilityEnabled
@@ -239,11 +239,11 @@ function Get-AbrVbrObjectRepository {
                                         }
                                         $OutObj | Table @TableParams
                                         if (($HealthCheck.Infrastructure.BestPractice) -and ($OutObj | Where-Object { $_.'Immutability Enabled' -eq 'No' })) {
-                                            Paragraph "Health Check:" -Bold -Underline
+                                            Paragraph 'Health Check:' -Bold -Underline
                                             BlankLine
                                             Paragraph {
-                                                Text "Best Practice:" -Bold
-                                                Text "Veeam recommend to implement Immutability where it is supported. It is done for increased security: immutability protects your data from loss as a result of attacks, malware activity or any other injurious actions."
+                                                Text 'Best Practice:' -Bold
+                                                Text 'Veeam recommend to implement Immutability where it is supported. It is done for increased security: immutability protects your data from loss as a result of attacks, malware activity or any other injurious actions.'
                                             }
                                             BlankLine
                                         }

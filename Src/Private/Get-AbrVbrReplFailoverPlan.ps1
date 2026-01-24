@@ -50,8 +50,8 @@ function Get-AbrVbrReplFailoverPlan {
                             }
 
                             if ($HealthCheck.Replication.BestPractice) {
-                                $OutObj | Where-Object { $_.'Description' -eq "--" } | Set-Style -Style Warning -Property 'Description'
-                                $OutObj | Where-Object { $_.'Description' -match "Created by" } | Set-Style -Style Warning -Property 'Description'
+                                $OutObj | Where-Object { $_.'Description' -eq '--' } | Set-Style -Style Warning -Property 'Description'
+                                $OutObj | Where-Object { $_.'Description' -match 'Created by' } | Set-Style -Style Warning -Property 'Description'
                             }
 
                             $TableParams = @{
@@ -65,11 +65,11 @@ function Get-AbrVbrReplFailoverPlan {
                             $OutObj | Table @TableParams
                             if ($HealthCheck.Replication.BestPractice) {
                                 if ($OutObj | Where-Object { $_.'Description' -match 'Created by' -or $_.'Description' -eq '--' }) {
-                                    Paragraph "Health Check:" -Bold -Underline
+                                    Paragraph 'Health Check:' -Bold -Underline
                                     BlankLine
                                     Paragraph {
-                                        Text "Best Practice:" -Bold
-                                        Text "It is a general rule of good practice to establish well-defined descriptions. This helps to speed up the fault identification process, as well as enabling better documentation of the environment."
+                                        Text 'Best Practice:' -Bold
+                                        Text 'It is a general rule of good practice to establish well-defined descriptions. This helps to speed up the fault identification process, as well as enabling better documentation of the environment.'
                                     }
                                     BlankLine
                                 }

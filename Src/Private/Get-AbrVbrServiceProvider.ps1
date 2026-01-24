@@ -28,9 +28,9 @@ function Get-AbrVbrServiceProvider {
     process {
         try {
             $CloudProviders = Get-VBRCloudProvider | Sort-Object -Property 'DNSName'
-            if (($VbrLicenses | Where-Object { $_.Edition -in @("EnterprisePlus") }) -and $CloudProviders) {
+            if (($VbrLicenses | Where-Object { $_.Edition -in @('EnterprisePlus') }) -and $CloudProviders) {
                 Section -Style Heading3 'Service Providers' {
-                    Paragraph "The following section provides a summary about configured Veeam Cloud Service Providers."
+                    Paragraph 'The following section provides a summary about configured Veeam Cloud Service Providers.'
                     BlankLine
                     try {
                         $OutObj = @()

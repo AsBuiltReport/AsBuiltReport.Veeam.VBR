@@ -28,7 +28,7 @@ function Get-AbrVbrStorageIsilon {
     process {
         if ($IsilonHosts = Get-VBRIsilonHost) {
             Section -Style Heading3 'Dell Isilon Storage' {
-                Paragraph "The following section details information about Dell storage infrastructure."
+                Paragraph 'The following section details information about Dell storage infrastructure.'
                 BlankLine
                 $OutObj = @()
                 foreach ($IsilonHost in $IsilonHosts) {
@@ -44,10 +44,10 @@ function Get-AbrVbrStorageIsilon {
                                 }
                                 'Description' = $IsilonHost.Description
                                 'Used Credential' = switch (($UsedCred).count) {
-                                    0 { "--" }
+                                    0 { '--' }
                                     default { "$($UsedCred.Name) - ($($UsedCred.Description))" }
                                 }
-                                'Connection Address' = $IsilonOptions.IsilonHostOptions.AdditionalAddresses.IP -join ", "
+                                'Connection Address' = $IsilonOptions.IsilonHostOptions.AdditionalAddresses.IP -join ', '
                                 'Connection Port' = "$($IsilonOptions.IsilonHostOptions.Port)\TCP"
                             }
 
@@ -73,8 +73,8 @@ function Get-AbrVbrStorageIsilon {
 
                                                     $inObj = [ordered] @{
                                                         'Name' = $IsilonVol.Name
-                                                        'Total Space' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size  $IsilonVol.Size
-                                                        'Used Space' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size  $IsilonVol.ConsumedSpace
+                                                        'Total Space' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $IsilonVol.Size
+                                                        'Used Space' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $IsilonVol.ConsumedSpace
                                                         'Thin Provision' = $IsilonVol.IsThinProvision
                                                     }
 

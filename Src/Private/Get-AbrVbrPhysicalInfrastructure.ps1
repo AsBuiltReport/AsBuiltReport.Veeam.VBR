@@ -27,9 +27,9 @@ function Get-AbrVbrPhysicalInfrastructure {
 
     process {
         try {
-            if (($VbrLicenses | Where-Object { $_.Status -ne "Expired" }) -and $InventObjs) {
+            if (($VbrLicenses | Where-Object { $_.Status -ne 'Expired' }) -and $InventObjs) {
                 Section -Style Heading3 'Physical Infrastructure' {
-                    Paragraph "The following sections detail configuration information about managed physical infrastructure."
+                    Paragraph 'The following sections detail configuration information about managed physical infrastructure.'
                     BlankLine
                     try {
                         Section -Style Heading4 'Protection Groups Summary' {
@@ -67,7 +67,7 @@ function Get-AbrVbrPhysicalInfrastructure {
                             if ($InfoLevel.Inventory.PHY -ge 2) {
                                 try {
                                     $OutObj = @()
-                                    Section -Style Heading5 "Protection Group Configuration" {
+                                    Section -Style Heading5 'Protection Group Configuration' {
                                         foreach ($InventObj in $InventObjs) {
                                             try {
                                                 if ($InventObj.Type -eq 'Custom' -and $InventObj.Container.Type -eq 'ActiveDirectory') {
@@ -80,7 +80,7 @@ function Get-AbrVbrPhysicalInfrastructure {
                                                                 'Exclude VM' = ($InventObj).Container.ExcludeVMs
                                                                 'Exclude Computers' = ($InventObj).Container.ExcludeComputers
                                                                 'Exclude Offline Computers' = ($InventObj).Container.ExcludeOfflineComputers
-                                                                'Excluded Entity' = ($InventObj).Container.ExcludedEntity -join ", "
+                                                                'Excluded Entity' = ($InventObj).Container.ExcludedEntity -join ', '
                                                                 'Master Credentials' = ($InventObj).Container.MasterCredentials
                                                                 'Deployment Options' = "Install Agent: $($InventObj.DeploymentOptions.InstallAgent)`r`nUpgrade Automatically: $($InventObj.DeploymentOptions.UpgradeAutomatically)`r`nInstall Driver: $($InventObj.DeploymentOptions.InstallDriver)`r`nReboot If Required: $($InventObj.DeploymentOptions.RebootIfRequired)"
                                                             }

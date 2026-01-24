@@ -32,17 +32,17 @@ function Get-AbrVbrServerConnection {
     }
 
     process {
-        Write-PScriboMessage "Looking for veeam existing server connection."
+        Write-PScriboMessage 'Looking for veeam existing server connection.'
         #Code taken from @vMarkus_K
         $OpenConnection = (Get-VBRServerSession).Server
         if ($OpenConnection -eq $System) {
-            Write-PScriboMessage "Existing veeam server connection found"
+            Write-PScriboMessage 'Existing veeam server connection found'
         } elseif ($null -eq $OpenConnection) {
-            Write-PScriboMessage "No existing veeam server connection found"
+            Write-PScriboMessage 'No existing veeam server connection found'
             try {
                 Write-PScriboMessage "Connecting to $($System) with $($Credential.USERNAME) credentials"
                 if ($VbrVersion -ge 13) {
-                    Connect-VBRServer -Server $System -User $Credential.UserName -Password (ConvertFrom-SecureString -SecureString  $Credential.Password -AsPlainText) -Port $Port -ForceAcceptTlsCertificate
+                    Connect-VBRServer -Server $System -User $Credential.UserName -Password (ConvertFrom-SecureString -SecureString $Credential.Password -AsPlainText) -Port $Port -ForceAcceptTlsCertificate
                 } else {
                     Connect-VBRServer -Server $System -Credential $Credential -Port $Port
                 }

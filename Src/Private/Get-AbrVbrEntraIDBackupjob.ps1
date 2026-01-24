@@ -22,14 +22,14 @@ function Get-AbrVbrEntraIDBackupjob {
 
     begin {
         Write-PScriboMessage "Discovering Veeam VBR EntraID Tenant Backup jobs information from $System."
-        Show-AbrDebugExecutionTime -Start -TitleMessage "EntraID Tenant Backup Jobs"
+        Show-AbrDebugExecutionTime -Start -TitleMessage 'EntraID Tenant Backup Jobs'
     }
 
     process {
         try {
             if ($Bkjobs = Get-VBREntraIDTenantBackupJob | Sort-Object -Property 'Name') {
                 Section -Style Heading3 'EntraID Tenant Backup Jobs' {
-                    Paragraph "The following section list entraid tenant jobs created in Veeam Backup & Replication."
+                    Paragraph 'The following section list entraid tenant jobs created in Veeam Backup & Replication.'
                     BlankLine
                     $OutObj = @()
                     foreach ($Bkjob in $Bkjobs) {
@@ -65,6 +65,6 @@ function Get-AbrVbrEntraIDBackupjob {
         }
     }
     end {
-        Show-AbrDebugExecutionTime -End -TitleMessage "EntraID Tenant Backup Jobs"
+        Show-AbrDebugExecutionTime -End -TitleMessage 'EntraID Tenant Backup Jobs'
     }
 }

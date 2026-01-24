@@ -22,7 +22,7 @@ function Get-AbrVbrEntraIDTenant {
 
     begin {
         Write-PScriboMessage "Discovering Veeam VBR EntraID information from $System."
-        Show-AbrDebugExecutionTime -Start -TitleMessage "EntraID Tenant"
+        Show-AbrDebugExecutionTime -Start -TitleMessage 'EntraID Tenant'
     }
 
     process {
@@ -50,8 +50,8 @@ function Get-AbrVbrEntraIDTenant {
                         }
 
                         if ($HealthCheck.Infrastructure.BestPractice) {
-                            $OutObj | Where-Object { $_.'Description' -eq "--" } | Set-Style -Style Warning -Property 'Description'
-                            $OutObj | Where-Object { $_.'Description' -match "Created by" } | Set-Style -Style Warning -Property 'Description'
+                            $OutObj | Where-Object { $_.'Description' -eq '--' } | Set-Style -Style Warning -Property 'Description'
+                            $OutObj | Where-Object { $_.'Description' -match 'Created by' } | Set-Style -Style Warning -Property 'Description'
                         }
 
                         $TableParams = @{
@@ -66,11 +66,11 @@ function Get-AbrVbrEntraIDTenant {
                         $OutObj | Sort-Object -Property 'Name' | Table @TableParams
                         if ($HealthCheck.Infrastructure.BestPractice) {
                             if ($OutObj | Where-Object { $_.'Description' -match 'Created by' -or $_.'Description' -eq '--' }) {
-                                Paragraph "Health Check:" -Bold -Underline
+                                Paragraph 'Health Check:' -Bold -Underline
                                 BlankLine
                                 Paragraph {
-                                    Text "Best Practice:" -Bold
-                                    Text "It is a general rule of good practice to establish well-defined descriptions. This helps to speed up the fault identification process, as well as enabling better documentation of the environment."
+                                    Text 'Best Practice:' -Bold
+                                    Text 'It is a general rule of good practice to establish well-defined descriptions. This helps to speed up the fault identification process, as well as enabling better documentation of the environment.'
                                 }
                                 BlankLine
                             }
@@ -83,7 +83,7 @@ function Get-AbrVbrEntraIDTenant {
         }
     }
     end {
-        Show-AbrDebugExecutionTime -End -TitleMessage "EntraID Tenant"
+        Show-AbrDebugExecutionTime -End -TitleMessage 'EntraID Tenant'
     }
 
 }

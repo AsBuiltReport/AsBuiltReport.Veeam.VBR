@@ -28,9 +28,9 @@ function Get-AbrVbrWANAccelerator {
     process {
         try {
             $WANAccels = Get-VBRWANAccelerator | Sort-Object -Property Name
-            if (($VbrLicenses | Where-Object { $_.Edition -in @("EnterprisePlus") }) -and $WANAccels) {
+            if (($VbrLicenses | Where-Object { $_.Edition -in @('EnterprisePlus') }) -and $WANAccels) {
                 Section -Style Heading3 'WAN Accelerators' {
-                    Paragraph "The following section provides information about WAN Accelerator. WAN accelerators are responsible for global data caching and data deduplication."
+                    Paragraph 'The following section provides information about WAN Accelerator. WAN accelerators are responsible for global data caching and data deduplication.'
                     BlankLine
                     $OutObj = @()
                     try {
@@ -44,7 +44,7 @@ function Get-AbrVbrWANAccelerator {
                                     Write-PScriboMessage -IsWarning "Wan Accelerator $($WANAccel.Name) IsWaHasAnyCaches() Item: $($_.Exception.Message)"
                                 }
                                 try {
-                                    $ServiceIPAddress = $WANAccel.GetWaConnSpec().Endpoints.IP -join ", "
+                                    $ServiceIPAddress = $WANAccel.GetWaConnSpec().Endpoints.IP -join ', '
                                 } catch {
                                     Write-PScriboMessage -IsWarning "Wan Accelerator $($WANAccel.Name) GetWaConnSpec() Item: $($_.Exception.Message)"
                                 }

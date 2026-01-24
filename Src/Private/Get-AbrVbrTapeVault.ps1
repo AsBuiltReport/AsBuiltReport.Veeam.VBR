@@ -27,7 +27,7 @@ function Get-AbrVbrTapeVault {
 
     process {
         try {
-            if ($VbrLicenses | Where-Object { $_.Edition -in @("EnterprisePlus", "Enterprise") -and $_.Status -ne "Expired" }) {
+            if ($VbrLicenses | Where-Object { $_.Edition -in @('EnterprisePlus', 'Enterprise') -and $_.Status -ne 'Expired' }) {
                 if ($TapeObjs = Get-VBRTapeVault | Sort-Object -Property Name) {
                     Section -Style Heading3 'Tape Vaults' {
                         $OutObj = @()
@@ -48,8 +48,8 @@ function Get-AbrVbrTapeVault {
                             }
 
                             if ($HealthCheck.Tape.BestPractice) {
-                                $OutObj | Where-Object { $_.'Description' -eq "--" } | Set-Style -Style Warning -Property 'Description'
-                                $OutObj | Where-Object { $_.'Description' -match "Created by" } | Set-Style -Style Warning -Property 'Description'
+                                $OutObj | Where-Object { $_.'Description' -eq '--' } | Set-Style -Style Warning -Property 'Description'
+                                $OutObj | Where-Object { $_.'Description' -match 'Created by' } | Set-Style -Style Warning -Property 'Description'
                             }
 
                             $TableParams = @{
@@ -64,11 +64,11 @@ function Get-AbrVbrTapeVault {
                             $OutObj | Table @TableParams
                             if ($HealthCheck.Tape.BestPractice) {
                                 if ($OutObj | Where-Object { $_.'Description' -match 'Created by' -or $_.'Description' -eq '--' }) {
-                                    Paragraph "Health Check:" -Bold -Underline
+                                    Paragraph 'Health Check:' -Bold -Underline
                                     BlankLine
                                     Paragraph {
-                                        Text "Best Practice:" -Bold
-                                        Text "It is a general rule of good practice to establish well-defined descriptions. This helps to speed up the fault identification process, as well as enabling better documentation of the environment."
+                                        Text 'Best Practice:' -Bold
+                                        Text 'It is a general rule of good practice to establish well-defined descriptions. This helps to speed up the fault identification process, as well as enabling better documentation of the environment.'
                                     }
                                     BlankLine
                                 }

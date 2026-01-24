@@ -22,14 +22,14 @@ function Get-AbrVbrBackupCopyjob {
 
     begin {
         Write-PScriboMessage "Discovering Veeam VBR Backup Copy jobs information from $System."
-        Show-AbrDebugExecutionTime -Start -TitleMessage "Backup Copy Jobs"
+        Show-AbrDebugExecutionTime -Start -TitleMessage 'Backup Copy Jobs'
     }
 
     process {
         try {
             if ($BkCopyjobs = Get-VBRBackupCopyJob -WarningAction SilentlyContinue) {
                 Section -Style Heading3 'Backup Copy Jobs' {
-                    Paragraph "The following section list backup copy jobs created within Veeam Backup & Replication."
+                    Paragraph 'The following section list backup copy jobs created within Veeam Backup & Replication.'
                     BlankLine
                     $OutObj = @()
                     foreach ($BkCopyjob in $BkCopyjobs) {
@@ -73,7 +73,7 @@ function Get-AbrVbrBackupCopyjob {
         }
     }
     end {
-        Show-AbrDebugExecutionTime -End -TitleMessage "Backup Copy Jobs"
+        Show-AbrDebugExecutionTime -End -TitleMessage 'Backup Copy Jobs'
     }
 
 }

@@ -28,7 +28,7 @@ function Get-AbrVbrUserRoleAssignment {
     process {
         try {
             Section -Style Heading3 'Roles and Users' {
-                Paragraph "The following section provides information about roles assigned to users or groups."
+                Paragraph 'The following section provides information about roles assigned to users or groups.'
                 BlankLine
                 $OutObj = @()
                 try {
@@ -50,7 +50,7 @@ function Get-AbrVbrUserRoleAssignment {
                     $List = @()
                     $OutObj | Where-Object { $_.'Name' -eq 'BUILTIN\Administrators' } | Set-Style -Style Warning -Property 'Name'
                     foreach ( $OBJ in ($OutObj | Where-Object { $_.'Name' -eq 'BUILTIN\Administrators' })) {
-                        $OBJ.'Name' = $OBJ.'Name' + " (1)"
+                        $OBJ.'Name' = $OBJ.'Name' + ' (1)'
                         $List += "Veeam recommends to give every Veeam admin his own admin account or add their admin account to the appropriate security group within Veeam and to remove the default 'Veeam Backup Administrator' role from local Administrators group, for traceability and easy adding and removal"
 
                     }
@@ -66,17 +66,17 @@ function Get-AbrVbrUserRoleAssignment {
                 }
                 $OutObj | Sort-Object -Property 'Name' | Table @TableParams
                 if ($HealthCheck.Infrastructure.BestPractice -and $List) {
-                    Paragraph "Health Check:" -Bold -Underline
+                    Paragraph 'Health Check:' -Bold -Underline
                     BlankLine
-                    Paragraph "Security Best Practice:" -Bold
+                    Paragraph 'Security Best Practice:' -Bold
                     List -Item $List -Numbered
                     if ($List ) {
                         Paragraph {
-                            Text -Bold "Reference:"
+                            Text -Bold 'Reference:'
                         }
                         BlankLine
                         Paragraph {
-                            Text "https://bp.veeam.com/security/Design-and-implementation/Roles_And_Users.html#roles-and-users"
+                            Text 'https://bp.veeam.com/security/Design-and-implementation/Roles_And_Users.html#roles-and-users'
                         }
                         BlankLine
                     }
@@ -131,14 +131,14 @@ function Get-AbrVbrUserRoleAssignment {
                                 foreach ( $OBJ in ($OutObj | Where-Object { $_.'Is auto logoff on inactivity enabled?' -eq 'No' })) {
                                     $Num++
                                     $OBJ.'Is auto logoff on inactivity enabled?' = $OBJ.'Is auto logoff on inactivity enabled?' + " ($Num)"
-                                    $List += "Limiting the length of inactive sessions can help protect sensitive information and prevent unauthorized account access."
+                                    $List += 'Limiting the length of inactive sessions can help protect sensitive information and prevent unauthorized account access.'
 
                                 }
                                 $OutObj | Where-Object { $_.'Is Four-eye Authorization enabled?' -like 'No' } | Set-Style -Style Warning -Property 'Is Four-eye Authorization enabled?'
                                 foreach ( $OBJ in ($OutObj | Where-Object { $_.'Is Four-eye Authorization enabled?' -eq 'No' })) {
                                     $Num++
                                     $OBJ.'Is Four-eye Authorization enabled?' = $OBJ.'Is Four-eye Authorization enabled?' + " ($Num)"
-                                    $List += "Veeam recommends configuring Four-eye Authorization to be able to protect against accidental deletion of backup and repositories by requiring an approval from another Backup Administrator."
+                                    $List += 'Veeam recommends configuring Four-eye Authorization to be able to protect against accidental deletion of backup and repositories by requiring an approval from another Backup Administrator.'
                                 }
                             }
 
@@ -152,9 +152,9 @@ function Get-AbrVbrUserRoleAssignment {
                             }
                             $OutObj | Table @TableParams
                             if ($HealthCheck.Infrastructure.BestPractice -and $List) {
-                                Paragraph "Health Check:" -Bold -Underline
+                                Paragraph 'Health Check:' -Bold -Underline
                                 BlankLine
-                                Paragraph "Security Best Practice:" -Bold
+                                Paragraph 'Security Best Practice:' -Bold
                                 List -Item $List -Numbered
                             }
                         }

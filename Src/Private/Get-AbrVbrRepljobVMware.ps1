@@ -29,7 +29,7 @@ function Get-AbrVbrRepljobVMware {
         try {
             if ($Bkjobs = Get-VBRJob -WarningAction SilentlyContinue | Where-Object { $_.TypeToString -eq 'VMware Replication' } | Sort-Object -Property Name) {
                 Section -Style Heading3 'VMware Replication Jobs Configuration' {
-                    Paragraph "The following section details the configuration abut VMware type backup jobs."
+                    Paragraph 'The following section details the configuration abut VMware type backup jobs.'
                     BlankLine
                     $OutObj = @()
                     try {
@@ -73,7 +73,7 @@ function Get-AbrVbrRepljobVMware {
                                                 $inObj = [ordered] @{
                                                     'Name' = $Bkjob.Name
                                                     'Type' = $Bkjob.TypeToString
-                                                    'Total Backup Size' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size  $CommonInfo.IncludedSize
+                                                    'Total Backup Size' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $CommonInfo.IncludedSize
                                                     'Target Address' = $CommonInfo.TargetDir
                                                     'Target File' = $CommonInfo.TargetFile
                                                     'Description' = $CommonInfo.CommonInfo.Description
@@ -253,10 +253,10 @@ function Get-AbrVbrRepljobVMware {
                                     }
                                 }
                                 if ($Bkjob.GetViOijs()) {
-                                    Section -Style NOTOCHeading5 -ExcludeFromTOC "Virtual Machines" {
+                                    Section -Style NOTOCHeading5 -ExcludeFromTOC 'Virtual Machines' {
                                         $OutObj = @()
                                         try {
-                                            foreach ($OBJ in ($Bkjob.GetViOijs() | Where-Object { $_.Type -eq "Include" -or $_.Type -eq "Exclude" } )) {
+                                            foreach ($OBJ in ($Bkjob.GetViOijs() | Where-Object { $_.Type -eq 'Include' -or $_.Type -eq 'Exclude' } )) {
 
                                                 $inObj = [ordered] @{
                                                     'Name' = $OBJ.Name
@@ -286,10 +286,10 @@ function Get-AbrVbrRepljobVMware {
                                     $OutObj = @()
                                     try {
 
-                                        if ($Bkjob.BackupStorageOptions.RetentionType -eq "Days") {
+                                        if ($Bkjob.BackupStorageOptions.RetentionType -eq 'Days') {
                                             $RetainString = 'Restore Point To Keep'
                                             $Retains = $Bkjob.BackupStorageOptions.RetainDaysToKeep
-                                        } elseif ($Bkjob.BackupStorageOptions.RetentionType -eq "Cycles") {
+                                        } elseif ($Bkjob.BackupStorageOptions.RetentionType -eq 'Cycles') {
                                             $RetainString = 'Retain Cycles'
                                             $Retains = $Bkjob.BackupStorageOptions.RetainCycles
                                         }
@@ -314,7 +314,7 @@ function Get-AbrVbrRepljobVMware {
                                         }
                                         $OutObj | Table @TableParams
                                         if ($InfoLevel.Jobs.Replication -ge 2) {
-                                            Section -Style NOTOCHeading6 -ExcludeFromTOC "Advanced Settings (Maintenance)" {
+                                            Section -Style NOTOCHeading6 -ExcludeFromTOC 'Advanced Settings (Maintenance)' {
                                                 $OutObj = @()
                                                 try {
 
@@ -333,7 +333,7 @@ function Get-AbrVbrRepljobVMware {
                                                     $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                     if ($HealthCheck.Jobs.BestPractice) {
-                                                        $OutObj | Where-Object { $_.'Storage-Level Corruption Guard (SLCG)' -eq "No" } | Set-Style -Style Warning -Property 'Storage-Level Corruption Guard (SLCG)'
+                                                        $OutObj | Where-Object { $_.'Storage-Level Corruption Guard (SLCG)' -eq 'No' } | Set-Style -Style Warning -Property 'Storage-Level Corruption Guard (SLCG)'
                                                     }
 
                                                     $TableParams = @{
@@ -349,10 +349,10 @@ function Get-AbrVbrRepljobVMware {
 
                                                     if ($HealthCheck.Jobs.BestPractice) {
                                                         if ($OutObj | Where-Object { $_.'Storage-Level Corruption Guard (SLCG)' -eq 'No' }) {
-                                                            Paragraph "Health Check:" -Bold -Underline
+                                                            Paragraph 'Health Check:' -Bold -Underline
                                                             BlankLine
                                                             Paragraph {
-                                                                Text "Best Practice:" -Bold
+                                                                Text 'Best Practice:' -Bold
                                                                 Text "It is recommended to use storage-level corruption guard for any backup job with no active full backups scheduled. Synthetic full backups are still 'incremental forever' and may suffer from corruption over time. Storage-level corruption guard was introduced to provide a greater level of confidence in integrity of the backups."
                                                             }
                                                             BlankLine
@@ -364,7 +364,7 @@ function Get-AbrVbrRepljobVMware {
                                             }
                                         }
                                         if ($InfoLevel.Jobs.Replication -ge 2) {
-                                            Section -Style NOTOCHeading6 -ExcludeFromTOC "Advanced Settings (Traffic)" {
+                                            Section -Style NOTOCHeading6 -ExcludeFromTOC 'Advanced Settings (Traffic)' {
                                                 $OutObj = @()
                                                 try {
 
@@ -412,11 +412,11 @@ function Get-AbrVbrRepljobVMware {
                                                     $OutObj | Table @TableParams
                                                     if ($HealthCheck.Jobs.BestPractice) {
                                                         if ($OutObj | Where-Object { $_.'Enabled Backup File Encryption' -eq 'No' }) {
-                                                            Paragraph "Health Check:" -Bold -Underline
+                                                            Paragraph 'Health Check:' -Bold -Underline
                                                             BlankLine
                                                             Paragraph {
-                                                                Text "Best Practice:" -Bold
-                                                                Text "Backup and replica data is a high potential source of vulnerability. To secure data stored in backups and replicas, use Veeam Backup & Replication inbuilt encryption to protect data in backups"
+                                                                Text 'Best Practice:' -Bold
+                                                                Text 'Backup and replica data is a high potential source of vulnerability. To secure data stored in backups and replicas, use Veeam Backup & Replication inbuilt encryption to protect data in backups'
                                                             }
                                                             BlankLine
                                                         }
@@ -427,7 +427,7 @@ function Get-AbrVbrRepljobVMware {
                                             }
                                         }
                                         if ($InfoLevel.Jobs.Replication -ge 2 -and ($Bkjob.Options.NotificationOptions.SnmpNotification -or $Bkjob.Options.NotificationOptions.SendEmailNotification2AdditionalAddresses)) {
-                                            Section -Style NOTOCHeading6 -ExcludeFromTOC "Advanced Settings (Notification)" {
+                                            Section -Style NOTOCHeading6 -ExcludeFromTOC 'Advanced Settings (Notification)' {
                                                 $OutObj = @()
                                                 try {
 
@@ -463,7 +463,7 @@ function Get-AbrVbrRepljobVMware {
                                             }
                                         }
                                         if ($InfoLevel.Jobs.Replication -ge 2 -and ($Bkjob.Options.ViSourceOptions.VMToolsQuiesce -or $Bkjob.Options.ViSourceOptions.UseChangeTracking)) {
-                                            Section -Style NOTOCHeading6 -ExcludeFromTOC "Advanced Settings (vSphere)" {
+                                            Section -Style NOTOCHeading6 -ExcludeFromTOC 'Advanced Settings (vSphere)' {
                                                 $OutObj = @()
                                                 try {
 
@@ -490,7 +490,7 @@ function Get-AbrVbrRepljobVMware {
                                             }
                                         }
                                         if ($InfoLevel.Jobs.Replication -ge 2 -and $Bkjob.Options.SanIntegrationOptions.UseSanSnapshots) {
-                                            Section -Style NOTOCHeading6 -ExcludeFromTOC "Advanced Settings (Integration)" {
+                                            Section -Style NOTOCHeading6 -ExcludeFromTOC 'Advanced Settings (Integration)' {
                                                 $OutObj = @()
                                                 try {
 
@@ -518,11 +518,11 @@ function Get-AbrVbrRepljobVMware {
                                             }
                                         }
                                         if ($InfoLevel.Jobs.Replication -ge 2 -and ($Bkjob.Options.JobScriptCommand.PreScriptEnabled -or $Bkjob.Options.JobScriptCommand.PostScriptEnabled)) {
-                                            Section -Style NOTOCHeading6 -ExcludeFromTOC "Advanced Settings (Script)" {
+                                            Section -Style NOTOCHeading6 -ExcludeFromTOC 'Advanced Settings (Script)' {
                                                 $OutObj = @()
                                                 try {
                                                     if ($Bkjob.Options.JobScriptCommand.Periodicity -eq 'Days') {
-                                                        $FrequencyValue = $Bkjob.Options.JobScriptCommand.Days -join ","
+                                                        $FrequencyValue = $Bkjob.Options.JobScriptCommand.Days -join ','
                                                         $FrequencyText = 'Run Script on the Selected Days'
                                                     } elseif ($Bkjob.Options.JobScriptCommand.Periodicity -eq 'Cycles') {
                                                         $FrequencyValue = $Bkjob.Options.JobScriptCommand.Frequency
@@ -555,7 +555,7 @@ function Get-AbrVbrRepljobVMware {
                                             }
                                         }
                                         if ($InfoLevel.Jobs.Replication -ge 2 -and ($Bkjob.Options.RpoOptions.Enabled -or $Bkjob.Options.RpoOptions.LogBackupRpoEnabled)) {
-                                            Section -Style NOTOCHeading6 -ExcludeFromTOC "Advanced Settings (RPO Monitor)" {
+                                            Section -Style NOTOCHeading6 -ExcludeFromTOC 'Advanced Settings (RPO Monitor)' {
                                                 $OutObj = @()
                                                 try {
 
@@ -591,13 +591,13 @@ function Get-AbrVbrRepljobVMware {
 
                                         $inObj = [ordered] @{
                                             'Source Proxy' = switch (($Bkjob.GetProxy().Name).count) {
-                                                0 { "Unknown" }
-                                                { $_ -gt 1 } { "Automatic" }
+                                                0 { 'Unknown' }
+                                                { $_ -gt 1 } { 'Automatic' }
                                                 default { $Bkjob.GetProxy().Name }
                                             }
                                             'Target Proxy' = switch (($Bkjob.GetTargetProxies().Name).count) {
-                                                0 { "Unknown" }
-                                                { $_ -gt 1 } { "Automatic" }
+                                                0 { 'Unknown' }
+                                                { $_ -gt 1 } { 'Automatic' }
                                                 default { $Bkjob.GetTargetProxies().Name }
                                             }
                                             'Use Wan accelerator' = $Bkjob.IsWanAcceleratorEnabled()
@@ -663,16 +663,16 @@ function Get-AbrVbrRepljobVMware {
                                     }
                                 }
                                 if ($Bkjob.VssOptions.Enabled) {
-                                    Section -Style NOTOCHeading5 -ExcludeFromTOC "Guest Processing" {
+                                    Section -Style NOTOCHeading5 -ExcludeFromTOC 'Guest Processing' {
                                         $OutObj = @()
                                         try {
-                                            $VSSObjs = Get-VBRJobObject -Job $Bkjob.Name | Where-Object { $_.Type -eq "Include" -or $_.Type -eq "VssChild" } | Sort-Object -Property Name
+                                            $VSSObjs = Get-VBRJobObject -Job $Bkjob.Name | Where-Object { $_.Type -eq 'Include' -or $_.Type -eq 'VssChild' } | Sort-Object -Property Name
                                             foreach ($VSSObj in $VSSObjs) {
 
                                                 $inObj = [ordered] @{
                                                     'Name' = $VSSObj.Name
                                                     'Enabled' = $VSSObj.VssOptions.Enabled
-                                                    'Resource Type' = ($Bkjob.GetViOijs() | Where-Object { $_.Name -eq $VSSObj.Name -and ($_.Type -eq "Include" -or $_.Type -eq "VssChild") }).TypeDisplayName
+                                                    'Resource Type' = ($Bkjob.GetViOijs() | Where-Object { $_.Name -eq $VSSObj.Name -and ($_.Type -eq 'Include' -or $_.Type -eq 'VssChild') }).TypeDisplayName
                                                     'Ignore Errors' = $VSSObj.VssOptions.IgnoreErrors
                                                     'Guest Proxy Auto Detect' = $VSSObj.VssOptions.GuestProxyAutoDetect
                                                     'Default Credential' = switch ((Get-VBRCredentials | Where-Object { $_.Id -eq $Bkjob.VssOptions.WinCredsId.Guid }).count) {
@@ -772,22 +772,22 @@ function Get-AbrVbrRepljobVMware {
                                     }
                                 }
                                 if ($Bkjob.IsScheduleEnabled) {
-                                    Section -Style NOTOCHeading5 -ExcludeFromTOC "Schedule" {
+                                    Section -Style NOTOCHeading5 -ExcludeFromTOC 'Schedule' {
                                         $OutObj = @()
                                         try {
 
-                                            if ($Bkjob.ScheduleOptions.OptionsDaily.Enabled -eq "True") {
-                                                $ScheduleType = "Daily"
+                                            if ($Bkjob.ScheduleOptions.OptionsDaily.Enabled -eq 'True') {
+                                                $ScheduleType = 'Daily'
                                                 $Schedule = "Kind: $($Bkjob.ScheduleOptions.OptionsDaily.Kind),`r`nDays: $($Bkjob.ScheduleOptions.OptionsDaily.DaysSrv)"
-                                            } elseif ($Bkjob.ScheduleOptions.OptionsMonthly.Enabled -eq "True") {
-                                                $ScheduleType = "Monthly"
+                                            } elseif ($Bkjob.ScheduleOptions.OptionsMonthly.Enabled -eq 'True') {
+                                                $ScheduleType = 'Monthly'
                                                 $Schedule = "Day Of Month: $($Bkjob.ScheduleOptions.OptionsMonthly.DayOfMonth),`r`nDay Number In Month: $($Bkjob.ScheduleOptions.OptionsMonthly.DayNumberInMonth),`r`nDay Of Week: $($Bkjob.ScheduleOptions.OptionsMonthly.DayOfWeek)"
-                                            } elseif ($Bkjob.ScheduleOptions.OptionsPeriodically.Enabled -eq "True") {
+                                            } elseif ($Bkjob.ScheduleOptions.OptionsPeriodically.Enabled -eq 'True') {
                                                 $ScheduleType = $Bkjob.ScheduleOptions.OptionsPeriodically.Kind
                                                 $Schedule = "Full Period: $($Bkjob.ScheduleOptions.OptionsPeriodically.FullPeriod),`r`nHourly Offset: $($Bkjob.ScheduleOptions.OptionsPeriodically.HourlyOffset),`r`nUnit: $($Bkjob.ScheduleOptions.OptionsPeriodically.Unit)"
-                                            } elseif ($Bkjob.ScheduleOptions.OptionsContinuous.Enabled -eq "True") {
+                                            } elseif ($Bkjob.ScheduleOptions.OptionsContinuous.Enabled -eq 'True') {
                                                 $ScheduleType = 'Continuous'
-                                                $Schedule = "Schedule Time Period"
+                                                $Schedule = 'Schedule Time Period'
                                             }
                                             $inObj = [ordered] @{
                                                 'Retry Failed item' = $Bkjob.ScheduleOptions.RetryTimes
@@ -810,7 +810,7 @@ function Get-AbrVbrRepljobVMware {
                                             }
                                             $OutObj | Table @TableParams
                                             if ($Bkjob.ScheduleOptions.OptionsBackupWindow.IsEnabled -or $Bkjob.ScheduleOptions.OptionsContinuous.Enabled) {
-                                                Section -Style NOTOCHeading6 -ExcludeFromTOC "Backup Window Time Period" {
+                                                Section -Style NOTOCHeading6 -ExcludeFromTOC 'Backup Window Time Period' {
                                                     Paragraph -ScriptBlock $Legend
 
                                                     $OutObj = @()
@@ -820,7 +820,7 @@ function Get-AbrVbrRepljobVMware {
                                                         foreach ($Day in $Days) {
 
                                                             $Regex = [Regex]::new("(?<=<$Day>)(.*)(?=</$Day>)")
-                                                            if ($Bkjob.TypeToString -eq "VMware Backup Copy") {
+                                                            if ($Bkjob.TypeToString -eq 'VMware Backup Copy') {
                                                                 $BackupWindow = $Bkjob.ScheduleOptions.OptionsContinuous.Schedule
                                                             } else { $BackupWindow = $Bkjob.ScheduleOptions.OptionsBackupWindow.BackupWindow }
                                                             $Match = $Regex.Match($BackupWindow)
@@ -842,21 +842,21 @@ function Get-AbrVbrRepljobVMware {
                                                         }
                                                         if ($OutObj) {
                                                             $OutObj2 = Table -Hashtable $OutObj @TableParams
-                                                            $OutObj2.Rows | Where-Object { $_.Sun -eq "0" } | Set-Style -Style ON -Property "Sun"
-                                                            $OutObj2.Rows | Where-Object { $_.Mon -eq "0" } | Set-Style -Style ON -Property "Mon"
-                                                            $OutObj2.Rows | Where-Object { $_.Tue -eq "0" } | Set-Style -Style ON -Property "Tue"
-                                                            $OutObj2.Rows | Where-Object { $_.Wed -eq "0" } | Set-Style -Style ON -Property "Wed"
-                                                            $OutObj2.Rows | Where-Object { $_.Thu -eq "0" } | Set-Style -Style ON -Property "Thu"
-                                                            $OutObj2.Rows | Where-Object { $_.Fri -eq "0" } | Set-Style -Style ON -Property "Fri"
-                                                            $OutObj2.Rows | Where-Object { $_.Sat -eq "0" } | Set-Style -Style ON -Property "Sat"
+                                                            $OutObj2.Rows | Where-Object { $_.Sun -eq '0' } | Set-Style -Style ON -Property 'Sun'
+                                                            $OutObj2.Rows | Where-Object { $_.Mon -eq '0' } | Set-Style -Style ON -Property 'Mon'
+                                                            $OutObj2.Rows | Where-Object { $_.Tue -eq '0' } | Set-Style -Style ON -Property 'Tue'
+                                                            $OutObj2.Rows | Where-Object { $_.Wed -eq '0' } | Set-Style -Style ON -Property 'Wed'
+                                                            $OutObj2.Rows | Where-Object { $_.Thu -eq '0' } | Set-Style -Style ON -Property 'Thu'
+                                                            $OutObj2.Rows | Where-Object { $_.Fri -eq '0' } | Set-Style -Style ON -Property 'Fri'
+                                                            $OutObj2.Rows | Where-Object { $_.Sat -eq '0' } | Set-Style -Style ON -Property 'Sat'
 
-                                                            $OutObj2.Rows | Where-Object { $_.Sun -eq "1" } | Set-Style -Style OFF -Property "Sun"
-                                                            $OutObj2.Rows | Where-Object { $_.Mon -eq "1" } | Set-Style -Style OFF -Property "Mon"
-                                                            $OutObj2.Rows | Where-Object { $_.Tue -eq "1" } | Set-Style -Style OFF -Property "Tue"
-                                                            $OutObj2.Rows | Where-Object { $_.Wed -eq "1" } | Set-Style -Style OFF -Property "Wed"
-                                                            $OutObj2.Rows | Where-Object { $_.Thu -eq "1" } | Set-Style -Style OFF -Property "Thu"
-                                                            $OutObj2.Rows | Where-Object { $_.Fri -eq "1" } | Set-Style -Style OFF -Property "Fri"
-                                                            $OutObj2.Rows | Where-Object { $_.Sat -eq "1" } | Set-Style -Style OFF -Property "Sat"
+                                                            $OutObj2.Rows | Where-Object { $_.Sun -eq '1' } | Set-Style -Style OFF -Property 'Sun'
+                                                            $OutObj2.Rows | Where-Object { $_.Mon -eq '1' } | Set-Style -Style OFF -Property 'Mon'
+                                                            $OutObj2.Rows | Where-Object { $_.Tue -eq '1' } | Set-Style -Style OFF -Property 'Tue'
+                                                            $OutObj2.Rows | Where-Object { $_.Wed -eq '1' } | Set-Style -Style OFF -Property 'Wed'
+                                                            $OutObj2.Rows | Where-Object { $_.Thu -eq '1' } | Set-Style -Style OFF -Property 'Thu'
+                                                            $OutObj2.Rows | Where-Object { $_.Fri -eq '1' } | Set-Style -Style OFF -Property 'Fri'
+                                                            $OutObj2.Rows | Where-Object { $_.Sat -eq '1' } | Set-Style -Style OFF -Property 'Sat'
                                                             $OutObj2
                                                         }
                                                     } catch {

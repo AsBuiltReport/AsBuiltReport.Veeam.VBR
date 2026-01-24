@@ -29,7 +29,7 @@ function Get-AbrVbrKMSInfo {
         try {
             if ($KMSServers = Get-VBRKMSServer | Sort-Object -Property Name) {
                 Section -Style Heading3 'Key Management Servers' {
-                    Paragraph "The following table provide information about the kms configured in Veeam Backup & Replication."
+                    Paragraph 'The following table provide information about the kms configured in Veeam Backup & Replication.'
                     BlankLine
                     $OutObj = @()
                     foreach ($KMSServer in $KMSServers) {
@@ -54,7 +54,7 @@ function Get-AbrVbrKMSInfo {
                         if ($Report.ShowTableCaptions) {
                             $TableParams['Caption'] = "- $($TableParams.Name)"
                         }
-                        $OutObj |  Table @TableParams
+                        $OutObj | Table @TableParams
                     }
                 }
             }

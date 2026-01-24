@@ -29,7 +29,7 @@ function Get-AbrVbrTapejob {
         try {
             if ($TBkjobs = Get-VBRTapeJob | Sort-Object -Property Name) {
                 Section -Style Heading3 'Tape Backup Jobs' {
-                    Paragraph "The following section list tape backup jobs created in Veeam Backup & Replication."
+                    Paragraph 'The following section list tape backup jobs created in Veeam Backup & Replication.'
                     BlankLine
                     $OutObj = @()
                     foreach ($TBkjob in $TBkjobs) {

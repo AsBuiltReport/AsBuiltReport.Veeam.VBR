@@ -102,10 +102,10 @@ function Get-AbrVbrSecurityCompliance {
                     'BackupServerHighAvailabilityEnabled' = 'High Availability cluster should be configured for this backup server'
                 }
                 $StatusObj = @{
-                    'Ok' = "Passed"
-                    'Violation' = "Not Implemented"
-                    'UnableToCheck' = "Unable to detect"
-                    'Suppressed' = "Suppressed"
+                    'Ok' = 'Passed'
+                    'Violation' = 'Not Implemented'
+                    'UnableToCheck' = 'Unable to detect'
+                    'Suppressed' = 'Suppressed'
                 }
                 $OutObj = @()
                 foreach ($SecurityCompliance in $SecurityCompliances) {
@@ -141,10 +141,10 @@ function Get-AbrVbrSecurityCompliance {
             try {
 
                 $sampleData = [ordered]@{
-                    'Passed' = ($OutObj.status | Where-Object { $_ -eq "Passed" } | Measure-Object).Count
-                    'Unable to detect' = ($OutObj.status | Where-Object { $_ -eq "Unable to detect" } | Measure-Object).Count
-                    'Not Implemented' = ($OutObj.status | Where-Object { $_ -eq "Not Implemented" } | Measure-Object).Count
-                    'Suppressed' = ($OutObj.status | Where-Object { $_ -eq "Suppressed" } | Measure-Object).Count
+                    'Passed' = ($OutObj.status | Where-Object { $_ -eq 'Passed' } | Measure-Object).Count
+                    'Unable to detect' = ($OutObj.status | Where-Object { $_ -eq 'Unable to detect' } | Measure-Object).Count
+                    'Not Implemented' = ($OutObj.status | Where-Object { $_ -eq 'Not Implemented' } | Measure-Object).Count
+                    'Suppressed' = ($OutObj.status | Where-Object { $_ -eq 'Suppressed' } | Measure-Object).Count
                 }
 
                 $sampleDataObj = $sampleData.GetEnumerator() | Select-Object @{ Name = 'Category'; Expression = { $_.key } }, @{ Name = 'Value'; Expression = { $_.value } }

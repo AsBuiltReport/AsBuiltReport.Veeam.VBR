@@ -22,14 +22,14 @@ function Get-AbrVbrCredential {
 
     begin {
         Write-PScriboMessage "Discovering Veeam VBR credential information from $System."
-        Show-AbrDebugExecutionTime -Start -TitleMessage "Veeam VBR Credential"
+        Show-AbrDebugExecutionTime -Start -TitleMessage 'Veeam VBR Credential'
     }
 
     process {
         try {
             if ($Credentials = Get-VBRCredentials) {
                 Section -Style Heading3 'Security Credentials' {
-                    Paragraph "The following table provide information about the credentials managed by Veeam Backup & Replication."
+                    Paragraph 'The following table provide information about the credentials managed by Veeam Backup & Replication.'
                     BlankLine
                     $OutObj = @()
                     foreach ($Credential in $Credentials) {
@@ -38,7 +38,7 @@ function Get-AbrVbrCredential {
                             $inObj = [ordered] @{
                                 'Name' = $Credential.Name
                                 'Change Time' = switch ($Credential.ChangeTimeUtc) {
-                                    "" { "--"; break }
+                                    '' { '--'; break }
                                     $Null { '--'; break }
                                     default { $Credential.ChangeTimeUtc.ToShortDateString() }
                                 }
@@ -62,7 +62,7 @@ function Get-AbrVbrCredential {
                     try {
                         if ($CloudCredentials = Get-VBRCloudProviderCredentials) {
                             Section -Style Heading3 'Service Provider Credentials' {
-                                Paragraph "The following table provide information about the service provider credentials managed by Veeam Backup & Replication."
+                                Paragraph 'The following table provide information about the service provider credentials managed by Veeam Backup & Replication.'
                                 BlankLine
                                 $OutObj = @()
                                 foreach ($CloudCredential in $CloudCredentials) {
@@ -96,7 +96,7 @@ function Get-AbrVbrCredential {
             }
         } catch {
             Write-PScriboMessage -IsWarning "Security Credentials Section: $($_.Exception.Message)"
-            Show-AbrDebugExecutionTime -End -TitleMessage "Veeam VBR Credential"
+            Show-AbrDebugExecutionTime -End -TitleMessage 'Veeam VBR Credential'
         }
     }
     end {}

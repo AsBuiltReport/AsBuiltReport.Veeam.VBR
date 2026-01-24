@@ -22,15 +22,15 @@ function Get-AbrVbrCloudConnectCert {
 
     begin {
         Write-PScriboMessage "Discovering Veeam VBR Cloud SSL Certificate information from $System."
-        Show-AbrDebugExecutionTime -Start -TitleMessage "Cloud Connect SSL Certificate"
+        Show-AbrDebugExecutionTime -Start -TitleMessage 'Cloud Connect SSL Certificate'
     }
 
     process {
         try {
-            if ($VbrLicenses | Where-Object { $_.CloudConnect -ne "Disabled" }) {
+            if ($VbrLicenses | Where-Object { $_.CloudConnect -ne 'Disabled' }) {
                 if ($CloudObjects = Get-VBRCloudGatewayCertificate) {
                     Section -Style Heading3 'Gateway Certificate' {
-                        Paragraph "The following section provides information about Cloud Gateways SSL Certificate."
+                        Paragraph 'The following section provides information about Cloud Gateways SSL Certificate.'
                         BlankLine
                         try {
                             $OutObj = @()
@@ -73,7 +73,7 @@ function Get-AbrVbrCloudConnectCert {
             }
         } catch {
             Write-PScriboMessage -IsWarning "Gateway Certificate Section: $($_.Exception.Message)"
-            Show-AbrDebugExecutionTime -End -TitleMessage "Cloud Connect SSL Certificate"
+            Show-AbrDebugExecutionTime -End -TitleMessage 'Cloud Connect SSL Certificate'
         }
     }
     end {}

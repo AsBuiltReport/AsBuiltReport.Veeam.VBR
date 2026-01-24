@@ -31,12 +31,12 @@ function Get-AbrVbrSureBackup {
             $SureBackupVLs = Get-VBRVirtualLab | Sort-Object -Property Name
             if ($SureBackupAGs -or $SureBackupVLs) {
                 Section -Style Heading3 'SureBackup Configuration' {
-                    Paragraph "The following section provides configuration information about SureBackup."
+                    Paragraph 'The following section provides configuration information about SureBackup.'
                     BlankLine
                     try {
                         if ($SureBackupAGs) {
                             Section -Style Heading4 'Application Groups' {
-                                Paragraph "The following section provides a summary about Application Groups."
+                                Paragraph 'The following section provides a summary about Application Groups.'
                                 BlankLine
                                 $OutObj = @()
                                 try {
@@ -44,7 +44,7 @@ function Get-AbrVbrSureBackup {
 
                                         $inObj = [ordered] @{
                                             'Name' = $SureBackupAG.Name
-                                            'VM List' = $SureBackupAG.VM -join ", "
+                                            'VM List' = $SureBackupAG.VM -join ', '
                                         }
                                         $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                                     }
@@ -80,11 +80,11 @@ function Get-AbrVbrSureBackup {
                                                         $inObj = [ordered] @{
                                                             'VM Name' = $VMSetting.Name
                                                             'Credentials' = $VMSetting.Credentials
-                                                            'Role' = ($VMSetting.Role -join ", ")
-                                                            'Test Script' = ($VMSetting.TestScript.PredefinedApplication -join ", ")
+                                                            'Role' = ($VMSetting.Role -join ', ')
+                                                            'Test Script' = ($VMSetting.TestScript.PredefinedApplication -join ', ')
                                                             'Startup Options' = switch ($VMSetting.StartupOptions) {
-                                                                "" { "--"; break }
-                                                                $Null { "--"; break }
+                                                                '' { '--'; break }
+                                                                $Null { '--'; break }
                                                                 default { $VMSetting.StartupOptions | ForEach-Object { "Allocated Memory: $($_.AllocatedMemory)`r`nHeartbeat Check: $($_.VMHeartBeatCheckEnabled)`r`nMaximum Boot Time: $($_.MaximumBootTime)`r`nApp Init Timeout: $($_.ApplicationInitializationTimeout)`r`nPing Check: $($_.VMPingCheckEnabled)" } }
                                                             }
                                                         }
@@ -117,7 +117,7 @@ function Get-AbrVbrSureBackup {
                     if ($SureBackupVLs) {
                         try {
                             Section -Style Heading4 'Virtual Labs' {
-                                Paragraph "The following section provides a summary about SureBackup Virtual Lab."
+                                Paragraph 'The following section provides a summary about SureBackup Virtual Lab.'
                                 BlankLine
                                 $OutObj = @()
                                 try {
@@ -126,7 +126,7 @@ function Get-AbrVbrSureBackup {
                                         $inObj = [ordered] @{
                                             'Name' = $SureBackupVL.Name
                                             'Platform' = $SureBackupVL.Platform
-                                            'Physical Host' = $SureBackupVL.Server.Name.split(".")[0]
+                                            'Physical Host' = $SureBackupVL.Server.Name.split('.')[0]
                                             'Physical Host Version' = $SureBackupVL.Server.Info.Info
                                         }
                                         $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
@@ -148,7 +148,7 @@ function Get-AbrVbrSureBackup {
                                     try {
                                         $SureBackupVLCs = Get-VBRViVirtualLabConfiguration | Sort-Object -Property Name
                                         if ($SureBackupVLCs) {
-                                            Section -Style Heading5 "vSphere Virtual Labs Configuration" {
+                                            Section -Style Heading5 'vSphere Virtual Labs Configuration' {
                                                 foreach ($SureBackupVLC in $SureBackupVLCs) {
                                                     try {
                                                         Section -Style Heading6 "$($SureBackupVLC.Name) Settings" {
@@ -181,7 +181,7 @@ function Get-AbrVbrSureBackup {
                                                             }
                                                             $OutObj | Table @TableParams
                                                             try {
-                                                                Section -Style NOTOCHeading6 -ExcludeFromTOC "vNIC Settings" {
+                                                                Section -Style NOTOCHeading6 -ExcludeFromTOC 'vNIC Settings' {
                                                                     $OutObj = @()
                                                                     foreach ($NetworkOption in $SureBackupVLC.NetworkOptions) {
                                                                         $inObj = [ordered] @{
@@ -209,7 +209,7 @@ function Get-AbrVbrSureBackup {
                                                             }
                                                             try {
                                                                 if ($SureBackupVLC.IpMappingRule) {
-                                                                    Section -Style NOTOCHeading6 -ExcludeFromTOC "IP Address Mapping" {
+                                                                    Section -Style NOTOCHeading6 -ExcludeFromTOC 'IP Address Mapping' {
                                                                         $OutObj = @()
                                                                         foreach ($NetworkOption in $SureBackupVLC.IpMappingRule) {
                                                                             $inObj = [ordered] @{
@@ -237,11 +237,11 @@ function Get-AbrVbrSureBackup {
                                                                         $OutObj | Sort-Object -Property 'Production Network' | Table @TableParams
                                                                         if ($HealthCheck.Infrastructure.BestPractice) {
                                                                             if ($OutObj | Where-Object { $Null -like $_.'Notes' }) {
-                                                                                Paragraph "Health Check:" -Bold -Underline
+                                                                                Paragraph 'Health Check:' -Bold -Underline
                                                                                 BlankLine
                                                                                 Paragraph {
-                                                                                    Text "Best Practice:" -Bold
-                                                                                    Text "It is a general rule of good practice to establish well-defined notes. This helps to speed up the fault identification process, as well as enabling better documentation of the environment."
+                                                                                    Text 'Best Practice:' -Bold
+                                                                                    Text 'It is a general rule of good practice to establish well-defined notes. This helps to speed up the fault identification process, as well as enabling better documentation of the environment.'
                                                                                 }
                                                                                 BlankLine
                                                                             }
@@ -264,7 +264,7 @@ function Get-AbrVbrSureBackup {
                                     try {
                                         $SureBackupHvVLCs = try { Get-VBRHvVirtualLabConfiguration | Sort-Object -Property Name } catch { $Null }
                                         if ($SureBackupHvVLCs) {
-                                            Section -Style Heading5 "Hyper-V Virtual Labs Configuration" {
+                                            Section -Style Heading5 'Hyper-V Virtual Labs Configuration' {
                                                 foreach ($SureBackupHvVLC in $SureBackupHvVLCs) {
                                                     try {
                                                         Section -Style Heading6 "$($SureBackupHvVLC.Name) Settings" {
@@ -292,7 +292,7 @@ function Get-AbrVbrSureBackup {
                                                             }
                                                             $OutObj | Table @TableParams
                                                             try {
-                                                                Section -Style NOTOCHeading6 -ExcludeFromTOC "vNIC Settings" {
+                                                                Section -Style NOTOCHeading6 -ExcludeFromTOC 'vNIC Settings' {
                                                                     $OutObj = @()
                                                                     foreach ($NetworkOption in $SureBackupVL.IsolatedNetworkOptions) {
                                                                         $inObj = [ordered] @{
@@ -320,7 +320,7 @@ function Get-AbrVbrSureBackup {
                                                             }
                                                             try {
                                                                 if ($SureBackupHvVLC.StaticIPMappingEnabled) {
-                                                                    Section -Style NOTOCHeading6 -ExcludeFromTOC "IP Address Mapping" {
+                                                                    Section -Style NOTOCHeading6 -ExcludeFromTOC 'IP Address Mapping' {
                                                                         $OutObj = @()
                                                                         foreach ($NetworkOption in $SureBackupHvVLC.StaticIPMappingRule) {
                                                                             $inObj = [ordered] @{
@@ -348,11 +348,11 @@ function Get-AbrVbrSureBackup {
                                                                         $OutObj | Sort-Object -Property 'Production Network' | Table @TableParams
                                                                         if ($HealthCheck.Infrastructure.BestPractice) {
                                                                             if ($OutObj | Where-Object { $Null -like $_.'Notes' }) {
-                                                                                Paragraph "Health Check:" -Bold -Underline
+                                                                                Paragraph 'Health Check:' -Bold -Underline
                                                                                 BlankLine
                                                                                 Paragraph {
-                                                                                    Text "Best Practice:" -Bold
-                                                                                    Text "It is a general rule of good practice to establish well-defined notes. This helps to speed up the fault identification process, as well as enabling better documentation of the environment."
+                                                                                    Text 'Best Practice:' -Bold
+                                                                                    Text 'It is a general rule of good practice to establish well-defined notes. This helps to speed up the fault identification process, as well as enabling better documentation of the environment.'
                                                                                 }
                                                                                 BlankLine
                                                                             }

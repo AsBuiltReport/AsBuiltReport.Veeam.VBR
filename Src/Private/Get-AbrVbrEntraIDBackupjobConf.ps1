@@ -22,14 +22,14 @@ function Get-AbrVbrEntraIDBackupjobConf {
 
     begin {
         Write-PScriboMessage "Discovering Veeam VBR EntraID Tenant Backup jobs information from $System."
-        Show-AbrDebugExecutionTime -Start -TitleMessage "EntraID Tenant Backup Jobs"
+        Show-AbrDebugExecutionTime -Start -TitleMessage 'EntraID Tenant Backup Jobs'
     }
 
     process {
         try {
             if ($Bkjobs = Get-VBREntraIDTenantBackupJob | Sort-Object -Property 'Name') {
                 Section -Style Heading3 'Entra ID Tenant Backup Jobs Configuration' {
-                    Paragraph "The following section details the configuration of entra id backup jobs."
+                    Paragraph 'The following section details the configuration of entra id backup jobs.'
                     BlankLine
                     $OutObj = @()
                     foreach ($Bkjob in $Bkjobs) {
@@ -52,8 +52,8 @@ function Get-AbrVbrEntraIDBackupjobConf {
                                         }
 
                                         if ($HealthCheck.Jobs.BestPractice) {
-                                            $OutObj | Where-Object { $Null -like $_.'Description' -or $_.'Description' -eq "--" } | Set-Style -Style Warning -Property 'Description'
-                                            $OutObj | Where-Object { $_.'Description' -match "Created by" } | Set-Style -Style Warning -Property 'Description'
+                                            $OutObj | Where-Object { $Null -like $_.'Description' -or $_.'Description' -eq '--' } | Set-Style -Style Warning -Property 'Description'
+                                            $OutObj | Where-Object { $_.'Description' -match 'Created by' } | Set-Style -Style Warning -Property 'Description'
                                         }
 
                                         $TableParams = @{
@@ -67,11 +67,11 @@ function Get-AbrVbrEntraIDBackupjobConf {
                                         $OutObj | Table @TableParams
                                         if ($HealthCheck.Jobs.BestPractice) {
                                             if ($OutObj | Where-Object { $_.'Description' -match 'Created by' -or $_.'Description' -eq '--' }) {
-                                                Paragraph "Health Check:" -Bold -Underline
+                                                Paragraph 'Health Check:' -Bold -Underline
                                                 BlankLine
                                                 Paragraph {
-                                                    Text "Best Practice:" -Bold
-                                                    Text "It is a general rule of good practice to establish well-defined descriptions. This helps to speed up the fault identification process, as well as enabling better documentation of the environment."
+                                                    Text 'Best Practice:' -Bold
+                                                    Text 'It is a general rule of good practice to establish well-defined descriptions. This helps to speed up the fault identification process, as well as enabling better documentation of the environment.'
                                                 }
                                                 BlankLine
                                             }
@@ -100,8 +100,8 @@ function Get-AbrVbrEntraIDBackupjobConf {
                                     }
 
                                     if ($HealthCheck.Jobs.BestPractice) {
-                                        $OutObj | Where-Object { $_.'Description' -eq "--" } | Set-Style -Style Warning -Property 'Description'
-                                        $OutObj | Where-Object { $_.'Description' -match "Created by" } | Set-Style -Style Warning -Property 'Description'
+                                        $OutObj | Where-Object { $_.'Description' -eq '--' } | Set-Style -Style Warning -Property 'Description'
+                                        $OutObj | Where-Object { $_.'Description' -match 'Created by' } | Set-Style -Style Warning -Property 'Description'
                                     }
 
                                     $TableParams = @{
@@ -116,11 +116,11 @@ function Get-AbrVbrEntraIDBackupjobConf {
                                     $OutObj | Sort-Object -Property 'Name' | Table @TableParams
                                     if ($HealthCheck.Jobs.BestPractice) {
                                         if ($OutObj | Where-Object { $_.'Description' -match 'Created by' -or $_.'Description' -eq '--' }) {
-                                            Paragraph "Health Check:" -Bold -Underline
+                                            Paragraph 'Health Check:' -Bold -Underline
                                             BlankLine
                                             Paragraph {
-                                                Text "Best Practice:" -Bold
-                                                Text "It is a general rule of good practice to establish well-defined descriptions. This helps to speed up the fault identification process, as well as enabling better documentation of the environment."
+                                                Text 'Best Practice:' -Bold
+                                                Text 'It is a general rule of good practice to establish well-defined descriptions. This helps to speed up the fault identification process, as well as enabling better documentation of the environment.'
                                             }
                                             BlankLine
                                         }
@@ -143,7 +143,7 @@ function Get-AbrVbrEntraIDBackupjobConf {
                                             }
 
                                             if ($HealthCheck.Jobs.BestPractice) {
-                                                $OutObj | Where-Object { $_.'Enabled' -eq "No" } | Set-Style -Style Warning -Property 'Enabled'
+                                                $OutObj | Where-Object { $_.'Enabled' -eq 'No' } | Set-Style -Style Warning -Property 'Enabled'
                                             }
 
                                             $TableParams = @{
@@ -158,11 +158,11 @@ function Get-AbrVbrEntraIDBackupjobConf {
                                             $OutObj | Table @TableParams
                                             if ($HealthCheck.Jobs.BestPractice) {
                                                 if ($OutObj | Where-Object { $_.'Enabled Backup File Encryption' -eq 'No' }) {
-                                                    Paragraph "Health Check:" -Bold -Underline
+                                                    Paragraph 'Health Check:' -Bold -Underline
                                                     BlankLine
                                                     Paragraph {
-                                                        Text "Best Practice:" -Bold
-                                                        Text "Backup and replica data is a high potential source of vulnerability. To secure data stored in backups and replicas, use Veeam Backup & Replication inbuilt encryption to protect data in backups"
+                                                        Text 'Best Practice:' -Bold
+                                                        Text 'Backup and replica data is a high potential source of vulnerability. To secure data stored in backups and replicas, use Veeam Backup & Replication inbuilt encryption to protect data in backups'
                                                     }
                                                     BlankLine
                                                 }
@@ -170,7 +170,7 @@ function Get-AbrVbrEntraIDBackupjobConf {
                                         }
                                     }
                                     if ($InfoLevel.Jobs.EntraID -ge 2) {
-                                        Section -Style NOTOCHeading5 -ExcludeFromTOC "Advanced Settings (Notification)" {
+                                        Section -Style NOTOCHeading5 -ExcludeFromTOC 'Advanced Settings (Notification)' {
                                             $OutObj = @()
                                             try {
 
@@ -210,22 +210,22 @@ function Get-AbrVbrEntraIDBackupjobConf {
                                         }
                                     }
                                     if ($Bkjob.EnableSchedule) {
-                                        Section -Style NOTOCHeading5 -ExcludeFromTOC "Schedule" {
+                                        Section -Style NOTOCHeading5 -ExcludeFromTOC 'Schedule' {
                                             $OutObj = @()
                                             try {
 
-                                                if ($Bkjob.ScheduleOptions.OptionsDaily.Enabled -eq "True") {
-                                                    $ScheduleType = "Daily"
+                                                if ($Bkjob.ScheduleOptions.OptionsDaily.Enabled -eq 'True') {
+                                                    $ScheduleType = 'Daily'
                                                     $Schedule = "Kind: $($Bkjob.ScheduleOptions.OptionsDaily.Kind),`r`nDays: $($Bkjob.ScheduleOptions.OptionsDaily.DaysSrv)"
-                                                } elseif ($Bkjob.ScheduleOptions.OptionsMonthly.Enabled -eq "True") {
-                                                    $ScheduleType = "Monthly"
+                                                } elseif ($Bkjob.ScheduleOptions.OptionsMonthly.Enabled -eq 'True') {
+                                                    $ScheduleType = 'Monthly'
                                                     $Schedule = "Day Of Month: $($Bkjob.ScheduleOptions.OptionsMonthly.DayOfMonth),`r`nDay Number In Month: $($Bkjob.ScheduleOptions.OptionsMonthly.DayNumberInMonth),`r`nDay Of Week: $($Bkjob.ScheduleOptions.OptionsMonthly.DayOfWeek)"
-                                                } elseif ($Bkjob.ScheduleOptions.OptionsPeriodically.Enabled -eq "True") {
+                                                } elseif ($Bkjob.ScheduleOptions.OptionsPeriodically.Enabled -eq 'True') {
                                                     $ScheduleType = $Bkjob.ScheduleOptions.OptionsPeriodically.Kind
                                                     $Schedule = "Full Period: $($Bkjob.ScheduleOptions.OptionsPeriodically.FullPeriod),`r`nHourly Offset: $($Bkjob.ScheduleOptions.OptionsPeriodically.HourlyOffset),`r`nUnit: $($Bkjob.ScheduleOptions.OptionsPeriodically.Unit)"
-                                                } elseif ($Bkjob.ScheduleOptions.OptionsContinuous.Enabled -eq "True") {
+                                                } elseif ($Bkjob.ScheduleOptions.OptionsContinuous.Enabled -eq 'True') {
                                                     $ScheduleType = 'Continuous'
-                                                    $Schedule = "Schedule Time Period"
+                                                    $Schedule = 'Schedule Time Period'
                                                 } elseif ($Bkjob.ScheduleOptions.OptionsScheduleAfterJob.IsEnabled) {
                                                     $ScheduleType = 'After Job'
                                                 }
@@ -250,7 +250,7 @@ function Get-AbrVbrEntraIDBackupjobConf {
                                                 }
                                                 $OutObj | Table @TableParams
                                                 if ($Bkjob.ScheduleOptions.OptionsBackupWindow.IsEnabled -or $Bkjob.ScheduleOptions.OptionsContinuous.Enabled) {
-                                                    Section -Style NOTOCHeading6 -ExcludeFromTOC "Backup Window Time Period" {
+                                                    Section -Style NOTOCHeading6 -ExcludeFromTOC 'Backup Window Time Period' {
                                                         Paragraph -ScriptBlock $Legend
 
                                                         $OutObj = @()
@@ -284,21 +284,21 @@ function Get-AbrVbrEntraIDBackupjobConf {
                                                             }
                                                             if ($OutObj) {
                                                                 $OutObj2 = Table -Hashtable $OutObj @TableParams
-                                                                $OutObj2.Rows | Where-Object { $_.Sun -eq "0" } | Set-Style -Style ON -Property "Sun"
-                                                                $OutObj2.Rows | Where-Object { $_.Mon -eq "0" } | Set-Style -Style ON -Property "Mon"
-                                                                $OutObj2.Rows | Where-Object { $_.Tue -eq "0" } | Set-Style -Style ON -Property "Tue"
-                                                                $OutObj2.Rows | Where-Object { $_.Wed -eq "0" } | Set-Style -Style ON -Property "Wed"
-                                                                $OutObj2.Rows | Where-Object { $_.Thu -eq "0" } | Set-Style -Style ON -Property "Thu"
-                                                                $OutObj2.Rows | Where-Object { $_.Fri -eq "0" } | Set-Style -Style ON -Property "Fri"
-                                                                $OutObj2.Rows | Where-Object { $_.Sat -eq "0" } | Set-Style -Style ON -Property "Sat"
+                                                                $OutObj2.Rows | Where-Object { $_.Sun -eq '0' } | Set-Style -Style ON -Property 'Sun'
+                                                                $OutObj2.Rows | Where-Object { $_.Mon -eq '0' } | Set-Style -Style ON -Property 'Mon'
+                                                                $OutObj2.Rows | Where-Object { $_.Tue -eq '0' } | Set-Style -Style ON -Property 'Tue'
+                                                                $OutObj2.Rows | Where-Object { $_.Wed -eq '0' } | Set-Style -Style ON -Property 'Wed'
+                                                                $OutObj2.Rows | Where-Object { $_.Thu -eq '0' } | Set-Style -Style ON -Property 'Thu'
+                                                                $OutObj2.Rows | Where-Object { $_.Fri -eq '0' } | Set-Style -Style ON -Property 'Fri'
+                                                                $OutObj2.Rows | Where-Object { $_.Sat -eq '0' } | Set-Style -Style ON -Property 'Sat'
 
-                                                                $OutObj2.Rows | Where-Object { $_.Sun -eq "1" } | Set-Style -Style OFF -Property "Sun"
-                                                                $OutObj2.Rows | Where-Object { $_.Mon -eq "1" } | Set-Style -Style OFF -Property "Mon"
-                                                                $OutObj2.Rows | Where-Object { $_.Tue -eq "1" } | Set-Style -Style OFF -Property "Tue"
-                                                                $OutObj2.Rows | Where-Object { $_.Wed -eq "1" } | Set-Style -Style OFF -Property "Wed"
-                                                                $OutObj2.Rows | Where-Object { $_.Thu -eq "1" } | Set-Style -Style OFF -Property "Thu"
-                                                                $OutObj2.Rows | Where-Object { $_.Fri -eq "1" } | Set-Style -Style OFF -Property "Fri"
-                                                                $OutObj2.Rows | Where-Object { $_.Sat -eq "1" } | Set-Style -Style OFF -Property "Sat"
+                                                                $OutObj2.Rows | Where-Object { $_.Sun -eq '1' } | Set-Style -Style OFF -Property 'Sun'
+                                                                $OutObj2.Rows | Where-Object { $_.Mon -eq '1' } | Set-Style -Style OFF -Property 'Mon'
+                                                                $OutObj2.Rows | Where-Object { $_.Tue -eq '1' } | Set-Style -Style OFF -Property 'Tue'
+                                                                $OutObj2.Rows | Where-Object { $_.Wed -eq '1' } | Set-Style -Style OFF -Property 'Wed'
+                                                                $OutObj2.Rows | Where-Object { $_.Thu -eq '1' } | Set-Style -Style OFF -Property 'Thu'
+                                                                $OutObj2.Rows | Where-Object { $_.Fri -eq '1' } | Set-Style -Style OFF -Property 'Fri'
+                                                                $OutObj2.Rows | Where-Object { $_.Sat -eq '1' } | Set-Style -Style OFF -Property 'Sat'
                                                                 $OutObj2
                                                             }
                                                         } catch {
@@ -324,6 +324,6 @@ function Get-AbrVbrEntraIDBackupjobConf {
         }
     }
     end {
-        Show-AbrDebugExecutionTime -End -TitleMessage "EntraID Tenant Backup Jobs"
+        Show-AbrDebugExecutionTime -End -TitleMessage 'EntraID Tenant Backup Jobs'
     }
 }

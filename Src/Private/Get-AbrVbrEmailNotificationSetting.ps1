@@ -22,7 +22,7 @@ function Get-AbrVbrEmailNotificationSetting {
 
     begin {
         Write-PScriboMessage "Discovering Veeam VBR Email Notification settings information from $System."
-        Show-AbrDebugExecutionTime -Start -TitleMessage "Email Notification Settings"
+        Show-AbrDebugExecutionTime -Start -TitleMessage 'Email Notification Settings'
     }
 
     process {
@@ -42,8 +42,8 @@ function Get-AbrVbrEmailNotificationSetting {
                             'Daily Reports Time' = $EmailSetting.DailyReportsTime.ToShortTimeString()
                             'Enabled' = $EmailSetting.Enabled
                             'Notify On' = switch ($EmailSetting.NotifyOnSuccess) {
-                                "" { "--"; break }
-                                $Null { "--"; break }
+                                '' { '--'; break }
+                                $Null { '--'; break }
                                 default { "Notify On Success: $($EmailSetting.NotifyOnSuccess)`r`nNotify On Warning: $($EmailSetting.NotifyOnWarning)`r`nNotify On Failure: $($EmailSetting.NotifyOnFailure)`r`nNotify On Last Retry Only: $($EmailSetting.NotifyOnLastRetryOnly)" }
                             }
                         }
@@ -64,11 +64,11 @@ function Get-AbrVbrEmailNotificationSetting {
                     }
                     $OutObj | Table @TableParams
                     if ($HealthCheck.Infrastructure.BestPractice -and ($OutObj | Where-Object { $_.'Enabled' -eq 'No' })) {
-                        Paragraph "Health Check:" -Bold -Underline
+                        Paragraph 'Health Check:' -Bold -Underline
                         BlankLine
                         Paragraph {
-                            Text "Best Practice:" -Bold
-                            Text "Veeam recommends configuring email notifications to be able to receive alerts with the results of jobs performed on the backup server."
+                            Text 'Best Practice:' -Bold
+                            Text 'Veeam recommends configuring email notifications to be able to receive alerts with the results of jobs performed on the backup server.'
                         }
                         BlankLine
                     }
@@ -76,7 +76,7 @@ function Get-AbrVbrEmailNotificationSetting {
             }
         } catch {
             Write-PScriboMessage -IsWarning "Email Notification Section: $($_.Exception.Message)"
-            Show-AbrDebugExecutionTime -End -TitleMessage "Email Notification Settings"
+            Show-AbrDebugExecutionTime -End -TitleMessage 'Email Notification Settings'
         }
     }
     end {}

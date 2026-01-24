@@ -22,15 +22,15 @@ function Get-AbrVbrCloudConnectCG {
 
     begin {
         Write-PScriboMessage "Discovering Veeam VBR Cloud Gateway information from $System."
-        Show-AbrDebugExecutionTime -Start -TitleMessage "Cloud Connect Gateway"
+        Show-AbrDebugExecutionTime -Start -TitleMessage 'Cloud Connect Gateway'
     }
 
     process {
         try {
-            if ($VbrLicenses | Where-Object { $_.CloudConnect -ne "Disabled" }) {
+            if ($VbrLicenses | Where-Object { $_.CloudConnect -ne 'Disabled' }) {
                 if ($CloudObjects = Get-VBRCloudGateway | Sort-Object -Property Name) {
                     Section -Style Heading3 'Cloud Gateways' {
-                        Paragraph "The following section provides summary information about configured Cloud Gateways."
+                        Paragraph 'The following section provides summary information about configured Cloud Gateways.'
                         BlankLine
                         try {
                             $OutObj = @()
@@ -67,8 +67,8 @@ function Get-AbrVbrCloudConnectCG {
 
                                         $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
                                         if ($HealthCheck.Jobs.BestPractice) {
-                                            $OutObj | Where-Object { $_.'Description' -eq "--" } | Set-Style -Style Warning -Property 'Description'
-                                            $OutObj | Where-Object { $_.'Description' -match "Created by" } | Set-Style -Style Warning -Property 'Description'
+                                            $OutObj | Where-Object { $_.'Description' -eq '--' } | Set-Style -Style Warning -Property 'Description'
+                                            $OutObj | Where-Object { $_.'Description' -match 'Created by' } | Set-Style -Style Warning -Property 'Description'
                                         }
 
                                         $TableParams = @{
@@ -83,11 +83,11 @@ function Get-AbrVbrCloudConnectCG {
                                         $OutObj | Sort-Object -Property 'Name' | Table @TableParams
                                         if ($HealthCheck.Jobs.BestPractice) {
                                             if ($OutObj | Where-Object { $_.'Description' -match 'Created by' -or $_.'Description' -eq '--' }) {
-                                                Paragraph "Health Check:" -Bold -Underline
+                                                Paragraph 'Health Check:' -Bold -Underline
                                                 BlankLine
                                                 Paragraph {
-                                                    Text "Best Practice:" -Bold
-                                                    Text "It is a general rule of good practice to establish well-defined descriptions. This helps to speed up the fault identification process, as well as enabling better documentation of the environment."
+                                                    Text 'Best Practice:' -Bold
+                                                    Text 'It is a general rule of good practice to establish well-defined descriptions. This helps to speed up the fault identification process, as well as enabling better documentation of the environment.'
                                                 }
                                                 BlankLine
                                             }
@@ -120,7 +120,7 @@ function Get-AbrVbrCloudConnectCG {
             }
         } catch {
             Write-PScriboMessage -IsWarning "Cloud Gateways Section: $($_.Exception.Message)"
-            Show-AbrDebugExecutionTime -End -TitleMessage "Cloud Connect Gateway"
+            Show-AbrDebugExecutionTime -End -TitleMessage 'Cloud Connect Gateway'
         }
     }
     end {}

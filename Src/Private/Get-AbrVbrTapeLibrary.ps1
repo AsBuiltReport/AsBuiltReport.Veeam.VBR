@@ -29,7 +29,7 @@ function Get-AbrVbrTapeLibrary {
         try {
             if ($TapeObjs = Get-VBRTapeLibrary | Sort-Object -Property Name) {
                 Section -Style Heading3 'Tape Libraries' {
-                    Paragraph "The following section provides summary information about Tape Server connected Tape Library."
+                    Paragraph 'The following section provides summary information about Tape Server connected Tape Library.'
                     BlankLine
                     $OutObj = @()
                     try {
@@ -74,7 +74,7 @@ function Get-AbrVbrTapeLibrary {
                                     try {
                                         if ($DriveObjs = Get-VBRTapeDrive -Library $TapeObj.Id) {
                                             Write-PScriboMessage "Collecting $($TapeObj.Name) Tape Drives"
-                                            Section -Style NOTOCHeading5 -ExcludeFromTOC "Tape Drives" {
+                                            Section -Style NOTOCHeading5 -ExcludeFromTOC 'Tape Drives' {
                                                 $OutObj = @()
                                                 try {
                                                     foreach ($DriveObj in $DriveObjs) {
@@ -124,7 +124,7 @@ function Get-AbrVbrTapeLibrary {
                                         if ($InfoLevel.Tape.Library -ge 2) {
                                             if ($MediumObjs = Get-VBRTapeMedium -Library $TapeObj.Id) {
                                                 Write-PScriboMessage "Collecting $($TapeObj.Name) Tape Medium"
-                                                Section -Style NOTOCHeading5 -ExcludeFromTOC "Tape Mediums" {
+                                                Section -Style NOTOCHeading5 -ExcludeFromTOC 'Tape Mediums' {
                                                     $OutObj = @()
                                                     foreach ($MediumObj in $MediumObjs) {
                                                         try {
@@ -133,11 +133,11 @@ function Get-AbrVbrTapeLibrary {
                                                             $inObj = [ordered] @{
                                                                 'Name' = $MediumObj.Name
                                                                 'Expiration Date' = switch (($MediumObj.ExpirationDate).count) {
-                                                                    0 { "--" }
+                                                                    0 { '--' }
                                                                     default { $MediumObj.ExpirationDate.ToShortDateString() }
                                                                 }
-                                                                'Total Space' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size  $MediumObj.Capacity
-                                                                'Free Space' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size  $MediumObj.Free
+                                                                'Total Space' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $MediumObj.Capacity
+                                                                'Free Space' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $MediumObj.Free
                                                                 'Locked' = $MediumObj.IsLocked
                                                                 'Retired' = $MediumObj.IsRetired
                                                                 'Worm' = $MediumObj.IsWorm

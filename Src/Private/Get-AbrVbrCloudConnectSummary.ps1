@@ -21,7 +21,7 @@ function Get-AbrVbrCloudConnectSummary {
 
     begin {
         Write-PScriboMessage "Discovering Veeam VBR Cloud Connect Summary from $System."
-        Show-AbrDebugExecutionTime -Start -TitleMessage "Cloud Connect Summary"
+        Show-AbrDebugExecutionTime -Start -TitleMessage 'Cloud Connect Summary'
     }
 
     process {
@@ -64,7 +64,7 @@ function Get-AbrVbrCloudConnectSummary {
         }
     }
     end {
-        Show-AbrDebugExecutionTime -End -TitleMessage "Cloud Connect Summary"
+        Show-AbrDebugExecutionTime -End -TitleMessage 'Cloud Connect Summary'
     }
 
 }

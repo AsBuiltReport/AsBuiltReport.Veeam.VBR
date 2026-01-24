@@ -28,7 +28,7 @@ function Get-AbrVbrStorageOntap {
     process {
         if ($OntapHosts = Get-NetAppHost) {
             Section -Style Heading3 'NetApp Ontap Storage' {
-                Paragraph "The following section details information about NetApp storage infrastructure."
+                Paragraph 'The following section details information about NetApp storage infrastructure.'
                 BlankLine
                 $OutObj = @()
                 try {
@@ -46,10 +46,10 @@ function Get-AbrVbrStorageOntap {
                                     'Description' = $OntapHost.Description
                                     'Storage Type' = $OntapHost.NaOptions.HostType
                                     'Used Credential' = switch (($UsedCred).count) {
-                                        0 { "--" }
+                                        0 { '--' }
                                         default { "$($UsedCred.Name) - ($($UsedCred.Description))" }
                                     }
-                                    'Connection Address' = $OntapHost.ConnPoints -join ", "
+                                    'Connection Address' = $OntapHost.ConnPoints -join ', '
                                     'Connection Port' = "$($OntapOptions.NaHostOptions.NaHostOptions.NaHostConnectionOptions.Port)\TCP"
                                     'Installed Licenses' = $OntapHost.NaOptions.License
                                 }
@@ -77,8 +77,8 @@ function Get-AbrVbrStorageOntap {
 
                                                         $inObj = [ordered] @{
                                                             'Name' = $OntapVol.Name
-                                                            'Total Space' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size  $OntapVol.Size
-                                                            'Used Space' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size  $OntapVol.ConsumedSpace
+                                                            'Total Space' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $OntapVol.Size
+                                                            'Used Space' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $OntapVol.ConsumedSpace
                                                             'Thin Provision' = $OntapVol.IsThinProvision
                                                         }
 

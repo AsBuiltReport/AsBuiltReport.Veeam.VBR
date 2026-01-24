@@ -1,4 +1,3 @@
-
 function Get-AbrVbrAgentBackupjob {
     <#
     .SYNOPSIS
@@ -22,14 +21,14 @@ function Get-AbrVbrAgentBackupjob {
 
     begin {
         Write-PScriboMessage "Discovering Veeam VBR Agent Backup jobs information from $System."
-        Show-AbrDebugExecutionTime -Start -TitleMessage "Agent Backup Jobs"
+        Show-AbrDebugExecutionTime -Start -TitleMessage 'Agent Backup Jobs'
     }
 
     process {
         try {
             if ($ABkjobs = Get-VBRComputerBackupJob) {
                 Section -Style Heading3 'Agent Backup Jobs' {
-                    Paragraph "The following section list agent backup jobs created in Veeam Backup & Replication."
+                    Paragraph 'The following section list agent backup jobs created in Veeam Backup & Replication.'
                     BlankLine
                     $OutObj = @()
                     foreach ($ABkjob in $ABkjobs) {
@@ -62,7 +61,7 @@ function Get-AbrVbrAgentBackupjob {
         }
     }
     end {
-        Show-AbrDebugExecutionTime -End -TitleMessage "Agent Backup Jobs"
+        Show-AbrDebugExecutionTime -End -TitleMessage 'Agent Backup Jobs'
     }
 
 }

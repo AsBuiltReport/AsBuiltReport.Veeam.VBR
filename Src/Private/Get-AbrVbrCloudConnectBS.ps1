@@ -21,16 +21,16 @@ function Get-AbrVbrCloudConnectBS {
 
     begin {
         Write-PScriboMessage "Discovering Veeam VBR Cloud Backup Storage information from $System."
-        Show-AbrDebugExecutionTime -Start -TitleMessage "Cloud Backup Storage"
+        Show-AbrDebugExecutionTime -Start -TitleMessage 'Cloud Backup Storage'
     }
 
     process {
         try {
-            if ($VbrLicenses | Where-Object { $_.CloudConnect -ne "Disabled" }) {
+            if ($VbrLicenses | Where-Object { $_.CloudConnect -ne 'Disabled' }) {
                 if (((Get-VBRCloudTenant).Resources.Repository).count -gt 0) {
                     $CloudObjects = (Get-VBRCloudTenant).Resources
                     Section -Style Heading3 'Backup Storage' {
-                        Paragraph "The following section provides information about Veeam Cloud Connect configured Backup Storage."
+                        Paragraph 'The following section provides information about Veeam Cloud Connect configured Backup Storage.'
                         BlankLine
                         foreach ($CloudObject in ($CloudObjects.Repository | Sort-Object -Property Name -Unique)) {
                             try {
@@ -138,7 +138,7 @@ function Get-AbrVbrCloudConnectBS {
             }
         } catch {
             Write-PScriboMessage -IsWarning "Cloud Backup Storage Section: $($_.Exception.Message)"
-            Show-AbrDebugExecutionTime -End -TitleMessage "Cloud Backup Storage"
+            Show-AbrDebugExecutionTime -End -TitleMessage 'Cloud Backup Storage'
         }
     }
     end {}

@@ -22,14 +22,14 @@ function Get-AbrVbrCloudConnectRR {
 
     begin {
         Write-PScriboMessage "Discovering Veeam VBR Cloud Connect Replica Resources information from $System."
-        Show-AbrDebugExecutionTime -Start -TitleMessage "Cloud Connect Replica Resources"
+        Show-AbrDebugExecutionTime -Start -TitleMessage 'Cloud Connect Replica Resources'
     }
 
     process {
-        if ($VbrLicenses | Where-Object { $_.CloudConnect -ne "Disabled" }) {
+        if ($VbrLicenses | Where-Object { $_.CloudConnect -ne 'Disabled' }) {
             if ($CloudObjects = Get-VBRCloudHardwarePlan | Sort-Object -Property Name) {
                 Section -Style Heading3 'Replica Resources' {
-                    Paragraph "The following table provides a summary of Replica Resources."
+                    Paragraph 'The following table provides a summary of Replica Resources.'
                     BlankLine
                     try {
                         $OutObj = @()
@@ -103,7 +103,7 @@ function Get-AbrVbrCloudConnectRR {
                                                             'Network Count' = $CloudObject.NumberOfNetWithInternet + $CloudObject.NumberOfNetWithoutInternet
                                                             'Subscribed Tenant' = switch ([string]::IsNullOrEmpty($CloudObject.SubscribedTenantId)) {
                                                                 $true { 'None' }
-                                                                $false { ($CloudObject.SubscribedTenantId | ForEach-Object { Get-VBRCloudTenant -Id $_ }).Name -join ", " }
+                                                                $false { ($CloudObject.SubscribedTenantId | ForEach-Object { Get-VBRCloudTenant -Id $_ }).Name -join ', ' }
                                                                 default { 'Unknown' }
                                                             }
                                                             'Description' = $CloudObject.Description
@@ -251,7 +251,7 @@ function Get-AbrVbrCloudConnectRR {
         }
     }
     end {
-        Show-AbrDebugExecutionTime -End -TitleMessage "Cloud Connect Replica Resources"
+        Show-AbrDebugExecutionTime -End -TitleMessage 'Cloud Connect Replica Resources'
     }
 
 }

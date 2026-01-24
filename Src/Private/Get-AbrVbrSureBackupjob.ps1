@@ -29,7 +29,7 @@ function Get-AbrVbrSureBackupjob {
         try {
             if ($SBkjobs = Get-VBRSureBackupJob | Sort-Object -Property 'Job Name') {
                 Section -Style Heading3 'SureBackup Jobs' {
-                    Paragraph "The following section list surebackup jobs created in Veeam Backup & Replication."
+                    Paragraph 'The following section list surebackup jobs created in Veeam Backup & Replication.'
                     BlankLine
                     $OutObj = @()
                     foreach ($SBkjob in $SBkjobs) {
@@ -47,9 +47,9 @@ function Get-AbrVbrSureBackupjob {
                                 }
                                 'Latest Result' = $SBkjob.LastResult
                                 'Virtual Lab' = switch ($SBkjob.VirtualLab.Name) {
-                                    $true { "Not applicable" }
+                                    $true { 'Not applicable' }
                                     $false { $SBkjob.VirtualLab.Name }
-                                    default { "--" }
+                                    default { '--' }
                                 }
                             }
                             $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)

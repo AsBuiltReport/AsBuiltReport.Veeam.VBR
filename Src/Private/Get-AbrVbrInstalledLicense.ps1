@@ -28,7 +28,7 @@ function Get-AbrVbrInstalledLicense {
     process {
         if ($VbrLicenses) {
             Section -Style Heading3 'License Information' {
-                Paragraph "The following section provides a summary about the installed licenses"
+                Paragraph 'The following section provides a summary about the installed licenses'
                 BlankLine
                 try {
                     Section -Style Heading4 'Installed License Information' {
@@ -42,13 +42,13 @@ function Get-AbrVbrInstalledLicense {
                                     'Type' = $License.Type
                                     'Status' = $License.Status
                                     'Expiration Date' = switch ($License.ExpirationDate) {
-                                        "" { "--"; break }
+                                        '' { '--'; break }
                                         $Null { '--'; break }
                                         default { $License.ExpirationDate.ToLongDateString() }
                                     }
                                     'Support Id' = $License.SupportId
                                     'Support Expiration Date' = switch ($License.SupportExpirationDate) {
-                                        "" { "--"; break }
+                                        '' { '--'; break }
                                         $Null { '--'; break }
                                         default { $License.SupportExpirationDate.ToLongDateString() }
                                     }

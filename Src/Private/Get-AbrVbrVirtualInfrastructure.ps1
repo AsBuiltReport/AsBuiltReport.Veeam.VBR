@@ -49,7 +49,7 @@ function Get-AbrVbrVirtualInfrastructure {
                                                 $inObj = [ordered] @{
                                                     'Name' = $InventObj.Name
                                                     'Version' = ($InventObj).Info.Info
-                                                    'Child Host' = $InventObj.GetChilds().Name -join ", "
+                                                    'Child Host' = $InventObj.GetChilds().Name -join ', '
                                                 }
 
                                                 $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
@@ -129,7 +129,7 @@ function Get-AbrVbrVirtualInfrastructure {
                                                 $inObj = [ordered] @{
                                                     'Name' = $InventObj.Name
                                                     'Credentials' = ($InventObj).ProxyServicesCreds.Name
-                                                    'Child Host' = $InventObj.GetChilds().Name -join ", "
+                                                    'Child Host' = $InventObj.GetChilds().Name -join ', '
                                                 }
 
                                                 $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
@@ -147,7 +147,7 @@ function Get-AbrVbrVirtualInfrastructure {
                                         if ($Report.ShowTableCaptions) {
                                             $TableParams['Caption'] = "- $($TableParams.Name)"
                                         }
-                                        $OutObj | Sort-Object -Property 'Name' |  Table @TableParams
+                                        $OutObj | Sort-Object -Property 'Name' | Table @TableParams
                                     }
                                 }
                                 #---------------------------------------------------------------------------------------------#

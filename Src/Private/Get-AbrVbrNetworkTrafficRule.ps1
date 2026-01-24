@@ -29,7 +29,7 @@ function Get-AbrVbrNetworkTrafficRule {
         try {
             if ($TrafficOptions = Get-VBRNetworkTrafficRuleOptions) {
                 Section -Style Heading4 'Network Traffic Rules Options' {
-                    Paragraph "The following section details network traffic rules options configured on Veeam Backup & Replication."
+                    Paragraph 'The following section details network traffic rules options configured on Veeam Backup & Replication.'
                     BlankLine
                     $OutObj = @()
                     try {
@@ -51,7 +51,7 @@ function Get-AbrVbrNetworkTrafficRule {
                         $OutObj | Table @TableParams
                         if ($TrafficRules = Get-VBRNetworkTrafficRule) {
                             Section -Style Heading5 'Network Traffic Rule' {
-                                Paragraph "The following section details network traffic rules settings configured on Veeam Backup & Replication."
+                                Paragraph 'The following section details network traffic rules settings configured on Veeam Backup & Replication.'
                                 BlankLine
                                 $OutObj = @()
                                 try {
@@ -81,7 +81,7 @@ function Get-AbrVbrNetworkTrafficRule {
                                         }
                                         $OutObj | Table @TableParams
                                         if ($TrafficRule.ThrottlingWindowEnabled) {
-                                            Section -Style NOTOCHeading6 -ExcludeFromTOC "Throttling Windows Time Period" {
+                                            Section -Style NOTOCHeading6 -ExcludeFromTOC 'Throttling Windows Time Period' {
                                                 Paragraph -ScriptBlock $Legend
 
                                                 try {
@@ -99,21 +99,21 @@ function Get-AbrVbrNetworkTrafficRule {
                                                     }
                                                     if ($OutObj) {
                                                         $OutObj2 = Table -Hashtable $OutObj @TableParams
-                                                        $OutObj2.Rows | Where-Object { $_.Sun -eq "0" } | Set-Style -Style OFF -Property "Sun"
-                                                        $OutObj2.Rows | Where-Object { $_.Mon -eq "0" } | Set-Style -Style OFF -Property "Mon"
-                                                        $OutObj2.Rows | Where-Object { $_.Tue -eq "0" } | Set-Style -Style OFF -Property "Tue"
-                                                        $OutObj2.Rows | Where-Object { $_.Wed -eq "0" } | Set-Style -Style OFF -Property "Wed"
-                                                        $OutObj2.Rows | Where-Object { $_.Thu -eq "0" } | Set-Style -Style OFF -Property "Thu"
-                                                        $OutObj2.Rows | Where-Object { $_.Fri -eq "0" } | Set-Style -Style OFF -Property "Fri"
-                                                        $OutObj2.Rows | Where-Object { $_.Sat -eq "0" } | Set-Style -Style OFF -Property "Sat"
+                                                        $OutObj2.Rows | Where-Object { $_.Sun -eq '0' } | Set-Style -Style OFF -Property 'Sun'
+                                                        $OutObj2.Rows | Where-Object { $_.Mon -eq '0' } | Set-Style -Style OFF -Property 'Mon'
+                                                        $OutObj2.Rows | Where-Object { $_.Tue -eq '0' } | Set-Style -Style OFF -Property 'Tue'
+                                                        $OutObj2.Rows | Where-Object { $_.Wed -eq '0' } | Set-Style -Style OFF -Property 'Wed'
+                                                        $OutObj2.Rows | Where-Object { $_.Thu -eq '0' } | Set-Style -Style OFF -Property 'Thu'
+                                                        $OutObj2.Rows | Where-Object { $_.Fri -eq '0' } | Set-Style -Style OFF -Property 'Fri'
+                                                        $OutObj2.Rows | Where-Object { $_.Sat -eq '0' } | Set-Style -Style OFF -Property 'Sat'
 
-                                                        $OutObj2.Rows | Where-Object { $_.Sun -eq "1" } | Set-Style -Style ON -Property "Sun"
-                                                        $OutObj2.Rows | Where-Object { $_.Mon -eq "1" } | Set-Style -Style ON -Property "Mon"
-                                                        $OutObj2.Rows | Where-Object { $_.Tue -eq "1" } | Set-Style -Style ON -Property "Tue"
-                                                        $OutObj2.Rows | Where-Object { $_.Wed -eq "1" } | Set-Style -Style ON -Property "Wed"
-                                                        $OutObj2.Rows | Where-Object { $_.Thu -eq "1" } | Set-Style -Style ON -Property "Thu"
-                                                        $OutObj2.Rows | Where-Object { $_.Fri -eq "1" } | Set-Style -Style ON -Property "Fri"
-                                                        $OutObj2.Rows | Where-Object { $_.Sat -eq "1" } | Set-Style -Style ON -Property "Sat"
+                                                        $OutObj2.Rows | Where-Object { $_.Sun -eq '1' } | Set-Style -Style ON -Property 'Sun'
+                                                        $OutObj2.Rows | Where-Object { $_.Mon -eq '1' } | Set-Style -Style ON -Property 'Mon'
+                                                        $OutObj2.Rows | Where-Object { $_.Tue -eq '1' } | Set-Style -Style ON -Property 'Tue'
+                                                        $OutObj2.Rows | Where-Object { $_.Wed -eq '1' } | Set-Style -Style ON -Property 'Wed'
+                                                        $OutObj2.Rows | Where-Object { $_.Thu -eq '1' } | Set-Style -Style ON -Property 'Thu'
+                                                        $OutObj2.Rows | Where-Object { $_.Fri -eq '1' } | Set-Style -Style ON -Property 'Fri'
+                                                        $OutObj2.Rows | Where-Object { $_.Sat -eq '1' } | Set-Style -Style ON -Property 'Sat'
                                                         $OutObj2
                                                     }
                                                 } catch {

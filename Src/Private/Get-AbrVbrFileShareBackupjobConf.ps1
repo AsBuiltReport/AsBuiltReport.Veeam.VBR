@@ -61,8 +61,8 @@ function Get-AbrVbrFileShareBackupjobConf {
                                     }
 
                                     if ($HealthCheck.Jobs.BestPractice) {
-                                        $OutObj | Where-Object { $_.'Description' -eq "--" } | Set-Style -Style Warning -Property 'Description'
-                                        $OutObj | Where-Object { $_.'Description' -match "Created by" } | Set-Style -Style Warning -Property 'Description'
+                                        $OutObj | Where-Object { $_.'Description' -eq '--' } | Set-Style -Style Warning -Property 'Description'
+                                        $OutObj | Where-Object { $_.'Description' -match 'Created by' } | Set-Style -Style Warning -Property 'Description'
                                     }
 
                                     $TableParams = @{
@@ -75,12 +75,12 @@ function Get-AbrVbrFileShareBackupjobConf {
                                     }
                                     $OutObj | Table @TableParams
                                     if ($HealthCheck.Jobs.BestPractice) {
-                                        if ($OutObj | Where-Object { $_.'Description' -match 'Created by' -or $_.'Description' -eq "--" }) {
-                                            Paragraph "Health Check:" -Bold -Underline
+                                        if ($OutObj | Where-Object { $_.'Description' -match 'Created by' -or $_.'Description' -eq '--' }) {
+                                            Paragraph 'Health Check:' -Bold -Underline
                                             BlankLine
                                             Paragraph {
-                                                Text "Best Practice:" -Bold
-                                                Text "It is a general rule of good practice to establish well-defined descriptions. This helps to speed up the fault identification process, as well as enabling better documentation of the environment."
+                                                Text 'Best Practice:' -Bold
+                                                Text 'It is a general rule of good practice to establish well-defined descriptions. This helps to speed up the fault identification process, as well as enabling better documentation of the environment.'
                                             }
                                             BlankLine
                                         }
@@ -89,12 +89,12 @@ function Get-AbrVbrFileShareBackupjobConf {
                                     Write-PScriboMessage -IsWarning "Common Information Section: $($_.Exception.Message)"
                                 }
                             }
-                            if ($Bkjob.TypeToString -ne "Object Storage Backup") {
+                            if ($Bkjob.TypeToString -ne 'Object Storage Backup') {
                                 if ($Bkjob.GetObjectsInJob()) {
-                                    Section -Style NOTOCHeading5 -ExcludeFromTOC "Files and Folders" {
+                                    Section -Style NOTOCHeading5 -ExcludeFromTOC 'Files and Folders' {
                                         $OutObj = @()
                                         try {
-                                            foreach ($OBJ in ($Bkjob.GetObjectsInJob() | Where-Object { $_.Type -eq "Include" -or $_.Type -eq "Exclude" })) {
+                                            foreach ($OBJ in ($Bkjob.GetObjectsInJob() | Where-Object { $_.Type -eq 'Include' -or $_.Type -eq 'Exclude' })) {
 
                                                 $inObj = [ordered] @{
                                                     'Name' = $OBJ.Name
@@ -124,7 +124,7 @@ function Get-AbrVbrFileShareBackupjobConf {
                                 }
                             } else {
                                 if ((Get-VBRUnstructuredBackupJob -Id $Bkjob.Id).BackupObject) {
-                                    Section -Style NOTOCHeading5 -ExcludeFromTOC "Objects" {
+                                    Section -Style NOTOCHeading5 -ExcludeFromTOC 'Objects' {
                                         $OutObj = @()
                                         try {
                                             foreach ($OBJ in ((Get-VBRUnstructuredBackupJob -Id $Bkjob.Id).BackupObject)) {
@@ -132,24 +132,24 @@ function Get-AbrVbrFileShareBackupjobConf {
                                                 $inObj = [ordered] @{
                                                     'Name' = $OBJ.Server.FriendlyName
                                                     'Path' = switch ([string]::IsNullOrEmpty($OBJ.Path)) {
-                                                        $true { "--" }
+                                                        $true { '--' }
                                                         $false { $OBJ.Path }
-                                                        default { "Unknown" }
+                                                        default { 'Unknown' }
                                                     }
                                                     'Container' = switch ([string]::IsNullOrEmpty($OBJ.Container)) {
-                                                        $true { "--" }
+                                                        $true { '--' }
                                                         $false { $OBJ.Container }
-                                                        default { "Unknown" }
+                                                        default { 'Unknown' }
                                                     }
                                                     'Inclusion Mask' = switch ([string]::IsNullOrEmpty($OBJ.InclusionMask)) {
-                                                        $true { "--" }
+                                                        $true { '--' }
                                                         $false { $OBJ.InclusionMask }
-                                                        default { "Unknown" }
+                                                        default { 'Unknown' }
                                                     }
                                                     'Exclusion Mask' = switch ([string]::IsNullOrEmpty($OBJ.ExclusionMask)) {
-                                                        $true { "--" }
+                                                        $true { '--' }
                                                         $false { $OBJ.ExclusionMask }
-                                                        default { "Unknown" }
+                                                        default { 'Unknown' }
                                                     }
                                                 }
                                                 $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
@@ -207,9 +207,9 @@ function Get-AbrVbrFileShareBackupjobConf {
                                     $OutObj | Table @TableParams
                                     if ($InfoLevel.Jobs.FileShare -ge 2) {
                                         if ($VbrVersion -lt 12.1) {
-                                            $FLVersion = "File Version"
+                                            $FLVersion = 'File Version'
                                         } else {
-                                            $FLVersion = "Object Version"
+                                            $FLVersion = 'Object Version'
                                         }
                                         Section -Style NOTOCHeading6 -ExcludeFromTOC "Advanced Settings ($FLVersion)" {
                                             $OutObj = @()
@@ -245,8 +245,8 @@ function Get-AbrVbrFileShareBackupjobConf {
                                             }
                                         }
                                     }
-                                    if ($InfoLevel.Jobs.FileShare -ge 2 -and ($Bkjob.TypeToString -ne "Object Storage Backup")) {
-                                        Section -Style NOTOCHeading6 -ExcludeFromTOC "Advanced Settings (ACL Handling)" {
+                                    if ($InfoLevel.Jobs.FileShare -ge 2 -and ($Bkjob.TypeToString -ne 'Object Storage Backup')) {
+                                        Section -Style NOTOCHeading6 -ExcludeFromTOC 'Advanced Settings (ACL Handling)' {
                                             $OutObj = @()
                                             try {
 
@@ -254,7 +254,7 @@ function Get-AbrVbrFileShareBackupjobConf {
                                                     'Permissions and attribute backup' = switch ($Bkjob.Options.NasBackupOptions.FileAttributesChangeTrackingMode) {
                                                         'TrackOnlyFolderAttributesChanges' { 'Folder-level only (recommended)' }
                                                         'TrackEverythingAttributesChanges' { 'File and folders (slower)' }
-                                                        default { "--" }
+                                                        default { '--' }
                                                     }
                                                 }
                                                 $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
@@ -274,7 +274,7 @@ function Get-AbrVbrFileShareBackupjobConf {
                                         }
                                     }
                                     if ($InfoLevel.Jobs.FileShare -ge 2) {
-                                        Section -Style NOTOCHeading6 -ExcludeFromTOC "Advanced Settings (Storage)" {
+                                        Section -Style NOTOCHeading6 -ExcludeFromTOC 'Advanced Settings (Storage)' {
                                             $OutObj = @()
                                             try {
 
@@ -311,7 +311,7 @@ function Get-AbrVbrFileShareBackupjobConf {
                                         }
                                     }
                                     if ($InfoLevel.Jobs.FileShare -ge 2) {
-                                        Section -Style NOTOCHeading6 -ExcludeFromTOC "Advanced Settings (Maintenance)" {
+                                        Section -Style NOTOCHeading6 -ExcludeFromTOC 'Advanced Settings (Maintenance)' {
                                             $OutObj = @()
                                             try {
 
@@ -329,7 +329,7 @@ function Get-AbrVbrFileShareBackupjobConf {
                                                 $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                 if ($HealthCheck.Jobs.BestPractice) {
-                                                    $OutObj | Where-Object { $_.'Storage-Level Corruption Guard (SLCG)' -eq "No" } | Set-Style -Style Warning -Property 'Storage-Level Corruption Guard (SLCG)'
+                                                    $OutObj | Where-Object { $_.'Storage-Level Corruption Guard (SLCG)' -eq 'No' } | Set-Style -Style Warning -Property 'Storage-Level Corruption Guard (SLCG)'
                                                 }
 
                                                 $TableParams = @{
@@ -343,10 +343,10 @@ function Get-AbrVbrFileShareBackupjobConf {
                                                 $OutObj | Table @TableParams
                                                 if ($HealthCheck.Jobs.BestPractice) {
                                                     if ($OutObj | Where-Object { $_.'Storage-Level Corruption Guard (SLCG)' -eq 'No' }) {
-                                                        Paragraph "Health Check:" -Bold -Underline
+                                                        Paragraph 'Health Check:' -Bold -Underline
                                                         BlankLine
                                                         Paragraph {
-                                                            Text "Best Practice:" -Bold
+                                                            Text 'Best Practice:' -Bold
                                                             Text "It is recommended to use storage-level corruption guard for any backup job with no active full backups scheduled. Synthetic full backups are still 'incremental forever' and may suffer from corruption over time. Storage-level corruption guard was introduced to provide a greater level of confidence in integrity of the backups."
                                                         }
                                                         BlankLine
@@ -358,7 +358,7 @@ function Get-AbrVbrFileShareBackupjobConf {
                                         }
                                     }
                                     if ($InfoLevel.Jobs.FileShare -ge 2 -and ($Bkjob.Options.NotificationOptions.SnmpNotification -or $Bkjob.Options.NotificationOptions.SendEmailNotification2AdditionalAddresses)) {
-                                        Section -Style NOTOCHeading6 -ExcludeFromTOC "Advanced Settings (Notification)" {
+                                        Section -Style NOTOCHeading6 -ExcludeFromTOC 'Advanced Settings (Notification)' {
                                             $OutObj = @()
                                             try {
 
@@ -394,11 +394,11 @@ function Get-AbrVbrFileShareBackupjobConf {
                                         }
                                     }
                                     if ($InfoLevel.Jobs.FileShare -ge 2 -and ($Bkjob.Options.JobScriptCommand.PreScriptEnabled -or $Bkjob.Options.JobScriptCommand.PostScriptEnabled)) {
-                                        Section -Style NOTOCHeading6 -ExcludeFromTOC "Advanced Settings (Script)" {
+                                        Section -Style NOTOCHeading6 -ExcludeFromTOC 'Advanced Settings (Script)' {
                                             $OutObj = @()
                                             try {
                                                 if ($Bkjob.Options.JobScriptCommand.Periodicity -eq 'Days') {
-                                                    $FrequencyValue = $Bkjob.Options.JobScriptCommand.Days -join ","
+                                                    $FrequencyValue = $Bkjob.Options.JobScriptCommand.Days -join ','
                                                     $FrequencyText = 'Run Script on the Selected Days'
                                                 } elseif ($Bkjob.Options.JobScriptCommand.Periodicity -eq 'Cycles') {
                                                     $FrequencyValue = $Bkjob.Options.JobScriptCommand.Frequency
@@ -436,7 +436,7 @@ function Get-AbrVbrFileShareBackupjobConf {
                             }
                             $ArchiveRepoTarget = Get-VBRUnstructuredBackupJob -Id $Bkjob.Id
                             if ($ArchiveRepoTarget.LongTermRetentionPeriodEnabled) {
-                                Section -Style NOTOCHeading5 -ExcludeFromTOC "Archive Repository" {
+                                Section -Style NOTOCHeading5 -ExcludeFromTOC 'Archive Repository' {
                                     $OutObj = @()
                                     try {
 
@@ -450,11 +450,11 @@ function Get-AbrVbrFileShareBackupjobConf {
                                             }
 
                                             if ($ArchiveRepoTarget.BackupArchivalOptions.ArchivalType -eq 'ExclusionMask') {
-                                                $inObj.add("Exclusion Mask", $ArchiveRepoTarget.BackupArchivalOptions.ExclusionMask -join ",")
+                                                $inObj.add('Exclusion Mask', $ArchiveRepoTarget.BackupArchivalOptions.ExclusionMask -join ',')
                                             } elseif ($ArchiveRepoTarget.BackupArchivalOptions.ArchivalType -eq 'InclusionMask') {
-                                                $inObj.add("Inclusion Mask", $ArchiveRepoTarget.BackupArchivalOptions.InclusionMask -join ",")
+                                                $inObj.add('Inclusion Mask', $ArchiveRepoTarget.BackupArchivalOptions.InclusionMask -join ',')
                                             }
-                                            $inObj.add("Description", $ArchiveRepoTarget.LongTermBackupRepository.Description)
+                                            $inObj.add('Description', $ArchiveRepoTarget.LongTermBackupRepository.Description)
 
                                             $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                                         } catch {
@@ -476,7 +476,7 @@ function Get-AbrVbrFileShareBackupjobConf {
                             }
                             $SecondaryTargets = [Veeam.Backup.Core.CBackupJob]::GetSecondDestinationJobs($Bkjob.Id) | Where-Object { $_.JobType -ne 'SimpleBackupCopyWorker' }
                             if ($SecondaryTargets) {
-                                Section -Style NOTOCHeading5 -ExcludeFromTOC "Secondary Target" {
+                                Section -Style NOTOCHeading5 -ExcludeFromTOC 'Secondary Target' {
                                     $OutObj = @()
                                     try {
                                         foreach ($SecondaryTarget in $SecondaryTargets) {
@@ -507,29 +507,29 @@ function Get-AbrVbrFileShareBackupjobConf {
                                     }
                                 }
                             }
-                            if ($Bkjob.IsScheduleEnabled -and $Bkjob.ScheduleOptions.OptionsContinuous.Enabled -ne "True") {
-                                Section -Style NOTOCHeading5 -ExcludeFromTOC "Schedule" {
+                            if ($Bkjob.IsScheduleEnabled -and $Bkjob.ScheduleOptions.OptionsContinuous.Enabled -ne 'True') {
+                                Section -Style NOTOCHeading5 -ExcludeFromTOC 'Schedule' {
                                     $OutObj = @()
                                     try {
 
-                                        if ($Bkjob.ScheduleOptions.OptionsDaily.Enabled -eq "True") {
-                                            $ScheduleType = "Daily"
+                                        if ($Bkjob.ScheduleOptions.OptionsDaily.Enabled -eq 'True') {
+                                            $ScheduleType = 'Daily'
                                             $Schedule = "Kind: $($Bkjob.ScheduleOptions.OptionsDaily.Kind),`r`nDays: $($Bkjob.ScheduleOptions.OptionsDaily.DaysSrv)"
-                                        } elseif ($Bkjob.ScheduleOptions.OptionsMonthly.Enabled -eq "True") {
-                                            $ScheduleType = "Monthly"
+                                        } elseif ($Bkjob.ScheduleOptions.OptionsMonthly.Enabled -eq 'True') {
+                                            $ScheduleType = 'Monthly'
                                             $Schedule = "Day Of Month: $($Bkjob.ScheduleOptions.OptionsMonthly.DayOfMonth),`r`nDay Number In Month: $($Bkjob.ScheduleOptions.OptionsMonthly.DayNumberInMonth),`r`nDay Of Week: $($Bkjob.ScheduleOptions.OptionsMonthly.DayOfWeek)"
-                                        } elseif ($Bkjob.ScheduleOptions.OptionsPeriodically.Enabled -eq "True") {
+                                        } elseif ($Bkjob.ScheduleOptions.OptionsPeriodically.Enabled -eq 'True') {
                                             $ScheduleType = $Bkjob.ScheduleOptions.OptionsPeriodically.Kind
                                             $Schedule = "Full Period: $($Bkjob.ScheduleOptions.OptionsPeriodically.FullPeriod),`r`nHourly Offset: $($Bkjob.ScheduleOptions.OptionsPeriodically.HourlyOffset),`r`nUnit: $($Bkjob.ScheduleOptions.OptionsPeriodically.Unit)"
-                                        } elseif ($Bkjob.ScheduleOptions.OptionsContinuous.Enabled -eq "True") {
+                                        } elseif ($Bkjob.ScheduleOptions.OptionsContinuous.Enabled -eq 'True') {
                                             $ScheduleType = 'Continuous'
-                                            $Schedule = "Schedule Time Period"
+                                            $Schedule = 'Schedule Time Period'
                                         }
                                         $inObj = [ordered] @{
                                             'Retry Failed item' = $Bkjob.ScheduleOptions.RetryTimes
                                             'Wait before each retry' = "$($Bkjob.ScheduleOptions.RetryTimeout)/min"
                                             'Backup Window' = switch ($Bkjob.TypeToString) {
-                                                "Backup Copy" { $Bkjob.ScheduleOptions.OptionsContinuous.Enabled }
+                                                'Backup Copy' { $Bkjob.ScheduleOptions.OptionsContinuous.Enabled }
                                                 default { $Bkjob.ScheduleOptions.OptionsBackupWindow.IsEnabled }
                                             }
                                             'Shedule type' = $ScheduleType
@@ -549,7 +549,7 @@ function Get-AbrVbrFileShareBackupjobConf {
                                         }
                                         $OutObj | Table @TableParams
                                         if ($Bkjob.ScheduleOptions.OptionsBackupWindow.IsEnabled -or $Bkjob.ScheduleOptions.OptionsContinuous.Enabled) {
-                                            Section -Style NOTOCHeading6 -ExcludeFromTOC "Backup Window Time Period" {
+                                            Section -Style NOTOCHeading6 -ExcludeFromTOC 'Backup Window Time Period' {
                                                 Paragraph -ScriptBlock $Legend
 
                                                 try {
@@ -559,7 +559,7 @@ function Get-AbrVbrFileShareBackupjobConf {
                                                     foreach ($Day in $Days) {
 
                                                         $Regex = [Regex]::new("(?<=<$Day>)(.*)(?=</$Day>)")
-                                                        if ($Bkjob.TypeToString -eq "VMware Backup Copy") {
+                                                        if ($Bkjob.TypeToString -eq 'VMware Backup Copy') {
                                                             $BackupWindow = $Bkjob.ScheduleOptions.OptionsContinuous.Schedule
                                                         } else { $BackupWindow = $Bkjob.ScheduleOptions.OptionsBackupWindow.BackupWindow }
                                                         $Match = $Regex.Match($BackupWindow)
@@ -581,21 +581,21 @@ function Get-AbrVbrFileShareBackupjobConf {
                                                     }
                                                     if ($OutObj) {
                                                         $OutObj2 = Table -Hashtable $OutObj @TableParams
-                                                        $OutObj2.Rows | Where-Object { $_.Sun -eq "0" } | Set-Style -Style ON -Property "Sun"
-                                                        $OutObj2.Rows | Where-Object { $_.Mon -eq "0" } | Set-Style -Style ON -Property "Mon"
-                                                        $OutObj2.Rows | Where-Object { $_.Tue -eq "0" } | Set-Style -Style ON -Property "Tue"
-                                                        $OutObj2.Rows | Where-Object { $_.Wed -eq "0" } | Set-Style -Style ON -Property "Wed"
-                                                        $OutObj2.Rows | Where-Object { $_.Thu -eq "0" } | Set-Style -Style ON -Property "Thu"
-                                                        $OutObj2.Rows | Where-Object { $_.Fri -eq "0" } | Set-Style -Style ON -Property "Fri"
-                                                        $OutObj2.Rows | Where-Object { $_.Sat -eq "0" } | Set-Style -Style ON -Property "Sat"
+                                                        $OutObj2.Rows | Where-Object { $_.Sun -eq '0' } | Set-Style -Style ON -Property 'Sun'
+                                                        $OutObj2.Rows | Where-Object { $_.Mon -eq '0' } | Set-Style -Style ON -Property 'Mon'
+                                                        $OutObj2.Rows | Where-Object { $_.Tue -eq '0' } | Set-Style -Style ON -Property 'Tue'
+                                                        $OutObj2.Rows | Where-Object { $_.Wed -eq '0' } | Set-Style -Style ON -Property 'Wed'
+                                                        $OutObj2.Rows | Where-Object { $_.Thu -eq '0' } | Set-Style -Style ON -Property 'Thu'
+                                                        $OutObj2.Rows | Where-Object { $_.Fri -eq '0' } | Set-Style -Style ON -Property 'Fri'
+                                                        $OutObj2.Rows | Where-Object { $_.Sat -eq '0' } | Set-Style -Style ON -Property 'Sat'
 
-                                                        $OutObj2.Rows | Where-Object { $_.Sun -eq "1" } | Set-Style -Style OFF -Property "Sun"
-                                                        $OutObj2.Rows | Where-Object { $_.Mon -eq "1" } | Set-Style -Style OFF -Property "Mon"
-                                                        $OutObj2.Rows | Where-Object { $_.Tue -eq "1" } | Set-Style -Style OFF -Property "Tue"
-                                                        $OutObj2.Rows | Where-Object { $_.Wed -eq "1" } | Set-Style -Style OFF -Property "Wed"
-                                                        $OutObj2.Rows | Where-Object { $_.Thu -eq "1" } | Set-Style -Style OFF -Property "Thu"
-                                                        $OutObj2.Rows | Where-Object { $_.Fri -eq "1" } | Set-Style -Style OFF -Property "Fri"
-                                                        $OutObj2.Rows | Where-Object { $_.Sat -eq "1" } | Set-Style -Style OFF -Property "Sat"
+                                                        $OutObj2.Rows | Where-Object { $_.Sun -eq '1' } | Set-Style -Style OFF -Property 'Sun'
+                                                        $OutObj2.Rows | Where-Object { $_.Mon -eq '1' } | Set-Style -Style OFF -Property 'Mon'
+                                                        $OutObj2.Rows | Where-Object { $_.Tue -eq '1' } | Set-Style -Style OFF -Property 'Tue'
+                                                        $OutObj2.Rows | Where-Object { $_.Wed -eq '1' } | Set-Style -Style OFF -Property 'Wed'
+                                                        $OutObj2.Rows | Where-Object { $_.Thu -eq '1' } | Set-Style -Style OFF -Property 'Thu'
+                                                        $OutObj2.Rows | Where-Object { $_.Fri -eq '1' } | Set-Style -Style OFF -Property 'Fri'
+                                                        $OutObj2.Rows | Where-Object { $_.Sat -eq '1' } | Set-Style -Style OFF -Property 'Sat'
                                                         $OutObj2
                                                     }
                                                 } catch {
