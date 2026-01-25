@@ -29,6 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Update TODO list with new tasks for security and compliance improvements
 - Implement pwsh best practices
 - Migrate Veeam.Diagrammer diagrams to the main report
+- Enable Export of diagrams in PDF format by default
 
 ### :fontawesome-solid-trash: Remove
 
