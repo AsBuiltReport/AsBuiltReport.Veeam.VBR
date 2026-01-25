@@ -21,7 +21,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### :arrows_clockwise: Changed
 
 - Update module version to `v0.8.24`
-- Upgrade Veeam.Diagrammer module to `v0.8.24`
 - Upgrade Diagrammer.Core module to `v0.2.36.1`
 - Update GitHub release workflow to use latest checkout action version
 - Update GitHub release workflow to use latest bluesky-post-action version
