@@ -119,16 +119,16 @@ function Get-AbrVbrDiagrammer {
             try {
                 foreach ($Format in $DiagramFormat) {
                     if ($Format -eq 'base64') {
-                        $Graph = New-VeeamDiagram @DiagramParams -DiagramType $DiagramType -Format $Format
+                        $Graph = New-AbrVeeamDiagram @DiagramParams -DiagramType $DiagramType -Format $Format
                         if ($Graph) {
                             $Graph
                         }
                     } else {
                         $Graph = & {
                             if ($Tenant) {
-                                New-VeeamDiagram @DiagramParams -DiagramType $DiagramType -Format $Format -Filename "AsBuiltReport.Veeam.VBR-$($DiagramTypeHash[$DiagramType])-$(Remove-SpecialChar -String $Tenant -SpecialChars '\').$($Format)"
+                                New-AbrVeeamDiagram @DiagramParams -DiagramType $DiagramType -Format $Format -Filename "AsBuiltReport.Veeam.VBR-$($DiagramTypeHash[$DiagramType])-$(Remove-SpecialChar -String $Tenant -SpecialChars '\').$($Format)"
                             } else {
-                                New-VeeamDiagram @DiagramParams -DiagramType $DiagramType -Format $Format -Filename "AsBuiltReport.Veeam.VBR-$($DiagramTypeHash[$DiagramType]).$($Format)"
+                                New-AbrVeeamDiagram @DiagramParams -DiagramType $DiagramType -Format $Format -Filename "AsBuiltReport.Veeam.VBR-$($DiagramTypeHash[$DiagramType]).$($Format)"
                             }
                         }
                         if ($Graph) {
