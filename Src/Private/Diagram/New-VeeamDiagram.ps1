@@ -545,9 +545,6 @@ function New-VeeamDiagram {
             $CustomSignatureLogo = Test-Logo -LogoPath (Get-ChildItem -Path $SignatureLogo).FullName -IconPath $IconPath -ImagesObj $Images
         }
 
-        # Validate Veeam Powershell Module
-        Get-VbrRequiredModule -Name 'Veeam.Backup.PowerShell' -Version '1.0'
-
         $MainGraphAttributes = @{
             pad = 1.0
             rankdir = $Dir
