@@ -21,7 +21,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### :arrows_clockwise: Changed
 
 - Update module version to `v0.8.24`
-- Upgrade Veeam.Diagrammer module to `v0.6.36`
 - Upgrade Diagrammer.Core module to `v0.2.36.1`
 - Update GitHub release workflow to use latest checkout action version
 - Update GitHub release workflow to use latest bluesky-post-action version
@@ -29,15 +28,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Refactor Veeam Backup & Replication scripts to improve server information retrieval
 - Update TODO list with new tasks for security and compliance improvements
 - Implement pwsh best practices
+- Migrate Veeam.Diagrammer diagrams to the main report
 
 ### :fontawesome-solid-trash: Remove
 
-- Removed noisy logging messages during report execution
+- Remove noisy logging messages during report execution
+- Remove Veeam.Diagrammer dependency (Project no longer Maintained)
 
 ### :bug: Fixed
 
 - Fix error in Unix system not finding default report configuration file
 - Fix Invoke-FindVBRViEntityWithTimeout not finding object in Unix based OS
+- Fix diagram size not respecting document border size
 
 ## [0.8.23] - 2025-07-30
 
@@ -49,7 +51,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### :arrows_clockwise: Changed
 
 - Update module version to v0.8.23
-- Upgrade Veeam.Diagrammer module to v0.6.33
+- Upgrade Veeam.Diagrammer module to v0.8.24
 - Upgrade Diagrammer.Core module to v0.2.28
 
 ### :bug: Fixed
@@ -74,7 +76,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### :arrows_clockwise: Changed
 
 - Bump module to v0.8.22
-- Bump Veeam.Diagrammer module to v0.6.30
+- Bump Veeam.Diagrammer module to v0.8.24
 - Bump Diagrammer.Core module to v0.2.27
 - Update workflow to use Windows 2022 for publishing PowerShell module
 

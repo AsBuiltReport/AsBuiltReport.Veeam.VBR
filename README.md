@@ -62,7 +62,7 @@ Below are the instructions on how to install, configure, and generate a Veeam VB
 The Veeam VBR As Built Report supports the following Veeam Backup & Replication versions:
 
 - Veeam Backup & Replication v12+ (Standard, Enterprise & Enterprise Plus Edition)
-  
+
 ## :no_entry_sign: Unsupported Versions
 
 - Veeam Backup & Replication v11 and earlier are no longer supported. Compatibility with these versions is not guaranteed, and any issues related to versions prior to v12 will not be addressed.
@@ -89,7 +89,6 @@ PowerShell 5.1 and the following PowerShell modules are required to generate a V
 - [PScriboCharts Module](https://github.com/iainbrighton/PScriboCharts)
 - [PSGraph Module](https://github.com/KevinMarquette/PSGraph)
 - [Veeam.Backup.PowerShell Module](https://helpcenter.veeam.com/docs/backup/powershell/getting_started.html?ver=110)
-- [Veeam.Diagrammer Module](https://github.com/rebelinux/Veeam.Diagrammer)
 
 ### :closed_lock_with_key: Required Privileges
 

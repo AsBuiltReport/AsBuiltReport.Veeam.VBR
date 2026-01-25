@@ -25,10 +25,6 @@ jobs:
         shell: pwsh
         run: |
           Install-Module -Name Diagrammer.Core -Repository PSGallery -Force
-      - name: Install Veeam.Diagrammer module
-        shell: pwsh
-        run: |
-          Install-Module -Name Veeam.Diagrammer -Repository PSGallery -Force
       - name: Test Module Manifest
         shell: pwsh
         run: |
