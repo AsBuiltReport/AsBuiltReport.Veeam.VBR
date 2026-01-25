@@ -464,10 +464,9 @@ function Get-AbrVbrBackupProxy {
                                         Write-PScriboMessage -IsWarning "VMware Backup Proxy Diagram: $($_.Exception.Message)"
                                     }
                                     if ($Graph) {
-                                        if ((Get-DiaImagePercent -GraphObj $Graph).Width -gt 600) { $ImagePrty = 20 } else { $ImagePrty = 30 }
-                                        Section -Style Heading3 'VMware Backup Proxy Diagram.' {
-                                            Image -Base64 $Graph -Text 'VMware Backup Proxy Diagram' -Percent $ImagePrty -Align Center
-                                            Paragraph 'Image preview: Opens the image in a new tab to view it at full resolution.' -Tabs 2
+                                        $BestAspectRatio = Get-DiaBestImageAspectRatio -GraphObj $Graph -MaxWidth 600
+                                        Section -Style Heading3 'VMware Backup Proxy Diagram' {
+                                            Image -Base64 $Graph -Text 'VMware Backup Proxy Diagram' -Width $BestAspectRatio.Width -Height $BestAspectRatio.Height -Align Center
                                         }
                                         BlankLine
                                     }
@@ -922,10 +921,9 @@ function Get-AbrVbrBackupProxy {
                                             Write-PScriboMessage -IsWarning "HyperV Backup Proxy Diagram: $($_.Exception.Message)"
                                         }
                                         if ($Graph) {
-                                            if ((Get-DiaImagePercent -GraphObj $Graph).Width -gt 600) { $ImagePrty = 20 } else { $ImagePrty = 30 }
-                                            Section -Style Heading3 'HyperV Backup Proxy Diagram.' {
-                                                Image -Base64 $Graph -Text 'HyperV Backup Proxy Diagram' -Percent $ImagePrty -Align Center
-                                                Paragraph 'Image preview: Opens the image in a new tab to view it at full resolution.' -Tabs 2
+                                            $BestAspectRatio = Get-DiaBestImageAspectRatio -GraphObj $Graph -MaxWidth 600
+                                            Section -Style Heading3 'HyperV Backup Proxy Diagram' {
+                                                Image -Base64 $Graph -Text 'HyperV Backup Proxy Diagram' -Width $BestAspectRatio.Width -Height $BestAspectRatio.Height -Align Center
                                             }
                                             BlankLine
                                         }
