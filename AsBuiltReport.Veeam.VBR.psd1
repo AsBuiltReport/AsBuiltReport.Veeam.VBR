@@ -63,7 +63,7 @@
         }
         @{
             ModuleName = 'Diagrammer.Core';
-            ModuleVersion = '0.2.36.1'
+            ModuleVersion = '0.2.37'
         }
     )
 
@@ -134,3 +134,4 @@
     # DefaultCommandPrefix = ''
 
 }
+
