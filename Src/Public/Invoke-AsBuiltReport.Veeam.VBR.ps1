@@ -586,11 +586,6 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                 Write-Host ' '
             }
         }
-
-        if ((Get-VBRServerSession).Server) {
-            Write-PScriboMessage "Disconecting section from $((Get-VBRServerSession).Server)"
-            Disconnect-VBRServer
-        }
     }
     #endregion foreach loop
 }

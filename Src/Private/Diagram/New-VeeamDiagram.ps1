@@ -124,7 +124,7 @@ function New-VeeamDiagram {
         For best results, ensure all image assets meet the recommended size guidelines.
 
     .NOTES
-        Version:        0.6.38
+        Version:        0.8.24
         Author(s):      Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -571,8 +571,6 @@ function New-VeeamDiagram {
                 throw "Please use the Fully Qualified Domain Name (FQDN) instead of an IP address when connecting to the Backup Server: $System"
             }
 
-            Get-VbrServerConnection -Port $Port
-
             try {
 
                 $script:VBRServer = (Get-VBRServerSession).Server
@@ -587,7 +585,7 @@ function New-VeeamDiagram {
                 throw 'No Backup Server Information available to diagram'
             }
 
-            $script:Graph = Graph -Name VeeamVBR -Attributes $MainGraphAttributes {
+            $script:diGraph = Graph -Name VeeamVBR -Attributes $MainGraphAttributes {
                 # Node default theme
                 Node @{
                     # label = ''
@@ -719,11 +717,11 @@ function New-VeeamDiagram {
         }
     }
     end {
-        if ($Graph) {
+        if ($diGraph) {
             #Export Diagram
             foreach ($OutputFormat in $Format) {
 
-                $OutputDiagram = Export-Diagrammer -GraphObj ($Graph | Select-String -Pattern '"([A-Z])\w+"\s\[label="";style="invis";shape="point";]' -NotMatch) -ErrorDebug $EnableErrorDebug -Format $OutputFormat -Filename $Filename -OutputFolderPath $OutputFolderPath -WaterMarkText $WaterMarkText -WaterMarkColor $WaterMarkColor -IconPath $IconPath -Verbose:$Verbose -Rotate $Rotate
+                $OutputDiagram = Export-Diagrammer -GraphObj ($diGraph | Select-String -Pattern '"([A-Z])\w+"\s\[label="";style="invis";shape="point";]' -NotMatch) -ErrorDebug $EnableErrorDebug -Format $OutputFormat -Filename $Filename -OutputFolderPath $OutputFolderPath -WaterMarkText $WaterMarkText -WaterMarkColor $WaterMarkColor -IconPath $IconPath -Verbose:$Verbose -Rotate $Rotate
 
                 if ($OutputDiagram) {
                     if ($OutputFormat -ne 'Base64') {
