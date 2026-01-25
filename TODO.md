@@ -22,6 +22,7 @@ $Cred = New-Object System.Management.Automation.PSCredential ("administrator@pha
 
 Connect-VBRServer -Server veeam-vbr-01v.pharmax.local -Credential $Cred
 
+Import-Module PScribo -Force
 Import-Module AsBuiltReport.Veeam.VBR -Force
 Import-Module Diagrammer.Core -Force
 
