@@ -7,31 +7,66 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ##### This project is community maintained and has no sponsorship from Veeam, its employees or any of its affiliates.
 
-## [0.8.23] - 2025-07-XX
+## [0.8.24] - 2026-01-25
 
-### Added
+## :toolbox: Added
+
+- Add dependency version check
+- Add sponsor information to the module header
+- Add timeout handling for vSphere inventory queries
+- Add additional security compliance checks for Veeam VBR Linux appliance
+- Add option to control the module update check process. Fix [#229](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/229)
+- Add support for running the report from Linux using `Veeam PowerShell module for Linux`
+
+### :arrows_clockwise: Changed
+
+- Update module version to `v0.8.24`
+- Upgrade Diagrammer.Core module to `v0.2.37`
+- Update GitHub release workflow to use latest checkout action version
+- Update GitHub release workflow to use latest bluesky-post-action version
+- Update GitHub CodeQL workflow to use latest checkout action version
+- Refactor Veeam Backup & Replication scripts to improve server information retrieval
+- Update TODO list with new tasks for security and compliance improvements
+- Implement pwsh best practices
+- Migrate Veeam.Diagrammer diagrams to the main report
+- Enable Export of diagrams in PDF format by default
+
+### :fontawesome-solid-trash: Remove
+
+- Remove noisy logging messages during report execution
+- Remove Veeam.Diagrammer dependency (Project no longer Maintained)
+
+### :bug: Fixed
+
+- Fix error in Unix system not finding default report configuration file
+- Fix Invoke-FindVBRViEntityWithTimeout not finding object in Unix based OS
+- Fix diagram size not respecting document border size
+
+## [0.8.23] - 2025-07-30
+
+## :toolbox: Added
 
 - Add support for Nutanix backup jobs
 - Add option to enable use of updated Veeam icons in generated diagrams
 
-### Changed
+### :arrows_clockwise: Changed
 
 - Update module version to v0.8.23
-- Upgrade Veeam.Diagrammer module to v0.6.33
+- Upgrade Veeam.Diagrammer module to v0.8.24
 - Upgrade Diagrammer.Core module to v0.2.28
 
-### Fixed
+### :bug: Fixed
 
 - Close #205
 
 ## [0.8.22] - 2025-07-23
 
-### Added
+## :toolbox: Added
 
 - Add Cloud Connect infrastructure diagram
 - Add per Tenant resources diagram
 
-### Changed
+### :arrows_clockwise: Changed
 
 - Updated Get-AbrVbrCloudConnectTenant to include diagram generation
 - Modified Invoke-AsBuiltReport to handle tenant-specific diagrams
@@ -39,29 +74,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated changelog and version numbers across scripts
 - Refactor diagram section in Get-AbrVbrCloudConnectTenant function for improved error handling and clarity
 
-### Changed
+### :arrows_clockwise: Changed
 
 - Bump module to v0.8.22
-- Bump Veeam.Diagrammer module to v0.6.30
+- Bump Veeam.Diagrammer module to v0.8.24
 - Bump Diagrammer.Core module to v0.2.27
 - Update workflow to use Windows 2022 for publishing PowerShell module
 
 
 ## [0.8.21] - 2025-05-17
 
-### Added
+## :toolbox: Added
 
 - Add a condition to verify the version of dependent modules
 - Add DiagramColumnSize option
 - Refine dependency version checks
 
-### Changed
+### :arrows_clockwise: Changed
 
 - Bump module version to 0.8.21
 - Bump Veeam.Diagrammer module to version 0.6.29
 - Improve handling of diagram image resolution calculations
 
-### Fixed
+### :bug: Fixed
 
 - Resolve an error occurring in the infrastructure diagram when exporting to Word format
 - Resolve [#217](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/217)
@@ -69,7 +104,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.8.20] - 2025-05-10
 
-### Changed
+### :arrows_clockwise: Changed
 
 - Bump module version to 0.8.20
 - Bump Veeam.Diagrammer module version to 0.6.27
@@ -77,13 +112,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Modify copyright year
 - Enhance execution time logging in Veeam report functions
 
-### Fixed
+### :bug: Fixed
 
 - Fix #215
 
 ## [0.8.19] - 2025-04-30
 
-### Changed
+### :arrows_clockwise: Changed
 
 - Bump module version to 0.8.19
 - Bump Veeam.Diagrammer module version to 0.6.26
@@ -92,7 +127,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.8.18] - 2025-04-27
 
-### Added
+## :toolbox: Added
 
 - Add code to allow the exporting of the Veeam diagram
   - Infrastructure
@@ -109,11 +144,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.8.17] - 2025-04-18
 
-### Added
+## :toolbox: Added
 
 - Add Backup Infrastructure diagram to the main report
 
-### Changed
+### :arrows_clockwise: Changed
 
 - Increase Diagrammer.Core minimum requirement to v0.2.24
 - Increase Veeam.Diagrammer minimum requirement to v0.6.24
@@ -124,20 +159,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.8.16] - 2025-04-09
 
-### Changed
+### :arrows_clockwise: Changed
 
 - Increase Diagrammer.Core minimum requirement to v0.2.21
 - Increase Veeam.Diagrammer minimum requirement to v0.6.22
 - Increase AsBuiltReport.Core to v1.4.3
 
-### Fixed
+### :bug: Fixed
 
 - Fix issue where the Syslog Event Filter section displayed content even when no configuration was available
 - Fix issue causing WinRM connection failures in the Backup Server section
 
 ## [0.8.15] - 2025-03-05
 
-### Changed
+### :arrows_clockwise: Changed
 
 - Increase Diagrammer.Core minimum requirement to v0.2.19
 - Increase Veeam.Diagrammer minimum requirement to v0.6.20
@@ -147,24 +182,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.8.14] - 2025-01-30
 
-### Added
+## :toolbox: Added
 
 - Add support for vMWare Cloud Director backup job
 - Add option to set the RoundUnits of the storage usages
 
-### Changed
+### :arrows_clockwise: Changed
 
 - Storage units in the report are set to 1 round by default
 - Increase AsBuiltReport.Core to v1.4.2
 
-### Fixed
+### :bug: Fixed
 
 - Fix [#197](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/197)
 - Fix [#198](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/198)
 
 ## [0.8.13] - 2024-12-11
 
-### Added
+## :toolbox: Added
 
 - Add EntraID Tenant configuration
   - Add Objects Backup Job information
@@ -176,20 +211,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add Google Cloud Storage repository information
 - Add VMware Infrastructure information to the Infrastructure diagram
 
-### Changed
+### :arrows_clockwise: Changed
 
 - Increase Veeam.Diagrammer minimum requirement to v0.6.18
 - Change the infrastructure diagram default save location to $OutputFolderPath
 - Increase AsBuiltReport.Core to v1.4.1
 
-### Fixed
+### :bug: Fixed
 
 - Fix error "A positional parameter cannot be found that accepts argument '-'" at Get-AbrVbrConfigurationBackupSetting cmdlet
 - Fix ConvertTo-HashToYN cmdlet not generating an ordereddictionary output
 
 ## [0.8.12] - 2024-11-22
 
-### Changed
+### :arrows_clockwise: Changed
 
 - Improve detection of empty fields in tables
 - Improve detection of true/false elements in tables
@@ -198,7 +233,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Increase Diagrammer.Core minimum requirement to v0.2.13
 - Increase Veeam.Diagrammer minimum requirement to v0.6.16
 
-### Fixed
+### :bug: Fixed
 
 - Fix [#187](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/187)
 - Fix Cloud Connect tenant expiration date healthcheck
@@ -206,19 +241,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.8.11] - 2024-10-30
 
-### Added
+## :toolbox: Added
 
 - Add diagram theming option (Black/White/Neon)
 - Add code to properly display space information
 
-### Changed
+### :arrows_clockwise: Changed
 
 - Increase Diagrammer.Core minimum requirement to v0.2.11
 - Increase Veeam.Diagrammer minimum requirement to v0.6.12
 - Improve connection validation throuth WinRM
 - Deny connection to backup server by Ip Address
 
-### Fixed
+### :bug: Fixed
 
 - Fix SOBR capacity extent members table
 - Fix Unstructured Data section displaying section when no data is available
@@ -228,11 +263,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.8.10] - 2024-09-12
 
-### Changed
+### :arrows_clockwise: Changed
 
 - Migrate infrastructure diagram to Veeam.Diagrammer
 
-### Changed
+### :arrows_clockwise: Changed
 
 - Increase Diagrammer.Core minimum requirement to v0.2.7
 - Increase Veeam.Diagrammer minimum requirement to v0.6.6
@@ -243,18 +278,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.8.9] - 2024-08-31
 
-### Added
+## :toolbox: Added
 
 - Add ExportDiagramsFormat option that allows specifying the format of the exported diagrams
   - Supported formats are dot, pdf, png, svg
 - Compatibility tests with v12.2 were performed
 
-### Changed
+### :arrows_clockwise: Changed
 
 - Increase Diagrammer.Core minimum requirement to v0.2.3
 - Increase Veeam.Diagrammer minimum requirement to v0.6.2
 
-### Fixed
+### :bug: Fixed
 
 - Fix bug while exporting diagram in svg format
 - Improve error handling when infrastructure components are missing
@@ -262,7 +297,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.8.8] - 2024-07-26
 
-### Added
+## :toolbox: Added
 
 - Add Tape Infrastructure to the diagram
   - Tape Server
@@ -273,51 +308,51 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.8.7] - 2024-05-28
 
-### Added
+## :toolbox: Added
 
 - Update the ReadMe file to reflect conflicts with PSWriteWord module
 - Update the Eomm/why-don-t-you-tweet action to v2.0.0
 - General code cleanup/improvements
 
-### Changed
+### :arrows_clockwise: Changed
 
 - Disable the Backup Restore section (Some users reported issues with this section)
 - Increase Veeam.Diagrammer module minimum requirement to v0.6.0
 
-### Fixed
+### :bug: Fixed
 
 - Fix sorting of table [A-Z].
 
 ## [0.8.6] - 2024-04-29
 
-### Added
+## :toolbox: Added
 
 - Add Backup Infrastructure Diagram (WIP)
 - Close [#155](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/155)
 - Add vCD Resources to Service Provider section
 - Add Backup Repository Space Utilization chart
 
-### Changed
+### :arrows_clockwise: Changed
 
 - Increase AsBuiltReport.Core modules to v1.4.0
 - Migrate NOTOCHeading3 to NOTOCHeading4 to fix section heading
 - Change charts palette to follow new AsBuiltReport.Core theme
 
 
-### Fixed
+### :bug: Fixed
 
 - Fix [#149](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/149)
 - Fix [#151](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/151)
 - Fix [#150](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/150)
 
-### Removed
+### :fontawesome-solid-trash: Remove
 
 - Remove EnableCharts option.
 - Remove Infrastructure Charts
 
 ## [0.8.5] - 2024-03-15
 
-### Added
+## :toolbox: Added
 
 - Added Option => History section
 - Improved Role & Users section
@@ -329,13 +364,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added Restore point reporting. Close [#143](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/143)
 - Added Automatically disable Windows Firewall option to the SureBackup verification section
 
-### Changed
+### :arrows_clockwise: Changed
 
 - Removed Graphviz install check code. (No need to manually install Graphviz)
 - Code Cleanup
 - Increased Veeam.Diagrammer module requirement to v0.5.9
 
-### Fixed
+### :bug: Fixed
 
 - Improved error handling on the Diagram section.
 - Fixed issue with the Veeam.Diagrammer module.
@@ -345,7 +380,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.8.4] - 2024-01-16
 
-### Added
+## :toolbox: Added
 
 - Added Veeam Best Practice Analyzer support
 - Added support for Key Management Server configuration
@@ -354,11 +389,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Wasabi
   - BackBlaze
 
-### Changed
+### :arrows_clockwise: Changed
 
 - Improved the total processing timeof the report
 
-### Fixed
+### :bug: Fixed
 
 - Fix [#131](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/131)
 - Fix [#132](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/132)
@@ -368,7 +403,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.8.3] - 2023-12-29
 
-### Added
+## :toolbox: Added
 
 - Initial diagramming support
 - v12.1 support:
@@ -381,7 +416,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Event Forwarding (Syslog)
   - Linux host authentication setting
 
-### Fixed
+### :bug: Fixed
 
 - Close [#114](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/114)
 - Close [#115](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/115)
@@ -394,65 +429,65 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.8.2] - 2023-10-12
 
-### Fixed
+### :bug: Fixed
 
 - Fixed misspelled module name in file /Src/Public/Invoke-AsBuiltReport.Veeam.VBR.ps1. Fix #110
 
 ## [0.8.1] - 2023-10-03
 
-### Removed
+### :fontawesome-solid-trash: Remove
 
 - Removed Infrastructure Hardening section
 
 ## [0.8.0] - 2023-07-13
 
-### Added
+## :toolbox: Added
 
 - Added a separated Backup Copy Job section for v12 edition
 
-### Changed
+### :arrows_clockwise: Changed
 
 - Improved Health Check recommendations
 
-### Fixed
+### :bug: Fixed
 
 - Fix [#104](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/104)
 
 ## [0.7.3] - 2023-06-13
 
-### Added
+## :toolbox: Added
 
 - Added Network Traffic Rules - Throttling Windows Time Period information
 - Added Backup Server Domain Joined health check
 
 ## [0.7.2] - 2023-06-04
 
-### Added
+## :toolbox: Added
 
 - Added HealthCheck recommendations
 - Added Global Notification options
 - Added SOBR Capacity Tier - Offload Window Time Period information
 - Updated Report Sample Files
 
-### Changed
+### :arrows_clockwise: Changed
 
 - Visually improved the Backup Window Time Period table
 
-### Fixed
+### :bug: Fixed
 
 - Fix [#99](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/99)
 - Fix [#100](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/100)
 
 ## [0.7.1] - 2023-03-07
 
-### Changed
+### :arrows_clockwise: Changed
 
 - Improved bug and feature request templates.
 - Improved support for version 12
 - Changed Required Modules to AsBuiltReport.Core v1.3.0
 - Improved Error Logging
 
-### Fixed
+### :bug: Fixed
 
 - Fix [#83](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/83)
 - Fix [#84](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/84)
@@ -465,11 +500,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.7.0] - 2022-12-03
 
-### Added
+## :toolbox: Added
 
 - Added support for Cloud Connect.
 
-### Changed
+### :arrows_clockwise: Changed
 
 - Added 'EnableCharts' option to enable/disable the creation of Charts in report (Disabled by default).
 - Added 'EnableHardwareInventory' option to enable/disable the collection of HW inventory (Disabled by default).
@@ -477,7 +512,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The Executive Summary section has been removed. The summary table has been moved to each corresponding section.
 - The service providers section has been improved.
 
-### Fixed
+### :bug: Fixed
 
 - Close [#78](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/78)
 - Close [#79](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/79)
@@ -485,7 +520,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.6.0] - 2022-10-28
 
-### Added
+## :toolbox: Added
 
 - Added Infrastructure Hardening section
 - Added per Tape Media Pool configuration information (InfoLevel 2) [#71](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/71)
@@ -495,7 +530,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Retention Sub-Section
   - Options Sub-Section
 
-### Fixed
+### :bug: Fixed
 
 - Close [#63](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/63)
 - Fix [#70](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/70)
@@ -505,16 +540,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.5.5] - 2022-10-02
 
-### Added
+## :toolbox: Added
 
 - Addeds support for schedule backup windows on Backup Jobs
 
-### Changed
+### :arrows_clockwise: Changed
 
 - Improved table sorting
 - Added BlankLine between charts and table content
 
-### Fixed
+### :bug: Fixed
 
 - Fixes [#56](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/56)
 - Fixes [#57](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/57)
@@ -525,30 +560,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.5.4] - 2022-09-17
 
-### Added
+## :toolbox: Added
 
 - Added support for File Share Backup Job information
 - Added support for Backup Jobs GFS Policy information
 - Added Simple Chart support
 
-### Fixed
+### :bug: Fixed
 
 - Fixes [#49](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/49)
 - Fixes [#50](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/50)
 
 ## [0.5.3] - 2022-08-21
 
-### Changed
+### :arrows_clockwise: Changed
 
 - Improvement to the report's table of contents
 
-### Fixed
+### :bug: Fixed
 
 - Fixes [#46](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/46)
 
 ## [0.5.2] - 2022-07-05
 
-### Added
+## :toolbox: Added
 
 - Added Replication Resource to the Cloud Service Provider section
 - Improvements to the Object Storage Repository section
@@ -558,26 +593,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Added FriendlyPath to the Performance Tier sub-section
   - Added Archive Tier sub-section
 
-### Fixed
+### :bug: Fixed
 
 - Fixed Cloud Service Provider section only displaying last object element.
 
 ## [0.5.1] - 2022-06-15
 
-### Added
+## :toolbox: Added
 
 - Added Cloud Service Provider Summary
   - Added per Service Provider Configuration subsection
 - Added Initial v12 support :)
 
-### Fixed
+### :bug: Fixed
 
 - Code refactoring
 - Reviewed Paragraph Section
 
 ## [0.5.0] - 2022-05-12
 
-### Added
+## :toolbox: Added
 
 - Added Replication Section @rebelinux
   - Replica Information
@@ -592,13 +627,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Advanced Settings (Integration)
     - Advanced Settings (Script)
 
-### Fixed
+### :bug: Fixed
 
 - Fix for not connected Enterprise Manager.
 
 ## [0.4.1] - 2022-05-02
 
-### Added
+## :toolbox: Added
 
 - Added Backup Repository information about Immutability. @vNote42
   - Immutability Enabled: yes/no
@@ -633,13 +668,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Backup Cache information
   - Job Scheduling information
 
-### Fixed
+### :bug: Fixed
 
 - Fix authentication error in Workgroup enviroments #31
 
 ## [0.4.0] - 2022-02-27
 
-### Added
+## :toolbox: Added
 
 - Added Backup Job Configuration information
   - VMware type Backup Jobs
@@ -653,13 +688,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - VMware SureBackup Jobs
 - Added Configuration Backup Section
 
-### Changed
+### :arrows_clockwise: Changed
 
 - Updated GitHub Action release workflow to send automated tweets on each release
 
 ## [0.3.1] - 2022-02-8
 
-### Added
+## :toolbox: Added
 
 - Added option to set veeam custom tcp port (BackupServerPort)
 - Added Volume Format to the BackupServer/Proxy section
@@ -673,11 +708,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Added SureBackup Job information
   - Added Agent Backup Job information
 
-### Changed
+### :arrows_clockwise: Changed
 
 - Migrated Sample URL to htmlpreview.github.io
 
-### Fixed
+### :bug: Fixed
 
 - Fixes Include Veeam Network Statistics in report #13
 - Fixes Backup Server physical memory (GB) < 8 always returns true #14
@@ -687,7 +722,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.3.0] - 2022-01-30
 
-### Added
+## :toolbox: Added
 
 - Added File Share section.
 - Added Veeam version information.
@@ -696,19 +731,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added Enterprise Manager Information
 - Added Service Provider credential information
 
-### Changed
+### :arrows_clockwise: Changed
 
 - Improved table caption content.
 - Changed ReadMe to include Supported Licenses Edtion.
 - Added SQLServer module to manifest file
 
-### Fixed
+### :bug: Fixed
 
 - Fix missing Infolevel sections.
 
 ## [0.2.0] - 2022-01-14
 
-### Added
+## :toolbox: Added
 
 - Added if Condition to better validate License Edition.
 - Added more try/case statements.
@@ -723,18 +758,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Added Protection Group Summary Section.
       - Added Protection Group Detailed Configuration.
 
-### Changed
+### :arrows_clockwise: Changed
 
 - Removed unneeded paragraph section.
 - Changed ReadMe to include Supported Licenses Edtion.
 
-### Fixed
+### :bug: Fixed
 
 - Fix many try/case statements
 
 ## [0.1.0] - 2022-01-05
 
-### Added
+## :toolbox: Added
 
 - Added Backup Server Information.
   - Added Backup Server Hardware Inventory.

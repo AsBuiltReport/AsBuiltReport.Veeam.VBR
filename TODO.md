@@ -8,3 +8,7 @@
     - [x] Backup Proxy	(Unknown)
     - [ ] Validate Data Transfer (Wan Accelerators)
     - [x] Backup Repository	(Snap mode)
+- [x] Fix Security & Compliance Best Practices section
+- [ ] Fix Immutability Supported column in Repositories table
+- [ ] Fix Storage-Level Corruption Guard (SLCG)
+- [x] Integrate Veeam.Diagrammer diagrams to the main report

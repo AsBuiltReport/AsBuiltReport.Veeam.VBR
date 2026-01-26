@@ -23,12 +23,11 @@
             <img src="https://img.shields.io/twitter/follow/AsBuiltReport.svg?style=social"/></a>
 </p>
 
-> [!WARNING]
-> I have recently been contacted to ask about the status of this project. Maintaining this report and all the tools that make this project work is time and resource consuming. If you want to keep this project alive, support its development by donating through ko-fi.
+#### :exclamation:Veeam Backup & Replication v13 in any variant (Windows or Appliance) is not supported:exclamation:
 
-<p align="center">
-    <a href='https://ko-fi.com/F1F8DEV80' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://ko-fi.com/img/githubbutton_sm.svg' border='0' alt='Want to keep alive this project? Support me on Ko-fi' /></a>
-</p>
+> [!WARNING]
+> Veeam Backup & Replication v13 introduces several new features and improvements, one of which is support for .Net Core. To support this version of .Net, it is necessary to update the AsBuiltReport.Veeam.VBR report to work in PowerShell v7. This effort requires many hours of work that place an additional burden on my already heavy work schedule. If you wish to support this effort, please do not hesitate to donate!
+> https://ko-fi.com/jcolonfzenpr/goal?g=0
 
 #### Community Maintained Project
 
@@ -62,15 +61,13 @@ Below are the instructions on how to install, configure, and generate a Veeam VB
 
 The Veeam VBR As Built Report supports the following Veeam Backup & Replication versions:
 
-- Veeam Backup & Replication v11+ (Standard, Enterprise & Enterprise Plus Edition)
 - Veeam Backup & Replication v12+ (Standard, Enterprise & Enterprise Plus Edition)
-
-:exclamation: Community Edition is not supported :exclamation:
 
 ## :no_entry_sign: Unsupported Versions
 
-- Veeam versions 10 and earlier are no longer supported. Compatibility with these versions is not guaranteed, and any issues related to versions prior to v11 will not be addressed.
-- Veeam version 13 is not supported.
+- Veeam Backup & Replication v11 and earlier are no longer supported. Compatibility with these versions is not guaranteed, and any issues related to versions prior to v12 will not be addressed.
+- Veeam Backup & Replication v13 in any variant (Windows or Appliance) is not supported.
+- Community Edition is not supported
 
 [Veeam Product Lifecycle Policy](https://www.veeam.com/product-lifecycle.html)
 
@@ -92,7 +89,6 @@ PowerShell 5.1 and the following PowerShell modules are required to generate a V
 - [PScriboCharts Module](https://github.com/iainbrighton/PScriboCharts)
 - [PSGraph Module](https://github.com/KevinMarquette/PSGraph)
 - [Veeam.Backup.PowerShell Module](https://helpcenter.veeam.com/docs/backup/powershell/getting_started.html?ver=110)
-- [Veeam.Diagrammer Module](https://github.com/rebelinux/Veeam.Diagrammer)
 
 ### :closed_lock_with_key: Required Privileges
 
@@ -170,12 +166,14 @@ The **Options** schema allows certain options within the report to be toggled on
 | EnableHardwareInventory | true / false               | false   | Toggle to enable/disable hardware information                                 |
 | ExportDiagrams          | true / false               | true    | Toggle to enable/disable diagram export option                                |
 | ExportDiagramsFormat    | string array               | png     | Set the format used to export the infrastructure diagram (dot, png, pdf, svg) |
+| IsLocalServer           | true / false               | false   | Set to true if the target Veeam Backup Server is the local server             |
 | NewIcons                | true / false               | false   | Set to true to enable the new Veeam icons                                     |
 | PSDefaultAuthentication | Default/Kerberos/Negotiate | Default | Set the PSRemoting authentication method                                      |
 | ReportStyle             | Veeam/AsBuiltReport        | Veeam   | Set the report style template                                                 |
 | RoundUnits              | int                        | 1       | Set the value to round the storage unit                                       |
 | SignatureAuthorName     | string                     | empty   | Set the signature author name                                                 |
 | SignatureCompanyName    | string                     | empty   | Set the signature company name                                                |
+| UpdateCheck             | true / false               | true    | Toggle to enable/disable module update check messages                         |
 
 ### InfoLevel
 
@@ -291,4 +289,5 @@ PS C:\> New-AsBuiltReport -Report Veeam.VBR -Target veeam-vbr.pharmax.local -Use
 
 - Many of Veeam's features depend on the Standard+ license, so the Community edition is not supported.
 - If the Veeam Backup Server is not joined to an Active Directory domain (WorkGroup Auth), the PSDefaultAuthentication option must be set to Negotiate. Otherwise, some report sections will be missing.
-- This project uses the PScribo module to generate the report. It has been detected that the EvotecIT PSWriteWord module uses the same cmdlet names. To generate the report correctly, it is required to uninstall the PSWriteWord module.
+- This project uses the PScribo module to generate the report. If you have the EvotecIT PSWriteWord module installed, uninstall it, as it contains conflicting cmdlet names that will prevent the report from generating correctly.
+

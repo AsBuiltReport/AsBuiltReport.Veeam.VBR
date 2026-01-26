@@ -6,9 +6,9 @@ on:
 
 jobs:
   publish-to-gallery:
-    runs-on: windows-2022
+    runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Set PSRepository to Trusted for PowerShell Gallery
         shell: pwsh
         run: |
@@ -25,10 +25,6 @@ jobs:
         shell: pwsh
         run: |
           Install-Module -Name Diagrammer.Core -Repository PSGallery -Force
-      - name: Install Veeam.Diagrammer module
-        shell: pwsh
-        run: |
-          Install-Module -Name Veeam.Diagrammer -Repository PSGallery -Force
       - name: Test Module Manifest
         shell: pwsh
         run: |
@@ -58,7 +54,7 @@ jobs:
     needs: publish-to-gallery
     runs-on: ubuntu-latest
     steps:
-      - uses: zentered/bluesky-post-action@v0.2.0
+      - uses: zentered/bluesky-post-action@v0.3.0
         with:
           post: "[New Release] ${{ github.event.repository.name }} ${{ github.event.release.tag_name }}! Check out what's new! ${{ github.event.release.html_url }} #Veeam #AsBuiltReport #PowerShell #VeeamVanguard #VeeamLegend"
         env:
