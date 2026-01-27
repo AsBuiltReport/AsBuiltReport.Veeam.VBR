@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ##### This project is community maintained and has no sponsorship from Veeam, its employees or any of its affiliates.
 
+## [0.8.25] - Unreleased
+
+### :bug: Fixed
+
+- Fix issue while trying to generate backup server diagrams from local Backup server
+- Fix issue in the repository diagram
+- Fix issue with verbose logging
+
 ## [0.8.24] - 2026-01-25
 
 ## :toolbox: Added
