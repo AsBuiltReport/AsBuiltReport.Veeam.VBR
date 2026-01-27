@@ -105,21 +105,7 @@ function Get-AbrVbrRepljobVMware {
                                             try {
 
                                                 if (!$Destination.ClusterName) {
-                                                    $HostorCluster = switch ($PSVersionTable.PSEdition) {
-                                                        'Core' {
-                                                            switch ($PSVersionTable.Platform) {
-                                                                'Unix' {
-                                                                    (Find-VBRHvEntity -Name $FailOverPlansVM | Where-Object { $_.Reference -eq $Destination.HostReference }).Name
-                                                                }
-                                                                'Win32NT' {
-                                                                    (Invoke-FindVBRViEntityWithTimeout -TimeoutSeconds 120 -ErrorAction SilentlyContinue | Where-Object { $_.Reference -eq $Destination.HostReference }).Name
-                                                                }
-                                                            }
-                                                        }
-                                                        'Desktop' {
-                                                            (Invoke-FindVBRViEntityWithTimeout -TimeoutSeconds 120 -ErrorAction SilentlyContinue | Where-Object { $_.Reference -eq $Destination.HostReference }).Name
-                                                        }
-                                                    }
+                                                    $HostorCluster = (Find-VBRHvEntity -Name $FailOverPlansVM | Where-Object { $_.Reference -eq $Destination.HostReference }).Name
                                                 } else { $HostorCluster = $Destination.ClusterName }
                                                 $inObj = [ordered]  @{
                                                     'Host or Cluster' = switch ($HostorCluster) {

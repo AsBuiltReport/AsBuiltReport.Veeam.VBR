@@ -20,7 +20,7 @@ function Get-AbrBackupEntraIDInfo {
 
     )
     process {
-        Write-Verbose -Message "Collecting Entra ID information from $($VBRServer)."
+        Write-PScriboMessage "Collecting Entra ID information from $($VBRServer)."
         try {
             $EntraIDs = Get-VBREntraIDTenant
             $EntraIDInfo = @()
@@ -43,7 +43,7 @@ function Get-AbrBackupEntraIDInfo {
 
             return $EntraIDInfo
         } catch {
-            Write-Verbose -Message $_.Exception.Message
+            Write-PScriboMessage $_.Exception.Message
         }
     }
     end {}

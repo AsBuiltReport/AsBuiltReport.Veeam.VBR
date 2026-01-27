@@ -20,7 +20,7 @@ function Get-AbrBackupHyperVStandAloneInfo {
 
     )
     process {
-        Write-Verbose -Message "Collecting HyperV HyperVisor information from $($VBRServer)."
+        Write-PScriboMessage "Collecting HyperV HyperVisor information from $($VBRServer)."
         try {
             $HyObjs = Get-VBRServer | Where-Object { $_.Type -eq 'HvServer' -and $_.Parentid -eq '00000000-0000-0000-0000-000000000000' }
             $HyObjsInfo = @()
@@ -43,14 +43,14 @@ function Get-AbrBackupHyperVStandAloneInfo {
                         }
                         $HyObjsInfo += $TempHyObjsInfo
                     } catch {
-                        Write-Verbose -Message $_.Exception.Message
+                        Write-PScriboMessage $_.Exception.Message
                     }
                 }
             }
 
             return $HyObjsInfo
         } catch {
-            Write-Verbose -Message $_.Exception.Message
+            Write-PScriboMessage $_.Exception.Message
         }
     }
     end {}

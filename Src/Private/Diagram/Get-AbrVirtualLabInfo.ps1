@@ -27,7 +27,7 @@ function Get-AbrVirtualLabInfo {
     #>
     param ()
     try {
-        Write-Verbose "Collecting VirtualLab information from $($VBRServer)."
+        Write-PScriboMessage "Collecting VirtualLab information from $($VBRServer)."
         $VirtualLab = Get-VBRVirtualLab
 
         if ($VirtualLab) {
@@ -53,6 +53,6 @@ function Get-AbrVirtualLabInfo {
         }
 
     } catch {
-        Write-Verbose -Message $_.Exception.Message
+        Write-PScriboMessage $_.Exception.Message
     }
 }

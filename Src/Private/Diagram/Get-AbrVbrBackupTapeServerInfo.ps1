@@ -19,7 +19,7 @@ function Get-AbrBackupTapeServerInfo {
     )
 
     process {
-        Write-Verbose -Message "Collecting Tape Servers information from $($VBRServer)."
+        Write-PScriboMessage "Collecting Tape Servers information from $($VBRServer)."
         try {
 
             $TapeServers = Get-VBRTapeServer
@@ -50,7 +50,7 @@ function Get-AbrBackupTapeServerInfo {
 
             return $BackupTapeServersInfo
         } catch {
-            Write-Verbose -Message $_.Exception.Message
+            Write-PScriboMessage $_.Exception.Message
         }
     }
     end {}

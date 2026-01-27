@@ -33,7 +33,7 @@ function Get-AbrApplicationGroupsInfo {
     #>
     param ()
     try {
-        Write-Verbose "Collecting Application Groups information from $($VBRServer)."
+        Write-PScriboMessage "Collecting Application Groups information from $($VBRServer)."
         $ApplicationGroups = Get-VBRApplicationGroup
 
         if ($ApplicationGroups) {
@@ -54,6 +54,6 @@ function Get-AbrApplicationGroupsInfo {
         }
 
     } catch {
-        Write-Verbose -Message $_.Exception.Message
+        Write-PScriboMessage $_.Exception.Message
     }
 }

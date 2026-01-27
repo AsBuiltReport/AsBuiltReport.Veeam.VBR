@@ -19,7 +19,7 @@ function Get-AbrBackupCCvCDReplicaResourcesInfo {
     )
 
     process {
-        Write-Verbose -Message "Collecting Cloud Connect vCD Replica Resources information from $($VBRServer)."
+        Write-PScriboMessage "Collecting Cloud Connect vCD Replica Resources information from $($VBRServer)."
         try {
 
             $BackupCCvCDReplicaResourcesInfo = @()
@@ -72,7 +72,7 @@ function Get-AbrBackupCCvCDReplicaResourcesInfo {
 
             return $BackupCCvCDReplicaResourcesInfo
         } catch {
-            Write-Verbose -Message $_.Exception.Message
+            Write-PScriboMessage $_.Exception.Message
             return $BackupCCvCDReplicaResourcesInfo
         }
     }

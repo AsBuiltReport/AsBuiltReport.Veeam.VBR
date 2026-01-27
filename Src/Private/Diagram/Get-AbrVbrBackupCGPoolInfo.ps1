@@ -19,7 +19,7 @@ function Get-AbrBackupCGPoolInfo {
     )
 
     process {
-        Write-Verbose -Message "Collecting Cloud Gateway Pool information from $($VBRServer)."
+        Write-PScriboMessage "Collecting Cloud Gateway Pool information from $($VBRServer)."
         try {
 
             $BackupCGPoolsInfo = @()
@@ -39,7 +39,7 @@ function Get-AbrBackupCGPoolInfo {
 
             return $BackupCGPoolsInfo
         } catch {
-            Write-Verbose -Message $_.Exception.Message
+            Write-PScriboMessage $_.Exception.Message
         }
     }
     end {}

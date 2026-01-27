@@ -26,7 +26,7 @@ function Get-AbrSOBRInfo {
     #>
     param ()
     try {
-        Write-Verbose "Collecting Scale-Out Backup Repository information from $($VBRServer)."
+        Write-PScriboMessage "Collecting Scale-Out Backup Repository information from $($VBRServer)."
         $SOBR = Get-VBRBackupRepository -ScaleOut | Sort-Object -Property Name
 
         if ($SOBR) {
@@ -44,6 +44,6 @@ function Get-AbrSOBRInfo {
             return $SOBRInfo
         }
     } catch {
-        Write-Verbose -Message $_.Exception.Message
+        Write-PScriboMessage $_.Exception.Message
     }
 }

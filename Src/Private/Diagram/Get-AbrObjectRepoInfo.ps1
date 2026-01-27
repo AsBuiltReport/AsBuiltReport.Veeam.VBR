@@ -26,7 +26,7 @@ function Get-AbrObjectRepoInfo {
 
     param ()
     try {
-        Write-Verbose "Collecting Object Repository information from $($VBRServer)."
+        Write-PScriboMessage "Collecting Object Repository information from $($VBRServer)."
         $ObjectRepositories = Get-VBRObjectStorageRepository
         if ($ObjectRepositories) {
             $ObjectRepositoriesInfo = $ObjectRepositories | ForEach-Object {
@@ -69,6 +69,6 @@ function Get-AbrObjectRepoInfo {
             return $ObjectRepositoriesInfo
         }
     } catch {
-        Write-Verbose -Message $_.Exception.Message
+        Write-PScriboMessage $_.Exception.Message
     }
 }

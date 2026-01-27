@@ -31,7 +31,7 @@ function Get-AbrNASProxyInfo {
     #>
     param ()
     try {
-        Write-Verbose "Collecting NAS Proxy information from $($VBRServer)."
+        Write-PScriboMessage "Collecting NAS Proxy information from $($VBRServer)."
         $Proxies = Get-VBRNASProxyServer
 
         if ($Proxies) {
@@ -54,6 +54,6 @@ function Get-AbrNASProxyInfo {
         return $ProxiesInfo
 
     } catch {
-        Write-Verbose -Message $_.Exception.Message
+        Write-PScriboMessage $_.Exception.Message
     }
 }

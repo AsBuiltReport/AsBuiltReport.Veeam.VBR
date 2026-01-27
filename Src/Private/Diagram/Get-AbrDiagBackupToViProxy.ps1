@@ -66,8 +66,8 @@ function Get-AbrDiagBackupToViProxy {
                                 }
                             }
                         } catch {
-                            Write-Verbose 'Error: Unable to create vSphere Esxi table Objects. Disabling the section'
-                            Write-Debug "Error Message: $($_.Exception.Message)"
+                            Write-PScriboMessage 'Error: Unable to create vSphere Esxi table Objects. Disabling the section'
+                            Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                         }
                         try {
                             if ($ViClustersChildsNodes) {
@@ -82,16 +82,16 @@ function Get-AbrDiagBackupToViProxy {
                                 $vCenterNodeArray += $ViClustersNodes
                             }
                         } catch {
-                            Write-Verbose 'Error: Unable to create vSphere Clusters Objects. Disabling the section'
-                            Write-Debug "Error Message: $($_.Exception.Message)"
+                            Write-PScriboMessage 'Error: Unable to create vSphere Clusters Objects. Disabling the section'
+                            Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                         }
                         try {
                             if ($vCenterNodeArray) {
                                 $VivCenterNodes += Add-DiaHtmlSubGraph -Name 'VivCenterNodes' -ImagesObj $Images -TableArray $vCenterNodeArray -Align 'Center' -IconDebug $IconDebug -Label 'vCenter Server' -LabelPos 'top' -FontColor $Fontcolor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -ColumnSize 1 -FontSize 22 -FontBold
                             }
                         } catch {
-                            Write-Verbose 'Error: Unable to create vCenter Server Objects. Disabling the section'
-                            Write-Debug "Error Message: $($_.Exception.Message)"
+                            Write-PScriboMessage 'Error: Unable to create vCenter Server Objects. Disabling the section'
+                            Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                         }
                     }
 
@@ -107,8 +107,8 @@ function Get-AbrDiagBackupToViProxy {
                             $VivCenterNodesAll += Add-DiaHtmlSubGraph -Name 'VivCenterNodesAll' -ImagesObj $Images -TableArray $VivCenterNodes -Align 'Center' -IconDebug $IconDebug -Label 'Management Servers' -LabelPos 'top' -FontColor $Fontcolor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -ColumnSize $VivCenterNodesColumnSize -FontSize 24 -FontBold
                         }
                     } catch {
-                        Write-Verbose 'Error: Unable to create vCenter Server Objects. Disabling the section'
-                        Write-Debug "Error Message: $($_.Exception.Message)"
+                        Write-PScriboMessage 'Error: Unable to create vCenter Server Objects. Disabling the section'
+                        Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                     }
                 }
 
@@ -125,16 +125,16 @@ function Get-AbrDiagBackupToViProxy {
                     try {
                         [array]$ViStandAloneNodes = Add-DiaHtmlNodeTable -Name 'ViStandAloneNodes' -ImagesObj $Images -inputObject ($vSphereServerObj | ForEach-Object { $_.Name.split('.')[0] }) -Align 'Center' -iconType 'VBR_ESXi_Server' -ColumnSize $vSphereServerObjColumnSize -IconDebug $IconDebug -MultiIcon -AditionalInfo $vSphereServerObj.AditionalInfo -Subgraph -SubgraphLabel 'Host' -SubgraphLabelPos 'top' -SubgraphTableStyle 'dashed,rounded' -FontColor $Fontcolor -TableBorderColor $Edgecolor -TableBorder '1' -SubgraphFontBold
                     } catch {
-                        Write-Verbose 'Error: Unable to create vSphere StandAlone Table. Disabling the section'
-                        Write-Debug "Error Message: $($_.Exception.Message)"
+                        Write-PScriboMessage 'Error: Unable to create vSphere StandAlone Table. Disabling the section'
+                        Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                     }
 
                     if ($ViStandAloneNodes) {
                         try {
                             $VivCenterNodesAll += Add-DiaHtmlSubGraph -Name 'VivCenterNodesAll' -ImagesObj $Images -TableArray $ViStandAloneNodes -Align 'Center' -IconDebug $IconDebug -Label 'ESxi StandAlone Hosts' -LabelPos 'top' -FontColor $Fontcolor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -ColumnSize 1 -FontSize 24 -FontBold
                         } catch {
-                            Write-Verbose 'Error: Unable to create vSphere StandAlone Objects. Disabling the section'
-                            Write-Debug "Error Message: $($_.Exception.Message)"
+                            Write-PScriboMessage 'Error: Unable to create vSphere StandAlone Objects. Disabling the section'
+                            Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                         }
                     }
                 }
@@ -145,15 +145,15 @@ function Get-AbrDiagBackupToViProxy {
                         try {
                             $ViClustersSubgraphNode = Node -Name 'ViCluster' -Attributes @{Label = (Add-DiaHtmlSubGraph -Name 'ViCluster' -ImagesObj $Images -TableArray $VivCenterNodesAll -Align 'Center' -IconDebug $IconDebug -IconType 'VBR_vSphere' -Label 'VMware vSphere Infrastructure' -LabelPos 'top' -FontColor $Fontcolor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -ColumnSize 1 -FontSize 26 -FontBold); shape = 'plain'; fillColor = 'transparent'; fontsize = 14; fontname = 'Segoe Ui' }
                         } catch {
-                            Write-Verbose 'Error: Unable to create ViCluster Objects. Disabling the section'
-                            Write-Debug "Error Message: $($_.Exception.Message)"
+                            Write-PScriboMessage 'Error: Unable to create ViCluster Objects. Disabling the section'
+                            Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                         }
                     } else {
                         try {
                             $ViClustersSubgraphNode = Node -Name 'ViCluster' -Attributes @{Label = (Add-DiaHtmlSubGraph -Name 'ViCluster' -ImagesObj $Images -TableArray $VivCenterNodesAll -Align 'Center' -IconDebug $IconDebug -IconType 'VBR_vSphere' -Label 'VMware vSphere Infrastructure' -LabelPos 'top' -FontColor $Fontcolor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -ColumnSize 1 -FontSize 26 -FontBold); shape = 'plain'; fillColor = 'transparent'; fontsize = 14; fontname = 'Segoe Ui' }
                         } catch {
-                            Write-Verbose 'Error: Unable to create ViCluster Objects. Disabling the section'
-                            Write-Debug "Error Message: $($_.Exception.Message)"
+                            Write-PScriboMessage 'Error: Unable to create ViCluster Objects. Disabling the section'
+                            Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                         }
                     }
 
@@ -164,7 +164,7 @@ function Get-AbrDiagBackupToViProxy {
                 }
             }
         } catch {
-            Write-Verbose -Message $_.Exception.Message
+            Write-PScriboMessage $_.Exception.Message
         }
     }
     end {}

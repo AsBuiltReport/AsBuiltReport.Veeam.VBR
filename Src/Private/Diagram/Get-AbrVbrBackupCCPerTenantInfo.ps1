@@ -21,7 +21,7 @@ function Get-AbrBackupCCPerTenantInfo {
     )
 
     process {
-        Write-Verbose -Message "Collecting Cloud Connect per Tenant information from $($VBRServer)."
+        Write-PScriboMessage "Collecting Cloud Connect per Tenant information from $($VBRServer)."
         try {
 
             $BackupCCTenantInfo = @()
@@ -279,7 +279,7 @@ function Get-AbrBackupCCPerTenantInfo {
 
             return $BackupCCTenantInfo
         } catch {
-            Write-Verbose -Message $_.Exception.Message
+            Write-PScriboMessage $_.Exception.Message
         }
     }
     end {}

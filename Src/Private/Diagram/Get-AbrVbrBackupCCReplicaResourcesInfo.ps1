@@ -19,7 +19,7 @@ function Get-AbrBackupCCReplicaResourcesInfo {
     )
 
     process {
-        Write-Verbose -Message "Collecting Cloud Connect Replica Resources information from $($VBRServer)."
+        Write-PScriboMessage "Collecting Cloud Connect Replica Resources information from $($VBRServer)."
         try {
 
             $BackupCCReplicaResourcesInfo = @()
@@ -112,7 +112,7 @@ function Get-AbrBackupCCReplicaResourcesInfo {
 
             return $BackupCCReplicaResourcesInfo
         } catch {
-            Write-Verbose -Message $_.Exception.Message
+            Write-PScriboMessage $_.Exception.Message
             return $BackupCCReplicaResourcesInfo
         }
     }

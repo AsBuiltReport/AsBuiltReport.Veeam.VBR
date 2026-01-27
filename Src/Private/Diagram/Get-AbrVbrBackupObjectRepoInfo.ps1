@@ -20,7 +20,7 @@ function Get-AbrBackupObjectRepoInfo {
 
     )
     process {
-        Write-Verbose -Message "Collecting Object Storage Repository information from $($VBRServer)."
+        Write-PScriboMessage "Collecting Object Storage Repository information from $($VBRServer)."
         try {
             $ObjStorages = Get-VBRObjectStorageRepository
             $ObjStorageInfo = @()
@@ -70,7 +70,7 @@ function Get-AbrBackupObjectRepoInfo {
 
             return $ObjStorageInfo
         } catch {
-            Write-Verbose -Message $_.Exception.Message
+            Write-PScriboMessage $_.Exception.Message
         }
     }
     end {}

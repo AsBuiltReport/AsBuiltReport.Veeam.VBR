@@ -44,7 +44,7 @@ function Get-AbrDiagBackupToWanAccel {
 
             }
         } catch {
-            Write-Verbose -Message $_.Exception.Message
+            Write-PScriboMessage $_.Exception.Message
         }
     }
     end {}

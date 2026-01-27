@@ -41,7 +41,7 @@ function Get-AbrServerConnection {
     )
 
     begin {
-        Write-Verbose -Message 'Establishing initial connection to Backup Server.'
+        Write-PScriboMessage 'Establishing initial connection to Backup Server.'
 
         $Port = switch ($VbrVersion) {
             { $_ -ge 13 } { 443 }
@@ -50,18 +50,18 @@ function Get-AbrServerConnection {
     }
 
     process {
-        Write-Verbose -Message 'Looking for existing Veeam server connection.'
+        Write-PScriboMessage 'Looking for existing Veeam server connection.'
         $OpenConnection = (Get-VBRServerSession).Server
 
         if ($OpenConnection -eq $System) {
-            Write-Verbose -Message 'Existing Veeam server connection found.'
+            Write-PScriboMessage 'Existing Veeam server connection found.'
         } else {
             if ($null -ne $OpenConnection) {
-                Write-Verbose -Message 'Disconnecting from current Veeam server connection.'
+                Write-PScriboMessage 'Disconnecting from current Veeam server connection.'
                 Disconnect-VBRServer
             }
 
-            Write-Verbose -Message "Connecting to $System with provided credentials."
+            Write-PScriboMessage "Connecting to $System with provided credentials."
             try {
                 switch ($VbrVersion) {
                     { $_ -ge 13 } {
@@ -72,17 +72,17 @@ function Get-AbrServerConnection {
                     }
                 }
             } catch {
-                Write-Verbose -Message $_.Exception.Message
+                Write-PScriboMessage $_.Exception.Message
                 throw "Failed to connect to Veeam Backup Server Host $($System):$($Port) with username $($Credential.USERNAME)"
             }
         }
 
-        Write-Verbose -Message "Validating connection to $System."
+        Write-PScriboMessage "Validating connection to $System."
         $NewConnection = (Get-VBRServerSession).Server
         if ($null -eq $NewConnection) {
             throw "Failed to connect to Veeam Backup Server Host $($System):$($Port) with username $($Credential.USERNAME)"
         } else {
-            Write-Verbose -Message "Successfully connected to $($System):$($Port) Backup Server."
+            Write-PScriboMessage "Successfully connected to $($System):$($Port) Backup Server."
         }
     }
 

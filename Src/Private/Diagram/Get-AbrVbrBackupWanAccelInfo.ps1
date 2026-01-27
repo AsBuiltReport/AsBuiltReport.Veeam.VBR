@@ -20,7 +20,7 @@ function Get-AbrBackupWanAccelInfo {
 
     )
     process {
-        Write-Verbose -Message "Collecting Wan Accelerator information from $($VBRServer)."
+        Write-PScriboMessage "Collecting Wan Accelerator information from $($VBRServer)."
         try {
             $WANACCELS = Get-VBRWANAccelerator
             $WANACCELInfo = @()
@@ -60,7 +60,7 @@ function Get-AbrBackupWanAccelInfo {
 
             return $WANACCELInfo
         } catch {
-            Write-Verbose -Message $_.Exception.Message
+            Write-PScriboMessage $_.Exception.Message
         }
     }
     end {}

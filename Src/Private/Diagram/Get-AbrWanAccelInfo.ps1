@@ -27,7 +27,7 @@ function Get-AbrWanAccelInfo {
     #>
     param ()
     try {
-        Write-Verbose "Collecting Wan Accel information from $($VBRServer)."
+        Write-PScriboMessage "Collecting Wan Accel information from $($VBRServer)."
         $WanAccels = Get-VBRWANAccelerator
 
         if ($WanAccels) {
@@ -47,6 +47,6 @@ function Get-AbrWanAccelInfo {
         return $WanAccelsInfo
 
     } catch {
-        Write-Verbose -Message $_.Exception.Message
+        Write-PScriboMessage $_.Exception.Message
     }
 }

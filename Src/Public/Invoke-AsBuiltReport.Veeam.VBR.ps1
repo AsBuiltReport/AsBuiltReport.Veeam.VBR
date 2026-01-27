@@ -54,7 +54,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
     if ($Options.UpdateCheck) {
         Write-Host '  - Getting dependency information:'
         # Check the version of the dependency modules
-        $ModuleArray = @('Veeam.Diagrammer', 'Diagrammer.Core')
+        $ModuleArray = @('AsBuiltReport.Core', 'Diagrammer.Core', 'PScriboCharts')
 
         foreach ($Module in $ModuleArray) {
             try {

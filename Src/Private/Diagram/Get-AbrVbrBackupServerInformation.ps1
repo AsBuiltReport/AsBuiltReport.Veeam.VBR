@@ -32,7 +32,7 @@ function Get-AbrBackupServerInformation {
                     }
                 }
             }
-            Write-Verbose -Message "Collecting Backup Server information from $($VBRServer)."
+            Write-PScriboMessage "Collecting Backup Server information from $($VBRServer)."
 
             if ($IsLocalServer) {
                 $VeeamInfo = & {
@@ -47,7 +47,7 @@ function Get-AbrBackupServerInformation {
                         DBInfo11 = $VeeamDBInfo11
                     }
                 }
-                $VeeamBuild = Get-AbrBackupServerInfo
+                $VeeamBuild = Get-VBRBackupServerInfo
             } else {
                 if ($PssSession) {
                     $VeeamInfo = Invoke-Command -Session $PssSession -ErrorAction SilentlyContinue -ScriptBlock {
@@ -63,7 +63,7 @@ function Get-AbrBackupServerInformation {
                         }
                     }
                 } else {
-                    $VeeamBuild = Get-AbrBackupServerInfo
+                    $VeeamBuild = Get-VBRBackupServerInfo
                 }
             }
 
@@ -157,7 +157,7 @@ function Get-AbrBackupServerInformation {
                 }
             }
         } catch {
-            Write-Verbose -Message $_.Exception.Message
+            Write-PScriboMessage $_.Exception.Message
         }
     }
     end {

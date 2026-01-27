@@ -27,7 +27,7 @@ function Get-AbrTapeVaultInfo {
     #>
     param ()
     try {
-        Write-Verbose "Collecting Tape Vault information from $($VBRServer)."
+        Write-PScriboMessage "Collecting Tape Vault information from $($VBRServer)."
         $TapeVaults = Get-VBRTapeVault | Sort-Object -Property Name
 
         if ($TapeVaults) {
@@ -43,6 +43,6 @@ function Get-AbrTapeVaultInfo {
         }
 
     } catch {
-        Write-Verbose -Message $_.Exception.Message
+        Write-PScriboMessage $_.Exception.Message
     }
 }

@@ -61,8 +61,8 @@ function Get-AbrDiagBackupToHvProxy {
                         $ViClustersChildsNodes = Add-DiaHtmlTable -Name 'ViClustersChildsNodes' -ImagesObj $Images -Rows $vCenter.Childs.Name -ALIGN 'Center' -ColumnSize $HyperVBackupProxyColumnSize -IconDebug $IconDebug -FontColor '#000000' -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder 0 -NoFontBold -FontSize 18 -SubgraphFontBold
 
                     } catch {
-                        Write-Verbose 'Error: Unable to create Hyper-V Hosts table Objects. Disabling the section'
-                        Write-Debug "Error Message: $($_.Exception.Message)"
+                        Write-PScriboMessage 'Error: Unable to create Hyper-V Hosts table Objects. Disabling the section'
+                        Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                     }
                     try {
                         if ($ViClustersChildsNodes) {
@@ -77,16 +77,16 @@ function Get-AbrDiagBackupToHvProxy {
                             $vCenterNodeArray += $ViClustersNodes
                         }
                     } catch {
-                        Write-Verbose 'Error: Unable to create Hyper-V Hosts Objects. Disabling the section'
-                        Write-Debug "Error Message: $($_.Exception.Message)"
+                        Write-PScriboMessage 'Error: Unable to create Hyper-V Hosts Objects. Disabling the section'
+                        Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                     }
                     try {
                         if ($vCenterNodeArray) {
                             $VivCenterNodes += Add-DiaHtmlSubGraph -Name 'VivCenterNodes' -ImagesObj $Images -TableArray $vCenterNodeArray -Align 'Center' -IconDebug $IconDebug -Label 'Cluster Servers' -LabelPos 'top' -FontColor $Fontcolor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -ColumnSize 1 -FontSize 20 -FontBold
                         }
                     } catch {
-                        Write-Verbose 'Error: Unable to create Hyper-V Cluster Objects. Disabling the section'
-                        Write-Debug "Error Message: $($_.Exception.Message)"
+                        Write-PScriboMessage 'Error: Unable to create Hyper-V Cluster Objects. Disabling the section'
+                        Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                     }
                 }
 
@@ -102,8 +102,8 @@ function Get-AbrDiagBackupToHvProxy {
                         $VivCenterNodesAll += Add-DiaHtmlSubGraph -Name 'VivCenterNodesAll' -ImagesObj $Images -TableArray $VivCenterNodes -Align 'Center' -IconDebug $IconDebug -Label 'Hyper-V Clusters' -LabelPos 'top' -FontColor $Fontcolor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -ColumnSize $VivCenterNodesAllColumnSize -FontSize 22 -FontBold
                     }
                 } catch {
-                    Write-Verbose 'Error: Unable to create Hyper-V Cluster Objects. Disabling the section'
-                    Write-Debug "Error Message: $($_.Exception.Message)"
+                    Write-PScriboMessage 'Error: Unable to create Hyper-V Cluster Objects. Disabling the section'
+                    Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                 }
             }
 
@@ -121,16 +121,16 @@ function Get-AbrDiagBackupToHvProxy {
 
                     $ViStandAloneNodes = Add-DiaHtmlNodeTable -Name 'ViStandAloneNodes' -ImagesObj $Images -inputObject ($HyperVServerObj | ForEach-Object { $_.Name.split('.')[0] }) -Align 'Center' -iconType 'VBR_HyperV_Server' -ColumnSize $HyperVServerObjColumnSize -IconDebug $IconDebug -MultiIcon -AditionalInfo $HyperVServerObj.AditionalInfo -Subgraph -SubgraphLabel ' ' -SubgraphLabelPos 'top' -SubgraphTableStyle 'dashed,rounded' -FontColor $Fontcolor -TableBorderColor $Edgecolor -TableBorder '1' -FontBold
                 } catch {
-                    Write-Verbose 'Error: Unable to create Hyper-V StandAlone Hosts Table. Disabling the section'
-                    Write-Debug "Error Message: $($_.Exception.Message)"
+                    Write-PScriboMessage 'Error: Unable to create Hyper-V StandAlone Hosts Table. Disabling the section'
+                    Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                 }
 
                 if ($ViStandAloneNodes) {
                     try {
                         $VivCenterNodesAll += Add-DiaHtmlSubGraph -Name 'ViStandAloneNodes' -ImagesObj $Images -TableArray $ViStandAloneNodes -Align 'Center' -IconDebug $IconDebug -Label 'Hyper-V StandAlone Hosts' -LabelPos 'top' -FontColor $Fontcolor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -ColumnSize 1 -FontSize 22 -FontBold
                     } catch {
-                        Write-Verbose 'Error: Unable to create Hyper-V StandAlone Objects. Disabling the section'
-                        Write-Debug "Error Message: $($_.Exception.Message)"
+                        Write-PScriboMessage 'Error: Unable to create Hyper-V StandAlone Objects. Disabling the section'
+                        Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                     }
                 }
             }
@@ -141,15 +141,15 @@ function Get-AbrDiagBackupToHvProxy {
                     try {
                         $ViClustersSubgraphNode = Node -Name 'HvCluster' -Attributes @{Label = (Add-DiaHtmlSubGraph -Name 'HvCluster' -ImagesObj $Images -TableArray $VivCenterNodesAll -Align 'Center' -IconDebug $IconDebug -IconType 'VBR_HyperV' -Label 'Microsoft Hyper-V Infrastructure' -LabelPos 'top' -FontColor $Fontcolor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -ColumnSize 1 -FontSize 24 -FontBold); shape = 'plain'; fillColor = 'transparent'; fontsize = 14; fontname = 'Segoe Ui' }
                     } catch {
-                        Write-Verbose 'Error: Unable to create HvCluster Objects. Disabling the section'
-                        Write-Debug "Error Message: $($_.Exception.Message)"
+                        Write-PScriboMessage 'Error: Unable to create HvCluster Objects. Disabling the section'
+                        Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                     }
                 } else {
                     try {
                         $ViClustersSubgraphNode = Node -Name 'HvCluster' -Attributes @{Label = (Add-DiaHtmlSubGraph -Name 'HvCluster' -ImagesObj $Images -TableArray $VivCenterNodesAll -Align 'Center' -IconDebug $IconDebug -IconType 'VBR_HyperV' -Label 'Microsoft Hyper-V Infrastructure' -LabelPos 'top' -FontColor $Fontcolor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -ColumnSize 1 -FontSize 24 -FontBold); shape = 'plain'; fillColor = 'transparent'; fontsize = 14; fontname = 'Segoe Ui' }
                     } catch {
-                        Write-Verbose 'Error: Unable to create HvCluster Objects. Disabling the section'
-                        Write-Debug "Error Message: $($_.Exception.Message)"
+                        Write-PScriboMessage 'Error: Unable to create HvCluster Objects. Disabling the section'
+                        Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                     }
                 }
 
@@ -163,7 +163,7 @@ function Get-AbrDiagBackupToHvProxy {
                 }
             }
         } catch {
-            Write-Verbose -Message $_.Exception.Message
+            Write-PScriboMessage $_.Exception.Message
         }
     }
     end {}

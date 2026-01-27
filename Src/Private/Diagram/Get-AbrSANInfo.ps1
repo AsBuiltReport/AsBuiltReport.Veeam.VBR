@@ -25,7 +25,7 @@ function Get-AbrSANInfo {
     #>
     param ()
     try {
-        Write-Verbose "Collecting Storage Infrastructure information from $($VBRServer)."
+        Write-PScriboMessage "Collecting Storage Infrastructure information from $($VBRServer)."
         $SANHost = @(
             Get-NetAppHost | Select-Object -Property Name, @{ Name = 'Type'; Expression = { 'Netapp' } }
             Get-VBRIsilonHost | Select-Object -Property Name, @{ Name = 'Type'; Expression = { 'Dell' } }
@@ -49,7 +49,7 @@ function Get-AbrSANInfo {
                         IconType = $IconType
                     }
                 } catch {
-                    Write-Verbose "Error: Unable to process $($_.Name) from Storage Infrastructure table: $($_.Exception.Message)"
+                    Write-PScriboMessage "Error: Unable to process $($_.Name) from Storage Infrastructure table: $($_.Exception.Message)"
                 }
             }
         }
@@ -57,6 +57,6 @@ function Get-AbrSANInfo {
         return $SANHostInfo
 
     } catch {
-        Write-Verbose -Message $_.Exception.Message
+        Write-PScriboMessage $_.Exception.Message
     }
 }
