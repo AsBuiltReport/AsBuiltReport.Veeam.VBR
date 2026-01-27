@@ -12,8 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### :bug: Fixed
 
 - Fix issue while trying to generate backup server diagrams from local Backup server
-- Fix issue in the repository diagram
-- Fix issue with verbose logging
+- Fix repository diagram issues
+- Fix issue when enabling verbose logging
 
 ## [0.8.24] - 2026-01-25
 
