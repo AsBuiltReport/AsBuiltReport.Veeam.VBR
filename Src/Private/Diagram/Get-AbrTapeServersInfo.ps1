@@ -27,7 +27,7 @@ function Get-AbrTapeServersInfo {
     #>
     param ()
     try {
-        Write-Verbose "Collecting Tape Servers information from $($VBRServer)."
+        Write-PScriboMessage "Collecting Tape Servers information from $($VBRServer)."
         $TapeServers = Get-VBRTapeServer | Sort-Object -Property Name
 
         if ($TapeServers) {
@@ -45,6 +45,6 @@ function Get-AbrTapeServersInfo {
         }
 
     } catch {
-        Write-Verbose -Message $_.Exception.Message
+        Write-PScriboMessage $_.Exception.Message
     }
 }

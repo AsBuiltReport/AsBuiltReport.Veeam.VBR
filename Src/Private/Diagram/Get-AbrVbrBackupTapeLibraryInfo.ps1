@@ -20,7 +20,7 @@ function Get-AbrBackupTapeLibraryInfo {
     )
 
     process {
-        Write-Verbose -Message "Collecting Tape Library information from $($VBRServer)."
+        Write-PScriboMessage "Collecting Tape Library information from $($VBRServer)."
         try {
 
             if ($TapeServer) {
@@ -51,7 +51,7 @@ function Get-AbrBackupTapeLibraryInfo {
 
             return $BackupTapelibraryInfo
         } catch {
-            Write-Verbose -Message $_.Exception.Message
+            Write-PScriboMessage $_.Exception.Message
         }
     }
     end {}

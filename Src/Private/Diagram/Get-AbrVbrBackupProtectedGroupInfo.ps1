@@ -19,7 +19,7 @@ function Get-AbrBackupProtectedGroupInfo {
     )
 
     process {
-        Write-Verbose -Message "Collecting Protected Group information from $($VBRServer)."
+        Write-PScriboMessage "Collecting Protected Group information from $($VBRServer)."
         try {
             [Array]$ProtectedGroups = Get-VBRProtectionGroup
 
@@ -52,7 +52,7 @@ function Get-AbrBackupProtectedGroupInfo {
 
             return $ProtectedGroupInfo
         } catch {
-            Write-Verbose -Message $_.Exception.Message
+            Write-PScriboMessage $_.Exception.Message
         }
     }
     end {}

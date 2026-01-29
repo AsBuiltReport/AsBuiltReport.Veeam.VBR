@@ -66,23 +66,7 @@ function Get-AbrVbrIOControlSetting {
                                 Section -Style NOTOCHeading5 -ExcludeFromTOC 'Per Datastore Latency Control Options' {
                                     $OutObj = @()
                                     try {
-                                        $Datastores = switch ($PSVersionTable.PSEdition) {
-                                            'Core' {
-                                                switch ($PSVersionTable.Platform) {
-                                                    'Unix' {
-                                                        Find-VbrViEntity -DatastoresAndVMs | Where-Object { ($_.type -eq 'Datastore') }
-                                                    }
-                                                    'Win32NT' {
-                                                        Invoke-FindVBRViEntityWithTimeout -DatastoresAndVMs -TimeoutSeconds 120 | Where-Object { ($_.type -eq 'Datastore')
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                            'Desktop' {
-                                                Invoke-FindVBRViEntityWithTimeout -DatastoresAndVMs -TimeoutSeconds 120 | Where-Object { ($_.type -eq 'Datastore')
-                                                }
-                                            }
-                                        }
+                                        $Datastores = Find-VBRViEntity -DatastoresAndVMs | Where-Object { ($_.type -eq 'Datastore') }
 
                                     } catch {
                                         Write-PScriboMessage -IsWarning "Per Datastore Latency Control Options Section: $($_.Exception.Message)"

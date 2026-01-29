@@ -27,21 +27,7 @@ function Get-AbrBackupvSphereInfo {
                 foreach ($HyObj in $HyObjs) {
                     Write-Verbose -Message "Collecting vSphere HyperVisor information from $($HyObj.Name)."
                     try {
-                        $ESXis = switch ($PSVersionTable.PSEdition) {
-                            'Core' {
-                                switch ($PSVersionTable.Platform) {
-                                    'Unix' {
-                                        Find-VBRViEntity -Server $HyObj -HostsAndClusters | Where-Object { ($_.type -eq 'esx') }
-                                    }
-                                    'Win32NT' {
-                                        Invoke-FindVBRViEntityWithTimeout -TimeoutSeconds 60 -Server $HyObj -HostsAndClustersOnly | Where-Object { ($_.type -eq 'esx') }
-                                    }
-                                }
-                            }
-                            'Desktop' {
-                                Invoke-FindVBRViEntityWithTimeout -TimeoutSeconds 60 -Server $HyObj -HostsAndClustersOnly | Where-Object { ($_.type -eq 'esx') }
-                            }
-                        }
+                        $ESXis = Find-VBRViEntity -Server $HyObj -HostsAndClusters | Where-Object { ($_.type -eq 'esx') }
 
                         $Rows = @{
                             IP = Get-NodeIP -Hostname $HyObj.Info.DnsName
@@ -56,21 +42,7 @@ function Get-AbrBackupvSphereInfo {
                             Label = Add-DiaNodeIcon -Name $HyObj.Name -IconType 'VBR_vCenter_Server' -Align 'Center' -Rows $Rows -ImagesObj $Images -IconDebug $IconDebug -FontSize 18 -FontBold
                             AditionalInfo = $Rows
                             Childs = & {
-                                $VIClusters = switch ($PSVersionTable.PSEdition) {
-                                    'Core' {
-                                        switch ($PSVersionTable.Platform) {
-                                            'Unix' {
-                                                Find-VBRViEntity -Server $HyObj -HostsAndClusters | Where-Object { ($_.type -eq 'cluster') }
-                                            }
-                                            'Win32NT' {
-                                                Invoke-FindVBRViEntityWithTimeout -TimeoutSeconds 60 -Server $HyObj -HostsAndClustersOnly | Where-Object { ($_.type -eq 'cluster') }
-                                            }
-                                        }
-                                    }
-                                    'Desktop' {
-                                        Invoke-FindVBRViEntityWithTimeout -TimeoutSeconds 60 -Server $HyObj -HostsAndClustersOnly | Where-Object { ($_.type -eq 'cluster') }
-                                    }
-                                }
+                                $VIClusters = Find-VBRViEntity -Server $HyObj -HostsAndClusters | Where-Object { ($_.type -eq 'cluster') }
 
                                 foreach ($Cluster in $VIClusters) {
                                     [PSCustomObject]@{

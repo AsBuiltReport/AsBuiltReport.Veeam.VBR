@@ -25,9 +25,9 @@ function Get-AbrRepositoryInfo {
     #>
     param ()
     try {
-        Write-Verbose "Collecting Repository information from $($VBRServer)."
+        Write-PScriboMessage "Collecting Repository information from $($VBRServer)."
         $Repositories = Get-VBRBackupRepository | Where-Object { $_.Type -notin @('SanSnapshotOnly', 'AmazonS3Compatible', 'WasabiS3', 'SmartObjectS3') } | Sort-Object -Property Name
-        $ScaleOuts = Get-AbrBackupRepository -ScaleOut | Sort-Object -Property Name
+        $ScaleOuts = Get-VBRBackupRepository -ScaleOut | Sort-Object -Property Name
 
         if ($ScaleOuts) {
             $Extents = Get-VBRRepositoryExtent -Repository $ScaleOuts | Sort-Object -Property Name
@@ -62,6 +62,6 @@ function Get-AbrRepositoryInfo {
         }
 
     } catch {
-        Write-Verbose -Message $_.Exception.Message
+        Write-PScriboMessage $_.Exception.Message
     }
 }

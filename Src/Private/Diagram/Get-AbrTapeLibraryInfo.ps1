@@ -27,7 +27,7 @@ function Get-AbrTapeLibraryInfo {
     #>
     param ()
     try {
-        Write-Verbose "Collecting Tape Library information from $($VBRServer)."
+        Write-PScriboMessage "Collecting Tape Library information from $($VBRServer)."
         $TapeLibraries = Get-VBRTapeLibrary | Sort-Object -Property Name
 
         if ($TapeLibraries) {
@@ -45,6 +45,6 @@ function Get-AbrTapeLibraryInfo {
         }
 
     } catch {
-        Write-Verbose -Message $_.Exception.Message
+        Write-PScriboMessage $_.Exception.Message
     }
 }

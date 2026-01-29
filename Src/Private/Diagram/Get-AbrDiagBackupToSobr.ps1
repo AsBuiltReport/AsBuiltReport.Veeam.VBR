@@ -51,8 +51,8 @@ function Get-AbrDiagBackupToSobr {
                             try {
                                 $Performance = Add-DiaHtmlNodeTable -Name 'PerformanceExtent' -ImagesObj $Images -inputObject $SOBROBJ.Performance.Name -Align 'Center' -iconType $SOBROBJ.Performance.IconType -ColumnSize $SOBRPerfColumnSize -IconDebug $IconDebug -MultiIcon -AditionalInfo $SOBROBJ.Performance.AditionalInfo -Subgraph -SubgraphLabel 'Performance Extent' -SubgraphLabelPos 'top' -SubgraphTableStyle 'dashed,rounded' -FontColor '#000000' -TableBorderColor $Edgecolor -TableBorder '1' -FontSize 14 -SubgraphFontBold -SubgraphLabelFontColor $Fontcolor
                             } catch {
-                                Write-Verbose 'Error: Unable to create SOBR Performance Objects. Disabling the section'
-                                Write-Debug "Error Message: $($_.Exception.Message)"
+                                Write-PScriboMessage 'Error: Unable to create SOBR Performance Objects. Disabling the section'
+                                Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                             }
 
                             if ($Performance) {
@@ -70,8 +70,8 @@ function Get-AbrDiagBackupToSobr {
                             try {
                                 $Capacity = Add-DiaHtmlNodeTable -Name 'CapacityExtent' -ImagesObj $Images -inputObject $SOBROBJ.Capacity.Name -Align 'Center' -iconType $SOBROBJ.Capacity.IconType -ColumnSize $SOBRCapColumnSize -IconDebug $IconDebug -MultiIcon -AditionalInfo $SOBROBJ.Capacity.AditionalInfo -Subgraph -SubgraphLabel 'Capacity Extent' -SubgraphLabelPos 'top' -SubgraphTableStyle 'dashed,rounded' -FontColor '#000000' -TableBorderColor $Edgecolor -TableBorder '1' -FontSize 14 -SubgraphFontBold -SubgraphLabelFontColor $Fontcolor
                             } catch {
-                                Write-Verbose 'Error: Unable to create SOBR Capacity Objects. Disabling the section'
-                                Write-Debug "Error Message: $($_.Exception.Message)"
+                                Write-PScriboMessage 'Error: Unable to create SOBR Capacity Objects. Disabling the section'
+                                Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                             }
 
                             if ($Capacity) {
@@ -90,8 +90,8 @@ function Get-AbrDiagBackupToSobr {
                                 $Archive = Add-DiaHtmlNodeTable -Name 'ArchiveExtent' -ImagesObj $Images -inputObject $SOBROBJ.Archive.Name -Align 'Center' -iconType $SOBROBJ.Archive.IconType -ColumnSize $SOBRCArchColumnSize -IconDebug $IconDebug -MultiIcon -AditionalInfo $SOBROBJ.Archive.AditionalInfo -Subgraph -SubgraphLabel 'Archive Extent' -SubgraphLabelPos 'top' -SubgraphTableStyle 'dashed,rounded' -FontColor '#000000' -TableBorderColor $Edgecolor -TableBorder '1' -FontSize 14 -SubgraphFontBold -SubgraphLabelFontColor $Fontcolor
 
                             } catch {
-                                Write-Verbose 'Error: Unable to create SOBR Archive Objects. Disabling the section'
-                                Write-Debug "Error Message: $($_.Exception.Message)"
+                                Write-PScriboMessage 'Error: Unable to create SOBR Archive Objects. Disabling the section'
+                                Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                             }
 
                             if ($Archive) {
@@ -102,8 +102,8 @@ function Get-AbrDiagBackupToSobr {
                         try {
                             $SOBRExtentSubgraphNode = Add-DiaHtmlSubGraph -Name 'Extents' -ImagesObj $Images -TableArray $SOBRExtentNodesArray -Align 'Center' -IconDebug $IconDebug -Label 'Extents' -LabelPos 'top' -FontColor $Fontcolor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -ColumnSize 3 -FontSize 18 -FontBold
                         } catch {
-                            Write-Verbose 'Error: Unable to create SOBR Extents SubGraph Objects. Disabling the section'
-                            Write-Debug "Error Message: $($_.Exception.Message)"
+                            Write-PScriboMessage 'Error: Unable to create SOBR Extents SubGraph Objects. Disabling the section'
+                            Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                         }
 
                         if ($SOBRExtentSubgraphNode) {
@@ -113,8 +113,8 @@ function Get-AbrDiagBackupToSobr {
                         try {
                             $SOBRSubgraphNode = Add-DiaHtmlSubGraph -Name 'SOBRSubgraphNode' -ImagesObj $Images -TableArray $SOBRNodesArray -Align 'Center' -IconDebug $IconDebug -Label $SOBROBJ.Name -LabelPos 'top' -FontColor $Fontcolor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -ColumnSize 1 -FontSize 20 -FontBold
                         } catch {
-                            Write-Verbose 'Error: Unable to create SOBR SubGraph Nodes Objects. Disabling the section'
-                            Write-Debug "Error Message: $($_.Exception.Message)"
+                            Write-PScriboMessage 'Error: Unable to create SOBR SubGraph Nodes Objects. Disabling the section'
+                            Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                         }
 
                         if ($SOBRSubgraphNode) {
@@ -133,8 +133,8 @@ function Get-AbrDiagBackupToSobr {
                         try {
                             $SOBRSubgraph = Node -Name SOBRRepo -Attributes @{Label = (Add-DiaHtmlSubGraph -Name 'SOBRRepo' -ImagesObj $Images -TableArray $SOBRArray -Align 'Center' -IconDebug $IconDebug -Label 'SOBR Repositories' -LabelPos 'top' -FontColor $Fontcolor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -ColumnSize $SOBRCSubGraphColumnSize -FontSize 22 -FontBold); shape = 'plain'; fillColor = 'transparent'; fontsize = 14; fontname = 'Segoe Ui' }
                         } catch {
-                            Write-Verbose 'Error: Unable to create SubGraph Objects. Disabling the section'
-                            Write-Debug "Error Message: $($_.Exception.Message)"
+                            Write-PScriboMessage 'Error: Unable to create SubGraph Objects. Disabling the section'
+                            Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                         }
                     } else {
                         if ($SOBRArray.Count -eq 1) {
@@ -147,8 +147,8 @@ function Get-AbrDiagBackupToSobr {
                         try {
                             $SOBRSubgraph = Node -Name SOBRRepo -Attributes @{Label = (Add-DiaHtmlSubGraph -Name 'SOBRRepo' -ImagesObj $Images -TableArray $SOBRArray -Align 'Center' -IconDebug $IconDebug -Label 'SOBR Repositories' -LabelPos 'top' -FontColor $Fontcolor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -ColumnSize $SOBRCSubGraphColumnSize -FontSize 22 -FontBold); shape = 'plain'; fillColor = 'transparent'; fontsize = 14; fontname = 'Segoe Ui' }
                         } catch {
-                            Write-Verbose 'Error: Unable to create SubGraph Objects. Disabling the section'
-                            Write-Debug "Error Message: $($_.Exception.Message)"
+                            Write-PScriboMessage 'Error: Unable to create SubGraph Objects. Disabling the section'
+                            Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                         }
                     }
 
@@ -161,7 +161,7 @@ function Get-AbrDiagBackupToSobr {
                 }
             }
         } catch {
-            Write-Verbose -Message $_.Exception.Message
+            Write-PScriboMessage $_.Exception.Message
         }
     }
     end {}

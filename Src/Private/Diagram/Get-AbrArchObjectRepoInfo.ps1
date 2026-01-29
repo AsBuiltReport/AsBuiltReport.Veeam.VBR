@@ -22,7 +22,7 @@ function Get-AbrArchObjectRepoInfo {
     #>
     param ()
     try {
-        Write-Verbose "Collecting Archive Object Repository information from $($VBRServer)."
+        Write-PScriboMessage "Collecting Archive Object Repository information from $($VBRServer)."
         $ArchObjStorages = Get-VBRArchiveObjectStorageRepository | Sort-Object -Property Name
         if ($ArchObjStorages) {
             $ArchObjRepositoriesInfo = $ArchObjStorages | ForEach-Object {
@@ -60,6 +60,6 @@ function Get-AbrArchObjectRepoInfo {
             return $ArchObjRepositoriesInfo
         }
     } catch {
-        Write-Verbose -Message $_.Exception.Message
+        Write-PScriboMessage $_.Exception.Message
     }
 }

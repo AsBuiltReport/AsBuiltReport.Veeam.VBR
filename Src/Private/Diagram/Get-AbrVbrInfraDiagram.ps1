@@ -18,7 +18,7 @@ function Get-AbrInfraDiagram {
     #>
 
     begin {
-        Write-Verbose -Message "Collecting Backup Infrastructure information from $($VBRServer)."
+        Write-PScriboMessage "Collecting Backup Infrastructure information from $($VBRServer)."
     }
 
     process {
@@ -37,8 +37,8 @@ function Get-AbrInfraDiagram {
                 try {
                     $EntraIDNode = Node EntraID @{Label = (Add-DiaHtmlNodeTable -Name 'EntraIDNode' -ImagesObj $Images -inputObject $EntraID.Name -Align 'Center' -iconType 'VBR_Microsoft_Entra_ID' -ColumnSize 2 -IconDebug $IconDebug -MultiIcon -AditionalInfo $EntraID.AditionalInfo -Subgraph -SubgraphLabel 'Entra ID Tenants' -SubgraphFontBold -SubgraphLabelPos 'top' -SubgraphIconType 'VBR_Microsoft_Entra_ID' -SubgraphTableStyle 'dashed,rounded' -TableBorderColor '#71797E' -TableBorder '1' -SubgraphLabelFontColor $FontColor -SubgraphLabelFontSize 22 -FontSize 18); shape = 'plain'; fontname = 'Segoe Ui' }
                 } catch {
-                    Write-Verbose 'Error: Unable to create EntraID Objects. Disabling the section'
-                    Write-Debug "Error Message: $($_.Exception.Message)"
+                    Write-PScriboMessage 'Error: Unable to create EntraID Objects. Disabling the section'
+                    Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                 }
             }
             if ($EntraID -and $EntraIDNode) {
@@ -53,8 +53,8 @@ function Get-AbrInfraDiagram {
                         $ProxiesVi = Add-DiaHtmlNodeTable -Name 'ProxiesVi' -ImagesObj $Images -inputObject (($Proxies | Where-Object { $_.AditionalInfo.Type -eq 'vSphere' }) | ForEach-Object { $_.Name.split('.')[0] }) -Align 'Center' -iconType 'VBR_Proxy_Server' -ColumnSize 3 -IconDebug $IconDebug -MultiIcon -AditionalInfo ($Proxies.AditionalInfo | Where-Object { $_.Type -eq 'vSphere' }) -Subgraph -SubgraphIconType 'VBR_vSphere' -SubgraphLabel 'VMware Proxies' -SubgraphLabelPos 'top' -FontColor '#000000' -SubgraphLabelFontColor $FontColor -SubgraphTableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -SubgraphLabelFontSize 22 -FontSize 18 -SubgraphFontBold
                     }
                 } catch {
-                    Write-Verbose 'Error: Unable to create ProxiesVSphere Objects. Disabling the section'
-                    Write-Debug "Error Message: $($_.Exception.Message)"
+                    Write-PScriboMessage 'Error: Unable to create ProxiesVSphere Objects. Disabling the section'
+                    Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                 }
 
                 try {
@@ -62,16 +62,16 @@ function Get-AbrInfraDiagram {
                         $ProxiesHv = Add-DiaHtmlNodeTable -Name 'ProxiesHv' -ImagesObj $Images -inputObject (($Proxies | Where-Object { $_.AditionalInfo.Type -eq 'Off host' -or $_.AditionalInfo.Type -eq 'On host' }).Name | ForEach-Object { $_.split('.')[0] }) -Align 'Center' -iconType 'VBR_Proxy_Server' -ColumnSize 3 -IconDebug $IconDebug -MultiIcon -AditionalInfo ($Proxies.AditionalInfo | Where-Object { $_.Type -eq 'Off host' -or $_.Type -eq 'On host' }) -Subgraph -SubgraphIconType 'VBR_HyperV' -SubgraphLabel 'Hyper-V Proxies' -SubgraphLabelPos 'top' -SubgraphTableStyle 'dashed,rounded' -FontColor '#000000' -SubgraphLabelFontColor $FontColor -TableBorderColor $Edgecolor -TableBorder '1' -SubgraphLabelFontSize 22 -FontSize 18 -SubgraphFontBold
                     }
                 } catch {
-                    Write-Verbose 'Error: Unable to create ProxiesHyperV Objects. Disabling the section'
-                    Write-Debug "Error Message: $($_.Exception.Message)"
+                    Write-PScriboMessage 'Error: Unable to create ProxiesHyperV Objects. Disabling the section'
+                    Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                 }
 
                 if ($NASProxies = Get-AbrNASProxyInfo) {
                     try {
                         $ProxiesNas = Add-DiaHtmlNodeTable -Name 'ProxiesNas' -ImagesObj $Images -inputObject (($NASProxies).Name | ForEach-Object { $_.split('.')[0] }) -Align 'Center' -iconType 'VBR_Proxy_Server' -ColumnSize 3 -IconDebug $IconDebug -MultiIcon -AditionalInfo ($NASProxies.AditionalInfo) -Subgraph -SubgraphIconType 'VBR_NAS' -SubgraphLabel 'NAS Proxies' -SubgraphLabelPos 'top' -SubgraphTableStyle 'dashed,rounded' -FontColor '#000000' -SubgraphLabelFontColor $FontColor -TableBorderColor $Edgecolor -TableBorder '1' -SubgraphLabelFontSize 22 -FontSize 18 -SubgraphFontBold
                     } catch {
-                        Write-Verbose 'Error: Unable to create ProxiesNas Objects. Disabling the section'
-                        Write-Debug "Error Message: $($_.Exception.Message)"
+                        Write-PScriboMessage 'Error: Unable to create ProxiesNas Objects. Disabling the section'
+                        Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                     }
                 }
             }
@@ -93,8 +93,8 @@ function Get-AbrInfraDiagram {
                 try {
                     $ProxiesSubgraphNode = Node -Name 'Proxies' -Attributes @{Label = (Add-DiaHtmlSubGraph -Name 'Proxies' -ImagesObj $Images -TableArray $ProxyNodesArray -Align 'Center' -IconDebug $IconDebug -IconType 'VBR_Proxy' -Label 'Backup Proxies' -LabelPos 'top' -FontColor $Fontcolor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -ColumnSize 3 -FontSize 24 -FontBold); shape = 'plain'; fillColor = 'transparent'; fontsize = 14; fontname = 'Segoe Ui' }
                 } catch {
-                    Write-Verbose 'Error: Unable to create Proxies SubGraph Objects. Disabling the section'
-                    Write-Debug "Error Message: $($_.Exception.Message)"
+                    Write-PScriboMessage 'Error: Unable to create Proxies SubGraph Objects. Disabling the section'
+                    Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                 }
 
                 if ($ProxiesSubgraphNode) {
@@ -125,8 +125,8 @@ function Get-AbrInfraDiagram {
                             }
                         }
                     } catch {
-                        Write-Verbose 'Error: Unable to create vSphere Esxi table Objects. Disabling the section'
-                        Write-Debug "Error Message: $($_.Exception.Message)"
+                        Write-PScriboMessage 'Error: Unable to create vSphere Esxi table Objects. Disabling the section'
+                        Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                     }
                     try {
                         if ($ViClustersChildsNodes) {
@@ -139,16 +139,16 @@ function Get-AbrInfraDiagram {
                             $vCenterNodeArray += $ViClustersNodes
                         }
                     } catch {
-                        Write-Verbose 'Error: Unable to create vSphere Clusters Objects. Disabling the section'
-                        Write-Debug "Error Message: $($_.Exception.Message)"
+                        Write-PScriboMessage 'Error: Unable to create vSphere Clusters Objects. Disabling the section'
+                        Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                     }
                     try {
                         if ($vCenterNodeArray) {
                             $VivCenterNodes += Add-DiaHtmlSubGraph -Name 'VivCenterNodes' -ImagesObj $Images -TableArray $vCenterNodeArray -Align 'Center' -IconDebug $IconDebug -Label 'vCenter Server' -LabelPos 'top' -FontColor $Fontcolor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -ColumnSize 1 -FontSize 22 -FontBold
                         }
                     } catch {
-                        Write-Verbose 'Error: Unable to create vCenter Server Objects. Disabling the section'
-                        Write-Debug "Error Message: $($_.Exception.Message)"
+                        Write-PScriboMessage 'Error: Unable to create vCenter Server Objects. Disabling the section'
+                        Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                     }
                 }
 
@@ -163,8 +163,8 @@ function Get-AbrInfraDiagram {
                     try {
                         $ViClustersSubgraphNode = Add-DiaHtmlSubGraph -Name 'ViClustersSubgraphNode' -ImagesObj $Images -TableArray $VivCenterNodes -Align 'Center' -IconDebug $IconDebug -IconType 'VBR_vSphere' -Label 'VMware vSphere Infrastructure' -LabelPos 'top' -FontColor $Fontcolor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -ColumnSize $columnSize -FontSize 24 -FontBold
                     } catch {
-                        Write-Verbose 'Error: Unable to create ViCluster Objects. Disabling the section'
-                        Write-Debug "Error Message: $($_.Exception.Message)"
+                        Write-PScriboMessage 'Error: Unable to create ViCluster Objects. Disabling the section'
+                        Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                     }
                 }
 
@@ -181,16 +181,16 @@ function Get-AbrInfraDiagram {
                     try {
                         [array]$ViStandAloneNodes = (Add-DiaHtmlNodeTable -Name 'ViStandAloneNodes' -ImagesObj $Images -inputObject ($vSphereServerObj | ForEach-Object { $_.Name.split('.')[0] }) -Align 'Center' -iconType 'VBR_ESXi_Server' -ColumnSize $columnSize -IconDebug $IconDebug -MultiIcon -AditionalInfo $vSphereServerObj.AditionalInfo -Subgraph -SubgraphLabel ' ' -SubgraphLabelPos 'top' -SubgraphTableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -FontBold -FontColor '#000000' -SubgraphLabelFontColor $FontColor -FontSize 22)
                     } catch {
-                        Write-Verbose 'Error: Unable to create vSphere StandAlone Table. Disabling the section'
-                        Write-Debug "Error Message: $($_.Exception.Message)"
+                        Write-PScriboMessage 'Error: Unable to create vSphere StandAlone Table. Disabling the section'
+                        Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                     }
 
                     if ($ViStandAloneNodes) {
                         try {
                             $ViStandAloneSubgraph += Add-DiaHtmlSubGraph -Name 'ViStandAloneSubgraph' -ImagesObj $Images -TableArray $ViStandAloneNodes -Align 'Center' -IconDebug $IconDebug -Label 'ESxi StandAlone Hosts' -LabelPos 'top' -FontColor $Fontcolor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -ColumnSize $columnSize -FontSize 24 -FontBold
                         } catch {
-                            Write-Verbose 'Error: Unable to create vSphere StandAlone Objects. Disabling the section'
-                            Write-Debug "Error Message: $($_.Exception.Message)"
+                            Write-PScriboMessage 'Error: Unable to create vSphere StandAlone Objects. Disabling the section'
+                            Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                         }
                     }
                 }
@@ -212,8 +212,8 @@ function Get-AbrInfraDiagram {
                             }
                         }
                     } catch {
-                        Write-Verbose 'Error: Unable to create HyperV host table Objects. Disabling the section'
-                        Write-Debug "Error Message: $($_.Exception.Message)"
+                        Write-PScriboMessage 'Error: Unable to create HyperV host table Objects. Disabling the section'
+                        Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                     }
                     try {
                         if ($HvClustersChildsNodes) {
@@ -221,16 +221,16 @@ function Get-AbrInfraDiagram {
                             $HyperVNodeArray += $HvClustersNodes
                         }
                     } catch {
-                        Write-Verbose 'Error: Unable to create HyperV Hosts Objects. Disabling the section'
-                        Write-Debug "Error Message: $($_.Exception.Message)"
+                        Write-PScriboMessage 'Error: Unable to create HyperV Hosts Objects. Disabling the section'
+                        Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                     }
                     try {
                         if ($HyperVNodeArray) {
                             $HvHyperVObjNodes += Add-DiaHtmlSubGraph -Name 'HvHyperVObjNodes' -ImagesObj $Images -TableArray $HyperVNodeArray -Align 'Center' -IconDebug $IconDebug -Label 'Hyper-V Cluster' -LabelPos 'top' -FontColor $Fontcolor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -ColumnSize 1 -FontSize 22 -FontBold
                         }
                     } catch {
-                        Write-Verbose 'Error: Unable to create HyperV Server Objects. Disabling the section'
-                        Write-Debug "Error Message: $($_.Exception.Message)"
+                        Write-PScriboMessage 'Error: Unable to create HyperV Server Objects. Disabling the section'
+                        Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                     }
                 }
 
@@ -238,8 +238,8 @@ function Get-AbrInfraDiagram {
                     try {
                         $HvClustersSubgraphNode = Add-DiaHtmlSubGraph -Name 'HvClustersSubgraphNode' -ImagesObj $Images -TableArray $HvHyperVObjNodes -Align 'Center' -IconDebug $IconDebug -IconType 'VBR_HyperV' -Label 'Microsoft HyperV Infrastructure' -LabelPos 'top' -FontColor $Fontcolor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -ColumnSize 3 -FontSize 24 -FontBold
                     } catch {
-                        Write-Verbose 'Error: Unable to create HvCluster Objects. Disabling the section'
-                        Write-Debug "Error Message: $($_.Exception.Message)"
+                        Write-PScriboMessage 'Error: Unable to create HvCluster Objects. Disabling the section'
+                        Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                     }
                 }
 
@@ -257,16 +257,16 @@ function Get-AbrInfraDiagram {
 
                         $HvStandAloneNodes = (Add-DiaHtmlNodeTable -Name 'HvStandAloneNodes' -ImagesObj $Images -inputObject ($HyperVServerObj | ForEach-Object { $_.Name.split('.')[0] }) -Align 'Center' -iconType 'VBR_HyperV_Server' -ColumnSize $columnSize -IconDebug $IconDebug -MultiIcon -AditionalInfo $HyperVServerObj.AditionalInfo -Subgraph -SubgraphLabel ' ' -SubgraphLabelPos 'top' -SubgraphTableStyle 'dashed,rounded' -FontColor $Fontcolor -TableBorderColor $Edgecolor -TableBorder '1' -FontBold)
                     } catch {
-                        Write-Verbose 'Error: Unable to create Hyper-V StandAlone Hosts Table. Disabling the section'
-                        Write-Debug "Error Message: $($_.Exception.Message)"
+                        Write-PScriboMessage 'Error: Unable to create Hyper-V StandAlone Hosts Table. Disabling the section'
+                        Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                     }
 
                     if ($HvStandAloneNodes) {
                         try {
                             $HvStandAloneNodesSubgraph += Add-DiaHtmlSubGraph -Name 'HvStandAloneNodesSubgraph' -ImagesObj $Images -TableArray $HvStandAloneNodes -Align 'Center' -IconDebug $IconDebug -Label 'Hyper-V StandAlone Hosts' -LabelPos 'top' -FontColor $Fontcolor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -ColumnSize $columnSize -FontSize 22 -FontBold
                         } catch {
-                            Write-Verbose 'Error: Unable to create Hyper-V StandAlone Objects. Disabling the section'
-                            Write-Debug "Error Message: $($_.Exception.Message)"
+                            Write-PScriboMessage 'Error: Unable to create Hyper-V StandAlone Objects. Disabling the section'
+                            Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                         }
                     }
                 }
@@ -293,8 +293,8 @@ function Get-AbrInfraDiagram {
                 try {
                     $VirtualNodesArraySubgraphNode = Node -Name 'VirtualInfra' -Attributes @{Label = (Add-DiaHtmlSubGraph -Name 'VirtualInfra' -ImagesObj $Images -TableArray $VirtualNodesArray -Align 'Center' -IconDebug $IconDebug -IconType 'VBR_Proxy' -Label 'Virtual Infrastructure' -LabelPos 'top' -FontColor $Fontcolor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -ColumnSize 1 -FontSize 26 -FontBold); shape = 'plain'; fillColor = 'transparent'; fontsize = 14; fontname = 'Segoe Ui' }
                 } catch {
-                    Write-Verbose 'Error: Unable to create SureBackup SubGraph Objects. Disabling the section'
-                    Write-Debug "Error Message: $($_.Exception.Message)"
+                    Write-PScriboMessage 'Error: Unable to create SureBackup SubGraph Objects. Disabling the section'
+                    Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                 }
 
                 if ($VirtualNodesArraySubgraphNode) {
@@ -317,8 +317,8 @@ function Get-AbrInfraDiagram {
                     $SOBRNode = Add-DiaHtmlNodeTable -Name 'SOBRNode' -ImagesObj $Images -inputObject $SOBR.Name -Align 'Center' -iconType 'VBR_SOBR_Repo' -ColumnSize $columnSize -IconDebug $IconDebug -MultiIcon -AditionalInfo $SOBR.AditionalInfo -Subgraph -SubgraphLabel 'Scale-Out Backup Repositories' -SubgraphLabelFontSize 22 -FontSize 18 -SubgraphLabelPos top -SubgraphTableStyle 'dashed,rounded' -SubgraphLabelFontColor $Fontcolor -FontColor '#000000' -TableBorderColor $Edgecolor -TableBorder '1' -SubgraphIconType 'VBR_SOBR' -SubgraphFontBold
                     $OnpremStorageArray += $SOBRNode
                 } catch {
-                    Write-Verbose 'Error: Unable to create SOBR Objects. Disabling the section'
-                    Write-Debug "Error Message: $($_.Exception.Message)"
+                    Write-PScriboMessage 'Error: Unable to create SOBR Objects. Disabling the section'
+                    Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                 }
             }
 
@@ -333,8 +333,8 @@ function Get-AbrInfraDiagram {
                     $SANNode = Add-DiaHtmlNodeTable -Name 'SANNode' -ImagesObj $Images -inputObject $SAN.Name -Align 'Center' -iconType $SAN.IconType -ColumnSize $columnSize -IconDebug $IconDebug -MultiIcon -AditionalInfo $SAN.AditionalInfo -SubgraphLabelFontSize 22 -FontSize 18 -Subgraph -SubgraphLabel 'Storage Infrastructure' -SubgraphLabelPos top -SubgraphTableStyle 'dashed,rounded' -SubgraphLabelFontColor $Fontcolor -FontColor '#000000' -TableBorderColor $Edgecolor -TableBorder '1' -SubgraphIconType 'VBR_SAN' -SubgraphFontBold
                     $OnpremStorageArray += $SANNode
                 } catch {
-                    Write-Verbose 'Error: Unable to create SAN Objects. Disabling the section'
-                    Write-Debug "Error Message: $($_.Exception.Message)"
+                    Write-PScriboMessage 'Error: Unable to create SAN Objects. Disabling the section'
+                    Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                 }
             }
             # Repositories Graphviz Cluster
@@ -348,8 +348,8 @@ function Get-AbrInfraDiagram {
                     $RepositoriesNode = Add-DiaHtmlNodeTable -Name 'RepositoriesNode' -ImagesObj $Images -inputObject $RepositoriesInfo.Name -Align 'Center' -iconType $RepositoriesInfo.IconType -ColumnSize $columnSize -IconDebug $IconDebug -MultiIcon -AditionalInfo $RepositoriesInfo.AditionalInfo -Subgraph -SubgraphLabel 'Backup Repositories' -SubgraphLabelFontSize 22 -FontSize 18 -SubgraphLabelPos top -SubgraphTableStyle 'dashed,rounded' -SubgraphLabelFontColor $FontColor -FontColor '#000000' -TableBorderColor $Edgecolor -TableBorder '1' -SubgraphIconType 'VBR_Repository' -SubgraphFontBold
                     $OnpremStorageArray += $RepositoriesNode
                 } catch {
-                    Write-Verbose 'Error: Unable to create Repositories Objects. Disabling the section'
-                    Write-Debug "Error Message: $($_.Exception.Message)"
+                    Write-PScriboMessage 'Error: Unable to create Repositories Objects. Disabling the section'
+                    Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                 }
             }
 
@@ -357,8 +357,8 @@ function Get-AbrInfraDiagram {
                 try {
                     $OnpremStorageSubgraphNode = Node -Name 'Repositories' -Attributes @{Label = (Add-DiaHtmlSubGraph -Name 'Repositories' -ImagesObj $Images -TableArray $OnpremStorageArray -Align 'Center' -IconDebug $IconDebug -IconType 'VBR_Proxy' -Label 'On-Premises Storage Infrastructure' -LabelPos 'top' -FontColor $FontColor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -ColumnSize 1 -FontSize 26 -FontBold); shape = 'plain'; fillColor = 'transparent'; fontsize = 14; fontname = 'Segoe Ui' }
                 } catch {
-                    Write-Verbose 'Error: Unable to create OnPremStorage SubGraph Objects. Disabling the section'
-                    Write-Debug "Error Message: $($_.Exception.Message)"
+                    Write-PScriboMessage 'Error: Unable to create OnPremStorage SubGraph Objects. Disabling the section'
+                    Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                 }
 
 
@@ -378,8 +378,8 @@ function Get-AbrInfraDiagram {
                 try {
                     $ObjectRepositoriesNode = Add-DiaHtmlNodeTable -Name 'ObjectRepositoriesNode' -ImagesObj $Images -inputObject $ObjectRepositoriesInfo.Name -Align 'Center' -iconType $ObjectRepositoriesInfo.Icontype -ColumnSize $columnSize -IconDebug $IconDebug -MultiIcon -AditionalInfo $ObjectRepositoriesInfo.AditionalInfo -Subgraph -SubgraphIconType 'VBR_vSphere' -SubgraphLabel 'Object Repositories' -SubgraphLabelPos 'top' -SubgraphTableStyle 'dashed,rounded' -SubgraphLabelFontColor $FontColor -FontColor '#000000' -TableBorderColor $Edgecolor -TableBorder '1' -SubgraphLabelFontSize 22 -FontSize 18 -SubgraphFontBold
                 } catch {
-                    Write-Verbose 'Error: Unable to create ObjectRepositories Objects. Disabling the section'
-                    Write-Debug "Error Message: $($_.Exception.Message)"
+                    Write-PScriboMessage 'Error: Unable to create ObjectRepositories Objects. Disabling the section'
+                    Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                 }
             }
 
@@ -393,8 +393,8 @@ function Get-AbrInfraDiagram {
                 try {
                     $ArchObjRepositoriesNode = Add-DiaHtmlNodeTable -Name 'ArchObjRepositoriesNode' -ImagesObj $Images -inputObject $ArchObjRepositoriesInfo.Name -Align 'Center' -iconType $ArchObjRepositoriesInfo.Icontype -ColumnSize $columnSize -IconDebug $IconDebug -MultiIcon -AditionalInfo $ArchObjRepositoriesInfo.AditionalInfo -Subgraph -SubgraphIconType 'VBR_vSphere' -SubgraphLabel 'Archives Object Repositories' -SubgraphLabelPos 'top' -SubgraphTableStyle 'dashed,rounded' -SubgraphLabelFontColor $FontColor -FontColor '#000000' -TableBorderColor $Edgecolor -TableBorder '1' -SubgraphLabelFontSize 22 -FontSize 18 -SubgraphFontBold
                 } catch {
-                    Write-Verbose 'Error: Unable to create ArchiveObjectRepositories Objects. Disabling the section'
-                    Write-Debug "Error Message: $($_.Exception.Message)"
+                    Write-PScriboMessage 'Error: Unable to create ArchiveObjectRepositories Objects. Disabling the section'
+                    Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                 }
             }
             if (($ObjectRepositoriesInfo -or $ArchObjRepositoriesInfo) -and ($ObjectRepositoriesNode -or $ArchObjRepositoriesNode)) {
@@ -411,8 +411,8 @@ function Get-AbrInfraDiagram {
                 try {
                     $ObjStorageSubgraphNode = Node -Name 'ObjectRepos' -Attributes @{Label = (Add-DiaHtmlSubGraph -Name 'ObjectRepos' -ImagesObj $Images -TableArray $ObjStorageNodeArray -Align 'Center' -IconDebug $IconDebug -IconType 'VBR_Object' -Label 'Object Storage' -LabelPos 'top' -FontColor $Fontcolor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -ColumnSize 1 -FontSize 26 -FontBold); shape = 'plain'; fillColor = 'transparent'; fontsize = 14; fontname = 'Segoe Ui' }
                 } catch {
-                    Write-Verbose 'Error: Unable to create SureBackup SubGraph Objects. Disabling the section'
-                    Write-Debug "Error Message: $($_.Exception.Message)"
+                    Write-PScriboMessage 'Error: Unable to create SureBackup SubGraph Objects. Disabling the section'
+                    Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                 }
 
                 if ($ObjStorageSubgraphNode) {
@@ -430,8 +430,8 @@ function Get-AbrInfraDiagram {
                 try {
                     $WanAccelsNode = Node WanAccelServer @{Label = (Add-DiaHtmlNodeTable -Name 'WanAccelServer' -ImagesObj $Images -inputObject ($WanAccels | ForEach-Object { $_.Name.split('.')[0] }) -Align 'Center' -iconType 'VBR_Wan_Accel' -ColumnSize $columnSize -IconDebug $IconDebug -MultiIcon -AditionalInfo $WanAccels.AditionalInfo -Subgraph -SubgraphLabel 'Wan Accelerators' -SubgraphLabelPos 'top' -SubgraphIconType 'VBR_Wan_Accel' -SubgraphTableStyle 'dashed,rounded' -TableBorderColor '#71797E' -TableBorder '1' -SubgraphLabelFontSize 22 -FontSize 18 -SubgraphFontBold); shape = 'plain'; fontname = 'Segoe Ui' }
                 } catch {
-                    Write-Verbose 'Error: Unable to create WanAccelerators Objects. Disabling the section'
-                    Write-Debug "Error Message: $($_.Exception.Message)"
+                    Write-PScriboMessage 'Error: Unable to create WanAccelerators Objects. Disabling the section'
+                    Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                 }
             }
             if ($WanAccels -and $WanAccelsNode) {
@@ -452,8 +452,8 @@ function Get-AbrInfraDiagram {
 
                     $TapeInfraArray += $TapeServerNode
                 } catch {
-                    Write-Verbose 'Error: Unable to create TapeServers Objects. Disabling the section'
-                    Write-Debug "Error Message: $($_.Exception.Message)"
+                    Write-PScriboMessage 'Error: Unable to create TapeServers Objects. Disabling the section'
+                    Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                 }
                 if ($TapeLibraryInfo = Get-AbrTapeLibraryInfo) {
                     if ($TapeLibraryInfo.Name.count -le 5) {
@@ -466,8 +466,8 @@ function Get-AbrInfraDiagram {
 
                         $TapeInfraArray += $TapeLibraryNode
                     } catch {
-                        Write-Verbose 'Error: Unable to create TapeLibrary Objects. Disabling the section'
-                        Write-Debug "Error Message: $($_.Exception.Message)"
+                        Write-PScriboMessage 'Error: Unable to create TapeLibrary Objects. Disabling the section'
+                        Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                     }
                 }
                 if ($TapeVaultInfo = Get-AbrTapeVaultInfo) {
@@ -480,8 +480,8 @@ function Get-AbrInfraDiagram {
                         $TapeVaultNode = Add-DiaHtmlNodeTable -Name 'TapeVaultNode' -ImagesObj $Images -inputObject $TapeVaultInfo.Name -Align 'Center' -iconType 'VBR_Tape_Vaults' -ColumnSize $columnSize -IconDebug $IconDebug -MultiIcon -AditionalInfo $TapeVaultInfo.AditionalInfo -Subgraph -SubgraphIconType 'VBR_Tape_Vaults' -SubgraphLabel 'Tape Vaults' -SubgraphLabelPos 'top' -SubgraphTableStyle 'dashed,rounded' -TableBorderColor '#71797E' -TableBorder '1' -SubgraphLabelFontSize 22 -FontSize 18 -SubgraphFontBold
                         $TapeInfraArray += $TapeVaultNode
                     } catch {
-                        Write-Verbose 'Error: Unable to create TapeVault Objects. Disabling the section'
-                        Write-Debug "Error Message: $($_.Exception.Message)"
+                        Write-PScriboMessage 'Error: Unable to create TapeVault Objects. Disabling the section'
+                        Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                     }
                 }
             }
@@ -489,8 +489,8 @@ function Get-AbrInfraDiagram {
                 try {
                     $TapeServerSubGraph = Node -Name 'TapeInfra' -Attributes @{Label = (Add-DiaHtmlSubGraph -Name 'TapeInfra' -ImagesObj $Images -TableArray $TapeInfraArray -Align 'Center' -IconDebug $IconDebug -IconType 'VBR_Tape' -Label 'Tape Infrastructure' -LabelPos 'top' -FontColor $Fontcolor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -ColumnSize 1 -FontSize 24 -FontBold); shape = 'plain'; fillColor = 'transparent'; fontsize = 14; fontname = 'Segoe Ui' }
                 } catch {
-                    Write-Verbose 'Error: Unable to create TapeInfra SubGraph Objects. Disabling the section'
-                    Write-Debug "Error Message: $($_.Exception.Message)"
+                    Write-PScriboMessage 'Error: Unable to create TapeInfra SubGraph Objects. Disabling the section'
+                    Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                 }
 
                 if ($TapeServerSubGraph) {
@@ -503,8 +503,8 @@ function Get-AbrInfraDiagram {
                 try {
                     $ServiceProviderNode = Add-DiaHtmlNodeTable -Name 'ServiceProviderNode' -ImagesObj $Images -inputObject $ServiceProviderInfo.Name -Align 'Center' -iconType 'VBR_Service_Providers_Server' -ColumnSize 3 -IconDebug $IconDebug -MultiIcon -AditionalInfo $ServiceProviderInfo.AditionalInfo -SubgraphLabelFontSize 22 -FontSize 18 -SubgraphFontBold
                 } catch {
-                    Write-Verbose 'Error: Unable to create ServiceProvider Objects. Disabling the section'
-                    Write-Debug "Error Message: $($_.Exception.Message)"
+                    Write-PScriboMessage 'Error: Unable to create ServiceProvider Objects. Disabling the section'
+                    Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                 }
             }
             if ($ServiceProviderInfo -and $ServiceProviderNode) {
@@ -512,8 +512,8 @@ function Get-AbrInfraDiagram {
                 try {
                     $ServiceProviderSubgraphNode = Node -Name ServiceProviders -Attributes @{Label = (Add-DiaHtmlSubGraph -Name 'ServiceProviders' -ImagesObj $Images -TableArray $ServiceProviderNode -Align 'Center' -IconDebug $IconDebug -IconType 'VBR_Service_Providers' -Label 'Service Providers' -LabelPos 'top' -FontColor $Fontcolor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -ColumnSize 2 -FontSize 22 -FontBold); shape = 'plain'; fillColor = 'transparent'; fontsize = 14; fontname = 'Segoe Ui' }
                 } catch {
-                    Write-Verbose 'Error: Unable to create ServiceProviders SubGraph Objects. Disabling the section'
-                    Write-Debug "Error Message: $($_.Exception.Message)"
+                    Write-PScriboMessage 'Error: Unable to create ServiceProviders SubGraph Objects. Disabling the section'
+                    Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                 }
 
                 if ($ServiceProviderSubgraphNode) {
@@ -532,8 +532,8 @@ function Get-AbrInfraDiagram {
                     try {
                         $VirtualLabNode = Add-DiaHtmlNodeTable -Name 'VirtualLabNode' -ImagesObj $Images -inputObject $VirtualLab.Name -Align 'Center' -iconType $VirtualLab.IconType -ColumnSize $columnSize -IconDebug $IconDebug -MultiIcon -AditionalInfo $VirtualLab.AditionalInfo -Subgraph -SubgraphIconType 'VBR_Virtual_Lab' -SubgraphLabel 'Virtual Labs' -SubgraphLabelPos 'top' -SubgraphTableStyle 'dashed,rounded' -FontColor $Fontcolor -TableBorderColor $Edgecolor -TableBorder '1' -SubgraphLabelFontSize 22 -FontSize 18 -SubgraphFontBold
                     } catch {
-                        Write-Verbose 'Error: Unable to create VirtualLab Objects. Disabling the section'
-                        Write-Debug "Error Message: $($_.Exception.Message)"
+                        Write-PScriboMessage 'Error: Unable to create VirtualLab Objects. Disabling the section'
+                        Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                     }
                 }
                 if ($ApplicationGroups) {
@@ -545,8 +545,8 @@ function Get-AbrInfraDiagram {
                     try {
                         $ApplicationGroupsNode = Add-DiaHtmlNodeTable -Name 'ApplicationGroupsNode' -ImagesObj $Images -inputObject $ApplicationGroups.Name -Align 'Center' -iconType $ApplicationGroups.IconType -ColumnSize $columnSize -IconDebug $IconDebug -MultiIcon -AditionalInfo $ApplicationGroups.AditionalInfo -Subgraph -SubgraphIconType 'VBR_Virtual_Lab' -SubgraphLabel 'Application Groups' -SubgraphLabelPos 'top' -SubgraphTableStyle 'dashed,rounded' -FontColor $Fontcolor -TableBorderColor $Edgecolor -TableBorder '1' -SubgraphLabelFontSize 22 -FontSize 18 -SubgraphFontBold
                     } catch {
-                        Write-Verbose 'Error: Unable to create VirtualLab Objects. Disabling the section'
-                        Write-Debug "Error Message: $($_.Exception.Message)"
+                        Write-PScriboMessage 'Error: Unable to create VirtualLab Objects. Disabling the section'
+                        Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                     }
                 }
 
@@ -567,8 +567,8 @@ function Get-AbrInfraDiagram {
                 try {
                     $SureBackupSubgraphNode = Node -Name 'SureBackup' -Attributes @{Label = (Add-DiaHtmlSubGraph -Name 'SureBackup' -ImagesObj $Images -TableArray $SureBackupSubgraphNodeArray -Align 'Center' -IconDebug $IconDebug -IconType 'VBR_SureBackup' -Label 'SureBackup' -LabelPos 'top' -FontColor $Fontcolor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -ColumnSize 1 -FontSize 22 -FontBold); shape = 'plain'; fillColor = 'transparent'; fontsize = 14; fontname = 'Segoe Ui' }
                 } catch {
-                    Write-Verbose 'Error: Unable to create SureBackup SubGraph Objects. Disabling the section'
-                    Write-Debug "Error Message: $($_.Exception.Message)"
+                    Write-PScriboMessage 'Error: Unable to create SureBackup SubGraph Objects. Disabling the section'
+                    Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                 }
 
                 if ($SureBackupSubgraphNode) {
@@ -595,8 +595,8 @@ function Get-AbrInfraDiagram {
                             }
                         }
                     } catch {
-                        Write-Verbose 'Error: Unable to create CGPoolInfo Objects. Disabling the section'
-                        Write-Debug "Error Message: $($_.Exception.Message)"
+                        Write-PScriboMessage 'Error: Unable to create CGPoolInfo Objects. Disabling the section'
+                        Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                     }
                     try {
                         if ($CGPoolNode) {
@@ -610,8 +610,8 @@ function Get-AbrInfraDiagram {
                             $CloudConnectInfraArray += $CGPoolNodesSubGraph
                         }
                     } catch {
-                        Write-Verbose 'Error: Unable to create CGPoolInfo SubGraph Objects. Disabling the section'
-                        Write-Debug "Error Message: $($_.Exception.Message)"
+                        Write-PScriboMessage 'Error: Unable to create CGPoolInfo SubGraph Objects. Disabling the section'
+                        Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                     }
                 }
                 if ($CGServerInfo.Name.count -le 5) {
@@ -624,8 +624,8 @@ function Get-AbrInfraDiagram {
 
                     $CloudConnectInfraArray += $CGServerNode
                 } catch {
-                    Write-Verbose 'Error: Unable to create CloudGateway server Objects. Disabling the section'
-                    Write-Debug "Error Message: $($_.Exception.Message)"
+                    Write-PScriboMessage 'Error: Unable to create CloudGateway server Objects. Disabling the section'
+                    Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                 }
 
 
@@ -640,8 +640,8 @@ function Get-AbrInfraDiagram {
 
                         $CloudConnectInfraArray += $CCBSNode
                     } catch {
-                        Write-Verbose 'Error: Unable to create CCBSNode Objects. Disabling the section'
-                        Write-Debug "Error Message: $($_.Exception.Message)"
+                        Write-PScriboMessage 'Error: Unable to create CCBSNode Objects. Disabling the section'
+                        Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                     }
                 }
                 if ($CCRRInfo = Get-AbrBackupCCReplicaResourcesInfo) {
@@ -655,8 +655,8 @@ function Get-AbrInfraDiagram {
 
                         $CloudConnectInfraArray += $CCRRNode
                     } catch {
-                        Write-Verbose 'Error: Unable to create CCRRNode Objects. Disabling the section'
-                        Write-Debug "Error Message: $($_.Exception.Message)"
+                        Write-PScriboMessage 'Error: Unable to create CCRRNode Objects. Disabling the section'
+                        Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                     }
                 }
                 if ($CCVCDRRInfo = Get-AbrBackupCCvCDReplicaResourcesInfo) {
@@ -672,8 +672,8 @@ function Get-AbrInfraDiagram {
 
                         $CloudConnectInfraArray += $CCVCDRRNode
                     } catch {
-                        Write-Verbose 'Error: Unable to create CCVCDRRNode Objects. Disabling the section'
-                        Write-Debug "Error Message: $($_.Exception.Message)"
+                        Write-PScriboMessage 'Error: Unable to create CCVCDRRNode Objects. Disabling the section'
+                        Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                     }
                 }
             }
@@ -681,8 +681,8 @@ function Get-AbrInfraDiagram {
                 try {
                     $CGServerSubGraph = Node -Name 'CloudConnectInfra' -Attributes @{Label = (Add-DiaHtmlSubGraph -Name 'CloudConnectInfra' -ImagesObj $Images -TableArray $CloudConnectInfraArray -Align 'Center' -IconDebug $IconDebug -IconType 'VBR_Cloud_Connect' -Label 'Cloud Connect Infrastructure' -LabelPos 'top' -FontColor $Fontcolor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -ColumnSize 1 -FontSize 24 -FontBold); shape = 'plain'; fillColor = 'transparent'; fontsize = 14; fontname = 'Segoe Ui' }
                 } catch {
-                    Write-Verbose 'Error: Unable to create CloudConnectInfra SubGraph Objects. Disabling the section'
-                    Write-Debug "Error Message: $($_.Exception.Message)"
+                    Write-PScriboMessage 'Error: Unable to create CloudConnectInfra SubGraph Objects. Disabling the section'
+                    Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                 }
 
                 if ($CGServerSubGraph) {

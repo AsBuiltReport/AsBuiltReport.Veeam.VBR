@@ -5,7 +5,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.24
+        Version:        0.8.25
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -54,7 +54,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
     if ($Options.UpdateCheck) {
         Write-Host '  - Getting dependency information:'
         # Check the version of the dependency modules
-        $ModuleArray = @('Veeam.Diagrammer', 'Diagrammer.Core')
+        $ModuleArray = @('AsBuiltReport.Core', 'Diagrammer.Core', 'PScriboCharts')
 
         foreach ($Module in $ModuleArray) {
             try {
