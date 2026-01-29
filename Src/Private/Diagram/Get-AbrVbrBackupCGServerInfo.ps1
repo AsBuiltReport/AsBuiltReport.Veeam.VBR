@@ -19,7 +19,7 @@ function Get-AbrBackupCGServerInfo {
     )
 
     process {
-        Write-Verbose -Message "Collecting Cloud Gateway Servers information from $($VBRServer)."
+        Write-PScriboMessage "Collecting Cloud Gateway Servers information from $($VBRServer)."
         try {
 
             $BackupCGServersInfo = @()
@@ -51,7 +51,7 @@ function Get-AbrBackupCGServerInfo {
 
             return $BackupCGServersInfo
         } catch {
-            Write-Verbose -Message $_.Exception.Message
+            Write-PScriboMessage $_.Exception.Message
         }
     }
     end {}

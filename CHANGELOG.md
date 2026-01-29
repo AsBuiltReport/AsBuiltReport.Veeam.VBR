@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ##### This project is community maintained and has no sponsorship from Veeam, its employees or any of its affiliates.
 
+## [0.8.25] - 2026-01-29
+
+### :arrows_clockwise: Changed
+
+- Update module version to `v0.8.25`
+
+### :bug: Fixed
+
+- Fix issue while trying to generate backup server diagrams from local Backup server
+- Fix repository diagram issues
+- Fix issue when enabling verbose logging
+- Fix issue preventing the report to complete
+
 ## [0.8.24] - 2026-01-25
 
 ## :toolbox: Added
@@ -31,7 +44,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Migrate Veeam.Diagrammer diagrams to the main report
 - Enable Export of diagrams in PDF format by default
 
-### :fontawesome-solid-trash: Remove
+### :x: Remove
 
 - Remove noisy logging messages during report execution
 - Remove Veeam.Diagrammer dependency (Project no longer Maintained)
@@ -345,7 +358,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix [#151](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/151)
 - Fix [#150](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/150)
 
-### :fontawesome-solid-trash: Remove
+### :x: Remove
 
 - Remove EnableCharts option.
 - Remove Infrastructure Charts
@@ -435,7 +448,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.8.1] - 2023-10-03
 
-### :fontawesome-solid-trash: Remove
+### :x: Remove
 
 - Removed Infrastructure Hardening section
 

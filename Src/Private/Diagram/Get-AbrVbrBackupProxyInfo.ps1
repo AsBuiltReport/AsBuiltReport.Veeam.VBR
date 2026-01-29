@@ -24,7 +24,7 @@ function Get-AbrBackupProxyInfo {
 
     )
     process {
-        Write-Verbose -Message "Collecting Backup Proxy information from $($VBRServer)."
+        Write-PScriboMessage "Collecting Backup Proxy information from $($VBRServer)."
         try {
             $BPType = switch ($Type) {
                 'vmware' { Get-VBRViProxy }
@@ -102,7 +102,7 @@ function Get-AbrBackupProxyInfo {
 
             return $BackupProxyInfo
         } catch {
-            Write-Verbose -Message $_.Exception.Message
+            Write-PScriboMessage $_.Exception.Message
         }
     }
     end {}

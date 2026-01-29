@@ -50,8 +50,8 @@ function Get-AbrDiagBackupToCloudConnectTenant {
                 }
 
             } catch {
-                Write-Verbose 'Error: Unable to create TenantInfo Objects. Panic!'
-                Write-Debug "Error Message: $($_.Exception.Message)"
+                Write-PScriboMessage 'Error: Unable to create TenantInfo Objects. Panic!'
+                Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                 throw
             }
 
@@ -86,8 +86,8 @@ function Get-AbrDiagBackupToCloudConnectTenant {
                         }
                     }
                 } catch {
-                    Write-Verbose 'Error: Unable to create CloudGateway Server Objects. Disabling the section'
-                    Write-Debug "Error Message: $($_.Exception.Message)"
+                    Write-PScriboMessage 'Error: Unable to create CloudGateway Server Objects. Disabling the section'
+                    Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                 }
             }
 
@@ -109,8 +109,8 @@ function Get-AbrDiagBackupToCloudConnectTenant {
                         }
                     }
                 } catch {
-                    Write-Verbose 'Error: Unable to create CGPoolInfo Objects. Disabling the section'
-                    Write-Debug "Error Message: $($_.Exception.Message)"
+                    Write-PScriboMessage 'Error: Unable to create CGPoolInfo Objects. Disabling the section'
+                    Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                 }
                 try {
                     if ($CGPoolNode) {
@@ -143,8 +143,8 @@ function Get-AbrDiagBackupToCloudConnectTenant {
                         }
                     }
                 } catch {
-                    Write-Verbose 'Error: Unable to create CGPoolInfo SubGraph Objects. Disabling the section'
-                    Write-Debug "Error Message: $($_.Exception.Message)"
+                    Write-PScriboMessage 'Error: Unable to create CGPoolInfo SubGraph Objects. Disabling the section'
+                    Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                 }
             }
 
@@ -176,8 +176,8 @@ function Get-AbrDiagBackupToCloudConnectTenant {
                             $CloudConnectTenantBSArray += $CCBackupRepositoryNode
                         }
                     } catch {
-                        Write-Verbose 'Error: Unable to create CCBackupRepositoryNode Objects. Disabling the section'
-                        Write-Debug "Error Message: $($_.Exception.Message)"
+                        Write-PScriboMessage 'Error: Unable to create CCBackupRepositoryNode Objects. Disabling the section'
+                        Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                     }
                     if ($CCBackupStorageInfo.WanAccelerationEnabled) {
                         if (($CCBackupStorageInfo.WanAccelerator | Measure-Object).Count -le 5) {
@@ -194,8 +194,8 @@ function Get-AbrDiagBackupToCloudConnectTenant {
                                 $CloudConnectTenantBSArray += $CCCloudWanAcceleratorNode
                             }
                         } catch {
-                            Write-Verbose 'Error: Unable to create CCCloudWanAcceleratorNode Objects. Disabling the section'
-                            Write-Debug "Error Message: $($_.Exception.Message)"
+                            Write-PScriboMessage 'Error: Unable to create CCCloudWanAcceleratorNode Objects. Disabling the section'
+                            Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                         }
                     }
 
@@ -216,15 +216,15 @@ function Get-AbrDiagBackupToCloudConnectTenant {
 
                         }
                     } catch {
-                        Write-Verbose 'Error: Unable to create CloudConnectTenantBSSubGraph SubGraph Objects. Disabling the section'
-                        Write-Debug "Error Message: $($_.Exception.Message)"
+                        Write-PScriboMessage 'Error: Unable to create CloudConnectTenantBSSubGraph SubGraph Objects. Disabling the section'
+                        Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                     }
 
                     try {
                         $CloudRepoSubgraphNode += Add-DiaHtmlSubGraph -Name 'CloudRepoSubgraphNode' -ImagesObj $Images -TableArray $CloudConnectTenantBRArray -Align 'Center' -IconDebug $IconDebug -Label $CCBackupStorageInfo.Name -LabelPos 'top' -FontColor $Fontcolor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -ColumnSize 1 -FontSize 20 -FontBold
                     } catch {
-                        Write-Verbose 'Error: Unable to create Cloud Resource SubGraph Nodes Objects. Disabling the section'
-                        Write-Debug "Error Message: $($_.Exception.Message)"
+                        Write-PScriboMessage 'Error: Unable to create Cloud Resource SubGraph Nodes Objects. Disabling the section'
+                        Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                     }
 
                     if ($CCBackupStorageInfo.SubTenant) {
@@ -242,24 +242,24 @@ function Get-AbrDiagBackupToCloudConnectTenant {
                                 $CloudConnectTenantRRSubTenantArray += $CCCloudSubTenantNode
                             }
                         } catch {
-                            Write-Verbose 'Error: Unable to create CCCloudSubTenantNode Objects. Disabling the section'
-                            Write-Debug "Error Message: $($_.Exception.Message)"
+                            Write-PScriboMessage 'Error: Unable to create CCCloudSubTenantNode Objects. Disabling the section'
+                            Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                         }
                     }
                 }
                 try {
                     $CloudRepoSubgraph = Add-DiaHtmlSubGraph -Name 'CloudRepoSubgraph' -ImagesObj $Images -TableArray $CloudRepoSubgraphNode -Align 'Center' -IconDebug $IconDebug -Label 'Backup Resources' -LabelPos 'top' -FontColor $Fontcolor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -ColumnSize 4 -FontSize 22 -IconType 'VBR_Cloud_Storage' -FontBold
                 } catch {
-                    Write-Verbose 'Error: Unable to create Cloud Resource SubGraph Nodes Objects. Disabling the section'
-                    Write-Debug "Error Message: $($_.Exception.Message)"
+                    Write-PScriboMessage 'Error: Unable to create Cloud Resource SubGraph Nodes Objects. Disabling the section'
+                    Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                 }
 
                 if ($CloudConnectTenantRRSubTenantArray) {
                     try {
                         $CloudConnectTenantRRSubTenantSubgraphNode = Add-DiaHtmlSubGraph -Name 'CloudConnectTenantRRSubTenantSubgraphNode' -ImagesObj $Images -TableArray $CloudConnectTenantRRSubTenantArray -Align 'Center' -IconDebug $IconDebug -Label 'SubTenants' -LabelPos 'top' -FontColor $Fontcolor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -ColumnSize 4 -FontSize 22 -IconType 'VBR_Cloud_Storage' -FontBold
                     } catch {
-                        Write-Verbose 'Error: Unable to create SubTenants SubGraph Nodes Objects. Disabling the section'
-                        Write-Debug "Error Message: $($_.Exception.Message)"
+                        Write-PScriboMessage 'Error: Unable to create SubTenants SubGraph Nodes Objects. Disabling the section'
+                        Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                     }
                 }
 
@@ -325,8 +325,8 @@ function Get-AbrDiagBackupToCloudConnectTenant {
                                 $CloudConnectTenantRRArray += $CCRRHostNode
                             }
                         } catch {
-                            Write-Verbose 'Error: Unable to create CCRRHostNode Objects. Disabling the section'
-                            Write-Debug "Error Message: $($_.Exception.Message)"
+                            Write-PScriboMessage 'Error: Unable to create CCRRHostNode Objects. Disabling the section'
+                            Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                         }
 
                         try {
@@ -344,8 +344,8 @@ function Get-AbrDiagBackupToCloudConnectTenant {
                                 $CloudConnectTenantRRArray += $CCRRStorageNode
                             }
                         } catch {
-                            Write-Verbose 'Error: Unable to create CCRRStorageNode Objects. Disabling the section'
-                            Write-Debug "Error Message: $($_.Exception.Message)"
+                            Write-PScriboMessage 'Error: Unable to create CCRRStorageNode Objects. Disabling the section'
+                            Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                         }
 
                         if ($CCReplicaResourcesInfo.WanAcceleration) {
@@ -363,8 +363,8 @@ function Get-AbrDiagBackupToCloudConnectTenant {
                                     $CloudConnectTenantRRArray += $CCCloudWanAcceleratorNode
                                 }
                             } catch {
-                                Write-Verbose 'Error: Unable to create CCCloudWanAcceleratorNode Objects. Disabling the section'
-                                Write-Debug "Error Message: $($_.Exception.Message)"
+                                Write-PScriboMessage 'Error: Unable to create CCCloudWanAcceleratorNode Objects. Disabling the section'
+                                Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                             }
                         }
 
@@ -385,8 +385,8 @@ function Get-AbrDiagBackupToCloudConnectTenant {
 
                             }
                         } catch {
-                            Write-Verbose 'Error: Unable to create CloudConnectTenantRRSubGraph SubGraph Objects. Disabling the section'
-                            Write-Debug "Error Message: $($_.Exception.Message)"
+                            Write-PScriboMessage 'Error: Unable to create CloudConnectTenantRRSubGraph SubGraph Objects. Disabling the section'
+                            Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                         }
 
                         try {
@@ -394,8 +394,8 @@ function Get-AbrDiagBackupToCloudConnectTenant {
                                 $CloudConnectTenantRRArraySubgraph += Add-DiaHtmlSubGraph -Name 'CloudConnectTenantRRArraySubgraph' -ImagesObj $Images -TableArray $CloudConnectTenantReplicaResourceArray -Align 'Center' -IconDebug $IconDebug -Label $CCReplicaResourcesInfo.Name -LabelPos 'top' -FontColor $Fontcolor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -ColumnSize 1 -FontSize 22 -FontBold
                             }
                         } catch {
-                            Write-Verbose 'Error: Unable to create CCRRNode Objects. Disabling the section'
-                            Write-Debug "Error Message: $($_.Exception.Message)"
+                            Write-PScriboMessage 'Error: Unable to create CCRRNode Objects. Disabling the section'
+                            Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                         }
 
                         if ($CCReplicaResourcesInfo.NetworkExtensions) {
@@ -413,8 +413,8 @@ function Get-AbrDiagBackupToCloudConnectTenant {
                                     $CloudConnectTenantRRNetworkExtensionArray += $CCCloudNetworkExtensionsNode
                                 }
                             } catch {
-                                Write-Verbose 'Error: Unable to create CCCloudNetworkExtensionsNode Objects. Disabling the section'
-                                Write-Debug "Error Message: $($_.Exception.Message)"
+                                Write-PScriboMessage 'Error: Unable to create CCCloudNetworkExtensionsNode Objects. Disabling the section'
+                                Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                             }
                         }
                     }
@@ -424,16 +424,16 @@ function Get-AbrDiagBackupToCloudConnectTenant {
                     try {
                         $CloudConnectTenantRRNExtensionSubgraphNode = Add-DiaHtmlSubGraph -Name 'CloudConnectTenantRRNExtensionSubgraphNode' -ImagesObj $Images -TableArray $CloudConnectTenantRRNetworkExtensionArray -Align 'Center' -IconDebug $IconDebug -Label 'Network Extension Appliances' -LabelPos 'top' -FontColor $Fontcolor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -ColumnSize 4 -FontSize 22 -IconType 'VBR_Hardware_Resources' -FontBold
                     } catch {
-                        Write-Verbose 'Error: Unable to create Cloud Resource SubGraph Nodes Objects. Disabling the section'
-                        Write-Debug "Error Message: $($_.Exception.Message)"
+                        Write-PScriboMessage 'Error: Unable to create Cloud Resource SubGraph Nodes Objects. Disabling the section'
+                        Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                     }
                 }
 
                 try {
                     $CloudResourcesSubgraphNode = Add-DiaHtmlSubGraph -Name 'CloudResourcesSubgraphNode' -ImagesObj $Images -TableArray $CloudConnectTenantRRArraySubgraph -Align 'Center' -IconDebug $IconDebug -Label 'Replica Resources' -LabelPos 'top' -FontColor $Fontcolor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -ColumnSize 4 -FontSize 22 -IconType 'VBR_Hardware_Resources' -FontBold
                 } catch {
-                    Write-Verbose 'Error: Unable to create Cloud Resource SubGraph Nodes Objects. Disabling the section'
-                    Write-Debug "Error Message: $($_.Exception.Message)"
+                    Write-PScriboMessage 'Error: Unable to create Cloud Resource SubGraph Nodes Objects. Disabling the section'
+                    Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                 }
 
                 if ($CloudResourcesSubgraphNode) {
@@ -497,8 +497,8 @@ function Get-AbrDiagBackupToCloudConnectTenant {
                                 $CloudConnectTenantvCDRRArray += $CCCloudvCDWanAcceleratorNode
                             }
                         } catch {
-                            Write-Verbose 'Error: Unable to create CCCloudvCDWanAcceleratorNode Objects. Disabling the section'
-                            Write-Debug "Error Message: $($_.Exception.Message)"
+                            Write-PScriboMessage 'Error: Unable to create CCCloudvCDWanAcceleratorNode Objects. Disabling the section'
+                            Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                         }
                     }
 
@@ -519,8 +519,8 @@ function Get-AbrDiagBackupToCloudConnectTenant {
 
                         }
                     } catch {
-                        Write-Verbose 'Error: Unable to create CloudConnectTenantvCDRRSubGraph SubGraph Objects. Disabling the section'
-                        Write-Debug "Error Message: $($_.Exception.Message)"
+                        Write-PScriboMessage 'Error: Unable to create CloudConnectTenantvCDRRSubGraph SubGraph Objects. Disabling the section'
+                        Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                     }
 
                     try {
@@ -529,8 +529,8 @@ function Get-AbrDiagBackupToCloudConnectTenant {
 
                         }
                     } catch {
-                        Write-Verbose 'Error: Unable to create CloudConnectTenantvCDRRArraySubgraph Objects. Disabling the section'
-                        Write-Debug "Error Message: $($_.Exception.Message)"
+                        Write-PScriboMessage 'Error: Unable to create CloudConnectTenantvCDRRArraySubgraph Objects. Disabling the section'
+                        Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                     }
 
                     if ($CCvCDReplicaResourcesInfo.NetworkExtensions) {
@@ -548,8 +548,8 @@ function Get-AbrDiagBackupToCloudConnectTenant {
                                 $CloudConnectTenantvCDRRNetworkExtensionArray += $CCCloudvCDNetworkExtensionsNode
                             }
                         } catch {
-                            Write-Verbose 'Error: Unable to create CCCloudvCDNetworkExtensionsNode Objects. Disabling the section'
-                            Write-Debug "Error Message: $($_.Exception.Message)"
+                            Write-PScriboMessage 'Error: Unable to create CCCloudvCDNetworkExtensionsNode Objects. Disabling the section'
+                            Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                         }
                     }
                 }
@@ -558,16 +558,16 @@ function Get-AbrDiagBackupToCloudConnectTenant {
                     try {
                         $CloudConnectTenantvCDRRNExtensionSubgraphNode = Add-DiaHtmlSubGraph -Name 'CloudConnectTenantvCDRRNExtensionSubgraphNode' -ImagesObj $Images -TableArray $CloudConnectTenantvCDRRNetworkExtensionArray -Align 'Center' -IconDebug $IconDebug -Label 'Network Extension Appliances' -LabelPos 'top' -FontColor $Fontcolor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -ColumnSize 4 -FontSize 22 -IconType 'VBR_Hardware_Resources' -FontBold
                     } catch {
-                        Write-Verbose 'Error: Unable to create CloudvCDRRNExtensionSubgraphNode Objects. Disabling the section'
-                        Write-Debug "Error Message: $($_.Exception.Message)"
+                        Write-PScriboMessage 'Error: Unable to create CloudvCDRRNExtensionSubgraphNode Objects. Disabling the section'
+                        Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                     }
                 }
 
                 try {
                     $CloudvCDResourcesSubgraphNode = Add-DiaHtmlSubGraph -Name 'CloudvCDResourcesSubgraphNode' -ImagesObj $Images -TableArray $CloudConnectTenantvCDRRArraySubgraph -Align 'Center' -IconDebug $IconDebug -Label 'vDC Replica Resources' -LabelPos 'top' -FontColor $Fontcolor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -ColumnSize 4 -FontSize 22 -IconType 'VBR_Hardware_Resources' -FontBold
                 } catch {
-                    Write-Verbose 'Error: Unable to create CloudvCDResourcesSubgraphNode Objects. Disabling the section'
-                    Write-Debug "Error Message: $($_.Exception.Message)"
+                    Write-PScriboMessage 'Error: Unable to create CloudvCDResourcesSubgraphNode Objects. Disabling the section'
+                    Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                 }
 
                 if ($CloudvCDResourcesSubgraphNode) {

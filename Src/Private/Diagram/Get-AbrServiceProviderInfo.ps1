@@ -26,7 +26,7 @@ function Get-AbrServiceProviderInfo {
     #>
     param ()
     try {
-        Write-Verbose "Collecting Service Provider information from $($VBRServer)."
+        Write-PScriboMessage "Collecting Service Provider information from $($VBRServer)."
         $ServiceProviders = Get-VBRCloudProvider | Sort-Object -Property 'DNSName'
 
         if ($ServiceProviders) {
@@ -55,6 +55,6 @@ function Get-AbrServiceProviderInfo {
         }
 
     } catch {
-        Write-Verbose -Message $_.Exception.Message
+        Write-PScriboMessage $_.Exception.Message
     }
 }

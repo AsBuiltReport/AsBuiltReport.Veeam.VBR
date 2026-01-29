@@ -580,7 +580,7 @@ function New-AbrVeeamDiagram {
             Get-AbrBackupServerInformation
 
             if ($BackupServerInfo) {
-                Write-Verbose 'Backup Server Information collected'
+                Write-PScriboMessage 'Backup Server Information collected'
             } else {
                 throw 'No Backup Server Information available to diagram'
             }
@@ -609,14 +609,14 @@ function New-AbrVeeamDiagram {
                 }
 
                 if ($Signature) {
-                    Write-Verbose 'Generating diagram signature'
+                    Write-PScriboMessage 'Generating diagram signature'
                     if ($CustomSignatureLogo) {
                         $Signature = (Add-DiaHtmlSignatureTable -ImagesObj $Images -Rows "Author: $($AuthorName)", "Company: $($CompanyName)" -TableBorder 2 -TableBorderColor $Edgecolor -CellBorder 0 -Align 'left' -Logo $CustomSignatureLogo -IconDebug $IconDebug)
                     } else {
                         $Signature = (Add-DiaHtmlSignatureTable -ImagesObj $Images -Rows "Author: $($AuthorName)", "Company: $($CompanyName)" -TableBorder 2 -TableBorderColor $Edgecolor -CellBorder 0 -Align 'left' -Logo 'VBR_LOGO_Footer' -IconDebug $IconDebug)
                     }
                 } else {
-                    Write-Verbose 'No diagram signature specified'
+                    Write-PScriboMessage 'No diagram signature specified'
                     $Signature = ' '
                 }
 
@@ -728,7 +728,7 @@ function New-AbrVeeamDiagram {
                         # If not Base64 format return image path
                         Write-ColorOutput -Color 'White' -String ("Diagrammer diagram '{0}' has been saved to '{1}'" -f $OutputDiagram.Name, $OutputDiagram.Directory)
                     } else {
-                        Write-Verbose 'Displaying Base64 string'
+                        Write-PScriboMessage 'Displaying Base64 string'
                         # Return Base64 string
                         $OutputDiagram
                     }

@@ -50,7 +50,7 @@ function Get-AbrDiagBackupToProtectedGroup {
                         }
                     }
                 } catch {
-                    Write-Verbose -Message $_.Exception.Message
+                    Write-PScriboMessage $_.Exception.Message
                 }
                 if ($ProtectedGroups) {
                     $ComputerAgentsArray = @()
@@ -80,8 +80,8 @@ function Get-AbrDiagBackupToProtectedGroup {
                                 Convert-DiaTableToHTML -Label $PGOBJ.Name -Name $PGOBJ.Name -Row $Rows -HeaderColor '#005f4b' -HeaderFontColor 'white' -BorderColor 'black' -FontSize 14 -IconDebug $IconDebug -HTMLOutput $true
                             }
                         } catch {
-                            Write-Verbose 'Error: Unable to create ADCNodes Objects. Disabling the section'
-                            Write-Debug "Error Message: $($_.Exception.Message)"
+                            Write-PScriboMessage 'Error: Unable to create ADCNodes Objects. Disabling the section'
+                            Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                         }
 
                         if ($ADCNodes) {
@@ -95,8 +95,8 @@ function Get-AbrDiagBackupToProtectedGroup {
                             try {
                                 $ADCNodesSubgraph = Add-DiaHtmlSubGraph -Name 'ADCNodesSubgraph' -ImagesObj $Images -TableArray $ADCNodes -Align 'Center' -IconDebug $IconDebug -Label 'Active Directory Computers' -LabelPos 'top' -FontColor $Fontcolor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -ColumnSize $ADCNodesColumnSize -IconType 'VBR_AGENT_AD' -FontSize 18 -FontBold
                             } catch {
-                                Write-Verbose 'Error: Unable to create ADCNodesSubgraph Objects. Disabling the section'
-                                Write-Debug "Error Message: $($_.Exception.Message)"
+                                Write-PScriboMessage 'Error: Unable to create ADCNodesSubgraph Objects. Disabling the section'
+                                Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                             }
                             $ComputerAgentsArray += $ADCNodesSubgraph
                         }
@@ -120,8 +120,8 @@ function Get-AbrDiagBackupToProtectedGroup {
                                 Convert-DiaTableToHTML -Label $PGOBJ.Name -Name $PGOBJ.Name -Row $Rows -HeaderColor '#005f4b' -HeaderFontColor 'white' -BorderColor 'black' -FontSize 14 -IconDebug $IconDebug -HTMLOutput $true
                             }
                         } catch {
-                            Write-Verbose 'Error: Unable to create MCNodes Objects. Disabling the section'
-                            Write-Debug "Error Message: $($_.Exception.Message)"
+                            Write-PScriboMessage 'Error: Unable to create MCNodes Objects. Disabling the section'
+                            Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                         }
 
                         if ($MCNodes) {
@@ -135,8 +135,8 @@ function Get-AbrDiagBackupToProtectedGroup {
                             try {
                                 $MCNodesSubgraph = Add-DiaHtmlSubGraph -Name 'MCNodesSubgraph' -ImagesObj $Images -TableArray $MCNodes -Align 'Center' -IconDebug $IconDebug -Label 'Manual Computers' -LabelPos 'top' -FontColor $Fontcolor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -ColumnSize $MCNodesColumnSize -IconType 'VBR_AGENT_MC' -FontSize 18 -FontBold
                             } catch {
-                                Write-Verbose 'Error: Unable to create MCNodesSubgraph Objects. Disabling the section'
-                                Write-Debug "Error Message: $($_.Exception.Message)"
+                                Write-PScriboMessage 'Error: Unable to create MCNodesSubgraph Objects. Disabling the section'
+                                Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                             }
                             $ComputerAgentsArray += $MCNodesSubgraph
                         }
@@ -168,8 +168,8 @@ function Get-AbrDiagBackupToProtectedGroup {
                                 Convert-DiaTableToHTML -Label $PGOBJ.Name -Name $PGOBJ.Name -Row $Rows -HeaderColor '#005f4b' -HeaderFontColor 'white' -BorderColor 'black' -FontSize 14 -IconDebug $IconDebug -HTMLOutput $true
                             }
                         } catch {
-                            Write-Verbose 'Error: Unable to create ICCNodes Objects. Disabling the section'
-                            Write-Debug "Error Message: $($_.Exception.Message)"
+                            Write-PScriboMessage 'Error: Unable to create ICCNodes Objects. Disabling the section'
+                            Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                         }
 
                         if ($ICCNodes) {
@@ -183,8 +183,8 @@ function Get-AbrDiagBackupToProtectedGroup {
                             try {
                                 $ICCNodesSubgraph = Add-DiaHtmlSubGraph -Name 'ICCNodesSubgraph' -ImagesObj $Images -TableArray $ICCNodes -Align 'Center' -IconDebug $IconDebug -Label 'Individual Computers' -LabelPos 'top' -FontColor $Fontcolor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -ColumnSize $ICCNodesColumnSize -IconType 'VBR_AGENT_IC' -FontSize 18 -FontBold
                             } catch {
-                                Write-Verbose 'Error: Unable to create ICCNodesSubgraph Objects. Disabling the section'
-                                Write-Debug "Error Message: $($_.Exception.Message)"
+                                Write-PScriboMessage 'Error: Unable to create ICCNodesSubgraph Objects. Disabling the section'
+                                Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                             }
                             $ComputerAgentsArray += $ICCNodesSubgraph
                         }
@@ -204,8 +204,8 @@ function Get-AbrDiagBackupToProtectedGroup {
                                 Convert-DiaTableToHTML -Label $PGOBJ.Name -Name $PGOBJ.Name -Row $Rows -HeaderColor '#005f4b' -HeaderFontColor 'white' -BorderColor 'black' -FontSize 14 -IconDebug $IconDebug -HTMLOutput $true
                             }
                         } catch {
-                            Write-Verbose 'Error: Unable to create CSVCNodes Objects. Disabling the section'
-                            Write-Debug "Error Message: $($_.Exception.Message)"
+                            Write-PScriboMessage 'Error: Unable to create CSVCNodes Objects. Disabling the section'
+                            Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                         }
 
                         if ($CSVCNodes) {
@@ -219,8 +219,8 @@ function Get-AbrDiagBackupToProtectedGroup {
                             try {
                                 $CSVCNodesSubgraph = Add-DiaHtmlSubGraph -Name 'CSVCNodesSubgraph' -ImagesObj $Images -TableArray $CSVCNodes -Align 'Center' -IconDebug $IconDebug -Label 'CSV Computers' -LabelPos 'top' -FontColor $Fontcolor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -ColumnSize $CSVCNodesColumnSize -IconType 'VBR_AGENT_CSV_Logo' -FontSize 18 -FontBold
                             } catch {
-                                Write-Verbose 'Error: Unable to create CSVCNodesSubgraph Objects. Disabling the section'
-                                Write-Debug "Error Message: $($_.Exception.Message)"
+                                Write-PScriboMessage 'Error: Unable to create CSVCNodesSubgraph Objects. Disabling the section'
+                                Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                             }
                             $ComputerAgentsArray += $CSVCNodesSubgraph
                         }
@@ -238,15 +238,15 @@ function Get-AbrDiagBackupToProtectedGroup {
                             try {
                                 $ComputerAgentSubGraph = Node -Name 'ComputerAgentsSubgraph' -Attributes @{Label = (Add-DiaHtmlSubGraph -Name 'ComputerAgentsSubgraph' -ImagesObj $Images -TableArray $ComputerAgentsArray -Align 'Center' -IconDebug $IconDebug -Label 'Protected Groups' -LabelPos 'top' -FontColor $Fontcolor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -ColumnSize $ComputerAgentsArrayColumnSize -FontSize 26 -SubgraphFontBold); shape = 'plain'; fillColor = 'transparent'; fontsize = 14; fontname = 'Segoe Ui' }
                             } catch {
-                                Write-Verbose 'Error: Unable to create ComputerAgentsSubgraph Objects. Disabling the section'
-                                Write-Debug "Error Message: $($_.Exception.Message)"
+                                Write-PScriboMessage 'Error: Unable to create ComputerAgentsSubgraph Objects. Disabling the section'
+                                Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                             }
                         } else {
                             try {
                                 $ComputerAgentSubGraph = Node -Name 'ComputerAgentsSubgraph' -Attributes @{Label = (Add-DiaHtmlSubGraph -Name 'ComputerAgentsSubgraph' -ImagesObj $Images -TableArray $ComputerAgentsArray -Align 'Center' -IconDebug $IconDebug -Label 'Protected Groups' -LabelPos 'top' -FontColor $Fontcolor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -ColumnSize $ComputerAgentsArrayColumnSize -FontSize 26 -FontBold); shape = 'plain'; fillColor = 'transparent'; fontsize = 14; fontname = 'Segoe Ui' }
                             } catch {
-                                Write-Verbose 'Error: Unable to create ComputerAgentsSubgraph Objects. Disabling the section'
-                                Write-Debug "Error Message: $($_.Exception.Message)"
+                                Write-PScriboMessage 'Error: Unable to create ComputerAgentsSubgraph Objects. Disabling the section'
+                                Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                             }
                         }
                     }
@@ -258,7 +258,7 @@ function Get-AbrDiagBackupToProtectedGroup {
                 }
             }
         } catch {
-            Write-Verbose -Message $_.Exception.Message
+            Write-PScriboMessage $_.Exception.Message
         }
     }
     end {}

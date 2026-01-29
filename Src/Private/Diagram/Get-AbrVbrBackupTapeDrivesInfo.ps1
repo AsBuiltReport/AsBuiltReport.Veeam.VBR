@@ -20,7 +20,7 @@ function Get-AbrBackupTapeDrivesInfo {
     )
 
     process {
-        Write-Verbose -Message "Collecting Tape Drives information from $($VBRServer)."
+        Write-PScriboMessage "Collecting Tape Drives information from $($VBRServer)."
         try {
 
             if ($TapeLibrary) {
@@ -53,7 +53,7 @@ function Get-AbrBackupTapeDrivesInfo {
 
             return $BackupTapeDriveInfo
         } catch {
-            Write-Verbose -Message $_.Exception.Message
+            Write-PScriboMessage $_.Exception.Message
         }
     }
     end {}

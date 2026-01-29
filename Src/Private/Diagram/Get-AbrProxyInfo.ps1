@@ -25,7 +25,7 @@ function Get-AbrProxyInfo {
     #>
     param ()
     try {
-        Write-Verbose "Collecting proxy information from $($VBRServer)."
+        Write-PScriboMessage "Collecting proxy information from $($VBRServer)."
         $Proxies = @(Get-VBRViProxy) + @(Get-VBRHvProxy)
 
         if ($Proxies) {
@@ -53,6 +53,6 @@ function Get-AbrProxyInfo {
         return $ProxiesInfo
 
     } catch {
-        Write-Verbose -Message $_.Exception.Message
+        Write-PScriboMessage $_.Exception.Message
     }
 }

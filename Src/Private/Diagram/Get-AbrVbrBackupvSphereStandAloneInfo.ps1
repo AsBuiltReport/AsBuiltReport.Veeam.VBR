@@ -20,7 +20,7 @@ function Get-AbrBackupvSphereStandAloneInfo {
 
     )
     process {
-        Write-Verbose -Message "Collecting vSphere HyperVisor information from $($VBRServer)."
+        Write-PScriboMessage "Collecting vSphere HyperVisor information from $($VBRServer)."
         try {
             $ViObjs = Get-VBRServer | Where-Object { $_.Type -eq 'ESXi' -and $_.Parentid -eq '00000000-0000-0000-0000-000000000000' }
             $ViObjsInfo = @()
@@ -43,14 +43,14 @@ function Get-AbrBackupvSphereStandAloneInfo {
                         }
                         $ViObjsInfo += $TempViObjsInfo
                     } catch {
-                        Write-Verbose -Message $_.Exception.Message
+                        Write-PScriboMessage $_.Exception.Message
                     }
                 }
             }
 
             return $ViObjsInfo
         } catch {
-            Write-Verbose -Message $_.Exception.Message
+            Write-PScriboMessage $_.Exception.Message
         }
     }
     end {}

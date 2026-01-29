@@ -48,15 +48,15 @@ function Get-AbrDiagBackupToRepo {
 
                             $LocalBackupRepoArray = Add-DiaHtmlNodeTable -Name 'LocalBackupRepoArray' -ImagesObj $Images -inputObject ($LocalBackupRepo | ForEach-Object { $_.Name.split('.')[0] }) -Align 'Center' -iconType 'VBR_Repository' -ColumnSize $LocalBackupRepoColumnSize -IconDebug $IconDebug -MultiIcon -AditionalInfo ($LocalBackupRepo.AditionalInfo ) -FontSize 18 -SubgraphFontBold
                         } catch {
-                            Write-Verbose 'Error: Unable to create Local Backup Repositories table Objects. Disabling the section'
-                            Write-Debug "Error Message: $($_.Exception.Message)"
+                            Write-PScriboMessage 'Error: Unable to create Local Backup Repositories table Objects. Disabling the section'
+                            Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                         }
                         try {
 
                             $LocalBackupRepoSubgraph = Add-DiaHtmlSubGraph -Name 'LocalBackupRepoSubgraph' -ImagesObj $Images -TableArray $LocalBackupRepoArray -Align 'Center' -IconDebug $IconDebug -Label 'Local Repositories' -LabelPos 'top' -FontColor $Fontcolor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -ColumnSize $LocalBackupRepoColumnSize -FontSize 24 -FontBold
                         } catch {
-                            Write-Verbose 'Error: Unable to create Local Backup Repositories Subgraph. Disabling the section'
-                            Write-Debug "Error Message: $($_.Exception.Message)"
+                            Write-PScriboMessage 'Error: Unable to create Local Backup Repositories Subgraph. Disabling the section'
+                            Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                         }
 
                         if ($LocalBackupRepoSubgraph) {
@@ -75,15 +75,15 @@ function Get-AbrDiagBackupToRepo {
 
                             $NASBackupRepoArray = Add-DiaHtmlNodeTable -Name 'NASBackupRepoArray' -ImagesObj $Images -inputObject ($NASBackupRepo | ForEach-Object { $_.Name.split('.')[0] }) -Align 'Center' -iconType 'VBR_NAS' -ColumnSize $NASBackupRepoColumnSize -IconDebug $IconDebug -MultiIcon -AditionalInfo ($NASBackupRepo.AditionalInfo ) -FontSize 18 -SubgraphFontBold
                         } catch {
-                            Write-Verbose 'Error: Unable to create NAS Backup Repositories table Objects. Disabling the section'
-                            Write-Debug "Error Message: $($_.Exception.Message)"
+                            Write-PScriboMessage 'Error: Unable to create NAS Backup Repositories table Objects. Disabling the section'
+                            Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                         }
 
                         try {
                             $NASBackupRepoSubgraph = Add-DiaHtmlSubGraph -Name 'NASBackupRepoSubgraph' -ImagesObj $Images -TableArray $NASBackupRepoArray -Align 'Center' -IconDebug $IconDebug -Label 'NAS Repositories' -LabelPos 'top' -FontColor $Fontcolor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -ColumnSize $NASBackupRepoColumnSize -FontSize 24 -FontBold
                         } catch {
-                            Write-Verbose 'Error: Unable to create NAS Backup Repositories Subgraph. Disabling the section'
-                            Write-Debug "Error Message: $($_.Exception.Message)"
+                            Write-PScriboMessage 'Error: Unable to create NAS Backup Repositories Subgraph. Disabling the section'
+                            Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                         }
 
                         if ($NASBackupRepoSubgraph) {
@@ -102,15 +102,15 @@ function Get-AbrDiagBackupToRepo {
 
                             $DedupBackupRepoArray = Add-DiaHtmlNodeTable -Name 'DedupBackupRepoArray' -ImagesObj $Images -inputObject ($DedupBackupRepo | ForEach-Object { $_.Name.split('.')[0] }) -Align 'Center' -iconType 'VBR_Deduplicating_Storage' -ColumnSize $DedupBackupRepoColumnSize -IconDebug $IconDebug -MultiIcon -AditionalInfo ($DedupBackupRepo.AditionalInfo ) -FontSize 18 -SubgraphFontBold
                         } catch {
-                            Write-Verbose 'Error: Unable to create Dedup Backup Repositories table Objects. Disabling the section'
-                            Write-Debug "Error Message: $($_.Exception.Message)"
+                            Write-PScriboMessage 'Error: Unable to create Dedup Backup Repositories table Objects. Disabling the section'
+                            Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                         }
 
                         try {
                             $DedupBackupRepoSubgraph = Add-DiaHtmlSubGraph -Name 'DedupBackupRepoSubgraph' -ImagesObj $Images -TableArray $DedupBackupRepoArray -Align 'Center' -IconDebug $IconDebug -Label 'Deduplicating Storage Appliances' -LabelPos 'top' -FontColor $Fontcolor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -ColumnSize $DedupBackupRepoColumnSize -FontSize 24 -FontBold
                         } catch {
-                            Write-Verbose 'Error: Unable to create Dedup Backup Repositories Subgraph. Disabling the section'
-                            Write-Debug "Error Message: $($_.Exception.Message)"
+                            Write-PScriboMessage 'Error: Unable to create Dedup Backup Repositories Subgraph. Disabling the section'
+                            Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                         }
 
                         if ($DedupBackupRepoSubgraph) {
@@ -128,15 +128,15 @@ function Get-AbrDiagBackupToRepo {
                         try {
                             $ObjStorageArray = Add-DiaHtmlNodeTable -Name 'ObjStorageArray' -ImagesObj $Images -inputObject ($ObjStorage | ForEach-Object { $_.Name.split('.')[0] }) -Align 'Center' -iconType 'VBR_Cloud_Repository' -ColumnSize $ObjStorageColumnSize -IconDebug $IconDebug -MultiIcon -AditionalInfo ($ObjStorage.AditionalInfo ) -FontSize 18 -SubgraphFontBold
                         } catch {
-                            Write-Verbose 'Error: Unable to create Object Repositories table Objects. Disabling the section'
-                            Write-Debug "Error Message: $($_.Exception.Message)"
+                            Write-PScriboMessage 'Error: Unable to create Object Repositories table Objects. Disabling the section'
+                            Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                         }
 
                         try {
                             $ObjStorageSubgraph = Add-DiaHtmlSubGraph -Name 'ObjStorageSubgraph' -ImagesObj $Images -TableArray $ObjStorageArray -Align 'Center' -IconDebug $IconDebug -Label 'Object Repositories' -LabelPos 'top' -FontColor $Fontcolor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -ColumnSize $ObjStorageColumnSize -FontSize 24 -FontBold
                         } catch {
-                            Write-Verbose 'Error: Unable to create Object Repositories Subgraph. Disabling the section'
-                            Write-Debug "Error Message: $($_.Exception.Message)"
+                            Write-PScriboMessage 'Error: Unable to create Object Repositories Subgraph. Disabling the section'
+                            Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                         }
 
                         if ($ObjStorageSubgraph) {
@@ -154,15 +154,15 @@ function Get-AbrDiagBackupToRepo {
                         try {
                             $ArchiveObjStorageArray = Add-DiaHtmlNodeTable -Name 'ArchiveObjStorageArray' -ImagesObj $Images -inputObject ($ArchiveObjStorage | ForEach-Object { $_.Name.split('.')[0] }) -Align 'Center' -iconType 'VBR_Cloud_Repository' -ColumnSize $ArchiveObjStorageColumnSize -IconDebug $IconDebug -MultiIcon -AditionalInfo ($ArchiveObjStorage.AditionalInfo ) -FontSize 18 -SubgraphFontBold
                         } catch {
-                            Write-Verbose 'Error: Unable to create Archive Object Repositories table Objects. Disabling the section'
-                            Write-Debug "Error Message: $($_.Exception.Message)"
+                            Write-PScriboMessage 'Error: Unable to create Archive Object Repositories table Objects. Disabling the section'
+                            Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                         }
                         try {
 
                             $ArchiveObjStorageSubgraph = Add-DiaHtmlSubGraph -Name 'ArchiveObjStorageSubgraph' -ImagesObj $Images -TableArray $ArchiveObjStorageArray -Align 'Center' -IconDebug $IconDebug -Label 'Archive Object Repositories' -LabelPos 'top' -FontColor $Fontcolor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -ColumnSize $ArchiveObjStorageColumnSize -FontSize 24 -FontBold
                         } catch {
-                            Write-Verbose 'Error: Unable to create Archive Object Repositories Subgraph. Disabling the section'
-                            Write-Debug "Error Message: $($_.Exception.Message)"
+                            Write-PScriboMessage 'Error: Unable to create Archive Object Repositories Subgraph. Disabling the section'
+                            Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                         }
 
                         if ($ArchiveObjStorageSubgraph) {
@@ -182,15 +182,15 @@ function Get-AbrDiagBackupToRepo {
 
                             $CloudBackupRepoArray = Add-DiaHtmlNodeTable -Name 'CloudBackupRepoArray' -ImagesObj $Images -inputObject ($CloudBackupRepo | ForEach-Object { $_.Name.split('.')[0] }) -Align 'Center' -iconType 'VBR_Cloud_Repository' -ColumnSize $CloudBackupRepoColumnSize -IconDebug $IconDebug -MultiIcon -AditionalInfo ($CloudBackupRepo.AditionalInfo ) -FontSize 18 -SubgraphFontBold
                         } catch {
-                            Write-Verbose 'Error: Unable to create Cloud Backup Repositories table Objects. Disabling the section'
-                            Write-Debug "Error Message: $($_.Exception.Message)"
+                            Write-PScriboMessage 'Error: Unable to create Cloud Backup Repositories table Objects. Disabling the section'
+                            Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                         }
                         try {
 
                             $CloudBackupRepoSubgraph = Add-DiaHtmlSubGraph -Name 'CloudBackupRepoSubgraph' -ImagesObj $Images -TableArray $CloudBackupRepoArray -Align 'Center' -IconDebug $IconDebug -Label 'Cloud Repositories' -LabelPos 'top' -FontColor $Fontcolor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -ColumnSize $CloudBackupRepoColumnSize -FontSize 24 -FontBold
                         } catch {
-                            Write-Verbose 'Error: Unable to create Cloud Backup Repositories Subgraph. Disabling the section'
-                            Write-Debug "Error Message: $($_.Exception.Message)"
+                            Write-PScriboMessage 'Error: Unable to create Cloud Backup Repositories Subgraph. Disabling the section'
+                            Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                         }
 
                         if ($CloudBackupRepoSubgraph) {
@@ -213,7 +213,7 @@ function Get-AbrDiagBackupToRepo {
                 }
             }
         } catch {
-            Write-Verbose -Message $_.Exception.Message
+            Write-PScriboMessage $_.Exception.Message
         }
     }
     end {}

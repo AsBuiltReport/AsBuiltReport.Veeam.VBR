@@ -39,8 +39,8 @@ function Get-AbrDiagBackupToCloudConnect {
 
                 $CloudConnectInfraArray += $CGServerNode
             } catch {
-                Write-Verbose 'Error: Unable to create CloudGateway server Objects. Disabling the section'
-                Write-Debug "Error Message: $($_.Exception.Message)"
+                Write-PScriboMessage 'Error: Unable to create CloudGateway server Objects. Disabling the section'
+                Write-PScriboMessage "Error Message: $($_.Exception.Message)"
             }
             if ($CGPoolInfo = Get-AbrBackupCGPoolInfo) {
                 try {
@@ -59,8 +59,8 @@ function Get-AbrDiagBackupToCloudConnect {
                         }
                     }
                 } catch {
-                    Write-Verbose 'Error: Unable to create CGPoolInfo Objects. Disabling the section'
-                    Write-Debug "Error Message: $($_.Exception.Message)"
+                    Write-PScriboMessage 'Error: Unable to create CGPoolInfo Objects. Disabling the section'
+                    Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                 }
                 try {
                     if ($CGPoolNode) {
@@ -76,8 +76,8 @@ function Get-AbrDiagBackupToCloudConnect {
                         $CloudConnectInfraArray += $CGPoolNodesSubGraph
                     }
                 } catch {
-                    Write-Verbose 'Error: Unable to create CGPoolInfo SubGraph Objects. Disabling the section'
-                    Write-Debug "Error Message: $($_.Exception.Message)"
+                    Write-PScriboMessage 'Error: Unable to create CGPoolInfo SubGraph Objects. Disabling the section'
+                    Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                 }
             }
 
@@ -94,8 +94,8 @@ function Get-AbrDiagBackupToCloudConnect {
 
                     $CloudConnectInfraArray += $CCBSNode
                 } catch {
-                    Write-Verbose 'Error: Unable to create CCBSNode Objects. Disabling the section'
-                    Write-Debug "Error Message: $($_.Exception.Message)"
+                    Write-PScriboMessage 'Error: Unable to create CCBSNode Objects. Disabling the section'
+                    Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                 }
             }
             if ($CCRRInfo = Get-AbrBackupCCReplicaResourcesInfo) {
@@ -111,8 +111,8 @@ function Get-AbrDiagBackupToCloudConnect {
 
                     $CloudConnectInfraArray += $CCRRNode
                 } catch {
-                    Write-Verbose 'Error: Unable to create CCRRNode Objects. Disabling the section'
-                    Write-Debug "Error Message: $($_.Exception.Message)"
+                    Write-PScriboMessage 'Error: Unable to create CCRRNode Objects. Disabling the section'
+                    Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                 }
             }
             if ($CCVCDRRInfo = Get-AbrBackupCCvCDReplicaResourcesInfo) {
@@ -128,8 +128,8 @@ function Get-AbrDiagBackupToCloudConnect {
 
                     $CloudConnectInfraArray += $CCVCDRRNode
                 } catch {
-                    Write-Verbose 'Error: Unable to create CCVCDRRNode Objects. Disabling the section'
-                    Write-Debug "Error Message: $($_.Exception.Message)"
+                    Write-PScriboMessage 'Error: Unable to create CCVCDRRNode Objects. Disabling the section'
+                    Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                 }
             }
         }
@@ -144,8 +144,8 @@ function Get-AbrDiagBackupToCloudConnect {
             try {
                 $CGServerSubGraph = Node -Name 'CloudConnectInfra' -Attributes @{Label = (Add-DiaHtmlSubGraph -Name 'CGServerSubGraph' -ImagesObj $Images -TableArray $CloudConnectInfraArray -Align 'Center' -IconDebug $IconDebug -IconType 'VBR_Cloud_Connect' -Label 'Cloud Connect Infrastructure' -LabelPos 'top' -FontColor $Fontcolor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -ColumnSize $CGServerSubGraphcolumnSize -FontSize 24 -FontBold); shape = 'plain'; fillColor = 'transparent'; fontsize = 14; fontname = 'Segoe Ui' }
             } catch {
-                Write-Verbose 'Error: Unable to create CloudConnectInfra SubGraph Objects. Disabling the section'
-                Write-Debug "Error Message: $($_.Exception.Message)"
+                Write-PScriboMessage 'Error: Unable to create CloudConnectInfra SubGraph Objects. Disabling the section'
+                Write-PScriboMessage "Error Message: $($_.Exception.Message)"
             }
 
             if ($CGServerSubGraph) {

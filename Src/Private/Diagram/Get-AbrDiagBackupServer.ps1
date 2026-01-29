@@ -22,11 +22,11 @@ function Get-AbrDiagBackupServer {
             $BackupServerInfoArray = @()
 
             if (( -not $DatabaseServerInfo.Name ) -and ( -not $EMServerInfo.Name ) -and ($BackupServerInfo.Name)) {
-                Write-Verbose -Message 'Collecting Backup Server Information.'
+                Write-PScriboMessage 'Collecting Backup Server Information.'
 
                 $BackupServerInfoArray += $BackupServerInfo.Label
             } elseif (($DatabaseServerInfo.Name -ne $BackupServerInfo.Name) -and ($EMServerInfo.Name -ne $BackupServerInfo.Name )) {
-                Write-Verbose -Message 'Collecting Backup Server, Database Server and Enterprise Manager Information.'
+                Write-PScriboMessage 'Collecting Backup Server, Database Server and Enterprise Manager Information.'
 
                 $BackupServerInfoArray += $EMServerInfo.Label
                 $BackupServerInfoArray += $BackupServerInfo.Spacer
@@ -34,29 +34,29 @@ function Get-AbrDiagBackupServer {
                 $BackupServerInfoArray += $BackupServerInfo.Spacer
                 $BackupServerInfoArray += $DatabaseServerInfo.Label
             } elseif (($DatabaseServerInfo.Name -ne $BackupServerInfo.Name) -and (-not $EMServerInfo)) {
-                Write-Verbose -Message 'Not Enterprise Manager Found: Collecting Backup Server and Database server Information.'
+                Write-PScriboMessage 'Not Enterprise Manager Found: Collecting Backup Server and Database server Information.'
 
                 $BackupServerInfoArray += $BackupServerInfo.Label
                 $BackupServerInfoArray += $BackupServerInfo.Spacer
                 $BackupServerInfoArray += $DatabaseServerInfo.Label
             } elseif (($EMServerInfo.Name -eq $BackupServerInfo.Name) -and ($DatabaseServerInfo.Name -eq $BackupServerInfo.Name)) {
-                Write-Verbose -Message 'Database and Enterprise Manager server collocated with Backup Server: Collecting Backup Server and Enterprise Manager Information.'
+                Write-PScriboMessage 'Database and Enterprise Manager server collocated with Backup Server: Collecting Backup Server and Enterprise Manager Information.'
 
                 $BackupServerInfoArray += $BackupServerInfo.Label
             } elseif (($EMServerInfo.Name -eq $BackupServerInfo.Name) -and ($DatabaseServerInfo.Name -ne $BackupServerInfo.Name)) {
-                Write-Verbose -Message 'Enterprise Maneger server colocated with Backup Server: Collecting Backup Server and Enterprise Manager Information.'
+                Write-PScriboMessage 'Enterprise Maneger server colocated with Backup Server: Collecting Backup Server and Enterprise Manager Information.'
 
                 $BackupServerInfoArray += $BackupServerInfo.Label
                 $BackupServerInfoArray += $BackupServerInfo.Spacer
                 $BackupServerInfoArray += $DatabaseServerInfo.Label
             } elseif ($EMServerInfo -and ($DatabaseServerInfo.Name -eq $BackupServerInfo.Name)) {
-                Write-Verbose -Message 'Database server colocated with Backup Server: Collecting Backup Server and Enterprise Manager Information.'
+                Write-PScriboMessage 'Database server colocated with Backup Server: Collecting Backup Server and Enterprise Manager Information.'
 
                 $BackupServerInfoArray += $EMServerInfo.Label
                 $BackupServerInfoArray += $BackupServerInfo.Spacer
                 $BackupServerInfoArray += $BackupServerInfo.Label
             } else {
-                Write-Verbose -Message 'Collecting Backup Server Information.'
+                Write-PScriboMessage 'Collecting Backup Server Information.'
                 $BackupServerInfoArray += $BackupServerInfo.Label
             }
 
@@ -74,7 +74,7 @@ function Get-AbrDiagBackupServer {
             }
 
         } catch {
-            Write-Verbose -Message $_.Exception.Message
+            Write-PScriboMessage $_.Exception.Message
         }
     }
     end {}

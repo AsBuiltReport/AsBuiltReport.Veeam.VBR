@@ -19,7 +19,7 @@ function Get-AbrBackupCCBackupStorageInfo {
     )
 
     process {
-        Write-Verbose -Message "Collecting Cloud Connect Backup Storage information from $($VBRServer)."
+        Write-PScriboMessage "Collecting Cloud Connect Backup Storage information from $($VBRServer)."
         try {
 
             $BackupCCBKStorageInfo = @()
@@ -54,7 +54,7 @@ function Get-AbrBackupCCBackupStorageInfo {
 
             return $BackupCCBKStorageInfo
         } catch {
-            Write-Verbose -Message $_.Exception.Message
+            Write-PScriboMessage $_.Exception.Message
             return $BackupCCBKStorageInfo
         }
     }

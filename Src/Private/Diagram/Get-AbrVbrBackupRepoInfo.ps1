@@ -19,7 +19,7 @@ function Get-AbrBackupRepoInfo {
     )
 
     process {
-        Write-Verbose -Message "Collecting Backup Repository information from $($VBRServer)."
+        Write-PScriboMessage "Collecting Backup Repository information from $($VBRServer)."
         try {
             [Array]$BackupRepos = Get-VBRBackupRepository
             [Array]$ScaleOuts = Get-VBRBackupRepository -ScaleOut
@@ -77,7 +77,7 @@ function Get-AbrBackupRepoInfo {
 
             return $BackupRepoInfo
         } catch {
-            Write-Verbose -Message $_.Exception.Message
+            Write-PScriboMessage $_.Exception.Message
         }
     }
     end {}
