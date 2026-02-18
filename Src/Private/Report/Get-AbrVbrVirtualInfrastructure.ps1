@@ -6,7 +6,7 @@ function Get-AbrVbrVirtualInfrastructure {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.24
+        Version:        0.8.26
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -84,7 +84,7 @@ function Get-AbrVbrVirtualInfrastructure {
                                                     $inObj = [ordered] @{
                                                         'Name' = $InventObj.Name
                                                         'Version' = ($InventObj).Info.Info
-                                                        #'Connected Vcenter' = (Find-VBRViEntity -Name $InventObj.Name).Path.split("\")[0]
+                                                        'Connected Vcenter' = (Invoke-FindVBRViEntityWithTimeout -Name $InventObj.Name).Path.split('\')[0]
                                                     }
 
                                                     $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
@@ -96,7 +96,7 @@ function Get-AbrVbrVirtualInfrastructure {
                                             $TableParams = @{
                                                 Name = "Esxi Hosts - $VeeamBackupServer"
                                                 List = $false
-                                                ColumnWidths = 40, 60
+                                                ColumnWidths = 40, 20, 40
                                             }
 
                                             if ($Report.ShowTableCaptions) {
