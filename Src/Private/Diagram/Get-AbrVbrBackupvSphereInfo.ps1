@@ -5,7 +5,7 @@ function Get-AbrBackupvSphereInfo {
     .DESCRIPTION
         Build a diagram of the configuration of Veeam VBR in PDF/PNG/SVG formats using Psgraph.
     .NOTES
-        Version:        0.8.24
+        Version:        0.8.26
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -27,7 +27,7 @@ function Get-AbrBackupvSphereInfo {
                 foreach ($HyObj in $HyObjs) {
                     Write-Verbose -Message "Collecting vSphere HyperVisor information from $($HyObj.Name)."
                     try {
-                        $ESXis = Find-VBRViEntity -Server $HyObj -HostsAndClusters | Where-Object { ($_.type -eq 'esx') }
+                        $ESXis = Invoke-FindVBRViEntityWithTimeout -Server $HyObj.Name -HostsAndClustersOnly | Where-Object { ($_.type -eq 'esx') }
 
                         $Rows = @{
                             IP = Get-NodeIP -Hostname $HyObj.Info.DnsName
@@ -42,7 +42,7 @@ function Get-AbrBackupvSphereInfo {
                             Label = Add-DiaNodeIcon -Name $HyObj.Name -IconType 'VBR_vCenter_Server' -Align 'Center' -Rows $Rows -ImagesObj $Images -IconDebug $IconDebug -FontSize 18 -FontBold
                             AditionalInfo = $Rows
                             Childs = & {
-                                $VIClusters = Find-VBRViEntity -Server $HyObj -HostsAndClusters | Where-Object { ($_.type -eq 'cluster') }
+                                $VIClusters = Invoke-FindVBRViEntityWithTimeout -Server $HyObj.Name -HostsAndClustersOnly | Where-Object { ($_.type -eq 'cluster') }
 
                                 foreach ($Cluster in $VIClusters) {
                                     [PSCustomObject]@{
