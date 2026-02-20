@@ -68,7 +68,7 @@
         "Inventory": {
             "EntraID": 1,
             "FileShare": 1,
-            "Nutanix": 0,
+            "Nutanix": 1,
             "PHY": 1,
             "VI": 1
         },
