@@ -12,8 +12,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### :arrows_clockwise: Changed
 
 - Update module version to `v0.8.26`
+- Upgrade AsBuiltReport.Core module to `v1.6.2`
 - Modify entity retrieval functions for improved timeout handling
 - Add timeout handling for vSphere inventory queries
+- Enable Nutanix Backup Job information collection
+
+### :bug: Fixed
+
+- Fix issue preventing the report to complete
 
 ## [0.8.25] - 2026-01-29
 

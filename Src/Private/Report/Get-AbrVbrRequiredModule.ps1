@@ -5,7 +5,7 @@ function Get-AbrVbrRequiredModule {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.24
+        Version:        0.8.26
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
