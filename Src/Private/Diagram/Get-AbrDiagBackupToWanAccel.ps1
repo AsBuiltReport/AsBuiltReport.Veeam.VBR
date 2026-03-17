@@ -36,7 +36,7 @@ function Get-AbrDiagBackupToWanAccel {
                         $WanAccelColumnSize = $WanAccel.Name.Count
                     }
 
-                    Node WanAccelServer @{Label = (Add-DiaHtmlNodeTable -Name 'WanAccelServer' -ImagesObj $Images -inputObject ($WanAccel | ForEach-Object { $_.Name.split('.')[0] }) -Align 'Center' -iconType 'VBR_Wan_Accel' -ColumnSize $WanAccelColumnSize -IconDebug $IconDebug -MultiIcon -AditionalInfo ($WanAccel.AditionalInfo ) -Subgraph -SubgraphIconType 'VBR_Wan_Accel' -SubgraphLabel 'Wan Accelerators' -SubgraphLabelPos 'top' -SubgraphTableStyle 'dashed,rounded' -FontColor '#000000' -TableBorderColor $Edgecolor -TableBorder '1' -FontSize 18 -SubgraphLabelFontColor $Fontcolor -SubgraphLabelFontSize 22 -SubgraphFontBold -FontBold); shape = 'plain'; fontsize = 14; fontname = 'Segoe Ui' }
+                    Node WanAccelServer @{Label = (Add-HtmlNodeTable -Name 'WanAccelServer' -ImagesObj $Images -inputObject ($WanAccel | ForEach-Object { $_.Name.split('.')[0] }) -Align 'Center' -iconType 'VBR_Wan_Accel' -ColumnSize $WanAccelColumnSize -IconDebug $IconDebug -MultiIcon -AditionalInfo ($WanAccel.AditionalInfo ) -Subgraph -SubgraphIconType 'VBR_Wan_Accel' -SubgraphLabel 'Wan Accelerators' -SubgraphLabelPos 'top' -SubgraphTableStyle 'dashed,rounded' -FontColor '#000000' -TableBorderColor $Edgecolor -TableBorder '1' -FontSize 18 -SubgraphLabelFontColor $Fontcolor -SubgraphLabelFontSize 22 -SubgraphFontBold -FontBold); shape = 'plain'; fontsize = 14; fontname = 'Segoe Ui' }
 
                     Edge BackupServers -To WanAccelServer @{minlen = 3 }
 

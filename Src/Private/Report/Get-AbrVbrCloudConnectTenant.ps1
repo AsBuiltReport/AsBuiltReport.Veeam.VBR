@@ -468,7 +468,7 @@ function Get-AbrVbrCloudConnectTenant {
                                                         Write-PScriboMessage -IsWarning "Backup CloudConnect Tenant $($CloudObject.Name) Diagram: $($_.Exception.Message)"
                                                     }
                                                     if ($Graph) {
-                                                        $BestAspectRatio = Get-DiaBestImageAspectRatio -GraphObj $Graph -MaxWidth 600
+                                                        $BestAspectRatio = Get-BestImageAspectRatio -GraphObj $Graph -MaxWidth 600
                                                         Section -Style Heading6 'Diagram' {
                                                             Image -Base64 $Graph -Text 'Backup CloudConnect Tenant Diagram' -Align Center -Width $BestAspectRatio.Width -Height $BestAspectRatio.Height
                                                         }

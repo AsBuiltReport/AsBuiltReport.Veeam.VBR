@@ -90,9 +90,9 @@ function Get-AbrVbrRequiredModule {
         $RequiredModule = Get-Module -ListAvailable -Name $Name
         $ModuleVersion = '{0}.{1}' -f $RequiredModule.Version.Major, $RequiredModule.Version.Minor
 
-        if ($ModuleVersion -ge 13) {
-            throw 'Veeam Backup & Replication v13 in any variant (Windows or Appliance) is not supported. Veeam Backup & Replication v13 introduces several new features and improvements, one of which is support for .Net Core. To support this version of .Net, it is necessary to update the AsBuiltReport.Veeam.VBR report to work in PowerShell v7. This effort requires many hours of work that place an additional burden on my already heavy work schedule. If you wish to support this effort, please do not hesitate to donate! https://ko-fi.com/jcolonfzenpr/goal?g=0'
-        }
+        # if ($ModuleVersion -ge 13) {
+        #     throw 'Veeam Backup & Replication v13 in any variant (Windows or Appliance) is not supported. Veeam Backup & Replication v13 introduces several new features and improvements, one of which is support for .Net Core. To support this version of .Net, it is necessary to update the AsBuiltReport.Veeam.VBR report to work in PowerShell v7. This effort requires many hours of work that place an additional burden on my already heavy work schedule. If you wish to support this effort, please do not hesitate to donate! https://ko-fi.com/jcolonfzenpr/goal?g=0'
+        # }
 
         if ($ModuleVersion -eq '.') {
             if ($ClientOSVersion -eq 'Unix') {

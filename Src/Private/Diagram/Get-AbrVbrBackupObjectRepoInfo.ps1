@@ -61,7 +61,7 @@ function Get-AbrBackupObjectRepoInfo {
 
                     $TempObjStorageInfo = [PSCustomObject]@{
                         Name = "$($ObjStorage.Name)"
-                        Label = Add-DiaNodeIcon -Name $($ObjStorage.Name) -IconType 'VBR_Cloud_Repository' -Align 'Center' -Rows $Rows -ImagesObj $Images -IconDebug $IconDebug -FontBold
+                        Label = Add-NodeIcon -Name $($ObjStorage.Name) -IconType 'VBR_Cloud_Repository' -Align 'Center' -Rows $Rows -ImagesObj $Images -IconDebug $IconDebug -FontBold
                         AditionalInfo = $Rows
                     }
                     $ObjStorageInfo += $TempObjStorageInfo

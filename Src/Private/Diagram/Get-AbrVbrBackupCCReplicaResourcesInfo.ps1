@@ -45,7 +45,7 @@ function Get-AbrBackupCCReplicaResourcesInfo {
 
                     $TempBackupCCReplicaResourcesInfo = [PSCustomObject]@{
                         Name = $CloudObject.Name
-                        Label = Add-DiaNodeIcon -Name "$((Remove-SpecialChar -String $CloudObject.Name.split('.')[0] -SpecialChars '\').toUpper())" -IconType 'VBR_Hardware_Resources' -Align 'Center' -AditionalInfo $AditionalInfo -ImagesObj $Images -IconDebug $IconDebug -FontSize 18 -FontBold
+                        Label = Add-NodeIcon -Name "$((Remove-SpecialCharacter -String $CloudObject.Name.split('.')[0] -SpecialChars '\').toUpper())" -IconType 'VBR_Hardware_Resources' -Align 'Center' -AditionalInfo $AditionalInfo -ImagesObj $Images -IconDebug $IconDebug -FontSize 18 -FontBold
                         Id = $CloudObject.Id
                         AditionalInfo = $AditionalInfo
                         Host = & {
@@ -74,7 +74,7 @@ function Get-AbrBackupCCReplicaResourcesInfo {
                                 Path = $CloudObject.Host.Path
                                 IconType = $IconType
                                 AditionalInfo = $AditionalInfo
-                                Label = Add-DiaNodeIcon -Name "$((Remove-SpecialChar -String $CloudObject.Host.Name.split('.')[0] -SpecialChars '\').toUpper())" -IconType 'VBR_Hardware_Resources' -Align 'Center' -AditionalInfo $AditionalInfo -ImagesObj $Images -IconDebug $IconDebug -FontSize 18 -FontBold
+                                Label = Add-NodeIcon -Name "$((Remove-SpecialCharacter -String $CloudObject.Host.Name.split('.')[0] -SpecialChars '\').toUpper())" -IconType 'VBR_Hardware_Resources' -Align 'Center' -AditionalInfo $AditionalInfo -ImagesObj $Images -IconDebug $IconDebug -FontSize 18 -FontBold
                             }
                         }
                         Storage = & {
@@ -99,7 +99,7 @@ function Get-AbrBackupCCReplicaResourcesInfo {
                                     Platform = $_.Platform
                                     Datastore = $_.Datastore.Name
                                     AditionalInfo = $AditionalInfo
-                                    Label = Add-DiaNodeIcon -Name $_.FriendlyName -IconType 'VBR_Cloud_Storage' -Align 'Center' -AditionalInfo $AditionalInfo -ImagesObj $Images -IconDebug $IconDebug -FontSize 18 -FontBold
+                                    Label = Add-NodeIcon -Name $_.FriendlyName -IconType 'VBR_Cloud_Storage' -Align 'Center' -AditionalInfo $AditionalInfo -ImagesObj $Images -IconDebug $IconDebug -FontSize 18 -FontBold
 
                                 }
                             }

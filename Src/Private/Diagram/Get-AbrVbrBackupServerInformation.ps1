@@ -85,7 +85,7 @@ function Get-AbrBackupServerInformation {
                 $DBType = $VeeamInfo.DBFlavor.SqlActiveConfiguration
 
                 $Rows = [ordered] @{
-                    IP = Get-NodeIP -Hostname $VBRServer
+                    IP = Get-AbrNodeIP -Hostname $VBRServer
                     Role = $Roles
                 }
 
@@ -105,15 +105,15 @@ function Get-AbrBackupServerInformation {
 
                 $script:BackupServerInfo = [PSCustomObject]@{
                     Name = $VBRServer.split('.')[0]
-                    Label = Add-DiaNodeIcon -Name "$($VBRServer.split('.')[0])" -IconType 'VBR_Server' -Align 'Center' -RowsOrdered $Rows -ImagesObj $Images -IconDebug $IconDebug -FontSize 18 -FontBold -TableBackgroundColor $BackupServerBGColor -CellBackgroundColor $BackupServerBGColor
-                    Spacer = Add-DiaNodeIcon -Name ' ' -IconType 'VBR_Bid_Arrow' -Align 'Center' -ImagesObj $Images -IconDebug $IconDebug -TableBackgroundColor $BackupServerBGColor -CellBackgroundColor $BackupServerBGColor
+                    Label = Add-NodeIcon -Name "$($VBRServer.split('.')[0])" -IconType 'VBR_Server' -Align 'Center' -RowsOrdered $Rows -ImagesObj $Images -IconDebug $IconDebug -FontSize 18 -FontBold -TableBackgroundColor $BackupServerBGColor -CellBackgroundColor $BackupServerBGColor
+                    Spacer = Add-NodeIcon -Name ' ' -IconType 'VBR_Bid_Arrow' -Align 'Center' -ImagesObj $Images -IconDebug $IconDebug -TableBackgroundColor $BackupServerBGColor -CellBackgroundColor $BackupServerBGColor
                 }
             }
 
             $DatabaseServer = $VeeamDBInfo
             if ($DatabaseServer) {
                 $DBPort = if ($VeeamInfo.DBFlavor.SqlActiveConfiguration -eq 'PostgreSql') { "$($VeeamInfo.DBInfo12.SqlHostPort)/TCP" } else { '1433/TCP' }
-                $DatabaseServerIP = Get-NodeIP -Hostname $DatabaseServer
+                $DatabaseServerIP = Get-AbrNodeIP -Hostname $DatabaseServer
 
                 $Rows = [ordered] @{
                     IP = $DatabaseServerIP
@@ -137,14 +137,14 @@ function Get-AbrBackupServerInformation {
 
                 $script:DatabaseServerInfo = [PSCustomObject]@{
                     Name = $DatabaseServer.split('.')[0]
-                    Label = Add-DiaNodeIcon -Name "$($DatabaseServer.split('.')[0])" -IconType $DBIconType -Align 'Center' -RowsOrdered $Rows -ImagesObj $Images -IconDebug $IconDebug -FontSize 18 -FontBold -TableBackgroundColor $BackupServerBGColor -CellBackgroundColor $BackupServerBGColor
+                    Label = Add-NodeIcon -Name "$($DatabaseServer.split('.')[0])" -IconType $DBIconType -Align 'Center' -RowsOrdered $Rows -ImagesObj $Images -IconDebug $IconDebug -FontSize 18 -FontBold -TableBackgroundColor $BackupServerBGColor -CellBackgroundColor $BackupServerBGColor
                     DBPort = $DBPort
                 }
             }
 
             $EMServer = [Veeam.Backup.Core.SBackupOptions]::GetEnterpriseServerInfo()
             if ($EMServer.ServerName) {
-                $EMServerIP = Get-NodeIP -Hostname $EMServer.ServerName
+                $EMServerIP = Get-AbrNodeIP -Hostname $EMServer.ServerName
 
                 $Rows = [PSCustomObject] [ordered] @{
                     IP = $EMServerIP
@@ -153,7 +153,7 @@ function Get-AbrBackupServerInformation {
 
                 $script:EMServerInfo = [PSCustomObject]@{
                     Name = $EMServer.ServerName.split('.')[0]
-                    Label = Add-DiaNodeIcon -Name "$($EMServer.ServerName.split('.')[0])" -IconType 'VBR_Server_EM' -Align 'Center' -Rows $Rows -ImagesObj $Images -IconDebug $IconDebug -FontSize 18 -FontBold -TableBackgroundColor $BackupServerBGColor -CellBackgroundColor $BackupServerBGColor
+                    Label = Add-NodeIcon -Name "$($EMServer.ServerName.split('.')[0])" -IconType 'VBR_Server_EM' -Align 'Center' -Rows $Rows -ImagesObj $Images -IconDebug $IconDebug -FontSize 18 -FontBold -TableBackgroundColor $BackupServerBGColor -CellBackgroundColor $BackupServerBGColor
                 }
             }
         } catch {

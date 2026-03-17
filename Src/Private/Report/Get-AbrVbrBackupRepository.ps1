@@ -22,12 +22,12 @@ function Get-AbrVbrBackupRepository {
 
     begin {
         Write-PScriboMessage "Discovering Veeam VBR Backup Repository information from $System."
-        Show-AbrDebugExecutionTime -Start -TitleMessage "Backup Repository"
+        Show-AbrDebugExecutionTime -Start -TitleMessage 'Backup Repository'
     }
 
     process {
         try {
-            [Array]$BackupRepos = Get-VBRBackupRepository | Where-Object { $_.Type -ne "SanSnapshotOnly" } | Sort-Object -Property Name
+            [Array]$BackupRepos = Get-VBRBackupRepository | Where-Object { $_.Type -ne 'SanSnapshotOnly' } | Sort-Object -Property Name
             [Array]$ScaleOuts = Get-VBRBackupRepository -ScaleOut | Sort-Object -Property Name
             if ($ScaleOuts) {
                 $Extents = Get-VBRRepositoryExtent -Repository $ScaleOuts | Sort-Object -Property Name
@@ -81,95 +81,23 @@ function Get-AbrVbrBackupRepository {
 
                 if ($OutObj) {
                     Section -Style Heading3 'Backup Repository' {
-                        Paragraph "The following section provides Backup Repository summary information."
+                        Paragraph 'The following section provides Backup Repository summary information.'
                         BlankLine
                         try {
                             $sampleData = $OutObj | Select-Object Name, 'Used Space %', 'Free Space %'
 
-                            $CustomPalette1 = @(
-                                [System.Drawing.ColorTranslator]::FromHtml('#565656')
-
-                            )
-                            if ($Options.ReportStyle -eq "Veeam") {
-                                $CustomPalette = @(
-                                    [System.Drawing.ColorTranslator]::FromHtml('#565656')
-                                    [System.Drawing.ColorTranslator]::FromHtml('#DFF0D0')
-                                )
-                                $CustomPalette2 = @(
-                                    [System.Drawing.ColorTranslator]::FromHtml('#DFF0D0')
-                                )
-                            } else {
-                                $CustomPalette = @(
-                                    [System.Drawing.ColorTranslator]::FromHtml('#565656')
-                                    [System.Drawing.ColorTranslator]::FromHtml('#d5e2ff')
-                                )
-                                $CustomPalette2 = @(
-                                    [System.Drawing.ColorTranslator]::FromHtml('#d5e2ff')
-                                )
-                            }
-                            $exampleChart = New-Chart -Name BKRepo -Width 600 -Height 600 -BorderStyle Dash -BorderWidth 1 -CustomPalette $CustomPalette -BorderColor DarkGreen
-
-                            $addChartAreaParams = @{
-                                Chart = $exampleChart
-                                Name = 'exampleChartArea'
-                                AxisXTitle = 'Backup Repositories'
-                                AxisYTitle = '%'
-                                NoAxisXMajorGridLines = $true
-                                NoAxisYMajorGridLines = $true
-                                AxisXLabelFont = New-Object -TypeName 'System.Drawing.Font' -ArgumentList @('Segoe Ui', '8')
-                                AxisXTitleFont = New-Object -TypeName 'System.Drawing.Font' -ArgumentList @('Segoe Ui', '10')
-                                AxisYLabelFont = New-Object -TypeName 'System.Drawing.Font' -ArgumentList @('Segoe Ui', '8')
-                                AxisYTitleFont = New-Object -TypeName 'System.Drawing.Font' -ArgumentList @('Segoe Ui', '10')
-                                NoAxisYMargin = $true
-                                AxisXInterval = 1
-                            }
-                            $exampleChartArea = Add-ChartArea @addChartAreaParams -PassThru
-
-                            $addChartSeriesParams = @{
-                                Chart = $exampleChart
-                                ChartArea = $exampleChartArea
-                                XField = 'Name'
-                                ColorPerDataPoint = $true
+                            $chartLabels = [string[]]$sampleData.Name
+                            $chartCategories = @('Used Space %', 'Free Space %')
+                            $chartUsedValues = [double[]]@($sampleData.'Used Space %')
+                            $chartFreeValues = [double[]]@($sampleData.'Free Space %')
+                            $chartValues = @()
+                            foreach ($i in $chartLabels) {
+                                $chartValues += , @($chartUsedValues[$chartLabels.IndexOf($i)], $chartFreeValues[$chartLabels.IndexOf($i)])
                             }
 
-                            $sampleData | Add-StackedBarChartSeries @addChartSeriesParams -Name 'USEDSPACE' -YField 'Used Space %' -LegendText 'Used' -CustomPalette $CustomPalette1 -LabelForeColor 'White'
-                            $sampleData | Add-StackedBarChartSeries @addChartSeriesParams -Name 'FREESPACE' -YField 'Free Space %' -LegendText 'Free' -CustomPalette $CustomPalette2
-                            $addChartTitleParams = @{
-                                Chart = $exampleChart
-                                ChartArea = $exampleChartArea
-                                Name = 'PercentUsedSpace'
-                                Text = '% Space Utilization'
-                                Font = New-Object -TypeName 'System.Drawing.Font' -ArgumentList @('Segoe Ui', '12', [System.Drawing.FontStyle]::Bold)
-                            }
+                            $statusCustomPalette = @('#DFF0D0', '#FFF4C7', '#FEDDD7', '#878787')
 
-                            Add-ChartTitle @addChartTitleParams
-
-                            $addChartLegendParams = @{
-                                Chart = $exampleChart
-                                Name = 'Repository Utilization'
-                                TitleAlignment = 'Center'
-                                Style = 'Row'
-                                Font = New-Object -TypeName 'System.Drawing.Font' -ArgumentList @('Segoe Ui', '8')
-                                Dock = 'Bottom'
-                            }
-                            Add-ChartLegend @addChartLegendParams
-
-                            $TempPath = Resolve-Path ([System.IO.Path]::GetTempPath())
-
-                            $ChartImage = Export-Chart -Chart $exampleChart -Path $TempPath.Path -Format "PNG" -PassThru
-
-                            try {
-                                $chartFileItemByte = switch ($PSVersionTable.PSEdition) {
-                                    'Desktop' { Get-Content $ChartImage -Encoding byte }
-                                    'Core' { Get-Content $ChartImage -AsByteStream -Raw }
-                                }
-
-                                $chartFileItem = [convert]::ToBase64String($chartFileItemByte)
-                            } catch {
-                                Write-PScriboMessage -IsWarning "Backup Repository Base64String: $($_.Exception.Message)"
-                            }
-
-                            Remove-Item -Path $ChartImage.FullName
+                            $chartFileItem = New-StackedBarChart -Title '% Space Utilization' -Values $chartValues -Labels $chartLabels -LegendCategories $chartCategories -EnableCustomColorPalette -CustomColorPalette $statusCustomPalette -Width 600 -Height 600 -Format base64 -TitleFontBold -TitleFontSize 16 -AreaOrientation Horizontal -LabelXAxis 'Backup Repositories' -LabelYAxis 'Percentage'
                         } catch {
                             Write-PScriboMessage -IsWarning "Backup Repository graph Section: $($_.Exception.Message)"
                         }
@@ -185,8 +113,8 @@ function Get-AbrVbrBackupRepository {
                         #---------------------------------------------------------------------------------------------#
                         if ($InfoLevel.Infrastructure.BR -ge 2) {
                             try {
-                                Section -Style Heading4 "Backup Repository Configuration" {
-                                    Paragraph "The following section provides a detailed information of the Veeam Backup Repository Configuration."
+                                Section -Style Heading4 'Backup Repository Configuration' {
+                                    Paragraph 'The following section provides a detailed information of the Veeam Backup Repository Configuration.'
                                     BlankLine
                                     foreach ($BackupRepo in $BackupRepos) {
                                         try {
@@ -274,11 +202,11 @@ function Get-AbrVbrBackupRepository {
                                                 $OutObj | Table @TableParams
 
                                                 if (($HealthCheck.Infrastructure.BestPractice) -and ($OutObj | Where-Object { $_.'Immutability Supported' -eq 'Yes' -and $_.'Immutability Enabled' -eq 'No' })) {
-                                                    Paragraph "Health Check:" -Bold -Underline
+                                                    Paragraph 'Health Check:' -Bold -Underline
                                                     BlankLine
                                                     Paragraph {
-                                                        Text "Best Practice:" -Bold
-                                                        Text "Veeam recommend to implement Immutability where it is supported. It is done for increased security: immutability protects your data from loss as a result of attacks, malware activity or any other injurious actions."
+                                                        Text 'Best Practice:' -Bold
+                                                        Text 'Veeam recommend to implement Immutability where it is supported. It is done for increased security: immutability protects your data from loss as a result of attacks, malware activity or any other injurious actions.'
                                                     }
                                                     BlankLine
                                                 }
@@ -300,7 +228,7 @@ function Get-AbrVbrBackupRepository {
         }
     }
     end {
-        Show-AbrDebugExecutionTime -End -TitleMessage "Backup Repository"
+        Show-AbrDebugExecutionTime -End -TitleMessage 'Backup Repository'
     }
 
 }

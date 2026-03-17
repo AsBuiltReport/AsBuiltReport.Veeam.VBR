@@ -46,7 +46,7 @@ function Get-AbrBackupSobrInfo {
                         }
 
                         $SobrsExtents += [ordered]@{
-                            Name = Remove-SpecialChar -String $Extent.Name -SpecialChars '\'
+                            Name = Remove-SpecialCharacter -String $Extent.Name -SpecialChars '\'
                             IconType = Get-AbrIconType -String $Extent.Repository.Type
                             AditionalInfo = $PerformanceRows
                         }
@@ -88,7 +88,7 @@ function Get-AbrBackupSobrInfo {
                         }
 
                         $SobrsCapacityExtents += [ordered]@{
-                            Name = Remove-SpecialChar -String $CapacityExtent.Repository.Name -SpecialChars '\'
+                            Name = Remove-SpecialCharacter -String $CapacityExtent.Repository.Name -SpecialChars '\'
                             IconType = Get-AbrIconType -String $CapacityExtent.Repository.Type
                             AditionalInfo = $CapacityRows
                         }
@@ -130,11 +130,11 @@ function Get-AbrBackupSobrInfo {
 
                     $TempSobrInfo = [PSCustomObject]@{
                         Name = "$($Sobr.Name.toUpper())"
-                        Label = Add-DiaNodeIcon -Name "$($Sobr.Name)" -IconType 'VBR_SOBR_Repo' -Align 'Center' -Rows $SobrRows -ImagesObj $Images -IconDebug $IconDebug -FontSize 16 -FontBold
+                        Label = Add-NodeIcon -Name "$($Sobr.Name)" -IconType 'VBR_SOBR_Repo' -Align 'Center' -Rows $SobrRows -ImagesObj $Images -IconDebug $IconDebug -FontSize 16 -FontBold
 
                         Capacity = $SobrsCapacityExtents
 
-                        Archive = $Sobr.ArchiveExtent.Repository | Select-Object -Property @{Name = 'Name'; Expression = { Remove-SpecialChar -String $_.Name -SpecialChars '\' } }, @{Name = 'AditionalInfo'; Expression = { $ArchiveRows } }, @{Name = 'IconType'; Expression = { Get-AbrIconType -String $_.ArchiveType } }
+                        Archive = $Sobr.ArchiveExtent.Repository | Select-Object -Property @{Name = 'Name'; Expression = { Remove-SpecialCharacter -String $_.Name -SpecialChars '\' } }, @{Name = 'AditionalInfo'; Expression = { $ArchiveRows } }, @{Name = 'IconType'; Expression = { Get-AbrIconType -String $_.ArchiveType } }
 
                         Performance = $SobrsExtents
                     }

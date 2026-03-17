@@ -28,7 +28,7 @@ function Get-AbrBackupvSphereStandAloneInfo {
                 foreach ($ViObj in $ViObjs) {
                     try {
                         $Rows = @{
-                            IP = Get-NodeIP -Hostname $ViObj.Info.DnsName
+                            IP = Get-AbrNodeIP -Hostname $ViObj.Info.DnsName
                             Version = switch ([string]::IsNullOrEmpty($ViObj.Info.ViVersion)) {
                                 $true { 'Unknown' }
                                 $false { $ViObj.Info.ViVersion }
@@ -38,7 +38,7 @@ function Get-AbrBackupvSphereStandAloneInfo {
 
                         $TempViObjsInfo = [PSCustomObject]@{
                             Name = $ViObj.Name
-                            Label = Add-DiaNodeIcon -Name $ViObj.Name -IconType 'VBR_ESXi_Server' -Align 'Center' -Rows $Rows -ImagesObj $Images -IconDebug $IconDebug -FontBold
+                            Label = Add-NodeIcon -Name $ViObj.Name -IconType 'VBR_ESXi_Server' -Align 'Center' -Rows $Rows -ImagesObj $Images -IconDebug $IconDebug -FontBold
                             AditionalInfo = $Rows
                         }
                         $ViObjsInfo += $TempViObjsInfo

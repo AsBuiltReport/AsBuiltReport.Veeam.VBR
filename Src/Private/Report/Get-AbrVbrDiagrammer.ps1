@@ -126,7 +126,7 @@ function Get-AbrVbrDiagrammer {
                     } else {
                         $Graph = & {
                             if ($Tenant) {
-                                New-AbrVeeamDiagram @DiagramParams -DiagramType $DiagramType -Format $Format -Filename "AsBuiltReport.Veeam.VBR-$($DiagramTypeHash[$DiagramType])-$(Remove-SpecialChar -String $Tenant -SpecialChars '\').$($Format)"
+                                New-AbrVeeamDiagram @DiagramParams -DiagramType $DiagramType -Format $Format -Filename "AsBuiltReport.Veeam.VBR-$($DiagramTypeHash[$DiagramType])-$(Remove-SpecialCharacter -String $Tenant -SpecialChars '\').$($Format)"
                             } else {
                                 New-AbrVeeamDiagram @DiagramParams -DiagramType $DiagramType -Format $Format -Filename "AsBuiltReport.Veeam.VBR-$($DiagramTypeHash[$DiagramType]).$($Format)"
                             }
@@ -135,7 +135,7 @@ function Get-AbrVbrDiagrammer {
                             if ($ExportPath) {
                                 $FilePath = & {
                                     if ($Tenant) {
-                                        Join-Path -Path $OutputFolderPath -ChildPath "AsBuiltReport.Veeam.VBR-$($DiagramTypeHash[$DiagramType])-$(Remove-SpecialChar -String $Tenant -SpecialChars '\').$($Format)"
+                                        Join-Path -Path $OutputFolderPath -ChildPath "AsBuiltReport.Veeam.VBR-$($DiagramTypeHash[$DiagramType])-$(Remove-SpecialCharacter -String $Tenant -SpecialChars '\').$($Format)"
                                     } else {
                                         Join-Path -Path $OutputFolderPath -ChildPath "AsBuiltReport.Veeam.VBR-$($DiagramTypeHash[$DiagramType]).$($Format)"
                                     }
@@ -147,7 +147,7 @@ function Get-AbrVbrDiagrammer {
                                 }
                             } else {
                                 if ($Tenant) {
-                                    Write-Information "Saved 'AsBuiltReport.Veeam.VBR-$($DiagramTypeHash[$DiagramType])-$(Remove-SpecialChar -String $Tenant -SpecialChars '\').$($Format)' diagram to '$($OutputFolderPath)'." -InformationAction Continue
+                                    Write-Information "Saved 'AsBuiltReport.Veeam.VBR-$($DiagramTypeHash[$DiagramType])-$(Remove-SpecialCharacter -String $Tenant -SpecialChars '\').$($Format)' diagram to '$($OutputFolderPath)'." -InformationAction Continue
                                 } else {
                                     Write-Information "Saved 'AsBuiltReport.Veeam.VBR-$($DiagramTypeHash[$DiagramType]).$($Format)' diagram to '$($OutputFolderPath)'." -InformationAction Continue
                                 }

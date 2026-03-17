@@ -87,16 +87,19 @@ function Get-AbrVbrBackupjob {
                         'None' = ($Alljobs | Where-Object { $_ -eq 'None' } | Measure-Object).Count
                     }
 
-                    $sampleDataObj = $sampleData.GetEnumerator() | Select-Object @{ Name = 'Category'; Expression = { $_.key } }, @{ Name = 'Value'; Expression = { $_.value } }
+                    $chartLabels = [string[]]$sampleData.Keys
+                    $chartValues = [double[]]$sampleData.Values
 
-                    $chartFileItem = Get-ColumnChart -Status -SampleData $sampleDataObj -ChartName 'BackupJobs' -XField 'Category' -YField 'Value' -ChartAreaName 'Infrastructure' -AxisXTitle 'Status' -AxisYTitle 'Count' -ChartTitleName 'BackupJobs' -ChartTitleText 'Jobs Latest Result'
+                    $statusCustomPalette = @('#DFF0D0', '#FFF4C7', '#FEDDD7', '#878787')
+
+                    $chartFileItem = New-BarChart -Title 'Jobs Latest Result' -Values $chartValues -Labels $chartLabels -LabelXAxis 'Category' -LabelYAxis 'Value' -EnableCustomColorPalette -CustomColorPalette $statusCustomPalette -Width 600 -Height 400 -Format base64 -EnableLegend -LegendOrientation Horizontal -LegendAlignment UpperCenter -AxesMarginsTop 0.5 -TitleFontBold -TitleFontSize 16
 
                 } catch {
                     Write-PScriboMessage -IsWarning "Backup Jobs chart section: $($_.Exception.Message)"
                 }
                 if ($OutObj) {
                     if ($chartFileItem) {
-                        Image -Text 'Backup Repository - Chart' -Align 'Center' -Percent 100 -Base64 $chartFileItem
+                        Image -Text 'Backup Jobs - Chart' -Align 'Center' -Percent 100 -Base64 $chartFileItem
                     }
                     Section -Style Heading3 'Backup Jobs' {
                         Paragraph 'The following section list backup jobs created in Veeam Backup & Replication.'

@@ -28,7 +28,7 @@ function Get-AbrBackupWanAccelInfo {
                 foreach ($WANACCEL in $WANACCELS) {
 
                     $AdditionalInfo = [PSCustomObject]@{
-                        IP = Get-NodeIP -Hostname $WANACCEL.Name
+                        IP = Get-AbrNodeIP -Hostname $WANACCEL.Name
                         TrafficPort = "$($WANAccel.GetWaTrafficPort())/TCP"
                         'Cache Path' = & {
                             if ($WANAccel.FindWaHostComp().Options.CachePath) {
@@ -50,7 +50,7 @@ function Get-AbrBackupWanAccelInfo {
 
                     $TempWANACCELInfo = [PSCustomObject]@{
                         Name = "$($WANACCEL.Name.toUpper().split('.')[0])";
-                        Label = Add-DiaNodeIcon -Name "$($WANACCEL.Name.toUpper().split('.')[0])" -IconType 'VBR_Wan_Accel' -Align 'Center' -Rows $AdditionalInfo -ImagesObj $Images -IconDebug $IconDebug -FontBold
+                        Label = Add-NodeIcon -Name "$($WANACCEL.Name.toUpper().split('.')[0])" -IconType 'VBR_Wan_Accel' -Align 'Center' -Rows $AdditionalInfo -ImagesObj $Images -IconDebug $IconDebug -FontBold
                         AditionalInfo = $AdditionalInfo
                         IconType = 'VBR_Wan_Accel'
                     }

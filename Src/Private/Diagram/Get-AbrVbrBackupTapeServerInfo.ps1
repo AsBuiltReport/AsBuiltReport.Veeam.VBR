@@ -29,7 +29,7 @@ function Get-AbrBackupTapeServerInfo {
                 foreach ($TapeServer in $TapeServers) {
 
                     $Rows = @{
-                        IP = Get-NodeIP -Hostname $TapeServer.Name
+                        IP = Get-AbrNodeIP -Hostname $TapeServer.Name
                         Role = 'Tape Server'
                         State = switch ($TapeServer.IsAvailable) {
                             'True' { 'Available' }
@@ -40,7 +40,7 @@ function Get-AbrBackupTapeServerInfo {
 
                     $TempBackupTapeServersInfo = [PSCustomObject]@{
                         Name = $TapeServer.Name
-                        Label = Add-DiaNodeIcon -Name "$((Remove-SpecialChar -String $TapeServer.Name.split('.')[0] -SpecialChars '\').toUpper())" -IconType 'VBR_Tape_Server' -Align 'Center' -Rows $Rows -ImagesObj $Images -IconDebug $IconDebug -FontSize 18 -FontBold
+                        Label = Add-NodeIcon -Name "$((Remove-SpecialCharacter -String $TapeServer.Name.split('.')[0] -SpecialChars '\').toUpper())" -IconType 'VBR_Tape_Server' -Align 'Center' -Rows $Rows -ImagesObj $Images -IconDebug $IconDebug -FontSize 18 -FontBold
                         Id = $TapeServer.Id
                     }
 

@@ -53,7 +53,7 @@ function Get-AbrBackupCCvCDReplicaResourcesInfo {
 
                     $TempBackupCCvCDReplicaResourcesInfo = [PSCustomObject]@{
                         Name = $CloudObject.OrganizationvDCName
-                        Label = Add-DiaNodeIcon -Name $CloudObject.OrganizationvDCName -IconType 'VBR_Cloud_Connect_vCD' -Align 'Center' -AditionalInfo $AditionalInfo -ImagesObj $Images -IconDebug $IconDebug -FontSize 18 -FontBold
+                        Label = Add-NodeIcon -Name $CloudObject.OrganizationvDCName -IconType 'VBR_Cloud_Connect_vCD' -Align 'Center' -AditionalInfo $AditionalInfo -ImagesObj $Images -IconDebug $IconDebug -FontSize 18 -FontBold
                         Id = $CloudObject.OrganizationvDCID
                         AditionalInfo = $AditionalInfo
                         WanAcceleration = & {

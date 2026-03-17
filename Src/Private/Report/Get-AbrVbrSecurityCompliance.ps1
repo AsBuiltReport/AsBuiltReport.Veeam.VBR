@@ -147,9 +147,12 @@ function Get-AbrVbrSecurityCompliance {
                     'Suppressed' = ($OutObj.status | Where-Object { $_ -eq 'Suppressed' } | Measure-Object).Count
                 }
 
-                $sampleDataObj = $sampleData.GetEnumerator() | Select-Object @{ Name = 'Category'; Expression = { $_.key } }, @{ Name = 'Value'; Expression = { $_.value } }
+                $chartLabels = [string[]]$sampleData.Keys
+                $chartValues = [double[]]$sampleData.Values
 
-                $chartFileItem = Get-ColumnChart -Status -SampleData $sampleDataObj -ChartName 'SecurityCompliance' -XField 'Category' -YField 'Value' -ChartAreaName 'Infrastructure' -AxisXTitle 'Status' -AxisYTitle 'Count' -ChartTitleName 'SecurityCompliance' -ChartTitleText 'Best Practices'
+                $statusCustomPalette = @('#DFF0D0', '#FFF4C7', '#FEDDD7', '#878787')
+
+                $chartFileItem = New-BarChart -Title 'Best Practices' -Values $chartValues -Labels $chartLabels -LabelXAxis 'Status' -LabelYAxis 'Count' -EnableCustomColorPalette -CustomColorPalette $statusCustomPalette -Width 600 -Height 400 -Format base64 -EnableLegend -LegendOrientation Horizontal -LegendAlignment UpperCenter -AxesMarginsTop 0.5 -TitleFontBold -TitleFontSize 16
 
             } catch {
                 Write-PScriboMessage -IsWarning "Security & Compliance chart section: $($_.Exception.Message)"

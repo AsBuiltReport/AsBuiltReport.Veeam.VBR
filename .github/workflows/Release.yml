@@ -17,14 +17,14 @@ jobs:
         shell: pwsh
         run: |
           Install-Module -Name AsBuiltReport.Core -Repository PSGallery -Force
-      - name: Install PScriboCharts module
+      - name: Install AsBuiltReport.Chart module
         shell: pwsh
         run: |
-          Install-Module -Name PScriboCharts -Repository PSGallery -Force
-      - name: Install Diagrammer.Core module
+          Install-Module -Name AsBuiltReport.Chart -Repository PSGallery -Force
+      - name: Install AsBuiltReport.Diagram module
         shell: pwsh
         run: |
-          Install-Module -Name Diagrammer.Core -Repository PSGallery -Force
+          Install-Module -Name AsBuiltReport.Diagram -Repository PSGallery -Force
       - name: Test Module Manifest
         shell: pwsh
         run: |

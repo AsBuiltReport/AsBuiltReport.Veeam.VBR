@@ -65,7 +65,7 @@ function Get-AbrBackupProxyInfo {
                     }
 
                     $BPRows = [ordered]@{
-                        IP = Get-NodeIP -Hostname $Hostname
+                        IP = Get-AbrNodeIP -Hostname $Hostname
                         Status = $Status
                         Type = switch ($Type) {
                             'vmware' { $BackupProxy.Host.Type }
@@ -92,7 +92,7 @@ function Get-AbrBackupProxyInfo {
 
                     $TempBackupProxyInfo = [PSCustomObject]@{
                         Name = "$($Hostname.toUpper().split('.')[0])"
-                        Label = Add-DiaNodeIcon -Name "$($Hostname.toUpper().split('.')[0])" -IconType $IconType -Align 'Center' -Rows $BPRows -ImagesObj $Images -IconDebug $IconDebug -FontSize 18 -FontBold
+                        Label = Add-NodeIcon -Name "$($Hostname.toUpper().split('.')[0])" -IconType $IconType -Align 'Center' -Rows $BPRows -ImagesObj $Images -IconDebug $IconDebug -FontSize 18 -FontBold
                         AditionalInfo = $BPRows
                     }
 

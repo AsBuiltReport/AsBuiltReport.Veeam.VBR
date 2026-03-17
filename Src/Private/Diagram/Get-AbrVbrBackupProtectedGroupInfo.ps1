@@ -40,8 +40,8 @@ function Get-AbrBackupProtectedGroupInfo {
                     $Type = Get-AbrIconType -String $ProtectedGroup.Container.Type
 
                     $TempProtectedGroupInfo = [PSCustomObject]@{
-                        Name = "$((Remove-SpecialChar -String $ProtectedGroup.Name -SpecialChars '\').toUpper())"
-                        Label = Add-DiaNodeIcon -Name "$((Remove-SpecialChar -String $ProtectedGroup.Name -SpecialChars '\').toUpper())" -IconType $Type -Align 'Center' -Rows $Rows -ImagesObj $Images -IconDebug $IconDebug -FontBold
+                        Name = "$((Remove-SpecialCharacter -String $ProtectedGroup.Name -SpecialChars '\').toUpper())"
+                        Label = Add-NodeIcon -Name "$((Remove-SpecialCharacter -String $ProtectedGroup.Name -SpecialChars '\').toUpper())" -IconType $Type -Align 'Center' -Rows $Rows -ImagesObj $Images -IconDebug $IconDebug -FontBold
                         Container = $ProtectedGroup.Container.Type
                         Object = $ProtectedGroup
                     }

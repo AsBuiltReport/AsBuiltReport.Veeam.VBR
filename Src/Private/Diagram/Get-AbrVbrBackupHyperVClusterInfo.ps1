@@ -29,22 +29,22 @@ function Get-AbrBackupHyperVClusterInfo {
                     try {
                         $HvHosts = Get-VBRServer | Where-Object { $_.Type -eq 'HvServer' -and $_.ParentId -match $HyObj.Id }
                         $Rows = @{
-                            IP = Get-NodeIP -Hostname $HyObj.Info.DnsName
+                            IP = Get-AbrNodeIP -Hostname $HyObj.Info.DnsName
                         }
 
                         $TempHyObjsInfo = [PSCustomObject]@{
                             Name = $HyObj.Info.HostInstanceIdV2
-                            Label = Add-DiaNodeIcon -Name $HyObj.Name -IconType 'VBR_HyperV_Cluster' -Align 'Center' -Rows $Rows -ImagesObj $Images -IconDebug $IconDebug -FontSize 18 -FontBold
+                            Label = Add-NodeIcon -Name $HyObj.Name -IconType 'VBR_HyperV_Cluster' -Align 'Center' -Rows $Rows -ImagesObj $Images -IconDebug $IconDebug -FontSize 18 -FontBold
                             AditionalInfo = $Rows
                             Childs = & {
                                 foreach ($HvHost in $HvHosts) {
                                     $Rows = @{
-                                        IP = Get-NodeIP -Hostname $HvHost.Info.DnsName
+                                        IP = Get-AbrNodeIP -Hostname $HvHost.Info.DnsName
                                         Version = $HvHost.Info.HvVersion
                                     }
                                     [PSCustomObject]@{
                                         Name = $HvHost.Name
-                                        Label = Add-DiaNodeIcon -Name $HvHost.Name -IconType 'VBR_HyperV_Server' -Align 'Center' -Rows $Rows -ImagesObj $Images -IconDebug $IconDebug -FontSize 18 -FontBold
+                                        Label = Add-NodeIcon -Name $HvHost.Name -IconType 'VBR_HyperV_Server' -Align 'Center' -Rows $Rows -ImagesObj $Images -IconDebug $IconDebug -FontSize 18 -FontBold
                                         AditionalInfo = $Rows
                                     }
                                 }

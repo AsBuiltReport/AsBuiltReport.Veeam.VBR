@@ -28,7 +28,7 @@ function Get-AbrBackupHyperVStandAloneInfo {
                 foreach ($HyObj in $HyObjs) {
                     try {
                         $Rows = @{
-                            IP = Get-NodeIP -Hostname $HyObj.Info.DnsName
+                            IP = Get-AbrNodeIP -Hostname $HyObj.Info.DnsName
                             Version = switch ([string]::IsNullOrEmpty($HyObj.Info.Info)) {
                                 $true { 'Unknown' }
                                 $false { $HyObj.Info.Info.Split('()')[1].split('build:')[0] }
@@ -38,7 +38,7 @@ function Get-AbrBackupHyperVStandAloneInfo {
 
                         $TempHyObjsInfo = [PSCustomObject]@{
                             Name = $HyObj.Name
-                            Label = Add-DiaNodeIcon -Name $HyObj.Name -IconType 'VBR_HyperV_Server' -Align 'Center' -Rows $Rows -ImagesObj $Images -IconDebug $IconDebug -FontBold
+                            Label = Add-NodeIcon -Name $HyObj.Name -IconType 'VBR_HyperV_Server' -Align 'Center' -Rows $Rows -ImagesObj $Images -IconDebug $IconDebug -FontBold
                             AditionalInfo = $Rows
                         }
                         $HyObjsInfo += $TempHyObjsInfo

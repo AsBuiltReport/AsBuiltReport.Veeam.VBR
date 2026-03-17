@@ -109,7 +109,12 @@ function Get-AbrVbrInstalledLicense {
                                 try {
                                     $sampleData = $inObj.GetEnumerator() | Select-Object @{ Name = 'Category'; Expression = { $_.key } }, @{ Name = 'Value'; Expression = { $_.value } } | Sort-Object -Property 'Category'
 
-                                    $chartFileItem = Get-PieChart -SampleData $sampleData -ChartName 'InstanceLicenseUsage' -XField 'Category' -YField 'Value' -ChartLegendName 'Category'
+                                    $chartLabels = [string[]]$sampleData.Category
+                                    $chartValues = [double[]]$sampleData.Value
+
+                                    $statusCustomPalette = @('#DFF0D0', '#FFF4C7', '#FEDDD7', '#878787')
+
+                                    $chartFileItem = New-PieChart -Title ' ' -Values $chartValues -Labels $chartLabels -EnableCustomColorPalette -CustomColorPalette $statusCustomPalette -Width 600 -Height 400 -Format base64 -EnableLegend -LegendOrientation Vertical -LegendAlignment UpperRight -TitleFontBold -TitleFontSize 16
 
                                 } catch {
                                     Write-PScriboMessage -IsWarning "Instance License Usage chart section: $($_.Exception.Message)"
@@ -196,7 +201,12 @@ function Get-AbrVbrInstalledLicense {
                                 try {
                                     $sampleData = $inObj.GetEnumerator() | Select-Object @{ Name = 'Category'; Expression = { $_.key } }, @{ Name = 'Value'; Expression = { $_.value } } | Sort-Object -Property 'Category'
 
-                                    $chartFileItem = Get-PieChart -SampleData $sampleData -ChartName 'CPUSocketUsage' -XField 'Category' -YField 'Value' -ChartLegendName 'Category'
+                                    $chartLabels = [string[]]$sampleData.Category
+                                    $chartValues = [double[]]$sampleData.Value
+
+                                    $statusCustomPalette = @('#DFF0D0', '#FFF4C7', '#FEDDD7', '#878787')
+
+                                    $chartFileItem = New-PieChart -Title ' ' -Values $chartValues -Labels $chartLabels -EnableCustomColorPalette -CustomColorPalette $statusCustomPalette -Width 600 -Height 400 -Format base64 -EnableLegend -LegendOrientation Vertical -LegendAlignment UpperRight -TitleFontBold -TitleFontSize 16
                                 } catch {
                                     Write-PScriboMessage -IsWarning "CPU Socket Usage chart section: $($_.Exception.Message)"
                                 }
@@ -243,8 +253,12 @@ function Get-AbrVbrInstalledLicense {
                                 try {
                                     $sampleData = $inObj.GetEnumerator() | Select-Object @{ Name = 'Category'; Expression = { $_.key } }, @{ Name = 'Value'; Expression = { $_.value } } | Sort-Object -Property 'Category'
 
-                                    $chartFileItem = Get-PieChart -SampleData $sampleData -ChartName 'CapacityLicenseUsage' -XField 'Category' -YField 'Value' -ChartLegendName 'Category'
+                                    $chartLabels = [string[]]$sampleData.Category
+                                    $chartValues = [double[]]$sampleData.Value
 
+                                    $statusCustomPalette = @('#DFF0D0', '#FFF4C7', '#FEDDD7', '#878787')
+
+                                    $chartFileItem = New-PieChart -Title ' ' -Values $chartValues -Labels $chartLabels -EnableCustomColorPalette -CustomColorPalette $statusCustomPalette -Width 600 -Height 400 -Format base64 -EnableLegend -LegendOrientation Vertical -LegendAlignment UpperRight -TitleFontBold -TitleFontSize 16
                                 } catch {
                                     Write-PScriboMessage -IsWarning "Capacity License Usage chart section: $($_.Exception.Message)"
                                 }

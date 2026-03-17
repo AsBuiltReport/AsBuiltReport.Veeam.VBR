@@ -464,7 +464,7 @@ function Get-AbrVbrBackupProxy {
                                         Write-PScriboMessage -IsWarning "VMware Backup Proxy Diagram: $($_.Exception.Message)"
                                     }
                                     if ($Graph) {
-                                        $BestAspectRatio = Get-DiaBestImageAspectRatio -GraphObj $Graph -MaxWidth 600
+                                        $BestAspectRatio = Get-BestImageAspectRatio -GraphObj $Graph -MaxWidth 600
                                         Section -Style Heading3 'VMware Backup Proxy Diagram' {
                                             Image -Base64 $Graph -Text 'VMware Backup Proxy Diagram' -Width $BestAspectRatio.Width -Height $BestAspectRatio.Height -Align Center
                                         }
@@ -921,7 +921,7 @@ function Get-AbrVbrBackupProxy {
                                             Write-PScriboMessage -IsWarning "HyperV Backup Proxy Diagram: $($_.Exception.Message)"
                                         }
                                         if ($Graph) {
-                                            $BestAspectRatio = Get-DiaBestImageAspectRatio -GraphObj $Graph -MaxWidth 600
+                                            $BestAspectRatio = Get-BestImageAspectRatio -GraphObj $Graph -MaxWidth 600
                                             Section -Style Heading3 'HyperV Backup Proxy Diagram' {
                                                 Image -Base64 $Graph -Text 'HyperV Backup Proxy Diagram' -Width $BestAspectRatio.Width -Height $BestAspectRatio.Height -Align Center
                                             }

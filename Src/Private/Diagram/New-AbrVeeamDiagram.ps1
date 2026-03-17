@@ -435,11 +435,11 @@ function New-AbrVeeamDiagram {
             'Backup-to-CloudConnect-Tenant' { "Cloud Connect $TenantName Resources Diagram" }
         }
         if ($Format -ne 'Base64') {
-            Write-ColorOutput -Color 'Green' -String ("Please wait while the '{0}' is being generated." -f $MainGraphLabel)
-            Write-ColorOutput -Color 'White' -String ' - Please refer to the Veeam.Diagrammer github website for more detailed information about this project.'
-            Write-ColorOutput -Color 'White' -String ' - Documentation: https://github.com/rebelinux/Veeam.Diagrammer'
-            Write-ColorOutput -Color 'White' -String ' - Issues or bug reporting: https://github.com/rebelinux/Veeam.Diagrammer/issues'
-            Write-ColorOutput -Color 'White' -String ' - This project is community maintained and has no sponsorship from Veeam, its employees or any of its affiliates.'
+            Write-AbrColorOutput -Color 'Green' -String ("Please wait while the '{0}' is being generated." -f $MainGraphLabel)
+            Write-AbrColorOutput -Color 'White' -String ' - Please refer to the Veeam.Diagrammer github website for more detailed information about this project.'
+            Write-AbrColorOutput -Color 'White' -String ' - Documentation: https://github.com/rebelinux/Veeam.Diagrammer'
+            Write-AbrColorOutput -Color 'White' -String ' - Issues or bug reporting: https://github.com/rebelinux/Veeam.Diagrammer/issues'
+            Write-AbrColorOutput -Color 'White' -String ' - This project is community maintained and has no sponsorship from Veeam, its employees or any of its affiliates.'
 
 
             # Check the version of the dependency modules
@@ -451,11 +451,11 @@ function New-AbrVeeamDiagram {
                         $InstalledVersion = Get-Module -ListAvailable -Name $Module -ErrorAction SilentlyContinue | Sort-Object -Property Version -Descending | Select-Object -First 1 -ExpandProperty Version
 
                         if ($InstalledVersion) {
-                            Write-ColorOutput -Color 'White' -String " - $Module module v$($InstalledVersion.ToString()) is currently installed."
+                            Write-AbrColorOutput -Color 'White' -String " - $Module module v$($InstalledVersion.ToString()) is currently installed."
                             $LatestVersion = Find-Module -Name $Module -Repository PSGallery -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Version
                             if ($InstalledVersion -lt $LatestVersion) {
-                                Write-ColorOutput -Color 'White' -String "  - $Module module v$($LatestVersion.ToString()) is available." -Color Red
-                                Write-ColorOutput -Color 'White' -String "  - Run 'Update-Module -Name $Module -Force' to install the latest version." -Color Red
+                                Write-AbrColorOutput -Color 'White' -String "  - $Module module v$($LatestVersion.ToString()) is available." -Color Red
+                                Write-AbrColorOutput -Color 'White' -String "  - Run 'Update-Module -Name $Module -Force' to install the latest version." -Color Red
                             }
                         }
                     } catch {
@@ -536,13 +536,13 @@ function New-AbrVeeamDiagram {
 
         # Validate Custom logo
         if ($Logo) {
-            $CustomLogo = Test-Logo -LogoPath (Get-ChildItem -Path $Logo).FullName -IconPath $IconPath -ImagesObj $Images
+            $CustomLogo = Test-AbrLogo -LogoPath (Get-ChildItem -Path $Logo).FullName -IconPath $IconPath -ImagesObj $Images
         } else {
             $CustomLogo = 'VBR_Logo'
         }
         # Validate Custom Signature Logo
         if ($SignatureLogo) {
-            $CustomSignatureLogo = Test-Logo -LogoPath (Get-ChildItem -Path $SignatureLogo).FullName -IconPath $IconPath -ImagesObj $Images
+            $CustomSignatureLogo = Test-AbrLogo -LogoPath (Get-ChildItem -Path $SignatureLogo).FullName -IconPath $IconPath -ImagesObj $Images
         }
 
         $MainGraphAttributes = @{
@@ -611,9 +611,9 @@ function New-AbrVeeamDiagram {
                 if ($Signature) {
                     Write-PScriboMessage 'Generating diagram signature'
                     if ($CustomSignatureLogo) {
-                        $Signature = (Add-DiaHtmlSignatureTable -ImagesObj $Images -Rows "Author: $($AuthorName)", "Company: $($CompanyName)" -TableBorder 2 -TableBorderColor $Edgecolor -CellBorder 0 -Align 'left' -Logo $CustomSignatureLogo -IconDebug $IconDebug)
+                        $Signature = (Add-HtmlSignatureTable -ImagesObj $Images -Rows "Author: $($AuthorName)", "Company: $($CompanyName)" -TableBorder 2 -TableBorderColor $Edgecolor -CellBorder 0 -Align 'left' -Logo $CustomSignatureLogo -IconDebug $IconDebug)
                     } else {
-                        $Signature = (Add-DiaHtmlSignatureTable -ImagesObj $Images -Rows "Author: $($AuthorName)", "Company: $($CompanyName)" -TableBorder 2 -TableBorderColor $Edgecolor -CellBorder 0 -Align 'left' -Logo 'VBR_LOGO_Footer' -IconDebug $IconDebug)
+                        $Signature = (Add-HtmlSignatureTable -ImagesObj $Images -Rows "Author: $($AuthorName)", "Company: $($CompanyName)" -TableBorder 2 -TableBorderColor $Edgecolor -CellBorder 0 -Align 'left' -Logo 'VBR_LOGO_Footer' -IconDebug $IconDebug)
                     }
                 } else {
                     Write-PScriboMessage 'No diagram signature specified'
@@ -621,7 +621,7 @@ function New-AbrVeeamDiagram {
                 }
 
                 SubGraph OUTERDRAWBOARD1 -Attributes @{Label = $Signature; fontsize = 24; penwidth = 1.5; labelloc = 'b'; labeljust = 'r'; style = $SubGraphDebug.style; color = $SubGraphDebug.color } {
-                    SubGraph MainGraph -Attributes @{Label = (Add-DiaHtmlLabel -ImagesObj $Images -Label $MainGraphLabel -IconType $CustomLogo -IconDebug $IconDebug -IconWidth 300 -IconHeight 90 -FontName 'Segoe Ui Black' -FontColor $Fontcolor -Fontsize 28); fontsize = 24; penwidth = 0; labelloc = 't'; labeljust = 'c' } {
+                    SubGraph MainGraph -Attributes @{Label = (Add-HtmlLabel -ImagesObj $Images -Label $MainGraphLabel -IconType $CustomLogo -IconDebug $IconDebug -IconWidth 300 -IconHeight 90 -FontName 'Segoe Ui Black' -FontColor $Fontcolor -Fontsize 28); fontsize = 24; penwidth = 0; labelloc = 't'; labeljust = 'c' } {
 
                         if ($DiagramType -eq 'Backup-to-HyperV-Proxy') {
                             Get-AbrDiagBackupServer
@@ -721,12 +721,12 @@ function New-AbrVeeamDiagram {
             #Export Diagram
             foreach ($OutputFormat in $Format) {
 
-                $OutputDiagram = Export-Diagrammer -GraphObj ($diGraph | Select-String -Pattern '"([A-Z])\w+"\s\[label="";style="invis";shape="point";]' -NotMatch) -ErrorDebug $EnableErrorDebug -Format $OutputFormat -Filename $Filename -OutputFolderPath $OutputFolderPath -WaterMarkText $WaterMarkText -WaterMarkColor $WaterMarkColor -IconPath $IconPath -Verbose:$Verbose -Rotate $Rotate
+                $OutputDiagram = Export-AbrDiagram -GraphObj ($diGraph | Select-String -Pattern '"([A-Z])\w+"\s\[label="";style="invis";shape="point";]' -NotMatch) -ErrorDebug $EnableErrorDebug -Format $OutputFormat -Filename $Filename -OutputFolderPath $OutputFolderPath -WaterMarkText $WaterMarkText -WaterMarkColor $WaterMarkColor -IconPath $IconPath -Verbose:$Verbose -Rotate $Rotate
 
                 if ($OutputDiagram) {
                     if ($OutputFormat -ne 'Base64') {
                         # If not Base64 format return image path
-                        Write-ColorOutput -Color 'White' -String ("Diagrammer diagram '{0}' has been saved to '{1}'" -f $OutputDiagram.Name, $OutputDiagram.Directory)
+                        Write-AbrColorOutput -Color 'White' -String ("Diagrammer diagram '{0}' has been saved to '{1}'" -f $OutputDiagram.Name, $OutputDiagram.Directory)
                     } else {
                         Write-PScriboMessage 'Displaying Base64 string'
                         # Return Base64 string

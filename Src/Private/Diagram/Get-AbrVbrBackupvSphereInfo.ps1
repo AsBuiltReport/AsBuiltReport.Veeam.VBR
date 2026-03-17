@@ -30,7 +30,7 @@ function Get-AbrBackupvSphereInfo {
                         $ESXis = Invoke-FindVBRViEntityWithTimeout -Server $HyObj.Name -HostsAndClustersOnly | Where-Object { ($_.type -eq 'esx') }
 
                         $Rows = @{
-                            IP = Get-NodeIP -Hostname $HyObj.Info.DnsName
+                            IP = Get-AbrNodeIP -Hostname $HyObj.Info.DnsName
                             Version = switch ([string]::IsNullOrEmpty($HyObj.Info.ViVersion)) {
                                 $true { 'Unknown' }
                                 default { $HyObj.Info.ViVersion }
@@ -39,7 +39,7 @@ function Get-AbrBackupvSphereInfo {
 
                         $TempHyObjsInfo = [PSCustomObject]@{
                             Name = $HyObj.Name
-                            Label = Add-DiaNodeIcon -Name $HyObj.Name -IconType 'VBR_vCenter_Server' -Align 'Center' -Rows $Rows -ImagesObj $Images -IconDebug $IconDebug -FontSize 18 -FontBold
+                            Label = Add-NodeIcon -Name $HyObj.Name -IconType 'VBR_vCenter_Server' -Align 'Center' -Rows $Rows -ImagesObj $Images -IconDebug $IconDebug -FontSize 18 -FontBold
                             AditionalInfo = $Rows
                             Childs = & {
                                 $VIClusters = Invoke-FindVBRViEntityWithTimeout -Server $HyObj.Name -HostsAndClustersOnly | Where-Object { ($_.type -eq 'cluster') }
@@ -47,10 +47,10 @@ function Get-AbrBackupvSphereInfo {
                                 foreach ($Cluster in $VIClusters) {
                                     [PSCustomObject]@{
                                         Name = $Cluster.Name
-                                        Label = Add-DiaNodeIcon -Name $Cluster.Name -IconType 'VBR_vSphere_Cluster' -Align 'Center' -Rows $Rows -ImagesObj $Images -IconDebug $IconDebug -FontSize 18 -FontBold
+                                        Label = Add-NodeIcon -Name $Cluster.Name -IconType 'VBR_vSphere_Cluster' -Align 'Center' -Rows $Rows -ImagesObj $Images -IconDebug $IconDebug -FontSize 18 -FontBold
                                         EsxiHost = foreach ($Esxi in $ESXis | Where-Object { $_.path -match $Cluster.Name }) {
                                             $Rows = @{
-                                                IP = Get-NodeIP -Hostname $Esxi.Info.DnsName
+                                                IP = Get-AbrNodeIP -Hostname $Esxi.Info.DnsName
                                                 Version = switch ([string]::IsNullOrEmpty($Esxi.Info.ViVersion)) {
                                                     $true { 'Unknown' }
                                                     default { $Esxi.Info.ViVersion }
@@ -58,7 +58,7 @@ function Get-AbrBackupvSphereInfo {
                                             }
                                             [PSCustomObject]@{
                                                 Name = $Esxi.Name
-                                                Label = Add-DiaNodeIcon -Name $Esxi.Name -IconType 'VBR_ESXi_Server' -Align 'Center' -Rows $Rows -ImagesObj $Images -IconDebug $IconDebug -FontSize 18 -FontBold
+                                                Label = Add-NodeIcon -Name $Esxi.Name -IconType 'VBR_ESXi_Server' -Align 'Center' -Rows $Rows -ImagesObj $Images -IconDebug $IconDebug -FontSize 18 -FontBold
                                                 AditionalInfo = $Rows
                                             }
                                         }

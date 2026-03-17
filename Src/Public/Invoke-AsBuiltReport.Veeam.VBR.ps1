@@ -54,7 +54,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
     if ($Options.UpdateCheck) {
         Write-Host '  - Getting dependency information:'
         # Check the version of the dependency modules
-        $ModuleArray = @('AsBuiltReport.Core', 'Diagrammer.Core', 'PScriboCharts')
+        $ModuleArray = @('AsBuiltReport.Core', 'AsBuiltReport.Chart', 'AsBuiltReport.Diagram')
 
         foreach ($Module in $ModuleArray) {
             try {
@@ -115,7 +115,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                         Write-PScriboMessage -IsWarning "Backup Infrastructure Diagram: $($_.Exception.Message)"
                     }
                     if ($Graph) {
-                        $BestAspectRatio = Get-DiaBestImageAspectRatio -GraphObj $Graph -MaxWidth 600
+                        $BestAspectRatio = Get-BestImageAspectRatio -GraphObj $Graph -MaxWidth 600
                         Section -Style Heading2 'Backup Infrastructure Diagram' {
                             Image -Base64 $Graph -Text 'Backup Infrastructure Diagram' -Align Center -Width $BestAspectRatio.Width -Height $BestAspectRatio.Height
                         }
@@ -132,9 +132,9 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                     Paragraph "This section provides detailed configuration information for the Backup Server: $($VeeamBackupServer)."
                     BlankLine
                     if ($InfoLevel.Infrastructure.BackupServer -ge 1) {
-                        Get-AbrVbrInfrastructureSummary
+                        # Get-AbrVbrInfrastructureSummary
                         if ($VbrVersion -ge 12) {
-                            Get-AbrVbrSecurityCompliance
+                            # Get-AbrVbrSecurityCompliance
                         }
                         Get-AbrVbrBackupServerInfo
                         Get-AbrVbrEnterpriseManagerInfo
@@ -190,7 +190,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                                     Write-PScriboMessage -IsWarning "Wan Accelerator Diagram: $($_.Exception.Message)"
                                 }
                                 if ($Graph) {
-                                    $BestAspectRatio = Get-DiaBestImageAspectRatio -GraphObj $Graph -MaxWidth 600
+                                    $BestAspectRatio = Get-BestImageAspectRatio -GraphObj $Graph -MaxWidth 600
                                     Section -Style Heading3 'Wan Accelerator Diagram' {
                                         Image -Base64 $Graph -Text 'Wan Accelerator Diagram' -Width $BestAspectRatio.Width -Height $BestAspectRatio.Height -Align Center
                                     }
@@ -217,7 +217,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                                     Write-PScriboMessage -IsWarning "Backup Repository Diagram: $($_.Exception.Message)"
                                 }
                                 if ($Graph) {
-                                    $BestAspectRatio = Get-DiaBestImageAspectRatio -GraphObj $Graph -MaxWidth 600
+                                    $BestAspectRatio = Get-BestImageAspectRatio -GraphObj $Graph -MaxWidth 600
                                     Section -Style Heading3 'Backup Repository Diagram' {
                                         Image -Base64 $Graph -Text 'Backup Repository Diagram' -Width $BestAspectRatio.Width -Height $BestAspectRatio.Height -Align Center
                                     }
@@ -239,7 +239,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                                     Write-PScriboMessage -IsWarning "ScaleOut Backup Repository Diagram: $($_.Exception.Message)"
                                 }
                                 if ($Graph) {
-                                    $BestAspectRatio = Get-DiaBestImageAspectRatio -GraphObj $Graph -MaxWidth 600
+                                    $BestAspectRatio = Get-BestImageAspectRatio -GraphObj $Graph -MaxWidth 600
                                     Section -Style Heading3 'ScaleOut Backup Repository Diagram' {
                                         Image -Base64 $Graph -Text 'ScaleOut Backup Repository Diagram' -Width $BestAspectRatio.Width -Height $BestAspectRatio.Height -Align Center
                                     }
@@ -294,7 +294,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                                     Write-PScriboMessage -IsWarning "Tape Infrastructure Diagram: $($_.Exception.Message)"
                                 }
                                 if ($Graph) {
-                                    $BestAspectRatio = Get-DiaBestImageAspectRatio -GraphObj $Graph -MaxWidth 600
+                                    $BestAspectRatio = Get-BestImageAspectRatio -GraphObj $Graph -MaxWidth 600
                                     Section -Style Heading3 'Tape Infrastructure Diagram' {
                                         Image -Base64 $Graph -Text 'Tape Infrastructure Diagram' -Width $BestAspectRatio.Width -Height $BestAspectRatio.Height -Align Center
                                     }
@@ -338,7 +338,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                                         Write-PScriboMessage -IsWarning "Physical Infrastructure Diagram: $($_.Exception.Message)"
                                     }
                                     if ($Graph) {
-                                        $BestAspectRatio = Get-DiaBestImageAspectRatio -GraphObj $Graph -MaxWidth 600
+                                        $BestAspectRatio = Get-BestImageAspectRatio -GraphObj $Graph -MaxWidth 600
                                         Section -Style Heading3 'Physical Infrastructure Diagram' {
                                             Image -Base64 $Graph -Text 'Physical Infrastructure Diagram' -Width $BestAspectRatio.Width -Height $BestAspectRatio.Height -Align Center
                                         }
@@ -421,7 +421,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                                         Write-PScriboMessage -IsWarning "Cloud Connect Infrastructure Diagram: $($_.Exception.Message)"
                                     }
                                     if ($Graph) {
-                                        $BestAspectRatio = Get-DiaBestImageAspectRatio -GraphObj $Graph -MaxWidth 600
+                                        $BestAspectRatio = Get-BestImageAspectRatio -GraphObj $Graph -MaxWidth 600
                                         Section -Style Heading3 'Cloud Connect Infrastructure Diagram' {
                                             Image -Base64 $Graph -Text 'Cloud Connect Infrastructure Diagram' -Width $BestAspectRatio.Width -Height $BestAspectRatio.Height -Align Center
                                         }
