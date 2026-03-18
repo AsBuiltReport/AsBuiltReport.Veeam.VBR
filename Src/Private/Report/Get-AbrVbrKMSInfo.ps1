@@ -29,7 +29,7 @@ function Get-AbrVbrKMSInfo {
         try {
             if ($KMSServers = Get-VBRKMSServer | Sort-Object -Property Name) {
                 Section -Style Heading3 'Key Management Servers' {
-                    Paragraph 'The following table provide information about the kms configured in Veeam Backup & Replication.'
+                    Paragraph 'The following table provides information about the Key Management Servers (KMS) configured in Veeam Backup & Replication for encryption key management.'
                     BlankLine
                     $OutObj = @()
                     foreach ($KMSServer in $KMSServers) {

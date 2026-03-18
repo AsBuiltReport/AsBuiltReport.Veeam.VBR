@@ -29,7 +29,7 @@ function Get-AbrVbrBackupjobVMware {
         try {
             if ($Bkjobs = Get-VBRJob -WarningAction SilentlyContinue | Where-Object { $_.TypeToString -eq 'VMware Backup' -or $_.TypeToString -eq 'VMware Backup Copy' -or $_.TypeToString -eq 'VM Copy' -or $_.TypeToString -eq 'Cloud Director Backup' } | Sort-Object -Property Name) {
                 Section -Style Heading3 'VMware Backup Jobs Configuration' {
-                    Paragraph 'The following section details the configuration of VMware type backup jobs.'
+                    Paragraph 'The following section provides detailed configuration information for each VMware backup job, including schedule, retention policy, and protected virtual machines.'
                     BlankLine
                     $OutObj = @()
                     try {

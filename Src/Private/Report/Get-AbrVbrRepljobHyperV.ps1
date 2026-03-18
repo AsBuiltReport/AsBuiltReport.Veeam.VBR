@@ -28,7 +28,7 @@ function Get-AbrVbrRepljobHyperV {
         try {
             if ($Bkjobs = Get-VBRJob -WarningAction SilentlyContinue | Where-Object { $_.TypeToString -eq 'Hyper-V Replication' } | Sort-Object -Property Name) {
                 Section -Style Heading3 'Hyper-V Replication Jobs Configuration' {
-                    Paragraph 'The following section details the configuration about Hyper-V replication jobs.'
+                    Paragraph 'The following section provides detailed configuration information for each Hyper-V replication job, including source and target hosts, schedule, and replica settings.'
                     BlankLine
                     $OutObj = @()
                     try {

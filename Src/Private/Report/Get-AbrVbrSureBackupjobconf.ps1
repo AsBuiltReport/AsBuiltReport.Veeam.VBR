@@ -29,7 +29,7 @@ function Get-AbrVbrSureBackupjobconf {
         try {
             if ($SBkjobs = Get-VBRSureBackupJob | Sort-Object -Property Name) {
                 Section -Style Heading3 'SureBackup Job Configuration' {
-                    Paragraph 'The following section provide detailed jobs configuration about Surebackup.'
+                    Paragraph 'The following section provides detailed configuration information for each SureBackup job, including the virtual lab, application group, and verification settings.'
                     BlankLine
                     $OutObj = @()
                     foreach ($SBkjob in $SBkjobs) {

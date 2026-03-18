@@ -29,7 +29,7 @@ function Get-AbrVbrBackupCopyjob {
         try {
             if ($BkCopyjobs = Get-VBRBackupCopyJob -WarningAction SilentlyContinue) {
                 Section -Style Heading3 'Backup Copy Jobs' {
-                    Paragraph 'The following section list backup copy jobs created within Veeam Backup & Replication.'
+                    Paragraph 'The following section lists all backup copy jobs configured in Veeam Backup & Replication, along with their current status and last run result.'
                     BlankLine
                     $OutObj = @()
                     foreach ($BkCopyjob in $BkCopyjobs) {

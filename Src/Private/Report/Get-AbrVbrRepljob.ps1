@@ -29,7 +29,7 @@ function Get-AbrVbrRepljob {
         try {
             if ($Bkjobs = Get-VBRJob -WarningAction SilentlyContinue | Where-Object { $_.TypeToString -eq 'VMware Replication' -or $_.TypeToString -eq 'Hyper-V Replication' } | Sort-Object -Property Name) {
                 Section -Style Heading3 'Replication Jobs' {
-                    Paragraph 'The following section provide a summary about replication jobs'
+                    Paragraph 'The following section provides a summary of all replication jobs configured in Veeam Backup & Replication, along with their current status and last run result.'
                     BlankLine
                     $OutObj = @()
                     foreach ($Bkjob in $Bkjobs) {

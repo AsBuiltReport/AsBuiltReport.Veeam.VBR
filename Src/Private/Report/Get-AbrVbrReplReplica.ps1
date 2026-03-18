@@ -30,7 +30,7 @@ function Get-AbrVbrReplReplica {
             if ($Replicas = Get-VBRReplica | Sort-Object -Property VmName) {
                 if ($InfoLevel.Replication.Replica -eq 1) {
                     Section -Style Heading3 'Replicas' {
-                        Paragraph "The following section details replica information from Veeam Server $VeeamBackupServer."
+                        Paragraph "The following section details the current state of VM replicas managed by Veeam Backup Server $VeeamBackupServer, including replication status and available restore points."
                         BlankLine
                         $OutObj = @()
                         foreach ($Replica in $Replicas) {
@@ -63,7 +63,7 @@ function Get-AbrVbrReplReplica {
                 if ($InfoLevel.Replication.Replica -ge 2) {
                     try {
                         Section -Style Heading3 'Replicas' {
-                            Paragraph "The following section details replica information from Veeam Server $VeeamBackupServer."
+                            Paragraph "The following section details the configuration and scheduling information for VM replicas managed by Veeam Backup Server $VeeamBackupServer."
                             BlankLine
                             $OutObj = @()
                             foreach ($Replica in $Replicas) {

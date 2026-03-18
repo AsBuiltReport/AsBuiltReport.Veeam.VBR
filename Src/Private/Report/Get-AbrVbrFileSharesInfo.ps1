@@ -28,7 +28,7 @@ function Get-AbrVbrFileSharesInfo {
     process {
         if ($ShareObjs = Get-VBRNASServer -WarningAction SilentlyContinue) {
             Section -Style Heading3 'File Shares' {
-                Paragraph "The following table provides a summary about the file shares backed-up by Veeam Server $VeeamBackupServer."
+                Paragraph "The following table provides a summary of the file shares and NAS resources protected by Veeam Backup Server $VeeamBackupServer."
                 BlankLine
                 $OutObj = @()
                 try {
@@ -47,10 +47,10 @@ function Get-AbrVbrFileSharesInfo {
                                 'Path' = $Path
                                 'Type' = switch ($ShareObj.Type) {
                                     'FileServer' { 'File Server' }
-                                    'SANSMB' { 'NAS Filler' }
+                                    'SANSMB' { 'NAS Filer' }
                                     'SMB' { 'SMB Share' }
                                     'NFS' { 'NFS Share' }
-                                    'SANNFS' { 'NAS Filler' }
+                                    'SANNFS' { 'NAS Filer' }
                                     default { $ShareObj.Type }
                                 }
                                 'Backup IO Control' = $ShareObj.BackupIOControlLevel

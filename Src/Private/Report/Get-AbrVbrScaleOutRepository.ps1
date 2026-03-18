@@ -29,7 +29,7 @@ function Get-AbrVbrScaleOutRepository {
         try {
             if ($BackupRepos = Get-VBRBackupRepository -ScaleOut | Sort-Object -Property Name) {
                 Section -Style Heading3 'ScaleOut Backup Repository' {
-                    Paragraph 'The following section provides a summary about ScaleOut Backup Repository'
+                    Paragraph 'The following section provides a summary of all configured Scale-Out Backup Repositories (SOBR), including performance, capacity, and archive tier assignments.'
                     BlankLine
                     $OutObj = @()
                     try {
@@ -54,7 +54,7 @@ function Get-AbrVbrScaleOutRepository {
                     }
 
                     $TableParams = @{
-                        Name = "Scale Backup Repository - $VeeamBackupServer"
+                        Name = "ScaleOut Backup Repository - $VeeamBackupServer"
                         List = $false
                         ColumnWidths = 25, 25, 25, 25
                     }
@@ -68,7 +68,7 @@ function Get-AbrVbrScaleOutRepository {
                     if ($InfoLevel.Infrastructure.SOBR -ge 2) {
                         try {
                             Section -Style Heading4 'ScaleOut Backup Repository Configuration' {
-                                Paragraph 'The following section provides a detailed information about the ScaleOut Backup Repository'
+                                Paragraph 'The following section provides detailed configuration information for each Scale-Out Backup Repository, including performance extent, capacity tier, and archive tier settings.'
                                 BlankLine
                                 #---------------------------------------------------------------------------------------------#
                                 #                                   Per SOBR Section                                          #
@@ -308,6 +308,24 @@ function Get-AbrVbrScaleOutRepository {
                             }
                         } catch {
                             Write-PScriboMessage -IsWarning "ScaleOut Backup Repository Configuration Section: $($_.Exception.Message)"
+                        }
+                    }
+                    if ($Options.EnableDiagrams -and (Get-VBRBackupRepository -ScaleOut)) {
+                        try {
+                            try {
+                                $Graph = Get-AbrVbrDiagrammer -DiagramType 'Backup-to-Sobr' -DiagramOutput base64
+                            } catch {
+                                Write-PScriboMessage -IsWarning "ScaleOut Backup Repository Diagram: $($_.Exception.Message)"
+                            }
+                            if ($Graph) {
+                                $BestAspectRatio = Get-BestImageAspectRatio -GraphObj $Graph -MaxWidth 600
+                                Section -Style Heading4 'ScaleOut Backup Repository Diagram' {
+                                    Image -Base64 $Graph -Text 'ScaleOut Backup Repository Diagram' -Width $BestAspectRatio.Width -Height $BestAspectRatio.Height -Align Center
+                                }
+                                BlankLine
+                            }
+                        } catch {
+                            Write-PScriboMessage -IsWarning "ScaleOut Backup Repository Diagram Section: $($_.Exception.Message)"
                         }
                     }
                 }

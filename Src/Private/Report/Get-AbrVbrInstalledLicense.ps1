@@ -28,7 +28,7 @@ function Get-AbrVbrInstalledLicense {
     process {
         if ($VbrLicenses) {
             Section -Style Heading3 'License Information' {
-                Paragraph 'The following section provides a summary about the installed licenses'
+                Paragraph 'The following section provides a summary of the Veeam Backup & Replication licenses installed on this server, including edition, expiration date, and instance usage.'
                 BlankLine
                 try {
                     Section -Style Heading4 'Installed License Information' {

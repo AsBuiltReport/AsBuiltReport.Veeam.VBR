@@ -102,7 +102,7 @@ function Get-AbrVbrBackupjob {
                         Image -Text 'Backup Jobs - Chart' -Align 'Center' -Percent 100 -Base64 $chartFileItem
                     }
                     Section -Style Heading3 'Backup Jobs' {
-                        Paragraph 'The following section list backup jobs created in Veeam Backup & Replication.'
+                        Paragraph 'The following section lists all backup jobs configured in Veeam Backup & Replication, along with their current status and last run result.'
                         BlankLine
                         Section -ExcludeFromTOC -Style NOTOCHeading4 'Backup Job Status' {
                             $OutObj | Sort-Object -Property Name | Table @TableParams

@@ -28,7 +28,7 @@ function Get-AbrVbrReplFailoverPlan {
     process {
         if ($FailOverPlans = Get-VBRFailoverPlan | Sort-Object -Property Name) {
             Section -Style Heading3 'Failover Plans' {
-                Paragraph "The following section details failover plan information from Veeam Server $VeeamBackupServer."
+                Paragraph "The following section details the failover plans configured on Veeam Backup Server $VeeamBackupServer, including planned failover sequence and virtual machine priorities."
                 $OutObj = @()
                 foreach ($FailOverPlan in $FailOverPlans) {
                     try {

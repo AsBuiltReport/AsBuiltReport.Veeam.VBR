@@ -30,7 +30,7 @@ function Get-AbrVbrWANAccelerator {
             $WANAccels = Get-VBRWANAccelerator | Sort-Object -Property Name
             if (($VbrLicenses | Where-Object { $_.Edition -in @('EnterprisePlus') }) -and $WANAccels) {
                 Section -Style Heading3 'WAN Accelerators' {
-                    Paragraph 'The following section provides information about WAN Accelerator. WAN accelerators are responsible for global data caching and data deduplication.'
+                    Paragraph 'The following section provides information about the WAN Accelerators configured in Veeam Backup & Replication. WAN Accelerators optimize backup traffic over WAN links through global data caching and deduplication.'
                     BlankLine
                     $OutObj = @()
                     try {
@@ -41,12 +41,12 @@ function Get-AbrVbrWANAccelerator {
                                 try {
                                     $IsWaHasAnyCaches = $WANAccel.IsWaHasAnyCaches()
                                 } catch {
-                                    Write-PScriboMessage -IsWarning "Wan Accelerator $($WANAccel.Name) IsWaHasAnyCaches() Item: $($_.Exception.Message)"
+                                    Write-PScriboMessage -IsWarning "WAN Accelerator $($WANAccel.Name) IsWaHasAnyCaches() Item: $($_.Exception.Message)"
                                 }
                                 try {
                                     $ServiceIPAddress = $WANAccel.GetWaConnSpec().Endpoints.IP -join ', '
                                 } catch {
-                                    Write-PScriboMessage -IsWarning "Wan Accelerator $($WANAccel.Name) GetWaConnSpec() Item: $($_.Exception.Message)"
+                                    Write-PScriboMessage -IsWarning "WAN Accelerator $($WANAccel.Name) GetWaConnSpec() Item: $($_.Exception.Message)"
                                 }
                                 $inObj = [ordered] @{
                                     'Name' = $WANAccel.Name
@@ -74,7 +74,7 @@ function Get-AbrVbrWANAccelerator {
                                 }
 
                                 $TableParams = @{
-                                    Name = "Wan Accelerator - $($WANAccel.GetHost().Name)"
+                                    Name = "WAN Accelerator - $($WANAccel.GetHost().Name)"
                                     List = $true
                                     ColumnWidths = 40, 60
                                 }
@@ -84,16 +84,34 @@ function Get-AbrVbrWANAccelerator {
                                 }
                                 $OutObj | Table @TableParams
                             } catch {
-                                Write-PScriboMessage -IsWarning "Wan Accelerator $($WANAccel.Name) Table: $($_.Exception.Message)"
+                                Write-PScriboMessage -IsWarning "WAN Accelerator $($WANAccel.Name) Table: $($_.Exception.Message)"
                             }
                         }
                     } catch {
-                        Write-PScriboMessage -IsWarning "Wan Accelerator Section: $($_.Exception.Message)"
+                        Write-PScriboMessage -IsWarning "WAN Accelerator Section: $($_.Exception.Message)"
+                    }
+                    if ($Options.EnableDiagrams) {
+                        try {
+                            try {
+                                $Graph = Get-AbrVbrDiagrammer -DiagramType 'Backup-to-WanAccelerator' -DiagramOutput base64
+                            } catch {
+                                Write-PScriboMessage -IsWarning "WAN Accelerator Diagram: $($_.Exception.Message)"
+                            }
+                            if ($Graph) {
+                                $BestAspectRatio = Get-BestImageAspectRatio -GraphObj $Graph -MaxWidth 600
+                                Section -Style Heading4 'WAN Accelerator Diagram' {
+                                    Image -Base64 $Graph -Text 'WAN Accelerator Diagram' -Width $BestAspectRatio.Width -Height $BestAspectRatio.Height -Align Center
+                                }
+                                BlankLine
+                            }
+                        } catch {
+                            Write-PScriboMessage -IsWarning "WAN Accelerator Diagram Section: $($_.Exception.Message)"
+                        }
                     }
                 }
             }
         } catch {
-            Write-PScriboMessage -IsWarning "Wan Accelerator Document: $($_.Exception.Message)"
+            Write-PScriboMessage -IsWarning "WAN Accelerator Document: $($_.Exception.Message)"
         }
     }
     end {

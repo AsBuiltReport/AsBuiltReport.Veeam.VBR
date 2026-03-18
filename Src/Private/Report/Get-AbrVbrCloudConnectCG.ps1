@@ -30,7 +30,7 @@ function Get-AbrVbrCloudConnectCG {
             if ($VbrLicenses | Where-Object { $_.CloudConnect -ne 'Disabled' }) {
                 if ($CloudObjects = Get-VBRCloudGateway | Sort-Object -Property Name) {
                     Section -Style Heading3 'Cloud Gateways' {
-                        Paragraph 'The following section provides summary information about configured Cloud Gateways.'
+                        Paragraph 'The following section provides a summary of all configured Veeam Cloud Connect Gateways, including their status and network settings.'
                         BlankLine
                         try {
                             $OutObj = @()

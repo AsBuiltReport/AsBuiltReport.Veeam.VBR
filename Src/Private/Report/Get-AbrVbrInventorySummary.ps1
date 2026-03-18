@@ -58,7 +58,7 @@ function Get-AbrVbrInventorySummary {
                     $inObj.add('File Shares', ($Shares | Measure-Object).Count)
                 } else {
                     $inObj.add('File Server', ($FileServers | Measure-Object).Count)
-                    $inObj.add('NAS Fillers', ($NASFillers | Measure-Object).Count)
+                    $inObj.add('NAS Filers', ($NASFillers | Measure-Object).Count)
                     $inObj.add('File Shares', ($FileShares | Measure-Object).Count)
                     $inObj.add('Object Storage', ($ObjectStorage | Measure-Object).Count)
                 }

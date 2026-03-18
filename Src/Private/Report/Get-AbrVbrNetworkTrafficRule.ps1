@@ -29,7 +29,7 @@ function Get-AbrVbrNetworkTrafficRule {
         try {
             if ($TrafficOptions = Get-VBRNetworkTrafficRuleOptions) {
                 Section -Style Heading4 'Network Traffic Rules Options' {
-                    Paragraph 'The following section details network traffic rules options configured on Veeam Backup & Replication.'
+                    Paragraph 'The following section details the global network traffic rule options configured in Veeam Backup & Replication, including upload stream and IPv6 settings.'
                     BlankLine
                     $OutObj = @()
                     try {
@@ -51,7 +51,7 @@ function Get-AbrVbrNetworkTrafficRule {
                         $OutObj | Table @TableParams
                         if ($TrafficRules = Get-VBRNetworkTrafficRule) {
                             Section -Style Heading5 'Network Traffic Rule' {
-                                Paragraph 'The following section details network traffic rules settings configured on Veeam Backup & Replication.'
+                                Paragraph 'The following section details the individual network traffic rules configured in Veeam Backup & Replication, including IP ranges, encryption, and throttling settings.'
                                 BlankLine
                                 $OutObj = @()
                                 try {

@@ -29,7 +29,7 @@ function Get-AbrVbrObjectRepository {
         try {
             if ($ObjectRepos = Get-VBRObjectStorageRepository | Sort-Object -Property Name) {
                 Section -Style Heading3 'Object Storage Repository' {
-                    Paragraph 'The following section provides a summary about the Veeam Object Storage Repository.'
+                    Paragraph 'The following section provides a summary of all configured object storage repositories, including their type, connection mode, and gateway server.'
                     BlankLine
                     $OutObj = @()
                     foreach ($ObjectRepo in $ObjectRepos) {
@@ -94,7 +94,7 @@ function Get-AbrVbrObjectRepository {
                         try {
                             if ($ObjectRepos) {
                                 Section -Style Heading4 'Object Storage Repository Configuration' {
-                                    Paragraph 'The following section provides detailed information about Object Storage Backup Repository'
+                                    Paragraph 'The following section provides detailed configuration information for each object storage backup repository, including authentication, bucket, and folder settings.'
                                     BlankLine
                                     foreach ($ObjectRepo in $ObjectRepos) {
                                         try {
@@ -184,7 +184,7 @@ function Get-AbrVbrObjectRepository {
                 try {
                     if ($ObjectRepoArchives = Get-VBRArchiveObjectStorageRepository | Sort-Object -Property Name) {
                         Section -Style Heading3 'Archive Object Storage Repository' {
-                            Paragraph 'The following section provides detailed information about Archive Object Storage Backup Repository'
+                            Paragraph 'The following section provides detailed configuration information for each archive object storage repository, including archive type, proxy settings, and immutability configuration.'
                             BlankLine
                             foreach ($ObjectRepoArchive in $ObjectRepoArchives) {
                                 try {

@@ -29,7 +29,7 @@ function Get-AbrVbrVirtualInfrastructure {
         try {
             if ($VbrServer = Get-VBRServer) {
                 Section -Style Heading3 'Virtual Infrastructure' {
-                    Paragraph "The following sections detail the configuration about managed virtual servers backed-up by Veeam Server $VeeamBackupServer."
+                    Paragraph "The following sections detail the virtual infrastructure backed up by Veeam Backup Server $VeeamBackupServer, including VMware vSphere and Microsoft Hyper-V environments."
                     BlankLine
                     #---------------------------------------------------------------------------------------------#
                     #                            VMware vSphere information Section                               #
@@ -37,7 +37,7 @@ function Get-AbrVbrVirtualInfrastructure {
                     try {
                         if ($VbrServer | Where-Object { $_.Type -eq 'VC' -or $_.Type -eq 'ESXi' }) {
                             Section -Style Heading4 'VMware vSphere' {
-                                Paragraph "The following section details information about VMware Virtual Infrastructure backed-up by Veeam Server $VeeamBackupServer."
+                                Paragraph "The following section details the VMware vSphere infrastructure components, including vCenter Servers, ESXi hosts, and virtual machines, managed by Veeam Backup Server $VeeamBackupServer."
                                 BlankLine
                                 $InventObjs = $VbrServer | Where-Object { $_.Type -eq 'VC' }
                                 if ($InventObjs) {

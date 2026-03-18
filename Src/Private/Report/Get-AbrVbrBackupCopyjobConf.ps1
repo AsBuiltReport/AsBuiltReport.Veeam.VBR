@@ -29,7 +29,7 @@ function Get-AbrVbrBackupCopyjobConf {
         try {
             if ($Bkjobs = Get-VBRBackupCopyJob -WarningAction SilentlyContinue | Sort-Object -Property Name) {
                 Section -Style Heading3 'Backup Copy Jobs Configuration' {
-                    Paragraph 'The following section details the configuration of backup copy jobs.'
+                    Paragraph 'The following section provides detailed configuration information for each backup copy job, including source and target repository, schedule, and retention settings.'
                     BlankLine
                     $OutObj = @()
                     foreach ($Bkjob in $Bkjobs) {

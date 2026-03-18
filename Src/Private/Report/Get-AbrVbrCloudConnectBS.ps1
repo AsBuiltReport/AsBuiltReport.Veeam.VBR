@@ -30,7 +30,7 @@ function Get-AbrVbrCloudConnectBS {
                 if (((Get-VBRCloudTenant).Resources.Repository).count -gt 0) {
                     $CloudObjects = (Get-VBRCloudTenant).Resources
                     Section -Style Heading3 'Backup Storage' {
-                        Paragraph 'The following section provides information about Veeam Cloud Connect configured Backup Storage.'
+                        Paragraph 'The following section provides information about the backup storage resources configured for Veeam Cloud Connect tenants.'
                         BlankLine
                         foreach ($CloudObject in ($CloudObjects.Repository | Sort-Object -Property Name -Unique)) {
                             try {

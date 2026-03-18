@@ -28,7 +28,7 @@ function Get-AbrVbrUserRoleAssignment {
     process {
         try {
             Section -Style Heading3 'Roles and Users' {
-                Paragraph 'The following section provides information about roles assigned to users or groups.'
+                Paragraph 'The following section provides information about the roles and permissions assigned to users and groups within Veeam Backup & Replication.'
                 BlankLine
                 $OutObj = @()
                 try {

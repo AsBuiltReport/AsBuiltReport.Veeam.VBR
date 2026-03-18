@@ -29,7 +29,7 @@ function Get-AbrVbrTapeLibrary {
         try {
             if ($TapeObjs = Get-VBRTapeLibrary | Sort-Object -Property Name) {
                 Section -Style Heading3 'Tape Libraries' {
-                    Paragraph 'The following section provides summary information about Tape Server connected Tape Library.'
+                    Paragraph 'The following section provides a summary of the tape libraries connected to Tape Servers managed by Veeam Backup & Replication.'
                     BlankLine
                     $OutObj = @()
                     try {

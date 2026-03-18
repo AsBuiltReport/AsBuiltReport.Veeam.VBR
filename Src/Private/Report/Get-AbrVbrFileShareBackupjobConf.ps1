@@ -33,7 +33,7 @@ function Get-AbrVbrFileShareBackupjobConf {
                 $BSName = 'Unstructured Data Backup Jobs Configuration'
             }
             Section -Style Heading3 $BSName {
-                Paragraph "The following section details the information of $($BSName.ToLower())."
+                Paragraph "The following section provides detailed configuration information for each $($BSName.ToLower()), including schedule, retention policy, and protected data sources."
                 BlankLine
                 foreach ($Bkjob in $Bkjobs) {
                     try {

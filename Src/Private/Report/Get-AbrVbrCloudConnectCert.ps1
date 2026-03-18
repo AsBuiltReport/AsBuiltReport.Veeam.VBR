@@ -30,7 +30,7 @@ function Get-AbrVbrCloudConnectCert {
             if ($VbrLicenses | Where-Object { $_.CloudConnect -ne 'Disabled' }) {
                 if ($CloudObjects = Get-VBRCloudGatewayCertificate) {
                     Section -Style Heading3 'Gateway Certificate' {
-                        Paragraph 'The following section provides information about Cloud Gateways SSL Certificate.'
+                        Paragraph 'The following section provides information about the TLS/SSL certificate configured for the Veeam Cloud Connect gateway.'
                         BlankLine
                         try {
                             $OutObj = @()

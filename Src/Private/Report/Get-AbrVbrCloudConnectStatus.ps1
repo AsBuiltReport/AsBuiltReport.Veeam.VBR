@@ -29,7 +29,7 @@ function Get-AbrVbrCloudConnectStatus {
         if ($VbrLicenses | Where-Object { $_.CloudConnect -ne 'Disabled' }) {
             if ($CloudConnectInfraStatus = Get-VBRCloudInfrastructureState) {
                 Section -Style Heading3 'Service Status' {
-                    Paragraph 'The following section provides information about Cloud Gateways SSL Certificate.'
+                    Paragraph 'The following section provides information about the current operational status of the Veeam Cloud Connect service and its components.'
                     BlankLine
                     try {
                         $CloudConnectInfraServiceStatus = Get-VBRCloudInfrastructureServiceState

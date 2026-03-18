@@ -29,7 +29,7 @@ function Get-AbrVbrPhysicalInfrastructure {
         try {
             if (($VbrLicenses | Where-Object { $_.Status -ne 'Expired' }) -and $InventObjs) {
                 Section -Style Heading3 'Physical Infrastructure' {
-                    Paragraph 'The following sections detail configuration information about managed physical infrastructure.'
+                    Paragraph 'The following sections detail the physical infrastructure components, including protection groups and managed servers, protected by Veeam Backup & Replication.'
                     BlankLine
                     try {
                         Section -Style Heading4 'Protection Groups Summary' {

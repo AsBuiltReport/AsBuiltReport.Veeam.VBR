@@ -425,9 +425,9 @@ function New-AbrVeeamDiagram {
             'Backup-to-Sobr' { 'Scale-Out Backup Repository Diagram' }
             'Backup-to-File-Proxy' { 'File Backup Proxy Diagram' }
             'Backup-to-vSphere-Proxy' { 'VMware Backup Proxy Diagram' }
-            'Backup-to-HyperV-Proxy' { 'HyperV Backup Proxy Diagram' }
+            'Backup-to-HyperV-Proxy' { 'Hyper-V Backup Proxy Diagram' }
             'Backup-to-Repository' { 'Backup Repository Diagram' }
-            'Backup-to-WanAccelerator' { 'Wan Accelerators Diagram' }
+            'Backup-to-WanAccelerator' { 'WAN Accelerators Diagram' }
             'Backup-to-Tape' { 'Tape Infrastructure Diagram' }
             'Backup-to-ProtectedGroup' { 'Physical Infrastructure Diagram' }
             'Backup-Infrastructure' { 'Backup Infrastructure Diagram' }
@@ -629,7 +629,7 @@ function New-AbrVeeamDiagram {
                             if ($BackuptoHyperVProxy) {
                                 $BackuptoHyperVProxy
                             } else {
-                                throw 'No HyperV Proxy Infrastructure available to diagram'
+                                throw 'No Hyper-V Proxy Infrastructure available to diagram'
                             }
                         } elseif ($DiagramType -eq 'Backup-to-vSphere-Proxy') {
                             Get-AbrDiagBackupServer
@@ -653,7 +653,7 @@ function New-AbrVeeamDiagram {
                             if ($BackuptoWanAccelerator) {
                                 $BackuptoWanAccelerator
                             } else {
-                                throw 'No Wan Accelerators available to diagram'
+                                throw 'No WAN Accelerators available to diagram'
                             }
                         } elseif ($DiagramType -eq 'Backup-to-Repository') {
                             Get-AbrDiagBackupServer

@@ -28,7 +28,7 @@ function Get-AbrVbrStorageIsilon {
     process {
         if ($IsilonHosts = Get-VBRIsilonHost) {
             Section -Style Heading3 'Dell Isilon Storage' {
-                Paragraph 'The following section details information about Dell storage infrastructure.'
+                Paragraph 'The following section details the Dell EMC PowerScale (Isilon) storage systems integrated with Veeam Backup & Replication for storage snapshot-based data protection.'
                 BlankLine
                 $OutObj = @()
                 foreach ($IsilonHost in $IsilonHosts) {

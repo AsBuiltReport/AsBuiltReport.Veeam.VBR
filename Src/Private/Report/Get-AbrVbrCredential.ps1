@@ -29,7 +29,7 @@ function Get-AbrVbrCredential {
         try {
             if ($Credentials = Get-VBRCredentials) {
                 Section -Style Heading3 'Security Credentials' {
-                    Paragraph 'The following table provide information about the credentials managed by Veeam Backup & Replication.'
+                    Paragraph 'The following table lists all credentials stored and managed by Veeam Backup & Replication, including the last modification date and associated description.'
                     BlankLine
                     $OutObj = @()
                     foreach ($Credential in $Credentials) {
@@ -62,7 +62,7 @@ function Get-AbrVbrCredential {
                     try {
                         if ($CloudCredentials = Get-VBRCloudProviderCredentials) {
                             Section -Style Heading3 'Service Provider Credentials' {
-                                Paragraph 'The following table provide information about the service provider credentials managed by Veeam Backup & Replication.'
+                                Paragraph 'The following table lists all service provider credentials stored in Veeam Backup & Replication for Cloud Connect authentication.'
                                 BlankLine
                                 $OutObj = @()
                                 foreach ($CloudCredential in $CloudCredentials) {

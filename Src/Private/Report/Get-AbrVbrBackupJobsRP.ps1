@@ -28,7 +28,7 @@ function Get-AbrVbrBackupJobsRP {
             if ($BackupJobs = Get-VBRBackup | Sort-Object -Property Name) {
                 Write-PScriboMessage 'Collecting Veeam VBR Restore Point.'
                 Section -Style Heading3 'Backup Restore Points' {
-                    Paragraph 'The following section details per Backup Job restore points.'
+                    Paragraph 'The following section summarizes the available restore points for each backup job, including creation date and storage location.'
                     BlankLine
                     foreach ($BackupJob in $BackupJobs) {
                         if ($BackupJobRestorePoints = Get-VBRRestorePoint -Backup $BackupJob | Sort-Object -Property VMName, CreationTimeUt, Type) {

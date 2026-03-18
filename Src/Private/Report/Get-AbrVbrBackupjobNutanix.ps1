@@ -29,7 +29,7 @@ function Get-AbrVbrBackupjobNutanix {
         try {
             if ($Bkjobs = [Veeam.Backup.Core.CBackupJob]::GetAll() | Where-Object { $_.TypeToString -like '*Nutanix*' } | Sort-Object -Property 'Name') {
                 Section -Style Heading3 'Nutanix Backup Jobs' {
-                    Paragraph 'This section provides detailed information about Nutanix backup jobs configured in Veeam Backup & Replication, including their status and latest results.'
+                    Paragraph 'The following section provides detailed information about Nutanix AHV backup jobs configured in Veeam Backup & Replication, including their current status and latest run results.'
                     BlankLine
                     $OutObj = @()
                     foreach ($Bkjob in $Bkjobs) {

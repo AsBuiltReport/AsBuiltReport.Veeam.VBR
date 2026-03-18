@@ -81,7 +81,7 @@ function Get-AbrVbrBackupRepository {
 
                 if ($OutObj) {
                     Section -Style Heading3 'Backup Repository' {
-                        Paragraph 'The following section provides Backup Repository summary information.'
+                        Paragraph 'The following section summarizes all configured backup repositories, including total capacity, available free space, and current utilization.'
                         BlankLine
                         try {
                             $sampleData = $OutObj | Select-Object Name, 'Used Space %', 'Free Space %'
@@ -114,7 +114,7 @@ function Get-AbrVbrBackupRepository {
                         if ($InfoLevel.Infrastructure.BR -ge 2) {
                             try {
                                 Section -Style Heading4 'Backup Repository Configuration' {
-                                    Paragraph 'The following section provides a detailed information of the Veeam Backup Repository Configuration.'
+                                    Paragraph 'The following section provides detailed configuration information for each backup repository, including storage type, path, and retention settings.'
                                     BlankLine
                                     foreach ($BackupRepo in $BackupRepos) {
                                         try {
@@ -218,6 +218,24 @@ function Get-AbrVbrBackupRepository {
                                 }
                             } catch {
                                 Write-PScriboMessage -IsWarning "Backup Repository Configuration Section: $($_.Exception.Message)"
+                            }
+                        }
+                        if ($Options.EnableDiagrams) {
+                            try {
+                                try {
+                                    $Graph = Get-AbrVbrDiagrammer -DiagramType 'Backup-to-Repository' -DiagramOutput base64
+                                } catch {
+                                    Write-PScriboMessage -IsWarning "Backup Repository Diagram: $($_.Exception.Message)"
+                                }
+                                if ($Graph) {
+                                    $BestAspectRatio = Get-BestImageAspectRatio -GraphObj $Graph -MaxWidth 600
+                                    Section -Style Heading4 'Backup Repository Diagram' {
+                                        Image -Base64 $Graph -Text 'Backup Repository Diagram' -Width $BestAspectRatio.Width -Height $BestAspectRatio.Height -Align Center
+                                    }
+                                    BlankLine
+                                }
+                            } catch {
+                                Write-PScriboMessage -IsWarning "Backup Repository Diagram Section: $($_.Exception.Message)"
                             }
                         }
                     }

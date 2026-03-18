@@ -28,7 +28,7 @@ function Get-AbrVbrUnstructuredDataInfo {
     process {
         if ($ShareObjs = Get-VBRUnstructuredServer) {
             Section -Style Heading3 'Unstructured Data' {
-                Paragraph "The following table provides a summary about the unstructured data backed-up by Veeam Server $VeeamBackupServer."
+                Paragraph "The following table provides a summary of the unstructured data sources (file shares, NAS, and object storage) protected by Veeam Backup Server $VeeamBackupServer."
                 $OutObj = @()
                 try {
                     foreach ($ShareObj in $ShareObjs | Where-Object { $_.Type -eq 'FileServer' }) {
@@ -84,10 +84,10 @@ function Get-AbrVbrUnstructuredDataInfo {
                                 'Path' = $Path
                                 'Type' = switch ($ShareObj.Type) {
                                     'FileServer' { 'File Server' }
-                                    'SANSMB' { 'NAS Filler' }
+                                    'SANSMB' { 'NAS Filer' }
                                     'SMB' { 'SMB Share' }
                                     'NFS' { 'NFS Share' }
-                                    'SANNFS' { 'NAS Filler' }
+                                    'SANNFS' { 'NAS Filer' }
                                     default { $ShareObj.Type }
                                 }
                                 'Backup IO Control' = $ShareObj.BackupIOControlLevel
@@ -105,9 +105,9 @@ function Get-AbrVbrUnstructuredDataInfo {
                     }
 
                     if ($OutObj) {
-                        Section -Style Heading4 'NAS Fillers' {
+                        Section -Style Heading4 'NAS Filers' {
                             $TableParams = @{
-                                Name = "NAS Fillers - $VeeamBackupServer"
+                                Name = "NAS Filers - $VeeamBackupServer"
                                 List = $false
                                 ColumnWidths = 30, 13, 12, 22, 23
                             }
@@ -119,7 +119,7 @@ function Get-AbrVbrUnstructuredDataInfo {
                         }
                     }
                 } catch {
-                    Write-PScriboMessage -IsWarning "Unstructured Data NAS Fillers Section: $($_.Exception.Message)"
+                    Write-PScriboMessage -IsWarning "Unstructured Data NAS Filers Section: $($_.Exception.Message)"
                 }
                 $OutObj = @()
                 try {
@@ -138,10 +138,10 @@ function Get-AbrVbrUnstructuredDataInfo {
                                 'Path' = $Path
                                 'Type' = switch ($ShareObj.Type) {
                                     'FileServer' { 'File Server' }
-                                    'SANSMB' { 'NAS Filler' }
+                                    'SANSMB' { 'NAS Filer' }
                                     'SMB' { 'SMB Share' }
                                     'NFS' { 'NFS Share' }
-                                    'SANNFS' { 'NAS Filler' }
+                                    'SANNFS' { 'NAS Filer' }
                                     default { $ShareObj.Type }
                                 }
                                 'Backup IO Control' = $ShareObj.BackupIOControlLevel

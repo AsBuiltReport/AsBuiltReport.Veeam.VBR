@@ -55,7 +55,7 @@ function Get-AbrVbrBackupServerInfo {
             }
             if ($BackupServers) {
                 Section -Style Heading3 'Backup Server' {
-                    Paragraph 'The following table details information about Veeam Backup & Replication configuration status.'
+                    Paragraph 'The following table details the Veeam Backup & Replication server configuration, including version, database settings, network ports, and security options.'
                     BlankLine
                     $OutObj = @()
                     try {
@@ -608,7 +608,7 @@ function Get-AbrVbrBackupServerInfo {
                             }
                             if ($UpdObj) {
                                 Section -Style Heading4 'Missing Windows Updates' {
-                                    Paragraph 'The following table provides a summary of the backup server pending/missing windows updates.'
+                                    Paragraph 'The following table provides a summary of pending or missing Windows updates on the backup server.'
                                     BlankLine
                                     $UpdObj
                                 }

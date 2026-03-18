@@ -29,7 +29,7 @@ function Get-AbrVbrEntraIDBackupjobConf {
         try {
             if ($Bkjobs = Get-VBREntraIDTenantBackupJob | Sort-Object -Property 'Name') {
                 Section -Style Heading3 'Entra ID Tenant Backup Jobs Configuration' {
-                    Paragraph 'The following section details the configuration of entra id backup jobs.'
+                    Paragraph 'The following section provides detailed configuration information for each Microsoft Entra ID backup job, including schedule, retention policy, and protected objects.'
                     BlankLine
                     $OutObj = @()
                     foreach ($Bkjob in $Bkjobs) {

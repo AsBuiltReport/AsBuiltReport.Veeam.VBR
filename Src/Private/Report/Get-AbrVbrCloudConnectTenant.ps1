@@ -30,7 +30,7 @@ function Get-AbrVbrCloudConnectTenant {
             if ($VbrLicenses | Where-Object { $_.CloudConnect -ne 'Disabled' }) {
                 if ($CloudObjects = Get-VBRCloudTenant | Sort-Object -Property Name) {
                     Section -Style Heading3 'Tenants' {
-                        Paragraph 'The following table provides status information about Cloud Connect Tenants.'
+                        Paragraph 'The following table summarizes all configured Veeam Cloud Connect tenants, including their connection status and resource allocation.'
                         BlankLine
                         $OutObj = @()
                         foreach ($CloudObject in $CloudObjects) {
@@ -86,7 +86,7 @@ function Get-AbrVbrCloudConnectTenant {
                         if ($InfoLevel.CloudConnect.Tenants -ge 2) {
                             try {
                                 Section -Style Heading4 'Tenants Configuration' {
-                                    Paragraph 'The following section provides detailed configuration information about Cloud Connect Tenants.'
+                                    Paragraph 'The following section provides detailed configuration and resource allocation information for each Cloud Connect tenant.'
                                     BlankLine
                                     foreach ($CloudObject in $CloudObjects) {
                                         Section -Style Heading5 $CloudObject.Name {

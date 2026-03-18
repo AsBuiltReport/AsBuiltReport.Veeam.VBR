@@ -28,7 +28,7 @@ function Get-AbrVbrStorageOntap {
     process {
         if ($OntapHosts = Get-NetAppHost) {
             Section -Style Heading3 'NetApp Ontap Storage' {
-                Paragraph 'The following section details information about NetApp storage infrastructure.'
+                Paragraph 'The following section details the NetApp ONTAP storage systems integrated with Veeam Backup & Replication for storage snapshot-based data protection.'
                 BlankLine
                 $OutObj = @()
                 try {

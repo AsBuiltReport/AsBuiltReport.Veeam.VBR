@@ -29,7 +29,7 @@ function Get-AbrVbrBackupjobNutanixConf {
         try {
             if ($Bkjobs = [Veeam.Backup.Core.CBackupJob]::GetAll() | Where-Object { $_.TypeToString -like '*Nutanix*' } | Sort-Object -Property 'Name') {
                 Section -Style Heading3 'Nutanix Backup Jobs Configuration' {
-                    Paragraph 'The following section details the configuration of Nutanix type backup jobs.'
+                    Paragraph 'The following section provides detailed configuration information for each Nutanix AHV backup job, including schedule, retention policy, and protected workloads.'
                     BlankLine
                     $OutObj = @()
                     try {

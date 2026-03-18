@@ -29,7 +29,7 @@ function Get-AbrVbrFileToTape {
         try {
             if ($TBkjobs = Get-VBRTapeJob | Where-Object { $_.Type -eq 'FileToTape' } | Sort-Object -Property Name) {
                 Section -Style Heading3 'File To Tape Job Configuration' {
-                    Paragraph 'The following section details the configuration about file to tape jobs.'
+                    Paragraph 'The following section provides detailed configuration information for each File-to-Tape job, including source paths, tape media pool, and schedule settings.'
                     BlankLine
                     $OutObj = @()
                     if ($TBkjobs) {

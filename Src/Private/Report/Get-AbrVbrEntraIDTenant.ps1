@@ -28,7 +28,7 @@ function Get-AbrVbrEntraIDTenant {
     process {
         if ($EntraIDObjs = Get-VBREntraIDTenant) {
             Section -Style Heading3 'Entra ID Tenant' {
-                Paragraph "The following table provides a summary about the EntraID information from Veeam Server $VeeamBackupServer."
+                Paragraph "The following table provides a summary of Microsoft Entra ID tenants registered with Veeam Backup Server $VeeamBackupServer."
                 BlankLine
                 $OutObj = @()
                 try {

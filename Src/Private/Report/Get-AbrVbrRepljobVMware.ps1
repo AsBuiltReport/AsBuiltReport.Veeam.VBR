@@ -29,7 +29,7 @@ function Get-AbrVbrRepljobVMware {
         try {
             if ($Bkjobs = Get-VBRJob -WarningAction SilentlyContinue | Where-Object { $_.TypeToString -eq 'VMware Replication' } | Sort-Object -Property Name) {
                 Section -Style Heading3 'VMware Replication Jobs Configuration' {
-                    Paragraph 'The following section details the configuration abut VMware type backup jobs.'
+                    Paragraph 'The following section provides detailed configuration information for each VMware replication job, including source and target hosts, schedule, and replica settings.'
                     BlankLine
                     $OutObj = @()
                     try {

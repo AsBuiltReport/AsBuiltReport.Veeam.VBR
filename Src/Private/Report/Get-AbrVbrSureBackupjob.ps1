@@ -29,7 +29,7 @@ function Get-AbrVbrSureBackupjob {
         try {
             if ($SBkjobs = Get-VBRSureBackupJob | Sort-Object -Property 'Job Name') {
                 Section -Style Heading3 'SureBackup Jobs' {
-                    Paragraph 'The following section list surebackup jobs created in Veeam Backup & Replication.'
+                    Paragraph 'The following section lists all SureBackup jobs configured in Veeam Backup & Replication, along with their current status and last run result.'
                     BlankLine
                     $OutObj = @()
                     foreach ($SBkjob in $SBkjobs) {

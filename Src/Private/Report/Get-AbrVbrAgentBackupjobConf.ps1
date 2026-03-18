@@ -29,7 +29,7 @@ function Get-AbrVbrAgentBackupjobConf {
         try {
             if ($ABkjobs = Get-VBRComputerBackupJob | Sort-Object -Property Name) {
                 Section -Style Heading3 'Agent Backup Jobs Configuration' {
-                    Paragraph 'The following section details agent backup jobs configuration created in Veeam Backup & Replication.'
+                    Paragraph 'The following section provides detailed configuration information for each agent-based backup job, including schedule, retention policy, and protected workloads.'
                     BlankLine
                     $OutObj = @()
                     foreach ($ABkjob in $ABkjobs) {

@@ -65,7 +65,7 @@ function Get-AbrVbrTapeBackupJobsRP {
                 }
                 if ($TapeRestorePoints) {
                     Section -Style Heading3 'Tape Backup Restore Points' {
-                        Paragraph 'The following section details per Tape Backup Job restore points.'
+                        Paragraph 'The following section summarizes the available restore points for each tape backup job, including the media pool and session details.'
                         BlankLine
                         $TapeRestorePoints
                     }

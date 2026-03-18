@@ -28,7 +28,7 @@ function Get-AbrVbrAgentBackupjob {
         try {
             if ($ABkjobs = Get-VBRComputerBackupJob) {
                 Section -Style Heading3 'Agent Backup Jobs' {
-                    Paragraph 'The following section list agent backup jobs created in Veeam Backup & Replication.'
+                    Paragraph 'The following section lists all agent-based backup jobs configured in Veeam Backup & Replication, along with their current status and last run result.'
                     BlankLine
                     $OutObj = @()
                     foreach ($ABkjob in $ABkjobs) {

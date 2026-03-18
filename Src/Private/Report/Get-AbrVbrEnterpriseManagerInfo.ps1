@@ -29,7 +29,7 @@ function Get-AbrVbrEnterpriseManagerInfo {
         try {
             if ($BackupServers) {
                 Section -Style Heading3 'Enterprise Manager Information' {
-                    Paragraph 'The following table details information about Veeam Enterprise Manager configuration status'
+                    Paragraph 'The following table details the Veeam Enterprise Manager connection settings and current configuration status.'
                     BlankLine
                     $OutObj = @()
                     foreach ($BackupServer in $BackupServers) {

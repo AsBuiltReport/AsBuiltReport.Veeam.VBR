@@ -33,7 +33,7 @@ function Get-AbrRoleType {
         - Cloud
         - SAN
         - VMware Backup Proxy
-        - HyperV Backup Proxy
+        - Hyper-V Backup Proxy
         - Agent and Files Backup Proxy
         - NAS Backup Proxy
         - SMB Share
@@ -70,7 +70,7 @@ function Get-AbrRoleType {
         'Cloud' { 'Cloud' }
         'SanSnapshotOnly' { 'SAN' }
         'vmware' { 'VMware Backup Proxy' }
-        'hyperv' { 'HyperV Backup Proxy' }
+        'hyperv' { 'Hyper-V Backup Proxy' }
         'agent' { 'Agent and Files Backup Proxy' }
         'nas' { 'NAS Backup Proxy' }
         'CifsShare' { 'SMB Share' }

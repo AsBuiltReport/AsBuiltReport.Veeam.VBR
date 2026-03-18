@@ -29,7 +29,7 @@ function Get-AbrVbrBackupToTape {
         try {
             if ($TBkjobs = Get-VBRTapeJob | Where-Object { $_.Type -eq 'BackupToTape' } | Sort-Object -Property Name) {
                 Section -Style Heading3 'Backup To Tape Job Configuration' {
-                    Paragraph 'The following section details the configuration about the backup to tape jobs .'
+                    Paragraph 'The following section provides detailed configuration information for each Backup-to-Tape job, including source repository, tape media pool, and schedule settings.'
                     BlankLine
                     $OutObj = @()
                     if ($TBkjobs) {

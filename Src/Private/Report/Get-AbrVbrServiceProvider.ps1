@@ -30,7 +30,7 @@ function Get-AbrVbrServiceProvider {
             $CloudProviders = Get-VBRCloudProvider | Sort-Object -Property 'DNSName'
             if (($VbrLicenses | Where-Object { $_.Edition -in @('EnterprisePlus') }) -and $CloudProviders) {
                 Section -Style Heading3 'Service Providers' {
-                    Paragraph 'The following section provides a summary about configured Veeam Cloud Service Providers.'
+                    Paragraph 'The following section provides a summary of all Veeam Cloud Service Providers (VCSPs) configured as replication or backup targets in Veeam Backup & Replication.'
                     BlankLine
                     try {
                         $OutObj = @()

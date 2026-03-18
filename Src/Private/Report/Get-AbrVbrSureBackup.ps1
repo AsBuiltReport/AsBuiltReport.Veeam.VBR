@@ -31,12 +31,12 @@ function Get-AbrVbrSureBackup {
             $SureBackupVLs = Get-VBRVirtualLab | Sort-Object -Property Name
             if ($SureBackupAGs -or $SureBackupVLs) {
                 Section -Style Heading3 'SureBackup Configuration' {
-                    Paragraph 'The following section provides configuration information about SureBackup.'
+                    Paragraph 'The following section provides configuration information about SureBackup, which enables automated backup verification using isolated virtual labs and application groups.'
                     BlankLine
                     try {
                         if ($SureBackupAGs) {
                             Section -Style Heading4 'Application Groups' {
-                                Paragraph 'The following section provides a summary about Application Groups.'
+                                Paragraph 'The following section provides a summary of the Application Groups configured for SureBackup verification, including the virtual machines included in each group.'
                                 BlankLine
                                 $OutObj = @()
                                 try {
@@ -117,7 +117,7 @@ function Get-AbrVbrSureBackup {
                     if ($SureBackupVLs) {
                         try {
                             Section -Style Heading4 'Virtual Labs' {
-                                Paragraph 'The following section provides a summary about SureBackup Virtual Lab.'
+                                Paragraph 'The following section provides a summary of the Virtual Labs configured for SureBackup verification, including the host platform and physical host details.'
                                 BlankLine
                                 $OutObj = @()
                                 try {

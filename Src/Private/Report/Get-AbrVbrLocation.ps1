@@ -29,7 +29,7 @@ function Get-AbrVbrLocation {
         try {
             if ($Locations = Get-VBRLocation) {
                 Section -Style Heading3 'Geographical Locations' {
-                    Paragraph 'The following section provide a summary about geographical locations.'
+                    Paragraph 'The following section provides a summary of the geographical locations configured in Veeam Backup & Replication for organizing infrastructure components.'
                     BlankLine
                     try {
                         $OutObj = @()
