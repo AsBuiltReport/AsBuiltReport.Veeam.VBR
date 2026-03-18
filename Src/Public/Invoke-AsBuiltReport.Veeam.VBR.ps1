@@ -5,7 +5,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.25
+        Version:        0.9.0
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -103,6 +103,8 @@ function Invoke-AsBuiltReport.Veeam.VBR {
         $VeeamBackupServer = ((Get-VBRServerSession).Server).ToString().ToUpper().Split('.')[0]
         $script:VbrLicenses = Get-VBRInstalledLicense
 
+        Get-AbrVbrReportBrief
+
         Section -Style Heading1 $($VeeamBackupServer) {
             Paragraph 'This section provides an overview of the key infrastructure components, configuration settings, and protected workloads managed by Veeam Backup & Replication.'
             BlankLine
@@ -132,9 +134,9 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                     Paragraph "This section provides detailed configuration information for the Veeam Backup & Replication server $($VeeamBackupServer), including infrastructure settings, credentials, and backup infrastructure components."
                     BlankLine
                     if ($InfoLevel.Infrastructure.BackupServer -ge 1) {
-                        # Get-AbrVbrInfrastructureSummary
+                        Get-AbrVbrInfrastructureSummary
                         if ($VbrVersion -ge 12) {
-                            # Get-AbrVbrSecurityCompliance
+                            Get-AbrVbrSecurityCompliance
                         }
                         Get-AbrVbrBackupServerInfo
                         Get-AbrVbrEnterpriseManagerInfo
