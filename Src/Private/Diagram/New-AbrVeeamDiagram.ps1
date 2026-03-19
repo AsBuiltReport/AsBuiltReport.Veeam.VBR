@@ -124,7 +124,7 @@ function New-AbrVeeamDiagram {
         For best results, ensure all image assets meet the recommended size guidelines.
 
     .NOTES
-        Version:        0.8.24
+        Version:        0.9.0
         Author(s):      Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
