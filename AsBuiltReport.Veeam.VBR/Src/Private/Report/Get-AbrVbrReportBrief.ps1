@@ -9,7 +9,7 @@ function Get-AbrVbrReportBrief {
         Version:        0.9.0
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
-        Github:         rebelinux
+        GitHub:         rebelinux
         Credits:        Iain Brighton (@iainbrighton) - PScribo module
 
     .LINK
