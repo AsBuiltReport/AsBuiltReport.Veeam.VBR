@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Migrate charts to use AsBuiltReport.Chart charting functions
 - Migrate diagrams to use AsBuiltReport.Diagram diagramming functions
 - Update module references in README.md for Veeam VBR As Built Report
+- Reorganize module structure - moved module files to AsBuiltReport.Veeam.VBR/ subdirectory
 
 ## [0.8.26] - 2026-02-20
 
