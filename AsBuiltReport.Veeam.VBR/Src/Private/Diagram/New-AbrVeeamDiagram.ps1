@@ -454,8 +454,8 @@ function New-AbrVeeamDiagram {
                             Write-AbrColorOutput -Color 'White' -String " - $Module module v$($InstalledVersion.ToString()) is currently installed."
                             $LatestVersion = Find-Module -Name $Module -Repository PSGallery -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Version
                             if ($InstalledVersion -lt $LatestVersion) {
-                                Write-AbrColorOutput -Color 'White' -String "  - $Module module v$($LatestVersion.ToString()) is available." -Color Red
-                                Write-AbrColorOutput -Color 'White' -String "  - Run 'Update-Module -Name $Module -Force' to install the latest version." -Color Red
+                                Write-AbrColorOutput -Color 'Red' -String "  - $Module module v$($LatestVersion.ToString()) is available."
+                                Write-AbrColorOutput -Color 'Red' -String "  - Run 'Update-Module -Name $Module -Force' to install the latest version."
                             }
                         }
                     } catch {
