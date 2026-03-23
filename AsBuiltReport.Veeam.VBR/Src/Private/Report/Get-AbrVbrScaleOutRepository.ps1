@@ -28,7 +28,7 @@ function Get-AbrVbrScaleOutRepository {
     process {
         try {
             if ($BackupRepos = Get-VBRBackupRepository -ScaleOut | Sort-Object -Property Name) {
-                Section -Style Heading3 'ScaleOut Backup Repository' {
+                Section -Style Heading3 'Scale-Out Backup Repository' {
                     Paragraph 'The following section provides a summary of all configured Scale-Out Backup Repositories (SOBR), including performance, capacity, and archive tier assignments.'
                     BlankLine
                     $OutObj = @()
@@ -67,7 +67,7 @@ function Get-AbrVbrScaleOutRepository {
                     #---------------------------------------------------------------------------------------------#
                     if ($InfoLevel.Infrastructure.SOBR -ge 2) {
                         try {
-                            Section -Style Heading4 'ScaleOut Backup Repository Configuration' {
+                            Section -Style Heading4 'Scale-Out Backup Repository Configuration' {
                                 Paragraph 'The following section provides detailed configuration information for each Scale-Out Backup Repository, including performance extent, capacity tier, and archive tier settings.'
                                 BlankLine
                                 #---------------------------------------------------------------------------------------------#
@@ -320,7 +320,7 @@ function Get-AbrVbrScaleOutRepository {
                             if ($Graph) {
                                 $BestAspectRatio = Get-BestImageAspectRatio -GraphObj $Graph -MaxWidth 600 -MaxHeight 600
                                 PageBreak
-                                Section -Style Heading4 'ScaleOut Backup Repository Diagram' {
+                                Section -Style Heading4 'Scale-Out Backup Repository Diagram' {
                                     Image -Base64 $Graph -Text 'ScaleOut Backup Repository Diagram' -Width $BestAspectRatio.Width -Height $BestAspectRatio.Height -Align Center
                                     PageBreak
                                 }

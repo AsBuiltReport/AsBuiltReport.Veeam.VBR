@@ -32,6 +32,8 @@ function Get-AbrVbrTapeMediaPool {
                 #                            Tape Media Pools Section                                         #
                 #---------------------------------------------------------------------------------------------#
                 Section -Style Heading3 'Tape Media Pools' {
+                    Paragraph 'The following section lists all tape media pools configured in Veeam Backup & Replication, including pool type, tape count, capacity, and free space.'
+                    BlankLine
                     $OutObj = @()
                     try {
                         foreach ($PoolObj in $PoolObjs) {

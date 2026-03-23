@@ -30,6 +30,8 @@ function Get-AbrVbrIOControlSetting {
             if ($VbrLicenses | Where-Object { $_.Edition -in @('EnterprisePlus', 'Enterprise') -and $_.Status -ne 'Expired' }) {
                 if ($StorageLatencyControls = Get-VBRStorageLatencyControlOptions) {
                     Section -Style Heading4 'Storage Latency Control' {
+                        Paragraph 'The following section details the storage latency control settings configured in Veeam Backup & Replication to limit the impact of backup jobs on production storage performance.'
+                        BlankLine
                         $OutObj = @()
                         foreach ($StorageLatencyControl in $StorageLatencyControls) {
                             try {

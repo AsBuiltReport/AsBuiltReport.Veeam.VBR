@@ -109,24 +109,6 @@ function Invoke-AsBuiltReport.Veeam.VBR {
             Paragraph 'This section provides an overview of the key infrastructure components, configuration settings, and protected workloads managed by Veeam Backup & Replication.'
             BlankLine
 
-            if ($Options.EnableDiagrams) {
-                try {
-                    try {
-                        $Graph = Get-AbrVbrDiagrammer -DiagramType 'Backup-Infrastructure' -DiagramOutput base64
-                    } catch {
-                        Write-PScriboMessage -IsWarning "Backup Infrastructure Diagram: $($_.Exception.Message)"
-                    }
-                    if ($Graph) {
-                        $BestAspectRatio = Get-BestImageAspectRatio -GraphObj $Graph -MaxWidth 600 -MaxHeight 600
-                        Section -Style Heading2 'Backup Infrastructure Diagram' {
-                            Image -Base64 $Graph -Text 'Backup Infrastructure Diagram' -Align Center -Width $BestAspectRatio.Width -Height $BestAspectRatio.Height
-                            PageBreak
-                        }
-                    }
-                } catch {
-                    Write-PScriboMessage -IsWarning "Backup Infrastructure Diagram Section: $($_.Exception.Message)"
-                }
-            }
             #---------------------------------------------------------------------------------------------#
             #                            Backup Infrastructure Section                                    #
             #---------------------------------------------------------------------------------------------#
@@ -134,6 +116,24 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                 Section -Style Heading2 'Backup Infrastructure' {
                     Paragraph "This section provides detailed configuration information for the Veeam Backup & Replication server $($VeeamBackupServer), including infrastructure settings, credentials, and backup infrastructure components."
                     BlankLine
+                    if ($Options.EnableDiagrams) {
+                        try {
+                            try {
+                                $Graph = Get-AbrVbrDiagrammer -DiagramType 'Backup-Infrastructure' -DiagramOutput base64
+                            } catch {
+                                Write-PScriboMessage -IsWarning "Backup Infrastructure Diagram: $($_.Exception.Message)"
+                            }
+                            if ($Graph) {
+                                $BestAspectRatio = Get-BestImageAspectRatio -GraphObj $Graph -MaxWidth 600 -MaxHeight 600
+                                Section -Style Heading3 'Backup Infrastructure Diagram' {
+                                    Image -Base64 $Graph -Text 'Backup Infrastructure Diagram' -Align Center -Width $BestAspectRatio.Width -Height $BestAspectRatio.Height
+                                    PageBreak
+                                }
+                            }
+                        } catch {
+                            Write-PScriboMessage -IsWarning "Backup Infrastructure Diagram Section: $($_.Exception.Message)"
+                        }
+                    }
                     if ($InfoLevel.Infrastructure.BackupServer -ge 1) {
                         Get-AbrVbrInfrastructureSummary
                         if ($VbrVersion -ge 12) {
@@ -422,7 +422,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
             #---------------------------------------------------------------------------------------------#
             if ($InfoLevel.Jobs.PSObject.Properties.Value -ne 0) {
                 if (((Get-VBRJob -WarningAction SilentlyContinue).count -gt 0) -or ((Get-VBRTapeJob).count -gt 0) -or ((Get-VBRSureBackupJob).count -gt 0)) {
-                    Section -Style Heading2 'Jobs Summary' {
+                    Section -Style Heading2 'Jobs' {
                         Paragraph "This section details all backup, replication, tape, and verification jobs configured in Veeam Backup & Replication on server $VeeamBackupServer."
                         BlankLine
                         Write-PScriboMessage "Backup Jobs InfoLevel set at $($InfoLevel.Jobs.Backup)."
@@ -482,7 +482,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
             #---------------------------------------------------------------------------------------------#
             if ($InfoLevel.Jobs.Restores -gt 0) {
                 if (((Get-VBRBackup -WarningAction SilentlyContinue).count -gt 0) -or ((Get-VBRTapeJob).count -gt 0) -or ((Get-VBRSureBackupJob).count -gt 0)) {
-                    Section -Style Heading2 'Backups Summary' {
+                    Section -Style Heading2 'Backup Restore Points' {
                         Paragraph "The following section provides information about the available restore points per job on Veeam Backup Server $VeeamBackupServer."
                         BlankLine
                         Get-AbrVbrBackupsRPSummary

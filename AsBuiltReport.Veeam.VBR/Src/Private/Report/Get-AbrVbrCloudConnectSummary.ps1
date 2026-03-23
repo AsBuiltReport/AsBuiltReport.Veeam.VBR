@@ -57,7 +57,11 @@ function Get-AbrVbrCloudConnectSummary {
                 $TableParams['Caption'] = "- $($TableParams.Name)"
             }
 
-            $OutObj | Table @TableParams
+            Section -Style Heading3 'Cloud Connect Summary' {
+                Paragraph 'The following table provides a high-level inventory of the Cloud Connect infrastructure, including gateways, tenants, backup storage, and public IP addresses.'
+                BlankLine
+                $OutObj | Table @TableParams
+            }
 
         } catch {
             Write-PScriboMessage -IsWarning "Cloud Connect Summary Section: $($_.Exception.Message)"

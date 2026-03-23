@@ -43,7 +43,11 @@ function Get-AbrVbrReplInfraSummary {
             if ($Report.ShowTableCaptions) {
                 $TableParams['Caption'] = "- $($TableParams.Name)"
             }
-            $OutObj | Table @TableParams
+            Section -Style Heading3 'Replication Summary' {
+                Paragraph 'The following table provides a high-level inventory of the replication infrastructure, including the number of replicas and configured failover plans.'
+                BlankLine
+                $OutObj | Table @TableParams
+            }
         } catch {
             Write-PScriboMessage -IsWarning "Replication Summary Section: $($_.Exception.Message)"
         }

@@ -29,6 +29,8 @@ function Get-AbrVbrGlobalNotificationSetting {
         try {
             if ($GlobalNotifications = Get-VBRGlobalNotificationOptions) {
                 Section -Style Heading4 'Global Notifications' {
+                    Paragraph 'The following section details global notification thresholds configured in Veeam Backup & Replication for storage, datastore, support expiration, and update alerts.'
+                    BlankLine
                     Section -ExcludeFromTOC -Style NOTOCHeading5 'Backup Storage' {
                         $OutObj = @()
                         $inObj = [ordered] @{

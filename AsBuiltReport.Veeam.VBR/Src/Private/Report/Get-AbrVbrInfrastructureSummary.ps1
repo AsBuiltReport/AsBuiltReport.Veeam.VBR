@@ -82,7 +82,11 @@ function Get-AbrVbrInfrastructureSummary {
                 $TableParams['Caption'] = "- $($TableParams.Name)"
             }
 
-            $OutObj | Table @TableParams
+            Section -Style Heading3 'Backup Infrastructure Summary' {
+                Paragraph 'The following table provides a high-level inventory count of the key components in the Veeam Backup & Replication infrastructure, including proxies, repositories, and licensing.'
+                BlankLine
+                $OutObj | Table @TableParams
+            }
 
         } catch {
             Write-PScriboMessage -IsWarning "Infrastructure Summary Section: $($_.Exception.Message)"

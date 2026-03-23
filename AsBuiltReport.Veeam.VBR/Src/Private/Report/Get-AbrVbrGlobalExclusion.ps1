@@ -28,6 +28,8 @@ function Get-AbrVbrGlobalExclusion {
         try {
             if ($MalwareDetectionExclusions = Get-VBRMalwareDetectionExclusion) {
                 Section -Style Heading4 'Global Exclusions' {
+                    Paragraph 'The following section lists global exclusions configured in Veeam Backup & Replication for malware detection, including excluded objects and their platforms.'
+                    BlankLine
                     try {
                         Write-PScriboMessage "Discovering Veeam VBR Malware Detection Exclusions settings information from $System."
                         Section -ExcludeFromTOC -Style Heading5 'Malware Detection Exclusions' {

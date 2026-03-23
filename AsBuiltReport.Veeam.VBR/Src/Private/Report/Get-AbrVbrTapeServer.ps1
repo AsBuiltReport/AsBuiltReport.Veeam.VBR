@@ -29,6 +29,8 @@ function Get-AbrVbrTapeServer {
         try {
             if ($TapeObjs = Get-VBRTapeServer) {
                 Section -Style Heading3 'Tape Servers' {
+                    Paragraph 'The following section lists all tape servers added to the Veeam Backup & Replication infrastructure, including their availability status.'
+                    BlankLine
                     $OutObj = @()
                     try {
                         foreach ($TapeObj in $TapeObjs) {

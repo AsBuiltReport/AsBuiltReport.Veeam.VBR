@@ -539,7 +539,7 @@ function Get-AbrVbrBackupServerInfo {
                                     $Available = Invoke-Command -Session $PssSession -ScriptBlock { Get-Service 'W32Time' | Select-Object DisplayName, Name, Status }
                                     if ($Available) {
                                         $Services = Invoke-Command -Session $PssSession -ScriptBlock { Get-Service Veeam* }
-                                        Section -Style Heading4 'HealthCheck - Services Status' {
+                                        Section -Style Heading4 'Health Check — Services Status' {
                                             $OutObj = @()
                                             foreach ($Service in $Services) {
                                                 Write-PScriboMessage "Collecting '$($Service.DisplayName)' status on $($BackupServer.Name)."

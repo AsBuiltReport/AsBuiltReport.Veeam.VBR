@@ -29,6 +29,8 @@ function Get-AbrVbrHistorySetting {
         try {
             if ($HistorySettings = Get-VBRHistoryOptions) {
                 Section -Style Heading4 'History Retention' {
+                    Paragraph 'The following section details the history retention settings, including whether all sessions are kept and the configured retention period.'
+                    BlankLine
                     $OutObj = @()
                     $inObj = [ordered] @{
                         'Keep All Sessions' = $HistorySettings.KeepAllSessions

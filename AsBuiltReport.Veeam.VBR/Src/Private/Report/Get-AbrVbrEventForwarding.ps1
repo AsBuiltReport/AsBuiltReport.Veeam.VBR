@@ -30,6 +30,8 @@ function Get-AbrVbrEventForwarding {
             $SyslogSettings = try { Get-VBRSyslogServer } catch { Write-PScriboMessage 'No syslog server configured' }
             if ($SNMPSettings -or $SyslogSettings) {
                 Section -Style Heading4 'Event Forwarding' {
+                    Paragraph 'The following section details the event forwarding settings, including SNMP and Syslog destinations configured for external monitoring and alerting.'
+                    BlankLine
                     $OutObj = @()
 
                     $inObj = [ordered] @{

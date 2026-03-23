@@ -29,11 +29,13 @@ function Get-AbrVbrTapeVault {
         try {
             if ($VbrLicenses | Where-Object { $_.Edition -in @('EnterprisePlus', 'Enterprise') -and $_.Status -ne 'Expired' }) {
                 if ($TapeObjs = Get-VBRTapeVault | Sort-Object -Property Name) {
-                    Section -Style Heading3 'Tape Vaults' {
-                        $OutObj = @()
-                        try {
-                            foreach ($TapeObj in $TapeObjs) {
-                                try {
+                Section -Style Heading3 'Tape Vaults' {
+                    Paragraph 'The following section lists all tape vaults configured in Veeam Backup & Replication, including automatic protection settings and assigned locations.'
+                    BlankLine
+                    $OutObj = @()
+                    try {
+                        foreach ($TapeObj in $TapeObjs) {
+                            try {
 
                                     $inObj = [ordered] @{
                                         'Name' = $TapeObj.Name

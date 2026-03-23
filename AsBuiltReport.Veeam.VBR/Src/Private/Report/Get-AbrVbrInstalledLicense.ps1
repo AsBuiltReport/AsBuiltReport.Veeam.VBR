@@ -30,9 +30,7 @@ function Get-AbrVbrInstalledLicense {
             Section -Style Heading3 'License Information' {
                 Paragraph 'The following section provides a summary of the Veeam Backup & Replication licenses installed on this server, including edition, expiration date, and instance usage.'
                 BlankLine
-                try {
-                    Section -Style Heading4 'Installed License Information' {
-                        $OutObj = @()
+                $OutObj = @()
                         try {
                             foreach ($License in $VbrLicenses) {
 
@@ -274,10 +272,6 @@ function Get-AbrVbrInstalledLicense {
                         } catch {
                             Write-PScriboMessage -IsWarning "Capacity License Section: $($_.Exception.Message)"
                         }
-                    }
-                } catch {
-                    Write-PScriboMessage -IsWarning "License Information Section: $($_.Exception.Message)"
-                }
             }
         }
     }

@@ -61,7 +61,7 @@ function Get-AbrVbrCredential {
                     $OutObj | Sort-Object -Property 'Name' | Table @TableParams
                     try {
                         if ($CloudCredentials = Get-VBRCloudProviderCredentials) {
-                            Section -Style Heading3 'Service Provider Credentials' {
+                            Section -Style Heading4 'Service Provider Credentials' {
                                 Paragraph 'The following table lists all service provider credentials stored in Veeam Backup & Replication for Cloud Connect authentication.'
                                 BlankLine
                                 $OutObj = @()

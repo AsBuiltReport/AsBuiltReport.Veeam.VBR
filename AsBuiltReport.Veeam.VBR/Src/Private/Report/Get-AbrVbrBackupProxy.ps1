@@ -415,7 +415,7 @@ function Get-AbrVbrBackupProxy {
                                                                 Remove-PSSession -Session $PssSession
                                                             }
                                                             if ($Available -and $Services) {
-                                                                Section -Style NOTOCHeading4 -ExcludeFromTOC "HealthCheck - $($BackupProxy.Host.Name.Split('.')[0]) Services Status" {
+                                                                Section -Style NOTOCHeading4 -ExcludeFromTOC "Health Check — $($BackupProxy.Host.Name.Split('.')[0]) Services Status" {
                                                                     $OutObj = @()
                                                                     foreach ($Service in $Services) {
                                                                         Write-PScriboMessage "Collecting '$($Service.DisplayName)' status on $($BackupProxy.Name)."
@@ -873,7 +873,7 @@ function Get-AbrVbrBackupProxy {
                                                                     Remove-PSSession -Session $PssSession
                                                                 }
                                                                 if ($Available -and $Services) {
-                                                                    Section -Style NOTOCHeading4 -ExcludeFromTOC "HealthCheck - $($BackupProxy.Host.Name.Split('.')[0]) Services Status" {
+                                                                    Section -Style NOTOCHeading4 -ExcludeFromTOC "Health Check — $($BackupProxy.Host.Name.Split('.')[0]) Services Status" {
                                                                         $OutObj = @()
                                                                         foreach ($Service in $Services) {
                                                                             Write-PScriboMessage "Collecting '$($Service.DisplayName)' status on $($BackupProxy.Name)."

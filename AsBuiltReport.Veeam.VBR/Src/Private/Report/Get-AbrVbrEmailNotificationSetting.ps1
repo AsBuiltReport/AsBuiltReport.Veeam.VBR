@@ -29,6 +29,8 @@ function Get-AbrVbrEmailNotificationSetting {
         try {
             if ($EmailSettings = Get-VBRMailNotificationConfiguration) {
                 Section -Style Heading4 'Email Notification' {
+                    Paragraph 'The following section details the email notification settings configured in Veeam Backup & Replication for job status and alert delivery.'
+                    BlankLine
                     $OutObj = @()
                     foreach ($EmailSetting in $EmailSettings) {
                         $inObj = [ordered] @{

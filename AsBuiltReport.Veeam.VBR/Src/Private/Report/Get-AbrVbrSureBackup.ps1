@@ -74,7 +74,7 @@ function Get-AbrVbrSureBackup {
                                         Section -Style Heading5 "$($SureBackupAG.Name) VM Settings" {
                                             foreach ($VMSetting in $SureBackupAG.VM) {
                                                 try {
-                                                    Section -Style NOTOCHeading4 -ExcludeFromTOC $($VMSetting.Name) {
+                                                    Section -Style NOTOCHeading6 -ExcludeFromTOC $($VMSetting.Name) {
                                                         $OutObj = @()
 
                                                         $inObj = [ordered] @{

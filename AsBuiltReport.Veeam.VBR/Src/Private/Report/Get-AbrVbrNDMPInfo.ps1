@@ -29,6 +29,8 @@ function Get-AbrVbrNDMPInfo {
             if ($VbrLicenses | Where-Object { $_.Edition -in @('EnterprisePlus', 'Enterprise') -and $_.Status -ne 'Expired' }) {
                 if ($NDMPObjs = Get-VBRNDMPServer | Sort-Object -Property Name) {
                     Section -Style Heading3 'NDMP Servers' {
+                        Paragraph 'The following section lists all NDMP servers added to the Veeam Backup & Replication infrastructure, including credentials, port, and assigned gateway server.'
+                        BlankLine
                         $OutObj = @()
                         try {
                             foreach ($NDMPObj in $NDMPObjs) {

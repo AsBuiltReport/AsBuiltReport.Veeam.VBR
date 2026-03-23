@@ -29,6 +29,8 @@ function Get-AbrVbrManagedServer {
         try {
             if ($ManagedServers = Get-VBRServer) {
                 Section -Style Heading3 'Virtualization Servers and Hosts' {
+                    Paragraph 'The following section lists all virtualization servers and hosts connected to the Veeam Backup & Replication infrastructure, including their type and availability status.'
+                    BlankLine
                     $OutObj = @()
                     foreach ($ManagedServer in $ManagedServers) {
                         try {

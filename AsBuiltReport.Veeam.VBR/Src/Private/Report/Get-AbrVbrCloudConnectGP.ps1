@@ -29,7 +29,7 @@ function Get-AbrVbrCloudConnectGP {
         try {
             if ($VbrLicenses | Where-Object { $_.CloudConnect -ne 'Disabled' }) {
                 if ($CloudObjects = Get-VBRCloudGatewayPool | Sort-Object -Property Name) {
-                    Section -Style Heading3 'Gateways Pools' {
+                    Section -Style Heading3 'Gateway Pools' {
                         Paragraph 'The following section provides a summary of all configured Cloud Gateway Pools, including their associated gateways and failover settings.'
                         BlankLine
                         try {

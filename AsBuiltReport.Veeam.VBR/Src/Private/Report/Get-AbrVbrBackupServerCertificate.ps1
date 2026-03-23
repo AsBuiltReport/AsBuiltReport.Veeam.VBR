@@ -29,6 +29,8 @@ function Get-AbrVbrBackupServerCertificate {
         try {
             if ($TLSSettings = Get-VBRBackupServerCertificate) {
                 Section -Style Heading4 'Backup Server TLS Certificate' {
+                    Paragraph 'The following section details the TLS certificate installed on the Veeam Backup & Replication server, including subject, issuer, and validity period.'
+                    BlankLine
                     $OutObj = @()
                     try {
                         foreach ($EmailSetting in $TLSSettings) {

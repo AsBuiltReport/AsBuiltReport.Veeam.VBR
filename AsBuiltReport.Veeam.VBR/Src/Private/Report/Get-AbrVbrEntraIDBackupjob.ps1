@@ -28,7 +28,7 @@ function Get-AbrVbrEntraIDBackupjob {
     process {
         try {
             if ($Bkjobs = Get-VBREntraIDTenantBackupJob | Sort-Object -Property 'Name') {
-                Section -Style Heading3 'EntraID Tenant Backup Jobs' {
+                Section -Style Heading3 'Entra ID Tenant Backup Jobs' {
                     Paragraph 'The following section lists all Microsoft Entra ID tenant backup jobs configured in Veeam Backup & Replication, along with their current status and last run result.'
                     BlankLine
                     $OutObj = @()

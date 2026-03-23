@@ -29,6 +29,8 @@ function Get-AbrVbrConfigurationBackupSetting {
         try {
             if ($BackupSettings = Get-VBRConfigurationBackupJob | Sort-Object -Property Name) {
                 Section -Style Heading4 'Configuration Backup' {
+                    Paragraph 'The following section details the configuration backup settings for Veeam Backup & Replication, including schedule, target repository, and encryption options.'
+                    BlankLine
                     $OutObj = @()
                     try {
                         if ($BackupSettings.ScheduleOptions.Type -like 'Daily') {
