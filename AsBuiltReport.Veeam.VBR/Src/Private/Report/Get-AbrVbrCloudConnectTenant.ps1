@@ -6,7 +6,7 @@ function Get-AbrVbrCloudConnectTenant {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.24
+        Version:        0.9.0
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -468,9 +468,11 @@ function Get-AbrVbrCloudConnectTenant {
                                                         Write-PScriboMessage -IsWarning "Backup CloudConnect Tenant $($CloudObject.Name) Diagram: $($_.Exception.Message)"
                                                     }
                                                     if ($Graph) {
-                                                        $BestAspectRatio = Get-BestImageAspectRatio -GraphObj $Graph -MaxWidth 600
+                                                        $BestAspectRatio = Get-BestImageAspectRatio -GraphObj $Graph -MaxWidth 600 -MaxHeight 600
+                                                        PageBreak
                                                         Section -Style Heading6 'Diagram' {
                                                             Image -Base64 $Graph -Text 'Backup CloudConnect Tenant Diagram' -Align Center -Width $BestAspectRatio.Width -Height $BestAspectRatio.Height
+                                                            PageBreak
                                                         }
                                                     }
                                                 } catch {

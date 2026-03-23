@@ -6,7 +6,7 @@ function Get-AbrVbrWANAccelerator {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.24
+        Version:        0.9.0
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -98,11 +98,12 @@ function Get-AbrVbrWANAccelerator {
                                 Write-PScriboMessage -IsWarning "WAN Accelerator Diagram: $($_.Exception.Message)"
                             }
                             if ($Graph) {
-                                $BestAspectRatio = Get-BestImageAspectRatio -GraphObj $Graph -MaxWidth 600
+                                $BestAspectRatio = Get-BestImageAspectRatio -GraphObj $Graph -MaxWidth 600 -MaxHeight 600
+                                PageBreak
                                 Section -Style Heading4 'WAN Accelerator Diagram' {
                                     Image -Base64 $Graph -Text 'WAN Accelerator Diagram' -Width $BestAspectRatio.Width -Height $BestAspectRatio.Height -Align Center
+                                    PageBreak
                                 }
-                                BlankLine
                             }
                         } catch {
                             Write-PScriboMessage -IsWarning "WAN Accelerator Diagram Section: $($_.Exception.Message)"

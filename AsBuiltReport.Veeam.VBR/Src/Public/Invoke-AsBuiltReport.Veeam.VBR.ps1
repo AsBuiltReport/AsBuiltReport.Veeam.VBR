@@ -117,9 +117,10 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                         Write-PScriboMessage -IsWarning "Backup Infrastructure Diagram: $($_.Exception.Message)"
                     }
                     if ($Graph) {
-                        $BestAspectRatio = Get-BestImageAspectRatio -GraphObj $Graph -MaxWidth 600
+                        $BestAspectRatio = Get-BestImageAspectRatio -GraphObj $Graph -MaxWidth 600 -MaxHeight 600
                         Section -Style Heading2 'Backup Infrastructure Diagram' {
                             Image -Base64 $Graph -Text 'Backup Infrastructure Diagram' -Align Center -Width $BestAspectRatio.Width -Height $BestAspectRatio.Height
+                            PageBreak
                         }
                     }
                 } catch {
@@ -242,11 +243,12 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                                     Write-PScriboMessage -IsWarning "Tape Infrastructure Diagram: $($_.Exception.Message)"
                                 }
                                 if ($Graph) {
-                                    $BestAspectRatio = Get-BestImageAspectRatio -GraphObj $Graph -MaxWidth 600
+                                    $BestAspectRatio = Get-BestImageAspectRatio -GraphObj $Graph -MaxWidth 600 -MaxHeight 600
+                                    PageBreak
                                     Section -Style Heading3 'Tape Infrastructure Diagram' {
                                         Image -Base64 $Graph -Text 'Tape Infrastructure Diagram' -Width $BestAspectRatio.Width -Height $BestAspectRatio.Height -Align Center
+                                        PageBreak
                                     }
-                                    BlankLine
                                 }
                             } catch {
                                 Write-PScriboMessage -IsWarning "Tape Infrastructure Diagram Section: $($_.Exception.Message)"
@@ -286,11 +288,12 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                                         Write-PScriboMessage -IsWarning "Physical Infrastructure Diagram: $($_.Exception.Message)"
                                     }
                                     if ($Graph) {
-                                        $BestAspectRatio = Get-BestImageAspectRatio -GraphObj $Graph -MaxWidth 600
+                                        $BestAspectRatio = Get-BestImageAspectRatio -GraphObj $Graph -MaxWidth 600 -MaxHeight 600
+                                        PageBreak
                                         Section -Style Heading3 'Physical Infrastructure Diagram' {
                                             Image -Base64 $Graph -Text 'Physical Infrastructure Diagram' -Width $BestAspectRatio.Width -Height $BestAspectRatio.Height -Align Center
+                                            PageBreak
                                         }
-                                        BlankLine
                                     }
                                 } catch {
                                     Write-PScriboMessage -IsWarning "Physical Infrastructure Diagram Section: $($_.Exception.Message)"
@@ -369,11 +372,12 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                                         Write-PScriboMessage -IsWarning "Cloud Connect Infrastructure Diagram: $($_.Exception.Message)"
                                     }
                                     if ($Graph) {
-                                        $BestAspectRatio = Get-BestImageAspectRatio -GraphObj $Graph -MaxWidth 600
+                                        $BestAspectRatio = Get-BestImageAspectRatio -GraphObj $Graph -MaxWidth 600 -MaxHeight 600
+                                        PageBreak
                                         Section -Style Heading3 'Cloud Connect Infrastructure Diagram' {
                                             Image -Base64 $Graph -Text 'Cloud Connect Infrastructure Diagram' -Width $BestAspectRatio.Width -Height $BestAspectRatio.Height -Align Center
+                                            PageBreak
                                         }
-                                        BlankLine
                                     }
                                 } catch {
                                     Write-PScriboMessage -IsWarning "Cloud Connect Infrastructure Diagram Section: $($_.Exception.Message)"

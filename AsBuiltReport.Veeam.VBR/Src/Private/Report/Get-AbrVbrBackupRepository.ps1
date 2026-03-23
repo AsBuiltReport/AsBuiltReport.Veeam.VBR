@@ -6,7 +6,7 @@ function Get-AbrVbrBackupRepository {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.24
+        Version:        0.9.0
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -228,11 +228,12 @@ function Get-AbrVbrBackupRepository {
                                     Write-PScriboMessage -IsWarning "Backup Repository Diagram: $($_.Exception.Message)"
                                 }
                                 if ($Graph) {
-                                    $BestAspectRatio = Get-BestImageAspectRatio -GraphObj $Graph -MaxWidth 600
+                                    $BestAspectRatio = Get-BestImageAspectRatio -GraphObj $Graph -MaxWidth 600 -MaxHeight 600
+                                    PageBreak
                                     Section -Style Heading4 'Backup Repository Diagram' {
                                         Image -Base64 $Graph -Text 'Backup Repository Diagram' -Width $BestAspectRatio.Width -Height $BestAspectRatio.Height -Align Center
+                                        PageBreak
                                     }
-                                    BlankLine
                                 }
                             } catch {
                                 Write-PScriboMessage -IsWarning "Backup Repository Diagram Section: $($_.Exception.Message)"

@@ -27,6 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Modify entity retrieval functions for improved timeout handling
 - Add timeout handling for vSphere inventory queries
 - Enable Nutanix Backup Job information collection
+- Enhance diagram rendering by adding MaxHeight parameter and PageBreaks for improved layout in diagram sections
 
 ### :bug: Fixed
 
