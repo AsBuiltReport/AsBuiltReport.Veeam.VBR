@@ -12,11 +12,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### :arrows_clockwise: Changed
 
 - Update module version to `v0.9.0`
-- Upgrade AsBuiltReport.Chart module to `v0.3.0`
+- Update AsBuiltReport.Chart module to `v0.3.0`
+- Update bluesky-post-action to version 0.4.0
 - Migrate charts to use AsBuiltReport.Chart charting functions
 - Migrate diagrams to use AsBuiltReport.Diagram diagramming functions
 - Update module references in README.md for Veeam VBR As Built Report
 - Reorganize module structure - moved module files to AsBuiltReport.Veeam.VBR/ subdirectory
+- Improve report Sections structure and organization
 
 ## [0.8.26] - 2026-02-20
 
