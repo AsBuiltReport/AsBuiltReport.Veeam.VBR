@@ -22,6 +22,7 @@ function Get-AbrVbrCloudConnectTenant {
 
     begin {
         Write-PScriboMessage "Discovering Veeam VBR Cloud Tenants information from $System."
+        $LocalizedData = $reportTranslate.GetAbrVbrCloudConnectTenant
         Show-AbrDebugExecutionTime -Start -TitleMessage 'Cloud Connect Tenants'
     }
 
@@ -29,23 +30,23 @@ function Get-AbrVbrCloudConnectTenant {
         try {
             if ($VbrLicenses | Where-Object { $_.CloudConnect -ne 'Disabled' }) {
                 if ($CloudObjects = Get-VBRCloudTenant | Sort-Object -Property Name) {
-                    Section -Style Heading3 'Tenants' {
-                        Paragraph 'The following table summarizes all configured Veeam Cloud Connect tenants, including their connection status and resource allocation.'
+                    Section -Style Heading3 $LocalizedData.Heading {
+                        Paragraph $LocalizedData.Paragraph
                         BlankLine
                         $OutObj = @()
                         foreach ($CloudObject in $CloudObjects) {
                             try {
 
                                 $inObj = [ordered] @{
-                                    'Name' = $CloudObject.Name
-                                    'Type' = switch ($CloudObject.Type) {
-                                        'Ad' { 'Active Directory' }
-                                        'General' { 'Standalone' }
-                                        'vCD' { 'vCloud Director' }
-                                        default { 'Unknown' }
+                                    $LocalizedData.Name = $CloudObject.Name
+                                    $LocalizedData.Type = switch ($CloudObject.Type) {
+                                        'Ad' { $LocalizedData.ActiveDirectory }
+                                        'General' { $LocalizedData.Standalone }
+                                        'vCD' { $LocalizedData.VcloudDirector }
+                                        default { $LocalizedData.Unknown }
                                     }
-                                    'Last Active' = $CloudObject.LastActive
-                                    'Last Result' = $CloudObject.LastResult
+                                    $LocalizedData.LastActive = $CloudObject.LastActive
+                                    $LocalizedData.LastResult = $CloudObject.LastResult
                                 }
 
                                 $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
@@ -55,12 +56,12 @@ function Get-AbrVbrCloudConnectTenant {
                         }
 
                         if ($HealthCheck.CloudConnect.Tenants) {
-                            $OutObj | Where-Object { $_.'Last Result' -ne 'Success' } | Set-Style -Style Warning -Property 'Last Result'
-                            $OutObj | Where-Object { $Null -like $_.'Last Active' } | Set-Style -Style Warning -Property 'Last Active'
+                            $OutObj | Where-Object { $_.$($LocalizedData.LastResult) -ne 'Success' } | Set-Style -Style Warning -Property $LocalizedData.LastResult
+                            $OutObj | Where-Object { $Null -like $_.$($LocalizedData.LastActive) } | Set-Style -Style Warning -Property $LocalizedData.LastActive
                         }
 
                         $TableParams = @{
-                            Name = "Tenants Summary - $($VeeamBackupServer)"
+                            Name = "$($LocalizedData.TenantsSummary) - $($VeeamBackupServer)"
                             List = $false
                             ColumnWidths = 40, 20, 25, 15
                         }
@@ -70,12 +71,12 @@ function Get-AbrVbrCloudConnectTenant {
                         }
                         $OutObj | Sort-Object -Property 'Name' | Table @TableParams
                         if ($HealthCheck.CloudConnect.BestPractice) {
-                            if ($OutObj | Where-Object { $Null -like $_.'Last Active' }) {
-                                Paragraph 'Health Check:' -Bold -Underline
+                            if ($OutObj | Where-Object { $Null -like $_.$($LocalizedData.LastActive) }) {
+                                Paragraph $LocalizedData.HealthCheck -Bold -Underline
                                 BlankLine
                                 Paragraph {
-                                    Text 'Best Practice:' -Bold
-                                    Text "Validate if the tenant's resources are being utilized"
+                                    Text $LocalizedData.BestPractice -Bold
+                                    Text $LocalizedData.BestPracticeText
                                 }
                                 BlankLine
                             }
@@ -85,63 +86,63 @@ function Get-AbrVbrCloudConnectTenant {
                         #---------------------------------------------------------------------------------------------#
                         if ($InfoLevel.CloudConnect.Tenants -ge 2) {
                             try {
-                                Section -Style Heading4 'Tenants Configuration' {
-                                    Paragraph 'The following section provides detailed configuration and resource allocation information for each Cloud Connect tenant.'
+                                Section -Style Heading4 $LocalizedData.TenantsConfiguration {
+                                    Paragraph $LocalizedData.TenantsConfigParagraph
                                     BlankLine
                                     foreach ($CloudObject in $CloudObjects) {
                                         Section -Style Heading5 $CloudObject.Name {
                                             $OutObj = @()
                                             try {
-                                                Section -ExcludeFromTOC -Style NOTOCHeading6 'General Information' {
+                                                Section -ExcludeFromTOC -Style NOTOCHeading6 $LocalizedData.GeneralInformation {
 
                                                     $inObj = [ordered] @{
-                                                        'Name' = $CloudObject.Name
-                                                        'Type' = switch ($CloudObject.Type) {
-                                                            'Ad' { 'Active Directory' }
-                                                            'General' { 'Standalone' }
-                                                            'vCD' { 'vCloud Director' }
-                                                            default { 'Unknown' }
+                                                        $LocalizedData.Name = $CloudObject.Name
+                                                        $LocalizedData.Type = switch ($CloudObject.Type) {
+                                                            'Ad' { $LocalizedData.ActiveDirectory }
+                                                            'General' { $LocalizedData.Standalone }
+                                                            'vCD' { $LocalizedData.VcloudDirector }
+                                                            default { $LocalizedData.Unknown }
                                                         }
-                                                        'Status' = switch ($CloudObject.Enabled) {
-                                                            'True' { 'Enabled' }
-                                                            'False' { 'Disabled' }
-                                                            default { 'Unknown' }
+                                                        $LocalizedData.Status = switch ($CloudObject.Enabled) {
+                                                            'True' { $LocalizedData.Enabled }
+                                                            'False' { $LocalizedData.Disabled }
+                                                            default { $LocalizedData.Unknown }
                                                         }
-                                                        'Expiration Date' = switch ([string]::IsNullOrEmpty($CloudObject.LeaseExpirationDate)) {
-                                                            $true { 'Never' }
+                                                        $LocalizedData.ExpirationDate = switch ([string]::IsNullOrEmpty($CloudObject.LeaseExpirationDate)) {
+                                                            $true { $LocalizedData.Never }
                                                             $false {
                                                                 & {
                                                                     if ($CloudObject.LeaseExpirationDate -lt (Get-Date)) {
-                                                                        "$($CloudObject.LeaseExpirationDate.ToShortDateString()) (Expired)"
+                                                                        "$($CloudObject.LeaseExpirationDate.ToShortDateString()) ($($LocalizedData.Expired))"
                                                                     } else { $CloudObject.LeaseExpirationDate.ToShortDateString() }
                                                                 }
                                                             }
                                                             default { '--' }
                                                         }
-                                                        'Backup Storage (Cloud Backup Repository)' = $CloudObject.ResourcesEnabled
-                                                        'Replication Resource (Cloud Host)' = switch ($CloudObject.ReplicationResourcesEnabled -or $CloudObject.vCDReplicationResourcesEnabled) {
-                                                            'True' { 'Yes' }
-                                                            'False' { 'No' }
+                                                        $LocalizedData.BackupStorage = $CloudObject.ResourcesEnabled
+                                                        $LocalizedData.ReplicationResource = switch ($CloudObject.ReplicationResourcesEnabled -or $CloudObject.vCDReplicationResourcesEnabled) {
+                                                            'True' { $LocalizedData.Yes }
+                                                            'False' { $LocalizedData.No }
                                                             default { '--' }
                                                         }
-                                                        'Description' = $CloudObject.Description
+                                                        $LocalizedData.Description = $CloudObject.Description
                                                     }
 
                                                     if ($CloudObject.Type -eq 'Ad') {
-                                                        $inObj.add('Domain', $CloudObject.DomainUrl)
-                                                        $inObj.add('Domain Username', $CloudObject.Name)
+                                                        $inObj.add($LocalizedData.Domain, $CloudObject.DomainUrl)
+                                                        $inObj.add($LocalizedData.DomainUsername, $CloudObject.Name)
                                                     }
 
                                                     $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                     if ($HealthCheck.CloudConnect.BestPractice) {
-                                                        $OutObj | Where-Object { $_.'Description' -eq '--' } | Set-Style -Style Warning -Property 'Description'
-                                                        $OutObj | Where-Object { $_.'Description' -match 'Created by' } | Set-Style -Style Warning -Property 'Description'
-                                                        $OutObj | Where-Object { $_.'Expiration Date' -match '(Expired)' } | Set-Style -Style Warning -Property 'Expiration Date'
+                                                        $OutObj | Where-Object { $_.$($LocalizedData.Description) -eq '--' } | Set-Style -Style Warning -Property $LocalizedData.Description
+                                                        $OutObj | Where-Object { $_.$($LocalizedData.Description) -match 'Created by' } | Set-Style -Style Warning -Property $LocalizedData.Description
+                                                        $OutObj | Where-Object { $_.$($LocalizedData.ExpirationDate) -match '(Expired)' } | Set-Style -Style Warning -Property $LocalizedData.ExpirationDate
                                                     }
 
                                                     $TableParams = @{
-                                                        Name = "Tenant - $($CloudObject.Name)"
+                                                        Name = "$($LocalizedData.Tenant) - $($CloudObject.Name)"
                                                         List = $true
                                                         ColumnWidths = 40, 60
                                                     }
@@ -151,52 +152,52 @@ function Get-AbrVbrCloudConnectTenant {
                                                     }
                                                     $OutObj | Sort-Object -Property 'Name' | Table @TableParams
                                                     if ($HealthCheck.Jobs.BestPractice) {
-                                                        if ($OutObj | Where-Object { $_.'Description' -match 'Created by' -or $_.'Description' -eq '--' }) {
-                                                            Paragraph 'Health Check:' -Bold -Underline
+                                                        if ($OutObj | Where-Object { $_.$($LocalizedData.Description) -match 'Created by' -or $_.$($LocalizedData.Description) -eq '--' }) {
+                                                            Paragraph $LocalizedData.HealthCheck -Bold -Underline
                                                             BlankLine
                                                             Paragraph {
-                                                                Text 'Best Practice:' -Bold
-                                                                Text 'It is a general rule of good practice to establish well-defined descriptions. This helps to speed up the fault identification process, as well as enabling better documentation of the environment.'
+                                                                Text $LocalizedData.BestPractice -Bold
+                                                                Text $LocalizedData.DescriptionBPText
                                                             }
                                                             BlankLine
                                                         }
                                                     }
                                                 }
                                                 try {
-                                                    Section -ExcludeFromTOC -Style NOTOCHeading6 'Bandwidth' {
+                                                    Section -ExcludeFromTOC -Style NOTOCHeading6 $LocalizedData.Bandwidth {
                                                         $OutObj = @()
                                                         try {
 
                                                             $inObj = [ordered] @{
-                                                                'Max Concurrent Task' = $CloudObject.MaxConcurrentTask
+                                                                $LocalizedData.MaxConcurrentTask = $CloudObject.MaxConcurrentTask
                                                             }
 
                                                             if ($CloudObject.ThrottlingEnabled) {
-                                                                $inObj.add('Limit network traffic from this tenant?', ($CloudObject.ThrottlingEnabled))
+                                                                $inObj.add($LocalizedData.LimitNetworkTraffic, ($CloudObject.ThrottlingEnabled))
                                                                 switch ($CloudObject.ThrottlingUnit) {
-                                                                    'MbytePerSec' { $inObj.add('Throttling network traffic to', "$($CloudObject.ThrottlingValue) MB/s") }
-                                                                    'KbytePerSec' { $inObj.add('Throttling network traffic to', "$($CloudObject.ThrottlingValue) KB/s") }
-                                                                    'MbitPerSec' { $inObj.add('Throttling network traffic to', "$($CloudObject.ThrottlingValue) Mbps") }
+                                                                    'MbytePerSec' { $inObj.add($LocalizedData.ThrottlingTo, "$($CloudObject.ThrottlingValue) MB/s") }
+                                                                    'KbytePerSec' { $inObj.add($LocalizedData.ThrottlingTo, "$($CloudObject.ThrottlingValue) KB/s") }
+                                                                    'MbitPerSec' { $inObj.add($LocalizedData.ThrottlingTo, "$($CloudObject.ThrottlingValue) Mbps") }
                                                                 }
                                                             }
 
                                                             if ($CloudObject.GatewaySelectionType -eq 'StandaloneGateways') {
-                                                                $inObj.add('Gateway Pool (Standalone Server)', 'Automatic')
+                                                                $inObj.add($LocalizedData.GatewayPoolStandalone, $LocalizedData.Automatic)
                                                             } else {
                                                                 $GatewayPool = switch ([string]::IsNullOrEmpty($CloudObject.GatewayPool.Name)) {
                                                                     $true { '--' }
                                                                     $false { $CloudObject.GatewayPool.Name }
-                                                                    default { 'Unknown' }
+                                                                    default { $LocalizedData.Unknown }
                                                                 }
-                                                                $inObj.add('Gateway Type', 'Gateway Pool')
-                                                                $inObj.add('Gateway Pool', $GatewayPool)
-                                                                $inObj.add('Gateway Failover', ($CloudObject.GatewayFailoverEnabled))
+                                                                $inObj.add($LocalizedData.GatewayType, $LocalizedData.GatewayPool)
+                                                                $inObj.add($LocalizedData.GatewayPool, $GatewayPool)
+                                                                $inObj.add($LocalizedData.GatewayFailover, ($CloudObject.GatewayFailoverEnabled))
                                                             }
 
                                                             $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                             $TableParams = @{
-                                                                Name = "Bandwidth - $($CloudObject.Name)"
+                                                                Name = "$($LocalizedData.Bandwidth) - $($CloudObject.Name)"
                                                                 List = $true
                                                                 ColumnWidths = 40, 60
                                                             }
@@ -214,30 +215,30 @@ function Get-AbrVbrCloudConnectTenant {
                                                 }
                                                 if ($CloudObject.ResourcesEnabled -and $CloudObject.Resources) {
                                                     try {
-                                                        Section -ExcludeFromTOC -Style NOTOCHeading6 'Backup Resources' {
+                                                        Section -ExcludeFromTOC -Style NOTOCHeading6 $LocalizedData.BackupResources {
                                                             $OutObj = @()
                                                             foreach ($CloudBackupRepo in $CloudObject.Resources) {
                                                                 try {
 
                                                                     $inObj = [ordered] @{
-                                                                        'Repository' = $CloudBackupRepo.Repository.Name
-                                                                        'Friendly Name' = $CloudBackupRepo.RepositoryFriendlyName
-                                                                        'Quota' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size (Convert-Size -From MB -To Bytes -Value $CloudBackupRepo.RepositoryQuota)
-                                                                        'Quota Path' = $CloudBackupRepo.RepositoryQuotaPath
-                                                                        'Use Wan Acceleration' = $CloudBackupRepo.WanAccelerationEnabled
+                                                                        $LocalizedData.Repository = $CloudBackupRepo.Repository.Name
+                                                                        $LocalizedData.FriendlyName = $CloudBackupRepo.RepositoryFriendlyName
+                                                                        $LocalizedData.Quota = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size (Convert-Size -From MB -To Bytes -Value $CloudBackupRepo.RepositoryQuota)
+                                                                        $LocalizedData.QuotaPath = $CloudBackupRepo.RepositoryQuotaPath
+                                                                        $LocalizedData.UseWanAcceleration = $CloudBackupRepo.WanAccelerationEnabled
                                                                     }
 
                                                                     if ($CloudBackupRepo.WanAccelerationEnabled) {
-                                                                        $inObj.add('Wan Accelerator', ($CloudBackupRepo.WanAccelerator).Name)
+                                                                        $inObj.add($LocalizedData.WanAccelerator, ($CloudBackupRepo.WanAccelerator).Name)
                                                                     }
                                                                     if ($CloudObject.BackupProtectionEnabled) {
-                                                                        $inObj.add('Keep deleted backup file for', "$($CloudObject.BackupProtectionPeriod) days")
+                                                                        $inObj.add($LocalizedData.KeepDeletedBackup, "$($CloudObject.BackupProtectionPeriod) $($LocalizedData.Days)")
                                                                     }
 
                                                                     $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                                     $TableParams = @{
-                                                                        Name = "Backup Resources - $($CloudBackupRepo.RepositoryFriendlyName)"
+                                                                        Name = "$($LocalizedData.BackupResources) - $($CloudBackupRepo.RepositoryFriendlyName)"
                                                                         List = $true
                                                                         ColumnWidths = 40, 60
                                                                     }
@@ -257,20 +258,20 @@ function Get-AbrVbrCloudConnectTenant {
                                                 }
                                                 if ($CloudObject.ReplicationResourcesEnabled -and $CloudObject.ReplicationResources.HardwarePlanOptions) {
                                                     try {
-                                                        Section -ExcludeFromTOC -Style NOTOCHeading6 'Replication Resources' {
+                                                        Section -ExcludeFromTOC -Style NOTOCHeading6 $LocalizedData.ReplicationResources {
                                                             $OutObj = @()
                                                             foreach ($CloudRepliRes in $CloudObject.ReplicationResources) {
                                                                 try {
 
                                                                     $inObj = [ordered] @{
-                                                                        'Hardware Plans' = (Get-VBRCloudHardwarePlan | Where-Object { $_.SubscribedTenantId -contains $CloudObject.Id }).Name -join ', '
-                                                                        'Use Veeam Network Extension Capabilities during Partial and Full Site Failover' = $CloudRepliRes.NetworkFailoverResourcesEnabled
+                                                                        $LocalizedData.HardwarePlans = (Get-VBRCloudHardwarePlan | Where-Object { $_.SubscribedTenantId -contains $CloudObject.Id }).Name -join ', '
+                                                                        $LocalizedData.UseVeeamNetworkExtension = $CloudRepliRes.NetworkFailoverResourcesEnabled
                                                                     }
 
                                                                     $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                                     $TableParams = @{
-                                                                        Name = "Replication Resources - $($CloudObject.Name)"
+                                                                        Name = "$($LocalizedData.ReplicationResources) - $($CloudObject.Name)"
                                                                         List = $true
                                                                         ColumnWidths = 40, 60
                                                                     }
@@ -290,26 +291,26 @@ function Get-AbrVbrCloudConnectTenant {
                                                 }
                                                 if ($CloudObject.vCDReplicationResourcesEnabled) {
                                                     try {
-                                                        Section -ExcludeFromTOC -Style NOTOCHeading6 'Replication Resources (vCD)' {
+                                                        Section -ExcludeFromTOC -Style NOTOCHeading6 $LocalizedData.ReplicationResourcesVcd {
                                                             $OutObj = @()
                                                             foreach ($CloudRepliRes in $CloudObject.vCDReplicationResource.OrganizationvDCOptions) {
                                                                 try {
 
                                                                     $inObj = [ordered] @{
-                                                                        'Organization vDC Name' = $CloudRepliRes.OrganizationvDCName
-                                                                        'Allocation Model' = $CloudRepliRes.AllocationModel
-                                                                        'WAN Accelaration?' = $CloudRepliRes.WANAccelarationEnabled
-                                                                        'WAN Accelerator' = switch ([string]::IsNullOrEmpty($CloudRepliRes.WANAccelerator.Name)) {
+                                                                        $LocalizedData.OrgvDCName = $CloudRepliRes.OrganizationvDCName
+                                                                        $LocalizedData.AllocationModel = $CloudRepliRes.AllocationModel
+                                                                        $LocalizedData.WanAcceleration = $CloudRepliRes.WANAccelarationEnabled
+                                                                        $LocalizedData.WanAcceleratorCol = switch ([string]::IsNullOrEmpty($CloudRepliRes.WANAccelerator.Name)) {
                                                                             $true { '--' }
                                                                             $false { $CloudRepliRes.WANAccelerator.Name }
-                                                                            default { 'Unknown' }
+                                                                            default { $LocalizedData.Unknown }
                                                                         }
                                                                     }
 
                                                                     $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                                     $TableParams = @{
-                                                                        Name = "Replication Resources (vCD) - $($CloudObject.Name)"
+                                                                        Name = "$($LocalizedData.ReplicationResourcesVcd) - $($CloudObject.Name)"
                                                                         List = $true
                                                                         ColumnWidths = 40, 60
                                                                     }
@@ -330,33 +331,33 @@ function Get-AbrVbrCloudConnectTenant {
                                                 if ($CloudObject.ReplicationResources.NetworkFailoverResourcesEnabled -or $CloudObject.vCDReplicationResource.TenantNetworkAppliance) {
                                                     try {
                                                         if ($TenantNetworkAppliances = Get-VBRCloudTenantNetworkAppliance -Tenant $CloudObject) {
-                                                            Section -ExcludeFromTOC -Style NOTOCHeading6 'Network Extension' {
+                                                            Section -ExcludeFromTOC -Style NOTOCHeading6 $LocalizedData.NetworkExtension {
                                                                 $OutObj = @()
                                                                 foreach ($TenantNetworkAppliance in $TenantNetworkAppliances) {
                                                                     try {
 
                                                                         $inObj = [ordered] @{
-                                                                            'Name' = $TenantNetworkAppliance.Name
-                                                                            'Platform' = $TenantNetworkAppliance.Platform
+                                                                            $LocalizedData.Name = $TenantNetworkAppliance.Name
+                                                                            $LocalizedData.Platform = $TenantNetworkAppliance.Platform
                                                                         }
 
                                                                         if (-not $CloudObject.vCDReplicationResource.TenantNetworkAppliance) {
-                                                                            $inObj.add('Hardware Plan', (Get-VBRCloudHardwarePlan -Id $TenantNetworkAppliance.HardwarePlanId).Name)
+                                                                            $inObj.add($LocalizedData.HardwarePlan, (Get-VBRCloudHardwarePlan -Id $TenantNetworkAppliance.HardwarePlanId).Name)
                                                                         }
 
-                                                                        $inObj.add('Production Network', $TenantNetworkAppliance.ProductionNetwork.Name)
-                                                                        $inObj.add('Obtain Ip Address Automatically', ($TenantNetworkAppliance.ObtainIpAddressAutomatically))
+                                                                        $inObj.add($LocalizedData.ProductionNetwork, $TenantNetworkAppliance.ProductionNetwork.Name)
+                                                                        $inObj.add($LocalizedData.ObtainIpAuto, ($TenantNetworkAppliance.ObtainIpAddressAutomatically))
 
                                                                         if (-not $TenantNetworkAppliance.ObtainIpAddressAutomatically) {
-                                                                            $inObj.add('Ip Address', $TenantNetworkAppliance.IpAddress)
-                                                                            $inObj.add('Subnet Mask', $TenantNetworkAppliance.SubnetMask)
-                                                                            $inObj.add('Default Gateway', $TenantNetworkAppliance.DefaultGateway)
+                                                                            $inObj.add($LocalizedData.IpAddress, $TenantNetworkAppliance.IpAddress)
+                                                                            $inObj.add($LocalizedData.SubnetMask, $TenantNetworkAppliance.SubnetMask)
+                                                                            $inObj.add($LocalizedData.DefaultGateway, $TenantNetworkAppliance.DefaultGateway)
                                                                         }
 
                                                                         $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                                         $TableParams = @{
-                                                                            Name = "Network Extension - $($CloudObject.Name)"
+                                                                            Name = "$($LocalizedData.NetworkExtension) - $($CloudObject.Name)"
                                                                             List = $true
                                                                             ColumnWidths = 40, 60
                                                                         }
@@ -377,22 +378,22 @@ function Get-AbrVbrCloudConnectTenant {
                                                 }
                                                 try {
                                                     if ($CloudSubTenants = Get-VBRCloudSubTenant | Where-Object { $_.TenantId -eq $CloudObject.Id } | Sort-Object -Property Name) {
-                                                        Section -ExcludeFromTOC -Style NOTOCHeading6 'Sub-Tenants' {
+                                                        Section -ExcludeFromTOC -Style NOTOCHeading6 $LocalizedData.SubTenants {
                                                             $OutObj = @()
                                                             foreach ($CloudSubTenant in $CloudSubTenants) {
                                                                 try {
 
                                                                     $inObj = [ordered] @{
-                                                                        'Name' = $CloudSubTenant.Name
-                                                                        'Type' = $CloudSubTenant.Type
-                                                                        'Mode' = $CloudSubTenant.Mode
-                                                                        'Repository Name' = $CloudSubTenant.Resources.RepositoryFriendlyName
-                                                                        'Quota' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $CloudSubTenant.Resources.RepositoryQuota
-                                                                        'Quota Path' = $CloudSubTenant.Resources.RepositoryQuotaPath
-                                                                        'Used Space %' = $CloudSubTenant.Resources.UsedSpacePercentage
-                                                                        'Status' = switch ($CloudSubTenant.Enabled) {
-                                                                            'True' { 'Enabled' }
-                                                                            'False' { 'Disabled' }
+                                                                        $LocalizedData.Name = $CloudSubTenant.Name
+                                                                        $LocalizedData.Type = $CloudSubTenant.Type
+                                                                        $LocalizedData.Mode = $CloudSubTenant.Mode
+                                                                        $LocalizedData.RepositoryName = $CloudSubTenant.Resources.RepositoryFriendlyName
+                                                                        $LocalizedData.Quota = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $CloudSubTenant.Resources.RepositoryQuota
+                                                                        $LocalizedData.QuotaPath = $CloudSubTenant.Resources.RepositoryQuotaPath
+                                                                        $LocalizedData.UsedSpacePct = $CloudSubTenant.Resources.UsedSpacePercentage
+                                                                        $LocalizedData.Status = switch ($CloudSubTenant.Enabled) {
+                                                                            'True' { $LocalizedData.Enabled }
+                                                                            'False' { $LocalizedData.Disabled }
                                                                             default { '--' }
                                                                         }
                                                                     }
@@ -400,12 +401,12 @@ function Get-AbrVbrCloudConnectTenant {
                                                                     $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                                     if ($HealthCheck.CloudConnect.Tenants) {
-                                                                        $OutObj | Where-Object { $_.'Used Space %' -gt 85 } | Set-Style -Style Warning -Property 'Used Space %'
-                                                                        $OutObj | Where-Object { $_.'Status' -eq 'Disabled' } | Set-Style -Style Warning -Property 'Status'
+                                                                        $OutObj | Where-Object { $_.$($LocalizedData.UsedSpacePct) -gt 85 } | Set-Style -Style Warning -Property $LocalizedData.UsedSpacePct
+                                                                        $OutObj | Where-Object { $_.$($LocalizedData.Status) -eq $LocalizedData.Disabled } | Set-Style -Style Warning -Property $LocalizedData.Status
                                                                     }
 
                                                                     $TableParams = @{
-                                                                        Name = "Subtenant - $($CloudSubTenant.Name)"
+                                                                        Name = "$($LocalizedData.Subtenant) - $($CloudSubTenant.Name)"
                                                                         List = $true
                                                                         ColumnWidths = 40, 60
                                                                     }
@@ -424,24 +425,24 @@ function Get-AbrVbrCloudConnectTenant {
                                                     Write-PScriboMessage -IsWarning "Subtenant Section: $($_.Exception.Message)"
                                                 }
                                                 try {
-                                                    Section -ExcludeFromTOC -Style NOTOCHeading6 'Licenses Utilization' {
+                                                    Section -ExcludeFromTOC -Style NOTOCHeading6 $LocalizedData.LicensesUtilization {
                                                         $OutObj = @()
 
                                                         $inObj = [ordered] @{
-                                                            'New VM Backup' = $CloudObject.NewVMBackupCount
-                                                            'New Workstation Backup' = $CloudObject.NewWorkstationBackupCount
-                                                            'New Server Backup' = $CloudObject.NewServerBackupCount
-                                                            'New Replica' = $CloudObject.NewReplicaCount
-                                                            'Rental VM Backup' = $CloudObject.RentalVMBackupCount
-                                                            'Rental Workstation Backup' = $CloudObject.RentalWorkstationBackupCount
-                                                            'Rental Server Backup' = $CloudObject.RentalServerBackupCount
-                                                            'Rental Replica' = $CloudObject.RentalReplicaCount
+                                                            $LocalizedData.NewVMBackup = $CloudObject.NewVMBackupCount
+                                                            $LocalizedData.NewWorkstationBackup = $CloudObject.NewWorkstationBackupCount
+                                                            $LocalizedData.NewServerBackup = $CloudObject.NewServerBackupCount
+                                                            $LocalizedData.NewReplica = $CloudObject.NewReplicaCount
+                                                            $LocalizedData.RentalVMBackup = $CloudObject.RentalVMBackupCount
+                                                            $LocalizedData.RentalWorkstationBackup = $CloudObject.RentalWorkstationBackupCount
+                                                            $LocalizedData.RentalServerBackup = $CloudObject.RentalServerBackupCount
+                                                            $LocalizedData.RentalReplica = $CloudObject.RentalReplicaCount
                                                         }
 
                                                         $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                         $TableParams = @{
-                                                            Name = "Licenses Utilization - $($CloudObject.Name)"
+                                                            Name = "$($LocalizedData.LicensesUtilization) - $($CloudObject.Name)"
                                                             List = $true
                                                             ColumnWidths = 40, 60
                                                         }
@@ -470,8 +471,8 @@ function Get-AbrVbrCloudConnectTenant {
                                                     if ($Graph) {
                                                         $BestAspectRatio = Get-BestImageAspectRatio -GraphObj $Graph -MaxWidth 600 -MaxHeight 600
                                                         PageBreak
-                                                        Section -Style Heading6 'Diagram' {
-                                                            Image -Base64 $Graph -Text 'Backup CloudConnect Tenant Diagram' -Align Center -Width $BestAspectRatio.Width -Height $BestAspectRatio.Height
+                                                        Section -Style Heading6 $LocalizedData.Diagram {
+                                                            Image -Base64 $Graph -Text $LocalizedData.DiagramText -Align Center -Width $BestAspectRatio.Width -Height $BestAspectRatio.Height
                                                             PageBreak
                                                         }
                                                     }

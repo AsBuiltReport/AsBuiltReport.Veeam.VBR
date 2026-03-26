@@ -42,8 +42,6 @@ function Invoke-AsBuiltReport.Veeam.VBR {
     $script:Report = $ReportConfig.Report
     $script:InfoLevel = $ReportConfig.InfoLevel
     $script:Options = $ReportConfig.Options
-    $LocalizedData = $reportTranslate.InvokeAsBuiltReportVeeamVBR
-
 
     # Check the version of the dependency modules
     if ($Options.UpdateCheck) {

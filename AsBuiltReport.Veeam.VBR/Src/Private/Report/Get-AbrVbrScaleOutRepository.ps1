@@ -1,4 +1,4 @@
-
+﻿
 function Get-AbrVbrScaleOutRepository {
     <#
     .SYNOPSIS
@@ -22,28 +22,29 @@ function Get-AbrVbrScaleOutRepository {
 
     begin {
         Write-PScriboMessage "Discovering Veeam V&R ScaleOut Backup Repository information from $System."
+        $LocalizedData = $reportTranslate.GetAbrVbrScaleOutRepository
         Show-AbrDebugExecutionTime -Start -TitleMessage 'ScaleOut Backup Repository'
     }
 
     process {
         try {
             if ($BackupRepos = Get-VBRBackupRepository -ScaleOut | Sort-Object -Property Name) {
-                Section -Style Heading3 'Scale-Out Backup Repository' {
-                    Paragraph 'The following section provides a summary of all configured Scale-Out Backup Repositories (SOBR), including performance, capacity, and archive tier assignments.'
+                Section -Style Heading3 $LocalizedData.Heading {
+                    Paragraph $LocalizedData.Paragraph
                     BlankLine
                     $OutObj = @()
                     try {
                         foreach ($BackupRepo in $BackupRepos) {
 
                             $inObj = [ordered] @{
-                                'Name' = $BackupRepo.Name
-                                'Performance Tier' = $BackupRepo.Extent.Name
-                                'Capacity Tier' = switch ($BackupRepo.CapacityExtents.Repository.Name) {
-                                    $null { 'Not configured' }
+                                $LocalizedData.Name = $BackupRepo.Name
+                                $LocalizedData.PerformanceTier = $BackupRepo.Extent.Name
+                                $LocalizedData.CapacityTier = switch ($BackupRepo.CapacityExtents.Repository.Name) {
+                                    $null { $LocalizedData.NotConfigured }
                                     default { $BackupRepo.CapacityExtents.Repository.Name }
                                 }
-                                'Archive Tier' = switch ($BackupRepo.ArchiveExtent.Repository.Name) {
-                                    $null { 'Not configured' }
+                                $LocalizedData.ArchiveTier = switch ($BackupRepo.ArchiveExtent.Repository.Name) {
+                                    $null { $LocalizedData.NotConfigured }
                                     default { $BackupRepo.ArchiveExtent.Repository.Name }
                                 }
                             }
@@ -54,21 +55,21 @@ function Get-AbrVbrScaleOutRepository {
                     }
 
                     $TableParams = @{
-                        Name = "ScaleOut Backup Repository - $VeeamBackupServer"
+                        Name = "$($LocalizedData.SOBRTable) - $VeeamBackupServer"
                         List = $false
                         ColumnWidths = 25, 25, 25, 25
                     }
                     if ($Report.ShowTableCaptions) {
                         $TableParams['Caption'] = "- $($TableParams.Name)"
                     }
-                    $OutObj | Sort-Object -Property 'Name' | Table @TableParams
+                    $OutObj | Sort-Object -Property $LocalizedData.Name | Table @TableParams
                     #---------------------------------------------------------------------------------------------#
                     #                               SOBR Configuration Section                                    #
                     #---------------------------------------------------------------------------------------------#
                     if ($InfoLevel.Infrastructure.SOBR -ge 2) {
                         try {
-                            Section -Style Heading4 'Scale-Out Backup Repository Configuration' {
-                                Paragraph 'The following section provides detailed configuration information for each Scale-Out Backup Repository, including performance extent, capacity tier, and archive tier settings.'
+                            Section -Style Heading4 $LocalizedData.ConfigHeading {
+                                Paragraph $LocalizedData.ConfigParagraph
                                 BlankLine
                                 #---------------------------------------------------------------------------------------------#
                                 #                                   Per SOBR Section                                          #
@@ -79,37 +80,37 @@ function Get-AbrVbrScaleOutRepository {
                                             #---------------------------------------------------------------------------------------------#
                                             #                               General Configuration Section                                 #
                                             #---------------------------------------------------------------------------------------------#
-                                            Section -Style NOTOCHeading6 -ExcludeFromTOC 'General Settings' {
+                                            Section -Style NOTOCHeading6 -ExcludeFromTOC $LocalizedData.GeneralSettings {
                                                 $OutObj = @()
 
                                                 $inObj = [ordered] @{
-                                                    'Placement Policy' = ($BackupRepo.PolicyType -creplace '([A-Z\W_]|\d+)(?<![a-z])', ' $&').trim()
-                                                    'Use Per VM Backup Files' = $BackupRepo.UsePerVMBackupFiles
-                                                    'Perform Full When Extent Offline' = $BackupRepo.PerformFullWhenExtentOffline
-                                                    'Use Capacity Tier' = $BackupRepo.EnableCapacityTier
-                                                    'Encrypt data uploaded to Object Storage' = $BackupRepo.EncryptionEnabled
-                                                    'Encryption Key' = switch ($BackupRepo.EncryptionKey.Description) {
-                                                        $null { 'Disabled' }
+                                                    $LocalizedData.PlacementPolicy = ($BackupRepo.PolicyType -creplace '([A-Z\W_]|\d+)(?<![a-z])', ' $&').trim()
+                                                    $LocalizedData.UsePerVMBackupFiles = $BackupRepo.UsePerVMBackupFiles
+                                                    $LocalizedData.PerformFullWhenExtentOffline = $BackupRepo.PerformFullWhenExtentOffline
+                                                    $LocalizedData.UseCapacityTier = $BackupRepo.EnableCapacityTier
+                                                    $LocalizedData.EncryptDataUploadedToObjectStorage = $BackupRepo.EncryptionEnabled
+                                                    $LocalizedData.EncryptionKey = switch ($BackupRepo.EncryptionKey.Description) {
+                                                        $null { $LocalizedData.Disabled }
                                                         default { $BackupRepo.EncryptionKey.Description }
                                                     }
-                                                    'Move backup file older than' = $BackupRepo.OperationalRestorePeriod
-                                                    'Override Policy Enabled' = $BackupRepo.OverridePolicyEnabled
-                                                    'Override Space Threshold' = $BackupRepo.OverrideSpaceThreshold
-                                                    'Use Archive GFS Tier' = $BackupRepo.ArchiveTierEnabled
-                                                    'Archive GFS Backup older than' = "$($BackupRepo.ArchivePeriod) days"
-                                                    'Store archived backup as standalone fulls' = $BackupRepo.ArchiveFullBackupModeEnabled
-                                                    'Cost Optimized Archive Enabled' = $BackupRepo.CostOptimizedArchiveEnabled
-                                                    'Description' = $BackupRepo.Description
+                                                    $LocalizedData.MoveBackupFileOlderThan = $BackupRepo.OperationalRestorePeriod
+                                                    $LocalizedData.OverridePolicyEnabled = $BackupRepo.OverridePolicyEnabled
+                                                    $LocalizedData.OverrideSpaceThreshold = $BackupRepo.OverrideSpaceThreshold
+                                                    $LocalizedData.UseArchiveGFSTier = $BackupRepo.ArchiveTierEnabled
+                                                    $LocalizedData.ArchiveGFSBackupOlderThan = "$($BackupRepo.ArchivePeriod) days"
+                                                    $LocalizedData.StoreArchivedBackupAsStandaloneFulls = $BackupRepo.ArchiveFullBackupModeEnabled
+                                                    $LocalizedData.CostOptimizedArchiveEnabled = $BackupRepo.CostOptimizedArchiveEnabled
+                                                    $LocalizedData.Description = $BackupRepo.Description
                                                 }
 
                                                 $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                 if ($HealthCheck.Infrastructure.Settings) {
-                                                    $OutObj | Where-Object { $_.'Encrypt data uploaded to Object Storage' -like 'No' } | Set-Style -Style Warning -Property 'Encrypt data uploaded to Object Storage'
+                                                    $OutObj | Where-Object { $_.$($LocalizedData.EncryptDataUploadedToObjectStorage) -like 'No' } | Set-Style -Style Warning -Property $LocalizedData.EncryptDataUploadedToObjectStorage
                                                 }
 
                                                 $TableParams = @{
-                                                    Name = "General Settings - $($BackupRepo.Name)"
+                                                    Name = "$($LocalizedData.GeneralSettings) - $($BackupRepo.Name)"
                                                     List = $true
                                                     ColumnWidths = 40, 60
                                                 }
@@ -119,12 +120,12 @@ function Get-AbrVbrScaleOutRepository {
                                                 }
 
                                                 $OutObj | Table @TableParams
-                                                if (($HealthCheck.Infrastructure.BestPractice) -and ($OutObj | Where-Object { $_.'Encrypt data uploaded to Object Storage' -like 'No' })) {
-                                                    Paragraph 'Health Check:' -Bold -Underline
+                                                if (($HealthCheck.Infrastructure.BestPractice) -and ($OutObj | Where-Object { $_.$($LocalizedData.EncryptDataUploadedToObjectStorage) -like 'No' })) {
+                                                    Paragraph $LocalizedData.HealthCheck -Bold -Underline
                                                     BlankLine
                                                     Paragraph {
-                                                        Text 'Best Practice:' -Bold
-                                                        Text 'Veeam Backup & Replication allows you to encrypt offloaded data. With the Encrypt data uploaded to object storage setting selected, the entire collection of blocks along with the metadata will be encrypted while being offloaded regardless of the jobs encryption settings. This helps you protect the data from an unauthorized access.'
+                                                        Text $LocalizedData.BestPractice -Bold
+                                                        Text $LocalizedData.BestPracticeEncryptDesc
                                                     }
                                                     BlankLine
                                                 }
@@ -137,25 +138,25 @@ function Get-AbrVbrScaleOutRepository {
                                                 #---------------------------------------------------------------------------------------------#
                                                 #                               Performace Tier Section                                       #
                                                 #---------------------------------------------------------------------------------------------#
-                                                Section -Style NOTOCHeading6 -ExcludeFromTOC 'Performance Tier' {
+                                                Section -Style NOTOCHeading6 -ExcludeFromTOC $LocalizedData.PerformanceTierSection {
                                                     $OutObj = @()
 
                                                     $inObj = [ordered] @{
-                                                        'Name' = $Extent.Name
-                                                        'Repository' = $Extent.Repository.Name
-                                                        'Path' = $Extent.Repository.FriendlyPath
-                                                        'Total Space' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size (($Extent).Repository).GetContainer().CachedTotalSpace.InBytesAsUInt64
-                                                        'Used Space' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size (($Extent).Repository).GetContainer().CachedFreeSpace.InBytesAsUInt64
-                                                        'Status' = $Extent.Status
+                                                        $LocalizedData.Name = $Extent.Name
+                                                        $LocalizedData.Repository = $Extent.Repository.Name
+                                                        $LocalizedData.Path = $Extent.Repository.FriendlyPath
+                                                        $LocalizedData.TotalSpace = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size (($Extent).Repository).GetContainer().CachedTotalSpace.InBytesAsUInt64
+                                                        $LocalizedData.UsedSpace = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size (($Extent).Repository).GetContainer().CachedFreeSpace.InBytesAsUInt64
+                                                        $LocalizedData.Status = $Extent.Status
                                                     }
                                                     $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                     if ($HealthCheck.Infrastructure.Settings) {
-                                                        $OutObj | Where-Object { $_.'Status' -ne 'Normal' } | Set-Style -Style Warning -Property 'Status'
+                                                        $OutObj | Where-Object { $_.$($LocalizedData.Status) -ne 'Normal' } | Set-Style -Style Warning -Property $LocalizedData.Status
                                                     }
 
                                                     $TableParams = @{
-                                                        Name = "Performance Tier - $($Extent.Name)"
+                                                        Name = "$($LocalizedData.PerformanceTierTable) - $($Extent.Name)"
                                                         List = $true
                                                         ColumnWidths = 40, 60
                                                     }
@@ -173,43 +174,43 @@ function Get-AbrVbrScaleOutRepository {
                                         #---------------------------------------------------------------------------------------------#
                                         foreach ($CapacityExtent in $BackupRepo.CapacityExtents) {
                                             try {
-                                                Section -Style NOTOCHeading6 -ExcludeFromTOC 'Capacity Tier' {
+                                                Section -Style NOTOCHeading6 -ExcludeFromTOC $LocalizedData.CapacityTierSection {
                                                     $OutObj = @()
 
                                                     $inObj = [ordered] @{
-                                                        'Name' = ($CapacityExtent.Repository).Name
-                                                        'Service Point' = ($CapacityExtent.Repository).ServicePoint
-                                                        'Type' = ($CapacityExtent.Repository).Type
-                                                        'Amazon S3 Folder' = ($CapacityExtent.Repository).AmazonS3Folder
-                                                        'Use Gateway Server' = ($CapacityExtent.Repository).UseGatewayServer
-                                                        'Gateway Server' = switch ((($CapacityExtent.Repository).GatewayServer.Name).length) {
-                                                            0 { 'Auto' }
+                                                        $LocalizedData.Name = ($CapacityExtent.Repository).Name
+                                                        $LocalizedData.ServicePoint = ($CapacityExtent.Repository).ServicePoint
+                                                        $LocalizedData.Type = ($CapacityExtent.Repository).Type
+                                                        $LocalizedData.AmazonS3Folder = ($CapacityExtent.Repository).AmazonS3Folder
+                                                        $LocalizedData.UseGatewayServer = ($CapacityExtent.Repository).UseGatewayServer
+                                                        $LocalizedData.GatewayServer = switch ((($CapacityExtent.Repository).GatewayServer.Name).length) {
+                                                            0 { $LocalizedData.Auto }
                                                             default { ($CapacityExtent.Repository).GatewayServer.Name }
                                                         }
-                                                        'Immutability Period' = $CapacityExtent.Repository.ImmutabilityPeriod
-                                                        'Immutability Enabled' = $CapacityExtent.Repository.BackupImmutabilityEnabled
-                                                        'Size Limit Enabled' = ($CapacityExtent.Repository).SizeLimitEnabled
-                                                        'Size Limit' = ($CapacityExtent.Repository).SizeLimit
+                                                        $LocalizedData.ImmutabilityPeriod = $CapacityExtent.Repository.ImmutabilityPeriod
+                                                        $LocalizedData.ImmutabilityEnabled = $CapacityExtent.Repository.BackupImmutabilityEnabled
+                                                        $LocalizedData.SizeLimitEnabled = ($CapacityExtent.Repository).SizeLimitEnabled
+                                                        $LocalizedData.SizeLimit = ($CapacityExtent.Repository).SizeLimit
                                                     }
                                                     if (($CapacityExtent.Repository).Type -eq 'AmazonS3') {
-                                                        $inObj.remove('Service Point')
-                                                        $inObj.add('Use IA Storage Class', (($CapacityExtent.Repository).EnableIAStorageClass))
-                                                        $inObj.add('Use OZ IA Storage Class', (($CapacityExtent.Repository).EnableOZIAStorageClass))
+                                                        $inObj.remove($LocalizedData.ServicePoint)
+                                                        $inObj.add($LocalizedData.UseIAStorageClass, (($CapacityExtent.Repository).EnableIAStorageClass))
+                                                        $inObj.add($LocalizedData.UseOZIAStorageClass, (($CapacityExtent.Repository).EnableOZIAStorageClass))
                                                     } elseif (($CapacityExtent.Repository).Type -eq 'AzureBlob') {
-                                                        $inObj.remove('Service Point')
-                                                        $inObj.remove('Amazon S3 Folder')
-                                                        $inObj.add('Azure Blob Name', ($CapacityExtent.Repository.AzureBlobFolder).Name)
-                                                        $inObj.add('Azure Blob Container', ($CapacityExtent.Repository.AzureBlobFolder).Container)
+                                                        $inObj.remove($LocalizedData.ServicePoint)
+                                                        $inObj.remove($LocalizedData.AmazonS3Folder)
+                                                        $inObj.add($LocalizedData.AzureBlobName, ($CapacityExtent.Repository.AzureBlobFolder).Name)
+                                                        $inObj.add($LocalizedData.AzureBlobContainer, ($CapacityExtent.Repository.AzureBlobFolder).Container)
                                                     }
 
                                                     $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                     if ($HealthCheck.Infrastructure.SOBR) {
-                                                        $OutObj | Where-Object { $_.'Immutability Enabled' -eq 'No' } | Set-Style -Style Warning -Property 'Immutability Enabled'
+                                                        $OutObj | Where-Object { $_.$($LocalizedData.ImmutabilityEnabled) -eq 'No' } | Set-Style -Style Warning -Property $LocalizedData.ImmutabilityEnabled
                                                     }
 
                                                     $TableParams = @{
-                                                        Name = "Capacity Tier - $(($CapacityExtent.Repository).Name)"
+                                                        Name = "$($LocalizedData.CapacityTierTable) - $(($CapacityExtent.Repository).Name)"
                                                         List = $true
                                                         ColumnWidths = 40, 60
                                                     }
@@ -218,7 +219,7 @@ function Get-AbrVbrScaleOutRepository {
                                                     }
                                                     $OutObj | Table @TableParams
                                                     if ($BackupRepo.OffloadWindowOptions) {
-                                                        Section -Style NOTOCHeading6 -ExcludeFromTOC 'Offload Window Time Period' {
+                                                        Section -Style NOTOCHeading6 -ExcludeFromTOC $LocalizedData.OffloadWindowSection {
                                                             Paragraph -ScriptBlock $Legend
 
                                                             $OutObj = @()
@@ -226,7 +227,7 @@ function Get-AbrVbrScaleOutRepository {
                                                                 $OutObj = Get-WindowsTimePeriod -InputTimePeriod $BackupRepo.OffloadWindowOptions
 
                                                                 $TableParams = @{
-                                                                    Name = "Offload Window - $(($CapacityExtent.Repository).Name)"
+                                                                    Name = "$($LocalizedData.OffloadWindowTable) - $(($CapacityExtent.Repository).Name)"
                                                                     List = $true
                                                                     ColumnWidths = 6, 4, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4
                                                                     Key = 'H'
@@ -268,28 +269,28 @@ function Get-AbrVbrScaleOutRepository {
                                         #---------------------------------------------------------------------------------------------#
                                         foreach ($ArchiveExtent in $BackupRepo.ArchiveExtent) {
                                             try {
-                                                Section -Style NOTOCHeading6 -ExcludeFromTOC 'Archive Tier' {
+                                                Section -Style NOTOCHeading6 -ExcludeFromTOC $LocalizedData.ArchiveTierSection {
                                                     $OutObj = @()
 
                                                     $inObj = [ordered] @{
-                                                        'Name' = ($ArchiveExtent.Repository).Name
-                                                        'Type' = ($ArchiveExtent.Repository).ArchiveType
-                                                        'Use Gateway Server' = ($ArchiveExtent.Repository).UseGatewayServer
-                                                        'Gateway Server' = switch ((($ArchiveExtent.Repository).GatewayServer.Name).length) {
-                                                            0 { 'Auto' }
+                                                        $LocalizedData.Name = ($ArchiveExtent.Repository).Name
+                                                        $LocalizedData.Type = ($ArchiveExtent.Repository).ArchiveType
+                                                        $LocalizedData.UseGatewayServer = ($ArchiveExtent.Repository).UseGatewayServer
+                                                        $LocalizedData.GatewayServer = switch ((($ArchiveExtent.Repository).GatewayServer.Name).length) {
+                                                            0 { $LocalizedData.Auto }
                                                             default { ($ArchiveExtent.Repository).GatewayServer.Name }
                                                         }
                                                     }
                                                     if (($ArchiveExtent.Repository).ArchiveType -eq 'AzureArchive') {
-                                                        $inObj.add('Azure Service Type', ($ArchiveExtent.Repository.AzureBlobFolder).ServiceType)
-                                                        $inObj.add('Azure Blob Name', ($ArchiveExtent.Repository.AzureBlobFolder).Name)
-                                                        $inObj.add('Azure Blob Container', ($ArchiveExtent.Repository.AzureBlobFolder).Container)
+                                                        $inObj.add($LocalizedData.AzureServiceType, ($ArchiveExtent.Repository.AzureBlobFolder).ServiceType)
+                                                        $inObj.add($LocalizedData.AzureBlobName, ($ArchiveExtent.Repository.AzureBlobFolder).Name)
+                                                        $inObj.add($LocalizedData.AzureBlobContainer, ($ArchiveExtent.Repository.AzureBlobFolder).Container)
                                                     }
 
                                                     $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                     $TableParams = @{
-                                                        Name = "Archive Tier - $(($ArchiveExtent.Repository).Name)"
+                                                        Name = "$($LocalizedData.ArchiveTierTable) - $(($ArchiveExtent.Repository).Name)"
                                                         List = $true
                                                         ColumnWidths = 40, 60
                                                     }
@@ -320,8 +321,8 @@ function Get-AbrVbrScaleOutRepository {
                             if ($Graph) {
                                 $BestAspectRatio = Get-BestImageAspectRatio -GraphObj $Graph -MaxWidth 600 -MaxHeight 600
                                 PageBreak
-                                Section -Style Heading4 'Scale-Out Backup Repository Diagram' {
-                                    Image -Base64 $Graph -Text 'ScaleOut Backup Repository Diagram' -Width $BestAspectRatio.Width -Height $BestAspectRatio.Height -Align Center
+                                Section -Style Heading4 $LocalizedData.DiagramHeading {
+                                    Image -Base64 $Graph -Text $LocalizedData.DiagramAltText -Width $BestAspectRatio.Width -Height $BestAspectRatio.Height -Align Center
                                     PageBreak
                                 }
                             }

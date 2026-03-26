@@ -3,6 +3,7 @@
         "Name": "Veeam Backup & Replication As Built Report",
         "Version": "1.0",
         "Status": "Released",
+        "Language": "en-US",
         "ShowCoverPageImage": true,
         "ShowTableOfContents": true,
         "ShowHeaderFooter": true,

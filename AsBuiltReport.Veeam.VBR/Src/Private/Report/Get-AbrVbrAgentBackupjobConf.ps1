@@ -22,46 +22,47 @@ function Get-AbrVbrAgentBackupjobConf {
 
     begin {
         Write-PScriboMessage "Discovering Veeam VBR Agent Backup jobs configuration information from $System."
+        $LocalizedData = $reportTranslate.GetAbrVbrAgentBackupjobConf
         Show-AbrDebugExecutionTime -Start -TitleMessage 'Agent Backup Jobs Configuration'
     }
 
     process {
         try {
             if ($ABkjobs = Get-VBRComputerBackupJob | Sort-Object -Property Name) {
-                Section -Style Heading3 'Agent Backup Jobs Configuration' {
-                    Paragraph 'The following section provides detailed configuration information for each agent-based backup job, including schedule, retention policy, and protected workloads.'
+                Section -Style Heading3 $LocalizedData.Heading {
+                    Paragraph $LocalizedData.Paragraph
                     BlankLine
                     $OutObj = @()
                     foreach ($ABkjob in $ABkjobs) {
                         try {
                             Section -Style Heading4 $($ABkjob.Name) {
-                                Section -Style NOTOCHeading5 -ExcludeFromTOC 'Job Mode' {
+                                Section -Style NOTOCHeading5 -ExcludeFromTOC $LocalizedData.SectionJobMode {
                                     $OutObj = @()
                                     try {
                                         $inObj = [ordered] @{
-                                            'Name' = $ABkjob.Name
-                                            'Id' = $ABkjob.Id
-                                            'Type' = $ABkjob.Type
-                                            'Mode' = switch ($ABkjob.Mode) {
-                                                'ManagedByBackupServer' { 'Managed by Backup Server' }
-                                                'ManagedByAgent' { 'Managed by Agent' }
+                                            $LocalizedData.name = $ABkjob.Name
+                                            $LocalizedData.id = $ABkjob.Id
+                                            $LocalizedData.type = $ABkjob.Type
+                                            $LocalizedData.mode = switch ($ABkjob.Mode) {
+                                                'ManagedByBackupServer' { $LocalizedData.managedByBackupServer }
+                                                'ManagedByAgent' { $LocalizedData.managedByAgent }
                                                 default { $ABkjob.Mode }
                                             }
-                                            'Description' = $ABkjob.Description
-                                            'Priority' = switch ($ABkjob.IsHighPriority) {
-                                                'True' { 'High Priority' }
-                                                'False' { 'Normal Priority' }
+                                            $LocalizedData.description = $ABkjob.Description
+                                            $LocalizedData.priority = switch ($ABkjob.IsHighPriority) {
+                                                'True' { $LocalizedData.highPriority }
+                                                'False' { $LocalizedData.normalPriority }
                                             }
                                         }
                                         $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                         if ($HealthCheck.Jobs.BestPractice) {
-                                            $OutObj | Where-Object { $_.'Description' -eq '--' } | Set-Style -Style Warning -Property 'Description'
-                                            $OutObj | Where-Object { $_.'Description' -match 'Created by' } | Set-Style -Style Warning -Property 'Description'
+                                            $OutObj | Where-Object { $_.$($LocalizedData.description) -eq '--' } | Set-Style -Style Warning -Property $LocalizedData.description
+                                            $OutObj | Where-Object { $_.$($LocalizedData.description) -match 'Created by' } | Set-Style -Style Warning -Property $LocalizedData.description
                                         }
 
                                         $TableParams = @{
-                                            Name = "Job Mode - $($ABkjob.Name)"
+                                            Name = "$($LocalizedData.TableHeadingJobMode) - $($ABkjob.Name)"
                                             List = $true
                                             ColumnWidths = 40, 60
                                         }
@@ -70,12 +71,12 @@ function Get-AbrVbrAgentBackupjobConf {
                                         }
                                         $OutObj | Table @TableParams
                                         if ($HealthCheck.Jobs.BestPractice) {
-                                            if ($OutObj | Where-Object { $_.'Description' -match 'Created by' -or $_.'Description' -eq '--' }) {
-                                                Paragraph 'Health Check:' -Bold -Underline
+                                            if ($OutObj | Where-Object { $_.$($LocalizedData.description) -match 'Created by' -or $_.$($LocalizedData.description) -eq '--' }) {
+                                                Paragraph $LocalizedData.healthCheck -Bold -Underline
                                                 BlankLine
                                                 Paragraph {
-                                                    Text 'Best Practice:' -Bold
-                                                    Text 'It is a general rule of good practice to establish well-defined descriptions. This helps to speed up the fault identification process, as well as enabling better documentation of the environment.'
+                                                    Text $LocalizedData.bestPractice -Bold
+                                                    Text $LocalizedData.healthCheckDescriptionText
                                                 }
                                                 BlankLine
                                             }
@@ -85,22 +86,22 @@ function Get-AbrVbrAgentBackupjobConf {
                                     }
                                 }
                                 try {
-                                    Section -Style NOTOCHeading5 -ExcludeFromTOC 'Protected Computers' {
+                                    Section -Style NOTOCHeading5 -ExcludeFromTOC $LocalizedData.SectionProtectedComputers {
                                         $OutObj = @()
                                         foreach ($BackupObject in $ABkjob.BackupObject) {
                                             try {
                                                 $inObj = [ordered] @{
-                                                    'Name' = $BackupObject.Name
-                                                    'Type' = switch ($BackupObject.Type) {
-                                                        $Null { 'Computer' }
+                                                    $LocalizedData.name = $BackupObject.Name
+                                                    $LocalizedData.type = switch ($BackupObject.Type) {
+                                                        $Null { $LocalizedData.computer }
                                                         default { $BackupObject.Type }
                                                     }
-                                                    'Enabled' = $BackupObject.Enabled
-                                                    'Container' = switch ($BackupObject.Container) {
-                                                        $Null { 'Individual Computer' }
-                                                        'ActiveDirectory' { 'Active Directory' }
-                                                        'ManuallyDeployed' { 'Manually Deployed' }
-                                                        'IndividualComputers' { 'Individual Computers' }
+                                                    $LocalizedData.enabled = $BackupObject.Enabled
+                                                    $LocalizedData.container = switch ($BackupObject.Container) {
+                                                        $Null { $LocalizedData.individualComputer }
+                                                        'ActiveDirectory' { $LocalizedData.activeDirectory }
+                                                        'ManuallyDeployed' { $LocalizedData.manuallyDeployed }
+                                                        'IndividualComputers' { $LocalizedData.individualComputers }
                                                         default { $BackupObject.Container }
                                                     }
                                                 }
@@ -111,7 +112,7 @@ function Get-AbrVbrAgentBackupjobConf {
                                         }
 
                                         $TableParams = @{
-                                            Name = "Protected Computers - $($ABkjob.Name)"
+                                            Name = "$($LocalizedData.TableHeadingProtectedComputers) - $($ABkjob.Name)"
                                             List = $false
                                             ColumnWidths = 25, 25, 25, 25
                                         }
@@ -124,43 +125,43 @@ function Get-AbrVbrAgentBackupjobConf {
                                     Write-PScriboMessage -IsWarning "Agent Backup Jobs Protected Computers Section: $($_.Exception.Message)"
                                 }
                                 try {
-                                    Section -Style NOTOCHeading5 -ExcludeFromTOC 'Backup Mode' {
+                                    Section -Style NOTOCHeading5 -ExcludeFromTOC $LocalizedData.SectionBackupMode {
                                         $OutObj = @()
                                         try {
                                             $inObj = [ordered] @{
-                                                'Backup Mode' = switch ($ABkjob.BackupType) {
-                                                    'EntireComputer' { 'Entire Computer' }
-                                                    'SelectedVolumes' { 'Volume Level Backup' }
-                                                    'SelectedFiles' { 'File Level Backup (slower)' }
+                                                $LocalizedData.backupMode = switch ($ABkjob.BackupType) {
+                                                    'EntireComputer' { $LocalizedData.entireComputer }
+                                                    'SelectedVolumes' { $LocalizedData.volumeLevelBackup }
+                                                    'SelectedFiles' { $LocalizedData.fileLevelBackup }
                                                 }
                                             }
                                             if ($ABkjob.BackupType -eq 'EntireComputer') {
-                                                $inObj.add('Include external USB drives', ($ABkjob.UsbDrivesIncluded))
+                                                $inObj.add($LocalizedData.includeExternalUSB, ($ABkjob.UsbDrivesIncluded))
                                             } elseif ($ABkjob.BackupType -eq 'SelectedVolumes') {
                                                 if ($Null -ne $ABkjob.SelectedVolumes.Path) {
-                                                    $inObj.add('Backup the following volumes only', ($ABkjob.SelectedVolumes.Path -join ', '))
+                                                    $inObj.add($LocalizedData.backupFollowingVolumes, ($ABkjob.SelectedVolumes.Path -join ', '))
                                                 } elseif ($Null -ne $ABkjob.ExcludedVolumes.Path) {
-                                                    $inObj.add('Backup all volumes except the following', ($ABkjob.ExcludedVolumes.Path -join ', '))
+                                                    $inObj.add($LocalizedData.backupAllVolumesExcept, ($ABkjob.ExcludedVolumes.Path -join ', '))
                                                 }
 
                                             } elseif ($ABkjob.BackupType -eq 'SelectedFiles') {
-                                                $inObj.add('Backup Operating System Files', ($ABkjob.SelectedFilesOptions.BackupOS))
-                                                $inObj.add('Backup Personal Files', ($ABkjob.SelectedFilesOptions.BackupPersonalFiles))
+                                                $inObj.add($LocalizedData.backupOSFiles, ($ABkjob.SelectedFilesOptions.BackupOS))
+                                                $inObj.add($LocalizedData.backupPersonalFiles, ($ABkjob.SelectedFilesOptions.BackupPersonalFiles))
                                                 if ($ABkjob.SelectedFilesOptions.BackupPersonalFiles -eq $TRUE) {
-                                                    $inObj.add('User Profile Folder to Backup', ("Desktop: $($ABkjob.SelectedFilesOptions.SelectedPersonalFolders.Desktop),`r`nDocuments: $($ABkjob.SelectedFilesOptions.SelectedPersonalFolders.Documents),`r`nPictures: $($ABkjob.SelectedFilesOptions.SelectedPersonalFolders.Pictures),`r`nVideo: $($ABkjob.SelectedFilesOptions.SelectedPersonalFolders.Video),`r`nFavorites: $($ABkjob.SelectedFilesOptions.SelectedPersonalFolders.Favorites),`r`nDownloads: $($ABkjob.SelectedFilesOptions.SelectedPersonalFolders.Downloads),`r`nApplicationData: $($ABkjob.SelectedFilesOptions.SelectedPersonalFolders.ApplicationData),`r`nOther Files and Folders: $($ABkjob.SelectedFilesOptions.SelectedPersonalFolders.Custom),`r`nExclude Roaming Profile: $($ABkjob.SelectedFilesOptions.SelectedPersonalFolders.ExcludeRoamingUsers)"))
+                                                    $inObj.add($LocalizedData.userProfileFolderToBackup, ("Desktop: $($ABkjob.SelectedFilesOptions.SelectedPersonalFolders.Desktop),`r`nDocuments: $($ABkjob.SelectedFilesOptions.SelectedPersonalFolders.Documents),`r`nPictures: $($ABkjob.SelectedFilesOptions.SelectedPersonalFolders.Pictures),`r`nVideo: $($ABkjob.SelectedFilesOptions.SelectedPersonalFolders.Video),`r`nFavorites: $($ABkjob.SelectedFilesOptions.SelectedPersonalFolders.Favorites),`r`nDownloads: $($ABkjob.SelectedFilesOptions.SelectedPersonalFolders.Downloads),`r`nApplicationData: $($ABkjob.SelectedFilesOptions.SelectedPersonalFolders.ApplicationData),`r`nOther Files and Folders: $($ABkjob.SelectedFilesOptions.SelectedPersonalFolders.Custom),`r`nExclude Roaming Profile: $($ABkjob.SelectedFilesOptions.SelectedPersonalFolders.ExcludeRoamingUsers)"))
                                                 }
-                                                $inObj.add('Backup File System Files', ($ABkjob.SelectedFilesOptions.BackupSelectedFiles))
+                                                $inObj.add($LocalizedData.backupFileSystemFiles, ($ABkjob.SelectedFilesOptions.BackupSelectedFiles))
                                                 if ($Null -ne $ABkjob.SelectedFilesOptions.SelectedFiles) {
-                                                    $inObj.add('Files System Path', ($ABkjob.SelectedFilesOptions.SelectedFiles -join ', '))
+                                                    $inObj.add($LocalizedData.filesSystemPath, ($ABkjob.SelectedFilesOptions.SelectedFiles -join ', '))
                                                 }
                                                 if ('' -ne $ABkjob.SelectedFilesOptions.IncludeMask) {
-                                                    $inObj.add('Filter Files (Include Mask)', ($ABkjob.SelectedFilesOptions.IncludeMask))
+                                                    $inObj.add($LocalizedData.filterFilesInclude, ($ABkjob.SelectedFilesOptions.IncludeMask))
                                                 }
                                                 if ('' -ne $ABkjob.SelectedFilesOptions.ExcludeMask) {
-                                                    $inObj.add('Filter Files (Exclude Mask)', ($ABkjob.SelectedFilesOptions.ExcludeMask))
+                                                    $inObj.add($LocalizedData.filterFilesExclude, ($ABkjob.SelectedFilesOptions.ExcludeMask))
                                                 }
                                                 if ($ABkjob.SelectedFilesOptions.BackupPersonalFiles -eq $TRUE) {
-                                                    $inObj.add('Exclude Microsoft Onedrive Folders', ($ABkjob.SelectedFilesOptions.SelectedPersonalFolders.ExcludeOneDrive))
+                                                    $inObj.add($LocalizedData.excludeOneDrive, ($ABkjob.SelectedFilesOptions.SelectedPersonalFolders.ExcludeOneDrive))
                                                 }
                                             }
                                             $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
@@ -169,7 +170,7 @@ function Get-AbrVbrAgentBackupjobConf {
                                         }
 
                                         $TableParams = @{
-                                            Name = "Backup Mode - $($ABkjob.Name)"
+                                            Name = "$($LocalizedData.TableHeadingBackupMode) - $($ABkjob.Name)"
                                             List = $true
                                             ColumnWidths = 40, 60
                                         }
@@ -183,63 +184,63 @@ function Get-AbrVbrAgentBackupjobConf {
                                 }
                                 try {
                                     if ($ABkjob.Mode -eq 'ManagedByAgent') {
-                                        $StorageTXT = 'Destination'
+                                        $StorageTXT = $LocalizedData.SectionDestination
                                     } elseif ($ABkjob.Mode -eq 'ManagedByBackupServer') {
-                                        $StorageTXT = 'Storage'
+                                        $StorageTXT = $LocalizedData.SectionStorage
                                     }
                                     Section -Style NOTOCHeading5 -ExcludeFromTOC $StorageTXT {
                                         $OutObj = @()
                                         if ($ABkjob.Mode -eq 'ManagedByAgent') {
                                             try {
                                                 if ($ABkjob.RetentionType -eq 'RestoreDays') {
-                                                    $RetainString = 'Retain Days To Keep'
+                                                    $RetainString = $LocalizedData.retainDaysToKeep
                                                     $Retains = $ABkjob.RetentionPolicy
                                                 } elseif ($ABkjob.RetentionType -eq 'RestorePoints') {
-                                                    $RetainString = 'Retain Points'
+                                                    $RetainString = $LocalizedData.retainPoints
                                                     $Retains = $ABkjob.RetentionPolicy
                                                 }
                                                 if ($ABkjob.Mode -eq 'ManagedByBackupServer') {
-                                                    $DestinationType = 'Veeam Backup Repository'
+                                                    $DestinationType = $LocalizedData.veeamBackupRepository
                                                 }
                                                 if ($ABkjob.Mode -eq 'ManagedByAgent') {
                                                     $DestinationType = switch ($ABkjob.DestinationOptions.DestinationType) {
-                                                        'BackupRepository' { 'Veeam Backup Repository' }
-                                                        'LocalStorage' { 'Local Storage' }
-                                                        'NetworkFolder' { 'Shared Folder' }
+                                                        'BackupRepository' { $LocalizedData.veeamBackupRepository }
+                                                        'LocalStorage' { $LocalizedData.localStorage }
+                                                        'NetworkFolder' { $LocalizedData.sharedFolderDest }
                                                         default { $ABkjob.DestinationOptions.DestinationType }
                                                     }
                                                 }
                                                 if ([Veeam.Backup.Core.CBackupJob]::GetSecondDestinationJobs($ABkjob.id)) {
-                                                    $SecondaryJobRepo = 'Yes'
-                                                } else { $SecondaryJobRepo = 'No' }
+                                                    $SecondaryJobRepo = $LocalizedData.yes
+                                                } else { $SecondaryJobRepo = $LocalizedData.no }
                                                 $inObj = [ordered] @{
-                                                    'Destination Type' = $DestinationType
-                                                    'Retention Policy' = switch ($ABkjob.RetentionType) {
-                                                        'RestorePoints' { 'Restore Points' }
-                                                        'RestoreDays' { 'Restore Days' }
+                                                    $LocalizedData.destinationType = $DestinationType
+                                                    $LocalizedData.retentionPolicy = switch ($ABkjob.RetentionType) {
+                                                        'RestorePoints' { $LocalizedData.restorePoints }
+                                                        'RestoreDays' { $LocalizedData.restoreDays }
                                                         default { $ABkjob.RetentionType }
                                                     }
                                                     $RetainString = $Retains
-                                                    'Configure Secondary Destination for this Job' = $SecondaryJobRepo
+                                                    $LocalizedData.configureSecondaryDestination = $SecondaryJobRepo
                                                 }
                                                 if ($ABkjob.DestinationOptions.DestinationType -eq 'BackupRepository') {
-                                                    $inObj.add('Backup Server', ($ABkjob.DestinationOptions.BackupServerName))
-                                                    $inObj.add('Backup Repository', ($ABkjob.DestinationOptions.BackupRepository.Name))
+                                                    $inObj.add($LocalizedData.backupServer, ($ABkjob.DestinationOptions.BackupServerName))
+                                                    $inObj.add($LocalizedData.backupRepository, ($ABkjob.DestinationOptions.BackupRepository.Name))
                                                 } elseif ($ABkjob.DestinationOptions.DestinationType -eq 'LocalStorage') {
-                                                    $inObj.add('Local Path', ($ABkjob.DestinationOptions.LocalPath))
+                                                    $inObj.add($LocalizedData.localPath, ($ABkjob.DestinationOptions.LocalPath))
                                                 } elseif ($ABkjob.DestinationOptions.DestinationType -eq 'NetworkFolder') {
-                                                    $inObj.add('Shared Folder', ($ABkjob.DestinationOptions.NetworkFolderPath))
-                                                    $inObj.add('Target Share Type', ($ABkjob.DestinationOptions.TargetShareType))
-                                                    $inObj.add('Use Network Credentials', ($ABkjob.DestinationOptions.UseNetworkCredentials))
+                                                    $inObj.add($LocalizedData.sharedFolder, ($ABkjob.DestinationOptions.NetworkFolderPath))
+                                                    $inObj.add($LocalizedData.targetShareType, ($ABkjob.DestinationOptions.TargetShareType))
+                                                    $inObj.add($LocalizedData.useNetworkCredentials, ($ABkjob.DestinationOptions.UseNetworkCredentials))
                                                     if ($ABkjob.DestinationOptions.UseNetworkCredentials) {
-                                                        $inObj.add('Credentials', ($ABkjob.DestinationOptions.NetworkCredentials.Name))
+                                                        $inObj.add($LocalizedData.credentials, ($ABkjob.DestinationOptions.NetworkCredentials.Name))
                                                     }
                                                 }
                                                 if ($ABkjob.GFSRetentionEnabled) {
-                                                    $inObj.add('Keep certain full backup longer for archival purposes (GFS)', ($ABkjob.GFSRetentionEnabled))
-                                                    $inObj.add('Keep Weekly full backup for', ("$($ABkjob.GFSOptions.WeeklyOptions.RetentionPeriod) weeks,`r`nIf multiple backup exist use the one from: $($ABkjob.GFSOptions.WeeklyOptions.SelectedDay)"))
-                                                    $inObj.add('Keep Monthly full backup for', ("$($ABkjob.GFSOptions.MonthlyOptions.RetentionPeriod) months,`r`nUse weekly full backup from the following week of the month: $($ABkjob.GFSOptions.MonthlyOptions.SelectedWeek)"))
-                                                    $inObj.add('Keep Yearly full backup for', ("$($ABkjob.GFSOptions.YearlyOptions.RetentionPeriod) years,`r`nUse monthly full backup from the following month: $($ABkjob.GFSOptions.YearlyOptions.SelectedMonth)"))
+                                                    $inObj.add($LocalizedData.gfsEnabled, ($ABkjob.GFSRetentionEnabled))
+                                                    $inObj.add($LocalizedData.gfsWeekly, ("$($ABkjob.GFSOptions.WeeklyOptions.RetentionPeriod) weeks,`r`nIf multiple backup exist use the one from: $($ABkjob.GFSOptions.WeeklyOptions.SelectedDay)"))
+                                                    $inObj.add($LocalizedData.gfsMonthly, ("$($ABkjob.GFSOptions.MonthlyOptions.RetentionPeriod) months,`r`nUse weekly full backup from the following week of the month: $($ABkjob.GFSOptions.MonthlyOptions.SelectedWeek)"))
+                                                    $inObj.add($LocalizedData.gfsYearly, ("$($ABkjob.GFSOptions.YearlyOptions.RetentionPeriod) years,`r`nUse monthly full backup from the following month: $($ABkjob.GFSOptions.YearlyOptions.SelectedMonth)"))
                                                 }
                                                 $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                                             } catch {
@@ -247,7 +248,7 @@ function Get-AbrVbrAgentBackupjobConf {
                                             }
 
                                             $TableParams = @{
-                                                Name = "Destination - $($ABkjob.Name)"
+                                                Name = "$($LocalizedData.TableHeadingDestination) - $($ABkjob.Name)"
                                                 List = $true
                                                 ColumnWidths = 40, 60
                                             }
@@ -257,21 +258,21 @@ function Get-AbrVbrAgentBackupjobConf {
                                             $OutObj | Table @TableParams
                                             if ([Veeam.Backup.Core.CBackupJob]::GetSecondDestinationJobs($ABkjob.id)) {
                                                 try {
-                                                    Section -Style NOTOCHeading6 -ExcludeFromTOC 'Secondary Target' {
+                                                    Section -Style NOTOCHeading6 -ExcludeFromTOC $LocalizedData.SectionSecondaryTarget {
                                                         $OutObj = @()
                                                         $SecondaryTargets = [Veeam.Backup.Core.CBackupJob]::GetSecondDestinationJobs($ABkjob.id)
                                                         foreach ($SecondaryTarget in $SecondaryTargets) {
                                                             $inObj = [ordered] @{
-                                                                'Job Name' = $SecondaryTarget.Name
-                                                                'Type' = $SecondaryTarget.TypeToString
-                                                                'State' = $SecondaryTarget.info.LatestStatus
-                                                                'Description' = $SecondaryTarget.Description
+                                                                $LocalizedData.jobName = $SecondaryTarget.Name
+                                                                $LocalizedData.type = $SecondaryTarget.TypeToString
+                                                                $LocalizedData.state = $SecondaryTarget.info.LatestStatus
+                                                                $LocalizedData.description = $SecondaryTarget.Description
                                                             }
                                                             $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                                                         }
 
                                                         $TableParams = @{
-                                                            Name = "Secondary Destination Job - $($ABkjob.Name)"
+                                                            Name = "$($LocalizedData.TableHeadingSecondaryTarget) - $($ABkjob.Name)"
                                                             List = $false
                                                             ColumnWidths = 25, 25, 15, 35
                                                         }
@@ -288,55 +289,55 @@ function Get-AbrVbrAgentBackupjobConf {
                                         if ($ABkjob.Mode -eq 'ManagedByBackupServer') {
                                             try {
                                                 if ($ABkjob.RetentionType -eq 'RestoreDays') {
-                                                    $RetainString = 'Retain Days To Keep'
+                                                    $RetainString = $LocalizedData.retainDaysToKeep
                                                     $Retains = $ABkjob.RetentionPolicy
                                                 } elseif ($ABkjob.RetentionType -eq 'RestorePoints') {
-                                                    $RetainString = 'Restore Points'
+                                                    $RetainString = $LocalizedData.retainRestorePoints
                                                     $Retains = $ABkjob.RetentionPolicy
                                                 }
                                                 if ($ABkjob.Mode -eq 'ManagedByBackupServer') {
-                                                    $DestinationType = 'Veeam Backup Repository'
+                                                    $DestinationType = $LocalizedData.veeamBackupRepository
                                                 }
                                                 if ($ABkjob.Mode -eq 'ManagedByAgent') {
                                                     $DestinationType = switch ($ABkjob.DestinationOptions.DestinationType) {
-                                                        'BackupRepository' { 'Veeam Backup Repository' }
-                                                        'LocalStorage' { 'Local Storage' }
-                                                        'NetworkFolder' { 'Shared Folder' }
+                                                        'BackupRepository' { $LocalizedData.veeamBackupRepository }
+                                                        'LocalStorage' { $LocalizedData.localStorage }
+                                                        'NetworkFolder' { $LocalizedData.sharedFolderDest }
                                                         default { $ABkjob.DestinationOptions.DestinationType }
                                                     }
                                                 }
                                                 if ([Veeam.Backup.Core.CBackupJob]::GetSecondDestinationJobs($ABkjob.id)) {
-                                                    $SecondaryJobRepo = 'Yes'
-                                                } else { $SecondaryJobRepo = 'No' }
+                                                    $SecondaryJobRepo = $LocalizedData.yes
+                                                } else { $SecondaryJobRepo = $LocalizedData.no }
                                                 $inObj = [ordered] @{
-                                                    'Backup Repository' = $ABkjob.BackupRepository.Name
-                                                    'Repository Type' = $ABkjob.BackupRepository.Type
-                                                    'Retention Policy' = switch ($ABkjob.RetentionType) {
-                                                        'RestorePoints' { 'Restore Points' }
-                                                        'RestoreDays' { 'Restore Days' }
+                                                    $LocalizedData.backupRepository = $ABkjob.BackupRepository.Name
+                                                    $LocalizedData.repositoryType = $ABkjob.BackupRepository.Type
+                                                    $LocalizedData.retentionPolicy = switch ($ABkjob.RetentionType) {
+                                                        'RestorePoints' { $LocalizedData.restorePoints }
+                                                        'RestoreDays' { $LocalizedData.restoreDays }
                                                         default { $ABkjob.RetentionType }
                                                     }
                                                     $RetainString = $Retains
-                                                    'Configure Secondary Destination for this Job' = $SecondaryJobRepo
+                                                    $LocalizedData.configureSecondaryDestination = $SecondaryJobRepo
                                                 }
                                                 if ($ABkjob.DestinationOptions.DestinationType -eq 'BackupRepository') {
-                                                    $inObj.add('Backup Server', ($ABkjob.DestinationOptions.BackupServerName))
-                                                    $inObj.add('Backup Repository', ($ABkjob.DestinationOptions.BackupRepository.Name))
+                                                    $inObj.add($LocalizedData.backupServer, ($ABkjob.DestinationOptions.BackupServerName))
+                                                    $inObj.add($LocalizedData.backupRepository, ($ABkjob.DestinationOptions.BackupRepository.Name))
                                                 } elseif ($ABkjob.DestinationOptions.DestinationType -eq 'LocalStorage') {
-                                                    $inObj.add('Local Path', ($ABkjob.DestinationOptions.LocalPath))
+                                                    $inObj.add($LocalizedData.localPath, ($ABkjob.DestinationOptions.LocalPath))
                                                 } elseif ($ABkjob.DestinationOptions.DestinationType -eq 'NetworkFolder') {
-                                                    $inObj.add('Shared Folder', ($ABkjob.DestinationOptions.NetworkFolderPath))
-                                                    $inObj.add('Target Share Type', ($ABkjob.DestinationOptions.TargetShareType))
-                                                    $inObj.add('Use Network Credentials', ($ABkjob.DestinationOptions.UseNetworkCredentials))
+                                                    $inObj.add($LocalizedData.sharedFolder, ($ABkjob.DestinationOptions.NetworkFolderPath))
+                                                    $inObj.add($LocalizedData.targetShareType, ($ABkjob.DestinationOptions.TargetShareType))
+                                                    $inObj.add($LocalizedData.useNetworkCredentials, ($ABkjob.DestinationOptions.UseNetworkCredentials))
                                                     if ($ABkjob.DestinationOptions.UseNetworkCredentials) {
-                                                        $inObj.add('Credentials', ($ABkjob.DestinationOptions.NetworkCredentials.Name))
+                                                        $inObj.add($LocalizedData.credentials, ($ABkjob.DestinationOptions.NetworkCredentials.Name))
                                                     }
                                                 }
                                                 if ($ABkjob.GFSRetentionEnabled) {
-                                                    $inObj.add('Keep certain full backup longer for archival purposes (GFS)', ($ABkjob.GFSRetentionEnabled))
-                                                    $inObj.add('Keep Weekly full backup for', ("$($ABkjob.GFSOptions.WeeklyOptions.RetentionPeriod) weeks,`r`nIf multiple backup exist use the one from: $($ABkjob.GFSOptions.WeeklyOptions.SelectedDay)"))
-                                                    $inObj.add('Keep Monthly full backup for', ("$($ABkjob.GFSOptions.MonthlyOptions.RetentionPeriod) months,`r`nUse weekly full backup from the following week of the month: $($ABkjob.GFSOptions.MonthlyOptions.SelectedWeek)"))
-                                                    $inObj.add('Keep Yearly full backup for', ("$($ABkjob.GFSOptions.YearlyOptions.RetentionPeriod) years,`r`nUse monthly full backup from the following month: $($ABkjob.GFSOptions.YearlyOptions.SelectedMonth)"))
+                                                    $inObj.add($LocalizedData.gfsEnabled, ($ABkjob.GFSRetentionEnabled))
+                                                    $inObj.add($LocalizedData.gfsWeekly, ("$($ABkjob.GFSOptions.WeeklyOptions.RetentionPeriod) weeks,`r`nIf multiple backup exist use the one from: $($ABkjob.GFSOptions.WeeklyOptions.SelectedDay)"))
+                                                    $inObj.add($LocalizedData.gfsMonthly, ("$($ABkjob.GFSOptions.MonthlyOptions.RetentionPeriod) months,`r`nUse weekly full backup from the following week of the month: $($ABkjob.GFSOptions.MonthlyOptions.SelectedWeek)"))
+                                                    $inObj.add($LocalizedData.gfsYearly, ("$($ABkjob.GFSOptions.YearlyOptions.RetentionPeriod) years,`r`nUse monthly full backup from the following month: $($ABkjob.GFSOptions.YearlyOptions.SelectedMonth)"))
                                                 }
                                                 $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                                             } catch {
@@ -344,7 +345,7 @@ function Get-AbrVbrAgentBackupjobConf {
                                             }
 
                                             $TableParams = @{
-                                                Name = "Destination - $($ABkjob.Name)"
+                                                Name = "$($LocalizedData.TableHeadingDestination) - $($ABkjob.Name)"
                                                 List = $true
                                                 ColumnWidths = 40, 60
                                             }
@@ -354,21 +355,21 @@ function Get-AbrVbrAgentBackupjobConf {
                                             $OutObj | Table @TableParams
                                             if ([Veeam.Backup.Core.CBackupJob]::GetSecondDestinationJobs($ABkjob.id)) {
                                                 try {
-                                                    Section -Style NOTOCHeading6 -ExcludeFromTOC 'Secondary Target' {
+                                                    Section -Style NOTOCHeading6 -ExcludeFromTOC $LocalizedData.SectionSecondaryTarget {
                                                         $OutObj = @()
                                                         $SecondaryTargets = [Veeam.Backup.Core.CBackupJob]::GetSecondDestinationJobs($ABkjob.id)
                                                         foreach ($SecondaryTarget in $SecondaryTargets) {
                                                             $inObj = [ordered] @{
-                                                                'Job Name' = $SecondaryTarget.Name
-                                                                'Type' = $SecondaryTarget.TypeToString
-                                                                'State' = $SecondaryTarget.info.LatestStatus
-                                                                'Description' = $SecondaryTarget.Description
+                                                                $LocalizedData.jobName = $SecondaryTarget.Name
+                                                                $LocalizedData.type = $SecondaryTarget.TypeToString
+                                                                $LocalizedData.state = $SecondaryTarget.info.LatestStatus
+                                                                $LocalizedData.description = $SecondaryTarget.Description
                                                             }
                                                             $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                                                         }
 
                                                         $TableParams = @{
-                                                            Name = "Secondary Destination Job - $($ABkjob.Name)"
+                                                            Name = "$($LocalizedData.TableHeadingSecondaryTarget) - $($ABkjob.Name)"
                                                             List = $false
                                                             ColumnWidths = 25, 25, 15, 35
                                                         }
@@ -384,31 +385,31 @@ function Get-AbrVbrAgentBackupjobConf {
                                         }
                                         if ($InfoLevel.Jobs.Agent -ge 2) {
                                             try {
-                                                Section -Style NOTOCHeading6 -ExcludeFromTOC 'Advanced Settings (Backup)' {
+                                                Section -Style NOTOCHeading6 -ExcludeFromTOC $LocalizedData.SectionAdvBackup {
                                                     $OutObj = @()
                                                     try {
                                                         $inObj = [ordered] @{
-                                                            'Syntethic Full Backup' = $ABkjob.SyntheticFullOptions.Enabled
+                                                            $LocalizedData.syntheticFullBackup = $ABkjob.SyntheticFullOptions.Enabled
                                                         }
                                                         if ($ABkjob.SyntheticFullOptions.Enabled) {
-                                                            $inObj.add('Create Syntethic on Days', $ABkjob.SyntheticFullOptions.Days -join ', ')
+                                                            $inObj.add($LocalizedData.createSyntheticOnDays, $ABkjob.SyntheticFullOptions.Days -join ', ')
                                                         }
                                                         $inObj += [ordered] @{
-                                                            'Active Full Backup' = $ABkjob.ActiveFullOptions.Enabled
+                                                            $LocalizedData.activeFullBackup = $ABkjob.ActiveFullOptions.Enabled
                                                         }
                                                         if ($ABkjob.ActiveFullOptions.ScheduleType -eq 'Weekly' -and $ABkjob.ActiveFullOptions.Enabled) {
-                                                            $inObj.add('Active Full Backup Schedule Type', $ABkjob.ActiveFullOptions.ScheduleType)
-                                                            $inObj.add('Active Full Backup Days', $ABkjob.ActiveFullOptions.SelectedDays -join ',')
+                                                            $inObj.add($LocalizedData.activeFullBackupScheduleType, $ABkjob.ActiveFullOptions.ScheduleType)
+                                                            $inObj.add($LocalizedData.activeFullBackupDays, $ABkjob.ActiveFullOptions.SelectedDays -join ',')
                                                         }
                                                         if ($ABkjob.ActiveFullOptions.ScheduleType -eq 'Monthly' -and $ABkjob.ActiveFullOptions.Enabled) {
-                                                            $inObj.add('Active Full Backup Schedule Type', $ABkjob.ActiveFullOptions.ScheduleType)
-                                                            $inObj.add('Active Full Backup Monthly on', "Day Number In Month: $($ABkjob.ActiveFullOptions.DayNumber)`r`nDay Of Week: $($ABkjob.ActiveFullOptions.DayOfWeek)`r`nDay of Month: $($ABkjob.ActiveFullOptions.DayOfMonth)`r`nMonths: $($ABkjob.ActiveFullOptions.SelectedMonths)")
+                                                            $inObj.add($LocalizedData.activeFullBackupScheduleType, $ABkjob.ActiveFullOptions.ScheduleType)
+                                                            $inObj.add($LocalizedData.activeFullBackupMonthlyOn, "Day Number In Month: $($ABkjob.ActiveFullOptions.DayNumber)`r`nDay Of Week: $($ABkjob.ActiveFullOptions.DayOfWeek)`r`nDay of Month: $($ABkjob.ActiveFullOptions.DayOfMonth)`r`nMonths: $($ABkjob.ActiveFullOptions.SelectedMonths)")
                                                         }
 
                                                         $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                         $TableParams = @{
-                                                            Name = "Advanced Settings (Backup) - $($ABkjob.Name)"
+                                                            Name = "$($LocalizedData.TableHeadingAdvBackup) - $($ABkjob.Name)"
                                                             List = $true
                                                             ColumnWidths = 40, 60
                                                         }
@@ -424,38 +425,38 @@ function Get-AbrVbrAgentBackupjobConf {
                                                 Write-PScriboMessage -IsWarning "Agent Backup Jobs Advanced Settings (Backup) Section: $($_.Exception.Message)"
                                             }
                                             try {
-                                                Section -Style NOTOCHeading6 -ExcludeFromTOC 'Advanced Settings (Maintenance)' {
+                                                Section -Style NOTOCHeading6 -ExcludeFromTOC $LocalizedData.SectionAdvMaintenance {
                                                     $OutObj = @()
                                                     try {
                                                         $inObj = [ordered] @{
-                                                            'Storage-Level Corruption Guard (SLCG)' = $ABkjob.HealthCheckOptions.Enabled
+                                                            $LocalizedData.slcg = $ABkjob.HealthCheckOptions.Enabled
                                                         }
                                                         if ($ABkjob.HealthCheckOptions.Enabled) {
-                                                            $inObj.add('SLCG Schedule Type', $ABkjob.HealthCheckOptions.ScheduleType)
-                                                            $inObj.add('SLCG Schedule Day', $ABkjob.HealthCheckOptions.SelectedDays)
+                                                            $inObj.add($LocalizedData.slcgScheduleType, $ABkjob.HealthCheckOptions.ScheduleType)
+                                                            $inObj.add($LocalizedData.slcgScheduleDay, $ABkjob.HealthCheckOptions.SelectedDays)
                                                         }
                                                         if ($ABkjob.HealthCheckOptions.ScheduleType -ne 'Weekly' -and $ABkjob.HealthCheckOptions.Enabled) {
-                                                            $inObj.add('SLCG Backup Monthly Schedule', "Day Of Week: $($ABkjob.HealthCheckOptions.DayOfWeek)`r`nDay Number In Month: $($ABkjob.HealthCheckOptions.DayNumber)`r`nDay of Month: $($ABkjob.HealthCheckOptions.DayOfMonth)`r`nMonths: $($ABkjob.HealthCheckOptions.SelectedMonths)")
+                                                            $inObj.add($LocalizedData.slcgMonthlySchedule, "Day Of Week: $($ABkjob.HealthCheckOptions.DayOfWeek)`r`nDay Number In Month: $($ABkjob.HealthCheckOptions.DayNumber)`r`nDay of Month: $($ABkjob.HealthCheckOptions.DayOfMonth)`r`nMonths: $($ABkjob.HealthCheckOptions.SelectedMonths)")
                                                         }
 
                                                         $inObj += [ordered] @{
-                                                            'Defragment and Compact Full Backup (DCFB)' = $ABkjob.CompactFullOptions.Enabled
+                                                            $LocalizedData.dcfb = $ABkjob.CompactFullOptions.Enabled
                                                         }
                                                         if ($ABkjob.CompactFullOptions.Enabled) {
-                                                            $inObj.add('DCFB Schedule Type', $ABkjob.CompactFullOptions.ScheduleType)
-                                                            $inObj.add('DCFB Schedule Day', $ABkjob.CompactFullOptions.SelectedDays)
+                                                            $inObj.add($LocalizedData.dcfbScheduleType, $ABkjob.CompactFullOptions.ScheduleType)
+                                                            $inObj.add($LocalizedData.dcfbScheduleDay, $ABkjob.CompactFullOptions.SelectedDays)
                                                         }
                                                         if ($ABkjob.CompactFullOptions.ScheduleType -ne 'Weekly' -and $ABkjob.CompactFullOptions.Enabled) {
-                                                            $inObj.add('DCFB Backup Monthly Schedule', "Day Of Week: $($ABkjob.CompactFullOptions.DayOfWeek)`r`nDay Number In Month: $($ABkjob.CompactFullOptions.DayNumber)`r`nDay of Month: $($ABkjob.CompactFullOptions.DayOfMonth)`r`nMonths: $($ABkjob.CompactFullOptions.SelectedMonths)")
+                                                            $inObj.add($LocalizedData.dcfbMonthlySchedule, "Day Of Week: $($ABkjob.CompactFullOptions.DayOfWeek)`r`nDay Number In Month: $($ABkjob.CompactFullOptions.DayNumber)`r`nDay of Month: $($ABkjob.CompactFullOptions.DayOfMonth)`r`nMonths: $($ABkjob.CompactFullOptions.SelectedMonths)")
                                                         }
                                                         $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                         if ($HealthCheck.Jobs.BestPractice) {
-                                                            $OutObj | Where-Object { $_.'Storage-Level Corruption Guard (SLCG)' -eq 'No' } | Set-Style -Style Warning -Property 'Storage-Level Corruption Guard (SLCG)'
+                                                            $OutObj | Where-Object { $_.$($LocalizedData.slcg) -eq 'No' } | Set-Style -Style Warning -Property $LocalizedData.slcg
                                                         }
 
                                                         $TableParams = @{
-                                                            Name = "Advanced Settings (Maintenance) - $($ABkjob.Name)"
+                                                            Name = "$($LocalizedData.TableHeadingAdvMaintenance) - $($ABkjob.Name)"
                                                             List = $true
                                                             ColumnWidths = 40, 60
                                                         }
@@ -464,12 +465,12 @@ function Get-AbrVbrAgentBackupjobConf {
                                                         }
                                                         $OutObj | Table @TableParams
                                                         if ($HealthCheck.Jobs.BestPractice) {
-                                                            if ($OutObj | Where-Object { $_.'Storage-Level Corruption Guard (SLCG)' -eq 'No' }) {
-                                                                Paragraph 'Health Check:' -Bold -Underline
+                                                            if ($OutObj | Where-Object { $_.$($LocalizedData.slcg) -eq 'No' }) {
+                                                                Paragraph $LocalizedData.healthCheck -Bold -Underline
                                                                 BlankLine
                                                                 Paragraph {
-                                                                    Text 'Best Practice:' -Bold
-                                                                    Text "It is recommended to use storage-level corruption guard for any backup job with no active full backups scheduled. Synthetic full backups are still 'incremental forever' and may suffer from corruption over time. Storage-level corruption guard was introduced to provide a greater level of confidence in integrity of the backups."
+                                                                    Text $LocalizedData.bestPractice -Bold
+                                                                    Text $LocalizedData.healthCheckSLCGText
                                                                 }
                                                                 BlankLine
                                                             }
@@ -482,26 +483,26 @@ function Get-AbrVbrAgentBackupjobConf {
                                                 Write-PScriboMessage -IsWarning Write-PscriboMessage -IsWarning "Agent Backup Jobs Advanced Settings (Maintenance) Section: $($_.Exception.Message)"
                                             }
                                             try {
-                                                Section -Style NOTOCHeading6 -ExcludeFromTOC 'Advanced Settings (Storage)' {
+                                                Section -Style NOTOCHeading6 -ExcludeFromTOC $LocalizedData.SectionAdvStorage {
                                                     $OutObj = @()
 
                                                     $inObj = [ordered] @{
-                                                        'Compression Level' = $ABkjob.StorageOptions.CompressionLevel
-                                                        'Storage optimization' = $ABkjob.StorageOptions.StorageOptimizationType
-                                                        'Enabled Backup File Encryption' = $ABkjob.StorageOptions.EncryptionEnabled
-                                                        'Encryption Key' = switch ($ABkjob.StorageOptions.EncryptionEnabled) {
-                                                            $false { 'None' }
+                                                        $LocalizedData.compressionLevel = $ABkjob.StorageOptions.CompressionLevel
+                                                        $LocalizedData.storageOptimization = $ABkjob.StorageOptions.StorageOptimizationType
+                                                        $LocalizedData.enabledBackupFileEncryption = $ABkjob.StorageOptions.EncryptionEnabled
+                                                        $LocalizedData.encryptionKey = switch ($ABkjob.StorageOptions.EncryptionEnabled) {
+                                                            $false { $LocalizedData.none }
                                                             default { (Get-VBREncryptionKey | Where-Object { $_.id -eq $ABkjob.StorageOptions.EncryptionKey.Id }).Description }
                                                         }
                                                     }
                                                     $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                     if ($HealthCheck.Jobs.BestPractice) {
-                                                        $OutObj | Where-Object { $_.'Enabled Backup File Encryption' -eq 'No' } | Set-Style -Style Warning -Property 'Enabled Backup File Encryption'
+                                                        $OutObj | Where-Object { $_.$($LocalizedData.enabledBackupFileEncryption) -eq 'No' } | Set-Style -Style Warning -Property $LocalizedData.enabledBackupFileEncryption
                                                     }
 
                                                     $TableParams = @{
-                                                        Name = "Advanced Settings (Storage) - $($ABkjob.Name)"
+                                                        Name = "$($LocalizedData.TableHeadingAdvStorage) - $($ABkjob.Name)"
                                                         List = $true
                                                         ColumnWidths = 40, 60
                                                     }
@@ -510,12 +511,12 @@ function Get-AbrVbrAgentBackupjobConf {
                                                     }
                                                     $OutObj | Table @TableParams
                                                     if ($HealthCheck.Jobs.BestPractice) {
-                                                        if ($OutObj | Where-Object { $_.'Enabled Backup File Encryption' -eq 'No' }) {
-                                                            Paragraph 'Health Check:' -Bold -Underline
+                                                        if ($OutObj | Where-Object { $_.$($LocalizedData.enabledBackupFileEncryption) -eq 'No' }) {
+                                                            Paragraph $LocalizedData.healthCheck -Bold -Underline
                                                             BlankLine
                                                             Paragraph {
-                                                                Text 'Best Practice:' -Bold
-                                                                Text 'Backup and replica data is a high potential source of vulnerability. To secure data stored in backups and replicas, use Veeam Backup & Replication inbuilt encryption to protect data in backups'
+                                                                Text $LocalizedData.bestPractice -Bold
+                                                                Text $LocalizedData.healthCheckEncryptionText
                                                             }
                                                             BlankLine
                                                         }
@@ -525,26 +526,26 @@ function Get-AbrVbrAgentBackupjobConf {
                                                 Write-PScriboMessage -IsWarning "Agent Backup Jobs Advanced Settings (Storage) Section: $($_.Exception.Message)"
                                             }
                                             try {
-                                                Section -Style NOTOCHeading6 -ExcludeFromTOC 'Advanced Settings (Notification)' {
+                                                Section -Style NOTOCHeading6 -ExcludeFromTOC $LocalizedData.SectionAdvNotification {
                                                     $OutObj = @()
 
                                                     $inObj = [ordered] @{
-                                                        'Send Snmp Notification' = $ABkjob.NotificationOptions.EnableSnmpNotification
-                                                        'Send Email Notification' = $ABkjob.NotificationOptions.EnableAdditionalNotification
+                                                        $LocalizedData.sendSnmpNotification = $ABkjob.NotificationOptions.EnableSnmpNotification
+                                                        $LocalizedData.sendEmailNotification = $ABkjob.NotificationOptions.EnableAdditionalNotification
                                                     }
                                                     if ($ABkjob.NotificationOptions.EnableAdditionalNotification) {
-                                                        $inObj.add('Email Notification Additional Addresses', $ABkjob.NotificationOptions.AdditionalAddress)
-                                                        $inObj.add('Use Custom Email Notification Options', ($ABkjob.NotificationOptions.UseNotificationOptions))
-                                                        $inObj.add('Use Custom Notification Setting', $ABkjob.NotificationOptions.NotificationSubject)
-                                                        $inObj.add('Notify On Success', ($ABkjob.NotificationOptions.NotifyOnSuccess))
-                                                        $inObj.add('Notify On Warning', ($ABkjob.NotificationOptions.NotifyOnWarning))
-                                                        $inObj.add('Notify On Error', ($ABkjob.NotificationOptions.NotifyOnError))
-                                                        $inObj.add('Suppress Notification until Last Retry', ($ABkjob.NotificationOptions.NotifyOnLastRetryOnly))
+                                                        $inObj.add($LocalizedData.emailAdditionalAddresses, $ABkjob.NotificationOptions.AdditionalAddress)
+                                                        $inObj.add($LocalizedData.useCustomEmailNotification, ($ABkjob.NotificationOptions.UseNotificationOptions))
+                                                        $inObj.add($LocalizedData.useCustomNotificationSetting, $ABkjob.NotificationOptions.NotificationSubject)
+                                                        $inObj.add($LocalizedData.notifyOnSuccess, ($ABkjob.NotificationOptions.NotifyOnSuccess))
+                                                        $inObj.add($LocalizedData.notifyOnWarning, ($ABkjob.NotificationOptions.NotifyOnWarning))
+                                                        $inObj.add($LocalizedData.notifyOnError, ($ABkjob.NotificationOptions.NotifyOnError))
+                                                        $inObj.add($LocalizedData.suppressNotification, ($ABkjob.NotificationOptions.NotifyOnLastRetryOnly))
                                                     }
                                                     $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                     $TableParams = @{
-                                                        Name = "Advanced Settings (Notification) - $($ABkjob.Name)"
+                                                        Name = "$($LocalizedData.TableHeadingAdvNotification) - $($ABkjob.Name)"
                                                         List = $true
                                                         ColumnWidths = 40, 60
                                                     }
@@ -558,23 +559,23 @@ function Get-AbrVbrAgentBackupjobConf {
                                             }
                                             if ($ABkjob.Mode -eq 'ManagedByBackupServer' -and $ABkjob.OSPlatform -eq 'Windows') {
                                                 try {
-                                                    Section -Style NOTOCHeading6 -ExcludeFromTOC 'Advanced Settings (Integration)' {
+                                                    Section -Style NOTOCHeading6 -ExcludeFromTOC $LocalizedData.SectionAdvIntegration {
                                                         $OutObj = @()
 
                                                         $inObj = [ordered] @{
-                                                            'Enable Backup from Storage Snapshots' = $ABkjob.SanIntegrationOptions.SanSnapshotsEnabled
+                                                            $LocalizedData.enableBackupFromStorage = $ABkjob.SanIntegrationOptions.SanSnapshotsEnabled
                                                         }
                                                         if ($ABkjob.SanIntegrationOptions.SanSnapshotsEnabled) {
-                                                            $inObj.add('Failover to On-Host Backup agent', ($ABkjob.SanIntegrationOptions.FailoverFromSanEnabled))
-                                                            $inObj.add('Off-host Backup Proxy Automatic Selection', ($ABkjob.SanIntegrationOptions.SanProxyAutodetectEnabled))
+                                                            $inObj.add($LocalizedData.failoverToOnHostAgent, ($ABkjob.SanIntegrationOptions.FailoverFromSanEnabled))
+                                                            $inObj.add($LocalizedData.offHostProxyAutoSelect, ($ABkjob.SanIntegrationOptions.SanProxyAutodetectEnabled))
                                                         }
                                                         if (!$ABkjob.SanIntegrationOptions.SanProxyAutodetectEnabled) {
-                                                            $inObj.add('Off-host Backup Proxy Server', $ABkjob.SanIntegrationOptions.Proxy.Server.Name)
+                                                            $inObj.add($LocalizedData.offHostProxyServer, $ABkjob.SanIntegrationOptions.Proxy.Server.Name)
                                                         }
                                                         $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                         $TableParams = @{
-                                                            Name = "Advanced Settings (Integration) - $($ABkjob.Name)"
+                                                            Name = "$($LocalizedData.TableHeadingAdvIntegration) - $($ABkjob.Name)"
                                                             List = $true
                                                             ColumnWidths = 40, 60
                                                         }
@@ -589,36 +590,36 @@ function Get-AbrVbrAgentBackupjobConf {
                                             }
                                             if ($ABkjob.Mode -eq 'ManagedByBackupServer') {
                                                 try {
-                                                    Section -Style NOTOCHeading6 -ExcludeFromTOC 'Advanced Settings (Script)' {
+                                                    Section -Style NOTOCHeading6 -ExcludeFromTOC $LocalizedData.SectionAdvScript {
                                                         $OutObj = @()
                                                         if ($ABkjob.ScriptOptions.Periodicity -eq 'Days') {
                                                             $FrequencyValue = $ABkjob.ScriptOptions.Day -join ','
-                                                            $FrequencyText = 'Run Script on the Selected Days'
+                                                            $FrequencyText = $LocalizedData.runScriptOnSelectedDays
                                                         } elseif ($ABkjob.ScriptOptions.Periodicity -eq 'Cycles') {
                                                             $FrequencyValue = $ABkjob.ScriptOptions.Frequency
-                                                            $FrequencyText = 'Run Script Every Backup Session'
+                                                            $FrequencyText = $LocalizedData.runScriptEverySession
                                                         }
 
                                                         $inObj = [ordered] @{
-                                                            'Run the Following Script Before' = $ABkjob.ScriptOptions.PreScriptEnabled
+                                                            $LocalizedData.runScriptBefore = $ABkjob.ScriptOptions.PreScriptEnabled
                                                         }
                                                         $inObj += [ordered] @{
-                                                            'Run the Following Script After' = $ABkjob.ScriptOptions.PostScriptEnabled
+                                                            $LocalizedData.runScriptAfter = $ABkjob.ScriptOptions.PostScriptEnabled
                                                         }
                                                         if ($ABkjob.ScriptOptions.PreScriptEnabled) {
-                                                            $inObj.add('Run Script Before the Job', $ABkjob.ScriptOptions.PreCommand)
+                                                            $inObj.add($LocalizedData.runScriptBeforeJob, $ABkjob.ScriptOptions.PreCommand)
                                                         }
                                                         if ($ABkjob.ScriptOptions.PostScriptEnabled) {
-                                                            $inObj.add('Run Script After the Job', $ABkjob.ScriptOptions.PostCommand)
+                                                            $inObj.add($LocalizedData.runScriptAfterJob, $ABkjob.ScriptOptions.PostCommand)
                                                         }
                                                         if ($ABkjob.ScriptOptions.PreScriptEnabled -or $ABkjob.ScriptOptions.PostScriptEnabled) {
-                                                            $inObj.add('Run Script Frequency', $ABkjob.ScriptOptions.Periodicity)
+                                                            $inObj.add($LocalizedData.runScriptFrequency, $ABkjob.ScriptOptions.Periodicity)
                                                             $inObj.add($FrequencyText, $FrequencyValue)
                                                         }
                                                         $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                         $TableParams = @{
-                                                            Name = "Advanced Settings (Script) - $($ABkjob.Name)"
+                                                            Name = "$($LocalizedData.TableHeadingAdvScript) - $($ABkjob.Name)"
                                                             List = $true
                                                             ColumnWidths = 40, 60
                                                         }
@@ -634,19 +635,19 @@ function Get-AbrVbrAgentBackupjobConf {
                                         }
                                     }
                                     if ($ABkjob.ApplicationProcessingEnabled -or $ABkjob.IndexingEnabled) {
-                                        Section -Style NOTOCHeading5 -ExcludeFromTOC 'Guest Processing' {
+                                        Section -Style NOTOCHeading5 -ExcludeFromTOC $LocalizedData.SectionGuestProcessing {
                                             $OutObj = @()
                                             try {
 
                                                 $inObj = [ordered] @{
-                                                    'Enabled Application Process Processing' = $ABkjob.ApplicationProcessingEnabled
-                                                    'Enabled Guest File System Indexing' = $ABkjob.IndexingEnabled
+                                                    $LocalizedData.enabledAppProcessing = $ABkjob.ApplicationProcessingEnabled
+                                                    $LocalizedData.enabledGuestIndexing = $ABkjob.IndexingEnabled
                                                 }
 
                                                 $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                 $TableParams = @{
-                                                    Name = "Guest Processing Options - $($ABkjob.Name)"
+                                                    Name = "$($LocalizedData.TableHeadingGuestProcessing) - $($ABkjob.Name)"
                                                     List = $true
                                                     ColumnWidths = 40, 60
                                                 }
@@ -661,34 +662,34 @@ function Get-AbrVbrAgentBackupjobConf {
                                     }
                                     if ($ABkjob.ScheduleEnabled) {
                                         if ($ABkjob.Mode -eq 'ManagedByBackupServer') {
-                                            Section -Style NOTOCHeading5 -ExcludeFromTOC 'Schedule' {
+                                            Section -Style NOTOCHeading5 -ExcludeFromTOC $LocalizedData.SectionSchedule {
                                                 $OutObj = @()
                                                 try {
 
                                                     if ($ABkjob.ScheduleOptions.Type -eq 'Daily') {
-                                                        $ScheduleType = 'Daily'
+                                                        $ScheduleType = $LocalizedData.daily
                                                         $Schedule = "Recurrence: $($ABkjob.ScheduleOptions.DailyOptions.Type),`r`nDays: $($ABkjob.ScheduleOptions.DailyOptions.DayOfWeek)`r`nAt: $($ABkjob.ScheduleOptions.DailyOptions.Period)"
                                                     } elseif ($ABkjob.ScheduleOptions.Type -eq 'Monthly') {
-                                                        $ScheduleType = 'Monthly'
+                                                        $ScheduleType = $LocalizedData.monthly
                                                         $Schedule = "Day Of Month: $($ABkjob.ScheduleOptions.MonthlyOptions.DayOfMonth),`r`nDay Number In Month: $($ABkjob.ScheduleOptions.MonthlyOptions.DayNumberInMonth),`r`nDay Of Week: $($ABkjob.ScheduleOptions.MonthlyOptions.DayOfWeek)`r`nAt: $($ABkjob.ScheduleOptions.DailyOptions.Period)"
                                                     } elseif ($ABkjob.ScheduleOptions.Type -eq 'Periodically') {
                                                         $ScheduleType = $ABkjob.ScheduleOptions.PeriodicallyOptions.PeriodicallyKind
                                                         $Schedule = "Full Period: $($ABkjob.ScheduleOptions.PeriodicallyOptions.FullPeriod),`r`nHourly Offset: $($ABkjob.ScheduleOptions.PeriodicallyOptions.HourlyOffset)"
                                                     } elseif ($ABkjob.ScheduleOptions.Type -eq 'AfterJob') {
-                                                        $ScheduleType = 'After Job'
+                                                        $ScheduleType = $LocalizedData.afterJob
                                                         $Schedule = $ABkjob.ScheduleOptions.Job.Name
                                                     }
                                                     $inObj = [ordered] @{
-                                                        'Retry Failed item' = $ABkjob.ScheduleOptions.RetryCount
-                                                        'Wait before each retry' = "$($ABkjob.ScheduleOptions.RetryTimeout)/min"
-                                                        'Backup Window' = $ABkjob.ScheduleOptions.BackupTerminationWindowEnabled
-                                                        'Schedule type' = $ScheduleType
-                                                        'Schedule Options' = $Schedule
+                                                        $LocalizedData.retryFailedItem = $ABkjob.ScheduleOptions.RetryCount
+                                                        $LocalizedData.waitBeforeRetry = "$($ABkjob.ScheduleOptions.RetryTimeout)/min"
+                                                        $LocalizedData.backupWindow = $ABkjob.ScheduleOptions.BackupTerminationWindowEnabled
+                                                        $LocalizedData.scheduleType = $ScheduleType
+                                                        $LocalizedData.scheduleOptions = $Schedule
                                                     }
                                                     $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                     $TableParams = @{
-                                                        Name = "Schedule Options - $($ABkjob.Name)"
+                                                        Name = "$($LocalizedData.TableHeadingSchedule) - $($ABkjob.Name)"
                                                         List = $true
                                                         ColumnWidths = 40, 60
                                                     }
@@ -698,13 +699,13 @@ function Get-AbrVbrAgentBackupjobConf {
                                                     $OutObj | Table @TableParams
                                                     if ($ABkjob.ScheduleOptions.BackupTerminationWindowEnabled) {
                                                         try {
-                                                            Section -Style NOTOCHeading6 -ExcludeFromTOC 'Backup Window Time Period' {
+                                                            Section -Style NOTOCHeading6 -ExcludeFromTOC $LocalizedData.SectionBackupWindowTimePeriod {
                                                                 Paragraph -ScriptBlock $Legend
 
                                                                 $OutObj = Get-WindowsTimePeriod -InputTimePeriod $ABkjob.ScheduleOptions.TerminationWindow
 
                                                                 $TableParams = @{
-                                                                    Name = "Backup Window - $($ABkjob.Name)"
+                                                                    Name = "$($LocalizedData.TableHeadingBackupWindow) - $($ABkjob.Name)"
                                                                     List = $true
                                                                     ColumnWidths = 6, 4, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4
                                                                     Key = 'H'
@@ -743,21 +744,21 @@ function Get-AbrVbrAgentBackupjobConf {
                                         }
                                         if ($ABkjob.BackupCacheOptions.Enabled) {
                                             try {
-                                                Section -Style NOTOCHeading5 -ExcludeFromTOC 'Backup Cache' {
+                                                Section -Style NOTOCHeading5 -ExcludeFromTOC $LocalizedData.SectionBackupCache {
                                                     $OutObj = @()
 
                                                     $inObj = [ordered] @{
-                                                        'Maximun Size' = "$($ABkjob.BackupCacheOptions.SizeLimit) $($ABkjob.BackupCacheOptions.SizeUnit)"
-                                                        'Type' = $ABkjob.BackupCacheOptions.Type
-                                                        'Path' = switch ($ABkjob.BackupCacheOptions.Type) {
-                                                            'Automatic' { 'Auto Selected' }
+                                                        $LocalizedData.maximumSize = "$($ABkjob.BackupCacheOptions.SizeLimit) $($ABkjob.BackupCacheOptions.SizeUnit)"
+                                                        $LocalizedData.type = $ABkjob.BackupCacheOptions.Type
+                                                        $LocalizedData.path = switch ($ABkjob.BackupCacheOptions.Type) {
+                                                            'Automatic' { $LocalizedData.autoSelected }
                                                             default { $ABkjob.BackupCacheOptions.LocalPath }
                                                         }
                                                     }
                                                     $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                     $TableParams = @{
-                                                        Name = "Backup Cache - $($ABkjob.Name)"
+                                                        Name = "$($LocalizedData.TableHeadingBackupCache) - $($ABkjob.Name)"
                                                         List = $false
                                                         ColumnWidths = 33, 33, 34
                                                     }
@@ -771,57 +772,57 @@ function Get-AbrVbrAgentBackupjobConf {
                                             }
                                         }
                                         if ($ABkjob.Mode -eq 'ManagedByAgent') {
-                                            Section -Style NOTOCHeading5 -ExcludeFromTOC 'Schedule' {
+                                            Section -Style NOTOCHeading5 -ExcludeFromTOC $LocalizedData.SectionSchedule {
                                                 $OutObj = @()
                                                 try {
 
                                                     if ($ABkjob.ScheduleOptions.DailyScheduleEnabled) {
-                                                        $ScheduleType = 'Daily'
+                                                        $ScheduleType = $LocalizedData.daily
                                                         $Schedule = "Recurrence: $($ABkjob.ScheduleOptions.DailyOptions.Type),`r`nDays: $($ABkjob.ScheduleOptions.DailyOptions.DayOfWeek)r`nAt: $($ABkjob.ScheduleOptions.DailyOptions.Period)"
                                                     }
 
                                                     if ($ABkjob.ScheduleOptions.Type -eq 'Daily') {
-                                                        $ScheduleType = 'Daily'
+                                                        $ScheduleType = $LocalizedData.daily
                                                         $Schedule = "Recurrence: $($ABkjob.ScheduleOptions.DailyOptions.Type),`r`nDays: $($ABkjob.ScheduleOptions.DailyOptions.DayOfWeek)`r`nAt: $($ABkjob.ScheduleOptions.DailyOptions.Period)"
                                                     } elseif ($ABkjob.ScheduleOptions.Type -eq 'Monthly') {
-                                                        $ScheduleType = 'Monthly'
+                                                        $ScheduleType = $LocalizedData.monthly
                                                         $Schedule = "Day Of Month: $($ABkjob.ScheduleOptions.MonthlyOptions.DayOfMonth),`r`nDay Number In Month: $($ABkjob.ScheduleOptions.MonthlyOptions.DayNumberInMonth),`r`nDay Of Week: $($ABkjob.ScheduleOptions.MonthlyOptions.DayOfWeek)`r`nAt: $($ABkjob.ScheduleOptions.DailyOptions.Period)"
                                                     } elseif ($ABkjob.ScheduleOptions.Type -eq 'Periodically') {
                                                         $ScheduleType = $ABkjob.ScheduleOptions.PeriodicallyOptions.PeriodicallyKind
                                                         $Schedule = "Full Period: $($ABkjob.ScheduleOptions.PeriodicallyOptions.FullPeriod),`r`nHourly Offset: $($ABkjob.ScheduleOptions.PeriodicallyOptions.HourlyOffset)"
                                                     } elseif ($ABkjob.ScheduleOptions.Type -eq 'AfterJob') {
-                                                        $ScheduleType = 'After Job'
+                                                        $ScheduleType = $LocalizedData.afterJob
                                                         $Schedule = $ABkjob.ScheduleOptions.Job.Name
                                                     }
 
                                                     $inObj = [ordered] @{
-                                                        'Schedule type' = $ScheduleType
-                                                        'Schedule Options' = $Schedule
-                                                        'If Computer is Power Off Action' = switch ($ABkjob.ScheduleOptions.PowerOffAction) {
+                                                        $LocalizedData.scheduleType = $ScheduleType
+                                                        $LocalizedData.scheduleOptions = $Schedule
+                                                        $LocalizedData.powerOffAction = switch ($ABkjob.ScheduleOptions.PowerOffAction) {
                                                             $null { '--' }
-                                                            'SkipBackup' { 'Skip Backup' }
-                                                            'BackupAtPowerOn' { 'Backup At Power On' }
+                                                            'SkipBackup' { $LocalizedData.skipBackup }
+                                                            'BackupAtPowerOn' { $LocalizedData.backupAtPowerOn }
                                                             default { $ABkjob.ScheduleOptions.PowerOffAction }
                                                         }
-                                                        'Once Backup is Taken' = switch ($ABkjob.ScheduleOptions.PostBackupAction) {
+                                                        $LocalizedData.onceBackupTaken = switch ($ABkjob.ScheduleOptions.PostBackupAction) {
                                                             $null { '--' }
-                                                            'KeepRunning' { 'Keep Running' }
+                                                            'KeepRunning' { $LocalizedData.keepRunning }
                                                             default { $ABkjob.ScheduleOptions.PostBackupAction }
                                                         }
-                                                        'Backup At LogOff' = $ABkjob.ScheduleOptions.BackupAtLogOff
-                                                        'Backup At Lock' = $ABkjob.ScheduleOptions.BackupAtLock
-                                                        'Backup At Target Connection' = $ABkjob.ScheduleOptions.BackupAtTargetConnection
-                                                        'Eject Storage After Backup' = $ABkjob.ScheduleOptions.EjectStorageAfterBackup
-                                                        'Backup Timeout' = switch ([string]::IsNullOrEmpty($ABkjob.ScheduleOptions.BackupTimeout)) {
+                                                        $LocalizedData.backupAtLogOff = $ABkjob.ScheduleOptions.BackupAtLogOff
+                                                        $LocalizedData.backupAtLock = $ABkjob.ScheduleOptions.BackupAtLock
+                                                        $LocalizedData.backupAtTargetConnection = $ABkjob.ScheduleOptions.BackupAtTargetConnection
+                                                        $LocalizedData.ejectStorageAfterBackup = $ABkjob.ScheduleOptions.EjectStorageAfterBackup
+                                                        $LocalizedData.backupTimeout = switch ([string]::IsNullOrEmpty($ABkjob.ScheduleOptions.BackupTimeout)) {
                                                             $true { '--' }
                                                             $false { "$($ABkjob.ScheduleOptions.BackupTimeout) $($ABkjob.ScheduleOptions.BackupTimeoutType)" }
-                                                            default { 'Unknown' }
+                                                            default { $LocalizedData.unknown }
                                                         }
                                                     }
                                                     $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                     $TableParams = @{
-                                                        Name = "Schedule Options - $($ABkjob.Name)"
+                                                        Name = "$($LocalizedData.TableHeadingSchedule) - $($ABkjob.Name)"
                                                         List = $true
                                                         ColumnWidths = 40, 60
                                                     }
