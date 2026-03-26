@@ -22,6 +22,7 @@ function Get-AbrVbrTapeMediaPool {
 
     begin {
         Write-PScriboMessage "Discovering Veeam VBR Tape Media Pools information from $System."
+        $LocalizedData = $reportTranslate.GetAbrVbrTapeMediaPool
         Show-AbrDebugExecutionTime -Start -TitleMessage 'Tape Media Pools'
     }
 
@@ -31,8 +32,8 @@ function Get-AbrVbrTapeMediaPool {
                 #---------------------------------------------------------------------------------------------#
                 #                            Tape Media Pools Section                                         #
                 #---------------------------------------------------------------------------------------------#
-                Section -Style Heading3 'Tape Media Pools' {
-                    Paragraph 'The following section lists all tape media pools configured in Veeam Backup & Replication, including pool type, tape count, capacity, and free space.'
+                Section -Style Heading3 $LocalizedData.Heading {
+                    Paragraph $LocalizedData.Paragraph
                     BlankLine
                     $OutObj = @()
                     try {
@@ -47,12 +48,12 @@ function Get-AbrVbrTapeMediaPool {
                                 }
 
                                 $inObj = [ordered] @{
-                                    'Name' = $PoolObj.Name
-                                    'Type' = $PoolObj.Type
-                                    'Tape Count' = ((Get-VBRTapeMediaPool -Id $PoolObj.Id).Medium).count
-                                    'Total Space' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $Capacity
-                                    'Free Space' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $FreeSpace
-                                    'Tape Library' = ($PoolObj.GlobalOptions.LibraryId | ForEach-Object { Get-VBRTapeLibrary -Id $_ }).Name
+                                    $LocalizedData.Name = $PoolObj.Name
+                                    $LocalizedData.Type = $PoolObj.Type
+                                    $LocalizedData.TapeCount = ((Get-VBRTapeMediaPool -Id $PoolObj.Id).Medium).count
+                                    $LocalizedData.TotalSpace = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $Capacity
+                                    $LocalizedData.FreeSpace = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $FreeSpace
+                                    $LocalizedData.TapeLibrary = ($PoolObj.GlobalOptions.LibraryId | ForEach-Object { Get-VBRTapeLibrary -Id $_ }).Name
                                 }
 
                                 $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
@@ -62,7 +63,7 @@ function Get-AbrVbrTapeMediaPool {
                         }
 
                         $TableParams = @{
-                            Name = "Tape Media Pools - $VeeamBackupServer"
+                            Name = "$($LocalizedData.TableHeading) - $VeeamBackupServer"
                             List = $false
                             ColumnWidths = 24, 15, 12, 12, 12, 25
                         }
@@ -78,20 +79,20 @@ function Get-AbrVbrTapeMediaPool {
                 #---------------------------------------------------------------------------------------------#
                 #                       Tape Media Pools Configuration Section                                #
                 #---------------------------------------------------------------------------------------------#
-                Write-PScriboMessage "Tape MediaPool Configuration InfoLevel set at $($InfoLevel.Tape.MediaPool)."
+                Write-PScriboMessage ($LocalizedData.InfoLevel -f $InfoLevel.Tape.MediaPool)
                 if ($InfoLevel.Tape.MediaPool -ge 2) {
-                    Write-PScriboMessage 'Discovering Per Tape Media Pools Configuration.'
+                    Write-PScriboMessage $LocalizedData.DiscoveringPerPool
                     if ($PoolObjs) {
-                        Section -Style Heading3 'Tape Media Pools Configuration' {
+                        Section -Style Heading3 $LocalizedData.ConfigHeading {
                             foreach ($PoolObj in ($PoolObjs | Where-Object { $_.Type -eq 'Gfs' -or $_.Type -eq 'Custom' } | Sort-Object -Property 'Name')) {
-                                Write-PScriboMessage "Discovering $($PoolObj.Name) Tape Media Pools Configuration."
+                                Write-PScriboMessage ($LocalizedData.DiscoveringPool -f $PoolObj.Name)
                                 #---------------------------------------------------------------------------------------------#
                                 #                            Tape Media Pools - Tape Library Sub-Section                      #
                                 #---------------------------------------------------------------------------------------------#
                                 Section -Style Heading4 $PoolObj.Name {
                                     try {
-                                        Section -ExcludeFromTOC -Style NOTOCHeading5 'Tape Library' {
-                                            Write-PScriboMessage "Discovering $($PoolObj.Name) Tape Library Configuration."
+                                        Section -ExcludeFromTOC -Style NOTOCHeading5 $LocalizedData.TapeLibrarySection {
+                                            Write-PScriboMessage ($LocalizedData.DiscoveringTapeLibrary -f $PoolObj.Name)
                                             $OutObj = @()
                                             foreach ($TapeLibrary in $PoolObj.GlobalOptions.LibraryId) {
                                                 try {
@@ -105,53 +106,53 @@ function Get-AbrVbrTapeMediaPool {
                                                         }
                                                         $TapeDrives = @()
                                                         foreach ($Drive in $TapeLibraryObj.Drives) {
-                                                            $TapeDrives += "Drive $($Drive.Address + 1)"
+                                                            $TapeDrives += "$($LocalizedData.Drive) $($Drive.Address + 1)"
                                                         }
 
                                                         $inObj = [ordered] @{
-                                                            'Library Name' = $TapeLibraryObj.Name
-                                                            'Library Id' = $TapeLibraryObj.Id
-                                                            'Type' = $TapeLibraryObj.Type
-                                                            'State' = $TapeLibraryObj.State
-                                                            'Model' = $TapeLibraryObj.Model
-                                                            'Drives' = $TapeDrives -join ', '
-                                                            'Slots' = $TapeLibraryObj.Slots
-                                                            'Tape Count' = ((Get-VBRTapeMediaPool -Id $PoolObj.Id).Medium).count
-                                                            'Total Space' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $Capacity
-                                                            'Free Space' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $FreeSpace
-                                                            'Add Tape from Free Media Pool Automatically when more Tape are Required' = $PoolObj.MoveFromFreePool
-                                                            'Description' = switch ([string]::IsNullOrEmpty($TapeLibraryObj.Description)) {
+                                                            $LocalizedData.LibraryName = $TapeLibraryObj.Name
+                                                            $LocalizedData.LibraryId = $TapeLibraryObj.Id
+                                                            $LocalizedData.Type = $TapeLibraryObj.Type
+                                                            $LocalizedData.State = $TapeLibraryObj.State
+                                                            $LocalizedData.Model = $TapeLibraryObj.Model
+                                                            $LocalizedData.Drives = $TapeDrives -join ', '
+                                                            $LocalizedData.Slots = $TapeLibraryObj.Slots
+                                                            $LocalizedData.TapeCount = ((Get-VBRTapeMediaPool -Id $PoolObj.Id).Medium).count
+                                                            $LocalizedData.TotalSpace = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $Capacity
+                                                            $LocalizedData.FreeSpace = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $FreeSpace
+                                                            $LocalizedData.AddTapeFromFreePool = $PoolObj.MoveFromFreePool
+                                                            $LocalizedData.Description = switch ([string]::IsNullOrEmpty($TapeLibraryObj.Description)) {
                                                                 $true { '--' }
                                                                 $false { $TapeLibraryObj.Description }
-                                                                default { 'Unknown' }
+                                                                default { $LocalizedData.Unknown }
                                                             }
-                                                            'Library Mode' = switch ($PoolObj.GlobalOptions.Mode) {
-                                                                'CrossLibraryParalleing' { 'Active (Used Always)' }
-                                                                'Failover' { 'Passive (Used for Failover Only)' }
+                                                            $LocalizedData.LibraryMode = switch ($PoolObj.GlobalOptions.Mode) {
+                                                                'CrossLibraryParalleing' { $LocalizedData.ActiveAlways }
+                                                                'Failover' { $LocalizedData.PassiveFailover }
                                                             }
                                                         }
 
                                                         if ($PoolObj.GlobalOptions.Mode -eq 'Failover') {
-                                                            $inObj.add('When Active Library is Offline or in Maintenance Mode', ($PoolObj.GlobalOptions.NextLibOffline))
-                                                            $inObj.add('When Active Library has no free media available', ($PoolObj.GlobalOptions.NextLibNoMedia))
+                                                            $inObj.add($LocalizedData.WhenActiveOffline, ($PoolObj.GlobalOptions.NextLibOffline))
+                                                            $inObj.add($LocalizedData.WhenActiveNoMedia, ($PoolObj.GlobalOptions.NextLibNoMedia))
                                                         }
 
                                                         if (($PoolObj.GlobalOptions.LibraryId).count -eq 1) {
-                                                            $inObj.Remove('Library Mode')
-                                                            $inObj.Remove('When Active Library is Offline or in Maintenance Mode')
-                                                            $inObj.Remove('When Active Library has no free media available')
-                                                            $inObj.add('Library Mode', 'Active (Used Always)')
+                                                            $inObj.Remove($LocalizedData.LibraryMode)
+                                                            $inObj.Remove($LocalizedData.WhenActiveOffline)
+                                                            $inObj.Remove($LocalizedData.WhenActiveNoMedia)
+                                                            $inObj.add($LocalizedData.LibraryMode, $LocalizedData.ActiveAlways)
                                                         }
 
                                                         $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                         if ($HealthCheck.Tape.BestPractice) {
-                                                            $OutObj | Where-Object { $_.'Description' -eq '--' } | Set-Style -Style Warning -Property 'Description'
-                                                            $OutObj | Where-Object { $_.'Description' -match 'Created by' } | Set-Style -Style Warning -Property 'Description'
+                                                            $OutObj | Where-Object { $_.$($LocalizedData.Description) -eq '--' } | Set-Style -Style Warning -Property $LocalizedData.Description
+                                                            $OutObj | Where-Object { $_.$($LocalizedData.Description) -match 'Created by' } | Set-Style -Style Warning -Property $LocalizedData.Description
                                                         }
 
                                                         $TableParams = @{
-                                                            Name = "Tape Library - $($PoolObj.Name)"
+                                                            Name = "$($LocalizedData.TapeLibrarySection) - $($PoolObj.Name)"
                                                             List = $true
                                                             ColumnWidths = 40, 60
                                                         }
@@ -161,12 +162,12 @@ function Get-AbrVbrTapeMediaPool {
                                                         }
                                                         $OutObj | Sort-Object -Property 'Name' | Table @TableParams
                                                         if ($HealthCheck.Tape.BestPractice) {
-                                                            if ($OutObj | Where-Object { $_.'Description' -match 'Created by' -or $_.'Description' -eq '--' }) {
-                                                                Paragraph 'Health Check:' -Bold -Underline
+                                                            if ($OutObj | Where-Object { $_.$($LocalizedData.Description) -match 'Created by' -or $_.$($LocalizedData.Description) -eq '--' }) {
+                                                                Paragraph $LocalizedData.HealthCheck -Bold -Underline
                                                                 BlankLine
                                                                 Paragraph {
-                                                                    Text 'Best Practice:' -Bold
-                                                                    Text 'It is a general rule of good practice to establish well-defined descriptions. This helps to speed up the fault identification process, as well as enabling better documentation of the environment.'
+                                                                    Text $LocalizedData.BestPractice -Bold
+                                                                    Text $LocalizedData.BestPracticeDesc
                                                                 }
                                                                 BlankLine
                                                             }
@@ -176,20 +177,20 @@ function Get-AbrVbrTapeMediaPool {
                                                         #---------------------------------------------------------------------------------------------#
                                                         try {
                                                             if ($TapeMediums = Get-VBRTapeMedium -MediaPool $PoolObj.Id | Where-Object { $_.LibraryId -eq $TapeLibraryObj.Id }) {
-                                                                Section -ExcludeFromTOC -Style NOTOCHeading6 'Tape Mediums' {
+                                                                Section -ExcludeFromTOC -Style NOTOCHeading6 $LocalizedData.TapeMediums {
                                                                     $OutObj = @()
                                                                     if ($TapeMediums) {
                                                                         foreach ($TapeMedium in $TapeMediums) {
                                                                             try {
 
                                                                                 $inObj = [ordered] @{
-                                                                                    'Name' = $TapeMedium.Name
-                                                                                    'Is Worm?' = $TapeMedium.IsWorm
-                                                                                    'Total Space' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $TapeMedium.Capacity
-                                                                                    'Free Space' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $TapeMedium.Free
-                                                                                    'Tape Library' = switch ($TapeMedium.LibraryId) {
+                                                                                    $LocalizedData.Name = $TapeMedium.Name
+                                                                                    $LocalizedData.IsWorm = $TapeMedium.IsWorm
+                                                                                    $LocalizedData.TotalSpace = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $TapeMedium.Capacity
+                                                                                    $LocalizedData.FreeSpace = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $TapeMedium.Free
+                                                                                    $LocalizedData.TapeLibrary = switch ($TapeMedium.LibraryId) {
                                                                                         $Null { '--' }
-                                                                                        '00000000-0000-0000-0000-000000000000' { 'Unknown' }
+                                                                                        '00000000-0000-0000-0000-000000000000' { $LocalizedData.Unknown }
                                                                                         default { (Get-VBRTapeLibrary -Id $TapeMedium.LibraryId).Name }
                                                                                     }
                                                                                 }
@@ -201,7 +202,7 @@ function Get-AbrVbrTapeMediaPool {
                                                                         }
 
                                                                         $TableParams = @{
-                                                                            Name = "Tape Mediums - $($TapeLibraryObj.Name)"
+                                                                            Name = "$($LocalizedData.TapeMediums) - $($TapeLibraryObj.Name)"
                                                                             List = $false
                                                                             ColumnWidths = 20, 20, 20, 20, 20
                                                                         }
@@ -230,28 +231,28 @@ function Get-AbrVbrTapeMediaPool {
                                     #---------------------------------------------------------------------------------------------#
                                     try {
                                         if ($PoolObj.MediaSetName) {
-                                            Section -ExcludeFromTOC -Style NOTOCHeading5 'Media Set' {
+                                            Section -ExcludeFromTOC -Style NOTOCHeading5 $LocalizedData.MediaSetSection {
                                                 $OutObj = @()
                                                 $inObj = [ordered] @{
-                                                    'Name' = $PoolObj.MediaSetName
-                                                    'Automatically Create New Media Set' = switch ($PoolObj.MediaSetCreationPolicy.Type) {
-                                                        'Never' { 'Do not Create, Always continue using current Media Set' }
-                                                        'Always' { 'Create new Media Set for every backup session' }
+                                                    $LocalizedData.Name = $PoolObj.MediaSetName
+                                                    $LocalizedData.AutoCreateMediaSet = switch ($PoolObj.MediaSetCreationPolicy.Type) {
+                                                        'Never' { $LocalizedData.NeverCreateMediaSet }
+                                                        'Always' { $LocalizedData.AlwaysCreateMediaSet }
                                                         'Daily' {
                                                             switch ($PoolObj.MediaSetCreationPolicy.DailyOptions.Type) {
-                                                                'Everyday' { "Daily at $($PoolObj.MediaSetCreationPolicy.DailyOptions.Period.ToString()) Everyday" }
-                                                                'SelectedDays' { "Daily at $($PoolObj.MediaSetCreationPolicy.DailyOptions.Period.ToString()), on these days [$($PoolObj.MediaSetCreationPolicy.DailyOptions.DayOfWeek)]" }
-                                                                default { 'Unknown' }
+                                                                'Everyday' { $LocalizedData.DailyEveryDay -f $PoolObj.MediaSetCreationPolicy.DailyOptions.Period.ToString() }
+                                                                'SelectedDays' { $LocalizedData.DailySelectedDays -f $PoolObj.MediaSetCreationPolicy.DailyOptions.Period.ToString(), $PoolObj.MediaSetCreationPolicy.DailyOptions.DayOfWeek }
+                                                                default { $LocalizedData.Unknown }
                                                             }
                                                         }
-                                                        default { 'Unknown' }
+                                                        default { $LocalizedData.Unknown }
                                                     }
                                                 }
 
                                                 $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                 $TableParams = @{
-                                                    Name = "Media Set - $($PoolObj.Name)"
+                                                    Name = "$($LocalizedData.MediaSetTable) - $($PoolObj.Name)"
                                                     List = $true
                                                     ColumnWidths = 40, 60
                                                 }
@@ -264,27 +265,27 @@ function Get-AbrVbrTapeMediaPool {
                                         }
                                         if ($PoolObj.DailyMediaSetOptions) {
                                             $MediaSetOptions = @('DailyMediaSetOptions', 'WeeklyMediaSetOptions', 'MonthlyMediaSetOptions', 'QuarterlyMediaSetOptions', 'YearlyMediaSetOptions')
-                                            Section -ExcludeFromTOC -Style NOTOCHeading5 'Gfs Media Set' {
+                                            Section -ExcludeFromTOC -Style NOTOCHeading5 $LocalizedData.GfsMediaSetSection {
                                                 foreach ($MediaSetOption in $MediaSetOptions) {
                                                     $SectionTitle = ($MediaSetOption -creplace '([A-Z\W_]|\d+)(?<![a-z])', ' $&').trim()
                                                     Section -ExcludeFromTOC -Style NOTOCHeading6 $SectionTitle {
                                                         $OutObj = @()
                                                         $inObj = [ordered] @{
-                                                            'Override Protection Period' = $PoolObj.$MediaSetOption.OverwritePeriod
-                                                            'Medium' = $PoolObj.$MediaSetOption.MediaSetPolicy.Medium.Name -join ', '
-                                                            'Media Set Name' = $PoolObj.$MediaSetOption.MediaSetPolicy.Name
-                                                            'Add Tapes from Media Pool Automatically' = $PoolObj.$MediaSetOption.MediaSetPolicy.MoveFromMediaPoolAutomatically
-                                                            'Append Backup Files to Incomplete Tapes' = $PoolObj.$MediaSetOption.MediaSetPolicy.AppendToCurrentTape
+                                                            $LocalizedData.OverrideProtectionPeriod = $PoolObj.$MediaSetOption.OverwritePeriod
+                                                            $LocalizedData.MediumColumn = $PoolObj.$MediaSetOption.MediaSetPolicy.Medium.Name -join ', '
+                                                            $LocalizedData.MediaSetName = $PoolObj.$MediaSetOption.MediaSetPolicy.Name
+                                                            $LocalizedData.AddTapesAutomatically = $PoolObj.$MediaSetOption.MediaSetPolicy.MoveFromMediaPoolAutomatically
+                                                            $LocalizedData.AppendBackupFiles = $PoolObj.$MediaSetOption.MediaSetPolicy.AppendToCurrentTape
                                                         }
                                                         if ($PoolObj.$MediaSetOption.MediaSetPolicy.MoveOfflineToVault) {
-                                                            $inObj.add('Move All Offline Tape into the following Media Vault', ($PoolObj.$MediaSetOption.MediaSetPolicy.MoveOfflineToVault))
-                                                            $inObj.add('Vault', $PoolObj.$MediaSetOption.MediaSetPolicy.Vault)
+                                                            $inObj.add($LocalizedData.MoveOfflineTapeVault, ($PoolObj.$MediaSetOption.MediaSetPolicy.MoveOfflineToVault))
+                                                            $inObj.add($LocalizedData.Vault, $PoolObj.$MediaSetOption.MediaSetPolicy.Vault)
                                                         }
 
                                                         $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                         $TableParams = @{
-                                                            Name = "Gfs Media Set - $($SectionTitle)"
+                                                            Name = "$($LocalizedData.GfsMediaSetTable) - $($SectionTitle)"
                                                             List = $true
                                                             ColumnWidths = 40, 60
                                                         }
@@ -305,26 +306,26 @@ function Get-AbrVbrTapeMediaPool {
                                     #---------------------------------------------------------------------------------------------#
                                     if ($PoolObj.Type -eq 'Custom') {
                                         try {
-                                            Section -ExcludeFromTOC -Style NOTOCHeading5 'Retention' {
+                                            Section -ExcludeFromTOC -Style NOTOCHeading5 $LocalizedData.RetentionSection {
                                                 $OutObj = @()
                                                 $inObj = [ordered] @{
-                                                    'Data Retention Policy' = switch ($PoolObj.RetentionPolicy.Type) {
-                                                        'Never' { 'Never Overwrite Data' }
-                                                        'Cyclic' { 'Do not Protect Data (Cyclically Overwrite Tape as Required)' }
-                                                        'Period' { "Protect Data for $($PoolObj.RetentionPolicy.Value) $($PoolObj.RetentionPolicy.Period)" }
-                                                        default { 'Unknown' }
+                                                    $LocalizedData.DataRetentionPolicy = switch ($PoolObj.RetentionPolicy.Type) {
+                                                        'Never' { $LocalizedData.NeverOverwriteData }
+                                                        'Cyclic' { $LocalizedData.DoNotProtectData }
+                                                        'Period' { $LocalizedData.ProtectDataFor -f $PoolObj.RetentionPolicy.Value, $PoolObj.RetentionPolicy.Period }
+                                                        default { $LocalizedData.Unknown }
                                                     }
-                                                    'Offline Media Tracking' = $PoolObj.MoveOfflineToVault
+                                                    $LocalizedData.OfflineMediaTracking = $PoolObj.MoveOfflineToVault
                                                 }
 
                                                 if ($PoolObj.MoveOfflineToVault) {
-                                                    $inobj.add('Move all Offline Tape from this Media Pool into The following Media Vault', $PoolObj.Vault)
+                                                    $inobj.add($LocalizedData.MoveOfflineTapeMediaVault, $PoolObj.Vault)
                                                 }
 
                                                 $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                 $TableParams = @{
-                                                    Name = "Media Set - $($PoolObj.Name)"
+                                                    Name = "$($LocalizedData.MediaSetTable) - $($PoolObj.Name)"
                                                     List = $true
                                                     ColumnWidths = 40, 60
                                                 }
@@ -342,23 +343,23 @@ function Get-AbrVbrTapeMediaPool {
                                     #                          Tape Media Pools - Options Sub-Section                             #
                                     #---------------------------------------------------------------------------------------------#
                                     try {
-                                        Section -ExcludeFromTOC -Style NOTOCHeading5 'Options' {
+                                        Section -ExcludeFromTOC -Style NOTOCHeading5 $LocalizedData.OptionsSection {
                                             $OutObj = @()
                                             $inObj = [ordered] @{
-                                                'Enable Parallel Processing for Tape Jobs using this Media Pool' = $PoolObj.MultiStreamingOptions.Enabled
-                                                'Jobs Pointed to this Media Pool can use up to' = "$($PoolObj.MultiStreamingOptions.NumberOfStreams) Tape Drives Simultaneously"
-                                                'Enable Parallel Processing of Backup Chains within a Single Tape Job' = $PoolObj.MultiStreamingOptions.SplitJobFilesBetweenDrives
-                                                'Use Encryption' = $PoolObj.EncryptionOptions.Enabled
+                                                $LocalizedData.EnableParallelProcessing = $PoolObj.MultiStreamingOptions.Enabled
+                                                $LocalizedData.JobsPointedToPool = $LocalizedData.TapeDrivesSimultaneously -f $PoolObj.MultiStreamingOptions.NumberOfStreams
+                                                $LocalizedData.EnableParallelChains = $PoolObj.MultiStreamingOptions.SplitJobFilesBetweenDrives
+                                                $LocalizedData.UseEncryption = $PoolObj.EncryptionOptions.Enabled
                                             }
 
                                             if ($PoolObj.EncryptionOptions.Enabled) {
-                                                $inobj.add('Encryption Password', (Get-VBREncryptionKey | Where-Object { $_.Id -eq $PoolObj.EncryptionOptions.Key.Id }).Description)
+                                                $inobj.add($LocalizedData.EncryptionPassword, (Get-VBREncryptionKey | Where-Object { $_.Id -eq $PoolObj.EncryptionOptions.Key.Id }).Description)
                                             }
 
                                             $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                             $TableParams = @{
-                                                Name = "Media Set - $($PoolObj.Name)"
+                                                Name = "$($LocalizedData.MediaSetTable) - $($PoolObj.Name)"
                                                 List = $true
                                                 ColumnWidths = 40, 60
                                             }

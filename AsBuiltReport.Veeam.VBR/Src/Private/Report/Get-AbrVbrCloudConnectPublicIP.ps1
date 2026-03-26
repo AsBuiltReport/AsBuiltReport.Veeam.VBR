@@ -22,14 +22,15 @@ function Get-AbrVbrCloudConnectPublicIP {
 
     begin {
         Write-PScriboMessage "Discovering Veeam VBR Cloud Public IP information from $System."
+        $LocalizedData = $reportTranslate.GetAbrVbrCloudConnectPublicIP
         Show-AbrDebugExecutionTime -Start -TitleMessage 'Cloud Connect Public IP'
     }
 
     process {
         if ($VbrLicenses | Where-Object { $_.CloudConnect -ne 'Disabled' }) {
             if ((Get-VBRCloudGatewayPool).count -gt 0) {
-                Section -Style Heading3 'Public IP Addresses' {
-                    Paragraph 'The following section provides information about the public IP addresses configured for Veeam Cloud Connect.'
+                Section -Style Heading3 $LocalizedData.Heading {
+                    Paragraph $LocalizedData.Paragraph
                     BlankLine
                     try {
                         $CloudObjects = Get-VBRCloudPublicIP
@@ -37,11 +38,11 @@ function Get-AbrVbrCloudConnectPublicIP {
                         foreach ($CloudObject in $CloudObjects) {
                             try {
                                 $inObj = [ordered] @{
-                                    'IP Address' = $CloudObject.IpAddress
-                                    'Assigned Tenant' = switch ([string]::IsNullOrEmpty($CloudObject.TenantId)) {
-                                        $true { '--' }
+                                    $LocalizedData.IPAddress = $CloudObject.IpAddress
+                                    $LocalizedData.AssignedTenant = switch ([string]::IsNullOrEmpty($CloudObject.TenantId)) {
+                                        $true { $LocalizedData.NA }
                                         $false { (Get-VBRCloudTenant -Id $CloudObject.TenantId).Name }
-                                        default { 'Unknown' }
+                                        default { $LocalizedData.Unknown }
                                     }
                                 }
 
@@ -53,7 +54,7 @@ function Get-AbrVbrCloudConnectPublicIP {
                         }
 
                         $TableParams = @{
-                            Name = "Public IP - $VeeamBackupServer"
+                            Name = "$($LocalizedData.TableHeading) - $VeeamBackupServer"
                             List = $false
                             ColumnWidths = 40, 60
                         }

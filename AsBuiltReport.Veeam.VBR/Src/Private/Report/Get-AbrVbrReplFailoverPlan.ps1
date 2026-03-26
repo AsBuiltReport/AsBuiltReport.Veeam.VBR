@@ -22,40 +22,41 @@ function Get-AbrVbrReplFailoverPlan {
 
     begin {
         Write-PScriboMessage "Discovering Veeam VBR Failover Plans from $System."
+        $LocalizedData = $reportTranslate.GetAbrVbrReplFailoverPlan
         Show-AbrDebugExecutionTime -Start -TitleMessage 'Failover Plans'
     }
 
     process {
         if ($FailOverPlans = Get-VBRFailoverPlan | Sort-Object -Property Name) {
-            Section -Style Heading3 'Failover Plans' {
-                Paragraph "The following section details the failover plans configured on Veeam Backup Server $VeeamBackupServer, including planned failover sequence and virtual machine priorities."
+            Section -Style Heading3 $LocalizedData.Heading {
+                Paragraph ($LocalizedData.Paragraph -f $VeeamBackupServer)
                 $OutObj = @()
                 foreach ($FailOverPlan in $FailOverPlans) {
                     try {
                         Section -Style Heading4 $($FailOverPlan.Name) {
                             $inObj = [ordered] @{
-                                'Platform' = $FailOverPlan.Platform
-                                'Status' = $FailOverPlan.Status
-                                'Pre Failover Script Enabled' = $FailOverPlan.PreFailoverScriptEnabled
-                                'Pre Failover Command' = $FailOverPlan.PrefailoverCommand
-                                'Post Failover Script Enabled' = $FailOverPlan.PostFailoverScriptEnabled
-                                'Post Failover Command' = $FailOverPlan.PostfailoverCommand
-                                'VM Count' = $FailOverPlan.VmCount
-                                'Description' = $FailOverPlan.Description
+                                $LocalizedData.Platform = $FailOverPlan.Platform
+                                $LocalizedData.Status = $FailOverPlan.Status
+                                $LocalizedData.PreFailoverScriptEnabled = $FailOverPlan.PreFailoverScriptEnabled
+                                $LocalizedData.PreFailoverCommand = $FailOverPlan.PrefailoverCommand
+                                $LocalizedData.PostFailoverScriptEnabled = $FailOverPlan.PostFailoverScriptEnabled
+                                $LocalizedData.PostFailoverCommand = $FailOverPlan.PostfailoverCommand
+                                $LocalizedData.VMCount = $FailOverPlan.VmCount
+                                $LocalizedData.Description = $FailOverPlan.Description
                             }
                             $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                             if ($HealthCheck.Replication.Status) {
-                                $OutObj | Where-Object { $_.'Status' -ne 'Ready' } | Set-Style -Style Warning -Property 'Status'
+                                $OutObj | Where-Object { $_.$($LocalizedData.Status) -ne 'Ready' } | Set-Style -Style Warning -Property $LocalizedData.Status
                             }
 
                             if ($HealthCheck.Replication.BestPractice) {
-                                $OutObj | Where-Object { $_.'Description' -eq '--' } | Set-Style -Style Warning -Property 'Description'
-                                $OutObj | Where-Object { $_.'Description' -match 'Created by' } | Set-Style -Style Warning -Property 'Description'
+                                $OutObj | Where-Object { $_.$($LocalizedData.Description) -eq '--' } | Set-Style -Style Warning -Property $LocalizedData.Description
+                                $OutObj | Where-Object { $_.$($LocalizedData.Description) -match 'Created by' } | Set-Style -Style Warning -Property $LocalizedData.Description
                             }
 
                             $TableParams = @{
-                                Name = "Failover Plan - $($FailOverPlan.Name)"
+                                Name = "$($LocalizedData.TableHeading) - $($FailOverPlan.Name)"
                                 List = $true
                                 ColumnWidths = 40, 60
                             }
@@ -64,12 +65,12 @@ function Get-AbrVbrReplFailoverPlan {
                             }
                             $OutObj | Table @TableParams
                             if ($HealthCheck.Replication.BestPractice) {
-                                if ($OutObj | Where-Object { $_.'Description' -match 'Created by' -or $_.'Description' -eq '--' }) {
-                                    Paragraph 'Health Check:' -Bold -Underline
+                                if ($OutObj | Where-Object { $_.$($LocalizedData.Description) -match 'Created by' -or $_.$($LocalizedData.Description) -eq '--' }) {
+                                    Paragraph $LocalizedData.HealthCheck -Bold -Underline
                                     BlankLine
                                     Paragraph {
-                                        Text 'Best Practice:' -Bold
-                                        Text 'It is a general rule of good practice to establish well-defined descriptions. This helps to speed up the fault identification process, as well as enabling better documentation of the environment.'
+                                        Text $LocalizedData.BestPractice -Bold
+                                        Text $LocalizedData.BPText
                                     }
                                     BlankLine
                                 }
@@ -77,7 +78,7 @@ function Get-AbrVbrReplFailoverPlan {
                             if ($InfoLevel.Replication.FailoverPlan -ge 2) {
                                 if ($FailOverPlan) {
                                     try {
-                                        Section -Style NOTOCHeading5 -ExcludeFromTOC 'Virtual Machines' {
+                                        Section -Style NOTOCHeading5 -ExcludeFromTOC $LocalizedData.VMsSubHeading {
                                             $OutObj = @()
                                             foreach ($FailOverPlansVM in $FailOverPlan.FailoverPlanObject) {
                                                 try {
@@ -92,12 +93,12 @@ function Get-AbrVbrReplFailoverPlan {
 
                                                     }
                                                     $inObj = [ordered] @{
-                                                        'VM Name' = switch ($VMInfo.Name) {
-                                                            $Null { 'Unknown' }
+                                                        $LocalizedData.VMName = switch ($VMInfo.Name) {
+                                                            $Null { $LocalizedData.Unknown }
                                                             default { $VMInfo.Name }
                                                         }
-                                                        'Boot Order' = $FailOverPlansVM.BootOrder
-                                                        'Boot Delay' = $FailOverPlansVM.BootDelay
+                                                        $LocalizedData.BootOrder = $FailOverPlansVM.BootOrder
+                                                        $LocalizedData.BootDelay = $FailOverPlansVM.BootDelay
                                                     }
                                                     $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                                                 } catch {
@@ -106,7 +107,7 @@ function Get-AbrVbrReplFailoverPlan {
                                             }
 
                                             $TableParams = @{
-                                                Name = "Virtual Machines - $($FailOverPlan.Name)"
+                                                Name = "$($LocalizedData.VMsTableHeading) - $($FailOverPlan.Name)"
                                                 List = $false
                                                 ColumnWidths = 40, 30, 30
                                             }

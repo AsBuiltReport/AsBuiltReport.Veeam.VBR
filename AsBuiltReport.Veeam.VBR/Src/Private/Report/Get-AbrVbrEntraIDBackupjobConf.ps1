@@ -22,29 +22,30 @@ function Get-AbrVbrEntraIDBackupjobConf {
 
     begin {
         Write-PScriboMessage "Discovering Veeam VBR EntraID Tenant Backup jobs information from $System."
+        $LocalizedData = $reportTranslate.GetAbrVbrEntraIDBackupjobConf
         Show-AbrDebugExecutionTime -Start -TitleMessage 'EntraID Tenant Backup Jobs'
     }
 
     process {
         try {
             if ($Bkjobs = Get-VBREntraIDTenantBackupJob | Sort-Object -Property 'Name') {
-                Section -Style Heading3 'Entra ID Tenant Backup Jobs Configuration' {
-                    Paragraph 'The following section provides detailed configuration information for each Microsoft Entra ID backup job, including schedule, retention policy, and protected objects.'
+                Section -Style Heading3 $LocalizedData.Heading {
+                    Paragraph $LocalizedData.Paragraph
                     BlankLine
                     $OutObj = @()
                     foreach ($Bkjob in $Bkjobs) {
                         try {
                             Section -Style Heading4 $($Bkjob.Name) {
-                                Section -Style NOTOCHeading4 -ExcludeFromTOC 'Common Information' {
+                                Section -Style NOTOCHeading4 -ExcludeFromTOC $LocalizedData.CommonInfoSection {
                                     $OutObj = @()
                                     try {
                                         try {
 
                                             $inObj = [ordered] @{
-                                                'Name' = $Bkjob.Name
-                                                'Id' = $Bkjob.Id
-                                                'Next Run' = $Bkjob.ScheduleOptions.NextRun
-                                                'Description' = $Bkjob.Description
+                                                $LocalizedData.Name        = $Bkjob.Name
+                                                $LocalizedData.Id          = $Bkjob.Id
+                                                $LocalizedData.NextRun     = $Bkjob.ScheduleOptions.NextRun
+                                                $LocalizedData.Description = $Bkjob.Description
                                             }
                                             $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
                                         } catch {
@@ -52,12 +53,12 @@ function Get-AbrVbrEntraIDBackupjobConf {
                                         }
 
                                         if ($HealthCheck.Jobs.BestPractice) {
-                                            $OutObj | Where-Object { $Null -like $_.'Description' -or $_.'Description' -eq '--' } | Set-Style -Style Warning -Property 'Description'
-                                            $OutObj | Where-Object { $_.'Description' -match 'Created by' } | Set-Style -Style Warning -Property 'Description'
+                                            $OutObj | Where-Object { $Null -like $_.$($LocalizedData.Description) -or $_.$($LocalizedData.Description) -eq '--' } | Set-Style -Style Warning -Property $LocalizedData.Description
+                                            $OutObj | Where-Object { $_.$($LocalizedData.Description) -match 'Created by' } | Set-Style -Style Warning -Property $LocalizedData.Description
                                         }
 
                                         $TableParams = @{
-                                            Name = "Common Information - $($Bkjob.Name)"
+                                            Name = "$($LocalizedData.CommonInfoTable) - $($Bkjob.Name)"
                                             List = $true
                                             ColumnWidths = 40, 60
                                         }

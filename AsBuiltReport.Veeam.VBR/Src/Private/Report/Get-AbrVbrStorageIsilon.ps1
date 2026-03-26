@@ -22,13 +22,14 @@ function Get-AbrVbrStorageIsilon {
 
     begin {
         Write-PScriboMessage "Discovering Dell Isilon Storage information connected to $System."
+        $LocalizedData = $reportTranslate.GetAbrVbrStorageIsilon
         Show-AbrDebugExecutionTime -Start -TitleMessage 'Dell Isilon Storage'
     }
 
     process {
         if ($IsilonHosts = Get-VBRIsilonHost) {
-            Section -Style Heading3 'Dell Isilon Storage' {
-                Paragraph 'The following section details the Dell EMC PowerScale (Isilon) storage systems integrated with Veeam Backup & Replication for storage snapshot-based data protection.'
+            Section -Style Heading3 $LocalizedData.Heading {
+                Paragraph $LocalizedData.Paragraph
                 BlankLine
                 $OutObj = @()
                 foreach ($IsilonHost in $IsilonHosts) {
@@ -38,17 +39,17 @@ function Get-AbrVbrStorageIsilon {
                             $UsedCred = Get-VBRCredentials | Where-Object { $_.Id -eq $IsilonHost.Info.CredsId }
                             $IsilonOptions = [xml]$IsilonHost.info.Options
                             $inObj = [ordered] @{
-                                'DNS Name' = switch (($IsilonHost.Info.HostInstanceId).count) {
+                                $LocalizedData.DNSName = switch (($IsilonHost.Info.HostInstanceId).count) {
                                     0 { $IsilonHost.Info.DnsName }
                                     default { $IsilonHost.Info.HostInstanceId }
                                 }
-                                'Description' = $IsilonHost.Description
-                                'Used Credential' = switch (($UsedCred).count) {
+                                $LocalizedData.Description = $IsilonHost.Description
+                                $LocalizedData.UsedCredential = switch (($UsedCred).count) {
                                     0 { '--' }
                                     default { "$($UsedCred.Name) - ($($UsedCred.Description))" }
                                 }
-                                'Connection Address' = $IsilonOptions.IsilonHostOptions.AdditionalAddresses.IP -join ', '
-                                'Connection Port' = "$($IsilonOptions.IsilonHostOptions.Port)\TCP"
+                                $LocalizedData.ConnectionAddress = $IsilonOptions.IsilonHostOptions.AdditionalAddresses.IP -join ', '
+                                $LocalizedData.ConnectionPort = "$($IsilonOptions.IsilonHostOptions.Port)\TCP"
                             }
 
                             $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)

@@ -22,24 +22,25 @@ function Get-AbrVbrTapejob {
 
     begin {
         Write-PScriboMessage "Discovering Veeam VBR Tape Backup jobs information from $System."
+        $LocalizedData = $reportTranslate.GetAbrVbrTapejob
         Show-AbrDebugExecutionTime -Start -TitleMessage 'Tape Backup Jobs'
     }
 
     process {
         try {
             if ($TBkjobs = Get-VBRTapeJob | Sort-Object -Property Name) {
-                Section -Style Heading3 'Tape Backup Jobs' {
-                    Paragraph 'The following section lists all tape backup jobs configured in Veeam Backup & Replication, along with their current status and last run result.'
+                Section -Style Heading3 $LocalizedData.Heading {
+                    Paragraph $LocalizedData.Paragraph
                     BlankLine
                     $OutObj = @()
                     foreach ($TBkjob in $TBkjobs) {
                         try {
 
                             $inObj = [ordered] @{
-                                'Name' = $TBkjob.Name
-                                'Type' = ($TBkjob.Type -creplace '([A-Z\W_]|\d+)(?<![a-z])', ' $&').trim()
-                                'Latest Status' = $TBkjob.LastResult
-                                'Target Repository' = $TBkjob.Target
+                                $LocalizedData.Name = $TBkjob.Name
+                                $LocalizedData.Type = ($TBkjob.Type -creplace '([A-Z\W_]|\d+)(?<![a-z])', ' $&').trim()
+                                $LocalizedData.LatestStatus = $TBkjob.LastResult
+                                $LocalizedData.TargetRepository = $TBkjob.Target
                             }
                             $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                         } catch {
@@ -48,7 +49,7 @@ function Get-AbrVbrTapejob {
                     }
 
                     $TableParams = @{
-                        Name = "Backup Jobs - $VeeamBackupServer"
+                        Name = "$($LocalizedData.TableHeading) - $VeeamBackupServer"
                         List = $false
                         ColumnWidths = 30, 25, 15, 30
                     }

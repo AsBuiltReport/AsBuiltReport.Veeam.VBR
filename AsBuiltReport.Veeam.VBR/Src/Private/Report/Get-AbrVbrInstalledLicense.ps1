@@ -22,37 +22,38 @@ function Get-AbrVbrInstalledLicense {
 
     begin {
         Write-PScriboMessage "Discovering Veeam V&R License information from $System."
+        $LocalizedData = $reportTranslate.GetAbrVbrInstalledLicense
         Show-AbrDebugExecutionTime -Start -TitleMessage 'License information'
     }
 
     process {
         if ($VbrLicenses) {
-            Section -Style Heading3 'License Information' {
-                Paragraph 'The following section provides a summary of the Veeam Backup & Replication licenses installed on this server, including edition, expiration date, and instance usage.'
+            Section -Style Heading3 $LocalizedData.Heading {
+                Paragraph $LocalizedData.Paragraph
                 BlankLine
                 $OutObj = @()
                         try {
                             foreach ($License in $VbrLicenses) {
 
                                 $inObj = [ordered] @{
-                                    'Licensed To' = $License.LicensedTo
-                                    'Edition' = $License.Edition
-                                    'Type' = $License.Type
-                                    'Status' = $License.Status
-                                    'Expiration Date' = switch ($License.ExpirationDate) {
-                                        '' { '--'; break }
-                                        $Null { '--'; break }
+                                    $LocalizedData.LicensedTo = $License.LicensedTo
+                                    $LocalizedData.Edition = $License.Edition
+                                    $LocalizedData.Type = $License.Type
+                                    $LocalizedData.Status = $License.Status
+                                    $LocalizedData.ExpirationDate = switch ($License.ExpirationDate) {
+                                        '' { $LocalizedData.Dash; break }
+                                        `$Null { $LocalizedData.Dash; break }
                                         default { $License.ExpirationDate.ToLongDateString() }
                                     }
-                                    'Support Id' = $License.SupportId
-                                    'Support Expiration Date' = switch ($License.SupportExpirationDate) {
-                                        '' { '--'; break }
-                                        $Null { '--'; break }
+                                    $LocalizedData.SupportId = $License.SupportId
+                                    $LocalizedData.SupportExpirationDate = switch ($License.SupportExpirationDate) {
+                                        '' { $LocalizedData.Dash; break }
+                                        `$Null { $LocalizedData.Dash; break }
                                         default { $License.SupportExpirationDate.ToLongDateString() }
                                     }
-                                    'Auto Update Enabled' = $License.AutoUpdateEnabled
-                                    'Free Agent Instance' = $License.FreeAgentInstanceConsumptionEnabled
-                                    'Cloud Connect' = $License.CloudConnect
+                                    $LocalizedData.AutoUpdateEnabled = $License.AutoUpdateEnabled
+                                    $LocalizedData.FreeAgentInstance = $License.FreeAgentInstanceConsumptionEnabled
+                                    $LocalizedData.CloudConnect = $License.CloudConnect
                                 }
                                 $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                             }
@@ -66,7 +67,7 @@ function Get-AbrVbrInstalledLicense {
                         }
 
                         $TableParams = @{
-                            Name = "Licenses - $VeeamBackupServer"
+                            Name = "$($LocalizedData.TableLicenses) - $VeeamBackupServer"
                             List = $true
                             ColumnWidths = 40, 60
                         }
@@ -85,10 +86,10 @@ function Get-AbrVbrInstalledLicense {
                                     foreach ($License in $Licenses) {
 
                                         $inObj = [ordered] @{
-                                            'Instances Capacity' = $License.LicensedInstancesNumber
-                                            'Used Instances' = $License.UsedInstancesNumber
-                                            'New Instances' = $License.NewInstancesNumber
-                                            'Rental Instances' = $License.RentalInstancesNumber
+                                            $LocalizedData.InstancesCapacity = $License.LicensedInstancesNumber
+                                            $LocalizedData.UsedInstances = $License.UsedInstancesNumber
+                                            $LocalizedData.NewInstances = $License.NewInstancesNumber
+                                            $LocalizedData.RentalInstances = $License.RentalInstancesNumber
                                         }
                                         $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                                     }
@@ -97,7 +98,7 @@ function Get-AbrVbrInstalledLicense {
                                 }
 
                                 $TableParams = @{
-                                    Name = "Instance License Usage - $VeeamBackupServer"
+                                    Name = "$($LocalizedData.TableInstanceUsage) - $VeeamBackupServer"
                                     List = $false
                                     ColumnWidths = 25, 25, 25, 25
                                 }
@@ -118,9 +119,9 @@ function Get-AbrVbrInstalledLicense {
                                     Write-PScriboMessage -IsWarning "Instance License Usage chart section: $($_.Exception.Message)"
                                 }
                                 if ($OutObj) {
-                                    Section -Style NOTOCHeading5 -ExcludeFromTOC 'Instance License Usage' {
+                                    Section -Style NOTOCHeading5 -ExcludeFromTOC $LocalizedData.InstanceUsageHeading {
                                         if ($chartFileItem -and ($inObj.Values | Measure-Object -Sum).Sum -ne 0) {
-                                            Image -Text 'Instance License Usage - Chart' -Align 'Center' -Percent 100 -Base64 $chartFileItem
+                                            Image -Text $LocalizedData.ChartAltInstanceUsage -Align 'Center' -Percent 100 -Base64 $chartFileItem
                                         }
                                         BlankLine
                                         $OutObj | Table @TableParams
@@ -130,16 +131,16 @@ function Get-AbrVbrInstalledLicense {
                                         try {
                                             $Licenses = ($VbrLicenses | Select-Object -ExpandProperty InstanceLicenseSummary).Object
                                             if ($Licenses) {
-                                                Section -Style NOTOCHeading5 -ExcludeFromTOC 'Per Instance Type License Usage' {
+                                                Section -Style NOTOCHeading5 -ExcludeFromTOC $LocalizedData.PerInstanceHeading {
                                                     $OutObj = @()
                                                     try {
                                                         foreach ($License in $Licenses) {
 
                                                             $inObj = [ordered] @{
-                                                                'Type' = $License.Type
-                                                                'Count' = $License.Count
-                                                                'Multiplier' = $License.Multiplier
-                                                                'Used Instances' = $License.UsedInstancesNumber
+                                                                $LocalizedData.Type = $License.Type
+                                                                $LocalizedData.Count = $License.Count
+                                                                $LocalizedData.Multiplier = $License.Multiplier
+                                                                $LocalizedData.UsedInstances = $License.UsedInstancesNumber
                                                             }
                                                             $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                                                         }
@@ -148,7 +149,7 @@ function Get-AbrVbrInstalledLicense {
                                                     }
 
                                                     $TableParams = @{
-                                                        Name = "Per Instance Type - $VeeamBackupServer"
+                                                        Name = "$($LocalizedData.TablePerInstance) - $VeeamBackupServer"
                                                         List = $false
                                                         ColumnWidths = 25, 25, 25, 25
                                                     }
@@ -178,9 +179,9 @@ function Get-AbrVbrInstalledLicense {
                                     foreach ($License in $Licenses) {
 
                                         $inObj = [ordered] @{
-                                            'Licensed Sockets' = $License.LicensedSocketsNumber
-                                            'Used Sockets Licenses' = $License.UsedSocketsNumber
-                                            'Remaining Sockets Licenses' = $License.RemainingSocketsNumber
+                                            $LocalizedData.LicensedSockets = $License.LicensedSocketsNumber
+                                            $LocalizedData.UsedSocketsLicenses = $License.UsedSocketsNumber
+                                            $LocalizedData.RemainingSocketsLicenses = $License.RemainingSocketsNumber
                                         }
                                         $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                                     }
@@ -189,7 +190,7 @@ function Get-AbrVbrInstalledLicense {
                                 }
 
                                 $TableParams = @{
-                                    Name = "CPU Socket Usage - $VeeamBackupServer"
+                                    Name = "$($LocalizedData.TableCPUSocket) - $VeeamBackupServer"
                                     List = $false
                                     ColumnWidths = 33, 33, 34
                                 }
@@ -209,9 +210,9 @@ function Get-AbrVbrInstalledLicense {
                                     Write-PScriboMessage -IsWarning "CPU Socket Usage chart section: $($_.Exception.Message)"
                                 }
                                 if ($OutObj) {
-                                    Section -Style NOTOCHeading5 -ExcludeFromTOC 'CPU Socket License Usage' {
+                                    Section -Style NOTOCHeading5 -ExcludeFromTOC $LocalizedData.CPUSocketHeading {
                                         if ($chartFileItem -and ($inObj.Values | Measure-Object -Sum).Sum -ne 0) {
-                                            Image -Text 'CPU Socket License Usage - Chart' -Align 'Center' -Percent 100 -Base64 $chartFileItem
+                                            Image -Text $LocalizedData.ChartAltCPUSocket -Align 'Center' -Percent 100 -Base64 $chartFileItem
                                         }
                                         $OutObj | Table @TableParams
                                     }
@@ -231,8 +232,8 @@ function Get-AbrVbrInstalledLicense {
                                     foreach ($License in $Licenses) {
 
                                         $inObj = [ordered] @{
-                                            'Licensed Capacity in TB' = $License.LicensedCapacityTb
-                                            'Used Capacity in TB' = $License.UsedCapacityTb
+                                            $LocalizedData.LicensedCapacityTb = $License.LicensedCapacityTb
+                                            $LocalizedData.UsedCapacityTb = $License.UsedCapacityTb
                                         }
                                         $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                                     }
@@ -241,7 +242,7 @@ function Get-AbrVbrInstalledLicense {
                                 }
 
                                 $TableParams = @{
-                                    Name = "Capacity License Usage - $VeeamBackupServer"
+                                    Name = "$($LocalizedData.TableCapacity) - $VeeamBackupServer"
                                     List = $false
                                     ColumnWidths = 50, 50
                                 }
@@ -261,9 +262,9 @@ function Get-AbrVbrInstalledLicense {
                                     Write-PScriboMessage -IsWarning "Capacity License Usage chart section: $($_.Exception.Message)"
                                 }
                                 if ($OutObj) {
-                                    Section -Style NOTOCHeading5 -ExcludeFromTOC 'Capacity License Usage' {
+                                    Section -Style NOTOCHeading5 -ExcludeFromTOC $LocalizedData.CapacityHeading {
                                         if ($chartFileItem -and ($inObj.Values | Measure-Object -Sum).Sum -ne 0) {
-                                            Image -Text 'Capacity License Usage - Chart' -Align 'Center' -Percent 100 -Base64 $chartFileItem
+                                            Image -Text $LocalizedData.ChartAltCapacity -Align 'Center' -Percent 100 -Base64 $chartFileItem
                                         }
                                         $OutObj | Table @TableParams
                                     }

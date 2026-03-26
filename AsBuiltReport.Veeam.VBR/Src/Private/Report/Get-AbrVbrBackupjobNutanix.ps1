@@ -21,32 +21,33 @@ function Get-AbrVbrBackupjobNutanix {
     )
 
     begin {
-        Write-PScriboMessage "Discovering Veeam VBR Nutanix Backup jobs information from $System."
+        $LocalizedData = $reportTranslate.GetAbrVbrBackupjobNutanix
+        Write-PScriboMessage ($LocalizedData.Collecting -f $System)
         Show-AbrDebugExecutionTime -Start -TitleMessage 'Nutanix Backup Jobs'
     }
 
     process {
         try {
             if ($Bkjobs = [Veeam.Backup.Core.CBackupJob]::GetAll() | Where-Object { $_.TypeToString -like '*Nutanix*' } | Sort-Object -Property 'Name') {
-                Section -Style Heading3 'Nutanix Backup Jobs' {
-                    Paragraph 'The following section provides detailed information about Nutanix AHV backup jobs configured in Veeam Backup & Replication, including their current status and latest run results.'
+                Section -Style Heading3 $LocalizedData.Heading {
+                    Paragraph $LocalizedData.Paragraph
                     BlankLine
                     $OutObj = @()
                     foreach ($Bkjob in $Bkjobs) {
                         try {
 
                             $inObj = [ordered] @{
-                                'Name' = $Bkjob.Name
-                                'Type' = $Bkjob.TypeToString
-                                'Status' = switch ($Bkjob.IsScheduleEnabled) {
-                                    'False' { 'Disabled' }
-                                    'True' { 'Enabled' }
+                                $LocalizedData.Name = $Bkjob.Name
+                                $LocalizedData.Type = $Bkjob.TypeToString
+                                $LocalizedData.Status = switch ($Bkjob.IsScheduleEnabled) {
+                                    'False' { $LocalizedData.Disabled }
+                                    'True' { $LocalizedData.Enabled }
                                 }
-                                'Latest Result' = $Bkjob.info.LatestStatus
-                                'Scheduled?' = switch ($Bkjob.IsScheduleEnabled) {
-                                    'True' { 'Yes' }
-                                    'False' { 'No' }
-                                    default { 'Unknown' }
+                                $LocalizedData.LatestResult = $Bkjob.info.LatestStatus
+                                $LocalizedData.Scheduled = switch ($Bkjob.IsScheduleEnabled) {
+                                    'True' { $LocalizedData.Yes }
+                                    'False' { $LocalizedData.No }
+                                    default { $LocalizedData.Unknown }
                                 }
                             }
                             $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
@@ -56,22 +57,22 @@ function Get-AbrVbrBackupjobNutanix {
                     }
 
                     if ($HealthCheck.Jobs.Status) {
-                        $OutObj | Where-Object { $_.'Latest Result' -eq 'Failed' } | Set-Style -Style Critical -Property 'Latest Result'
-                        $OutObj | Where-Object { $_.'Latest Result' -eq 'Warning' } | Set-Style -Style Warning -Property 'Latest Result'
-                        $OutObj | Where-Object { $_.'Latest Result' -eq 'Success' } | Set-Style -Style Ok -Property 'Latest Result'
-                        $OutObj | Where-Object { $_.'Status' -eq 'Disabled' } | Set-Style -Style Warning -Property 'Status'
-                        $OutObj | Where-Object { $_.'Scheduled?' -eq 'No' } | Set-Style -Style Warning -Property 'Scheduled?'
+                        $OutObj | Where-Object { $_.$LocalizedData.LatestResult -eq 'Failed' } | Set-Style -Style Critical -Property $LocalizedData.LatestResult
+                        $OutObj | Where-Object { $_.$LocalizedData.LatestResult -eq 'Warning' } | Set-Style -Style Warning -Property $LocalizedData.LatestResult
+                        $OutObj | Where-Object { $_.$LocalizedData.LatestResult -eq 'Success' } | Set-Style -Style Ok -Property $LocalizedData.LatestResult
+                        $OutObj | Where-Object { $_.$LocalizedData.Status -eq $LocalizedData.Disabled } | Set-Style -Style Warning -Property $LocalizedData.Status
+                        $OutObj | Where-Object { $_.$LocalizedData.Scheduled -eq $LocalizedData.No } | Set-Style -Style Warning -Property $LocalizedData.Scheduled
                     }
 
                     $TableParams = @{
-                        Name = "Nutanix Backup Jobs - $VeeamBackupServer"
+                        Name = "$($LocalizedData.TableHeading) - $VeeamBackupServer"
                         List = $false
                         ColumnWidths = 41, 20, 13, 13, 13
                     }
                     if ($Report.ShowTableCaptions) {
                         $TableParams['Caption'] = "- $($TableParams.Name)"
                     }
-                    $OutObj | Sort-Object -Property 'Name' | Table @TableParams
+                    $OutObj | Sort-Object -Property $LocalizedData.Name | Table @TableParams
                 }
             }
         } catch {

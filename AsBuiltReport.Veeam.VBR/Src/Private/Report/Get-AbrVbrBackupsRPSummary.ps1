@@ -19,7 +19,8 @@ function Get-AbrVbrBackupsRPSummary {
     )
 
     begin {
-        Write-PScriboMessage "RestorePoint InfoLevel set at $($InfoLevel.Jobs.Restores)."
+        $LocalizedData = $reportTranslate.GetAbrVbrBackupsRPSummary
+        Write-PScriboMessage ($LocalizedData.InfoLevel -f $InfoLevel.Jobs.Restores)
         Show-AbrDebugExecutionTime -Start -TitleMessage 'Backup Restore Points'
     }
 
@@ -29,7 +30,7 @@ function Get-AbrVbrBackupsRPSummary {
             $BackupJobs += Get-VBRTapeBackup -WarningAction SilentlyContinue | Sort-Object -Property Name
 
             if ($BackupJobs) {
-                Write-PScriboMessage 'Collecting Veeam VBR Restore Point.'
+                Write-PScriboMessage $LocalizedData.Collecting
                 $RestorePointInfo = @()
                 foreach ($BackupJob in $BackupJobs) {
                     if ($BackupJobRestorePoints = Get-VBRRestorePoint -Backup $BackupJob) {
@@ -39,10 +40,10 @@ function Get-AbrVbrBackupsRPSummary {
                                     $FullDuration = Get-TimeDurationSum -InputObject $FullRP -StartTime 'CreationTimeUTC' -EndTime 'CompletionTimeUtc'
                                     $FullDurationAvg = Get-TimeDuration -TimeSpan ([timespan]::fromseconds(($FullDuration / $FullRP.Count)))
                                 } catch {
-                                    $FullDurationAvg = '--'
+                                    $FullDurationAvg = $LocalizedData.NA
                                 }
                             } else {
-                                $FullDurationAvg = '--'
+                                $FullDurationAvg = $LocalizedData.NA
                             }
 
                             if ($IncrementRP = $BackupJobRestorePoints | Where-Object { $_.Type -eq 'Increment' -and -not $_.IsCorrupted -and $_.CompletionTimeUtc -gt $_.CreationTimeUTC } ) {
@@ -50,20 +51,20 @@ function Get-AbrVbrBackupsRPSummary {
                                     $IncrementDuration = Get-TimeDurationSum -InputObject $IncrementRP -StartTime 'CreationTimeUTC' -EndTime 'CompletionTimeUtc'
                                     $IncrementDurationAvg = Get-TimeDuration -TimeSpan ([timespan]::fromseconds(($IncrementDuration / $IncrementRP.Count)))
                                 } catch {
-                                    $IncrementDurationAvg = '--'
+                                    $IncrementDurationAvg = $LocalizedData.NA
                                 }
                             } else {
-                                $IncrementDurationAvg = '--'
+                                $IncrementDurationAvg = $LocalizedData.NA
                             }
 
                             $inObj = [ordered] @{
-                                'Job Name' = $BackupJob.Name
-                                'Oldest Backup' = $BackupJobRestorePoints[0].CreationTimeUTC
-                                'Newest Backup' = $BackupJobRestorePoints[-1].CreationTimeUTC
-                                'Full Count' = ($BackupJobRestorePoints | Where-Object { $_.Type -eq 'Full' }).Count
-                                'Increment Count ' = ($BackupJobRestorePoints | Where-Object { $_.Type -eq 'Increment' }).Count
-                                'Average Full Duration' = $FullDurationAvg
-                                'Average Increment Duration ' = $IncrementDurationAvg
+                                $LocalizedData.JobName = $BackupJob.Name
+                                $LocalizedData.OldestBackup = $BackupJobRestorePoints[0].CreationTimeUTC
+                                $LocalizedData.NewestBackup = $BackupJobRestorePoints[-1].CreationTimeUTC
+                                $LocalizedData.FullCount = ($BackupJobRestorePoints | Where-Object { $_.Type -eq 'Full' }).Count
+                                $LocalizedData.IncrementCount = ($BackupJobRestorePoints | Where-Object { $_.Type -eq 'Increment' }).Count
+                                $LocalizedData.AverageFullDuration = $FullDurationAvg
+                                $LocalizedData.AverageIncrementDuration = $IncrementDurationAvg
                             }
                             $RestorePointInfo += [pscustomobject](ConvertTo-HashToYN $inObj)
 
@@ -74,14 +75,14 @@ function Get-AbrVbrBackupsRPSummary {
                 }
 
                 $TableParams = @{
-                    Name = "Restore Points - $VeeamBackupServer"
+                    Name = "$($LocalizedData.TableHeading) - $VeeamBackupServer"
                     List = $false
                     ColumnWidths = 22, 14, 14, 12, 12, 14, 12
                 }
                 if ($Report.ShowTableCaptions) {
                     $TableParams['Caption'] = "- $($TableParams.Name)"
                 }
-                $RestorePointInfo | Sort-Object -Property 'Job Name' | Table @TableParams
+                $RestorePointInfo | Sort-Object -Property $LocalizedData.JobName | Table @TableParams
 
             }
         } catch {

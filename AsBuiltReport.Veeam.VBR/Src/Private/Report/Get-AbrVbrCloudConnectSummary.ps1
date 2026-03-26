@@ -21,6 +21,7 @@ function Get-AbrVbrCloudConnectSummary {
 
     begin {
         Write-PScriboMessage "Discovering Veeam VBR Cloud Connect Summary from $System."
+        $LocalizedData = $reportTranslate.GetAbrVbrCloudConnectSummary
         Show-AbrDebugExecutionTime -Start -TitleMessage 'Cloud Connect Summary'
     }
 
@@ -36,12 +37,12 @@ function Get-AbrVbrCloudConnectSummary {
                 $CloudConnectBS = (Get-VBRCloudTenant).Resources.Repository
 
                 $inObj = [ordered] @{
-                    'Cloud Gateways' = $CloudConnectGW.Count
-                    'Gateway Pools' = $CloudConnectGWPool.Count
-                    'Tenants' = $CloudConnectTenant.Count
-                    'Backup Storage' = $CloudConnectBS.Count
-                    'Public IP Addresses' = $CloudConnectPublicIP.Count
-                    'Hardware Plans' = $CloudConnectRR.Count
+                    $LocalizedData.CloudGateways = $CloudConnectGW.Count
+                    $LocalizedData.GatewayPools = $CloudConnectGWPool.Count
+                    $LocalizedData.Tenants = $CloudConnectTenant.Count
+                    $LocalizedData.BackupStorage = $CloudConnectBS.Count
+                    $LocalizedData.PublicIPAddresses = $CloudConnectPublicIP.Count
+                    $LocalizedData.HardwarePlans = $CloudConnectRR.Count
                 }
                 $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
             } catch {
@@ -49,7 +50,7 @@ function Get-AbrVbrCloudConnectSummary {
             }
 
             $TableParams = @{
-                Name = "Cloud Connect Inventory - $VeeamBackupServer"
+                Name = "$($LocalizedData.TableHeading) - $VeeamBackupServer"
                 List = $true
                 ColumnWidths = 50, 50
             }
@@ -57,8 +58,8 @@ function Get-AbrVbrCloudConnectSummary {
                 $TableParams['Caption'] = "- $($TableParams.Name)"
             }
 
-            Section -Style Heading3 'Cloud Connect Summary' {
-                Paragraph 'The following table provides a high-level inventory of the Cloud Connect infrastructure, including gateways, tenants, backup storage, and public IP addresses.'
+            Section -Style Heading3 $LocalizedData.Heading {
+                Paragraph $LocalizedData.Paragraph
                 BlankLine
                 $OutObj | Table @TableParams
             }

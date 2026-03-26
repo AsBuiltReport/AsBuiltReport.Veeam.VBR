@@ -21,6 +21,7 @@ function Get-AbrVbrReplInfraSummary {
 
     begin {
         Write-PScriboMessage "Discovering Veeam VBR Replication Summary from $System."
+        $LocalizedData = $reportTranslate.GetAbrVbrReplInfraSummary
         Show-AbrDebugExecutionTime -Start -TitleMessage 'Replication Summary'
     }
 
@@ -30,21 +31,21 @@ function Get-AbrVbrReplInfraSummary {
             $Replicas = Get-VBRReplica
             $FailOverPlans = Get-VBRFailoverPlan
             $inObj = [ordered] @{
-                'Replicas' = $Replicas.Count
-                'Failover Plans' = $FailOverPlans.Count
+                $LocalizedData.Replicas = $Replicas.Count
+                $LocalizedData.FailoverPlans = $FailOverPlans.Count
             }
             $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
 
             $TableParams = @{
-                Name = "Replication Inventory - $VeeamBackupServer"
+                Name = "$($LocalizedData.TableHeading) - $VeeamBackupServer"
                 List = $true
                 ColumnWidths = 50, 50
             }
             if ($Report.ShowTableCaptions) {
                 $TableParams['Caption'] = "- $($TableParams.Name)"
             }
-            Section -Style Heading3 'Replication Summary' {
-                Paragraph 'The following table provides a high-level inventory of the replication infrastructure, including the number of replicas and configured failover plans.'
+            Section -Style Heading3 $LocalizedData.Heading {
+                Paragraph $LocalizedData.Paragraph
                 BlankLine
                 $OutObj | Table @TableParams
             }

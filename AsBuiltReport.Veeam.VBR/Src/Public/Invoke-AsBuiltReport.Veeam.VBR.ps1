@@ -42,6 +42,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
     $script:Report = $ReportConfig.Report
     $script:InfoLevel = $ReportConfig.InfoLevel
     $script:Options = $ReportConfig.Options
+    $LocalizedData = $reportTranslate.InvokeAsBuiltReportVeeamVBR
 
 
     # Check the version of the dependency modules
@@ -106,15 +107,15 @@ function Invoke-AsBuiltReport.Veeam.VBR {
         Get-AbrVbrReportBrief
 
         Section -Style Heading1 $($VeeamBackupServer) {
-            Paragraph 'This section provides an overview of the key infrastructure components, configuration settings, and protected workloads managed by Veeam Backup & Replication.'
+            Paragraph $LocalizedData.ServerOverviewParagraph
             BlankLine
 
             #---------------------------------------------------------------------------------------------#
             #                            Backup Infrastructure Section                                    #
             #---------------------------------------------------------------------------------------------#
             if ($InfoLevel.Infrastructure.PSObject.Properties.Value -ne 0) {
-                Section -Style Heading2 'Backup Infrastructure' {
-                    Paragraph "This section provides detailed configuration information for the Veeam Backup & Replication server $($VeeamBackupServer), including infrastructure settings, credentials, and backup infrastructure components."
+                Section -Style Heading2 $LocalizedData.BackupInfrastructure {
+                    Paragraph ($LocalizedData.BackupInfrastructureParagraph -f $VeeamBackupServer)
                     BlankLine
                     if ($Options.EnableDiagrams) {
                         try {
@@ -125,7 +126,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                             }
                             if ($Graph) {
                                 $BestAspectRatio = Get-BestImageAspectRatio -GraphObj $Graph -MaxWidth 600 -MaxHeight 600
-                                Section -Style Heading3 'Backup Infrastructure Diagram' {
+                                Section -Style Heading3 $LocalizedData.BackupInfrastructureDiagram {
                                     Image -Base64 $Graph -Text 'Backup Infrastructure Diagram' -Align Center -Width $BestAspectRatio.Width -Height $BestAspectRatio.Height
                                     PageBreak
                                 }
@@ -142,14 +143,14 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                         Get-AbrVbrBackupServerInfo
                         Get-AbrVbrEnterpriseManagerInfo
                     }
-                    Write-PScriboMessage "Infrastructure Licenses InfoLevel set at $($InfoLevel.Infrastructure.Licenses)."
+                    Write-PScriboMessage ($LocalizedData.InfoLevelInfrastructureLicenses -f $InfoLevel.Infrastructure.Licenses)
                     if ($InfoLevel.Infrastructure.Licenses -ge 1) {
                         Get-AbrVbrInstalledLicense
                     }
-                    Write-PScriboMessage "Infrastructure Settings InfoLevel set at $($InfoLevel.Infrastructure.Settings)."
+                    Write-PScriboMessage ($LocalizedData.InfoLevelInfrastructureSettings -f $InfoLevel.Infrastructure.Settings)
                     if ($InfoLevel.Infrastructure.Settings -ge 1) {
-                        Section -Style Heading3 'General Options' {
-                            Paragraph 'The following section details Veeam Backup & Replication general settings. General settings are applied to all jobs, backup infrastructure components and other objects managed by the backup server.'
+                        Section -Style Heading3 $LocalizedData.GeneralOptions {
+                            Paragraph $LocalizedData.GeneralOptionsParagraph
                             BlankLine
                             Get-AbrVbrConfigurationBackupSetting
                             Get-AbrVbrEmailNotificationSetting
@@ -178,28 +179,28 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                     Get-AbrVbrLocation
                     Get-AbrVbrManagedServer
 
-                    Write-PScriboMessage "Infrastructure Backup Proxy InfoLevel set at $($InfoLevel.Infrastructure.Proxy)."
+                    Write-PScriboMessage ($LocalizedData.InfoLevelInfrastructureProxy -f $InfoLevel.Infrastructure.Proxy)
                     if ($InfoLevel.Infrastructure.Proxy -ge 1) {
                         Get-AbrVbrBackupProxy
                     }
-                    Write-PScriboMessage "Infrastructure WAN Accelerator InfoLevel set at $($InfoLevel.Infrastructure.WANAccel)."
+                    Write-PScriboMessage ($LocalizedData.InfoLevelInfrastructureWANAccel -f $InfoLevel.Infrastructure.WANAccel)
                     if ($InfoLevel.Infrastructure.WANAccel -ge 1) {
                         Get-AbrVbrWANAccelerator
                     }
-                    Write-PScriboMessage "Infrastructure Service Provider InfoLevel set at $($InfoLevel.Infrastructure.ServiceProvider)."
+                    Write-PScriboMessage ($LocalizedData.InfoLevelInfrastructureServiceProvider -f $InfoLevel.Infrastructure.ServiceProvider)
                     if ($InfoLevel.Infrastructure.ServiceProvider -ge 1) {
                         Get-AbrVbrServiceProvider
                     }
-                    Write-PScriboMessage "Infrastructure Backup Repository InfoLevel set at $($InfoLevel.Infrastructure.BR)."
+                    Write-PScriboMessage ($LocalizedData.InfoLevelInfrastructureBR -f $InfoLevel.Infrastructure.BR)
                     if ($InfoLevel.Infrastructure.BR -ge 1) {
                         Get-AbrVbrBackupRepository
                         Get-AbrVbrObjectRepository
                     }
-                    Write-PScriboMessage "Infrastructure ScaleOut Backup Repository InfoLevel set at $($InfoLevel.Infrastructure.SOBR)."
+                    Write-PScriboMessage ($LocalizedData.InfoLevelInfrastructureSOBR -f $InfoLevel.Infrastructure.SOBR)
                     if ($InfoLevel.Infrastructure.SOBR -ge 1) {
                         Get-AbrVbrScaleOutRepository
                     }
-                    Write-PScriboMessage "Infrastructure SureBackup InfoLevel set at $($InfoLevel.Infrastructure.SureBackup)."
+                    Write-PScriboMessage ($LocalizedData.InfoLevelInfrastructureSureBackup -f $InfoLevel.Infrastructure.SureBackup)
                     if ($InfoLevel.Infrastructure.SureBackup -ge 1) {
                         Get-AbrVbrSureBackup
                     }
@@ -210,27 +211,27 @@ function Invoke-AsBuiltReport.Veeam.VBR {
             #---------------------------------------------------------------------------------------------#
             if ($InfoLevel.Tape.PSObject.Properties.Value -ne 0) {
                 if ((Get-VBRTapeServer).count -gt 0) {
-                    Section -Style Heading2 'Tape Infrastructure' {
-                        Paragraph 'This section provides detailed configuration information for the tape infrastructure, including tape servers, libraries, media pools, and vault settings.'
+                    Section -Style Heading2 $LocalizedData.TapeInfrastructure {
+                        Paragraph $LocalizedData.TapeInfrastructureParagraph
                         BlankLine
                         Get-AbrVbrTapeInfraSummary
-                        Write-PScriboMessage "Tape Server InfoLevel set at $($InfoLevel.Tape.Server)."
+                        Write-PScriboMessage ($LocalizedData.InfoLevelTapeServer -f $InfoLevel.Tape.Server)
                         if ($InfoLevel.Tape.Server -ge 1) {
                             Get-AbrVbrTapeServer
                         }
-                        Write-PScriboMessage "Tape Library InfoLevel set at $($InfoLevel.Tape.Library)."
+                        Write-PScriboMessage ($LocalizedData.InfoLevelTapeLibrary -f $InfoLevel.Tape.Library)
                         if ($InfoLevel.Tape.Library -ge 1) {
                             Get-AbrVbrTapeLibrary
                         }
-                        Write-PScriboMessage "Tape MediaPool InfoLevel set at $($InfoLevel.Tape.MediaPool)."
+                        Write-PScriboMessage ($LocalizedData.InfoLevelTapeMediaPool -f $InfoLevel.Tape.MediaPool)
                         if ($InfoLevel.Tape.MediaPool -ge 1) {
                             Get-AbrVbrTapeMediaPool
                         }
-                        Write-PScriboMessage "Tape Vault InfoLevel set at $($InfoLevel.Tape.Vault)."
+                        Write-PScriboMessage ($LocalizedData.InfoLevelTapeVault -f $InfoLevel.Tape.Vault)
                         if ($InfoLevel.Tape.Vault -ge 1) {
                             Get-AbrVbrTapeVault
                         }
-                        Write-PScriboMessage "Tape NDMP InfoLevel set at $($InfoLevel.Tape.NDMP)."
+                        Write-PScriboMessage ($LocalizedData.InfoLevelTapeNDMP -f $InfoLevel.Tape.NDMP)
                         if ($InfoLevel.Tape.NDMP -ge 1) {
                             Get-AbrVbrNDMPInfo
                         }
@@ -245,7 +246,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                                 if ($Graph) {
                                     $BestAspectRatio = Get-BestImageAspectRatio -GraphObj $Graph -MaxWidth 600 -MaxHeight 600
                                     PageBreak
-                                    Section -Style Heading3 'Tape Infrastructure Diagram' {
+                                    Section -Style Heading3 $LocalizedData.TapeInfrastructureDiagram {
                                         Image -Base64 $Graph -Text 'Tape Infrastructure Diagram' -Width $BestAspectRatio.Width -Height $BestAspectRatio.Height -Align Center
                                         PageBreak
                                     }
@@ -262,15 +263,15 @@ function Invoke-AsBuiltReport.Veeam.VBR {
             #---------------------------------------------------------------------------------------------#
             if ($InfoLevel.Inventory.PSObject.Properties.Value -ne 0) {
                 if ((Get-VBRServer).count -gt 0) {
-                    Section -Style Heading2 'Inventory' {
-                        Paragraph "This section provides a detailed inventory of the virtual and physical infrastructure components managed by Veeam Backup Server $VeeamBackupServer."
+                    Section -Style Heading2 $LocalizedData.Inventory {
+                        Paragraph ($LocalizedData.InventoryParagraph -f $VeeamBackupServer)
                         BlankLine
                         Get-AbrVbrInventorySummary
-                        Write-PScriboMessage "Virtual Inventory InfoLevel set at $($InfoLevel.Inventory.VI)."
+                        Write-PScriboMessage ($LocalizedData.InfoLevelInventoryVI -f $InfoLevel.Inventory.VI)
                         if ($InfoLevel.Inventory.VI -ge 1) {
                             Get-AbrVbrVirtualInfrastructure
                         }
-                        Write-PScriboMessage "Physical Inventory InfoLevel set at $($InfoLevel.Inventory.PHY)."
+                        Write-PScriboMessage ($LocalizedData.InfoLevelInventoryPHY -f $InfoLevel.Inventory.PHY)
                         if ($InfoLevel.Inventory.PHY -ge 1) {
                             $InventObjs = try {
                                 Get-VBRProtectionGroup | Sort-Object -Property Name
@@ -290,7 +291,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                                     if ($Graph) {
                                         $BestAspectRatio = Get-BestImageAspectRatio -GraphObj $Graph -MaxWidth 600 -MaxHeight 600
                                         PageBreak
-                                        Section -Style Heading3 'Physical Infrastructure Diagram' {
+                                        Section -Style Heading3 $LocalizedData.PhysicalInfrastructureDiagram {
                                             Image -Base64 $Graph -Text 'Physical Infrastructure Diagram' -Width $BestAspectRatio.Width -Height $BestAspectRatio.Height -Align Center
                                             PageBreak
                                         }
@@ -300,7 +301,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                                 }
                             }
                         }
-                        Write-PScriboMessage "File Shares Inventory InfoLevel set at $($InfoLevel.Inventory.FileShare)."
+                        Write-PScriboMessage ($LocalizedData.InfoLevelInventoryFileShare -f $InfoLevel.Inventory.FileShare)
                         if ($InfoLevel.Inventory.FileShare -ge 1) {
                             if ($VbrVersion -lt 12.1) {
                                 Get-AbrVbrFileSharesInfo
@@ -308,7 +309,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                                 Get-AbrVbrUnstructuredDataInfo
                             }
                         }
-                        Write-PScriboMessage "EntraID Inventory InfoLevel set at $($InfoLevel.Inventory.EntraID)."
+                        Write-PScriboMessage ($LocalizedData.InfoLevelInventoryEntraID -f $InfoLevel.Inventory.EntraID)
                         if (($InfoLevel.Inventory.EntraID -ge 1) -and ($VbrVersion -ge 12.3)) {
                             Get-AbrVbrEntraIDTenant
                         }
@@ -320,15 +321,15 @@ function Invoke-AsBuiltReport.Veeam.VBR {
             #---------------------------------------------------------------------------------------------#
             if ($InfoLevel.Storage.PSObject.Properties.Value -ne 0) {
                 if ((Get-NetAppHost).count -gt 0) {
-                    Section -Style Heading2 'Storage Infrastructure' {
-                        Paragraph "This section provides detailed information about the storage infrastructure components, including NetApp ONTAP and Dell EMC PowerScale (Isilon) systems, managed by Veeam Backup Server $VeeamBackupServer."
+                    Section -Style Heading2 $LocalizedData.StorageInfrastructure {
+                        Paragraph ($LocalizedData.StorageInfrastructureParagraph -f $VeeamBackupServer)
                         BlankLine
                         Get-AbrVbrStorageInfraSummary
-                        Write-PScriboMessage "NetApp Ontap InfoLevel set at $($InfoLevel.Storage.Ontap)."
+                        Write-PScriboMessage ($LocalizedData.InfoLevelStorageOntap -f $InfoLevel.Storage.Ontap)
                         if ($InfoLevel.Storage.Ontap -ge 1) {
                             Get-AbrVbrStorageOntap
                         }
-                        Write-PScriboMessage "Dell Isilon InfoLevel set at $($InfoLevel.Storage.Isilon)."
+                        Write-PScriboMessage ($LocalizedData.InfoLevelStorageIsilon -f $InfoLevel.Storage.Isilon)
                         if ($InfoLevel.Storage.Isilon -ge 1) {
                             Get-AbrVbrStorageIsilon
                         }
@@ -340,15 +341,15 @@ function Invoke-AsBuiltReport.Veeam.VBR {
             #---------------------------------------------------------------------------------------------#
             if ($InfoLevel.Replication.PSObject.Properties.Value -ne 0) {
                 if ((Get-VBRReplica).count -gt 0 -or ((Get-VBRFailoverPlan).count -gt 0)) {
-                    Section -Style Heading2 'Replication' {
-                        Paragraph "This section provides detailed information about the VM replication jobs, replicas, and failover plans managed by Veeam Backup Server $VeeamBackupServer."
+                    Section -Style Heading2 $LocalizedData.Replication {
+                        Paragraph ($LocalizedData.ReplicationParagraph -f $VeeamBackupServer)
                         BlankLine
                         Get-AbrVbrReplInfraSummary
-                        Write-PScriboMessage "Replica InfoLevel set at $($InfoLevel.Replication.Replica)."
+                        Write-PScriboMessage ($LocalizedData.InfoLevelReplicationReplica -f $InfoLevel.Replication.Replica)
                         if ($InfoLevel.Replication.Replica -ge 1) {
                             Get-AbrVbrReplReplica
                         }
-                        Write-PScriboMessage "Failover Plan InfoLevel set at $($InfoLevel.Replication.FailoverPlan)."
+                        Write-PScriboMessage ($LocalizedData.InfoLevelReplicationFailoverPlan -f $InfoLevel.Replication.FailoverPlan)
                         if ($InfoLevel.Replication.FailoverPlan -ge 1) {
                             Get-AbrVbrReplFailoverPlan
                         }
@@ -361,8 +362,8 @@ function Invoke-AsBuiltReport.Veeam.VBR {
             if ($InfoLevel.CloudConnect.PSObject.Properties.Value -ne 0) {
                 if ($VbrLicenses | Where-Object { $_.CloudConnect -ne 'Disabled' -and $_.Status -ne 'Expired' }) {
                     if ((Get-VBRCloudGateway).count -gt 0 -or ((Get-VBRCloudTenant).count -gt 0)) {
-                        Section -Style Heading2 'Cloud Connect' {
-                            Paragraph "The following section provides information about the Veeam Cloud Connect components managed by Backup Server $VeeamBackupServer, including gateways, tenants, and resources."
+                        Section -Style Heading2 $LocalizedData.CloudConnect {
+                            Paragraph ($LocalizedData.CloudConnectParagraph -f $VeeamBackupServer)
                             BlankLine
                             if ($Options.EnableDiagrams) {
                                 try {
@@ -374,7 +375,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                                     if ($Graph) {
                                         $BestAspectRatio = Get-BestImageAspectRatio -GraphObj $Graph -MaxWidth 600 -MaxHeight 600
                                         PageBreak
-                                        Section -Style Heading3 'Cloud Connect Infrastructure Diagram' {
+                                        Section -Style Heading3 $LocalizedData.CloudConnectInfrastructureDiagram {
                                             Image -Base64 $Graph -Text 'Cloud Connect Infrastructure Diagram' -Width $BestAspectRatio.Width -Height $BestAspectRatio.Height -Align Center
                                             PageBreak
                                         }
@@ -385,31 +386,31 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                             }
                             Get-AbrVbrCloudConnectSummary
                             Get-AbrVbrCloudConnectStatus
-                            Write-PScriboMessage "Cloud Certificate InfoLevel set at $($InfoLevel.CloudConnect.Certificate)."
+                            Write-PScriboMessage ($LocalizedData.InfoLevelCloudCertificate -f $InfoLevel.CloudConnect.Certificate)
                             if ($InfoLevel.CloudConnect.Certificate -ge 1) {
                                 Get-AbrVbrCloudConnectCert
                             }
-                            Write-PScriboMessage "Cloud Public IP InfoLevel set at $($InfoLevel.CloudConnect.PublicIP)."
+                            Write-PScriboMessage ($LocalizedData.InfoLevelCloudPublicIP -f $InfoLevel.CloudConnect.PublicIP)
                             if ($InfoLevel.CloudConnect.PublicIP -ge 1) {
                                 Get-AbrVbrCloudConnectPublicIP
                             }
-                            Write-PScriboMessage "Cloud Gateway InfoLevel set at $($InfoLevel.CloudConnect.CloudGateway)."
+                            Write-PScriboMessage ($LocalizedData.InfoLevelCloudGateway -f $InfoLevel.CloudConnect.CloudGateway)
                             if ($InfoLevel.CloudConnect.CloudGateway -ge 1) {
                                 Get-AbrVbrCloudConnectCG
                             }
-                            Write-PScriboMessage "Gateway Pools InfoLevel set at $($InfoLevel.CloudConnect.GatewayPools)."
+                            Write-PScriboMessage ($LocalizedData.InfoLevelCloudGatewayPools -f $InfoLevel.CloudConnect.GatewayPools)
                             if ($InfoLevel.CloudConnect.GatewayPools -ge 1) {
                                 Get-AbrVbrCloudConnectGP
                             }
-                            Write-PScriboMessage "Tenants InfoLevel set at $($InfoLevel.CloudConnect.Tenants)."
+                            Write-PScriboMessage ($LocalizedData.InfoLevelCloudTenants -f $InfoLevel.CloudConnect.Tenants)
                             if ($InfoLevel.CloudConnect.Tenants -ge 1) {
                                 Get-AbrVbrCloudConnectTenant
                             }
-                            Write-PScriboMessage "Backup Storage InfoLevel set at $($InfoLevel.CloudConnect.BackupStorage)."
+                            Write-PScriboMessage ($LocalizedData.InfoLevelCloudBackupStorage -f $InfoLevel.CloudConnect.BackupStorage)
                             if ($InfoLevel.CloudConnect.BackupStorage -ge 1) {
                                 Get-AbrVbrCloudConnectBS
                             }
-                            Write-PScriboMessage "Backup Storage InfoLevel set at $($InfoLevel.CloudConnect.ReplicaResources)."
+                            Write-PScriboMessage ($LocalizedData.InfoLevelCloudReplicaResources -f $InfoLevel.CloudConnect.ReplicaResources)
                             if ($InfoLevel.CloudConnect.ReplicaResources -ge 1) {
                                 Get-AbrVbrCloudConnectRR
                             }
@@ -422,53 +423,53 @@ function Invoke-AsBuiltReport.Veeam.VBR {
             #---------------------------------------------------------------------------------------------#
             if ($InfoLevel.Jobs.PSObject.Properties.Value -ne 0) {
                 if (((Get-VBRJob -WarningAction SilentlyContinue).count -gt 0) -or ((Get-VBRTapeJob).count -gt 0) -or ((Get-VBRSureBackupJob).count -gt 0)) {
-                    Section -Style Heading2 'Jobs' {
-                        Paragraph "This section details all backup, replication, tape, and verification jobs configured in Veeam Backup & Replication on server $VeeamBackupServer."
+                    Section -Style Heading2 $LocalizedData.Jobs {
+                        Paragraph ($LocalizedData.JobsParagraph -f $VeeamBackupServer)
                         BlankLine
-                        Write-PScriboMessage "Backup Jobs InfoLevel set at $($InfoLevel.Jobs.Backup)."
+                        Write-PScriboMessage ($LocalizedData.InfoLevelJobsBackup -f $InfoLevel.Jobs.Backup)
                         if ($InfoLevel.Jobs.Backup -ge 1) {
                             Get-AbrVbrBackupjob
                             Get-AbrVbrBackupjobVMware
                             Get-AbrVbrBackupjobHyperV
                         }
-                        Write-PScriboMessage "Replication Jobs InfoLevel set at $($InfoLevel.Jobs.Replication)."
+                        Write-PScriboMessage ($LocalizedData.InfoLevelJobsReplication -f $InfoLevel.Jobs.Replication)
                         if ($InfoLevel.Jobs.Replication -ge 1) {
                             Get-AbrVbrRepljob
                             Get-AbrVbrRepljobVMware
                             Get-AbrVbrRepljobHyperV
                         }
-                        Write-PScriboMessage "Tape Jobs InfoLevel set at $($InfoLevel.Jobs.Tape)."
+                        Write-PScriboMessage ($LocalizedData.InfoLevelJobsTape -f $InfoLevel.Jobs.Tape)
                         if ($InfoLevel.Jobs.Tape -ge 1) {
                             Get-AbrVbrTapejob
                             Get-AbrVbrBackupToTape
                             Get-AbrVbrFileToTape
                         }
-                        Write-PScriboMessage "SureBackup Jobs InfoLevel set at $($InfoLevel.Jobs.SureBackup)."
+                        Write-PScriboMessage ($LocalizedData.InfoLevelJobsSureBackup -f $InfoLevel.Jobs.SureBackup)
                         if ($InfoLevel.Jobs.SureBackup -ge 1) {
                             Get-AbrVbrSureBackupjob
                             Get-AbrVbrSureBackupjobconf
                         }
-                        Write-PScriboMessage "Agent Jobs InfoLevel set at $($InfoLevel.Jobs.Agent)."
+                        Write-PScriboMessage ($LocalizedData.InfoLevelJobsAgent -f $InfoLevel.Jobs.Agent)
                         if ($InfoLevel.Jobs.Agent -ge 1) {
                             Get-AbrVbrAgentBackupjob
                             Get-AbrVbrAgentBackupjobConf
                         }
-                        Write-PScriboMessage "File Share Jobs InfoLevel set at $($InfoLevel.Jobs.FileShare)."
+                        Write-PScriboMessage ($LocalizedData.InfoLevelJobsFileShare -f $InfoLevel.Jobs.FileShare)
                         if ($InfoLevel.Jobs.FileShare -ge 1) {
                             Get-AbrVbrFileShareBackupjob
                             Get-AbrVbrFileShareBackupjobConf
                         }
-                        Write-PScriboMessage "Entra ID Jobs InfoLevel set at $($InfoLevel.Jobs.EntraID)."
+                        Write-PScriboMessage ($LocalizedData.InfoLevelJobsEntraID -f $InfoLevel.Jobs.EntraID)
                         if ($InfoLevel.Jobs.EntraID -ge 1 -and ($VbrVersion -ge 12.3)) {
                             Get-AbrVbrEntraIDBackupjob
                             Get-AbrVbrEntraIDBackupjobConf
                         }
-                        Write-PScriboMessage "Nutanix Jobs InfoLevel set at $($InfoLevel.Jobs.Nutanix)."
+                        Write-PScriboMessage ($LocalizedData.InfoLevelJobsNutanix -f $InfoLevel.Jobs.Nutanix)
                         if ($InfoLevel.Jobs.Nutanix -ge 1 -and ($VbrVersion -ge 12)) {
                             Get-AbrVbrBackupjobNutanix
                             Get-AbrVbrBackupjobNutanixConf
                         }
-                        Write-PScriboMessage "Backup Copy Jobs InfoLevel set at $($InfoLevel.Jobs.BackupCopy)."
+                        Write-PScriboMessage ($LocalizedData.InfoLevelJobsBackupCopy -f $InfoLevel.Jobs.BackupCopy)
                         if ($InfoLevel.Jobs.BackupCopy -ge 1 -and ($VbrVersion -ge 12)) {
                             Get-AbrVbrBackupCopyjob
                             Get-AbrVbrBackupCopyjobConf
@@ -482,8 +483,8 @@ function Invoke-AsBuiltReport.Veeam.VBR {
             #---------------------------------------------------------------------------------------------#
             if ($InfoLevel.Jobs.Restores -gt 0) {
                 if (((Get-VBRBackup -WarningAction SilentlyContinue).count -gt 0) -or ((Get-VBRTapeJob).count -gt 0) -or ((Get-VBRSureBackupJob).count -gt 0)) {
-                    Section -Style Heading2 'Backup Restore Points' {
-                        Paragraph "The following section provides information about the available restore points per job on Veeam Backup Server $VeeamBackupServer."
+                    Section -Style Heading2 $LocalizedData.BackupRestorePoints {
+                        Paragraph ($LocalizedData.BackupRestorePointsParagraph -f $VeeamBackupServer)
                         BlankLine
                         Get-AbrVbrBackupsRPSummary
                         Get-AbrVbrBackupJobsRP

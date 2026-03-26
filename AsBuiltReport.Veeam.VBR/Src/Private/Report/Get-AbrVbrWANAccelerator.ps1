@@ -22,6 +22,7 @@ function Get-AbrVbrWANAccelerator {
 
     begin {
         Write-PScriboMessage "Discovering Veeam VBR WAN Accelerator information from $System."
+        $LocalizedData = $reportTranslate.GetAbrVbrWANAccelerator
         Show-AbrDebugExecutionTime -Start -TitleMessage 'WAN Accelerators'
     }
 
@@ -29,8 +30,8 @@ function Get-AbrVbrWANAccelerator {
         try {
             $WANAccels = Get-VBRWANAccelerator | Sort-Object -Property Name
             if (($VbrLicenses | Where-Object { $_.Edition -in @('EnterprisePlus') }) -and $WANAccels) {
-                Section -Style Heading3 'WAN Accelerators' {
-                    Paragraph 'The following section provides information about the WAN Accelerators configured in Veeam Backup & Replication. WAN Accelerators optimize backup traffic over WAN links through global data caching and deduplication.'
+                Section -Style Heading3 $LocalizedData.Heading {
+                    Paragraph $LocalizedData.Paragraph
                     BlankLine
                     $OutObj = @()
                     try {
@@ -49,23 +50,23 @@ function Get-AbrVbrWANAccelerator {
                                     Write-PScriboMessage -IsWarning "WAN Accelerator $($WANAccel.Name) GetWaConnSpec() Item: $($_.Exception.Message)"
                                 }
                                 $inObj = [ordered] @{
-                                    'Name' = $WANAccel.Name
-                                    'Host Name' = $WANAccel.GetHost().Name
-                                    'Is Public' = $WANAccel.GetType().IsPublic
-                                    'Management Port' = & {
+                                    $LocalizedData.Name = $WANAccel.Name
+                                    $LocalizedData.HostName = $WANAccel.GetHost().Name
+                                    $LocalizedData.IsPublic = $WANAccel.GetType().IsPublic
+                                    $LocalizedData.ManagementPort = & {
                                         switch ($VbrVersion) {
                                             { $_ -ge 13 } { try { "$($WANAccel.GetMgmtConnSpec().Endpoints.Port)\TCP" } catch { Out-Null } }
                                             default { try { "$($WANAccel.GetWaMgmtPort())\TCP" } catch { Out-Null } }
                                         }
                                     }
-                                    'Service IP Address' = $ServiceIPAddress
-                                    'Traffic Port' = & { try { "$($WANAccel.GetWaTrafficPort())\TCP" } catch { Out-Null } }
-                                    'Max Tasks Count' = & { try { $WANAccel.FindWaHostComp().Options.MaxTasksCount } catch { Out-Null } }
-                                    'Download Stream Count' = & { try { $WANAccel.FindWaHostComp().Options.DownloadStreamCount } catch { Out-Null } }
-                                    'Enable Performance Mode' = & { try { $WANAccel.FindWaHostComp().Options.EnablePerformanceMode } catch { Out-Null } }
-                                    'Configured Cache' = $IsWaHasAnyCaches
-                                    'Cache Path' = & { try { $WANAccel.FindWaHostComp().Options.CachePath } catch { Out-Null } }
-                                    'Max Cache Size' = & { try { "$($WANAccel.FindWaHostComp().Options.MaxCacheSize) $($WANAccel.FindWaHostComp().Options.SizeUnit)" } catch { Out-Null } }
+                                    $LocalizedData.ServiceIPAddress = $ServiceIPAddress
+                                    $LocalizedData.TrafficPort = & { try { "$($WANAccel.GetWaTrafficPort())\TCP" } catch { Out-Null } }
+                                    $LocalizedData.MaxTasksCount = & { try { $WANAccel.FindWaHostComp().Options.MaxTasksCount } catch { Out-Null } }
+                                    $LocalizedData.DownloadStreamCount = & { try { $WANAccel.FindWaHostComp().Options.DownloadStreamCount } catch { Out-Null } }
+                                    $LocalizedData.EnablePerformanceMode = & { try { $WANAccel.FindWaHostComp().Options.EnablePerformanceMode } catch { Out-Null } }
+                                    $LocalizedData.ConfiguredCache = $IsWaHasAnyCaches
+                                    $LocalizedData.CachePath = & { try { $WANAccel.FindWaHostComp().Options.CachePath } catch { Out-Null } }
+                                    $LocalizedData.MaxCacheSize = & { try { "$($WANAccel.FindWaHostComp().Options.MaxCacheSize) $($WANAccel.FindWaHostComp().Options.SizeUnit)" } catch { Out-Null } }
                                 }
                                 $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
@@ -74,7 +75,7 @@ function Get-AbrVbrWANAccelerator {
                                 }
 
                                 $TableParams = @{
-                                    Name = "WAN Accelerator - $($WANAccel.GetHost().Name)"
+                                    Name = "$($LocalizedData.TableHeading) - $($WANAccel.GetHost().Name)"
                                     List = $true
                                     ColumnWidths = 40, 60
                                 }
@@ -100,8 +101,8 @@ function Get-AbrVbrWANAccelerator {
                             if ($Graph) {
                                 $BestAspectRatio = Get-BestImageAspectRatio -GraphObj $Graph -MaxWidth 600 -MaxHeight 600
                                 PageBreak
-                                Section -Style Heading4 'WAN Accelerator Diagram' {
-                                    Image -Base64 $Graph -Text 'WAN Accelerator Diagram' -Width $BestAspectRatio.Width -Height $BestAspectRatio.Height -Align Center
+                                Section -Style Heading4 $LocalizedData.DiagramHeading {
+                                    Image -Base64 $Graph -Text $LocalizedData.DiagramText -Width $BestAspectRatio.Width -Height $BestAspectRatio.Height -Align Center
                                     PageBreak
                                 }
                             }

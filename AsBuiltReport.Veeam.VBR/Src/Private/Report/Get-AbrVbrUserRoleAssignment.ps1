@@ -22,13 +22,14 @@ function Get-AbrVbrUserRoleAssignment {
 
     begin {
         Write-PScriboMessage "Discovering Veeam VBR Roles information from $System."
+        $LocalizedData = $reportTranslate.GetAbrVbrUserRoleAssignment
         Show-AbrDebugExecutionTime -Start -TitleMessage 'Roles and Users'
     }
 
     process {
         try {
-            Section -Style Heading3 'Roles and Users' {
-                Paragraph 'The following section provides information about the roles and permissions assigned to users and groups within Veeam Backup & Replication.'
+            Section -Style Heading3 $LocalizedData.Heading {
+                Paragraph $LocalizedData.Paragraph
                 BlankLine
                 $OutObj = @()
                 try {

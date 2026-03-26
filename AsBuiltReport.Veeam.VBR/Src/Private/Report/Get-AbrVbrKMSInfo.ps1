@@ -22,32 +22,33 @@ function Get-AbrVbrKMSInfo {
 
     begin {
         Write-PScriboMessage "Discovering Veeam VBR Key Management Server information from $System."
+        $LocalizedData = $reportTranslate.GetAbrVbrKMSInfo
         Show-AbrDebugExecutionTime -Start -TitleMessage 'Key Management Server'
     }
 
     process {
         try {
             if ($KMSServers = Get-VBRKMSServer | Sort-Object -Property Name) {
-                Section -Style Heading3 'Key Management Servers' {
-                    Paragraph 'The following table provides information about the Key Management Servers (KMS) configured in Veeam Backup & Replication for encryption key management.'
+                Section -Style Heading3 $LocalizedData.Heading {
+                    Paragraph $LocalizedData.Paragraph
                     BlankLine
                     $OutObj = @()
                     foreach ($KMSServer in $KMSServers) {
                         try {
 
                             $inObj = [ordered] @{
-                                'Name' = $KMSServer.Name
-                                'CA Certificate' = $KMSServer.CACertificate
-                                'Client Certificate' = $KMSServer.ClientCertificate
-                                'Port' = "TCP/$($KMSServer.Port)"
-                                'Description' = $KMSServer.Description
+                                $LocalizedData.Name = $KMSServer.Name
+                                $LocalizedData.CACertificate = $KMSServer.CACertificate
+                                $LocalizedData.ClientCertificate = $KMSServer.ClientCertificate
+                                $LocalizedData.Port = "TCP/$($KMSServer.Port)"
+                                $LocalizedData.Description = $KMSServer.Description
                             }
                             $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                         } catch {
                             Write-PScriboMessage -IsWarning "Key Management Server $($KMSServer.Name) Section: $($_.Exception.Message)"
                         }
                         $TableParams = @{
-                            Name = "Key Management Server - $($KMSServer.Name)"
+                            Name = "$($LocalizedData.TableHeading) - $($KMSServer.Name)"
                             List = $true
                             ColumnWidths = 40, 60
                         }

@@ -22,6 +22,7 @@ function Get-AbrVbrVirtualInfrastructure {
 
     begin {
         Write-PScriboMessage "Discovering Veeam VBR Virtual Infrastructure inventory from $System."
+        $LocalizedData = $reportTranslate.GetAbrVbrVirtualInfrastructure
         Show-AbrDebugExecutionTime -Start -TitleMessage 'Virtual Infrastructure'
     }
 

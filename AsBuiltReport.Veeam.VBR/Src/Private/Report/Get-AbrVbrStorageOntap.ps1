@@ -22,13 +22,14 @@ function Get-AbrVbrStorageOntap {
 
     begin {
         Write-PScriboMessage "Discovering NetApp Ontap Storage information connected to $System."
+        $LocalizedData = $reportTranslate.GetAbrVbrStorageOntap
         Show-AbrDebugExecutionTime -Start -TitleMessage 'NetApp Ontap Storage'
     }
 
     process {
         if ($OntapHosts = Get-NetAppHost) {
-            Section -Style Heading3 'NetApp ONTAP Storage' {
-                Paragraph 'The following section details the NetApp ONTAP storage systems integrated with Veeam Backup & Replication for storage snapshot-based data protection.'
+            Section -Style Heading3 $LocalizedData.Heading {
+                Paragraph $LocalizedData.Paragraph
                 BlankLine
                 $OutObj = @()
                 try {
@@ -39,19 +40,19 @@ function Get-AbrVbrStorageOntap {
                                 $UsedCred = Get-VBRCredentials | Where-Object { $_.Id -eq $OntapHost.Info.CredsId }
                                 $OntapOptions = [xml]$OntapHost.info.Options
                                 $inObj = [ordered] @{
-                                    'DNS Name' = switch (($OntapHost.Info.HostInstanceId).count) {
+                                    $LocalizedData.DNSName = switch (($OntapHost.Info.HostInstanceId).count) {
                                         0 { $OntapHost.Info.DnsName }
                                         default { $OntapHost.Info.HostInstanceId }
                                     }
-                                    'Description' = $OntapHost.Description
-                                    'Storage Type' = $OntapHost.NaOptions.HostType
-                                    'Used Credential' = switch (($UsedCred).count) {
+                                    $LocalizedData.Description = $OntapHost.Description
+                                    $LocalizedData.StorageType = $OntapHost.NaOptions.HostType
+                                    $LocalizedData.UsedCredential = switch (($UsedCred).count) {
                                         0 { '--' }
                                         default { "$($UsedCred.Name) - ($($UsedCred.Description))" }
                                     }
-                                    'Connection Address' = $OntapHost.ConnPoints -join ', '
-                                    'Connection Port' = "$($OntapOptions.NaHostOptions.NaHostOptions.NaHostConnectionOptions.Port)\TCP"
-                                    'Installed Licenses' = $OntapHost.NaOptions.License
+                                    $LocalizedData.ConnectionAddress = $OntapHost.ConnPoints -join ', '
+                                    $LocalizedData.ConnectionPort = "$($OntapOptions.NaHostOptions.NaHostOptions.NaHostConnectionOptions.Port)\TCP"
+                                    $LocalizedData.InstalledLicenses = $OntapHost.NaOptions.License
                                 }
 
                                 $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)

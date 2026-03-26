@@ -21,33 +21,34 @@ function Get-AbrVbrGlobalNotificationSetting {
     )
 
     begin {
-        Write-PScriboMessage "Discovering Veeam VBR Global Notification option information from $System."
+        $LocalizedData = $reportTranslate.GetAbrVbrGlobalNotificationSetting
+        Write-PScriboMessage ($LocalizedData.Collecting -f $System)
         Show-AbrDebugExecutionTime -Start -TitleMessage 'Global Notification options'
     }
 
     process {
         try {
             if ($GlobalNotifications = Get-VBRGlobalNotificationOptions) {
-                Section -Style Heading4 'Global Notifications' {
-                    Paragraph 'The following section details global notification thresholds configured in Veeam Backup & Replication for storage, datastore, support expiration, and update alerts.'
+                Section -Style Heading4 $LocalizedData.Heading {
+                    Paragraph $LocalizedData.Paragraph
                     BlankLine
-                    Section -ExcludeFromTOC -Style NOTOCHeading5 'Backup Storage' {
+                    Section -ExcludeFromTOC -Style NOTOCHeading5 $LocalizedData.HeadingBackupStorage {
                         $OutObj = @()
                         $inObj = [ordered] @{
-                            'Warn me when free disk space is below' = switch ($GlobalNotifications.StorageSpaceThresholdEnabled) {
+                            $LocalizedData.WarnFreeDiskSpace = switch ($GlobalNotifications.StorageSpaceThresholdEnabled) {
                                 $true { "$($GlobalNotifications.StorageSpaceThreshold)%" }
-                                $false { 'Disabled' }
-                                default { 'Unknown' }
+                                $false { $LocalizedData.Disabled }
+                                default { $LocalizedData.Unknown }
                             }
                         }
                         $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
 
                         if ($HealthCheck.Infrastructure.Settings) {
-                            $OutObj | Where-Object { $_.'Warn me when free disk space is below' -eq 'Disabled' } | Set-Style -Style Warning -Property 'Warn me when free disk space is below'
+                            $OutObj | Where-Object { $_.$LocalizedData.WarnFreeDiskSpace -eq $LocalizedData.Disabled } | Set-Style -Style Warning -Property $LocalizedData.WarnFreeDiskSpace
                         }
 
                         $TableParams = @{
-                            Name = "Backup Storage Notification - $VeeamBackupServer"
+                            Name = "$($LocalizedData.TableHeadingBackupStorage) - $VeeamBackupServer"
                             List = $true
                             ColumnWidths = 40, 60
                         }
@@ -56,38 +57,38 @@ function Get-AbrVbrGlobalNotificationSetting {
                         }
                         $OutObj | Table @TableParams
                         if ($HealthCheck.Infrastructure.BestPractice -and ($OutObj | Where-Object { $_.'Enabled' -eq 'No' })) {
-                            Paragraph 'Health Check:' -Bold -Underline
+                            Paragraph $LocalizedData.HealthCheck -Bold -Underline
                             BlankLine
                             Paragraph {
-                                Text 'Best Practice:' -Bold
-                                Text 'Veeam recommends configuring email notifications to be able to receive alerts with the results of jobs performed on the backup server.'
+                                Text $LocalizedData.BestPractice -Bold
+                                Text $LocalizedData.BPEmailNotification
                             }
                             BlankLine
                         }
                     }
-                    Section -ExcludeFromTOC -Style NOTOCHeading5 'Production Datastore' {
+                    Section -ExcludeFromTOC -Style NOTOCHeading5 $LocalizedData.HeadingProductionDatastore {
                         $OutObj = @()
                         $inObj = [ordered] @{
-                            'Warn me when free disk space is below' = switch ($GlobalNotifications.DatastoreSpaceThresholdEnabled) {
+                            $LocalizedData.WarnFreeDiskSpace = switch ($GlobalNotifications.DatastoreSpaceThresholdEnabled) {
                                 $true { "$($GlobalNotifications.DatastoreSpaceThreshold)%" }
-                                $false { 'Disabled' }
-                                default { 'Unknown' }
+                                $false { $LocalizedData.Disabled }
+                                default { $LocalizedData.Unknown }
                             }
-                            'Skip VM processig when free disk space is below' = switch ($GlobalNotifications.SkipVMSpaceThresholdEnabled) {
+                            $LocalizedData.SkipVMDiskSpace = switch ($GlobalNotifications.SkipVMSpaceThresholdEnabled) {
                                 $true { "$($GlobalNotifications.SkipVMSpaceThreshold)%" }
-                                $false { 'Disabled' }
-                                default { 'Unknown' }
+                                $false { $LocalizedData.Disabled }
+                                default { $LocalizedData.Unknown }
                             }
                         }
                         $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
 
                         if ($HealthCheck.Infrastructure.Settings) {
-                            $OutObj | Where-Object { $_.'Is (Warn me when free disk space is below) Enabled' -eq 'No' } | Set-Style -Style Warning -Property 'Is (Warn me when free disk space is below) Enabled'
-                            $OutObj | Where-Object { $_.'Is (Skip VM processig when free disk space is below) Enabled' -eq 'No' } | Set-Style -Style Warning -Property 'Is (Skip VM processig when free disk space is below) Enabled'
+                            $OutObj | Where-Object { $_."Is ($($LocalizedData.WarnFreeDiskSpace)) Enabled" -eq 'No' } | Set-Style -Style Warning -Property "Is ($($LocalizedData.WarnFreeDiskSpace)) Enabled"
+                            $OutObj | Where-Object { $_."Is ($($LocalizedData.SkipVMDiskSpace)) Enabled" -eq 'No' } | Set-Style -Style Warning -Property "Is ($($LocalizedData.SkipVMDiskSpace)) Enabled"
                         }
 
                         $TableParams = @{
-                            Name = "Production Datastore Notification - $VeeamBackupServer"
+                            Name = "$($LocalizedData.TableHeadingDatastore) - $VeeamBackupServer"
                             List = $true
                             ColumnWidths = 40, 60
                         }
@@ -96,28 +97,28 @@ function Get-AbrVbrGlobalNotificationSetting {
                         }
                         $OutObj | Table @TableParams
                         if ($HealthCheck.Infrastructure.BestPractice -and ($OutObj | Where-Object { $_.'Enabled' -eq 'No' })) {
-                            Paragraph 'Health Check:' -Bold -Underline
+                            Paragraph $LocalizedData.HealthCheck -Bold -Underline
                             BlankLine
                             Paragraph {
-                                Text 'Best Practice:' -Bold
-                                Text 'Veeam recommends configuring email notifications to be able to receive alerts with the results of jobs performed on the backup server.'
+                                Text $LocalizedData.BestPractice -Bold
+                                Text $LocalizedData.BPEmailNotification
                             }
                             BlankLine
                         }
                     }
-                    Section -ExcludeFromTOC -Style NOTOCHeading5 'Support Expiration' {
+                    Section -ExcludeFromTOC -Style NOTOCHeading5 $LocalizedData.HeadingSupport {
                         $OutObj = @()
                         $inObj = [ordered] @{
-                            'Enable notification about support contract expiration' = $GlobalNotifications.NotifyOnSupportExpiration
+                            $LocalizedData.SupportExpiration = $GlobalNotifications.NotifyOnSupportExpiration
                         }
                         $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
 
                         if ($HealthCheck.Infrastructure.Settings) {
-                            $OutObj | Where-Object { $_.'Is (Enable notification about support contract expiration) Enabled' -eq 'No' } | Set-Style -Style Warning -Property 'Enabled'
+                            $OutObj | Where-Object { $_."Is ($($LocalizedData.SupportExpiration)) Enabled" -eq 'No' } | Set-Style -Style Warning -Property 'Enabled'
                         }
 
                         $TableParams = @{
-                            Name = "Support Expiration Notification - $VeeamBackupServer"
+                            Name = "$($LocalizedData.TableHeadingSupport) - $VeeamBackupServer"
                             List = $true
                             ColumnWidths = 40, 60
                         }
@@ -126,24 +127,24 @@ function Get-AbrVbrGlobalNotificationSetting {
                         }
                         $OutObj | Table @TableParams
                         if ($HealthCheck.Infrastructure.BestPractice -and ($OutObj | Where-Object { $_.'Enabled' -eq 'No' })) {
-                            Paragraph 'Health Check:' -Bold -Underline
+                            Paragraph $LocalizedData.HealthCheck -Bold -Underline
                             BlankLine
                             Paragraph {
-                                Text 'Best Practice:' -Bold
-                                Text 'Veeam recommends configuring email notifications to be able to receive alerts with the results of jobs performed on the backup server.'
+                                Text $LocalizedData.BestPractice -Bold
+                                Text $LocalizedData.BPEmailNotification
                             }
                             BlankLine
                         }
                     }
-                    Section -ExcludeFromTOC -Style NOTOCHeading5 'Update Notification' {
+                    Section -ExcludeFromTOC -Style NOTOCHeading5 $LocalizedData.HeadingUpdate {
                         $OutObj = @()
                         $inObj = [ordered] @{
-                            'Check for product and hypervisor updates periodically' = $GlobalNotifications.NotifyOnUpdates
+                            $LocalizedData.CheckForUpdates = $GlobalNotifications.NotifyOnUpdates
                         }
                         $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
 
                         $TableParams = @{
-                            Name = "Update Notification Notification - $VeeamBackupServer"
+                            Name = "$($LocalizedData.TableHeadingUpdate) - $VeeamBackupServer"
                             List = $true
                             ColumnWidths = 40, 60
                         }
@@ -152,11 +153,11 @@ function Get-AbrVbrGlobalNotificationSetting {
                         }
                         $OutObj | Table @TableParams
                         if ($HealthCheck.Infrastructure.BestPractice -and ($OutObj | Where-Object { $_.'Enabled' -eq 'No' })) {
-                            Paragraph 'Health Check:' -Bold -Underline
+                            Paragraph $LocalizedData.HealthCheck -Bold -Underline
                             BlankLine
                             Paragraph {
-                                Text 'Best Practice:' -Bold
-                                Text 'Veeam recommends configuring email notifications to be able to receive alerts with the results of jobs performed on the backup server.'
+                                Text $LocalizedData.BestPractice -Bold
+                                Text $LocalizedData.BPEmailNotification
                             }
                             BlankLine
                         }

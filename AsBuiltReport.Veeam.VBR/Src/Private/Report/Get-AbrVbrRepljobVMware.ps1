@@ -22,14 +22,15 @@ function Get-AbrVbrRepljobVMware {
 
     begin {
         Write-PScriboMessage "Discovering Veeam VBR VMware Replication Jobs Configuration information from $System."
+        $LocalizedData = $reportTranslate.GetAbrVbrRepljobVMware
         Show-AbrDebugExecutionTime -Start -TitleMessage 'VMware Replication Jobs Configuration'
     }
 
     process {
         try {
             if ($Bkjobs = Get-VBRJob -WarningAction SilentlyContinue | Where-Object { $_.TypeToString -eq 'VMware Replication' } | Sort-Object -Property Name) {
-                Section -Style Heading3 'VMware Replication Jobs Configuration' {
-                    Paragraph 'The following section provides detailed configuration information for each VMware replication job, including source and target hosts, schedule, and replica settings.'
+                Section -Style Heading3 $LocalizedData.Heading {
+                    Paragraph $LocalizedData.Paragraph
                     BlankLine
                     $OutObj = @()
                     try {
@@ -37,9 +38,9 @@ function Get-AbrVbrRepljobVMware {
                             try {
 
                                 $inObj = [ordered] @{
-                                    'Name' = $VMcount.Name
-                                    'Creation Time' = $VMcount.Info.CreationTimeUtc.ToLongDateString()
-                                    'VM Count' = try { ((Get-VBRReplica | Where-Object { $_.JobName -eq $VMcount.Name }).VMcount | Measure-Object -Sum).Count } catch { Out-Null }
+                                    ($LocalizedData.name) = $VMcount.Name
+                                    ($LocalizedData.creationTime) = $VMcount.Info.CreationTimeUtc.ToLongDateString()
+                                    ($LocalizedData.vmCount) = try { ((Get-VBRReplica | Where-Object { $_.JobName -eq $VMcount.Name }).VMcount | Measure-Object -Sum).Count } catch { Out-Null }
                                 }
                                 $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                             } catch {
@@ -48,14 +49,14 @@ function Get-AbrVbrRepljobVMware {
                         }
 
                         $TableParams = @{
-                            Name = "VMware Replication Summary - $VeeamBackupServer"
+                            Name = "$($LocalizedData.TableHeadingSummary) - $VeeamBackupServer"
                             List = $false
                             ColumnWidths = 35, 35, 30
                         }
                         if ($Report.ShowTableCaptions) {
                             $TableParams['Caption'] = "- $($TableParams.Name)"
                         }
-                        $OutObj | Sort-Object -Property 'Name' | Table @TableParams
+                        $OutObj | Sort-Object -Property $LocalizedData.name | Table @TableParams
                     } catch {
                         Write-PScriboMessage -IsWarning "VMware Replication Summary Section: $($_.Exception.Message)"
                     }
@@ -63,7 +64,7 @@ function Get-AbrVbrRepljobVMware {
                     foreach ($Bkjob in $Bkjobs) {
                         try {
                             Section -Style Heading4 $($Bkjob.Name) {
-                                Section -Style NOTOCHeading5 -ExcludeFromTOC 'Common Information' {
+                                Section -Style NOTOCHeading5 -ExcludeFromTOC $LocalizedData.SectionCommonInfo {
                                     $OutObj = @()
                                     try {
                                         $CommonInfos = (Get-VBRJob -WarningAction SilentlyContinue | Where-Object { $_.TypeToString -eq 'VMware Replication' }).Info
@@ -71,13 +72,13 @@ function Get-AbrVbrRepljobVMware {
                                             try {
 
                                                 $inObj = [ordered] @{
-                                                    'Name' = $Bkjob.Name
-                                                    'Type' = $Bkjob.TypeToString
-                                                    'Total Backup Size' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $CommonInfo.IncludedSize
-                                                    'Target Address' = $CommonInfo.TargetDir
-                                                    'Target File' = $CommonInfo.TargetFile
-                                                    'Description' = $CommonInfo.CommonInfo.Description
-                                                    'Modified By' = $CommonInfo.CommonInfo.ModifiedBy.FullName
+                                                    ($LocalizedData.name) = $Bkjob.Name
+                                                    ($LocalizedData.type) = $Bkjob.TypeToString
+                                                    ($LocalizedData.totalBackupSize) = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $CommonInfo.IncludedSize
+                                                    ($LocalizedData.targetAddress) = $CommonInfo.TargetDir
+                                                    ($LocalizedData.targetFile) = $CommonInfo.TargetFile
+                                                    ($LocalizedData.description) = $CommonInfo.CommonInfo.Description
+                                                    ($LocalizedData.modifiedBy) = $CommonInfo.CommonInfo.ModifiedBy.FullName
                                                 }
                                                 $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
                                             } catch {
@@ -86,7 +87,7 @@ function Get-AbrVbrRepljobVMware {
                                         }
 
                                         $TableParams = @{
-                                            Name = "Common Information - $($Bkjob.Name)"
+                                            Name = "$($LocalizedData.TableHeadingCommonInfo) - $($Bkjob.Name)"
                                             List = $true
                                             ColumnWidths = 40, 60
                                         }
@@ -98,7 +99,7 @@ function Get-AbrVbrRepljobVMware {
                                         Write-PScriboMessage -IsWarning "VMware Replication Jobs Common Information Section: $($_.Exception.Message)"
                                     }
                                 }
-                                Section -Style NOTOCHeading5 -ExcludeFromTOC 'Destination' {
+                                Section -Style NOTOCHeading5 -ExcludeFromTOC $LocalizedData.SectionDestination {
                                     $OutObj = @()
                                     try {
                                         foreach ($Destination in $Bkjob.ViReplicaTargetOptions) {
@@ -108,13 +109,13 @@ function Get-AbrVbrRepljobVMware {
                                                     $HostorCluster = (Find-VBRHvEntity -Name $FailOverPlansVM | Where-Object { $_.Reference -eq $Destination.HostReference }).Name
                                                 } else { $HostorCluster = $Destination.ClusterName }
                                                 $inObj = [ordered]  @{
-                                                    'Host or Cluster' = switch ($HostorCluster) {
+                                                    ($LocalizedData.hostOrCluster) = switch ($HostorCluster) {
                                                         $Null { 'Unknown' }
                                                         default { $HostorCluster }
                                                     }
-                                                    'Resources Pool' = $Destination.ReplicaTargetResourcePoolName
-                                                    'VM Folder' = $Destination.ReplicaTargetVmFolderName
-                                                    'Datastore' = $Destination.DatastoreName
+                                                    ($LocalizedData.resourcesPool) = $Destination.ReplicaTargetResourcePoolName
+                                                    ($LocalizedData.vmFolder) = $Destination.ReplicaTargetVmFolderName
+                                                    ($LocalizedData.datastore) = $Destination.DatastoreName
                                                 }
                                                 $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                                             } catch {
@@ -123,7 +124,7 @@ function Get-AbrVbrRepljobVMware {
                                         }
 
                                         $TableParams = @{
-                                            Name = "Destination - $($Bkjob.Name)"
+                                            Name = "$($LocalizedData.TableHeadingDestination) - $($Bkjob.Name)"
                                             List = $true
                                             ColumnWidths = 40, 60
                                         }
@@ -136,15 +137,15 @@ function Get-AbrVbrRepljobVMware {
                                     }
                                 }
                                 if ($Bkjob.ViReplicaTargetOptions.UseNetworkMapping) {
-                                    Section -Style NOTOCHeading5 -ExcludeFromTOC 'Network' {
+                                    Section -Style NOTOCHeading5 -ExcludeFromTOC $LocalizedData.SectionNetwork {
                                         $OutObj = @()
                                         try {
                                             foreach ($NetMapping in $Bkjob.Options.ViNetworkMappingOptions.NetworkMapping) {
                                                 try {
 
                                                     $inObj = [ordered] @{
-                                                        'Source Network' = $NetMapping.SourceNetwork
-                                                        'Target Network' = $NetMapping.TargetNetwork
+                                                        ($LocalizedData.sourceNetwork) = $NetMapping.SourceNetwork
+                                                        ($LocalizedData.targetNetwork) = $NetMapping.TargetNetwork
                                                     }
                                                     $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                                                 } catch {
@@ -153,7 +154,7 @@ function Get-AbrVbrRepljobVMware {
                                             }
 
                                             $TableParams = @{
-                                                Name = "Network Mappings - $($Bkjob.Name)"
+                                                Name = "$($LocalizedData.TableHeadingNetwork) - $($Bkjob.Name)"
                                                 List = $false
                                                 ColumnWidths = 50, 50
                                             }
@@ -168,19 +169,19 @@ function Get-AbrVbrRepljobVMware {
                                 }
                                 if ($Bkjob.Options.ViReplicaTargetOptions.UseReIP) {
                                     if ($Bkjob.Options.ReIPRulesOptions.Rules) {
-                                        Section -Style NOTOCHeading5 -ExcludeFromTOC 'Re-IP Rules' {
+                                        Section -Style NOTOCHeading5 -ExcludeFromTOC $LocalizedData.SectionReIPRules {
                                             $OutObj = @()
                                             try {
                                                 foreach ($ReIpRule in $Bkjob.Options.ReIPRulesOptions.Rules) {
                                                     try {
 
                                                         $inObj = [ordered] @{
-                                                            'Source IP Address' = $ReIpRule.Source.IPAddress
-                                                            'Source Subnet Mask' = $ReIpRule.Source.SubnetMask
-                                                            'Target P Address' = $ReIpRule.Target.IPAddress
-                                                            'Target Subnet Mask' = $ReIpRule.Target.SubnetMask
-                                                            'Target Default Gateway' = $ReIpRule.Target.DefaultGateway
-                                                            'Target DNS Addresses' = $ReIpRule.Target.DNSAddresses
+                                                            ($LocalizedData.sourceIPAddress) = $ReIpRule.Source.IPAddress
+                                                            ($LocalizedData.sourceSubnetMask) = $ReIpRule.Source.SubnetMask
+                                                            ($LocalizedData.targetPAddress) = $ReIpRule.Target.IPAddress
+                                                            ($LocalizedData.targetSubnetMask) = $ReIpRule.Target.SubnetMask
+                                                            ($LocalizedData.targetDefaultGateway) = $ReIpRule.Target.DefaultGateway
+                                                            ($LocalizedData.targetDNSAddresses) = $ReIpRule.Target.DNSAddresses
                                                         }
                                                         $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                                                     } catch {
@@ -189,7 +190,7 @@ function Get-AbrVbrRepljobVMware {
                                                 }
 
                                                 $TableParams = @{
-                                                    Name = "Re-IP Rules - $($Bkjob.Name)"
+                                                    Name = "$($LocalizedData.TableHeadingReIP) - $($Bkjob.Name)"
                                                     List = $false
                                                     ColumnWidths = 17, 17, 17, 17, 16, 16
                                                 }
@@ -203,19 +204,19 @@ function Get-AbrVbrRepljobVMware {
                                         }
                                     }
                                     if ($Bkjob.Options.ReIPRulesOptions.RulesIPv4) {
-                                        Section -Style NOTOCHeading5 -ExcludeFromTOC 'Re-IP Rules' {
+                                        Section -Style NOTOCHeading5 -ExcludeFromTOC $LocalizedData.SectionReIPRules {
                                             $OutObj = @()
                                             try {
                                                 foreach ($ReIpRule in $Bkjob.Options.ReIPRulesOptions.RulesIPv4) {
                                                     try {
 
                                                         $inObj = [ordered] @{
-                                                            'Source IP Address' = $ReIpRule.Source.IPAddress
-                                                            'Source Subnet Mask' = $ReIpRule.Source.SubnetMask
-                                                            'Target P Address' = $ReIpRule.Target.IPAddress
-                                                            'Target Subnet Mask' = $ReIpRule.Target.SubnetMask
-                                                            'Target Default Gateway' = $ReIpRule.Target.DefaultGateway
-                                                            'Target DNS Addresses' = $ReIpRule.Target.DNSAddresses
+                                                            ($LocalizedData.sourceIPAddress) = $ReIpRule.Source.IPAddress
+                                                            ($LocalizedData.sourceSubnetMask) = $ReIpRule.Source.SubnetMask
+                                                            ($LocalizedData.targetPAddress) = $ReIpRule.Target.IPAddress
+                                                            ($LocalizedData.targetSubnetMask) = $ReIpRule.Target.SubnetMask
+                                                            ($LocalizedData.targetDefaultGateway) = $ReIpRule.Target.DefaultGateway
+                                                            ($LocalizedData.targetDNSAddresses) = $ReIpRule.Target.DNSAddresses
                                                         }
                                                         $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                                                     } catch {
@@ -224,7 +225,7 @@ function Get-AbrVbrRepljobVMware {
                                                 }
 
                                                 $TableParams = @{
-                                                    Name = "Re-IP Rules - $($Bkjob.Name)"
+                                                    Name = "$($LocalizedData.TableHeadingReIP) - $($Bkjob.Name)"
                                                     List = $false
                                                     ColumnWidths = 17, 17, 17, 17, 16, 16
                                                 }
@@ -239,23 +240,23 @@ function Get-AbrVbrRepljobVMware {
                                     }
                                 }
                                 if ($Bkjob.GetViOijs()) {
-                                    Section -Style NOTOCHeading5 -ExcludeFromTOC 'Virtual Machines' {
+                                    Section -Style NOTOCHeading5 -ExcludeFromTOC $LocalizedData.SectionVMs {
                                         $OutObj = @()
                                         try {
                                             foreach ($OBJ in ($Bkjob.GetViOijs() | Where-Object { $_.Type -eq 'Include' -or $_.Type -eq 'Exclude' } )) {
 
                                                 $inObj = [ordered] @{
                                                     'Name' = $OBJ.Name
-                                                    'Resource Type' = $OBJ.TypeDisplayName
-                                                    'Role' = $OBJ.Type
-                                                    'Approx Size' = $OBJ.ApproxSizeString
-                                                    'Disk Filter Mode' = $OBJ.DiskFilterInfo.Mode
+                                                    ($LocalizedData.resourceType) = $OBJ.TypeDisplayName
+                                                    ($LocalizedData.role) = $OBJ.Type
+                                                    ($LocalizedData.approxSize) = $OBJ.ApproxSizeString
+                                                    ($LocalizedData.diskFilterMode) = $OBJ.DiskFilterInfo.Mode
                                                 }
                                                 $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
                                             }
 
                                             $TableParams = @{
-                                                Name = "Virtual Machines - $($Bkjob.Name)"
+                                                Name = "$($LocalizedData.TableHeadingVMs) - $($Bkjob.Name)"
                                                 List = $false
                                                 ColumnWidths = 20, 20, 20, 20, 20
                                             }
@@ -268,7 +269,7 @@ function Get-AbrVbrRepljobVMware {
                                         }
                                     }
                                 }
-                                Section -Style NOTOCHeading5 -ExcludeFromTOC 'Job Settings' {
+                                Section -Style NOTOCHeading5 -ExcludeFromTOC $LocalizedData.SectionJobSettings {
                                     $OutObj = @()
                                     try {
 
@@ -280,12 +281,12 @@ function Get-AbrVbrRepljobVMware {
                                             $Retains = $Bkjob.BackupStorageOptions.RetainCycles
                                         }
                                         $inObj = [ordered] @{
-                                            'Repository for replica metadata' = switch ($Bkjob.info.TargetRepositoryId) {
+                                            ($LocalizedData.replicaMetadataRepo) = switch ($Bkjob.info.TargetRepositoryId) {
                                                 '00000000-0000-0000-0000-000000000000' { $Bkjob.TargetDir }
                                                 { $Null -eq (Get-VBRBackupRepository | Where-Object { $_.Id -eq $Bkjob.info.TargetRepositoryId }).Name } { (Get-VBRBackupRepository -ScaleOut | Where-Object { $_.Id -eq $Bkjob.info.TargetRepositoryId }).Name }
                                                 default { (Get-VBRBackupRepository | Where-Object { $_.Id -eq $Bkjob.info.TargetRepositoryId }).Name }
                                             }
-                                            'Replica Name Suffix' = $Bkjob.Options.ViReplicaTargetOptions.ReplicaNameSuffix
+                                            ($LocalizedData.replicaNameSuffix) = $Bkjob.Options.ViReplicaTargetOptions.ReplicaNameSuffix
                                             $RetainString = $Retains
                                         }
                                         $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
@@ -300,20 +301,20 @@ function Get-AbrVbrRepljobVMware {
                                         }
                                         $OutObj | Table @TableParams
                                         if ($InfoLevel.Jobs.Replication -ge 2) {
-                                            Section -Style NOTOCHeading6 -ExcludeFromTOC 'Advanced Settings (Maintenance)' {
+                                            Section -Style NOTOCHeading6 -ExcludeFromTOC $LocalizedData.SectionAdvMaintenance {
                                                 $OutObj = @()
                                                 try {
 
                                                     $inObj = [ordered] @{
-                                                        'Storage-Level Corruption Guard (SLCG)' = $Bkjob.Options.GenerationPolicy.EnableRechek
-                                                        'SLCG Schedule Type' = $Bkjob.Options.GenerationPolicy.RecheckScheduleKind
-                                                        'SLCG Schedule Day' = $Bkjob.Options.GenerationPolicy.RecheckDays
-                                                        'SLCG Backup Monthly Schedule' = "Day Of Week: $($Bkjob.Options.GenerationPolicy.RecheckBackupMonthlyScheduleOptions.DayOfWeek)`r`nDay Number In Month: $($Bkjob.Options.GenerationPolicy.RecheckBackupMonthlyScheduleOptions.DayNumberInMonth)`r`nDay of Month: $($Bkjob.Options.GenerationPolicy.RecheckBackupMonthlyScheduleOptions.DayOfMonth)`r`nMonths: $($Bkjob.Options.GenerationPolicy.RecheckBackupMonthlyScheduleOptions.Months)"
-                                                        'Defragment and Compact Full Backup (DCFB)' = $Bkjob.Options.GenerationPolicy.EnableCompactFull
-                                                        'DCFB Schedule Type' = $Bkjob.Options.GenerationPolicy.CompactFullBackupScheduleKind
-                                                        'DCFB Schedule Day' = $Bkjob.Options.GenerationPolicy.CompactFullBackupDays
-                                                        'DCFB Backup Monthly Schedule' = "Day Of Week: $($Bkjob.Options.GenerationPolicy.CompactFullBackupMonthlyScheduleOptions.DayOfWeek)`r`nDay Number In Month: $($Bkjob.Options.GenerationPolicy.CompactFullBackupMonthlyScheduleOptions.DayNumberInMonth)`r`nDay of Month: $($Bkjob.Options.GenerationPolicy.CompactFullBackupMonthlyScheduleOptions.DayOfMonth)`r`nMonths: $($Bkjob.Options.GenerationPolicy.CompactFullBackupMonthlyScheduleOptions.Months)"
-                                                        'Remove deleted item data after' = $Bkjob.Options.BackupStorageOptions.RetainDays
+                                                        ($LocalizedData.slcg) = $Bkjob.Options.GenerationPolicy.EnableRechek
+                                                        ($LocalizedData.slcgScheduleType) = $Bkjob.Options.GenerationPolicy.RecheckScheduleKind
+                                                        ($LocalizedData.slcgScheduleDay) = $Bkjob.Options.GenerationPolicy.RecheckDays
+                                                        ($LocalizedData.slcgMonthlySchedule) = "Day Of Week: $($Bkjob.Options.GenerationPolicy.RecheckBackupMonthlyScheduleOptions.DayOfWeek)`r`nDay Number In Month: $($Bkjob.Options.GenerationPolicy.RecheckBackupMonthlyScheduleOptions.DayNumberInMonth)`r`nDay of Month: $($Bkjob.Options.GenerationPolicy.RecheckBackupMonthlyScheduleOptions.DayOfMonth)`r`nMonths: $($Bkjob.Options.GenerationPolicy.RecheckBackupMonthlyScheduleOptions.Months)"
+                                                        ($LocalizedData.dcfb) = $Bkjob.Options.GenerationPolicy.EnableCompactFull
+                                                        ($LocalizedData.dcfbScheduleType) = $Bkjob.Options.GenerationPolicy.CompactFullBackupScheduleKind
+                                                        ($LocalizedData.dcfbScheduleDay) = $Bkjob.Options.GenerationPolicy.CompactFullBackupDays
+                                                        ($LocalizedData.dcfbMonthlySchedule) = "Day Of Week: $($Bkjob.Options.GenerationPolicy.CompactFullBackupMonthlyScheduleOptions.DayOfWeek)`r`nDay Number In Month: $($Bkjob.Options.GenerationPolicy.CompactFullBackupMonthlyScheduleOptions.DayNumberInMonth)`r`nDay of Month: $($Bkjob.Options.GenerationPolicy.CompactFullBackupMonthlyScheduleOptions.DayOfMonth)`r`nMonths: $($Bkjob.Options.GenerationPolicy.CompactFullBackupMonthlyScheduleOptions.Months)"
+                                                        ($LocalizedData.removeDeletedData) = $Bkjob.Options.BackupStorageOptions.RetainDays
                                                     }
 
                                                     $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
@@ -323,7 +324,7 @@ function Get-AbrVbrRepljobVMware {
                                                     }
 
                                                     $TableParams = @{
-                                                        Name = "Advanced Settings (Maintenance) - $($Bkjob.Name)"
+                                                        Name = "$($LocalizedData.TableHeadingAdvMaintenance) - $($Bkjob.Name)"
                                                         List = $true
                                                         ColumnWidths = 40, 60
                                                     }
@@ -350,15 +351,15 @@ function Get-AbrVbrRepljobVMware {
                                             }
                                         }
                                         if ($InfoLevel.Jobs.Replication -ge 2) {
-                                            Section -Style NOTOCHeading6 -ExcludeFromTOC 'Advanced Settings (Traffic)' {
+                                            Section -Style NOTOCHeading6 -ExcludeFromTOC $LocalizedData.SectionAdvTraffic {
                                                 $OutObj = @()
                                                 try {
 
                                                     $inObj = [ordered] @{
-                                                        'Inline Data Deduplication' = $Bkjob.Options.BackupStorageOptions.EnableDeduplication
-                                                        'Exclude Swap Files Block' = $Bkjob.ViSourceOptions.ExcludeSwapFile
-                                                        'Exclude Deleted Files Block' = $Bkjob.ViSourceOptions.DirtyBlocksNullingEnabled
-                                                        'Compression Level' = switch ($Bkjob.Options.BackupStorageOptions.CompressionLevel) {
+                                                        ($LocalizedData.inlineDeduplication) = $Bkjob.Options.BackupStorageOptions.EnableDeduplication
+                                                        ($LocalizedData.excludeSwapFiles) = $Bkjob.ViSourceOptions.ExcludeSwapFile
+                                                        ($LocalizedData.excludeDeletedFiles) = $Bkjob.ViSourceOptions.DirtyBlocksNullingEnabled
+                                                        ($LocalizedData.compressionLevel) = switch ($Bkjob.Options.BackupStorageOptions.CompressionLevel) {
                                                             0 { 'NONE' }
                                                             -1 { 'AUTO' }
                                                             4 { 'DEDUPE_friendly' }
@@ -366,15 +367,15 @@ function Get-AbrVbrRepljobVMware {
                                                             6 { 'High' }
                                                             9 { 'EXTREME' }
                                                         }
-                                                        'Storage optimization' = switch ($Bkjob.Options.BackupStorageOptions.StgBlockSize) {
+                                                        ($LocalizedData.storageOptimization) = switch ($Bkjob.Options.BackupStorageOptions.StgBlockSize) {
                                                             'KbBlockSize1024' { 'Local target' }
                                                             'KbBlockSize512' { 'LAN target' }
                                                             'KbBlockSize256' { 'WAN target' }
                                                             'KbBlockSize4096' { 'Local target (large blocks)' }
                                                             default { $Bkjob.Options.BackupStorageOptions.StgBlockSize }
                                                         }
-                                                        'Enabled Backup File Encryption' = $Bkjob.Options.BackupStorageOptions.StorageEncryptionEnabled
-                                                        'Encryption Key' = switch ($Bkjob.Options.BackupStorageOptions.StorageEncryptionEnabled) {
+                                                        ($LocalizedData.enabledBackupFileEncryption) = $Bkjob.Options.BackupStorageOptions.StorageEncryptionEnabled
+                                                        ($LocalizedData.encryptionKey) = switch ($Bkjob.Options.BackupStorageOptions.StorageEncryptionEnabled) {
                                                             $false { 'None' }
                                                             default { (Get-VBREncryptionKey | Where-Object { $_.id -eq $Bkjob.Info.PwdKeyId }).Description }
                                                         }
@@ -388,7 +389,7 @@ function Get-AbrVbrRepljobVMware {
                                                     }
 
                                                     $TableParams = @{
-                                                        Name = "Advanced Settings (Traffic) - $($Bkjob.Name)"
+                                                        Name = "$($LocalizedData.TableHeadingAdvTraffic) - $($Bkjob.Name)"
                                                         List = $true
                                                         ColumnWidths = 40, 60
                                                     }
@@ -413,29 +414,29 @@ function Get-AbrVbrRepljobVMware {
                                             }
                                         }
                                         if ($InfoLevel.Jobs.Replication -ge 2 -and ($Bkjob.Options.NotificationOptions.SnmpNotification -or $Bkjob.Options.NotificationOptions.SendEmailNotification2AdditionalAddresses)) {
-                                            Section -Style NOTOCHeading6 -ExcludeFromTOC 'Advanced Settings (Notification)' {
+                                            Section -Style NOTOCHeading6 -ExcludeFromTOC $LocalizedData.SectionAdvNotification {
                                                 $OutObj = @()
                                                 try {
 
                                                     $inObj = [ordered] @{
-                                                        'Send Snmp Notification' = $Bkjob.Options.NotificationOptions.SnmpNotification
-                                                        'Send Email Notification' = $Bkjob.Options.NotificationOptions.SendEmailNotification2AdditionalAddresses
-                                                        'Email Notification Additional Addresses' = $Bkjob.Options.NotificationOptions.EmailNotificationAdditionalAddresses
-                                                        'Email Notify Time' = $Bkjob.Options.NotificationOptions.EmailNotifyTime.ToShortTimeString()
-                                                        'Use Custom Email Notification Options' = $Bkjob.Options.NotificationOptions.UseCustomEmailNotificationOptions
-                                                        'Use Custom Notification Setting' = $Bkjob.Options.NotificationOptions.EmailNotificationSubject
-                                                        'Notify On Success' = $Bkjob.Options.NotificationOptions.EmailNotifyOnSuccess
-                                                        'Notify On Warning' = $Bkjob.Options.NotificationOptions.EmailNotifyOnWarning
-                                                        'Notify On Error' = $Bkjob.Options.NotificationOptions.EmailNotifyOnError
-                                                        'Suppress Notification until Last Retry' = $Bkjob.Options.NotificationOptions.EmailNotifyOnLastRetryOnly
-                                                        'Set Results To Vm Notes' = $Bkjob.Options.ViSourceOptions.SetResultsToVmNotes
-                                                        'VM Attribute Note Value' = $Bkjob.Options.ViSourceOptions.VmAttributeName
-                                                        'Append to Existing Attribute' = $Bkjob.Options.ViSourceOptions.VmNotesAppend
+                                                        ($LocalizedData.sendSnmpNotification) = $Bkjob.Options.NotificationOptions.SnmpNotification
+                                                        ($LocalizedData.sendEmailNotification) = $Bkjob.Options.NotificationOptions.SendEmailNotification2AdditionalAddresses
+                                                        ($LocalizedData.emailAdditionalAddresses) = $Bkjob.Options.NotificationOptions.EmailNotificationAdditionalAddresses
+                                                        ($LocalizedData.emailNotifyTime) = $Bkjob.Options.NotificationOptions.EmailNotifyTime.ToShortTimeString()
+                                                        ($LocalizedData.useCustomEmailNotification) = $Bkjob.Options.NotificationOptions.UseCustomEmailNotificationOptions
+                                                        ($LocalizedData.useCustomNotificationSetting) = $Bkjob.Options.NotificationOptions.EmailNotificationSubject
+                                                        ($LocalizedData.notifyOnSuccess) = $Bkjob.Options.NotificationOptions.EmailNotifyOnSuccess
+                                                        ($LocalizedData.notifyOnWarning) = $Bkjob.Options.NotificationOptions.EmailNotifyOnWarning
+                                                        ($LocalizedData.notifyOnError) = $Bkjob.Options.NotificationOptions.EmailNotifyOnError
+                                                        ($LocalizedData.suppressNotification) = $Bkjob.Options.NotificationOptions.EmailNotifyOnLastRetryOnly
+                                                        ($LocalizedData.setResultsToVmNotes) = $Bkjob.Options.ViSourceOptions.SetResultsToVmNotes
+                                                        ($LocalizedData.vmAttributeNoteValue) = $Bkjob.Options.ViSourceOptions.VmAttributeName
+                                                        ($LocalizedData.appendToAttribute) = $Bkjob.Options.ViSourceOptions.VmNotesAppend
                                                     }
                                                     $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                     $TableParams = @{
-                                                        Name = "Advanced Settings (Notification) - $($Bkjob.Name)"
+                                                        Name = "$($LocalizedData.TableHeadingAdvNotification) - $($Bkjob.Name)"
                                                         List = $true
                                                         ColumnWidths = 40, 60
                                                     }
@@ -449,20 +450,20 @@ function Get-AbrVbrRepljobVMware {
                                             }
                                         }
                                         if ($InfoLevel.Jobs.Replication -ge 2 -and ($Bkjob.Options.ViSourceOptions.VMToolsQuiesce -or $Bkjob.Options.ViSourceOptions.UseChangeTracking)) {
-                                            Section -Style NOTOCHeading6 -ExcludeFromTOC 'Advanced Settings (vSphere)' {
+                                            Section -Style NOTOCHeading6 -ExcludeFromTOC $LocalizedData.SectionAdvVSphere {
                                                 $OutObj = @()
                                                 try {
 
                                                     $inObj = [ordered] @{
-                                                        'Enable VMware Tools Quiescence' = $Bkjob.Options.ViSourceOptions.VMToolsQuiesce
-                                                        'Use Change Block Tracking' = $Bkjob.Options.ViSourceOptions.UseChangeTracking
-                                                        'Enable CBT for all protected VMs' = $Bkjob.Options.ViSourceOptions.EnableChangeTracking
-                                                        'Reset CBT On each Active Full Backup' = $Bkjob.Options.ViSourceOptions.ResetChangeTrackingOnActiveFull
+                                                        ($LocalizedData.enableVMwareToolsQuiescence) = $Bkjob.Options.ViSourceOptions.VMToolsQuiesce
+                                                        ($LocalizedData.useChangeBlockTracking) = $Bkjob.Options.ViSourceOptions.UseChangeTracking
+                                                        ($LocalizedData.enableCBT) = $Bkjob.Options.ViSourceOptions.EnableChangeTracking
+                                                        ($LocalizedData.resetCBTOnActiveFull) = $Bkjob.Options.ViSourceOptions.ResetChangeTrackingOnActiveFull
                                                     }
                                                     $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                     $TableParams = @{
-                                                        Name = "Advanced Settings (vSphere) - $($Bkjob.Name)"
+                                                        Name = "$($LocalizedData.TableHeadingAdvVSphere) - $($Bkjob.Name)"
                                                         List = $true
                                                         ColumnWidths = 40, 60
                                                     }
@@ -476,21 +477,21 @@ function Get-AbrVbrRepljobVMware {
                                             }
                                         }
                                         if ($InfoLevel.Jobs.Replication -ge 2 -and $Bkjob.Options.SanIntegrationOptions.UseSanSnapshots) {
-                                            Section -Style NOTOCHeading6 -ExcludeFromTOC 'Advanced Settings (Integration)' {
+                                            Section -Style NOTOCHeading6 -ExcludeFromTOC $LocalizedData.SectionAdvIntegration {
                                                 $OutObj = @()
                                                 try {
 
                                                     $inObj = [ordered] @{
-                                                        'Enable Backup from Storage Snapshots' = $Bkjob.Options.SanIntegrationOptions.UseSanSnapshots
-                                                        'Limit processed VM count per Storage Snapshot' = $Bkjob.Options.SanIntegrationOptions.MultipleStorageSnapshotEnabled
-                                                        'VM count per Storage Snapshot' = $Bkjob.Options.SanIntegrationOptions.MultipleStorageSnapshotVmsCount
-                                                        'Failover to Standard Backup' = $Bkjob.Options.SanIntegrationOptions.FailoverFromSan
-                                                        'Failover to Primary Storage Snapshot' = $Bkjob.Options.SanIntegrationOptions.Failover2StorageSnapshotBackup
+                                                        ($LocalizedData.enableBackupFromStorage) = $Bkjob.Options.SanIntegrationOptions.UseSanSnapshots
+                                                        ($LocalizedData.limitVMCountPerSnapshot) = $Bkjob.Options.SanIntegrationOptions.MultipleStorageSnapshotEnabled
+                                                        ($LocalizedData.vmCountPerSnapshot) = $Bkjob.Options.SanIntegrationOptions.MultipleStorageSnapshotVmsCount
+                                                        ($LocalizedData.failoverToStandardBackup) = $Bkjob.Options.SanIntegrationOptions.FailoverFromSan
+                                                        ($LocalizedData.failoverToPrimarySnapshot) = $Bkjob.Options.SanIntegrationOptions.Failover2StorageSnapshotBackup
                                                     }
                                                     $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                     $TableParams = @{
-                                                        Name = "Advanced Settings (Integration) - $($Bkjob.Name)"
+                                                        Name = "$($LocalizedData.TableHeadingAdvIntegration) - $($Bkjob.Name)"
                                                         List = $true
                                                         ColumnWidths = 40, 60
                                                     }
@@ -504,7 +505,7 @@ function Get-AbrVbrRepljobVMware {
                                             }
                                         }
                                         if ($InfoLevel.Jobs.Replication -ge 2 -and ($Bkjob.Options.JobScriptCommand.PreScriptEnabled -or $Bkjob.Options.JobScriptCommand.PostScriptEnabled)) {
-                                            Section -Style NOTOCHeading6 -ExcludeFromTOC 'Advanced Settings (Script)' {
+                                            Section -Style NOTOCHeading6 -ExcludeFromTOC $LocalizedData.SectionAdvScript {
                                                 $OutObj = @()
                                                 try {
                                                     if ($Bkjob.Options.JobScriptCommand.Periodicity -eq 'Days') {
@@ -516,18 +517,18 @@ function Get-AbrVbrRepljobVMware {
                                                     }
 
                                                     $inObj = [ordered] @{
-                                                        'Run the Following Script Before' = $Bkjob.Options.JobScriptCommand.PreScriptEnabled
-                                                        'Run Script Before the Job' = $Bkjob.Options.JobScriptCommand.PreScriptCommandLine
-                                                        'Run the Following Script After' = $Bkjob.Options.JobScriptCommand.PostScriptEnabled
-                                                        'Run Script After the Job' = $Bkjob.Options.JobScriptCommand.PostScriptCommandLine
-                                                        'Run Script Frequency' = $Bkjob.Options.JobScriptCommand.Periodicity
+                                                        ($LocalizedData.runScriptBefore) = $Bkjob.Options.JobScriptCommand.PreScriptEnabled
+                                                        ($LocalizedData.runScriptBeforeJob) = $Bkjob.Options.JobScriptCommand.PreScriptCommandLine
+                                                        ($LocalizedData.runScriptAfter) = $Bkjob.Options.JobScriptCommand.PostScriptEnabled
+                                                        ($LocalizedData.runScriptAfterJob) = $Bkjob.Options.JobScriptCommand.PostScriptCommandLine
+                                                        ($LocalizedData.runScriptFrequency) = $Bkjob.Options.JobScriptCommand.Periodicity
                                                         $FrequencyText = $FrequencyValue
 
                                                     }
                                                     $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                     $TableParams = @{
-                                                        Name = "Advanced Settings (Script) - $($Bkjob.Name)"
+                                                        Name = "$($LocalizedData.TableHeadingAdvScript) - $($Bkjob.Name)"
                                                         List = $true
                                                         ColumnWidths = 40, 60
                                                     }
@@ -541,20 +542,20 @@ function Get-AbrVbrRepljobVMware {
                                             }
                                         }
                                         if ($InfoLevel.Jobs.Replication -ge 2 -and ($Bkjob.Options.RpoOptions.Enabled -or $Bkjob.Options.RpoOptions.LogBackupRpoEnabled)) {
-                                            Section -Style NOTOCHeading6 -ExcludeFromTOC 'Advanced Settings (RPO Monitor)' {
+                                            Section -Style NOTOCHeading6 -ExcludeFromTOC $LocalizedData.SectionAdvRPO {
                                                 $OutObj = @()
                                                 try {
 
                                                     $inObj = [ordered] @{
-                                                        'RPO Monitor Enabled' = $Bkjob.Options.RpoOptions.Enabled
-                                                        'If Backup is not Copied Within' = "$($Bkjob.Options.RpoOptions.Value) $($Bkjob.Options.RpoOptions.TimeUnit)"
-                                                        'Log Backup RPO Monitor Enabled' = $Bkjob.Options.RpoOptions.LogBackupRpoEnabled
-                                                        'If Log Backup is not Copied Within' = "$($Bkjob.Options.RpoOptions.LogBackupRpoValue) $($Bkjob.Options.RpoOptions.LogBackupRpoTimeUnit)"
+                                                        ($LocalizedData.rpoMonitorEnabled) = $Bkjob.Options.RpoOptions.Enabled
+                                                        ($LocalizedData.ifBackupNotCopied) = "$($Bkjob.Options.RpoOptions.Value) $($Bkjob.Options.RpoOptions.TimeUnit)"
+                                                        ($LocalizedData.logBackupRpoEnabled) = $Bkjob.Options.RpoOptions.LogBackupRpoEnabled
+                                                        ($LocalizedData.ifLogBackupNotCopied) = "$($Bkjob.Options.RpoOptions.LogBackupRpoValue) $($Bkjob.Options.RpoOptions.LogBackupRpoTimeUnit)"
                                                     }
                                                     $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                     $TableParams = @{
-                                                        Name = "Advanced Settings (RPO Monitor) - $($Bkjob.Name)"
+                                                        Name = "$($LocalizedData.TableHeadingAdvRPO) - $($Bkjob.Name)"
                                                         List = $true
                                                         ColumnWidths = 40, 60
                                                     }
@@ -572,21 +573,21 @@ function Get-AbrVbrRepljobVMware {
                                     }
                                 }
                                 try {
-                                    Section -Style NOTOCHeading5 -ExcludeFromTOC 'Data Transfer' {
+                                    Section -Style NOTOCHeading5 -ExcludeFromTOC $LocalizedData.SectionDataTransfer {
                                         $OutObj = @()
 
                                         $inObj = [ordered] @{
-                                            'Source Proxy' = switch (($Bkjob.GetProxy().Name).count) {
+                                            ($LocalizedData.sourceProxy) = switch (($Bkjob.GetProxy().Name).count) {
                                                 0 { 'Unknown' }
                                                 { $_ -gt 1 } { 'Automatic' }
                                                 default { $Bkjob.GetProxy().Name }
                                             }
-                                            'Target Proxy' = switch (($Bkjob.GetTargetProxies().Name).count) {
+                                            ($LocalizedData.targetProxy) = switch (($Bkjob.GetTargetProxies().Name).count) {
                                                 0 { 'Unknown' }
                                                 { $_ -gt 1 } { 'Automatic' }
                                                 default { $Bkjob.GetTargetProxies().Name }
                                             }
-                                            'Use Wan accelerator' = $Bkjob.IsWanAcceleratorEnabled()
+                                            ($LocalizedData.useWanAccelerator) = $Bkjob.IsWanAcceleratorEnabled()
                                         }
 
                                         if ($Bkjob.IsWanAcceleratorEnabled()) {
@@ -607,7 +608,7 @@ function Get-AbrVbrRepljobVMware {
                                         $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                         $TableParams = @{
-                                            Name = "Data Transfer - $($Bkjob.Name)"
+                                            Name = "$($LocalizedData.TableHeadingDataTransfer) - $($Bkjob.Name)"
                                             List = $True
                                             ColumnWidths = 40, 60
                                         }
@@ -621,21 +622,21 @@ function Get-AbrVbrRepljobVMware {
                                 }
                                 if ($Bkjob.Options.ViReplicaTargetOptions.InitialSeeding) {
                                     try {
-                                        Section -Style NOTOCHeading5 -ExcludeFromTOC 'Seeding' {
+                                        Section -Style NOTOCHeading5 -ExcludeFromTOC $LocalizedData.SectionSeeding {
                                             $OutObj = @()
 
                                             if ($Bkjob.Options.ViReplicaTargetOptions.EnableInitialPass) {
                                                 $SeedRepo = $Bkjob.GetInitialRepository().Name
                                             } else { $SeedRepo = 'Disabled' }
                                             $inObj = [ordered] @{
-                                                'Seed from Backup Repository' = $SeedRepo
-                                                'Map Replica to Existing VM' = $Bkjob.Options.ViReplicaTargetOptions.UseVmMapping
+                                                ($LocalizedData.seedFromBackupRepo) = $SeedRepo
+                                                ($LocalizedData.mapReplicaToExistingVM) = $Bkjob.Options.ViReplicaTargetOptions.UseVmMapping
                                             }
 
                                             $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                             $TableParams = @{
-                                                Name = "Seeding - $($Bkjob.Name)"
+                                                Name = "$($LocalizedData.TableHeadingSeeding) - $($Bkjob.Name)"
                                                 List = $true
                                                 ColumnWidths = 40, 60
                                             }
@@ -649,7 +650,7 @@ function Get-AbrVbrRepljobVMware {
                                     }
                                 }
                                 if ($Bkjob.VssOptions.Enabled) {
-                                    Section -Style NOTOCHeading5 -ExcludeFromTOC 'Guest Processing' {
+                                    Section -Style NOTOCHeading5 -ExcludeFromTOC $LocalizedData.SectionGuestProcessing {
                                         $OutObj = @()
                                         try {
                                             $VSSObjs = Get-VBRJobObject -Job $Bkjob.Name | Where-Object { $_.Type -eq 'Include' -or $_.Type -eq 'VssChild' } | Sort-Object -Property Name
@@ -657,24 +658,24 @@ function Get-AbrVbrRepljobVMware {
 
                                                 $inObj = [ordered] @{
                                                     'Name' = $VSSObj.Name
-                                                    'Enabled' = $VSSObj.VssOptions.Enabled
-                                                    'Resource Type' = ($Bkjob.GetViOijs() | Where-Object { $_.Name -eq $VSSObj.Name -and ($_.Type -eq 'Include' -or $_.Type -eq 'VssChild') }).TypeDisplayName
-                                                    'Ignore Errors' = $VSSObj.VssOptions.IgnoreErrors
-                                                    'Guest Proxy Auto Detect' = $VSSObj.VssOptions.GuestProxyAutoDetect
-                                                    'Default Credential' = switch ((Get-VBRCredentials | Where-Object { $_.Id -eq $Bkjob.VssOptions.WinCredsId.Guid }).count) {
+                                                    ($LocalizedData.enabled) = $VSSObj.VssOptions.Enabled
+                                                    ($LocalizedData.resourceType) = ($Bkjob.GetViOijs() | Where-Object { $_.Name -eq $VSSObj.Name -and ($_.Type -eq 'Include' -or $_.Type -eq 'VssChild') }).TypeDisplayName
+                                                    ($LocalizedData.ignoreErrors) = $VSSObj.VssOptions.IgnoreErrors
+                                                    ($LocalizedData.guestProxyAutoDetect) = $VSSObj.VssOptions.GuestProxyAutoDetect
+                                                    ($LocalizedData.defaultCredential) = switch ((Get-VBRCredentials | Where-Object { $_.Id -eq $Bkjob.VssOptions.WinCredsId.Guid }).count) {
                                                         0 { 'None' }
                                                         default { Get-VBRCredentials | Where-Object { $_.Id -eq $Bkjob.VssOptions.WinCredsId.Guid } }
                                                     }
-                                                    'Object Credential' = switch ($VSSObj.VssOptions.WinCredsId.Guid) {
+                                                    ($LocalizedData.objectCredential) = switch ($VSSObj.VssOptions.WinCredsId.Guid) {
                                                         '00000000-0000-0000-0000-000000000000' { 'Default Credential' }
                                                         default { Get-VBRCredentials | Where-Object { $_.Id -eq $VSSObj.VssOptions.WinCredsId.Guid } }
                                                     }
-                                                    'Application Processing' = $VSSObj.VssOptions.VssSnapshotOptions.ApplicationProcessingEnabled
-                                                    'Transaction Logs' = switch ($VSSObj.VssOptions.VssSnapshotOptions.IsCopyOnly) {
+                                                    ($LocalizedData.applicationProcessing) = $VSSObj.VssOptions.VssSnapshotOptions.ApplicationProcessingEnabled
+                                                    ($LocalizedData.transactionLogs) = switch ($VSSObj.VssOptions.VssSnapshotOptions.IsCopyOnly) {
                                                         'False' { 'Process Transaction Logs' }
                                                         'True' { 'Perform Copy Only' }
                                                     }
-                                                    'Use Persistent Guest Agent' = $VSSObj.VssOptions.VssSnapshotOptions.UsePersistentGuestAgent
+                                                    ($LocalizedData.usePersistentGuestAgent) = $VSSObj.VssOptions.VssSnapshotOptions.UsePersistentGuestAgent
                                                 }
                                                 if ($InfoLevel.Jobs.Replication -ge 2) {
                                                     if (!$VSSObj.VssOptions.VssSnapshotOptions.IsCopyOnly) {
@@ -758,7 +759,7 @@ function Get-AbrVbrRepljobVMware {
                                     }
                                 }
                                 if ($Bkjob.IsScheduleEnabled) {
-                                    Section -Style NOTOCHeading5 -ExcludeFromTOC 'Schedule' {
+                                    Section -Style NOTOCHeading5 -ExcludeFromTOC $LocalizedData.SectionSchedule {
                                         $OutObj = @()
                                         try {
 
@@ -776,18 +777,18 @@ function Get-AbrVbrRepljobVMware {
                                                 $Schedule = 'Schedule Time Period'
                                             }
                                             $inObj = [ordered] @{
-                                                'Retry Failed item' = $Bkjob.ScheduleOptions.RetryTimes
-                                                'Wait before each retry' = "$($Bkjob.ScheduleOptions.RetryTimeout)/min"
-                                                'Backup Window' = $Bkjob.ScheduleOptions.OptionsBackupWindow.IsEnabled
-                                                'Shedule type' = $ScheduleType
-                                                'Shedule Options' = $Schedule
-                                                'Start Time' = $Bkjob.ScheduleOptions.OptionsDaily.TimeLocal.ToShorttimeString()
-                                                'Latest Run' = $Bkjob.LatestRunLocal
+                                                ($LocalizedData.retryFailedItem) = $Bkjob.ScheduleOptions.RetryTimes
+                                                ($LocalizedData.waitBeforeRetry) = "$($Bkjob.ScheduleOptions.RetryTimeout)/min"
+                                                ($LocalizedData.backupWindow) = $Bkjob.ScheduleOptions.OptionsBackupWindow.IsEnabled
+                                                ($LocalizedData.scheduleType) = $ScheduleType
+                                                ($LocalizedData.scheduleOptions) = $Schedule
+                                                ($LocalizedData.startTime) = $Bkjob.ScheduleOptions.OptionsDaily.TimeLocal.ToShorttimeString()
+                                                ($LocalizedData.latestRun) = $Bkjob.LatestRunLocal
                                             }
                                             $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                             $TableParams = @{
-                                                Name = "Schedule Options - $($Bkjob.Name)"
+                                                Name = "$($LocalizedData.TableHeadingSchedule) - $($Bkjob.Name)"
                                                 List = $true
                                                 ColumnWidths = 40, 60
                                             }
@@ -796,7 +797,7 @@ function Get-AbrVbrRepljobVMware {
                                             }
                                             $OutObj | Table @TableParams
                                             if ($Bkjob.ScheduleOptions.OptionsBackupWindow.IsEnabled -or $Bkjob.ScheduleOptions.OptionsContinuous.Enabled) {
-                                                Section -Style NOTOCHeading6 -ExcludeFromTOC 'Backup Window Time Period' {
+                                                Section -Style NOTOCHeading6 -ExcludeFromTOC $LocalizedData.SectionBackupWindowTimePeriod {
                                                     Paragraph -ScriptBlock $Legend
 
                                                     $OutObj = @()
@@ -818,7 +819,7 @@ function Get-AbrVbrRepljobVMware {
                                                         $OutObj = Get-WindowsTimePeriod -InputTimePeriod $ScheduleTimePeriod
 
                                                         $TableParams = @{
-                                                            Name = "Backup Window - $($Bkjob.Name)"
+                                                            Name = "$($LocalizedData.TableHeadingBackupWindow) - $($Bkjob.Name)"
                                                             List = $true
                                                             ColumnWidths = 6, 4, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4
                                                             Key = 'H'

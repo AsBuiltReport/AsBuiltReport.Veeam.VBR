@@ -22,6 +22,7 @@ function Get-AbrVbrBackupjob {
 
     begin {
         Write-PScriboMessage "Discovering Veeam VBR Backup jobs information from $System."
+        $LocalizedData = $reportTranslate.GetAbrVbrBackupjob
         Show-AbrDebugExecutionTime -Start -TitleMessage 'Backup Jobs'
     }
 
@@ -101,10 +102,10 @@ function Get-AbrVbrBackupjob {
                     if ($chartFileItem) {
                         Image -Text 'Backup Jobs - Chart' -Align 'Center' -Percent 100 -Base64 $chartFileItem
                     }
-                    Section -Style Heading3 'Backup Jobs' {
-                        Paragraph 'The following section lists all backup jobs configured in Veeam Backup & Replication, along with their current status and last run result.'
+                    Section -Style Heading3 $LocalizedData.Heading {
+                        Paragraph $LocalizedData.Paragraph
                         BlankLine
-                        Section -ExcludeFromTOC -Style NOTOCHeading4 'Backup Job Status' {
+                        Section -ExcludeFromTOC -Style NOTOCHeading4 $LocalizedData.JobStatusSection {
                             $OutObj | Sort-Object -Property Name | Table @TableParams
                         }
                         # Disable until fixing code issues

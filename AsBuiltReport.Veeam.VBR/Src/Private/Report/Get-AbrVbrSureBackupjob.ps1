@@ -22,34 +22,35 @@ function Get-AbrVbrSureBackupjob {
 
     begin {
         Write-PScriboMessage "Discovering Veeam VBR SureBackup jobs information from $System."
+        $LocalizedData = $reportTranslate.GetAbrVbrSureBackupjob
         Show-AbrDebugExecutionTime -Start -TitleMessage 'SureBackup Jobs'
     }
 
     process {
         try {
             if ($SBkjobs = Get-VBRSureBackupJob | Sort-Object -Property 'Job Name') {
-                Section -Style Heading3 'SureBackup Jobs' {
-                    Paragraph 'The following section lists all SureBackup jobs configured in Veeam Backup & Replication, along with their current status and last run result.'
+                Section -Style Heading3 $LocalizedData.Heading {
+                    Paragraph $LocalizedData.Paragraph
                     BlankLine
                     $OutObj = @()
                     foreach ($SBkjob in $SBkjobs) {
                         try {
 
                             $inObj = [ordered] @{
-                                'Name' = $SBkjob.Name
-                                'Status' = switch ($SBkjob.IsEnabled) {
-                                    'False' { 'Disabled' }
-                                    'True' { 'Enabled' }
+                                $LocalizedData.Name = $SBkjob.Name
+                                $LocalizedData.Status = switch ($SBkjob.IsEnabled) {
+                                    'False' { $LocalizedData.Disabled }
+                                    'True' { $LocalizedData.Enabled }
                                 }
-                                'Schedule Enabled' = switch ($SBkjob.ScheduleEnabled) {
-                                    'False' { 'Not Scheduled' }
-                                    'True' { 'Scheduled' }
+                                $LocalizedData.ScheduleEnabled = switch ($SBkjob.ScheduleEnabled) {
+                                    'False' { $LocalizedData.NotScheduled }
+                                    'True' { $LocalizedData.Scheduled }
                                 }
-                                'Latest Result' = $SBkjob.LastResult
-                                'Virtual Lab' = switch ($SBkjob.VirtualLab.Name) {
-                                    $true { 'Not applicable' }
+                                $LocalizedData.LatestResult = $SBkjob.LastResult
+                                $LocalizedData.VirtualLab = switch ($SBkjob.VirtualLab.Name) {
+                                    $true { $LocalizedData.NotApplicable }
                                     $false { $SBkjob.VirtualLab.Name }
-                                    default { '--' }
+                                    default { $LocalizedData.NA }
                                 }
                             }
                             $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
@@ -59,7 +60,7 @@ function Get-AbrVbrSureBackupjob {
                     }
 
                     $TableParams = @{
-                        Name = "SureBackup Jobs - $VeeamBackupServer"
+                        Name = "$($LocalizedData.TableHeading) - $VeeamBackupServer"
                         List = $false
                         ColumnWidths = 30, 15, 15, 15, 25
                     }

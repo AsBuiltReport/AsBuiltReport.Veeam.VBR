@@ -21,26 +21,27 @@ function Get-AbrVbrTapeServer {
     )
 
     begin {
-        Write-PScriboMessage "Discovering Veeam VBR Tape Server information from $System."
+        $LocalizedData = $reportTranslate.GetAbrVbrTapeServer
+        Write-PScriboMessage ($LocalizedData.Collecting -f $System)
         Show-AbrDebugExecutionTime -Start -TitleMessage 'Tape Servers'
     }
 
     process {
         try {
             if ($TapeObjs = Get-VBRTapeServer) {
-                Section -Style Heading3 'Tape Servers' {
-                    Paragraph 'The following section lists all tape servers added to the Veeam Backup & Replication infrastructure, including their availability status.'
+                Section -Style Heading3 $LocalizedData.Heading {
+                    Paragraph $LocalizedData.Paragraph
                     BlankLine
                     $OutObj = @()
                     try {
                         foreach ($TapeObj in $TapeObjs) {
 
                             $inObj = [ordered] @{
-                                'Name' = $TapeObj.Name
-                                'Description' = $TapeObj.Description
-                                'Status' = switch ($TapeObj.IsAvailable) {
-                                    'True' { 'Available' }
-                                    'False' { 'Unavailable' }
+                                $LocalizedData.Name = $TapeObj.Name
+                                $LocalizedData.Description = $TapeObj.Description
+                                $LocalizedData.Status = switch ($TapeObj.IsAvailable) {
+                                    'True' { $LocalizedData.Available }
+                                    'False' { $LocalizedData.Unavailable }
                                     default { $TapeObj.IsUnavailable }
                                 }
                             }
@@ -48,16 +49,16 @@ function Get-AbrVbrTapeServer {
                         }
 
                         if ($HealthCheck.Tape.Status) {
-                            $OutObj | Where-Object { $_.'Status' -eq 'Unavailable' } | Set-Style -Style Warning -Property 'Status'
+                            $OutObj | Where-Object { $_.$LocalizedData.Status -eq $LocalizedData.Unavailable } | Set-Style -Style Warning -Property $LocalizedData.Status
                         }
 
                         if ($HealthCheck.Tape.BestPractice) {
-                            $OutObj | Where-Object { $_.'Description' -eq '--' } | Set-Style -Style Warning -Property 'Description'
-                            $OutObj | Where-Object { $_.'Description' -match 'Created by' } | Set-Style -Style Warning -Property 'Description'
+                            $OutObj | Where-Object { $_.$LocalizedData.Description -eq '--' } | Set-Style -Style Warning -Property $LocalizedData.Description
+                            $OutObj | Where-Object { $_.$LocalizedData.Description -match 'Created by' } | Set-Style -Style Warning -Property $LocalizedData.Description
                         }
 
                         $TableParams = @{
-                            Name = "Tape Server - $VeeamBackupServer"
+                            Name = "$($LocalizedData.TableHeading) - $VeeamBackupServer"
                             List = $false
                             ColumnWidths = 25, 50, 25
                         }
@@ -65,14 +66,14 @@ function Get-AbrVbrTapeServer {
                         if ($Report.ShowTableCaptions) {
                             $TableParams['Caption'] = "- $($TableParams.Name)"
                         }
-                        $OutObj | Sort-Object -Property 'Name' | Table @TableParams
+                        $OutObj | Sort-Object -Property $LocalizedData.Name | Table @TableParams
                         if ($HealthCheck.Tape.BestPractice) {
-                            if ($OutObj | Where-Object { $_.'Description' -match 'Created by' -or $_.'Description' -eq '--' }) {
-                                Paragraph 'Health Check:' -Bold -Underline
+                            if ($OutObj | Where-Object { $_.$LocalizedData.Description -match 'Created by' -or $_.$LocalizedData.Description -eq '--' }) {
+                                Paragraph $LocalizedData.HealthCheck -Bold -Underline
                                 BlankLine
                                 Paragraph {
-                                    Text 'Best Practice:' -Bold
-                                    Text 'It is a general rule of good practice to establish well-defined descriptions. This helps to speed up the fault identification process, as well as enabling better documentation of the environment.'
+                                    Text $LocalizedData.BestPractice -Bold
+                                    Text $LocalizedData.BPDescription
                                 }
                                 BlankLine
                             }

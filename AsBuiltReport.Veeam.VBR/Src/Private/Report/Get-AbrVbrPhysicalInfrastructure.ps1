@@ -22,27 +22,28 @@ function Get-AbrVbrPhysicalInfrastructure {
 
     begin {
         Write-PScriboMessage "Discovering Veeam VBR Physical Infrastructure inventory from $System."
+        $LocalizedData = $reportTranslate.GetAbrVbrPhysicalInfrastructure
         Show-AbrDebugExecutionTime -Start -TitleMessage 'Physical Infrastructure'
     }
 
     process {
         try {
             if (($VbrLicenses | Where-Object { $_.Status -ne 'Expired' }) -and $InventObjs) {
-                Section -Style Heading3 'Physical Infrastructure' {
-                    Paragraph 'The following sections detail the physical infrastructure components, including protection groups and managed servers, protected by Veeam Backup & Replication.'
+                Section -Style Heading3 $LocalizedData.Heading {
+                    Paragraph $LocalizedData.Paragraph
                     BlankLine
                     try {
-                        Section -Style Heading4 'Protection Groups Summary' {
+                        Section -Style Heading4 $LocalizedData.ProtGroupSummaryHeading {
                             $OutObj = @()
                             foreach ($InventObj in $InventObjs) {
                                 try {
 
                                     $inObj = [ordered] @{
-                                        'Name' = $InventObj.Name
-                                        'Type' = $InventObj.Type
-                                        'Container' = $InventObj.Container
-                                        'Schedule' = $InventObj.ScheduleOptions
-                                        'Enabled' = $InventObj.Enabled
+                                        $LocalizedData.Name = $InventObj.Name
+                                        $LocalizedData.Type = $InventObj.Type
+                                        $LocalizedData.Container = $InventObj.Container
+                                        $LocalizedData.Schedule = $InventObj.ScheduleOptions
+                                        $LocalizedData.Enabled = $InventObj.Enabled
                                     }
 
                                     $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
@@ -52,7 +53,7 @@ function Get-AbrVbrPhysicalInfrastructure {
                             }
 
                             $TableParams = @{
-                                Name = "Protection Groups - $VeeamBackupServer"
+                                Name = "$($LocalizedData.TableProtGroups) - $VeeamBackupServer"
                                 List = $false
                                 ColumnWidths = 23, 23, 23, 16, 15
                             }
@@ -67,7 +68,7 @@ function Get-AbrVbrPhysicalInfrastructure {
                             if ($InfoLevel.Inventory.PHY -ge 2) {
                                 try {
                                     $OutObj = @()
-                                    Section -Style Heading5 'Protection Group Configuration' {
+                                    Section -Style Heading5 $LocalizedData.ProtGroupConfigHeading {
                                         foreach ($InventObj in $InventObjs) {
                                             try {
                                                 if ($InventObj.Type -eq 'Custom' -and $InventObj.Container.Type -eq 'ActiveDirectory') {
@@ -75,23 +76,23 @@ function Get-AbrVbrPhysicalInfrastructure {
                                                         Section -Style NOTOCHeading6 -ExcludeFromTOC "$($InventObj.Name)" {
 
                                                             $inObj = [ordered] @{
-                                                                'Domain' = ($InventObj).Container.Domain
-                                                                'Backup Objects' = $InventObj.Container.Entity | ForEach-Object { "Name: $(($_).Name)`r`nType: $(($_).Type)`r`nDistinguished Name: $(($_).DistinguishedName)`r`n" }
-                                                                'Exclude VM' = ($InventObj).Container.ExcludeVMs
-                                                                'Exclude Computers' = ($InventObj).Container.ExcludeComputers
-                                                                'Exclude Offline Computers' = ($InventObj).Container.ExcludeOfflineComputers
-                                                                'Excluded Entity' = ($InventObj).Container.ExcludedEntity -join ', '
-                                                                'Master Credentials' = ($InventObj).Container.MasterCredentials
-                                                                'Deployment Options' = "Install Agent: $($InventObj.DeploymentOptions.InstallAgent)`r`nUpgrade Automatically: $($InventObj.DeploymentOptions.UpgradeAutomatically)`r`nInstall Driver: $($InventObj.DeploymentOptions.InstallDriver)`r`nReboot If Required: $($InventObj.DeploymentOptions.RebootIfRequired)"
+                                                                $LocalizedData.Domain = ($InventObj).Container.Domain
+                                                                $LocalizedData.BackupObjects = $InventObj.Container.Entity | ForEach-Object { "Name: $(($_).Name)`r`nType: $(($_).Type)`r`nDistinguished Name: $(($_).DistinguishedName)`r`n" }
+                                                                $LocalizedData.ExcludeVM = ($InventObj).Container.ExcludeVMs
+                                                                $LocalizedData.ExcludeComputers = ($InventObj).Container.ExcludeComputers
+                                                                $LocalizedData.ExcludeOfflineComputers = ($InventObj).Container.ExcludeOfflineComputers
+                                                                $LocalizedData.ExcludedEntity = ($InventObj).Container.ExcludedEntity -join ', '
+                                                                $LocalizedData.MasterCredentials = ($InventObj).Container.MasterCredentials
+                                                                $LocalizedData.DeploymentOptions = "$($LocalizedData.InstallAgent): $($InventObj.DeploymentOptions.InstallAgent)`r`n$($LocalizedData.UpgradeAutomatically): $($InventObj.DeploymentOptions.UpgradeAutomatically)`r`n$($LocalizedData.InstallDriver): $($InventObj.DeploymentOptions.InstallDriver)`r`n$($LocalizedData.RebootIfRequired): $($InventObj.DeploymentOptions.RebootIfRequired)"
                                                             }
                                                             if (($InventObj.NotificationOptions.EnableAdditionalNotification) -like 'True') {
-                                                                $inObj.add('Notification Options', ("Send Time: $($InventObj.NotificationOptions.SendTime)`r`nAdditional Address: [$($InventObj.NotificationOptions.AdditionalAddress)]`r`nUse Notification Options: $($InventObj.NotificationOptions.UseNotificationOptions)`r`nSubject: $($InventObj.NotificationOptions.NotificationSubject)"))
+                                                                $inObj.add($LocalizedData.NotificationOptions, ("$($LocalizedData.SendTime): $($InventObj.NotificationOptions.SendTime)`r`n$($LocalizedData.AdditionalAddress): [$($InventObj.NotificationOptions.AdditionalAddress)]`r`n$($LocalizedData.UseNotificationOptions): $($InventObj.NotificationOptions.UseNotificationOptions)`r`n$($LocalizedData.Subject): $($InventObj.NotificationOptions.NotificationSubject)"))
                                                             }
 
                                                             $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                             $TableParams = @{
-                                                                Name = "Protection Group Configuration - $($InventObj.Name)"
+                                                                Name = "$($LocalizedData.TableProtGroupConfig) - $($InventObj.Name)"
                                                                 List = $true
                                                                 ColumnWidths = 40, 60
                                                             }
@@ -109,16 +110,16 @@ function Get-AbrVbrPhysicalInfrastructure {
                                                         Section -Style NOTOCHeading6 -ExcludeFromTOC "$($InventObj.Name)" {
 
                                                             $inObj = [ordered] @{
-                                                                'Deployment Options' = "Install Agent: $($InventObj.DeploymentOptions.InstallAgent)`r`nUpgrade Automatically: $($InventObj.DeploymentOptions.UpgradeAutomatically)`r`nInstall Driver: $($InventObj.DeploymentOptions.InstallDriver)`r`nReboot If Required: $($InventObj.DeploymentOptions.RebootIfRequired)"
+                                                                $LocalizedData.DeploymentOptions = "$($LocalizedData.InstallAgent): $($InventObj.DeploymentOptions.InstallAgent)`r`n$($LocalizedData.UpgradeAutomatically): $($InventObj.DeploymentOptions.UpgradeAutomatically)`r`n$($LocalizedData.InstallDriver): $($InventObj.DeploymentOptions.InstallDriver)`r`n$($LocalizedData.RebootIfRequired): $($InventObj.DeploymentOptions.RebootIfRequired)"
                                                             }
                                                             if (($InventObj.NotificationOptions.EnableAdditionalNotification) -like 'True') {
-                                                                $inObj.add('Notification Options', ("Send Time: $($InventObj.NotificationOptions.SendTime)`r`nAdditional Address: [$($InventObj.NotificationOptions.AdditionalAddress)]`r`nUse Notification Options: $($InventObj.NotificationOptions.UseNotificationOptions)`r`nSubject: $($InventObj.NotificationOptions.NotificationSubject)"))
+                                                                $inObj.add($LocalizedData.NotificationOptions, ("$($LocalizedData.SendTime): $($InventObj.NotificationOptions.SendTime)`r`n$($LocalizedData.AdditionalAddress): [$($InventObj.NotificationOptions.AdditionalAddress)]`r`n$($LocalizedData.UseNotificationOptions): $($InventObj.NotificationOptions.UseNotificationOptions)`r`n$($LocalizedData.Subject): $($InventObj.NotificationOptions.NotificationSubject)"))
                                                             }
 
                                                             $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                             $TableParams = @{
-                                                                Name = "Protection Group Configuration - $($InventObj.Name)"
+                                                                Name = "$($LocalizedData.TableProtGroupConfig) - $($InventObj.Name)"
                                                                 List = $true
                                                                 ColumnWidths = 40, 60
                                                             }

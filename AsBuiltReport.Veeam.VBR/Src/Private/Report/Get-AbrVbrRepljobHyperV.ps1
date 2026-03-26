@@ -21,14 +21,15 @@ function Get-AbrVbrRepljobHyperV {
 
     begin {
         Write-PScriboMessage "Discovering Veeam VBR Hyper-V replication jobs information from $System."
+        $LocalizedData = $reportTranslate.GetAbrVbrRepljobHyperV
         Show-AbrDebugExecutionTime -Start -TitleMessage 'Hyper-V Replication Jobs Configuration'
     }
 
     process {
         try {
             if ($Bkjobs = Get-VBRJob -WarningAction SilentlyContinue | Where-Object { $_.TypeToString -eq 'Hyper-V Replication' } | Sort-Object -Property Name) {
-                Section -Style Heading3 'Hyper-V Replication Jobs Configuration' {
-                    Paragraph 'The following section provides detailed configuration information for each Hyper-V replication job, including source and target hosts, schedule, and replica settings.'
+                Section -Style Heading3 $LocalizedData.Heading {
+                    Paragraph $LocalizedData.Paragraph
                     BlankLine
                     $OutObj = @()
                     try {
@@ -36,9 +37,9 @@ function Get-AbrVbrRepljobHyperV {
                             try {
 
                                 $inObj = [ordered] @{
-                                    'Name' = $VMcount.Name
-                                    'Creation Time' = $VMcount.CreationTime
-                                    'VM Count' = try { (Get-VBRReplica | Where-Object { $_.JobName -eq $VMcount.Name }).VMcount } catch { Out-Null }
+                                    $LocalizedData.Name = $VMcount.Name
+                                    $LocalizedData.CreationTime = $VMcount.CreationTime
+                                    $LocalizedData.VmCount = try { (Get-VBRReplica | Where-Object { $_.JobName -eq $VMcount.Name }).VMcount } catch { Out-Null }
                                 }
                                 $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                             } catch {
@@ -47,14 +48,14 @@ function Get-AbrVbrRepljobHyperV {
                         }
 
                         $TableParams = @{
-                            Name = "Hyper-V Replication Summary - $VeeamBackupServer"
+                            Name = "$($LocalizedData.TableHeading) - $VeeamBackupServer"
                             List = $false
                             ColumnWidths = 35, 35, 30
                         }
                         if ($Report.ShowTableCaptions) {
                             $TableParams['Caption'] = "- $($TableParams.Name)"
                         }
-                        $OutObj | Sort-Object -Property 'Name' | Table @TableParams
+                        $OutObj | Sort-Object -Property $LocalizedData.Name | Table @TableParams
                     } catch {
                         Write-PScriboMessage -IsWarning "Hyper-V Replication Jobs Configuration Section: $($_.Exception.Message)"
                     }
@@ -62,7 +63,7 @@ function Get-AbrVbrRepljobHyperV {
                     foreach ($Bkjob in $Bkjobs) {
                         try {
                             Section -Style Heading4 $($Bkjob.Name) {
-                                Section -Style NOTOCHeading4 -ExcludeFromTOC 'Common Information' {
+                                Section -Style NOTOCHeading4 -ExcludeFromTOC $LocalizedData.SectionCommonInfo {
                                     $OutObj = @()
                                     try {
                                         $CommonInfos = (Get-VBRJob -WarningAction SilentlyContinue | Where-Object { $_.TypeToString -eq 'Hyper-V Replication' }).Info
@@ -70,13 +71,13 @@ function Get-AbrVbrRepljobHyperV {
                                             try {
 
                                                 $inObj = [ordered] @{
-                                                    'Name' = $Bkjob.Name
-                                                    'Type' = $Bkjob.TypeToString
-                                                    'Total Backup Size' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $CommonInfo.IncludedSize
-                                                    'Target Address' = $CommonInfo.TargetDir
-                                                    'Target File' = $CommonInfo.TargetFile
-                                                    'Description' = $CommonInfo.CommonInfo.Description
-                                                    'Modified By' = $CommonInfo.CommonInfo.ModifiedBy.FullName
+                                                    $LocalizedData.Name = $Bkjob.Name
+                                                    $LocalizedData.Type = $Bkjob.TypeToString
+                                                    $LocalizedData.TotalBackupSize = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $CommonInfo.IncludedSize
+                                                    $LocalizedData.TargetAddress = $CommonInfo.TargetDir
+                                                    $LocalizedData.TargetFile = $CommonInfo.TargetFile
+                                                    $LocalizedData.Description = $CommonInfo.CommonInfo.Description
+                                                    $LocalizedData.ModifiedBy = $CommonInfo.CommonInfo.ModifiedBy.FullName
                                                 }
                                                 $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
                                             } catch {
@@ -85,7 +86,7 @@ function Get-AbrVbrRepljobHyperV {
                                         }
 
                                         $TableParams = @{
-                                            Name = "Common Information - $($Bkjob.Name)"
+                                            Name = "$($LocalizedData.CommonInfoTable) - $($Bkjob.Name)"
                                             List = $true
                                             ColumnWidths = 40, 60
                                         }
@@ -97,7 +98,7 @@ function Get-AbrVbrRepljobHyperV {
                                         Write-PScriboMessage -IsWarning "Hyper-V Replication Jobs Common Information Section: $($_.Exception.Message)"
                                     }
                                 }
-                                Section -Style NOTOCHeading5 -ExcludeFromTOC 'Destination' {
+                                Section -Style NOTOCHeading5 -ExcludeFromTOC $LocalizedData.SectionDestination {
                                     $OutObj = @()
                                     try {
                                         foreach ($Destination in $Bkjob.HvReplicaTargetOptions) {
@@ -107,12 +108,12 @@ function Get-AbrVbrRepljobHyperV {
                                                     $HostorCluster = (Find-VBRHvEntity -ErrorAction SilentlyContinue | Where-Object { $_.Reference -eq $Destination.HostReference }).Name
                                                 } else { $HostorCluster = $Destination.ClusterName }
                                                 $inObj = [ordered]  @{
-                                                    'Host or Cluster' = switch ($HostorCluster) {
-                                                        $Null { 'Unknown' }
+                                                    $LocalizedData.HostOrCluster = switch ($HostorCluster) {
+                                                        $Null { $LocalizedData.Unknown }
                                                         default { $HostorCluster }
                                                     }
 
-                                                    'Path' = $Destination.TargetFolder
+                                                    $LocalizedData.Path = $Destination.TargetFolder
                                                 }
                                                 $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                                             } catch {

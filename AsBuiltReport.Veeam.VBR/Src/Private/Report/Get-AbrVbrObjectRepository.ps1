@@ -22,14 +22,15 @@ function Get-AbrVbrObjectRepository {
 
     begin {
         Write-PScriboMessage "Discovering Veeam V&R Object Storage Repository information from $System."
+        $LocalizedData = $reportTranslate.GetAbrVbrObjectRepository
         Show-AbrDebugExecutionTime -Start -TitleMessage 'Object Storage Repository'
     }
 
     process {
         try {
             if ($ObjectRepos = Get-VBRObjectStorageRepository | Sort-Object -Property Name) {
-                Section -Style Heading3 'Object Storage Repository' {
-                    Paragraph 'The following section provides a summary of all configured object storage repositories, including their type, connection mode, and gateway server.'
+                Section -Style Heading3 $LocalizedData.Heading {
+                    Paragraph $LocalizedData.Paragraph
                     BlankLine
                     $OutObj = @()
                     foreach ($ObjectRepo in $ObjectRepos) {
@@ -37,13 +38,13 @@ function Get-AbrVbrObjectRepository {
                             try {
 
                                 $inObj = [ordered] @{
-                                    'Name' = $ObjectRepo.Name
-                                    'Type' = $ObjectRepo.Type
-                                    'Connection Type' = $ObjectRepo.ConnectionType
-                                    'Gateway Server' = switch ($ObjectRepo.ConnectionType) {
-                                        'Direct' { 'Direct Mode' }
+                                    $LocalizedData.Name = $ObjectRepo.Name
+                                    $LocalizedData.Type = $ObjectRepo.Type
+                                    $LocalizedData.ConnectionType = $ObjectRepo.ConnectionType
+                                    $LocalizedData.GatewayServer = switch ($ObjectRepo.ConnectionType) {
+                                        'Direct' { $LocalizedData.DirectMode }
                                         'Gateway' { $ObjectRepo.GatewayServer.Name }
-                                        default { 'Unknown' }
+                                        default { $LocalizedData.Unknown }
                                     }
                                 }
 
@@ -55,12 +56,12 @@ function Get-AbrVbrObjectRepository {
                             try {
 
                                 $inObj = [ordered] @{
-                                    'Name' = $ObjectRepo.Name
-                                    'Type' = $ObjectRepo.Type
-                                    'Use Gateway Server' = $ObjectRepo.UseGatewayServer
-                                    'Gateway Server' = switch ($ObjectRepo.GatewayServer.Name) {
-                                        '' { '--'; break }
-                                        $Null { '--'; break }
+                                    $LocalizedData.Name = $ObjectRepo.Name
+                                    $LocalizedData.Type = $ObjectRepo.Type
+                                    $LocalizedData.UseGatewayServer = $ObjectRepo.UseGatewayServer
+                                    $LocalizedData.GatewayServer = switch ($ObjectRepo.GatewayServer.Name) {
+                                        '' { $LocalizedData.Dash; break }
+                                        $Null { $LocalizedData.Dash; break }
                                         default { $ObjectRepo.GatewayServer.Name.split('.')[0] }
                                     }
                                 }
@@ -79,7 +80,7 @@ function Get-AbrVbrObjectRepository {
                     }
 
                     $TableParams = @{
-                        Name = "Object Storage Repository - $VeeamBackupServer"
+                        Name = "$($LocalizedData.TableHeading) - $VeeamBackupServer"
                         List = $false
                         ColumnWidths = 30, 25, 15, 30
                     }
@@ -93,8 +94,8 @@ function Get-AbrVbrObjectRepository {
                     if ($InfoLevel.Infrastructure.BR -ge 2) {
                         try {
                             if ($ObjectRepos) {
-                                Section -Style Heading4 'Object Storage Repository Configuration' {
-                                    Paragraph 'The following section provides detailed configuration information for each object storage backup repository, including authentication, bucket, and folder settings.'
+                                Section -Style Heading4 $LocalizedData.ConfigHeading {
+                                    Paragraph $LocalizedData.ConfigParagraph
                                     BlankLine
                                     foreach ($ObjectRepo in $ObjectRepos) {
                                         try {
@@ -102,54 +103,54 @@ function Get-AbrVbrObjectRepository {
                                                 $OutObj = @()
 
                                                 $inObj = [ordered] @{
-                                                    'Name' = ($ObjectRepo).Name
-                                                    'Service Point' = ($ObjectRepo).ServicePoint
-                                                    'Type' = ($ObjectRepo).Type
-                                                    'Amazon S3 Folder' = ($ObjectRepo).AmazonS3Folder
-                                                    'Immutability Period' = $ObjectRepo.ImmutabilityPeriod
-                                                    'Immutability Enabled' = $ObjectRepo.BackupImmutabilityEnabled
-                                                    'Size Limit Enabled' = ($ObjectRepo).SizeLimitEnabled
-                                                    'Size Limit' = ($ObjectRepo).SizeLimit
+                                                    $LocalizedData.Name = ($ObjectRepo).Name
+                                                    $LocalizedData.ServicePoint = ($ObjectRepo).ServicePoint
+                                                    $LocalizedData.Type = ($ObjectRepo).Type
+                                                    $LocalizedData.AmazonS3Folder = ($ObjectRepo).AmazonS3Folder
+                                                    $LocalizedData.ImmutabilityPeriod = $ObjectRepo.ImmutabilityPeriod
+                                                    $LocalizedData.ImmutabilityEnabled = $ObjectRepo.BackupImmutabilityEnabled
+                                                    $LocalizedData.SizeLimitEnabled = ($ObjectRepo).SizeLimitEnabled
+                                                    $LocalizedData.SizeLimit = ($ObjectRepo).SizeLimit
 
                                                 }
 
                                                 if ($Null -ne ($ObjectRepo).UseGatewayServer) {
-                                                    $inObj.add('Use Gateway Server', ($ObjectRepo.UseGatewayServer))
-                                                    $inObj.add('Gateway Server', $ObjectRepo.GatewayServer.Name)
+                                                    $inObj.add($LocalizedData.UseGatewayServer, ($ObjectRepo.UseGatewayServer))
+                                                    $inObj.add($LocalizedData.GatewayServer, $ObjectRepo.GatewayServer.Name)
                                                 }
                                                 if ($Null -ne $ObjectRepo.ConnectionType) {
-                                                    $inObj.add('Connection Type', $ObjectRepo.ConnectionType)
+                                                    $inObj.add($LocalizedData.ConnectionType, $ObjectRepo.ConnectionType)
                                                 }
                                                 if (($ObjectRepo).ConnectionType -eq 'Gateway') {
-                                                    $inObj.add('Gateway Server', $ObjectRepo.GatewayServer.Name)
+                                                    $inObj.add($LocalizedData.GatewayServer, $ObjectRepo.GatewayServer.Name)
                                                 }
                                                 if (($ObjectRepo).Type -eq 'AmazonS3') {
-                                                    $inObj.remove('Service Point')
-                                                    $inObj.add('Use IA Storage Class', (($ObjectRepo).EnableIAStorageClass))
-                                                    $inObj.add('Use OZ IA Storage Class', (($ObjectRepo).EnableOZIAStorageClass))
+                                                    $inObj.remove($LocalizedData.ServicePoint)
+                                                    $inObj.add($LocalizedData.UseIAStorageClass, (($ObjectRepo).EnableIAStorageClass))
+                                                    $inObj.add($LocalizedData.UseOZIAStorageClass, (($ObjectRepo).EnableOZIAStorageClass))
                                                 } elseif (($ObjectRepo).Type -eq 'AzureBlob') {
-                                                    $inObj.remove('Service Point')
-                                                    $inObj.remove('Amazon S3 Folder')
-                                                    $inObj.remove('Immutability Period')
-                                                    $inObj.remove('Immutability Enabled	')
-                                                    $inObj.add('Azure Blob Name', ($ObjectRepo.AzureBlobFolder).Name)
-                                                    $inObj.add('Azure Blob Container', ($ObjectRepo.AzureBlobFolder).Container)
+                                                    $inObj.remove($LocalizedData.ServicePoint)
+                                                    $inObj.remove($LocalizedData.AmazonS3Folder)
+                                                    $inObj.remove($LocalizedData.ImmutabilityPeriod)
+                                                    $inObj.remove($LocalizedData.ImmutabilityEnabled)
+                                                    $inObj.add($LocalizedData.AzureBlobName, ($ObjectRepo.AzureBlobFolder).Name)
+                                                    $inObj.add($LocalizedData.AzureBlobContainer, ($ObjectRepo.AzureBlobFolder).Container)
                                                 } elseif (($ObjectRepo).Type -eq 'GoogleCloudStorage') {
-                                                    $inObj.remove('Service Point')
-                                                    $inObj.remove('Amazon S3 Folder')
-                                                    $inObj.remove('Immutability Period')
-                                                    $inObj.add('Folder Name', $ObjectRepo.Folder)
-                                                    $inObj.add('Enable Nearline Storage Class', $ObjectRepo.EnableNearlineStorageClass)
-                                                    $inObj.add('Enable Coldline Storage Class', $ObjectRepo.EnableColdlineStorageClass)
+                                                    $inObj.remove($LocalizedData.ServicePoint)
+                                                    $inObj.remove($LocalizedData.AmazonS3Folder)
+                                                    $inObj.remove($LocalizedData.ImmutabilityPeriod)
+                                                    $inObj.add($LocalizedData.FolderName, $ObjectRepo.Folder)
+                                                    $inObj.add($LocalizedData.EnableNearlineStorageClass, $ObjectRepo.EnableNearlineStorageClass)
+                                                    $inObj.add($LocalizedData.EnableColdlineStorageClass, $ObjectRepo.EnableColdlineStorageClass)
                                                 }
                                                 $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                 if ($HealthCheck.Infrastructure.BR) {
-                                                    $OutObj | Where-Object { $_.'Immutability Enabled' -eq 'No' } | Set-Style -Style Warning -Property 'Immutability Enabled'
+                                                    $OutObj | Where-Object { $_."$($LocalizedData.ImmutabilityEnabled)" -eq $LocalizedData.No } | Set-Style -Style Warning -Property $LocalizedData.ImmutabilityEnabled
                                                 }
 
                                                 $TableParams = @{
-                                                    Name = "Object Storage Repository - $($ObjectRepo.Name)"
+                                                    Name = "$($LocalizedData.TableHeading) - $($ObjectRepo.Name)"
                                                     List = $true
                                                     ColumnWidths = 40, 60
                                                 }
@@ -157,12 +158,12 @@ function Get-AbrVbrObjectRepository {
                                                     $TableParams['Caption'] = "- $($TableParams.Name)"
                                                 }
                                                 $OutObj | Table @TableParams
-                                                if (($HealthCheck.Infrastructure.BestPractice) -and ($OutObj | Where-Object { $_.'Immutability Enabled' -eq 'No' })) {
-                                                    Paragraph 'Health Check:' -Bold -Underline
+                                                if (($HealthCheck.Infrastructure.BestPractice) -and ($OutObj | Where-Object { $_."$($LocalizedData.ImmutabilityEnabled)" -eq $LocalizedData.No })) {
+                                                    Paragraph $LocalizedData.HealthCheckTitle -Bold -Underline
                                                     BlankLine
                                                     Paragraph {
-                                                        Text 'Best Practice:' -Bold
-                                                        Text 'Veeam recommend to implement Immutability where it is supported. It is done for increased security: immutability protects your data from loss as a result of attacks, malware activity or any other injurious actions.'
+                                                        Text $LocalizedData.BestPracticeTitle -Bold
+                                                        Text $LocalizedData.BestPracticeText
                                                     }
                                                     BlankLine
                                                 }
@@ -183,8 +184,8 @@ function Get-AbrVbrObjectRepository {
                 #---------------------------------------------------------------------------------------------#
                 try {
                     if ($ObjectRepoArchives = Get-VBRArchiveObjectStorageRepository | Sort-Object -Property Name) {
-                        Section -Style Heading3 'Archive Object Storage Repository' {
-                            Paragraph 'The following section provides detailed configuration information for each archive object storage repository, including archive type, proxy settings, and immutability configuration.'
+                        Section -Style Heading3 $LocalizedData.ArchiveHeading {
+                            Paragraph $LocalizedData.ArchiveParagraph
                             BlankLine
                             foreach ($ObjectRepoArchive in $ObjectRepoArchives) {
                                 try {
@@ -192,45 +193,45 @@ function Get-AbrVbrObjectRepository {
                                         $OutObj = @()
 
                                         $inObj = [ordered] @{
-                                            'Gateway Server' = switch ($ObjectRepoArchive.GatewayServer.Name) {
-                                                '' { 'Auto Selected'; break }
-                                                $Null { 'Auto Selected'; break }
+                                            $LocalizedData.GatewayServer = switch ($ObjectRepoArchive.GatewayServer.Name) {
+                                                '' { $LocalizedData.AutoSelected; break }
+                                                $Null { $LocalizedData.AutoSelected; break }
                                                 default { $ObjectRepoArchive.GatewayServer.Name.split('.')[0] }
                                             }
-                                            'Gateway Server Enabled' = $ObjectRepoArchive.UseGatewayServer
-                                            'Immutability Enabled' = $ObjectRepoArchive.BackupImmutabilityEnabled
-                                            'Archive Type' = $ObjectRepoArchive.ArchiveType
+                                            $LocalizedData.GatewayServerEnabled = $ObjectRepoArchive.UseGatewayServer
+                                            $LocalizedData.ImmutabilityEnabled = $ObjectRepoArchive.BackupImmutabilityEnabled
+                                            $LocalizedData.ArchiveType = $ObjectRepoArchive.ArchiveType
                                         }
                                         if ($ObjectRepoArchive.ArchiveType -eq 'AmazonS3Glacier') {
-                                            $inObj.add('Deep Archive', ($ObjectRepoArchive.UseDeepArchive))
-                                            $inObj.add('Proxy Instance Type', $ObjectRepoArchive.AmazonProxySpec.InstanceType)
-                                            $inObj.add('Proxy Instance vCPU', $ObjectRepoArchive.AmazonProxySpec.InstanceType.vCPUs)
-                                            $inObj.add('Proxy Instance Memory', ([Math]::Round($ObjectRepoArchive.AmazonProxySpec.InstanceType.Memory * 1MB / 1GB)))
-                                            $inObj.add('Proxy Subnet', $ObjectRepoArchive.AmazonProxySpec.Subnet)
-                                            $inObj.add('Proxy Security Group', $ObjectRepoArchive.AmazonProxySpec.SecurityGroup)
-                                            $inObj.add('Proxy Availability Zone', $ObjectRepoArchive.AmazonProxySpec.Subnet.AvailabilityZone)
+                                            $inObj.add($LocalizedData.DeepArchive, ($ObjectRepoArchive.UseDeepArchive))
+                                            $inObj.add($LocalizedData.ProxyInstanceType, $ObjectRepoArchive.AmazonProxySpec.InstanceType)
+                                            $inObj.add($LocalizedData.ProxyInstancevCPU, $ObjectRepoArchive.AmazonProxySpec.InstanceType.vCPUs)
+                                            $inObj.add($LocalizedData.ProxyInstanceMemory, ([Math]::Round($ObjectRepoArchive.AmazonProxySpec.InstanceType.Memory * 1MB / 1GB)))
+                                            $inObj.add($LocalizedData.ProxySubnet, $ObjectRepoArchive.AmazonProxySpec.Subnet)
+                                            $inObj.add($LocalizedData.ProxySecurityGroup, $ObjectRepoArchive.AmazonProxySpec.SecurityGroup)
+                                            $inObj.add($LocalizedData.ProxyAvailabilityZone, $ObjectRepoArchive.AmazonProxySpec.Subnet.AvailabilityZone)
 
 
                                         } elseif ($ObjectRepoArchive.ArchiveType -eq 'AzureArchive') {
-                                            $inObj.add('Service Type', $ObjectRepoArchive.AzureBlobFolder.ServiceType)
-                                            $inObj.add('Archive Container', $ObjectRepoArchive.AzureBlobFolder.Container)
-                                            $inObj.add('Archive Folder', $ObjectRepoArchive.AzureBlobFolder.Name)
-                                            $inObj.add('Proxy Resource Group', $ObjectRepoArchive.AzureProxySpec.ResourceGroup)
-                                            $inObj.add('Proxy Network', $ObjectRepoArchive.AzureProxySpec.Network)
-                                            $inObj.add('Proxy VM Size', $ObjectRepoArchive.AzureProxySpec.VMSize)
-                                            $inObj.add('Proxy VM vCPU', $ObjectRepoArchive.AzureProxySpec.VMSize.Cores)
-                                            $inObj.add('Proxy VM Memory', ([Math]::Round($ObjectRepoArchive.AzureProxySpec.VMSize.Memory * 1MB / 1GB)))
-                                            $inObj.add('Proxy VM Max Disks', $ObjectRepoArchive.AzureProxySpec.VMSize.MaxDisks)
-                                            $inObj.add('Proxy VM Location', $ObjectRepoArchive.AzureProxySpec.VMSize.Location)
+                                            $inObj.add($LocalizedData.ServiceType, $ObjectRepoArchive.AzureBlobFolder.ServiceType)
+                                            $inObj.add($LocalizedData.ArchiveContainer, $ObjectRepoArchive.AzureBlobFolder.Container)
+                                            $inObj.add($LocalizedData.ArchiveFolder, $ObjectRepoArchive.AzureBlobFolder.Name)
+                                            $inObj.add($LocalizedData.ProxyResourceGroup, $ObjectRepoArchive.AzureProxySpec.ResourceGroup)
+                                            $inObj.add($LocalizedData.ProxyNetwork, $ObjectRepoArchive.AzureProxySpec.Network)
+                                            $inObj.add($LocalizedData.ProxyVMSize, $ObjectRepoArchive.AzureProxySpec.VMSize)
+                                            $inObj.add($LocalizedData.ProxyVMvCPU, $ObjectRepoArchive.AzureProxySpec.VMSize.Cores)
+                                            $inObj.add($LocalizedData.ProxyVMMemory, ([Math]::Round($ObjectRepoArchive.AzureProxySpec.VMSize.Memory * 1MB / 1GB)))
+                                            $inObj.add($LocalizedData.ProxyVMMaxDisks, $ObjectRepoArchive.AzureProxySpec.VMSize.MaxDisks)
+                                            $inObj.add($LocalizedData.ProxyVMLocation, $ObjectRepoArchive.AzureProxySpec.VMSize.Location)
                                         }
                                         $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                         if ($HealthCheck.Infrastructure.BR) {
-                                            $OutObj | Where-Object { $_.'Immutability Enabled' -eq 'No' } | Set-Style -Style Warning -Property 'Immutability Enabled'
+                                            $OutObj | Where-Object { $_."$($LocalizedData.ImmutabilityEnabled)" -eq $LocalizedData.No } | Set-Style -Style Warning -Property $LocalizedData.ImmutabilityEnabled
                                         }
 
                                         $TableParams = @{
-                                            Name = "Archive Object Storage Repository - $($ObjectRepoArchive.Name)"
+                                            Name = "$($LocalizedData.ArchiveTableHeading) - $($ObjectRepoArchive.Name)"
                                             List = $true
                                             ColumnWidths = 40, 60
                                         }
@@ -238,12 +239,12 @@ function Get-AbrVbrObjectRepository {
                                             $TableParams['Caption'] = "- $($TableParams.Name)"
                                         }
                                         $OutObj | Table @TableParams
-                                        if (($HealthCheck.Infrastructure.BestPractice) -and ($OutObj | Where-Object { $_.'Immutability Enabled' -eq 'No' })) {
-                                            Paragraph 'Health Check:' -Bold -Underline
+                                        if (($HealthCheck.Infrastructure.BestPractice) -and ($OutObj | Where-Object { $_."$($LocalizedData.ImmutabilityEnabled)" -eq $LocalizedData.No })) {
+                                            Paragraph $LocalizedData.HealthCheckTitle -Bold -Underline
                                             BlankLine
                                             Paragraph {
-                                                Text 'Best Practice:' -Bold
-                                                Text 'Veeam recommend to implement Immutability where it is supported. It is done for increased security: immutability protects your data from loss as a result of attacks, malware activity or any other injurious actions.'
+                                                Text $LocalizedData.BestPracticeTitle -Bold
+                                                Text $LocalizedData.BestPracticeText
                                             }
                                             BlankLine
                                         }

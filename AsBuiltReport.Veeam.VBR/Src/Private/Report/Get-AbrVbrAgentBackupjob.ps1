@@ -21,23 +21,24 @@ function Get-AbrVbrAgentBackupjob {
 
     begin {
         Write-PScriboMessage "Discovering Veeam VBR Agent Backup jobs information from $System."
+        $LocalizedData = $reportTranslate.GetAbrVbrAgentBackupjob
         Show-AbrDebugExecutionTime -Start -TitleMessage 'Agent Backup Jobs'
     }
 
     process {
         try {
             if ($ABkjobs = Get-VBRComputerBackupJob) {
-                Section -Style Heading3 'Agent Backup Jobs' {
-                    Paragraph 'The following section lists all agent-based backup jobs configured in Veeam Backup & Replication, along with their current status and last run result.'
+                Section -Style Heading3 $LocalizedData.Heading {
+                    Paragraph $LocalizedData.Paragraph
                     BlankLine
                     $OutObj = @()
                     foreach ($ABkjob in $ABkjobs) {
                         try {
                             $inObj = [ordered] @{
-                                'Name' = $ABkjob.Name
-                                'Type' = $ABkjob.Type
-                                'OS Platform' = $ABkjob.OSPlatform
-                                'Backup Object' = $ABkjob.BackupObject
+                                $LocalizedData.Name = $ABkjob.Name
+                                $LocalizedData.Type = $ABkjob.Type
+                                $LocalizedData.OSPlatform = $ABkjob.OSPlatform
+                                $LocalizedData.BackupObject = $ABkjob.BackupObject
                             }
                             $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                         } catch {
@@ -46,14 +47,14 @@ function Get-AbrVbrAgentBackupjob {
                     }
 
                     $TableParams = @{
-                        Name = "Agent Backup Jobs - $VeeamBackupServer"
+                        Name = "$($LocalizedData.TableHeading) - $VeeamBackupServer"
                         List = $false
                         ColumnWidths = 30, 25, 15, 30
                     }
                     if ($Report.ShowTableCaptions) {
                         $TableParams['Caption'] = "- $($TableParams.Name)"
                     }
-                    $OutObj | Sort-Object -Property 'Name' | Table @TableParams
+                    $OutObj | Sort-Object -Property $LocalizedData.Name | Table @TableParams
                 }
             }
         } catch {

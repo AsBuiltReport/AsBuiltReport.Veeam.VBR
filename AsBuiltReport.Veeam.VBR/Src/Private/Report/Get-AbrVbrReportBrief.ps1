@@ -22,30 +22,31 @@ function Get-AbrVbrReportBrief {
 
     begin {
         Write-PScriboMessage "Generating Veeam VB&R Report Brief from $System."
+        $LocalizedData = $reportTranslate.GetAbrVbrReportBrief
         Show-AbrDebugExecutionTime -Start -TitleMessage 'Report Brief'
     }
 
     process {
         try {
-            Section -Style Heading1 'Report Brief' -ExcludeFromTOC {
-                Paragraph 'This report brief provides a high-level summary of the Veeam Backup & Replication environment, including infrastructure counts, license status, and the scope of this document.'
+            Section -Style Heading1 $LocalizedData.Heading -ExcludeFromTOC {
+                Paragraph $LocalizedData.Paragraph
                 BlankLine
 
                 # Report metadata
                 try {
                     $ServerSession = Get-VBRServerSession
                     $inObj = [ordered] @{
-                        'Report Name' = $Report.Name
-                        'Report Version' = $Report.Version
-                        'Target Server' = $VeeamBackupServer
-                        'Server FQDN' = $ServerSession.Server
-                        'VBR Product Version' = $VbrVersion
-                        'Generated On' = (Get-Date -Format 'yyyy-MM-dd HH:mm:ss')
+                        $LocalizedData.ReportName = $Report.Name
+                        $LocalizedData.ReportVersion = $Report.Version
+                        $LocalizedData.TargetServer = $VeeamBackupServer
+                        $LocalizedData.ServerFQDN = $ServerSession.Server
+                        $LocalizedData.VBRProductVersion = $VbrVersion
+                        $LocalizedData.GeneratedOn = (Get-Date -Format 'yyyy-MM-dd HH:mm:ss')
                     }
                     $OutObj = [pscustomobject]$inObj
 
                     $TableParams = @{
-                        Name = "Report Overview - $VeeamBackupServer"
+                        Name = "$($LocalizedData.TableReportOverview) - $VeeamBackupServer"
                         List = $true
                         ColumnWidths = 40, 60
                     }
@@ -63,23 +64,23 @@ function Get-AbrVbrReportBrief {
                 try {
                     if ($VbrLicenses) {
                         $inObj = [ordered] @{
-                            'License Type' = $VbrLicenses.Type
-                            'License Status' = $VbrLicenses.Status
-                            'Licensed Instances' = $VbrLicenses.LicensedInstancesNumber
-                            'Used Instances' = $VbrLicenses.UsedInstancesNumber
-                            'Expiration Date' = switch ($VbrLicenses.ExpirationDate) {
-                                $Null { 'N/A' }
+                            $LocalizedData.LicenseType = $VbrLicenses.Type
+                            $LocalizedData.LicenseStatus = $VbrLicenses.Status
+                            $LocalizedData.LicensedInstances = $VbrLicenses.LicensedInstancesNumber
+                            $LocalizedData.UsedInstances = $VbrLicenses.UsedInstancesNumber
+                            $LocalizedData.ExpirationDate = switch ($VbrLicenses.ExpirationDate) {
+                                $Null { $LocalizedData.NA }
                                 default { $VbrLicenses.ExpirationDate.ToShortDateString() }
                             }
-                            'Support Expiration' = switch ($VbrLicenses.SupportExpirationDate) {
-                                $Null { 'N/A' }
+                            $LocalizedData.SupportExpiration = switch ($VbrLicenses.SupportExpirationDate) {
+                                $Null { $LocalizedData.NA }
                                 default { $VbrLicenses.SupportExpirationDate.ToShortDateString() }
                             }
                         }
                         $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                         $TableParams = @{
-                            Name = "License Summary - $VeeamBackupServer"
+                            Name = "$($LocalizedData.TableLicenseSummary) - $VeeamBackupServer"
                             List = $true
                             ColumnWidths = 40, 60
                         }

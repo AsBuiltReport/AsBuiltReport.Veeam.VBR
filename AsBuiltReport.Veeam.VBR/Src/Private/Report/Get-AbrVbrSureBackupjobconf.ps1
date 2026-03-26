@@ -22,41 +22,42 @@ function Get-AbrVbrSureBackupjobconf {
 
     begin {
         Write-PScriboMessage "Discovering Veeam VBR SureBackup jobs configuration information from $System."
+        $LocalizedData = $reportTranslate.GetAbrVbrSureBackupjobconf
         Show-AbrDebugExecutionTime -Start -TitleMessage 'SureBackup Job Configuration'
     }
 
     process {
         try {
             if ($SBkjobs = Get-VBRSureBackupJob | Sort-Object -Property Name) {
-                Section -Style Heading3 'SureBackup Job Configuration' {
-                    Paragraph 'The following section provides detailed configuration information for each SureBackup job, including the virtual lab, application group, and verification settings.'
+                Section -Style Heading3 $LocalizedData.Heading {
+                    Paragraph $LocalizedData.Paragraph
                     BlankLine
                     $OutObj = @()
                     foreach ($SBkjob in $SBkjobs) {
                         try {
                             Section -Style Heading4 $($SBkjob.Name) {
                                 try {
-                                    Section -Style NOTOCHeading5 -ExcludeFromTOC 'Common Information' {
+                                    Section -Style NOTOCHeading5 -ExcludeFromTOC $LocalizedData.CommonInfoSection {
                                         $OutObj = @()
 
                                         $inObj = [ordered] @{
-                                            'Name' = $SBkjob.Name
-                                            'Last Run' = $SBkjob.LastRun
-                                            'Next Run' = switch ($SBkjob.Enabled) {
-                                                'False' { 'Disabled' }
+                                            $LocalizedData.Name = $SBkjob.Name
+                                            $LocalizedData.LastRun = $SBkjob.LastRun
+                                            $LocalizedData.NextRun = switch ($SBkjob.Enabled) {
+                                                'False' { $LocalizedData.Disabled }
                                                 default { $SBkjob.NextRun }
                                             }
-                                            'Description' = $SBkjob.Description
+                                            $LocalizedData.Description = $SBkjob.Description
                                         }
                                         $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                         if ($HealthCheck.Jobs.BestPractice) {
-                                            $OutObj | Where-Object { $_.'Description' -eq '--' } | Set-Style -Style Warning -Property 'Description'
-                                            $OutObj | Where-Object { $_.'Description' -match 'Created by' } | Set-Style -Style Warning -Property 'Description'
+                                            $OutObj | Where-Object { $_.$($LocalizedData.Description) -eq '--' } | Set-Style -Style Warning -Property $LocalizedData.Description
+                                            $OutObj | Where-Object { $_.$($LocalizedData.Description) -match 'Created by' } | Set-Style -Style Warning -Property $LocalizedData.Description
                                         }
 
                                         $TableParams = @{
-                                            Name = "Common Information - $($SBkjob.Name)"
+                                            Name = "$($LocalizedData.CommonInfoTable) - $($SBkjob.Name)"
                                             List = $true
                                             ColumnWidths = 40, 60
                                         }
@@ -65,12 +66,12 @@ function Get-AbrVbrSureBackupjobconf {
                                         }
                                         $OutObj | Table @TableParams
                                         if ($HealthCheck.Jobs.BestPractice) {
-                                            if ($OutObj | Where-Object { $_.'Description' -match 'Created by' -or $_.'Description' -eq '--' }) {
-                                                Paragraph 'Health Check:' -Bold -Underline
+                                            if ($OutObj | Where-Object { $_.$($LocalizedData.Description) -match 'Created by' -or $_.$($LocalizedData.Description) -eq '--' }) {
+                                                Paragraph $LocalizedData.HealthCheck -Bold -Underline
                                                 BlankLine
                                                 Paragraph {
-                                                    Text 'Best Practice:' -Bold
-                                                    Text 'It is a general rule of good practice to establish well-defined descriptions. This helps to speed up the fault identification process, as well as enabling better documentation of the environment.'
+                                                    Text $LocalizedData.BestPractice -Bold
+                                                    Text $LocalizedData.BestPracticeDesc
                                                 }
                                                 BlankLine
                                             }
@@ -81,25 +82,25 @@ function Get-AbrVbrSureBackupjobconf {
                                 }
                                 try {
                                     if ($SBkjob.VirtualLab) {
-                                        Section -Style NOTOCHeading5 -ExcludeFromTOC 'Virtual Lab' {
+                                        Section -Style NOTOCHeading5 -ExcludeFromTOC $LocalizedData.VirtualLabSection {
                                             $OutObj = @()
 
                                             $inObj = [ordered] @{
-                                                'Name' = $SBkjob.VirtualLab.Name
-                                                'Description' = $SBkjob.VirtualLab.Description
-                                                'Physical Host' = $SBkjob.VirtualLab.Server.Name
-                                                'Physical Host Version' = $SBkjob.VirtualLab.Server.Info.Info
+                                                $LocalizedData.Name = $SBkjob.VirtualLab.Name
+                                                $LocalizedData.Description = $SBkjob.VirtualLab.Description
+                                                $LocalizedData.PhysicalHost = $SBkjob.VirtualLab.Server.Name
+                                                $LocalizedData.PhysicalHostVersion = $SBkjob.VirtualLab.Server.Info.Info
                                             }
                                             if ($SBkjob.VirtualLab.Platform -eq 'HyperV' -and (Get-VBRHvVirtualLabConfiguration)) {
-                                                $inObj.add('Destination', (Get-VBRHvVirtualLabConfiguration -Id $SBkjob.VirtualLab.Id).Path)
+                                                $inObj.add($LocalizedData.Destination, (Get-VBRHvVirtualLabConfiguration -Id $SBkjob.VirtualLab.Id).Path)
                                             }
                                             if ($SBkjob.VirtualLab.Platform -eq 'VMWare') {
-                                                $inObj.add('Datastore', (Get-VBRViVirtualLabConfiguration -Id $SBkjob.VirtualLab.Id).CacheDatastore)
+                                                $inObj.add($LocalizedData.Datastore, (Get-VBRViVirtualLabConfiguration -Id $SBkjob.VirtualLab.Id).CacheDatastore)
                                             }
                                             $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                             $TableParams = @{
-                                                Name = "Virtual Lab - $($SBkjob.Name)"
+                                                Name = "$($LocalizedData.VirtualLabTable) - $($SBkjob.Name)"
                                                 List = $true
                                                 ColumnWidths = 40, 60
                                             }
@@ -114,19 +115,19 @@ function Get-AbrVbrSureBackupjobconf {
                                 }
                                 if ($SBkjob.ApplicationGroup) {
                                     try {
-                                        Section -Style NOTOCHeading5 -ExcludeFromTOC 'Application Group' {
+                                        Section -Style NOTOCHeading5 -ExcludeFromTOC $LocalizedData.ApplicationGroupSection {
                                             $OutObj = @()
 
                                             $inObj = [ordered] @{
-                                                'Name' = $SBkjob.ApplicationGroup.Name
-                                                'Virtual Machines' = $SBkjob.ApplicationGroup.VM -join ', '
-                                                'Keep Application Group Running' = $SBkjob.KeepApplicationGroupRunning
-                                                'Description' = $SBkjob.ApplicationGroup.Description
+                                                $LocalizedData.Name = $SBkjob.ApplicationGroup.Name
+                                                $LocalizedData.VirtualMachines = $SBkjob.ApplicationGroup.VM -join ', '
+                                                $LocalizedData.KeepAppGroupRunning = $SBkjob.KeepApplicationGroupRunning
+                                                $LocalizedData.Description = $SBkjob.ApplicationGroup.Description
                                             }
                                             $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                             $TableParams = @{
-                                                Name = "Application Group - $($SBkjob.Name)"
+                                                Name = "$($LocalizedData.AppGroupTable) - $($SBkjob.Name)"
                                                 List = $true
                                                 ColumnWidths = 40, 60
                                             }
@@ -141,23 +142,23 @@ function Get-AbrVbrSureBackupjobconf {
                                 }
                                 if ($SBkjob.LinkToJobs) {
                                     try {
-                                        Section -Style NOTOCHeading5 -ExcludeFromTOC 'Linked Jobs' {
+                                        Section -Style NOTOCHeading5 -ExcludeFromTOC $LocalizedData.LinkedJobsSection {
                                             $OutObj = @()
                                             foreach ($LinkedJob in $SBkjob.LinkedJob) {
 
                                                 $inObj = [ordered] @{
-                                                    'Name' = $LinkedJob.Job.Name
-                                                    'Roles' = switch ([string]::IsNullOrEmpty($LinkedJob.Role)) {
-                                                        $true { 'Not Defined' }
+                                                    $LocalizedData.Name = $LinkedJob.Job.Name
+                                                    $LocalizedData.Roles = switch ([string]::IsNullOrEmpty($LinkedJob.Role)) {
+                                                        $true { $LocalizedData.NotDefined }
                                                         $false { $LinkedJob.Role -join ',' }
-                                                        default { 'Unknown' }
+                                                        default { $LocalizedData.Unknown }
                                                     }
-                                                    'Description' = $LinkedJob.Job.Description
+                                                    $LocalizedData.Description = $LinkedJob.Job.Description
                                                 }
                                                 $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                                             }
                                             $TableParams = @{
-                                                Name = "Linked Jobs - $($SBkjob.Name)"
+                                                Name = "$($LocalizedData.LinkedJobsTable) - $($SBkjob.Name)"
                                                 List = $false
                                                 ColumnWidths = 30, 30, 40
                                             }
@@ -167,7 +168,7 @@ function Get-AbrVbrSureBackupjobconf {
                                             $OutObj | Table @TableParams
                                             if (($InfoLevel.Jobs.Surebackup -ge 2) -and $SBkjob.LinkToJobs) {
                                                 try {
-                                                    Section -Style NOTOCHeading6 -ExcludeFromTOC 'Verification Options' {
+                                                    Section -Style NOTOCHeading6 -ExcludeFromTOC $LocalizedData.VerificationOptionsSection {
                                                         $OutObj = @()
                                                         foreach ($LinkedJob in $SBkjob.LinkedJob) {
 
@@ -204,7 +205,7 @@ function Get-AbrVbrSureBackupjobconf {
                                                         }
                                                     }
                                                     if ($SBkjob.LinkedJob.VM) {
-                                                        Section -Style NOTOCHeading6 -ExcludeFromTOC 'Per VM Verification Rules' {
+                                                        Section -Style NOTOCHeading6 -ExcludeFromTOC $LocalizedData.PerVMVerificationSection {
                                                             $OutObj = @()
                                                             foreach ($LinkedJobVM in $SBkjob.LinkedJob.VM) {
 
@@ -246,7 +247,7 @@ function Get-AbrVbrSureBackupjobconf {
                                     }
                                 }
                                 try {
-                                    Section -Style NOTOCHeading5 -ExcludeFromTOC 'Settings' {
+                                    Section -Style NOTOCHeading5 -ExcludeFromTOC $LocalizedData.SettingsSection {
                                         $OutObj = @()
 
                                         $inObj = [ordered] @{
@@ -286,7 +287,7 @@ function Get-AbrVbrSureBackupjobconf {
                                     Write-PScriboMessage -IsWarning "SureBackup Settings $($SBkjob.Name) Section: $($_.Exception.Message)"
                                 }
                                 if ($SBkjob.ScheduleEnabled) {
-                                    Section -Style NOTOCHeading5 -ExcludeFromTOC 'Schedule' {
+                                    Section -Style NOTOCHeading5 -ExcludeFromTOC $LocalizedData.ScheduleSection {
                                         $OutObj = @()
                                         try {
 

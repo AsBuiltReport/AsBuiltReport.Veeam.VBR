@@ -22,6 +22,7 @@ function Get-AbrVbrCloudConnectCG {
 
     begin {
         Write-PScriboMessage "Discovering Veeam VBR Cloud Gateway information from $System."
+        $LocalizedData = $reportTranslate.GetAbrVbrCloudConnectCG
         Show-AbrDebugExecutionTime -Start -TitleMessage 'Cloud Connect Gateway'
     }
 
@@ -29,8 +30,8 @@ function Get-AbrVbrCloudConnectCG {
         try {
             if ($VbrLicenses | Where-Object { $_.CloudConnect -ne 'Disabled' }) {
                 if ($CloudObjects = Get-VBRCloudGateway | Sort-Object -Property Name) {
-                    Section -Style Heading3 'Cloud Gateways' {
-                        Paragraph 'The following section provides a summary of all configured Veeam Cloud Connect Gateways, including their status and network settings.'
+                    Section -Style Heading3 $LocalizedData.Heading {
+                        Paragraph $LocalizedData.Paragraph
                         BlankLine
                         try {
                             $OutObj = @()
@@ -39,12 +40,12 @@ function Get-AbrVbrCloudConnectCG {
 
 
                                     $inObj = [ordered] @{
-                                        'Name' = $CloudObject.Name
-                                        'DNS/IP' = $CloudObject.IpAddress
-                                        'Network Mode' = $CloudObject.NetworkMode
-                                        'NAT Port' = $CloudObject.NATPort
-                                        'Incoming Port' = $CloudObject.IncomingPort
-                                        'Enabled' = $CloudObject.Enabled
+                                        $LocalizedData.Name = $CloudObject.Name
+                                        $LocalizedData.DNSIP = $CloudObject.IpAddress
+                                        $LocalizedData.NetworkMode = $CloudObject.NetworkMode
+                                        $LocalizedData.NATPort = $CloudObject.NATPort
+                                        $LocalizedData.IncomingPort = $CloudObject.IncomingPort
+                                        $LocalizedData.Enabled = $CloudObject.Enabled
                                     }
 
                                     if ($InfoLevel.CloudConnect.CloudGateway -ge 2) {
@@ -54,8 +55,8 @@ function Get-AbrVbrCloudConnectCG {
                                             $false { ($CloudGPObjects | Where-Object { $CloudObject.Name -in $_.CloudGateways.Name }).Name }
                                             default { '--' }
                                         }
-                                        $inObj.add('Cloud Gateway Pool', $CGPool)
-                                        $inObj.add('Description', $CloudObject.Description)
+                                        $inObj.add($LocalizedData.CloudGatewayPool, $CGPool)
+                                        $inObj.add($LocalizedData.Description, $CloudObject.Description)
 
                                     }
 
@@ -67,12 +68,12 @@ function Get-AbrVbrCloudConnectCG {
 
                                         $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
                                         if ($HealthCheck.Jobs.BestPractice) {
-                                            $OutObj | Where-Object { $_.'Description' -eq '--' } | Set-Style -Style Warning -Property 'Description'
-                                            $OutObj | Where-Object { $_.'Description' -match 'Created by' } | Set-Style -Style Warning -Property 'Description'
+                                            $OutObj | Where-Object { $_.$($LocalizedData.Description) -eq '--' } | Set-Style -Style Warning -Property $LocalizedData.Description
+                                            $OutObj | Where-Object { $_.$($LocalizedData.Description) -match 'Created by' } | Set-Style -Style Warning -Property $LocalizedData.Description
                                         }
 
                                         $TableParams = @{
-                                            Name = "Cloud Gateways - $($CloudObject.Name)"
+                                            Name = "$($LocalizedData.TableHeading) - $($CloudObject.Name)"
                                             List = $true
                                             ColumnWidths = 40, 60
                                         }
@@ -82,12 +83,12 @@ function Get-AbrVbrCloudConnectCG {
                                         }
                                         $OutObj | Sort-Object -Property 'Name' | Table @TableParams
                                         if ($HealthCheck.Jobs.BestPractice) {
-                                            if ($OutObj | Where-Object { $_.'Description' -match 'Created by' -or $_.'Description' -eq '--' }) {
-                                                Paragraph 'Health Check:' -Bold -Underline
+                                            if ($OutObj | Where-Object { $_.$($LocalizedData.Description) -match 'Created by' -or $_.$($LocalizedData.Description) -eq '--' }) {
+                                                Paragraph $LocalizedData.HealthCheck -Bold -Underline
                                                 BlankLine
                                                 Paragraph {
-                                                    Text 'Best Practice:' -Bold
-                                                    Text 'It is a general rule of good practice to establish well-defined descriptions. This helps to speed up the fault identification process, as well as enabling better documentation of the environment.'
+                                                    Text $LocalizedData.BestPractice -Bold
+                                                    Text $LocalizedData.BPText
                                                 }
                                                 BlankLine
                                             }
@@ -102,7 +103,7 @@ function Get-AbrVbrCloudConnectCG {
 
                             if ($InfoLevel.CloudConnect.CloudGateway -eq 1) {
                                 $TableParams = @{
-                                    Name = "Cloud Gateways - $VeeamBackupServer"
+                                    Name = "$($LocalizedData.TableHeading) - $VeeamBackupServer"
                                     List = $false
                                     ColumnWidths = 28, 28, 11, 11, 11, 11
                                 }

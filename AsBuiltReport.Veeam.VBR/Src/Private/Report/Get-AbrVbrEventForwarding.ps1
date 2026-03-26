@@ -21,6 +21,7 @@ function Get-AbrVbrEventForwarding {
 
     begin {
         Write-PScriboMessage "Discovering Veeam VBR Event Forwarding settings information from $System."
+        $LocalizedData = $reportTranslate.GetAbrVbrEventForwarding
         Show-AbrDebugExecutionTime -Start -TitleMessage 'Event Forwarding'
     }
 
@@ -29,18 +30,18 @@ function Get-AbrVbrEventForwarding {
             $SNMPSettings = (Get-VBRSNMPOptions).Receiver
             $SyslogSettings = try { Get-VBRSyslogServer } catch { Write-PScriboMessage 'No syslog server configured' }
             if ($SNMPSettings -or $SyslogSettings) {
-                Section -Style Heading4 'Event Forwarding' {
-                    Paragraph 'The following section details the event forwarding settings, including SNMP and Syslog destinations configured for external monitoring and alerting.'
+                Section -Style Heading4 $LocalizedData.Heading {
+                    Paragraph $LocalizedData.Paragraph
                     BlankLine
                     $OutObj = @()
 
                     $inObj = [ordered] @{
-                        'SNMP Servers' = switch ([string]::IsNullOrEmpty($SNMPSettings)) {
+                        $LocalizedData.SNMPServers = switch ([string]::IsNullOrEmpty($SNMPSettings)) {
                             $true { '--' }
                             $false { $SNMPSettings | ForEach-Object { "Receiver: $($_.ReceiverIP), Port: $($_.ReceiverPort), Community: $($_.CommunityString)" } }
                             default { 'Unknown' }
                         }
-                        'Syslog Servers' = switch ([string]::IsNullOrEmpty($SyslogSettings)) {
+                        $LocalizedData.SyslogServers = switch ([string]::IsNullOrEmpty($SyslogSettings)) {
                             $true { '--' }
                             $false { $SyslogSettings | ForEach-Object { "Receiver: $($_.ServerHost), Port: $($_.Port), Protocol: $($_.Protocol)" } }
                             default { 'Unknown' }
@@ -49,11 +50,11 @@ function Get-AbrVbrEventForwarding {
                     $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
 
                     if ($HealthCheck.Infrastructure.Settings) {
-                        $OutObj | Where-Object { $_.'Syslog Servers' -eq '--' } | Set-Style -Style Warning -Property 'Syslog Servers'
+                        $OutObj | Where-Object { $_.$($LocalizedData.SyslogServers) -eq '--' } | Set-Style -Style Warning -Property $LocalizedData.SyslogServers
                     }
 
                     $TableParams = @{
-                        Name = "Event Forwarding - $VeeamBackupServer"
+                        Name = "$($LocalizedData.Heading) - $VeeamBackupServer"
                         List = $true
                         ColumnWidths = 40, 60
                     }
@@ -61,7 +62,7 @@ function Get-AbrVbrEventForwarding {
                         $TableParams['Caption'] = "- $($TableParams.Name)"
                     }
                     $OutObj | Table @TableParams
-                    if ($HealthCheck.Infrastructure.BestPractice -and ($OutObj | Where-Object { $_.'Syslog Servers' -eq '--' })) {
+                    if ($HealthCheck.Infrastructure.BestPractice -and ($OutObj | Where-Object { $_.$($LocalizedData.SyslogServers) -eq '--' })) {
                         Paragraph 'Health Check:' -Bold -Underline
                         BlankLine
                         Paragraph {

@@ -19,16 +19,17 @@ function Get-AbrVbrBackupJobsRP {
     )
 
     begin {
-        Write-PScriboMessage "RestorePoint InfoLevel set at $($InfoLevel.Jobs.Restores)."
+        $LocalizedData = $reportTranslate.GetAbrVbrBackupJobsRP
+        Write-PScriboMessage ($LocalizedData.InfoLevel -f $InfoLevel.Jobs.Restores)
         Show-AbrDebugExecutionTime -Start -TitleMessage 'Backup Restore Points'
     }
 
     process {
         try {
             if ($BackupJobs = Get-VBRBackup | Sort-Object -Property Name) {
-                Write-PScriboMessage 'Collecting Veeam VBR Restore Point.'
-                Section -Style Heading3 'Backup Restore Points' {
-                    Paragraph 'The following section summarizes the available restore points for each backup job, including creation date and storage location.'
+                Write-PScriboMessage $LocalizedData.Collecting
+                Section -Style Heading3 $LocalizedData.Heading {
+                    Paragraph $LocalizedData.Paragraph
                     BlankLine
                     foreach ($BackupJob in $BackupJobs) {
                         if ($BackupJobRestorePoints = Get-VBRRestorePoint -Backup $BackupJob | Sort-Object -Property VMName, CreationTimeUt, Type) {
@@ -42,12 +43,12 @@ function Get-AbrVbrBackupJobsRP {
                                         if ($CompressRatio -gt 1) { $CompressRatio = 100 / $CompressRatio } else { $CompressRatio = 1 }
 
                                         $inObj = [ordered] @{
-                                            'VM Name' = $RestorePoint.VMName
-                                            'Backup Type' = $RestorePoint.Algorithm
-                                            'Backup Size' = (ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $RestorePoint.GetStorage().stats.BackupSize)
-                                            'Dedub Ratio' = [Math]::Round($DedupRatio, 2)
-                                            'Compress Ratio' = [Math]::Round($CompressRatio, 2)
-                                            'Reduction' = [Math]::Round(($DedupRatio * $CompressRatio), 2)
+                                            $LocalizedData.VMName = $RestorePoint.VMName
+                                            $LocalizedData.BackupType = $RestorePoint.Algorithm
+                                            $LocalizedData.BackupSize = (ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $RestorePoint.GetStorage().stats.BackupSize)
+                                            $LocalizedData.DedubRatio = [Math]::Round($DedupRatio, 2)
+                                            $LocalizedData.CompressRatio = [Math]::Round($CompressRatio, 2)
+                                            $LocalizedData.Reduction = [Math]::Round(($DedupRatio * $CompressRatio), 2)
                                         }
                                         $RestorePointInfo += [pscustomobject](ConvertTo-HashToYN $inObj)
                                     } catch {
@@ -56,7 +57,7 @@ function Get-AbrVbrBackupJobsRP {
                                 }
 
                                 $TableParams = @{
-                                    Name = "Restore Points - $($BackupJob.Name)"
+                                    Name = "$($LocalizedData.TableHeading) - $($BackupJob.Name)"
                                     List = $false
                                     ColumnWidths = 40, 12, 12, 12, 12, 12
                                 }

@@ -21,7 +21,8 @@ function Get-AbrVbrInfrastructureSummary {
     )
 
     begin {
-        Write-PScriboMessage "Discovering Veeam VBR Infrastructure Summary from $System."
+        $LocalizedData = $reportTranslate.GetAbrVbrInfrastructureSummary
+        Write-PScriboMessage ($LocalizedData.Collecting -f $System)
         Show-AbrDebugExecutionTime -Start -TitleMessage 'Infrastructure Summary'
     }
 
@@ -54,19 +55,19 @@ function Get-AbrVbrInfrastructureSummary {
                     $SureBackupVLs = 0
                 }
                 $inObj = [ordered] @{
-                    'Backup Proxies' = $BackupProxies
-                    'Managed Servers' = $BackupServers
-                    'Backup Repositories' = $BackupRepo
-                    'SOBR Repositories' = $SOBRRepo
-                    'Object Repository' = $ObjectStorageRepo
-                    'WAN Accelerator' = $WANAccels
-                    'Cloud Service Providers' = $ServiceProviders
-                    'SureBackup Application Group' = $SureBackupAGs
-                    'SureBackup Virtual Lab' = $SureBackupVLs
-                    'Locations' = $Locations
-                    'Instance Licenses (Total/Used)' = "$($InstanceLicenses.LicensedInstancesNumber)/$($InstanceLicenses.UsedInstancesNumber)"
-                    'Socket Licenses (Total/Used)' = "$($SocketLicenses.LicensedSocketsNumber)/$($SocketLicenses.UsedSocketsNumber)"
-                    'Capacity Licenses (Total/Used)' = "$($CapacityLicenses.LicensedCapacityTb)TB/$($CapacityLicenses.UsedCapacityTb)TB"
+                    $LocalizedData.BackupProxies = $BackupProxies
+                    $LocalizedData.ManagedServers = $BackupServers
+                    $LocalizedData.BackupRepositories = $BackupRepo
+                    $LocalizedData.SOBRRepositories = $SOBRRepo
+                    $LocalizedData.ObjectRepository = $ObjectStorageRepo
+                    $LocalizedData.WANAccelerator = $WANAccels
+                    $LocalizedData.CloudServiceProviders = $ServiceProviders
+                    $LocalizedData.SureBackupApplicationGroup = $SureBackupAGs
+                    $LocalizedData.SureBackupVirtualLab = $SureBackupVLs
+                    $LocalizedData.Locations = $Locations
+                    $LocalizedData.InstanceLicenses = "$($InstanceLicenses.LicensedInstancesNumber)/$($InstanceLicenses.UsedInstancesNumber)"
+                    $LocalizedData.SocketLicenses = "$($SocketLicenses.LicensedSocketsNumber)/$($SocketLicenses.UsedSocketsNumber)"
+                    $LocalizedData.CapacityLicenses = "$($CapacityLicenses.LicensedCapacityTb)TB/$($CapacityLicenses.UsedCapacityTb)TB"
                 }
                 $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
             } catch {
@@ -74,7 +75,7 @@ function Get-AbrVbrInfrastructureSummary {
             }
 
             $TableParams = @{
-                Name = "Backup Infrastructure Inventory - $VeeamBackupServer"
+                Name = "$($LocalizedData.TableHeading) - $VeeamBackupServer"
                 List = $true
                 ColumnWidths = 50, 50
             }
@@ -82,8 +83,8 @@ function Get-AbrVbrInfrastructureSummary {
                 $TableParams['Caption'] = "- $($TableParams.Name)"
             }
 
-            Section -Style Heading3 'Backup Infrastructure Summary' {
-                Paragraph 'The following table provides a high-level inventory count of the key components in the Veeam Backup & Replication infrastructure, including proxies, repositories, and licensing.'
+            Section -Style Heading3 $LocalizedData.Heading {
+                Paragraph $LocalizedData.Paragraph
                 BlankLine
                 $OutObj | Table @TableParams
             }

@@ -22,27 +22,28 @@ function Get-AbrVbrCredential {
 
     begin {
         Write-PScriboMessage "Discovering Veeam VBR credential information from $System."
+        $LocalizedData = $reportTranslate.GetAbrVbrCredential
         Show-AbrDebugExecutionTime -Start -TitleMessage 'Veeam VBR Credential'
     }
 
     process {
         try {
             if ($Credentials = Get-VBRCredentials) {
-                Section -Style Heading3 'Security Credentials' {
-                    Paragraph 'The following table lists all credentials stored and managed by Veeam Backup & Replication, including the last modification date and associated description.'
+                Section -Style Heading3 $LocalizedData.Heading {
+                    Paragraph $LocalizedData.Paragraph
                     BlankLine
                     $OutObj = @()
                     foreach ($Credential in $Credentials) {
                         try {
 
                             $inObj = [ordered] @{
-                                'Name' = $Credential.Name
-                                'Change Time' = switch ($Credential.ChangeTimeUtc) {
+                                $LocalizedData.Name = $Credential.Name
+                                $LocalizedData.ChangeTime = switch ($Credential.ChangeTimeUtc) {
                                     '' { '--'; break }
                                     $Null { '--'; break }
                                     default { $Credential.ChangeTimeUtc.ToShortDateString() }
                                 }
-                                'Description' = $Credential.Description
+                                $LocalizedData.Description = $Credential.Description
                             }
                             $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                         } catch {
@@ -51,7 +52,7 @@ function Get-AbrVbrCredential {
                     }
 
                     $TableParams = @{
-                        Name = "Security Credentials - $VeeamBackupServer"
+                        Name = "$($LocalizedData.TableHeading) - $VeeamBackupServer"
                         List = $false
                         ColumnWidths = 35, 20, 45
                     }
@@ -61,16 +62,16 @@ function Get-AbrVbrCredential {
                     $OutObj | Sort-Object -Property 'Name' | Table @TableParams
                     try {
                         if ($CloudCredentials = Get-VBRCloudProviderCredentials) {
-                            Section -Style Heading4 'Service Provider Credentials' {
-                                Paragraph 'The following table lists all service provider credentials stored in Veeam Backup & Replication for Cloud Connect authentication.'
+                            Section -Style Heading4 $LocalizedData.ServiceProviderHeading {
+                                Paragraph $LocalizedData.ServiceProviderParagraph
                                 BlankLine
                                 $OutObj = @()
                                 foreach ($CloudCredential in $CloudCredentials) {
                                     try {
 
                                         $inObj = [ordered] @{
-                                            'Name' = $CloudCredential.Name
-                                            'Description' = $CloudCredential.Description
+                                            $LocalizedData.Name = $CloudCredential.Name
+                                            $LocalizedData.Description = $CloudCredential.Description
                                         }
                                         $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                                     } catch {
@@ -79,7 +80,7 @@ function Get-AbrVbrCredential {
                                 }
 
                                 $TableParams = @{
-                                    Name = "Service Provider Credentials - $VeeamBackupServer"
+                                    Name = "$($LocalizedData.ServiceProviderTableHeading) - $VeeamBackupServer"
                                     List = $false
                                     ColumnWidths = 50, 50
                                 }

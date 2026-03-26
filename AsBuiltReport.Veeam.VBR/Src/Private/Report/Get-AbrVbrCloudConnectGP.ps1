@@ -21,7 +21,8 @@ function Get-AbrVbrCloudConnectGP {
     )
 
     begin {
-        Write-PScriboMessage "Discovering Veeam VBR Cloud Gateway Pools information from $System."
+        $LocalizedData = $reportTranslate.GetAbrVbrCloudConnectGP
+        Write-PScriboMessage ($LocalizedData.Collecting -f $System)
         Show-AbrDebugExecutionTime -Start -TitleMessage 'Cloud Connect Gateway Pools'
     }
 
@@ -29,19 +30,18 @@ function Get-AbrVbrCloudConnectGP {
         try {
             if ($VbrLicenses | Where-Object { $_.CloudConnect -ne 'Disabled' }) {
                 if ($CloudObjects = Get-VBRCloudGatewayPool | Sort-Object -Property Name) {
-                    Section -Style Heading3 'Gateway Pools' {
-                        Paragraph 'The following section provides a summary of all configured Cloud Gateway Pools, including their associated gateways and failover settings.'
+                    Section -Style Heading3 $LocalizedData.Heading {
+                        Paragraph $LocalizedData.Paragraph
                         BlankLine
                         try {
                             $OutObj = @()
                             foreach ($CloudObject in $CloudObjects) {
                                 try {
 
-
                                     $inObj = [ordered] @{
-                                        'Name' = $CloudObject.Name
-                                        'Cloud Gateway Servers' = $CloudObject.CloudGateways -join ', '
-                                        'Description' = $CloudObject.Description
+                                        $LocalizedData.Name = $CloudObject.Name
+                                        $LocalizedData.CloudGatewayServers = $CloudObject.CloudGateways -join ', '
+                                        $LocalizedData.Description = $CloudObject.Description
                                     }
 
                                     $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
@@ -51,12 +51,12 @@ function Get-AbrVbrCloudConnectGP {
                             }
 
                             if ($HealthCheck.Jobs.BestPractice) {
-                                $OutObj | Where-Object { $_.'Description' -eq '--' } | Set-Style -Style Warning -Property 'Description'
-                                $OutObj | Where-Object { $_.'Description' -match 'Created by' } | Set-Style -Style Warning -Property 'Description'
+                                $OutObj | Where-Object { $_.$LocalizedData.Description -eq '--' } | Set-Style -Style Warning -Property $LocalizedData.Description
+                                $OutObj | Where-Object { $_.$LocalizedData.Description -match 'Created by' } | Set-Style -Style Warning -Property $LocalizedData.Description
                             }
 
                             $TableParams = @{
-                                Name = "Gateways Pools - $VeeamBackupServer"
+                                Name = "$($LocalizedData.TableHeading) - $VeeamBackupServer"
                                 List = $false
                                 ColumnWidths = 34, 33, 33
                             }
@@ -64,14 +64,14 @@ function Get-AbrVbrCloudConnectGP {
                             if ($Report.ShowTableCaptions) {
                                 $TableParams['Caption'] = "- $($TableParams.Name)"
                             }
-                            $OutObj | Sort-Object -Property 'Name' | Table @TableParams
+                            $OutObj | Sort-Object -Property $LocalizedData.Name | Table @TableParams
                             if ($HealthCheck.Jobs.BestPractice) {
-                                if ($OutObj | Where-Object { $_.'Description' -match 'Created by' -or $_.'Description' -eq '--' }) {
-                                    Paragraph 'Health Check:' -Bold -Underline
+                                if ($OutObj | Where-Object { $_.$LocalizedData.Description -match 'Created by' -or $_.$LocalizedData.Description -eq '--' }) {
+                                    Paragraph $LocalizedData.HealthCheck -Bold -Underline
                                     BlankLine
                                     Paragraph {
-                                        Text 'Best Practice:' -Bold
-                                        Text 'It is a general rule of good practice to establish well-defined descriptions. This helps to speed up the fault identification process, as well as enabling better documentation of the environment.'
+                                        Text $LocalizedData.BestPractice -Bold
+                                        Text $LocalizedData.BPDescription
                                     }
                                     BlankLine
                                 }

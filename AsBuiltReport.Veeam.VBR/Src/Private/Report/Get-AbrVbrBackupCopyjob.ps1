@@ -22,28 +22,29 @@ function Get-AbrVbrBackupCopyjob {
 
     begin {
         Write-PScriboMessage "Discovering Veeam VBR Backup Copy jobs information from $System."
+        $LocalizedData = $reportTranslate.GetAbrVbrBackupCopyjob
         Show-AbrDebugExecutionTime -Start -TitleMessage 'Backup Copy Jobs'
     }
 
     process {
         try {
             if ($BkCopyjobs = Get-VBRBackupCopyJob -WarningAction SilentlyContinue) {
-                Section -Style Heading3 'Backup Copy Jobs' {
-                    Paragraph 'The following section lists all backup copy jobs configured in Veeam Backup & Replication, along with their current status and last run result.'
+                Section -Style Heading3 $LocalizedData.Heading {
+                    Paragraph $LocalizedData.Paragraph
                     BlankLine
                     $OutObj = @()
                     foreach ($BkCopyjob in $BkCopyjobs) {
                         try {
 
                             $inObj = [ordered] @{
-                                'Name' = $BkCopyjob.Name
-                                'Copy Mode' = $BkCopyjob.Mode
-                                'Status' = switch ($BkCopyjob.JobEnabled) {
-                                    'False' { 'Disabled' }
-                                    'True' { 'Enabled' }
+                                $LocalizedData.Name = $BkCopyjob.Name
+                                $LocalizedData.CopyMode = $BkCopyjob.Mode
+                                $LocalizedData.Status = switch ($BkCopyjob.JobEnabled) {
+                                    'False' { $LocalizedData.Disabled }
+                                    'True' { $LocalizedData.Enabled }
                                 }
-                                'Latest Result' = $BkCopyjob.LastResult
-                                'Scheduled?' = $BkCopyjob.ScheduleOptions.Type
+                                $LocalizedData.LatestResult = $BkCopyjob.LastResult
+                                $LocalizedData.ScheduledQ = $BkCopyjob.ScheduleOptions.Type
                             }
                             $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                         } catch {
@@ -52,20 +53,20 @@ function Get-AbrVbrBackupCopyjob {
                     }
 
                     if ($HealthCheck.Jobs.Status) {
-                        $OutObj | Where-Object { $_.'Latest Result' -eq 'Failed' } | Set-Style -Style Critical -Property 'Latest Result'
-                        $OutObj | Where-Object { $_.'Latest Result' -eq 'Warning' } | Set-Style -Style Warning -Property 'Latest Result'
-                        $OutObj | Where-Object { $_.'Status' -eq 'Disabled' } | Set-Style -Style Warning -Property 'Status'
+                        $OutObj | Where-Object { $_."$($LocalizedData.LatestResult)" -eq 'Failed' } | Set-Style -Style Critical -Property $LocalizedData.LatestResult
+                        $OutObj | Where-Object { $_."$($LocalizedData.LatestResult)" -eq 'Warning' } | Set-Style -Style Warning -Property $LocalizedData.LatestResult
+                        $OutObj | Where-Object { $_."$($LocalizedData.Status)" -eq $LocalizedData.Disabled } | Set-Style -Style Warning -Property $LocalizedData.Status
                     }
 
                     $TableParams = @{
-                        Name = "Backup Copy Jobs - $VeeamBackupServer"
+                        Name = "$($LocalizedData.TableHeading) - $VeeamBackupServer"
                         List = $false
                         ColumnWidths = 40, 15, 15, 15, 15
                     }
                     if ($Report.ShowTableCaptions) {
                         $TableParams['Caption'] = "- $($TableParams.Name)"
                     }
-                    $OutObj | Sort-Object -Property 'Name' | Table @TableParams
+                    $OutObj | Sort-Object -Property $LocalizedData.Name | Table @TableParams
                 }
             }
         } catch {
