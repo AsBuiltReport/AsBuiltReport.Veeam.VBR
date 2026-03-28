@@ -82,7 +82,7 @@ function Get-AbrVbrNetworkTrafficRule {
                                         }
                                         $OutObj | Table @TableParams
                                         if ($TrafficRule.ThrottlingWindowEnabled) {
-                                            Section -Style NOTOCHeading6 -ExcludeFromTOC 'Throttling Windows Time Period' {
+                                            Section -Style NOTOCHeading6 -ExcludeFromTOC $LocalizedData.ThrottlingWindowsHeading {
                                                 Paragraph -ScriptBlock $Legend
 
                                                 try {
@@ -90,7 +90,7 @@ function Get-AbrVbrNetworkTrafficRule {
                                                     $OutObj = Get-WindowsTimePeriod -InputTimePeriod $TrafficRule.ThrottlingWindowOptions
 
                                                     $TableParams = @{
-                                                        Name = "Throttling Windows - $($TrafficRule.Name)"
+                                                        Name = "$($LocalizedData.ThrottlingWindowsTableHeading) - $($TrafficRule.Name)"
                                                         List = $true
                                                         ColumnWidths = 6, 4, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4
                                                         Key = 'H'
@@ -131,16 +131,16 @@ function Get-AbrVbrNetworkTrafficRule {
                                 #---------------------------------------------------------------------------------------------#
                                 try {
                                     if ((Get-VBRPreferredNetwork).count -gt 0) {
-                                        Section -Style NOTOCHeading6 -ExcludeFromTOC 'Preferred Networks' {
+                                        Section -Style NOTOCHeading6 -ExcludeFromTOC $LocalizedData.PreferredNetworksHeading {
                                             $OutObj = @()
                                             $PreferedNetworks = Get-VBRPreferredNetwork
                                             foreach ($PreferedNetwork in $PreferedNetworks) {
                                                 try {
 
                                                     $inObj = [ordered] @{
-                                                        'IP Address' = $PreferedNetwork.IpAddress
-                                                        'Subnet Mask' = $PreferedNetwork.SubnetMask
-                                                        'CIDR Notation' = $PreferedNetwork.CIDRNotation
+                                                        $LocalizedData.IPAddress = $PreferedNetwork.IpAddress
+                                                        $LocalizedData.SubnetMask = $PreferedNetwork.SubnetMask
+                                                        $LocalizedData.CIDRNotation = $PreferedNetwork.CIDRNotation
                                                     }
                                                     $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                                                 } catch {
@@ -149,7 +149,7 @@ function Get-AbrVbrNetworkTrafficRule {
                                             }
 
                                             $TableParams = @{
-                                                Name = "Preferred Networks - $VeeamBackupServer"
+                                                Name = "$($LocalizedData.PreferredNetworksTableHeading) - $VeeamBackupServer"
                                                 List = $false
                                                 ColumnWidths = 30, 30, 40
                                             }

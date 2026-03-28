@@ -246,7 +246,7 @@ function Get-AbrVbrRepljobVMware {
                                             foreach ($OBJ in ($Bkjob.GetViOijs() | Where-Object { $_.Type -eq 'Include' -or $_.Type -eq 'Exclude' } )) {
 
                                                 $inObj = [ordered] @{
-                                                    'Name' = $OBJ.Name
+                                                    ($LocalizedData.name) = $OBJ.Name
                                                     ($LocalizedData.resourceType) = $OBJ.TypeDisplayName
                                                     ($LocalizedData.role) = $OBJ.Type
                                                     ($LocalizedData.approxSize) = $OBJ.ApproxSizeString
@@ -657,7 +657,7 @@ function Get-AbrVbrRepljobVMware {
                                             foreach ($VSSObj in $VSSObjs) {
 
                                                 $inObj = [ordered] @{
-                                                    'Name' = $VSSObj.Name
+                                                    ($LocalizedData.name) = $VSSObj.Name
                                                     ($LocalizedData.enabled) = $VSSObj.VssOptions.Enabled
                                                     ($LocalizedData.resourceType) = ($Bkjob.GetViOijs() | Where-Object { $_.Name -eq $VSSObj.Name -and ($_.Type -eq 'Include' -or $_.Type -eq 'VssChild') }).TypeDisplayName
                                                     ($LocalizedData.ignoreErrors) = $VSSObj.VssOptions.IgnoreErrors

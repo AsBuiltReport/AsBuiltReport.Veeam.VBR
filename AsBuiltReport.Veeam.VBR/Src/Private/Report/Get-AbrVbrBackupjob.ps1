@@ -34,17 +34,17 @@ function Get-AbrVbrBackupjob {
                 foreach ($Bkjob in $Bkjobs) {
                     try {
                         $inObj = [ordered] @{
-                            'Name' = $Bkjob.Name
-                            'Type' = $Bkjob.TypeToString
-                            'Status' = switch ($Bkjob.IsScheduleEnabled) {
-                                'False' { 'Disabled' }
-                                'True' { 'Enabled' }
+                            $LocalizedData.Name = $Bkjob.Name
+                            $LocalizedData.Type = $Bkjob.TypeToString
+                            $LocalizedData.Status = switch ($Bkjob.IsScheduleEnabled) {
+                                'False' { $LocalizedData.Disabled }
+                                'True' { $LocalizedData.Enabled }
                             }
-                            'Latest Result' = $Bkjob.info.LatestStatus
-                            'Scheduled?' = switch ($Bkjob.IsScheduleEnabled) {
-                                'True' { 'Yes' }
-                                'False' { 'No' }
-                                default { 'Unknown' }
+                            $LocalizedData.LatestResult = $Bkjob.info.LatestStatus
+                            $LocalizedData.Scheduled = switch ($Bkjob.IsScheduleEnabled) {
+                                'True' { $LocalizedData.Yes }
+                                'False' { $LocalizedData.No }
+                                default { $LocalizedData.Unknown }
                             }
                         }
                         $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
@@ -54,15 +54,15 @@ function Get-AbrVbrBackupjob {
                 }
 
                 if ($HealthCheck.Jobs.Status) {
-                    $OutObj | Where-Object { $_.'Latest Result' -eq 'Failed' } | Set-Style -Style Critical -Property 'Latest Result'
-                    $OutObj | Where-Object { $_.'Latest Result' -eq 'Warning' } | Set-Style -Style Warning -Property 'Latest Result'
-                    $OutObj | Where-Object { $_.'Latest Result' -eq 'Success' } | Set-Style -Style Ok -Property 'Latest Result'
-                    $OutObj | Where-Object { $_.'Status' -eq 'Disabled' } | Set-Style -Style Warning -Property 'Status'
-                    $OutObj | Where-Object { $_.'Scheduled?' -eq 'No' } | Set-Style -Style Warning -Property 'Scheduled?'
+                    $OutObj | Where-Object { $_.$($LocalizedData.LatestResult) -eq 'Failed' } | Set-Style -Style Critical -Property $LocalizedData.LatestResult
+                    $OutObj | Where-Object { $_.$($LocalizedData.LatestResult) -eq 'Warning' } | Set-Style -Style Warning -Property $LocalizedData.LatestResult
+                    $OutObj | Where-Object { $_.$($LocalizedData.LatestResult) -eq 'Success' } | Set-Style -Style Ok -Property $LocalizedData.LatestResult
+                    $OutObj | Where-Object { $_.$($LocalizedData.Status) -eq $LocalizedData.Disabled } | Set-Style -Style Warning -Property $LocalizedData.Status
+                    $OutObj | Where-Object { $_.$($LocalizedData.Scheduled) -eq $LocalizedData.No } | Set-Style -Style Warning -Property $LocalizedData.Scheduled
                 }
 
                 $TableParams = @{
-                    Name = "Backup Jobs - $VeeamBackupServer"
+                    Name = "$($LocalizedData.TableHeading) - $VeeamBackupServer"
                     List = $false
                     ColumnWidths = 41, 20, 13, 13, 13
                 }
@@ -93,14 +93,14 @@ function Get-AbrVbrBackupjob {
 
                     $statusCustomPalette = @('#DFF0D0', '#FFF4C7', '#FEDDD7', '#878787')
 
-                    $chartFileItem = New-BarChart -Title 'Jobs Latest Result' -Values $chartValues -Labels $chartLabels -LabelXAxis 'Category' -LabelYAxis 'Value' -EnableCustomColorPalette -CustomColorPalette $statusCustomPalette -Width 600 -Height 400 -Format base64 -EnableLegend -LegendOrientation Horizontal -LegendAlignment UpperCenter -AxesMarginsTop 0.5 -TitleFontBold -TitleFontSize 16
+                    $chartFileItem = New-BarChart -Title $LocalizedData.ChartTitle -Values $chartValues -Labels $chartLabels -LabelXAxis 'Category' -LabelYAxis 'Value' -EnableCustomColorPalette -CustomColorPalette $statusCustomPalette -Width 600 -Height 400 -Format base64 -EnableLegend -LegendOrientation Horizontal -LegendAlignment UpperCenter -AxesMarginsTop 0.5 -TitleFontBold -TitleFontSize 16
 
                 } catch {
                     Write-PScriboMessage -IsWarning "Backup Jobs chart section: $($_.Exception.Message)"
                 }
                 if ($OutObj) {
                     if ($chartFileItem) {
-                        Image -Text 'Backup Jobs - Chart' -Align 'Center' -Percent 100 -Base64 $chartFileItem
+                        Image -Text $LocalizedData.ChartText -Align 'Center' -Percent 100 -Base64 $chartFileItem
                     }
                     Section -Style Heading3 $LocalizedData.Heading {
                         Paragraph $LocalizedData.Paragraph
@@ -108,67 +108,6 @@ function Get-AbrVbrBackupjob {
                         Section -ExcludeFromTOC -Style NOTOCHeading4 $LocalizedData.JobStatusSection {
                             $OutObj | Sort-Object -Property Name | Table @TableParams
                         }
-                        # Disable until fixing code issues
-                        # if ($Bkjobs) {
-                        #     try {
-                        #         Section -ExcludeFromTOC -Style NOTOCHeading4 'Backup Jobs Duration' {
-                        #             $OutObj = @()
-                        #             foreach ($Bkjob in $Bkjobs) {
-                        #                 try {
-                        #                     $Duration = $Null
-                        #                     $StandardDeviation = $Null
-                        #                     if ($BKJobSession = Get-VBRSession -Job $Bkjob | Select-Object -First 10) {
-                        #                         try {
-                        #                             $Duration = Get-AvgTimeDuration -InputObject $BKJobSession -StartTime 'CreationTime' -EndTime 'EndTime'
-                        #                         } catch {
-                        #                             Out-Null
-                        #                         }
-                        #                     }
-                        #                     if ($BKJobSession) {
-                        #                         try {
-                        #                             $StandardDeviation = (Get-StrdDevDuration -JobSessions $BKJobSession).StandardDeviation
-                        #                         } catch {
-                        #                             Out-Null
-                        #                         }
-                        #                     }
-                        #                     $inObj = [ordered] @{
-                        #                         'Name' = $Bkjob.Name
-                        #                         'Last Backup Duration' = Switch ([string]::IsNullOrEmpty($BKJobSession)) {
-                        #                             $true { '--' }
-                        #                             $false { Get-TimeDuration -TimeSpan (New-TimeSpan -Start $BKJobSession[0].CreationTime -End $BKJobSession[0].EndTime) }
-                        #                         }
-                        #                         'Last 10 Backup AVG Duration' = Switch ([string]::IsNullOrEmpty($Duration)) {
-                        #                             $true { '--' }
-                        #                             $false { $Duration }
-                        #                             default { 'Unknown' }
-                        #                         }
-                        #                         'Standard Deviation' = Switch ([string]::IsNullOrEmpty($StandardDeviation)) {
-                        #                             $true { '--' }
-                        #                             $false { $StandardDeviation }
-                        #                             default { 'Unknown' }
-                        #                         }
-                        #                     }
-                        #                     $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
-                        #                 } catch {
-                        #                     Write-PScriboMessage -IsWarning "Backup Jobs $($Bkjob.Name) Time Table: $($_.Exception.Message)"
-                        #                 }
-                        #             }
-
-                        #             $TableParams = @{
-                        #                 Name = "Backup Jobs Time - $VeeamBackupServer"
-                        #                 List = $false
-                        #                 ColumnWidths = 40, 20, 20, 20
-                        #             }
-                        #             if ($Report.ShowTableCaptions) {
-                        #                 $TableParams['Caption'] = "- $($TableParams.Name)"
-                        #             }
-
-                        #             $OutObj | Sort-Object -Property Name | Table @TableParams
-                        #         }
-                        #     } catch {
-                        #         Write-PScriboMessage -IsWarning "Backup Jobs Time Section: $($_.Exception.Message)"
-                        #     }
-                        # }
                     }
                 }
             }

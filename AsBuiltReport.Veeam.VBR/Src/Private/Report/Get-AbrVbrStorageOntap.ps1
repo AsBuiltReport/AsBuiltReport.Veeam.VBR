@@ -71,16 +71,16 @@ function Get-AbrVbrStorageOntap {
                                     try {
                                         $OntapVols = Get-NetAppVolume -Host $OntapHost
                                         if ($OntapVols) {
-                                            Section -Style NOTOCHeading5 -ExcludeFromTOC 'Volumes' {
+                                            Section -Style NOTOCHeading5 -ExcludeFromTOC $LocalizedData.VolumesSubHeading {
                                                 $OutObj = @()
                                                 foreach ($OntapVol in $OntapVols) {
                                                     try {
 
                                                         $inObj = [ordered] @{
-                                                            'Name' = $OntapVol.Name
-                                                            'Total Space' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $OntapVol.Size
-                                                            'Used Space' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $OntapVol.ConsumedSpace
-                                                            'Thin Provision' = $OntapVol.IsThinProvision
+                                                            $LocalizedData.Name = $OntapVol.Name
+                                                            $LocalizedData.TotalSpace = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $OntapVol.Size
+                                                            $LocalizedData.UsedSpace = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $OntapVol.ConsumedSpace
+                                                            $LocalizedData.ThinProvision = $OntapVol.IsThinProvision
                                                         }
 
                                                         $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
@@ -98,7 +98,7 @@ function Get-AbrVbrStorageOntap {
                                                 if ($Report.ShowTableCaptions) {
                                                     $TableParams['Caption'] = "- $($TableParams.Name)"
                                                 }
-                                                $OutObj | Sort-Object -Property 'Name' | Table @TableParams
+                                                $OutObj | Sort-Object -Property $LocalizedData.Name | Table @TableParams
                                             }
                                         }
                                     } catch {

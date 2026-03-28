@@ -108,20 +108,20 @@ function Get-AbrVbrReportBrief {
                     $ProtectedVmCount = try { (Get-VBRRestorePoint | Select-Object { $_.VmName } -Unique).Count } catch { 0 }
 
                     $inObj = [ordered] @{
-                        'VMware Backup Proxies' = $ViProxyCount
-                        'Hyper-V Backup Proxies' = $HvProxyCount
-                        'Backup Repositories' = $RepoCount
-                        'Scale-Out Backup Repositories' = $SOBRCount
-                        'Managed Servers' = $ManagedServerCount
-                        'Backup Jobs' = $BackupJobCount
-                        'Computer Backup Jobs' = $ComputerBackupJobCount
-                        'Backup Copy Jobs' = $BackupCopyJobCount
-                        'Protected VMs' = $ProtectedVmCount
+                        $LocalizedData.VMwareBackupProxies = $ViProxyCount
+                        $LocalizedData.HyperVBackupProxies = $HvProxyCount
+                        $LocalizedData.BackupRepositories = $RepoCount
+                        $LocalizedData.SOBRCount = $SOBRCount
+                        $LocalizedData.ManagedServers = $ManagedServerCount
+                        $LocalizedData.BackupJobs = $BackupJobCount
+                        $LocalizedData.ComputerBackupJobs = $ComputerBackupJobCount
+                        $LocalizedData.BackupCopyJobs = $BackupCopyJobCount
+                        $LocalizedData.ProtectedVMs = $ProtectedVmCount
                     }
                     $OutObj = [pscustomobject]$inObj
 
                     $TableParams = @{
-                        Name = "Infrastructure Summary - $VeeamBackupServer"
+                        Name = "$($LocalizedData.TableInfrastructureSummary) - $VeeamBackupServer"
                         List = $true
                         ColumnWidths = 60, 40
                     }
@@ -139,35 +139,35 @@ function Get-AbrVbrReportBrief {
                 try {
                     $OutObj = @()
                     $ScopeMap = [ordered] @{
-                        'Backup Infrastructure' = ($InfoLevel.Infrastructure.PSObject.Properties.Value | Measure-Object -Maximum).Maximum
-                        'Tape Infrastructure' = ($InfoLevel.Tape.PSObject.Properties.Value | Measure-Object -Maximum).Maximum
-                        'Inventory' = ($InfoLevel.Inventory.PSObject.Properties.Value | Measure-Object -Maximum).Maximum
-                        'Storage Infrastructure' = ($InfoLevel.Storage.PSObject.Properties.Value | Measure-Object -Maximum).Maximum
-                        'Replication' = ($InfoLevel.Replication.PSObject.Properties.Value | Measure-Object -Maximum).Maximum
-                        'Cloud Connect' = ($InfoLevel.CloudConnect.PSObject.Properties.Value | Measure-Object -Maximum).Maximum
-                        'Jobs' = ($InfoLevel.Jobs.PSObject.Properties.Value | Measure-Object -Maximum).Maximum
+                        $LocalizedData.BackupInfrastructure = ($InfoLevel.Infrastructure.PSObject.Properties.Value | Measure-Object -Maximum).Maximum
+                        $LocalizedData.TapeInfrastructure = ($InfoLevel.Tape.PSObject.Properties.Value | Measure-Object -Maximum).Maximum
+                        $LocalizedData.Inventory = ($InfoLevel.Inventory.PSObject.Properties.Value | Measure-Object -Maximum).Maximum
+                        $LocalizedData.StorageInfrastructure = ($InfoLevel.Storage.PSObject.Properties.Value | Measure-Object -Maximum).Maximum
+                        $LocalizedData.Replication = ($InfoLevel.Replication.PSObject.Properties.Value | Measure-Object -Maximum).Maximum
+                        $LocalizedData.CloudConnect = ($InfoLevel.CloudConnect.PSObject.Properties.Value | Measure-Object -Maximum).Maximum
+                        $LocalizedData.Jobs = ($InfoLevel.Jobs.PSObject.Properties.Value | Measure-Object -Maximum).Maximum
                     }
 
                     foreach ($Entry in $ScopeMap.GetEnumerator()) {
                         $StatusText = switch ($Entry.Value) {
-                            0 { 'Disabled' }
-                            1 { 'Enabled (Summary)' }
-                            2 { 'Enabled (Advanced Summary)' }
-                            3 { 'Enabled (Detailed)' }
-                            default { "Enabled (Level $($Entry.Value))" }
+                            0 { $LocalizedData.Disabled }
+                            1 { $LocalizedData.EnabledSummary }
+                            2 { $LocalizedData.EnabledAdvancedSummary }
+                            3 { $LocalizedData.EnabledDetailed }
+                            default { $LocalizedData.EnabledLevel -f $Entry.Value }
                         }
                         $inObj = [ordered] @{
-                            'Section' = $Entry.Key
-                            'Detail Level' = $StatusText
+                            $LocalizedData.Section = $Entry.Key
+                            $LocalizedData.DetailLevel = $StatusText
                         }
                         $OutObj += [pscustomobject]$inObj
                     }
 
                     $TableParams = @{
-                        Name = "Report Scope - $VeeamBackupServer"
+                        Name = "$($LocalizedData.TableReportScope) - $VeeamBackupServer"
                         List = $false
-                        Headers = 'Section', 'Detail Level'
-                        Columns = 'Section', 'Detail Level'
+                        Headers = $LocalizedData.Section, $LocalizedData.DetailLevel
+                        Columns = $LocalizedData.Section, $LocalizedData.DetailLevel
                         ColumnWidths = 60, 40
                     }
                     if ($Report.ShowTableCaptions) {

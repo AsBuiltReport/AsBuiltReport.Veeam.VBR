@@ -63,18 +63,18 @@ function Get-AbrVbrEventForwarding {
                     }
                     $OutObj | Table @TableParams
                     if ($HealthCheck.Infrastructure.BestPractice -and ($OutObj | Where-Object { $_.$($LocalizedData.SyslogServers) -eq '--' })) {
-                        Paragraph 'Health Check:' -Bold -Underline
+                        Paragraph $LocalizedData.HealthCheck -Bold -Underline
                         BlankLine
                         Paragraph {
-                            Text 'Security Best Practice:' -Bold
-                            Text 'It is a recommends best practice to configure Event Forwarding to an external SIEM or Log Collector to increase the organization security posture.'
+                            Text $LocalizedData.SecurityBestPractice -Bold
+                            Text $LocalizedData.BPSyslog
                         }
                         BlankLine
                     }
                     try {
                         $SyslogEventFilters = try { Get-VBRSyslogEventFilters } catch { Write-PScriboMessage 'No syslog event filter configured' }
                         if ($SyslogEventFilters) {
-                            Section -Style Heading4 'Syslog Event Filter' {
+                            Section -Style Heading4 $LocalizedData.SyslogEventFilterHeading {
                                 $OutObj = @()
                                 foreach ($SyslogEventFilter in $SyslogEventFilters) {
 
@@ -91,14 +91,14 @@ function Get-AbrVbrEventForwarding {
                                     }
 
                                     $inObj = [ordered] @{
-                                        'EventId' = $SyslogEventFilter.EventId
-                                        'Level' = $SyslogEventFilterLevel -join ', '
+                                        $LocalizedData.EventId = $SyslogEventFilter.EventId
+                                        $LocalizedData.Level = $SyslogEventFilterLevel -join ', '
                                     }
                                     $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                                 }
 
                                 $TableParams = @{
-                                    Name = "Syslog Event Filter - $VeeamBackupServer"
+                                    Name = "$($LocalizedData.SyslogEventFilterTableHeading) - $VeeamBackupServer"
                                     List = $false
                                     ColumnWidths = 50, 50
                                 }

@@ -37,8 +37,6 @@ function Get-AbrVbrCloudConnectCert {
                             $OutObj = @()
                             foreach ($CloudObject in $CloudObjects) {
                                 try {
-
-
                                     $inObj = [ordered] @{
                                         $LocalizedData.Name = $CloudObject.DisplayName
                                         $LocalizedData.SubjectName = $CloudObject.SubjectName

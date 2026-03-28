@@ -37,8 +37,6 @@ function Get-AbrVbrCloudConnectCG {
                             $OutObj = @()
                             foreach ($CloudObject in $CloudObjects) {
                                 try {
-
-
                                     $inObj = [ordered] @{
                                         $LocalizedData.Name = $CloudObject.Name
                                         $LocalizedData.DNSIP = $CloudObject.IpAddress

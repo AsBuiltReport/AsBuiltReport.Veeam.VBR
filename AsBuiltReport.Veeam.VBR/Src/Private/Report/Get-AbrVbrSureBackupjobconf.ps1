@@ -173,13 +173,13 @@ function Get-AbrVbrSureBackupjobconf {
                                                         foreach ($LinkedJob in $SBkjob.LinkedJob) {
 
                                                             $inObj = [ordered] @{
-                                                                'Job Name' = $LinkedJob.Job.Name
+                                                                $LocalizedData.JobName = $LinkedJob.Job.Name
                                                                 'Amount of memory to Allocate to VM' = "$($LinkedJob.StartupOptions.AllocatedMemory) percent"
                                                                 'Maximum allowed boot time' = "$($LinkedJob.StartupOptions.MaximumBootTime) sec"
                                                                 'Application Initialization Timeout' = "$($LinkedJob.StartupOptions.ApplicationInitializationTimeout) sec"
-                                                                'VM heartbeat is present' = $LinkedJob.StartupOptions.VMHeartBeatCheckEnabled
-                                                                'VM respond to ping on any interface' = $LinkedJob.StartupOptions.VMPingCheckEnabled
-                                                                'Automatically disable Windows Firewall' = $LinkedJob.StartupOptions.WindowsFirewallDisabled
+                                                                $LocalizedData.VMHeartbeat = $LinkedJob.StartupOptions.VMHeartBeatCheckEnabled
+                                                                $LocalizedData.VMPing = $LinkedJob.StartupOptions.VMPingCheckEnabled
+                                                                $LocalizedData.DisableFirewall = $LinkedJob.StartupOptions.WindowsFirewallDisabled
                                                                 'VM Role' = ($LinkedJob.ScriptOptions.PredefinedApplication -join ', ')
                                                                 'VM Test Script' = switch ([string]::IsNullOrEmpty(($LinkedJob.ScriptOptions | ForEach-Object { if ($_.Name) { $_.Name } }))) {
                                                                     $true { '--' }
@@ -210,8 +210,8 @@ function Get-AbrVbrSureBackupjobconf {
                                                             foreach ($LinkedJobVM in $SBkjob.LinkedJob.VM) {
 
                                                                 $inObj = [ordered] @{
-                                                                    'VM Name' = $LinkedJobVM.Name
-                                                                    'Excluded' = $LinkedJobVM.IsExcluded
+                                                                    $LocalizedData.VMName = $LinkedJobVM.Name
+                                                                    $LocalizedData.Excluded = $LinkedJobVM.IsExcluded
                                                                     'VM Role' = ($LinkedJobVM.Role -join ', ')
                                                                     'VM Test Script' = switch ([string]::IsNullOrEmpty(($LinkedJobVM.TestScript | ForEach-Object { if ($_.Name) { $_.Name } }))) {
                                                                         $true { '--' }
@@ -234,7 +234,7 @@ function Get-AbrVbrSureBackupjobconf {
                                                             if ($Report.ShowTableCaptions) {
                                                                 $TableParams['Caption'] = "- $($TableParams.Name)"
                                                             }
-                                                            $OutObj | Sort-Object -Property 'VM Name' | Table @TableParams
+                                                            $OutObj | Sort-Object -Property $LocalizedData.VMName | Table @TableParams
                                                         }
                                                     }
                                                 } catch {
@@ -251,17 +251,17 @@ function Get-AbrVbrSureBackupjobconf {
                                         $OutObj = @()
 
                                         $inObj = [ordered] @{
-                                            'Backup file integrity scan' = $SBkjob.VerificationOptions.EnableDiskContentValidation
-                                            'Skip validation for application group VM' = $SBkjob.VerificationOptions.DisableApplicationGroupValidation
-                                            'Malware Scan' = $SBkjob.VerificationOptions.EnableMalwareScan
-                                            'YARA Scan' = $SBkjob.VerificationOptions.EnableYARAScan
-                                            'YARA Rules' = $SBkjob.VerificationOptions.YARAScanRule
-                                            'Scan the entire image' = $SBkjob.VerificationOptions.EnableEntireImageScan
-                                            'Skip application group machine from malware scan' = $SBkjob.VerificationOptions.DisableApplicationGroupMalwareScan
-                                            'Send SNMP trap' = $SBkjob.VerificationOptions.EnableSNMPNotification
-                                            'Send Email notification' = $SBkjob.VerificationOptions.EnableEmailNotification
-                                            'Email recipients' = $SBkjob.VerificationOptions.Address
-                                            'Use custom notification settings' = $SBkjob.VerificationOptions.UseCustomEmailSettings
+                                            $LocalizedData.BackupIntegrityScan = $SBkjob.VerificationOptions.EnableDiskContentValidation
+                                            $LocalizedData.SkipValidationAG = $SBkjob.VerificationOptions.DisableApplicationGroupValidation
+                                            $LocalizedData.MalwareScan = $SBkjob.VerificationOptions.EnableMalwareScan
+                                            $LocalizedData.YARAScan = $SBkjob.VerificationOptions.EnableYARAScan
+                                            $LocalizedData.YARARule = $SBkjob.VerificationOptions.YARAScanRule
+                                            $LocalizedData.ScanEntireImage = $SBkjob.VerificationOptions.EnableEntireImageScan
+                                            $LocalizedData.SkipAGMalwareScan = $SBkjob.VerificationOptions.DisableApplicationGroupMalwareScan
+                                            $LocalizedData.SendSNMPTrap = $SBkjob.VerificationOptions.EnableSNMPNotification
+                                            $LocalizedData.SendEmailNotification = $SBkjob.VerificationOptions.EnableEmailNotification
+                                            $LocalizedData.EmailRecipients = $SBkjob.VerificationOptions.Address
+                                            $LocalizedData.UseCustomNotification = $SBkjob.VerificationOptions.UseCustomEmailSettings
                                         }
 
                                         if ($SBkjob.VerificationOptions.UseCustomEmailSettings) {

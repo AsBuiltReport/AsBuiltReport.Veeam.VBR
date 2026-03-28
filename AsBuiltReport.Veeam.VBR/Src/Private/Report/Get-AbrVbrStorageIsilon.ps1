@@ -67,16 +67,16 @@ function Get-AbrVbrStorageIsilon {
                             if ($InfoLevel.Storage.Isilon -ge 2) {
                                 try {
                                     if ($IsilonVols = Get-VBRIsilonVolume -Host $IsilonHost) {
-                                        Section -Style NOTOCHeading5 -ExcludeFromTOC 'Volumes' {
+                                        Section -Style NOTOCHeading5 -ExcludeFromTOC $LocalizedData.VolumesSubHeading {
                                             $OutObj = @()
                                             foreach ($IsilonVol in $IsilonVols) {
                                                 try {
 
                                                     $inObj = [ordered] @{
-                                                        'Name' = $IsilonVol.Name
-                                                        'Total Space' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $IsilonVol.Size
-                                                        'Used Space' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $IsilonVol.ConsumedSpace
-                                                        'Thin Provision' = $IsilonVol.IsThinProvision
+                                                        $LocalizedData.Name = $IsilonVol.Name
+                                                        $LocalizedData.TotalSpace = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $IsilonVol.Size
+                                                        $LocalizedData.UsedSpace = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $IsilonVol.ConsumedSpace
+                                                        $LocalizedData.ThinProvision = $IsilonVol.IsThinProvision
                                                     }
 
                                                     $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
@@ -94,7 +94,7 @@ function Get-AbrVbrStorageIsilon {
                                             if ($Report.ShowTableCaptions) {
                                                 $TableParams['Caption'] = "- $($TableParams.Name)"
                                             }
-                                            $OutObj | Sort-Object -Property 'Name' | Table @TableParams
+                                            $OutObj | Sort-Object -Property $LocalizedData.Name | Table @TableParams
                                         }
                                     }
                                 } catch {

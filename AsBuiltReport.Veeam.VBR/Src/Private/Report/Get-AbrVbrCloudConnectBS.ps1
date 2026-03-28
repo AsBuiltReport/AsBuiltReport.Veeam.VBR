@@ -45,8 +45,6 @@ function Get-AbrVbrCloudConnectBS {
                                 Section -Style Heading4 $CloudObject.Name {
                                     $OutObj = @()
                                     try {
-
-
                                         $inObj = [ordered] @{
                                             $LocalizedData.Type = $CloudObject.TypeDisplay
                                             $LocalizedData.Path = switch ([string]::IsNullOrEmpty($CloudObject.FriendlyPath)) {

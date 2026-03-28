@@ -244,9 +244,9 @@ function Get-AbrVbrFileToTape {
                                         try {
 
                                             $inObj = [ordered] @{
-                                                'Use Microsoft volume shadow copy (VSS)' = $TBkjob.UseVss
-                                                'Eject Tape Media Upon Job Completion' = $TBkjob.EjectCurrentMedium
-                                                'Export the following MediaSet Upon Job Completion' = $TBkjob.ExportCurrentMediaSet
+                                                $LocalizedData.UseVss = $TBkjob.UseVss
+                                                $LocalizedData.EjectTapeMedia = $TBkjob.EjectCurrentMedium
+                                                $LocalizedData.ExportMediaSet = $TBkjob.ExportCurrentMediaSet
                                             }
                                             $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                                         } catch {
@@ -269,8 +269,8 @@ function Get-AbrVbrFileToTape {
                                                     try {
 
                                                         $inObj = [ordered] @{
-                                                            'Send Email Notification' = $TBkjob.NotificationOptions.EnableAdditionalNotification
-                                                            'Email Notification Additional Recipients' = $TBkjob.NotificationOptions.AdditionalAddress -join ','
+                                                            $LocalizedData.SendEmailNotification = $TBkjob.NotificationOptions.EnableAdditionalNotification
+                                                            $LocalizedData.EmailAdditionalRecipients = $TBkjob.NotificationOptions.AdditionalAddress -join ','
                                                         }
                                                         if (!$TBkjob.NotificationOptions.UseNotificationOptions) {
                                                             $inObj.add('Use Global Notification Settings', ($TBkjob.NotificationOptions.UseNotificationOptions))
@@ -309,7 +309,7 @@ function Get-AbrVbrFileToTape {
                                                     try {
 
                                                         $inObj = [ordered] @{
-                                                            'Use Hardware Compression when available' = $TBkjob.UseHardwareCompression
+                                                            $LocalizedData.UseHardwareCompression = $TBkjob.UseHardwareCompression
                                                         }
                                                         if (!$TBkjob.JobScriptOptions.PreScriptEnabled) {
                                                             $inObj.add('Pre Job Script Enabled', ($TBkjob.JobScriptOptions.PreScriptEnabled))
