@@ -22,14 +22,15 @@ function Get-AbrVbrBackupjobNutanixConf {
 
     begin {
         Write-PScriboMessage "Discovering Veeam VBR Nutanix Backup jobs information from $System."
+        $LocalizedData = $reportTranslate.GetAbrVbrBackupjobNutanixConf
         Show-AbrDebugExecutionTime -Start -TitleMessage 'Nutanix Backup Jobs'
     }
 
     process {
         try {
             if ($Bkjobs = [Veeam.Backup.Core.CBackupJob]::GetAll() | Where-Object { $_.TypeToString -like '*Nutanix*' } | Sort-Object -Property 'Name') {
-                Section -Style Heading3 'Nutanix Backup Jobs Configuration' {
-                    Paragraph 'The following section provides detailed configuration information for each Nutanix AHV backup job, including schedule, retention policy, and protected workloads.'
+                Section -Style Heading3 $LocalizedData.Heading {
+                    Paragraph $LocalizedData.Paragraph
                     BlankLine
                     $OutObj = @()
                     try {
@@ -38,9 +39,9 @@ function Get-AbrVbrBackupjobNutanixConf {
                                 try {
 
                                     $inObj = [ordered] @{
-                                        'Name' = $VMcount.Name
-                                        'Creation Time' = $VMcount.CreationTime
-                                        'VM Count' = $VMcount.VmCount
+                                        $LocalizedData.Name = $VMcount.Name
+                                        $LocalizedData.CreationTime = $VMcount.CreationTime
+                                        $LocalizedData.VMCount = $VMcount.VmCount
                                     }
                                     $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                                 } catch {
@@ -49,14 +50,14 @@ function Get-AbrVbrBackupjobNutanixConf {
                             }
 
                             $TableParams = @{
-                                Name = "Nutanix Backup Summary - $VeeamBackupServer"
+                                Name = "$($LocalizedData.NutanixBackupSummary) - $VeeamBackupServer"
                                 List = $false
                                 ColumnWidths = 35, 35, 30
                             }
                             if ($Report.ShowTableCaptions) {
                                 $TableParams['Caption'] = "- $($TableParams.Name)"
                             }
-                            $OutObj | Sort-Object -Property 'Name' | Table @TableParams
+                            $OutObj | Sort-Object -Property $LocalizedData.Name | Table @TableParams
                         }
                     } catch {
                         Write-PScriboMessage -IsWarning $_.Exception.Message

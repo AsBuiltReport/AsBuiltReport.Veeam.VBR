@@ -22,16 +22,16 @@ function Get-AbrVbrFileShareBackupjobConf {
 
     begin {
         Write-PScriboMessage "Discovering Veeam VBR File Share Backup jobs information from $System."
-        $LocalizedData = $reportTranslate.GetAbrVbrFileShareBackupjobConf
         Show-AbrDebugExecutionTime -Start -TitleMessage 'File Share Backup jobs'
+        $LocalizedData = $reportTranslate.GetAbrVbrFileShareBackupjobConf
     }
 
     process {
         if ($Bkjobs = Get-VBRJob -WarningAction SilentlyContinue | Where-Object { $_.TypeToString -like 'File Backup' -or $_.TypeToString -like 'Object Storage Backup' } | Sort-Object -Property Name) {
             if ($VbrVersion -lt 12.1) {
-                $BSName = $LocalizedData.FileShareBackupJobsConf
+                $BSName = $LocalizedData.HeadingFileShare
             } else {
-                $BSName = $LocalizedData.UnstructuredDataBackupJobsConf
+                $BSName = $LocalizedData.HeadingUnstructuredData
             }
             Section -Style Heading3 $BSName {
                 Paragraph ($LocalizedData.Paragraph -f $BSName.ToLower())
@@ -81,7 +81,7 @@ function Get-AbrVbrFileShareBackupjobConf {
                                             BlankLine
                                             Paragraph {
                                                 Text $LocalizedData.BestPractice -Bold
-                                                Text $LocalizedData.DescriptionBPText
+                                                Text $LocalizedData.DescriptionBestPracticeText
                                             }
                                             BlankLine
                                         }
@@ -135,22 +135,22 @@ function Get-AbrVbrFileShareBackupjobConf {
                                                     $LocalizedData.Path = switch ([string]::IsNullOrEmpty($OBJ.Path)) {
                                                         $true { '--' }
                                                         $false { $OBJ.Path }
-                                                        default { 'Unknown' }
+                                                        default { $LocalizedData.Unknown }
                                                     }
                                                     $LocalizedData.Container = switch ([string]::IsNullOrEmpty($OBJ.Container)) {
                                                         $true { '--' }
                                                         $false { $OBJ.Container }
-                                                        default { 'Unknown' }
+                                                        default { $LocalizedData.Unknown }
                                                     }
                                                     $LocalizedData.InclusionMask = switch ([string]::IsNullOrEmpty($OBJ.InclusionMask)) {
                                                         $true { '--' }
                                                         $false { $OBJ.InclusionMask }
-                                                        default { 'Unknown' }
+                                                        default { $LocalizedData.Unknown }
                                                     }
                                                     $LocalizedData.ExclusionMask = switch ([string]::IsNullOrEmpty($OBJ.ExclusionMask)) {
                                                         $true { '--' }
                                                         $false { $OBJ.ExclusionMask }
-                                                        default { 'Unknown' }
+                                                        default { $LocalizedData.Unknown }
                                                     }
                                                 }
                                                 $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
@@ -184,9 +184,9 @@ function Get-AbrVbrFileShareBackupjobConf {
                                     }
 
                                     $FiletoArchive = switch ($Bkjob.Options.NasBackupRetentionPolicy.ArchiveFileExtensionsScope) {
-                                        'ExceptSpecified' { "$($LocalizedData.AllFileExcept) $($Bkjob.Options.NasBackupRetentionPolicy.ExcludedFileExtensions)" }
+                                        'ExceptSpecified' { "$($LocalizedData.AllFileExceptExtension): $($Bkjob.Options.NasBackupRetentionPolicy.ExcludedFileExtensions)" }
                                         'Any' { $LocalizedData.AllFiles }
-                                        'Specified' { "$($LocalizedData.FileWithExtensionOnly) $($Bkjob.Options.NasBackupRetentionPolicy.IncludedFileExtensions)" }
+                                        'Specified' { "$($LocalizedData.FileWithExtensionOnly): $($Bkjob.Options.NasBackupRetentionPolicy.IncludedFileExtensions)" }
                                     }
 
                                     if ($Bkjob.Options.NasBackupRetentionPolicy.LongTermEnabled -and ($VbrVersion -lt 12.1)) {
@@ -217,9 +217,9 @@ function Get-AbrVbrFileShareBackupjobConf {
                                             try {
 
                                                 $FileVersionsRetentionScope = switch ($Bkjob.Options.NasBackupRetentionPolicy.FileVersionsRetentionScope) {
-                                                    'LongTermOnly' { $LocalizedData.LimitArchivedFileVersions }
-                                                    'None' { $LocalizedData.KeepAllFileVersionsValue }
-                                                    'All' { $LocalizedData.LimitBothFileVersions }
+                                                    'LongTermOnly' { $LocalizedData.LimitArchivedVersions }
+                                                    'None' { $LocalizedData.KeepAllVersions }
+                                                    'All' { $LocalizedData.LimitBothVersions }
                                                 }
                                                 $inObj = [ordered] @{
                                                     $LocalizedData.FileVersionToKeep = $FileVersionsRetentionScope
@@ -247,21 +247,21 @@ function Get-AbrVbrFileShareBackupjobConf {
                                         }
                                     }
                                     if ($InfoLevel.Jobs.FileShare -ge 2 -and ($Bkjob.TypeToString -ne 'Object Storage Backup')) {
-                                        Section -Style NOTOCHeading6 -ExcludeFromTOC $LocalizedData.AdvancedACL {
+                                        Section -Style NOTOCHeading6 -ExcludeFromTOC $LocalizedData.AdvancedSettingsACLHandling {
                                             $OutObj = @()
                                             try {
 
                                                 $inObj = [ordered] @{
-                                                    $LocalizedData.PermissionsBackup = switch ($Bkjob.Options.NasBackupOptions.FileAttributesChangeTrackingMode) {
+                                                    $LocalizedData.PermissionsAndAttributeBackup = switch ($Bkjob.Options.NasBackupOptions.FileAttributesChangeTrackingMode) {
                                                         'TrackOnlyFolderAttributesChanges' { $LocalizedData.FolderLevelOnly }
-                                                        'TrackEverythingAttributesChanges' { $LocalizedData.FileAndFolders }
+                                                        'TrackEverythingAttributesChanges' { $LocalizedData.FileAndFoldersSlower }
                                                         default { '--' }
                                                     }
                                                 }
                                                 $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                 $TableParams = @{
-                                                    Name = "$($LocalizedData.AdvancedACL) - $($Bkjob.Name)"
+                                                    Name = "Advanced Settings (acl handling) - $($Bkjob.Name)"
                                                     List = $true
                                                     ColumnWidths = 40, 60
                                                 }
@@ -275,21 +275,21 @@ function Get-AbrVbrFileShareBackupjobConf {
                                         }
                                     }
                                     if ($InfoLevel.Jobs.FileShare -ge 2) {
-                                        Section -Style NOTOCHeading6 -ExcludeFromTOC $LocalizedData.AdvancedStorage {
+                                        Section -Style NOTOCHeading6 -ExcludeFromTOC $LocalizedData.AdvancedSettingsStorage {
                                             $OutObj = @()
                                             try {
 
                                                 $inObj = [ordered] @{
-                                                    $LocalizedData.InlineDataDedup = $Bkjob.Options.BackupStorageOptions.EnableDeduplication
+                                                    $LocalizedData.InlineDataDeduplication = $Bkjob.Options.BackupStorageOptions.EnableDeduplication
                                                     $LocalizedData.CompressionLevel = switch ($Bkjob.Options.BackupStorageOptions.CompressionLevel) {
-                                                        0 { 'NONE' }
-                                                        -1 { 'AUTO' }
-                                                        4 { 'DEDUPE_friendly' }
-                                                        5 { 'OPTIMAL (Default)' }
-                                                        6 { 'High' }
-                                                        9 { 'EXTREME' }
+                                                        0 { $LocalizedData.CompressionNone }
+                                                        -1 { $LocalizedData.CompressionAuto }
+                                                        4 { $LocalizedData.CompressionDedupe }
+                                                        5 { $LocalizedData.CompressionOptimal }
+                                                        6 { $LocalizedData.CompressionHigh }
+                                                        9 { $LocalizedData.CompressionExtreme }
                                                     }
-                                                    $LocalizedData.EnabledEncryption = $Bkjob.Options.BackupStorageOptions.StorageEncryptionEnabled
+                                                    $LocalizedData.EnabledBackupFileEncryption = $Bkjob.Options.BackupStorageOptions.StorageEncryptionEnabled
                                                     $LocalizedData.EncryptionKey = switch ($Bkjob.Options.BackupStorageOptions.StorageEncryptionEnabled) {
                                                         $false { $LocalizedData.None }
                                                         default { (Get-VBREncryptionKey | Where-Object { $_.id -eq $Bkjob.Info.PwdKeyId }).Description }
@@ -298,7 +298,7 @@ function Get-AbrVbrFileShareBackupjobConf {
                                                 $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                 $TableParams = @{
-                                                    Name = "$($LocalizedData.AdvancedStorage) - $($Bkjob.Name)"
+                                                    Name = "Advanced Settings (Storage) - $($Bkjob.Name)"
                                                     List = $true
                                                     ColumnWidths = 40, 60
                                                 }
@@ -312,7 +312,7 @@ function Get-AbrVbrFileShareBackupjobConf {
                                         }
                                     }
                                     if ($InfoLevel.Jobs.FileShare -ge 2) {
-                                        Section -Style NOTOCHeading6 -ExcludeFromTOC $LocalizedData.AdvancedMaintenance {
+                                        Section -Style NOTOCHeading6 -ExcludeFromTOC $LocalizedData.AdvancedSettingsMaintenance {
                                             $OutObj = @()
                                             try {
 
@@ -325,7 +325,7 @@ function Get-AbrVbrFileShareBackupjobConf {
                                                     $inObj.add($LocalizedData.SLCGScheduleDay, $Bkjob.Options.GenerationPolicy.RecheckDays)
                                                 }
                                                 if ($Bkjob.Options.GenerationPolicy.RecheckScheduleKind -eq 'Monthly') {
-                                                    $inObj.add($LocalizedData.SLCGMonthlySchedule, "$($LocalizedData.DayOfWeekLabel) $($Bkjob.Options.GenerationPolicy.RecheckBackupMonthlyScheduleOptions.DayOfWeek)`r`n$($LocalizedData.DayNumberInMonth) $($Bkjob.Options.GenerationPolicy.RecheckBackupMonthlyScheduleOptions.DayNumberInMonth)`r`n$($LocalizedData.DayOfMonth) $($Bkjob.Options.GenerationPolicy.RecheckBackupMonthlyScheduleOptions.DayOfMonth)`r`n$($LocalizedData.MonthsLabel) $($Bkjob.Options.GenerationPolicy.RecheckBackupMonthlyScheduleOptions.Months)")
+                                                    $inObj.add($LocalizedData.SLCGBackupMonthlySchedule, "Day Of Week: $($Bkjob.Options.GenerationPolicy.RecheckBackupMonthlyScheduleOptions.DayOfWeek)`r`nDay Number In Month: $($Bkjob.Options.GenerationPolicy.RecheckBackupMonthlyScheduleOptions.DayNumberInMonth)`r`nDay of Month: $($Bkjob.Options.GenerationPolicy.RecheckBackupMonthlyScheduleOptions.DayOfMonth)`r`nMonths: $($Bkjob.Options.GenerationPolicy.RecheckBackupMonthlyScheduleOptions.Months)")
                                                 }
                                                 $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
@@ -334,7 +334,7 @@ function Get-AbrVbrFileShareBackupjobConf {
                                                 }
 
                                                 $TableParams = @{
-                                                    Name = "$($LocalizedData.AdvancedMaintenance) - $($Bkjob.Name)"
+                                                    Name = "Advanced Settings (Maintenance) - $($Bkjob.Name)"
                                                     List = $true
                                                     ColumnWidths = 40, 60
                                                 }
@@ -348,7 +348,7 @@ function Get-AbrVbrFileShareBackupjobConf {
                                                         BlankLine
                                                         Paragraph {
                                                             Text $LocalizedData.BestPractice -Bold
-                                                            Text $LocalizedData.SLCGBPText
+                                                            Text $LocalizedData.SLCGBestPracticeText
                                                         }
                                                         BlankLine
                                                     }
@@ -359,29 +359,29 @@ function Get-AbrVbrFileShareBackupjobConf {
                                         }
                                     }
                                     if ($InfoLevel.Jobs.FileShare -ge 2 -and ($Bkjob.Options.NotificationOptions.SnmpNotification -or $Bkjob.Options.NotificationOptions.SendEmailNotification2AdditionalAddresses)) {
-                                        Section -Style NOTOCHeading6 -ExcludeFromTOC $LocalizedData.AdvancedNotification {
+                                        Section -Style NOTOCHeading6 -ExcludeFromTOC $LocalizedData.AdvancedSettingsNotification {
                                             $OutObj = @()
                                             try {
 
                                                 $inObj = [ordered] @{
                                                     $LocalizedData.SendSnmpNotification = $Bkjob.Options.NotificationOptions.SnmpNotification
                                                     $LocalizedData.SendEmailNotification = $Bkjob.Options.NotificationOptions.SendEmailNotification2AdditionalAddresses
-                                                    $LocalizedData.EmailNotifAddresses = $Bkjob.Options.NotificationOptions.EmailNotificationAdditionalAddresses
+                                                    $LocalizedData.EmailNotificationAdditionalAddresses = $Bkjob.Options.NotificationOptions.EmailNotificationAdditionalAddresses
                                                     $LocalizedData.EmailNotifyTime = $Bkjob.Options.NotificationOptions.EmailNotifyTime.ToShortTimeString()
-                                                    $LocalizedData.UseCustomEmailNotif = $Bkjob.Options.NotificationOptions.UseCustomEmailNotificationOptions
-                                                    $LocalizedData.UseCustomNotifSetting = $Bkjob.Options.NotificationOptions.EmailNotificationSubject
+                                                    $LocalizedData.UseCustomEmailNotificationOptions = $Bkjob.Options.NotificationOptions.UseCustomEmailNotificationOptions
+                                                    $LocalizedData.UseCustomNotificationSetting = $Bkjob.Options.NotificationOptions.EmailNotificationSubject
                                                     $LocalizedData.NotifyOnSuccess = $Bkjob.Options.NotificationOptions.EmailNotifyOnSuccess
                                                     $LocalizedData.NotifyOnWarning = $Bkjob.Options.NotificationOptions.EmailNotifyOnWarning
                                                     $LocalizedData.NotifyOnError = $Bkjob.Options.NotificationOptions.EmailNotifyOnError
-                                                    $LocalizedData.SuppressNotification = $Bkjob.Options.NotificationOptions.EmailNotifyOnLastRetryOnly
+                                                    $LocalizedData.SuppressNotificationUntilLastRetry = $Bkjob.Options.NotificationOptions.EmailNotifyOnLastRetryOnly
                                                     $LocalizedData.SetResultsToVmNotes = $Bkjob.Options.ViSourceOptions.SetResultsToVmNotes
                                                     $LocalizedData.VMAttributeNoteValue = $Bkjob.Options.ViSourceOptions.VmAttributeName
-                                                    $LocalizedData.AppendToExistingAttr = $Bkjob.Options.ViSourceOptions.VmNotesAppend
+                                                    $LocalizedData.AppendToExistingAttribute = $Bkjob.Options.ViSourceOptions.VmNotesAppend
                                                 }
                                                 $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                 $TableParams = @{
-                                                    Name = "$($LocalizedData.AdvancedNotification) - $($Bkjob.Name)"
+                                                    Name = "Advanced Settings (Notification) - $($Bkjob.Name)"
                                                     List = $true
                                                     ColumnWidths = 40, 60
                                                 }
@@ -395,21 +395,21 @@ function Get-AbrVbrFileShareBackupjobConf {
                                         }
                                     }
                                     if ($InfoLevel.Jobs.FileShare -ge 2 -and ($Bkjob.Options.JobScriptCommand.PreScriptEnabled -or $Bkjob.Options.JobScriptCommand.PostScriptEnabled)) {
-                                        Section -Style NOTOCHeading6 -ExcludeFromTOC $LocalizedData.AdvancedScript {
+                                        Section -Style NOTOCHeading6 -ExcludeFromTOC $LocalizedData.AdvancedSettingsScript {
                                             $OutObj = @()
                                             try {
                                                 if ($Bkjob.Options.JobScriptCommand.Periodicity -eq 'Days') {
                                                     $FrequencyValue = $Bkjob.Options.JobScriptCommand.Days -join ','
-                                                    $FrequencyText = $LocalizedData.RunScriptSelectedDays
+                                                    $FrequencyText = $LocalizedData.RunScriptOnSelectedDays
                                                 } elseif ($Bkjob.Options.JobScriptCommand.Periodicity -eq 'Cycles') {
                                                     $FrequencyValue = $Bkjob.Options.JobScriptCommand.Frequency
-                                                    $FrequencyText = $LocalizedData.RunScriptEverySession
+                                                    $FrequencyText = $LocalizedData.RunScriptEveryBackupSession
                                                 }
 
                                                 $inObj = [ordered] @{
-                                                    $LocalizedData.RunScriptBefore = $Bkjob.Options.JobScriptCommand.PreScriptEnabled
+                                                    $LocalizedData.RunFollowingScriptBefore = $Bkjob.Options.JobScriptCommand.PreScriptEnabled
                                                     $LocalizedData.RunScriptBeforeJob = $Bkjob.Options.JobScriptCommand.PreScriptCommandLine
-                                                    $LocalizedData.RunScriptAfter = $Bkjob.Options.JobScriptCommand.PostScriptEnabled
+                                                    $LocalizedData.RunFollowingScriptAfter = $Bkjob.Options.JobScriptCommand.PostScriptEnabled
                                                     $LocalizedData.RunScriptAfterJob = $Bkjob.Options.JobScriptCommand.PostScriptCommandLine
                                                     $LocalizedData.RunScriptFrequency = $Bkjob.Options.JobScriptCommand.Periodicity
                                                     $FrequencyText = $FrequencyValue
@@ -418,7 +418,7 @@ function Get-AbrVbrFileShareBackupjobConf {
                                                 $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                 $TableParams = @{
-                                                    Name = "$($LocalizedData.AdvancedScript) - $($Bkjob.Name)"
+                                                    Name = "Advanced Settings (Script) - $($Bkjob.Name)"
                                                     List = $true
                                                     ColumnWidths = 40, 60
                                                 }
@@ -437,17 +437,17 @@ function Get-AbrVbrFileShareBackupjobConf {
                             }
                             $ArchiveRepoTarget = Get-VBRUnstructuredBackupJob -Id $Bkjob.Id
                             if ($ArchiveRepoTarget.LongTermRetentionPeriodEnabled) {
-                                Section -Style NOTOCHeading5 -ExcludeFromTOC $LocalizedData.ArchiveRepositorySection {
+                                Section -Style NOTOCHeading5 -ExcludeFromTOC $LocalizedData.ArchiveRepository {
                                     $OutObj = @()
                                     try {
 
                                         try {
                                             $inObj = [ordered] @{
-                                                $LocalizedData.BackupRepositoryCol = $ArchiveRepoTarget.LongTermBackupRepository.Name
+                                                $LocalizedData.BackupRepository = $ArchiveRepoTarget.LongTermBackupRepository.Name
                                                 $LocalizedData.Type = $ArchiveRepoTarget.LongTermBackupRepository.Type
                                                 $LocalizedData.FriendlyPath = $ArchiveRepoTarget.LongTermBackupRepository.FriendlyPath
                                                 $LocalizedData.ArchivePreviousVersionFor = "$($ArchiveRepoTarget.LongTermRetentionPeriod) $($ArchiveRepoTarget.LongTermRetentionType)"
-                                                $LocalizedData.FileToArchiveCol = $ArchiveRepoTarget.BackupArchivalOptions.ArchivalType
+                                                $LocalizedData.FileToArchiveLower = $ArchiveRepoTarget.BackupArchivalOptions.ArchivalType
                                             }
 
                                             if ($ArchiveRepoTarget.BackupArchivalOptions.ArchivalType -eq 'ExclusionMask') {
@@ -462,7 +462,7 @@ function Get-AbrVbrFileShareBackupjobConf {
                                             Write-PScriboMessage -IsWarning "Archive Repository $($ArchiveRepoTarget.Name) Section: $($_.Exception.Message)"
                                         }
                                         $TableParams = @{
-                                            Name = "$($LocalizedData.ArchiveRepositorySection) - $($Bkjob.Name)"
+                                            Name = "$($LocalizedData.ArchiveRepository) - $($Bkjob.Name)"
                                             List = $true
                                             ColumnWidths = 40, 60
                                         }
@@ -514,34 +514,34 @@ function Get-AbrVbrFileShareBackupjobConf {
                                     try {
 
                                         if ($Bkjob.ScheduleOptions.OptionsDaily.Enabled -eq 'True') {
-                                            $ScheduleType = 'Daily'
-                                            $Schedule = "$($LocalizedData.Kind) $($Bkjob.ScheduleOptions.OptionsDaily.Kind),`r`n$($LocalizedData.DaysLabel) $($Bkjob.ScheduleOptions.OptionsDaily.DaysSrv)"
+                                            $ScheduleType = $LocalizedData.Daily
+                                            $Schedule = "Kind: $($Bkjob.ScheduleOptions.OptionsDaily.Kind),`r`nDays: $($Bkjob.ScheduleOptions.OptionsDaily.DaysSrv)"
                                         } elseif ($Bkjob.ScheduleOptions.OptionsMonthly.Enabled -eq 'True') {
-                                            $ScheduleType = 'Monthly'
-                                            $Schedule = "$($LocalizedData.DayOfMonth) $($Bkjob.ScheduleOptions.OptionsMonthly.DayOfMonth),`r`n$($LocalizedData.DayNumberInMonth) $($Bkjob.ScheduleOptions.OptionsMonthly.DayNumberInMonth),`r`n$($LocalizedData.DayOfWeekLabel) $($Bkjob.ScheduleOptions.OptionsMonthly.DayOfWeek)"
+                                            $ScheduleType = $LocalizedData.Monthly
+                                            $Schedule = "Day Of Month: $($Bkjob.ScheduleOptions.OptionsMonthly.DayOfMonth),`r`nDay Number In Month: $($Bkjob.ScheduleOptions.OptionsMonthly.DayNumberInMonth),`r`nDay Of Week: $($Bkjob.ScheduleOptions.OptionsMonthly.DayOfWeek)"
                                         } elseif ($Bkjob.ScheduleOptions.OptionsPeriodically.Enabled -eq 'True') {
                                             $ScheduleType = $Bkjob.ScheduleOptions.OptionsPeriodically.Kind
-                                            $Schedule = "$($LocalizedData.FullPeriod) $($Bkjob.ScheduleOptions.OptionsPeriodically.FullPeriod),`r`n$($LocalizedData.HourlyOffset) $($Bkjob.ScheduleOptions.OptionsPeriodically.HourlyOffset),`r`n$($LocalizedData.Unit) $($Bkjob.ScheduleOptions.OptionsPeriodically.Unit)"
+                                            $Schedule = "Full Period: $($Bkjob.ScheduleOptions.OptionsPeriodically.FullPeriod),`r`nHourly Offset: $($Bkjob.ScheduleOptions.OptionsPeriodically.HourlyOffset),`r`nUnit: $($Bkjob.ScheduleOptions.OptionsPeriodically.Unit)"
                                         } elseif ($Bkjob.ScheduleOptions.OptionsContinuous.Enabled -eq 'True') {
-                                            $ScheduleType = 'Continuous'
+                                            $ScheduleType = $LocalizedData.Continuous
                                             $Schedule = $LocalizedData.ScheduleTimePeriod
                                         }
                                         $inObj = [ordered] @{
                                             $LocalizedData.RetryFailedItem = $Bkjob.ScheduleOptions.RetryTimes
-                                            $LocalizedData.WaitBeforeRetry = "$($Bkjob.ScheduleOptions.RetryTimeout)/$($LocalizedData.Min)"
+                                            $LocalizedData.WaitBeforeEachRetry = "$($Bkjob.ScheduleOptions.RetryTimeout)/min"
                                             $LocalizedData.BackupWindow = switch ($Bkjob.TypeToString) {
                                                 'Backup Copy' { $Bkjob.ScheduleOptions.OptionsContinuous.Enabled }
                                                 default { $Bkjob.ScheduleOptions.OptionsBackupWindow.IsEnabled }
                                             }
                                             $LocalizedData.ScheduleType = $ScheduleType
-                                            $LocalizedData.ScheduleOptions = $Schedule
+                                            $LocalizedData.ScheduleOptionsKey = $Schedule
                                             $LocalizedData.StartTime = $Bkjob.ScheduleOptions.OptionsDaily.TimeLocal.ToShorttimeString()
                                             $LocalizedData.LatestRun = $Bkjob.LatestRunLocal
                                         }
                                         $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                         $TableParams = @{
-                                            Name = "$($LocalizedData.ScheduleOptionsTable) - $($Bkjob.Name)"
+                                            Name = "$($LocalizedData.ScheduleOptions) - $($Bkjob.Name)"
                                             List = $true
                                             ColumnWidths = 40, 60
                                         }
