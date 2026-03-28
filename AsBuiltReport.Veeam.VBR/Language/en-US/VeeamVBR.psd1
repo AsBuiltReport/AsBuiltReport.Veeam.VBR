@@ -2890,7 +2890,7 @@
         HealthCheck = Health Check:
 '@
 
-    GetAbrVbrBackupToTape = ConvertFrom-StringData @'
+    GetAbrVbrBackupToTapeConf = ConvertFrom-StringData @'
         Heading = Backup to Tape Job Configuration
         Paragraph = The following section provides detailed configuration information for each Backup-to-Tape job, including source repository, tape media pool, and schedule settings.
         BackupsInformation = Backups Information
@@ -2978,5 +2978,62 @@
         HealthCheck = Health Check:
         BestPractice = Best Practice:
         DescriptionBestPracticeText = It is a general rule of good practice to establish well-defined descriptions. This helps to speed up the fault identification process, as well as enabling better documentation of the environment.
+'@
+
+    GetAbrVbrFileToTape = ConvertFrom-StringData @'
+        Heading = File to Tape Jobs
+        Paragraph = The following section provides configuration details for all File-to-Tape jobs configured in Veeam Backup & Replication, including source selection, media pools, and schedule settings.
+        BackupsInformation = Backups Information
+        CommonInformation = Common Information
+        FilesAndFolders = Files and Folders
+        FullBackup = Full Backup
+        IncrementalBackup = Incremental Backup
+        Name = Name
+        Type = Type
+        NextRun = Next Run
+        Disabled = Disabled
+        Description = Description
+        SelectionType = Selection Type
+        Path = Path
+        IncludeFilter = Include Filter
+        ExcludeFilter = Exclude Filter
+        Ndmp = NDMP
+        NdmpObject = NDMP Object
+        Directory = Directory
+        PoolType = Pool Type
+        TapeCount = Tape Count
+        Capacity = Capacity
+        Remaining = Remaining
+        IsWorm = Is WORM
+        ScheduleEnabled = Schedule Enabled
+        DailyAtThisTime = Daily at this time
+        EveryMonth = Every Month
+        MonthlyAtThisTime = Monthly at this time
+        MonthlyOnTheDayOf = on day {1} of {2} at {0}
+        MonthlyOnTheDayNumberOf = on the {1} {2} of {3} at {0}
+        HealthCheck = Health Check:
+        BestPractice = Best Practice:
+        BestPracticeDescription = It is a general rule of good practice to establish well-defined descriptions. This helps to speed up the fault identification process, as well as enabling better documentation of the environment.
+'@
+
+    GetAbrVbrRepljobHyperV = ConvertFrom-StringData @'
+        Heading = Hyper-V Replication Jobs
+        Paragraph = The following section provides a summary of all Hyper-V replication jobs configured in Veeam Backup & Replication, along with their current status and last run result.
+        TableHeading = Hyper-V Replication Jobs
+        SectionCommonInfo = Common Information
+        SectionDestination = Destination
+        CommonInfoTable = Common Information
+        Name = Name
+        Type = Type
+        CreationTime = Creation Time
+        VmCount = VM Count
+        TotalBackupSize = Total Backup Size
+        TargetAddress = Target Address
+        TargetFile = Target File
+        Description = Description
+        ModifiedBy = Modified By
+        HostOrCluster = Host or Cluster
+        Path = Path
+        Unknown = Unknown
 '@
 }
