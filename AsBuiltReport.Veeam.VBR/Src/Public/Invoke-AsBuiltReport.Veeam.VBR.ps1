@@ -102,8 +102,6 @@ function Invoke-AsBuiltReport.Veeam.VBR {
         $VeeamBackupServer = ((Get-VBRServerSession).Server).ToString().ToUpper().Split('.')[0]
         $script:VbrLicenses = Get-VBRInstalledLicense
 
-        Get-AbrVbrReportBrief
-
         Section -Style Heading1 $($VeeamBackupServer) {
             Paragraph $reportTranslate.InvokeAsBuiltReportVeeamVBR.ServerOverviewParagraph
             BlankLine

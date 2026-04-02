@@ -1077,51 +1077,6 @@
         HardwarePlans = Hardware Plans
 '@
 
-    GetAbrVbrReportBrief = ConvertFrom-StringData @'
-        Heading = Report Brief
-        Paragraph = This report brief provides a high-level summary of the Veeam Backup & Replication environment, including infrastructure counts, license status, and the scope of this document.
-        ReportName = Report Name
-        ReportVersion = Report Version
-        TargetServer = Target Server
-        ServerFQDN = Server FQDN
-        VBRProductVersion = VBR Product Version
-        GeneratedOn = Generated On
-        TableReportOverview = Report Overview
-        LicenseType = License Type
-        LicenseStatus = License Status
-        LicensedInstances = Licensed Instances
-        UsedInstances = Used Instances
-        ExpirationDate = Expiration Date
-        SupportExpiration = Support Expiration
-        NA = N/A
-        TableLicenseSummary = License Summary
-        VMwareBackupProxies = VMware Backup Proxies
-        HyperVBackupProxies = Hyper-V Backup Proxies
-        BackupRepositories = Backup Repositories
-        SOBRCount = Scale-Out Backup Repositories
-        ManagedServers = Managed Servers
-        BackupJobs = Backup Jobs
-        ComputerBackupJobs = Computer Backup Jobs
-        BackupCopyJobs = Backup Copy Jobs
-        ProtectedVMs = Protected VMs
-        TableInfrastructureSummary = Infrastructure Summary
-        Section = Section
-        DetailLevel = Detail Level
-        BackupInfrastructure = Backup Infrastructure
-        TapeInfrastructure = Tape Infrastructure
-        Inventory = Inventory
-        StorageInfrastructure = Storage Infrastructure
-        Replication = Replication
-        CloudConnect = Cloud Connect
-        Jobs = Jobs
-        Disabled = Disabled
-        EnabledSummary = Enabled (Summary)
-        EnabledAdvancedSummary = Enabled (Advanced Summary)
-        EnabledDetailed = Enabled (Detailed)
-        EnabledLevel = Enabled (Level {0})
-        TableReportScope = Report Scope
-'@
-
     GetAbrVbrSecurityCompliance = ConvertFrom-StringData @'
         Heading = Security & Compliance
         TableHeading = Security & Compliance
@@ -3107,7 +3062,7 @@
         UseHardwareCompression = Use Hardware Compression when available
 '@
 
-    GetAbrVbrRepljobHyperV= ConvertFrom-StringData @'
+    GetAbrVbrRepljobHyperV = ConvertFrom-StringData @'
         Heading = Hyper-V Replication Jobs
         Paragraph = The following section provides a summary of all Hyper-V replication jobs configured in Veeam Backup & Replication, along with their current status and last run result.
         TableHeading = Hyper-V Replication Jobs

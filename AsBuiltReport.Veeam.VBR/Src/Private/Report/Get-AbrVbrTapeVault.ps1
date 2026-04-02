@@ -30,19 +30,19 @@ function Get-AbrVbrTapeVault {
         try {
             if ($VbrLicenses | Where-Object { $_.Edition -in @('EnterprisePlus', 'Enterprise') -and $_.Status -ne 'Expired' }) {
                 if ($TapeObjs = Get-VBRTapeVault | Sort-Object -Property Name) {
-                Section -Style Heading3 $LocalizedData.Heading {
-                    Paragraph $LocalizedData.Paragraph
-                    BlankLine
-                    $OutObj = @()
-                    try {
-                        foreach ($TapeObj in $TapeObjs) {
-                            try {
+                    Section -Style Heading3 $LocalizedData.Heading {
+                        Paragraph $LocalizedData.Paragraph
+                        BlankLine
+                        $OutObj = @()
+                        try {
+                            foreach ($TapeObj in $TapeObjs) {
+                                try {
 
                                     $inObj = [ordered] @{
                                         $LocalizedData.Name = $TapeObj.Name
                                         $LocalizedData.Description = $TapeObj.Description
                                         $LocalizedData.AutomaticProtect = $TapeObj.Protect
-                                        $LocalizedData.Location = (Get-VBRLocation -Object $TapeObj -ErrorAction SilentlyContinue)
+                                        $LocalizedData.Location = (Get-VBRLocation -Object $TapeObj -ErrorAction SilentlyContinue) ?? 'None'
                                     }
                                     $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                                 } catch {
