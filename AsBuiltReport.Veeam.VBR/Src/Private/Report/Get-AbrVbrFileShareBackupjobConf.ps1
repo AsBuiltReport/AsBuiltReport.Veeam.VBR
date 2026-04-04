@@ -261,7 +261,7 @@ function Get-AbrVbrFileShareBackupjobConf {
                                                 $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                 $TableParams = @{
-                                                    Name = "Advanced Settings (acl handling) - $($Bkjob.Name)"
+                                                    Name = "$($LocalizedData.AdvancedSettingsACLHandling) - $($Bkjob.Name)"
                                                     List = $true
                                                     ColumnWidths = 40, 60
                                                 }
@@ -298,7 +298,7 @@ function Get-AbrVbrFileShareBackupjobConf {
                                                 $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                 $TableParams = @{
-                                                    Name = "Advanced Settings (Storage) - $($Bkjob.Name)"
+                                                    Name = "$($LocalizedData.AdvancedSettingsStorage) - $($Bkjob.Name)"
                                                     List = $true
                                                     ColumnWidths = 40, 60
                                                 }
@@ -334,7 +334,7 @@ function Get-AbrVbrFileShareBackupjobConf {
                                                 }
 
                                                 $TableParams = @{
-                                                    Name = "Advanced Settings (Maintenance) - $($Bkjob.Name)"
+                                                    Name = "$($LocalizedData.AdvancedSettingsMaintenance) - $($Bkjob.Name)"
                                                     List = $true
                                                     ColumnWidths = 40, 60
                                                 }
@@ -381,7 +381,7 @@ function Get-AbrVbrFileShareBackupjobConf {
                                                 $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                 $TableParams = @{
-                                                    Name = "Advanced Settings (Notification) - $($Bkjob.Name)"
+                                                    Name = "$($LocalizedData.AdvancedSettingsNotification) - $($Bkjob.Name)"
                                                     List = $true
                                                     ColumnWidths = 40, 60
                                                 }
@@ -418,7 +418,7 @@ function Get-AbrVbrFileShareBackupjobConf {
                                                 $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                 $TableParams = @{
-                                                    Name = "Advanced Settings (Script) - $($Bkjob.Name)"
+                                                    Name = "$($LocalizedData.AdvancedSettingsScript) - $($Bkjob.Name)"
                                                     List = $true
                                                     ColumnWidths = 40, 60
                                                 }

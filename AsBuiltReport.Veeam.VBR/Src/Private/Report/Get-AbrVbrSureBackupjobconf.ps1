@@ -174,19 +174,19 @@ function Get-AbrVbrSureBackupjobconf {
 
                                                             $inObj = [ordered] @{
                                                                 $LocalizedData.JobName = $LinkedJob.Job.Name
-                                                                'Amount of memory to Allocate to VM' = "$($LinkedJob.StartupOptions.AllocatedMemory) percent"
-                                                                'Maximum allowed boot time' = "$($LinkedJob.StartupOptions.MaximumBootTime) sec"
-                                                                'Application Initialization Timeout' = "$($LinkedJob.StartupOptions.ApplicationInitializationTimeout) sec"
+                                                                ($LocalizedData.AllocateMemory) = ($LocalizedData.AllocateMemoryValue -f $LinkedJob.StartupOptions.AllocatedMemory)
+                                                                ($LocalizedData.MaxBootTime) = ($LocalizedData.MaxBootTimeValue -f $LinkedJob.StartupOptions.MaximumBootTime)
+                                                                ($LocalizedData.AppInitTimeout) = ($LocalizedData.AppInitTimeoutValue -f $LinkedJob.StartupOptions.ApplicationInitializationTimeout)
                                                                 $LocalizedData.VMHeartbeat = $LinkedJob.StartupOptions.VMHeartBeatCheckEnabled
                                                                 $LocalizedData.VMPing = $LinkedJob.StartupOptions.VMPingCheckEnabled
                                                                 $LocalizedData.DisableFirewall = $LinkedJob.StartupOptions.WindowsFirewallDisabled
-                                                                'VM Role' = ($LinkedJob.ScriptOptions.PredefinedApplication -join ', ')
-                                                                'VM Test Script' = switch ([string]::IsNullOrEmpty(($LinkedJob.ScriptOptions | ForEach-Object { if ($_.Name) { $_.Name } }))) {
+                                                                ($LocalizedData.VMRole) = ($LinkedJob.ScriptOptions.PredefinedApplication -join ', ')
+                                                                ($LocalizedData.VMTestScript) = switch ([string]::IsNullOrEmpty(($LinkedJob.ScriptOptions | ForEach-Object { if ($_.Name) { $_.Name } }))) {
                                                                     $true { '--' }
                                                                     $false { ($LinkedJob.ScriptOptions) | ForEach-Object { if ($_.Name) { "Name: $($_.Name), Path: $($_.Path), Argument: $($_.Argument)" } } }
                                                                     default { 'Uknown' }
                                                                 }
-                                                                'Credentials' = switch ($LinkedJob.Credentials.Description) {
+                                                                ($LocalizedData.Credentials) = switch ($LinkedJob.Credentials.Description) {
                                                                     $Null { 'None' }
                                                                     default { $LinkedJob.Credentials.Description }
                                                                 }
@@ -194,7 +194,7 @@ function Get-AbrVbrSureBackupjobconf {
                                                             $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                             $TableParams = @{
-                                                                Name = "Verification Options - $($SBkjob.Name)"
+                                                                Name = "$($LocalizedData.VerificationOptionsTable) - $($SBkjob.Name)"
                                                                 List = $true
                                                                 ColumnWidths = 40, 60
                                                             }
@@ -212,13 +212,13 @@ function Get-AbrVbrSureBackupjobconf {
                                                                 $inObj = [ordered] @{
                                                                     $LocalizedData.VMName = $LinkedJobVM.Name
                                                                     $LocalizedData.Excluded = $LinkedJobVM.IsExcluded
-                                                                    'VM Role' = ($LinkedJobVM.Role -join ', ')
-                                                                    'VM Test Script' = switch ([string]::IsNullOrEmpty(($LinkedJobVM.TestScript | ForEach-Object { if ($_.Name) { $_.Name } }))) {
+                                                                    ($LocalizedData.VMRole) = ($LinkedJobVM.Role -join ', ')
+                                                                    ($LocalizedData.VMTestScript) = switch ([string]::IsNullOrEmpty(($LinkedJobVM.TestScript | ForEach-Object { if ($_.Name) { $_.Name } }))) {
                                                                         $true { '--' }
                                                                         $false { ($LinkedJobVM.TestScript) | ForEach-Object { if ($_.Name) { "Name: $($_.Name),Path: $($_.Path),Argument: $($_.Argument)" } } }
                                                                         default { 'Uknown' }
                                                                     }
-                                                                    'Credentials' = switch ($LinkedJobVM.Credentials.Description) {
+                                                                    ($LocalizedData.Credentials) = switch ($LinkedJobVM.Credentials.Description) {
                                                                         $Null { 'None' }
                                                                         default { $LinkedJobVM.Credentials.Description }
                                                                     }
@@ -227,7 +227,7 @@ function Get-AbrVbrSureBackupjobconf {
                                                             }
 
                                                             $TableParams = @{
-                                                                Name = "Per VM Verification Rules - $($SBkjob.Name)"
+                                                                Name = "$($LocalizedData.PerVMVerificationTable) - $($SBkjob.Name)"
                                                                 List = $false
                                                                 ColumnWidths = 21, 11, 20, 28, 20
                                                             }
@@ -274,7 +274,7 @@ function Get-AbrVbrSureBackupjobconf {
                                         $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                         $TableParams = @{
-                                            Name = "Settings - $($SBkjob.Name)"
+                                            Name = "$($LocalizedData.SettingsTable) - $($SBkjob.Name)"
                                             List = $true
                                             ColumnWidths = 40, 60
                                         }
@@ -292,7 +292,7 @@ function Get-AbrVbrSureBackupjobconf {
                                         try {
 
                                             $inObj = [ordered] @{
-                                                'Wait for backup jobs' = "$($SBkjob.ScheduleOptions.WaitTimeMinutes) minutes"
+                                                ($LocalizedData.WaitForBackupJobs) = ($LocalizedData.WaitMinutes -f $SBkjob.ScheduleOptions.WaitTimeMinutes)
                                             }
 
                                             if ($SBkjob.ScheduleOptions.Type -eq 'Daily') {
@@ -319,7 +319,7 @@ function Get-AbrVbrSureBackupjobconf {
                                         }
 
                                         $TableParams = @{
-                                            Name = "Schedule - $($SBkjob.Name)"
+                                            Name = "$($LocalizedData.ScheduleTable) - $($SBkjob.Name)"
                                             List = $True
                                             ColumnWidths = 40, 60
                                         }

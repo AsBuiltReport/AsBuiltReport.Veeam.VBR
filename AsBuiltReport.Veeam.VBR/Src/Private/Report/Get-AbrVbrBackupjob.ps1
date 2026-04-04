@@ -82,10 +82,10 @@ function Get-AbrVbrBackupjob {
                     }
 
                     $sampleData = [ordered]@{
-                        'Success' = ($Alljobs | Where-Object { $_ -eq 'Success' } | Measure-Object).Count
-                        'Warning' = ($Alljobs | Where-Object { $_ -eq 'Warning' } | Measure-Object).Count
-                        'Failed' = ($Alljobs | Where-Object { $_ -eq 'Failed' } | Measure-Object).Count
-                        'None' = ($Alljobs | Where-Object { $_ -eq 'None' } | Measure-Object).Count
+                        ($LocalizedData.Success) = ($Alljobs | Where-Object { $_ -eq 'Success' } | Measure-Object).Count
+                        ($LocalizedData.Warning) = ($Alljobs | Where-Object { $_ -eq 'Warning' } | Measure-Object).Count
+                        ($LocalizedData.Failed) = ($Alljobs | Where-Object { $_ -eq 'Failed' } | Measure-Object).Count
+                        ($LocalizedData.None) = ($Alljobs | Where-Object { $_ -eq 'None' } | Measure-Object).Count
                     }
 
                     $chartLabels = [string[]]$sampleData.Keys

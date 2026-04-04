@@ -108,7 +108,7 @@ function Get-AbrVbrCloudConnectBS {
                                                     }
 
                                                     $TableParams = @{
-                                                        Name = "Tenant Utilization - $($CloudObject.Name)"
+                                                        Name = "$($LocalizedData.TenantUtilizationTable) - $($CloudObject.Name)"
                                                         List = $false
                                                         ColumnWidths = 28, 15, 15, 15, 27
                                                     }

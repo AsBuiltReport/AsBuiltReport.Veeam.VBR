@@ -239,7 +239,7 @@ function Get-AbrVbrFileToTape {
                                     }
                                 }
                                 try {
-                                    Section -Style NOTOCHeading5 -ExcludeFromTOC 'Options' {
+                                    Section -Style NOTOCHeading5 -ExcludeFromTOC $LocalizedData.OptionsSection {
                                         $OutObj = @()
                                         try {
 
@@ -254,7 +254,7 @@ function Get-AbrVbrFileToTape {
                                         }
 
                                         $TableParams = @{
-                                            Name = "Options - $($TBkjob.Name)"
+                                            Name = "$($LocalizedData.OptionsTable) - $($TBkjob.Name)"
                                             List = $True
                                             ColumnWidths = 40, 60
                                         }
@@ -264,7 +264,7 @@ function Get-AbrVbrFileToTape {
                                         $OutObj | Sort-Object -Property 'Name' | Table @TableParams
                                         if ($InfoLevel.Jobs.Tape -ge 2 -and $TBkjob.NotificationOptions.EnableAdditionalNotification) {
                                             try {
-                                                Section -Style NOTOCHeading6 -ExcludeFromTOC 'Advanced Settings (Notifications)' {
+                                                Section -Style NOTOCHeading6 -ExcludeFromTOC $LocalizedData.AdvancedSettingsNotifications {
                                                     $OutObj = @()
                                                     try {
 
@@ -289,7 +289,7 @@ function Get-AbrVbrFileToTape {
                                                     }
 
                                                     $TableParams = @{
-                                                        Name = "Advanced Settings (Notifications) - $($TBkjob.Name)"
+                                                        Name = "$($LocalizedData.AdvancedSettingsNotificationsTable) - $($TBkjob.Name)"
                                                         List = $True
                                                         ColumnWidths = 40, 60
                                                     }
@@ -304,7 +304,7 @@ function Get-AbrVbrFileToTape {
                                         }
                                         if ($InfoLevel.Jobs.Tape -ge 2 -and $TBkjob.NotificationOptions.EnableAdditionalNotification) {
                                             try {
-                                                Section -Style NOTOCHeading6 -ExcludeFromTOC 'Advanced Settings (Advanced)' {
+                                                Section -Style NOTOCHeading6 -ExcludeFromTOC $LocalizedData.AdvancedSettingsAdvanced {
                                                     $OutObj = @()
                                                     try {
 
@@ -337,7 +337,7 @@ function Get-AbrVbrFileToTape {
                                                     }
 
                                                     $TableParams = @{
-                                                        Name = "Advanced Settings (Advanced) - $($TBkjob.Name)"
+                                                        Name = "$($LocalizedData.AdvancedSettingsAdvancedTable) - $($TBkjob.Name)"
                                                         List = $True
                                                         ColumnWidths = 40, 60
                                                     }

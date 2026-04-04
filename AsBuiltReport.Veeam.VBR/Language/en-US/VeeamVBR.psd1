@@ -62,6 +62,8 @@
     InfoLevelJobsEntraID = Entra ID Jobs InfoLevel set at {0}.
     InfoLevelJobsNutanix = Nutanix Jobs InfoLevel set at {0}.
     InfoLevelJobsBackupCopy = Backup Copy Jobs InfoLevel set at {0}.
+    LegendEnabled = Enabled
+    LegendDisabled = Disabled
 '@
 
     GetAbrVbrHistorySetting = ConvertFrom-StringData @'
@@ -149,6 +151,7 @@
         IssuedDate = Issued Date
         Thumbprint = Thumbprint
         SerialNumber = Serial Number
+        Enabled = Enabled
 '@
 
     GetAbrVbrRepljob = ConvertFrom-StringData @'
@@ -526,6 +529,7 @@
     SupportExpiration = Enable notification about support contract expiration
     CheckForUpdates = Check for product and hypervisor updates periodically
     Disabled = Disabled
+    Enabled = Enabled
     Unknown = Unknown
     TableHeadingBackupStorage = Backup Storage Notification
     TableHeadingDatastore = Production Datastore Notification
@@ -701,6 +705,7 @@
     Quota = Quota
     UsedSpace = Used Space
     TenantTableHeading = Tenant Utilization
+    TenantUtilizationTable = Tenant Utilization
 '@
 
     GetAbrVbrReplFailoverPlan = ConvertFrom-StringData @'
@@ -901,6 +906,8 @@
         ProxyVMMaxDisks = Proxy VM Max Disks
         ProxyVMLocation = Proxy VM Location
         No = No
+        Status = Status
+        Unavailable = Unavailable
         HealthCheckTitle = Health Check:
         BestPracticeTitle = Best Practice:
         BestPracticeText = Veeam recommend to implement Immutability where it is supported. It is done for increased security: immutability protects your data from loss as a result of attacks, malware activity or any other injurious actions.
@@ -1456,6 +1463,10 @@
         Heading = Backup Jobs
         Paragraph = The following section lists all backup jobs configured in Veeam Backup & Replication, along with their current status and last run result.
         JobStatusSection = Backup Job Status
+        Success = Success
+        Warning = Warning
+        Failed = Failed
+        None = None
 '@
     GetAbrVbrRepljobVMware = ConvertFrom-StringData @'
         Heading = VMware Replication Jobs Configuration
@@ -2112,6 +2123,7 @@
         BackupWindowTimePeriod = Backup Window Time Period
         ScheduleOptions = Schedule Options
         BackupWindow = Backup Window
+        BackupWindowTable = Backup Window
         Name = Name
         Type = Type
         CreationTime = Creation Time
@@ -2467,6 +2479,7 @@
         VirtualMachines = Virtual Machines
         Storage = Storage
         Target = Target
+        StorageOptions = Storage Options
         AdvancedSettingsMaintenance = Advanced Settings (Maintenance)
         AdvancedSettingsStorage = Advanced Settings (Storage)
         Name = Name
@@ -2743,6 +2756,7 @@
         BackupJob = Backup Job
         BackupsInformation = Backups Information
         BackupsObjects = Backup Objects
+        CommonInfoTable = Common Information
         BestPractice = Best Practice:
         HealthCheck = Health Check:
         DescriptionBestPracticeText = It is a general rule of good practice to establish well-defined descriptions. This helps to speed up the fault identification process, as well as enabling better documentation of the environment.
@@ -3060,6 +3074,12 @@
         SendEmailNotification = Send Email Notification
         EmailAdditionalRecipients = Email Notification Additional Recipients
         UseHardwareCompression = Use Hardware Compression when available
+        OptionsSection = Options
+        OptionsTable = Options
+        AdvancedSettingsNotifications = Advanced Settings (Notifications)
+        AdvancedSettingsNotificationsTable = Advanced Settings (Notifications)
+        AdvancedSettingsAdvanced = Advanced Settings (Advanced)
+        AdvancedSettingsAdvancedTable = Advanced Settings (Advanced)
 '@
 
     GetAbrVbrRepljobHyperV = ConvertFrom-StringData @'
@@ -3087,6 +3107,7 @@
         TableHeadingReIP = Re-IP Rules
         TableHeadingVMs = Virtual Machines
         TableHeadingJobSettings = Job Settings
+        StorageOptions = Storage Options
         TableHeadingAdvMaintenance = Advanced Settings (Maintenance)
         TableHeadingAdvTraffic = Advanced Settings (Traffic)
         TableHeadingAdvNotification = Advanced Settings (Notification)

@@ -58,7 +58,7 @@ function Get-AbrVbrStorageOntap {
                                 $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                 $TableParams = @{
-                                    Name = "NetApp Host - $($OntapHost.Name)"
+                                    Name = "$($LocalizedData.NetAppHostTableHeading) - $($OntapHost.Name)"
                                     List = $true
                                     ColumnWidths = 40, 60
                                 }
@@ -90,7 +90,7 @@ function Get-AbrVbrStorageOntap {
                                                 }
 
                                                 $TableParams = @{
-                                                    Name = "NetApp Volumes - $($OntapHost.Name)"
+                                                    Name = "$($LocalizedData.NetAppVolumesTableHeading) - $($OntapHost.Name)"
                                                     List = $false
                                                     ColumnWidths = 52, 15, 15, 18
                                                 }

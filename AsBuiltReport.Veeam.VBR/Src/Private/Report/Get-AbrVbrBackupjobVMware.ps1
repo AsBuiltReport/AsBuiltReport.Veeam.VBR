@@ -814,7 +814,7 @@ function Get-AbrVbrBackupjobVMware {
                                             $OutObj | Table @TableParams
                                             if ($Bkjob.ScheduleOptions.OptionsBackupWindow.IsEnabled -or $Bkjob.ScheduleOptions.OptionsContinuous.Enabled) {
                                                 try {
-                                                    Section -Style NOTOCHeading6 -ExcludeFromTOC 'Backup Window Time Period' {
+                                                    Section -Style NOTOCHeading6 -ExcludeFromTOC $LocalizedData.BackupWindowTimePeriod {
                                                         Paragraph -ScriptBlock $Legend
 
                                                         $ScheduleTimePeriod = @()
@@ -834,7 +834,7 @@ function Get-AbrVbrBackupjobVMware {
                                                         $OutObj = Get-WindowsTimePeriod -InputTimePeriod $ScheduleTimePeriod
 
                                                         $TableParams = @{
-                                                            Name = "Backup Window - $($Bkjob.Name)"
+                                                            Name = "$($LocalizedData.BackupWindowTable) - $($Bkjob.Name)"
                                                             List = $true
                                                             ColumnWidths = 6, 4, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4
                                                             Key = 'H'

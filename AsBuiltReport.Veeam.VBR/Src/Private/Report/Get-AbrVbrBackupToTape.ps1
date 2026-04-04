@@ -63,7 +63,7 @@ function Get-AbrVbrBackupToTape {
                                         }
 
                                         $TableParams = @{
-                                            Name = "Common Information - $($TBkjob.Name)"
+                                            Name = "$($LocalizedData.CommonInfoTable) - $($TBkjob.Name)"
                                             List = $true
                                             ColumnWidths = 40, 60
                                         }

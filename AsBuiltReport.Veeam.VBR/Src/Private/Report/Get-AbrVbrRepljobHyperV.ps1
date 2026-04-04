@@ -290,7 +290,7 @@ function Get-AbrVbrRepljobHyperV {
                                         $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                         $TableParams = @{
-                                            Name = "$Storage Options - $($Bkjob.Name)"
+                                            Name = "$($LocalizedData.StorageOptions) - $($Bkjob.Name)"
                                             List = $true
                                             ColumnWidths = 40, 60
                                         }

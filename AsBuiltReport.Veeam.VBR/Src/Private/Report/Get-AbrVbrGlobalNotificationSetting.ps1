@@ -56,7 +56,7 @@ function Get-AbrVbrGlobalNotificationSetting {
                             $TableParams['Caption'] = "- $($TableParams.Name)"
                         }
                         $OutObj | Table @TableParams
-                        if ($HealthCheck.Infrastructure.BestPractice -and ($OutObj | Where-Object { $_.'Enabled' -eq 'No' })) {
+                        if ($HealthCheck.Infrastructure.BestPractice -and ($OutObj | Where-Object { $_.$($LocalizedData.Enabled) -eq 'No' })) {
                             Paragraph $LocalizedData.HealthCheck -Bold -Underline
                             BlankLine
                             Paragraph {
@@ -96,7 +96,7 @@ function Get-AbrVbrGlobalNotificationSetting {
                             $TableParams['Caption'] = "- $($TableParams.Name)"
                         }
                         $OutObj | Table @TableParams
-                        if ($HealthCheck.Infrastructure.BestPractice -and ($OutObj | Where-Object { $_.'Enabled' -eq 'No' })) {
+                        if ($HealthCheck.Infrastructure.BestPractice -and ($OutObj | Where-Object { $_.$($LocalizedData.Enabled) -eq 'No' })) {
                             Paragraph $LocalizedData.HealthCheck -Bold -Underline
                             BlankLine
                             Paragraph {
@@ -126,7 +126,7 @@ function Get-AbrVbrGlobalNotificationSetting {
                             $TableParams['Caption'] = "- $($TableParams.Name)"
                         }
                         $OutObj | Table @TableParams
-                        if ($HealthCheck.Infrastructure.BestPractice -and ($OutObj | Where-Object { $_.'Enabled' -eq 'No' })) {
+                        if ($HealthCheck.Infrastructure.BestPractice -and ($OutObj | Where-Object { $_.$($LocalizedData.Enabled) -eq 'No' })) {
                             Paragraph $LocalizedData.HealthCheck -Bold -Underline
                             BlankLine
                             Paragraph {
@@ -152,7 +152,7 @@ function Get-AbrVbrGlobalNotificationSetting {
                             $TableParams['Caption'] = "- $($TableParams.Name)"
                         }
                         $OutObj | Table @TableParams
-                        if ($HealthCheck.Infrastructure.BestPractice -and ($OutObj | Where-Object { $_.'Enabled' -eq 'No' })) {
+                        if ($HealthCheck.Infrastructure.BestPractice -and ($OutObj | Where-Object { $_.$($LocalizedData.Enabled) -eq 'No' })) {
                             Paragraph $LocalizedData.HealthCheck -Bold -Underline
                             BlankLine
                             Paragraph {

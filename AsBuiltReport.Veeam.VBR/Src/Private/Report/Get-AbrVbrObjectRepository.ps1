@@ -76,7 +76,7 @@ function Get-AbrVbrObjectRepository {
 
 
                     if ($HealthCheck.Infrastructure.BR) {
-                        $OutObj | Where-Object { $_.'Status' -eq 'Unavailable' } | Set-Style -Style Warning -Property 'Status'
+                        $OutObj | Where-Object { $_.$($LocalizedData.Status) -eq $LocalizedData.Unavailable } | Set-Style -Style Warning -Property ($LocalizedData.Status)
                     }
 
                     $TableParams = @{

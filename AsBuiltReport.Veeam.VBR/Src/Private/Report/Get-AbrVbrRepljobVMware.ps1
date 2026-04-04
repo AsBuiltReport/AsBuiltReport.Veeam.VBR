@@ -292,7 +292,7 @@ function Get-AbrVbrRepljobVMware {
                                         $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                         $TableParams = @{
-                                            Name = "$Storage Options - $($Bkjob.Name)"
+                                            Name = "$($LocalizedData.TableHeadingJobSettings) - $($Bkjob.Name)"
                                             List = $true
                                             ColumnWidths = 40, 60
                                         }
@@ -744,7 +744,7 @@ function Get-AbrVbrRepljobVMware {
                                                 $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                 $TableParams = @{
-                                                    Name = "Guest Processing Options - $($VSSObj.Name)"
+                                                    Name = "$($LocalizedData.TableHeadingGuestProcessing) - $($VSSObj.Name)"
                                                     List = $true
                                                     ColumnWidths = 40, 60
                                                 }

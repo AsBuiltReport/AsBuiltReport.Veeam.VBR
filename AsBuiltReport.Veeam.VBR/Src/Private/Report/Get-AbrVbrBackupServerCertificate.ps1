@@ -51,7 +51,7 @@ function Get-AbrVbrBackupServerCertificate {
                     }
 
                     if ($HealthCheck.Infrastructure.Settings) {
-                        $OutObj | Where-Object { $_.'Enabled' -like 'No' } | Set-Style -Style Warning -Property 'Enabled'
+                        $OutObj | Where-Object { $_.$($LocalizedData.Enabled) -like 'No' } | Set-Style -Style Warning -Property ($LocalizedData.Enabled)
                     }
 
                     $TableParams = @{

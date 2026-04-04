@@ -62,6 +62,8 @@
     InfoLevelJobsEntraID = Nivel de información de trabajos de Entra ID establecido en {0}.
     InfoLevelJobsNutanix = Nivel de información de trabajos de Nutanix establecido en {0}.
     InfoLevelJobsBackupCopy = Nivel de información de trabajos de copia de seguridad establecido en {0}.
+    LegendEnabled = Habilitado
+    LegendDisabled = Deshabilitado
 '@
 
     GetAbrVbrHistorySetting = ConvertFrom-StringData @'
@@ -149,6 +151,7 @@
         IssuedDate = Fecha de emisión
         Thumbprint = Huella digital
         SerialNumber = Número de serie
+        Enabled = Habilitado
 '@
 
     GetAbrVbrRepljob = ConvertFrom-StringData @'
@@ -526,6 +529,7 @@
     SupportExpiration = Habilitar notificación sobre la expiración del contrato de soporte
     CheckForUpdates = Verificar periódicamente las actualizaciones de productos e hipervisores
     Disabled = Deshabilitado
+    Enabled = Habilitado
     Unknown = Desconocido
     TableHeadingBackupStorage = Notificación de almacenamiento de copia de seguridad
     TableHeadingDatastore = Notificación de almacén de datos de producción
@@ -701,6 +705,7 @@
     Quota = Cuota
     UsedSpace = Espacio usado
     TenantTableHeading = Utilización del inquilino
+    TenantUtilizationTable = Utilización del inquilino
 '@
 
     GetAbrVbrReplFailoverPlan = ConvertFrom-StringData @'
@@ -901,6 +906,8 @@
         ProxyVMMaxDisks = Discos máximos de VM de proxy
         ProxyVMLocation = Ubicación de VM de proxy
         No = No
+        Status = Estado
+        Unavailable = No disponible
         HealthCheckTitle = Verificación de salud:
         BestPracticeTitle = Mejor práctica:
         BestPracticeText = Veeam recomienda implementar inmutabilidad donde sea compatible. Se hace por mayor seguridad: la inmutabilidad protege sus datos contra la pérdida como resultado de ataques, actividad de malware u otras acciones perjudiciales.
@@ -1456,6 +1463,10 @@
         Heading = Trabajos de copia de seguridad
         Paragraph = La siguiente sección enumera todos los trabajos de copia de seguridad configurados en Veeam Backup & Replication, junto con su estado actual y resultado de la última ejecución.
         JobStatusSection = Estado del trabajo de copia de seguridad
+        Success = Correcto
+        Warning = Advertencia
+        Failed = Error
+        None = Ninguno
 '@
 
     GetAbrVbrRepljobVMware = ConvertFrom-StringData @'
@@ -2115,6 +2126,7 @@
         BackupWindowTimePeriod = Período de tiempo de ventana de copia de seguridad
         ScheduleOptions = Opciones de programación
         BackupWindow = Ventana de copia de seguridad
+        BackupWindowTable = Ventana de copia de seguridad
         Name = Nombre
         Type = Tipo
         CreationTime = Hora de creación
@@ -2471,6 +2483,7 @@
         VirtualMachines = Máquinas virtuales
         Storage = Almacenamiento
         Target = Destino
+        StorageOptions = Opciones de almacenamiento
         AdvancedSettingsMaintenance = Configuración avanzada (mantenimiento)
         AdvancedSettingsStorage = Configuración avanzada (almacenamiento)
         Name = Nombre
@@ -2747,6 +2760,7 @@
         BackupJob = Trabajo de copia de seguridad
         BackupsInformation = Información de copias de seguridad
         BackupsObjects = Objetos de copias de seguridad
+        CommonInfoTable = Información común
         BestPractice = Mejor práctica:
         HealthCheck = Verificación de salud:
         DescriptionBestPracticeText = Es una buena práctica establecer descripciones bien definidas. Esto ayuda a acelerar el proceso de identificación de fallas y permite una mejor documentación del entorno.
@@ -3064,6 +3078,12 @@
         SendEmailNotification = Enviar notificación por correo electrónico
         EmailAdditionalRecipients = Destinatarios adicionales de notificación por correo electrónico
         UseHardwareCompression = Usar compresión de hardware cuando esté disponible
+        OptionsSection = Opciones
+        OptionsTable = Opciones
+        AdvancedSettingsNotifications = Configuración avanzada (notificaciones)
+        AdvancedSettingsNotificationsTable = Configuración avanzada (notificaciones)
+        AdvancedSettingsAdvanced = Configuración avanzada (avanzado)
+        AdvancedSettingsAdvancedTable = Configuración avanzada (avanzado)
 '@
 
     GetAbrVbrRepljobHyperV = ConvertFrom-StringData @'
@@ -3091,6 +3111,7 @@
         TableHeadingReIP = Reglas de re-IP
         TableHeadingVMs = Máquinas virtuales
         TableHeadingJobSettings = Configuración del trabajo
+        StorageOptions = Opciones de almacenamiento
         TableHeadingAdvMaintenance = Configuración avanzada (mantenimiento)
         TableHeadingAdvTraffic = Configuración avanzada (tráfico)
         TableHeadingAdvNotification = Configuración avanzada (notificación)

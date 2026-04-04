@@ -55,7 +55,7 @@ function Get-AbrVbrStorageIsilon {
                             $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                             $TableParams = @{
-                                Name = "Isilon Host - $($IsilonHost.Name)"
+                                Name = "$($LocalizedData.IsilonHostTableHeading) - $($IsilonHost.Name)"
                                 List = $true
                                 ColumnWidths = 40, 60
                             }
@@ -86,7 +86,7 @@ function Get-AbrVbrStorageIsilon {
                                             }
 
                                             $TableParams = @{
-                                                Name = "Isilon Volumes - $($IsilonHost.Name)"
+                                                Name = "$($LocalizedData.IsilonVolumesTableHeading) - $($IsilonHost.Name)"
                                                 List = $false
                                                 ColumnWidths = 52, 15, 15, 18
                                             }

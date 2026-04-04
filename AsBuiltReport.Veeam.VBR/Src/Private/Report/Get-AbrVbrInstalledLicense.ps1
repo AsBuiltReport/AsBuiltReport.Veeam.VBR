@@ -62,8 +62,8 @@ function Get-AbrVbrInstalledLicense {
                         }
 
                         if ($HealthCheck.Infrastructure.Status) {
-                            $OutObj | Where-Object { $_.'Status' -eq 'Expired' } | Set-Style -Style Critical -Property 'Status'
-                            $OutObj | Where-Object { $_.'Type' -eq 'Evaluation' } | Set-Style -Style Warning -Property 'Type'
+                            $OutObj | Where-Object { $_.$($LocalizedData.Status) -eq 'Expired' } | Set-Style -Style Critical -Property ($LocalizedData.Status)
+                            $OutObj | Where-Object { $_.$($LocalizedData.Type) -eq 'Evaluation' } | Set-Style -Style Warning -Property ($LocalizedData.Type)
                         }
 
                         $TableParams = @{
