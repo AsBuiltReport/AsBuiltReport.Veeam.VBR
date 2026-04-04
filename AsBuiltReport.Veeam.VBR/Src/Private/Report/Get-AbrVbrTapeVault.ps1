@@ -42,7 +42,7 @@ function Get-AbrVbrTapeVault {
                                         $LocalizedData.Name = $TapeObj.Name
                                         $LocalizedData.Description = $TapeObj.Description
                                         $LocalizedData.AutomaticProtect = $TapeObj.Protect
-                                        $LocalizedData.Location = (Get-VBRLocation -Object $TapeObj -ErrorAction SilentlyContinue) ?? 'None'
+                                        $LocalizedData.Location = try {(Get-VBRLocation -Object $TapeObj -ErrorAction SilentlyContinue).Location} catch { '--' }
                                     }
                                     $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                                 } catch {

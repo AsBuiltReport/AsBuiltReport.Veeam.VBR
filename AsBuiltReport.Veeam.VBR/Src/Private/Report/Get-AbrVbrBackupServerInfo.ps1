@@ -598,7 +598,7 @@ function Get-AbrVbrBackupServerInfo {
                                 $OutObj | Set-Style -Style Warning
 
                                 $TableParams = @{
-                                    Name = "Missing Windows Updates - $($BackupServer.Name.Split('.')[0])"
+                                    Name = "$($LocalizedData.MissingUpdatesHeading) - $($BackupServer.Name.Split('.')[0])"
                                     List = $false
                                     ColumnWidths = 40, 60
                                 }
@@ -608,16 +608,16 @@ function Get-AbrVbrBackupServerInfo {
                                 $OutObj | Sort-Object -Property 'Name' | Table @TableParams
                             }
                             if ($UpdObj) {
-                                Section -Style Heading4 'Missing Windows Updates' {
-                                    Paragraph 'The following table provides a summary of pending or missing Windows updates on the backup server.'
+                                Section -Style Heading4 $LocalizedData.MissingUpdatesHeading {
+                                    Paragraph $LocalizedData.MissingUpdatesParagraph
                                     BlankLine
                                     $UpdObj
                                 }
-                                Paragraph 'Health Check:' -Bold -Underline
+                                Paragraph $LocalizedData.healthCheck -Bold -Underline
                                 BlankLine
                                 Paragraph {
-                                    Text 'Security Best Practices:' -Bold
-                                    Text 'Patch operating systems, software, and firmware on Veeam components. Most hacks succeed because there is already vulnerable software in use which is not up-to-date with current patch levels. So make sure all software and hardware where Veeam components are running are up-to-date. One of the most possible causes of a credential theft are missing guest OS updates and use of outdated authentication protocols.'
+                                    Text $LocalizedData.securityBestPractices -Bold
+                                    Text $LocalizedData.securityPatchBestPracticeText
                                 }
                             }
                         } catch {

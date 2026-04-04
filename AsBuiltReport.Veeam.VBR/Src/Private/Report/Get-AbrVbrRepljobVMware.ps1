@@ -320,7 +320,7 @@ function Get-AbrVbrRepljobVMware {
                                                     $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                     if ($HealthCheck.Jobs.BestPractice) {
-                                                        $OutObj | Where-Object { $_.'Storage-Level Corruption Guard (SLCG)' -eq 'No' } | Set-Style -Style Warning -Property 'Storage-Level Corruption Guard (SLCG)'
+                                                        $OutObj | Where-Object { $_.$($LocalizedData.slcg) -eq 'No' } | Set-Style -Style Warning -Property ($LocalizedData.slcg)
                                                     }
 
                                                     $TableParams = @{
@@ -335,12 +335,12 @@ function Get-AbrVbrRepljobVMware {
                                                     $OutObj | Table @TableParams
 
                                                     if ($HealthCheck.Jobs.BestPractice) {
-                                                        if ($OutObj | Where-Object { $_.'Storage-Level Corruption Guard (SLCG)' -eq 'No' }) {
-                                                            Paragraph 'Health Check:' -Bold -Underline
+                                                        if ($OutObj | Where-Object { $_.$($LocalizedData.slcg) -eq 'No' }) {
+                                                            Paragraph $LocalizedData.healthCheck -Bold -Underline
                                                             BlankLine
                                                             Paragraph {
-                                                                Text 'Best Practice:' -Bold
-                                                                Text "It is recommended to use storage-level corruption guard for any backup job with no active full backups scheduled. Synthetic full backups are still 'incremental forever' and may suffer from corruption over time. Storage-level corruption guard was introduced to provide a greater level of confidence in integrity of the backups."
+                                                                Text $LocalizedData.bestPractice -Bold
+                                                                Text $LocalizedData.healthCheckSLCGText
                                                             }
                                                             BlankLine
                                                         }
@@ -383,9 +383,9 @@ function Get-AbrVbrRepljobVMware {
                                                     $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                     if ($HealthCheck.Jobs.BestPractice) {
-                                                        $OutObj | Where-Object { $_.'Enabled Backup File Encryption' -eq 'No' } | Set-Style -Style Warning -Property 'Enabled Backup File Encryption'
-                                                        $OutObj | Where-Object { $_.'Exclude Swap Files Block' -eq 'No' } | Set-Style -Style Warning -Property 'Exclude Swap Files Block'
-                                                        $OutObj | Where-Object { $_.'Exclude Deleted Files Block' -eq 'No' } | Set-Style -Style Warning -Property 'Exclude Deleted Files Block'
+                                                        $OutObj | Where-Object { $_.$($LocalizedData.enabledBackupFileEncryption) -eq 'No' } | Set-Style -Style Warning -Property ($LocalizedData.enabledBackupFileEncryption)
+                                                        $OutObj | Where-Object { $_.$($LocalizedData.excludeSwapFiles) -eq 'No' } | Set-Style -Style Warning -Property ($LocalizedData.excludeSwapFiles)
+                                                        $OutObj | Where-Object { $_.$($LocalizedData.excludeDeletedFiles) -eq 'No' } | Set-Style -Style Warning -Property ($LocalizedData.excludeDeletedFiles)
                                                     }
 
                                                     $TableParams = @{
@@ -398,12 +398,12 @@ function Get-AbrVbrRepljobVMware {
                                                     }
                                                     $OutObj | Table @TableParams
                                                     if ($HealthCheck.Jobs.BestPractice) {
-                                                        if ($OutObj | Where-Object { $_.'Enabled Backup File Encryption' -eq 'No' }) {
-                                                            Paragraph 'Health Check:' -Bold -Underline
+                                                        if ($OutObj | Where-Object { $_.$($LocalizedData.enabledBackupFileEncryption) -eq 'No' }) {
+                                                            Paragraph $LocalizedData.healthCheck -Bold -Underline
                                                             BlankLine
                                                             Paragraph {
-                                                                Text 'Best Practice:' -Bold
-                                                                Text 'Backup and replica data is a high potential source of vulnerability. To secure data stored in backups and replicas, use Veeam Backup & Replication inbuilt encryption to protect data in backups'
+                                                                Text $LocalizedData.bestPractice -Bold
+                                                                Text $LocalizedData.healthCheckEncryptionText
                                                             }
                                                             BlankLine
                                                         }
