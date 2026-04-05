@@ -1,4 +1,4 @@
-# culture = 'en-US'
+﻿# culture = 'en-US'
 @{
 
     InvokeAsBuiltReportVeeamVBR = ConvertFrom-StringData @'
@@ -64,6 +64,14 @@
     InfoLevelJobsBackupCopy = Nivel de información de trabajos de copia de seguridad establecido en {0}.
     LegendEnabled = Habilitado
     LegendDisabled = Deshabilitado
+    ISEErrorMessage = No puede ejecutar este script dentro de PowerShell ISE. Por favor ejecútelo desde la ventana de comandos de PowerShell.
+    SponsorMessage =   - Para patrocinar este proyecto, visite: 
+    GettingDependencyInfo =   - Obteniendo información de dependencias:
+    ModuleInstalled =     - El módulo {0} v{1} está instalado actualmente.
+    ModuleAvailable =       - El módulo {0} v{1} está disponible.
+    ModuleUpdateCmd =       - Ejecute 'Update-Module -Name {0} -Force' para instalar la última versión.
+    IPAddressError = Por favor use el FQDN en lugar de una dirección IP para conectarse al servidor de respaldo: {0}
+    ExportDiagramsEnabled = Opción ExportDiagrams habilitada: Exportando diagramas:
 '@
 
     GetAbrVbrHistorySetting = ConvertFrom-StringData @'
@@ -2471,6 +2479,7 @@
         WanAcceleration = Aceleración WAN
         WanAccelerator = Acelerador WAN
         WanAcceleratorCol = Acelerador WAN
+        Yes = Sí
 '@
 
     GetAbrVbrBackupjobHyperV = ConvertFrom-StringData @'
@@ -2561,6 +2570,105 @@
         DescriptionBestPracticeText = Es una buena práctica establecer descripciones bien definidas. Esto ayuda a acelerar el proceso de identificación de fallas y permite una mejor documentación del entorno.
         BestPractice = Mejor práctica:
         HealthCheck = Verificación de salud:
+        AdvancedSettingsHyperV = Configuración Avanzada (HyperV)
+        AdvancedSettingsIntegration = Configuración avanzada (integración)
+        AdvancedSettingsNotification = Configuración avanzada (notificación)
+        AdvancedSettingsRPOMonitor = Configuración avanzada (monitor RPO)
+        AdvancedSettingsScript = Configuración avanzada (script)
+        AppendToExistingAttribute = Agregar al atributo existente
+        ApplicationProcessing = Procesamiento de aplicación
+        BackupLogsPeriodically = Copia de seguridad de registros periódicamente
+        BackupWindow = Ventana de copia de seguridad
+        BackupWindowTimePeriod = Período de tiempo de ventana de copia de seguridad
+        Continuous = Continua
+        CrashConsistentBackup = Copia de Seguridad Consistente con el Sistema
+        Daily = Diaria
+        DefaultCredential = Credencial predeterminada
+        DeleteLogOlderThan = Eliminar registro más antiguo que {0} horas
+        DeleteLogOver = Eliminar registro superior a {0} GB
+        Disabled = Deshabilitado
+        DisableScriptExecution = Deshabilitar ejecución de script
+        DoNotTruncateLogs = No truncar registros
+        EmailNotificationAdditionalAddresses = Direcciones adicionales de notificación de correo electrónico
+        EmailNotifyTime = Hora de notificación de correo electrónico
+        EnableBackupFromStorageSnapshots = Habilitar copia de seguridad desde snapshots de almacenamiento
+        EnableHyperVGuestQuiescence = Habilitar Quiescencia de Invitado HyperV
+        ExcludeFollowingFilesAndFolders = Excluir los siguientes archivos y carpetas
+        FailoverToPrimaryStorageSnapshot = Conmutación por error a snapshot de almacenamiento primario
+        FailoverToStandardBackup = Conmutación por error a copia de seguridad estándar
+        FileExclusions = Exclusiones de archivo
+        GuestEnabled = Habilitado
+        GuestOSCredential = Credencial del SO invitado
+        GuestProcessing = Procesamiento de invitado
+        GuestProcessingOptions = Opciones de procesamiento de invitado
+        GuestProxyAutoDetect = Detección automática de proxy de invitado
+        IfBackupIsNotCopiedWithin = Si la copia de seguridad no se copia dentro de
+        IfLogBackupIsNotCopiedWithin = Si la copia de seguridad de registro no se copia dentro de
+        IgnoreErrors = Ignorar errores
+        IgnoreScriptExecutionFailures = Ignorar fallos de ejecución de script
+        IncludeOnlyFollowingFilesAndFolders = Incluir solo los siguientes archivos y carpetas
+        JobName = Nombre del trabajo
+        KeepOnlyLastDaysLogBackups = Mantener solo los últimos {0} días de copias de seguridad de registro
+        LatestRun = Última ejecución
+        LimitProcessedVMCountPerStorageSnapshot = Limitar recuento de VM procesadas por snapshot de almacenamiento
+        LinuxPostThawScript = Script posterior a descongelación de Linux
+        LinuxPreFreezeScript = Script previo a congelación de Linux
+        LogBackupRPOMonitorEnabled = Monitor RPO de copia de seguridad de registro habilitado
+        Monthly = Mensual
+        NotifyOnError = Notificar sobre error
+        NotifyOnSuccess = Notificar sobre éxito
+        NotifyOnWarning = Notificar sobre advertencia
+        ObjectCredential = Credencial de objeto
+        OracleAccountType = Tipo de cuenta de Oracle
+        OracleArchiveLogs = Registros de archivo de Oracle
+        OracleBackupLogsEvery = Registros de copia de seguridad de Oracle cada
+        OracleRetainLogBackups = Retener copias de seguridad de registro de Oracle
+        OracleSysdbaCreds = Credenciales de Sysdba de Oracle
+        PerformCopyOnly = Realizar copia únicamente
+        ProcessTransactionLogs = Procesar registros de transacciones
+        Repository = Repositorio
+        RequireSuccessfulScriptExecution = Requerir ejecución exitosa de script
+        RetryFailedItem = Reintentar elemento fallido
+        RPOMonitorEnabled = Monitor RPO habilitado
+        RunFollowingScriptAfter = Ejecutar el siguiente script después
+        RunFollowingScriptBefore = Ejecutar el siguiente script antes
+        RunScriptAfterJob = Ejecutar script después del trabajo
+        RunScriptBeforeJob = Ejecutar script antes del trabajo
+        RunScriptEveryBackupSession = Ejecutar script en cada sesión de copia de seguridad
+        RunScriptFrequency = Frecuencia de ejecución de script
+        RunScriptOnSelectedDays = Ejecutar script en los días seleccionados
+        Schedule = Programación
+        ScheduleOptions = Opciones de programación
+        ScheduleOptionsKey = Opciones de programación
+        ScheduleTimePeriod = Período de tiempo de programación
+        ScheduleType = Tipo de programación
+        Scripts = Scripts
+        ScriptsMode = Modo de scripts
+        SecondaryDestinationJobs = Trabajos de destino secundario
+        SecondaryTarget = Destino secundario
+        SendEmailNotification = Enviar notificación por correo electrónico
+        SendSnmpNotification = Enviar notificación SNMP
+        SetResultsToVmNotes = Establecer resultados en notas de VM
+        Size = Tamaño
+        SQLBackupLogEvery = Copia de seguridad de registro SQL cada
+        SQLRetainLogBackups = Retener copias de seguridad de registro SQL
+        SQLTransactionLogsProcessing = Procesamiento de registros de transacciones SQL
+        StartTime = Hora de inicio
+        State = Estado
+        SuppressNotificationUntilLastRetry = Suprimir notificación hasta último reintento
+        TransactionLogs = Registros de transacciones
+        TruncateLogs = Truncar registros
+        UntilCorrespondingBackupDeleted = Hasta que se elimine la copia de seguridad correspondiente
+        UseChangeBlockTracking = Usar seguimiento de bloque de cambios
+        UseCustomEmailNotificationOptions = Usar opciones personalizadas de notificación de correo electrónico
+        UseCustomNotificationSetting = Usar configuración personalizada de notificaciones
+        UsePersistentGuestAgent = Usar agente de invitado persistente
+        VMAttributeNoteValue = Valor de nota de atributo de VM
+        VMCountPerStorageSnapshot = Recuento de VM por snapshot de almacenamiento
+        VolumeSnapshot = Instantánea de Volumen
+        WaitBeforeEachRetry = Esperar antes de cada reintento
+        WindowsPostThawScript = Script posterior a descongelación de Windows
+        WindowsPreFreezeScript = Script previo a congelación de Windows
 '@
 
     GetAbrVbrBackupjobNutanixConf = ConvertFrom-StringData @'
@@ -2834,6 +2942,7 @@
         NotifyOnLastRetryOnly = Notificar solo en último reintento
         NotifyWhenWaitingForTape = Notificar cuando se espera cinta
         RunScriptFrequency = Frecuencia de ejecución de script
+        Yes = Sí
 '@
 
     GetAbrVbrFileShareBackupjobConf = ConvertFrom-StringData @'
@@ -2943,6 +3052,7 @@
         Continuous = Continua
         BackupWindow = Ventana de copia de seguridad
         BackupWindowTimePeriod = Período de tiempo de ventana de copia de seguridad
+        ScheduleTimePeriod = Período de tiempo de programación
         DescriptionBestPracticeText = Es una buena práctica establecer descripciones bien definidas. Esto ayuda a acelerar el proceso de identificación de fallas y permite una mejor documentación del entorno.
         BestPractice = Mejor práctica:
         HealthCheck = Verificación de salud:
