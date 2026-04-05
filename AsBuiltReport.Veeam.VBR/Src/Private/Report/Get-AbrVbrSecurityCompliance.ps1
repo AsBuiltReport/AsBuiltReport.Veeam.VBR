@@ -6,7 +6,7 @@ function Get-AbrVbrSecurityCompliance {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.24
+        Version:        1.0.0
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -151,7 +151,7 @@ function Get-AbrVbrSecurityCompliance {
                 $chartLabels = [string[]]$sampleData.Keys
                 $chartValues = [double[]]$sampleData.Values
 
-                $statusCustomPalette = @('#9CFFA3', '#FFF3C4', '#FECDD1', '#ADACAF')
+                $statusCustomPalette = @('#DFF0D0', '#FFF3C4', '#FECDD1', '#ADACAF')
 
                 $chartFileItem = New-BarChart -Title $LocalizedData.ChartTitle -Values $chartValues -Labels $chartLabels -LabelXAxis $LocalizedData.ChartXAxis -LabelYAxis $LocalizedData.ChartYAxis -EnableCustomColorPalette -CustomColorPalette $statusCustomPalette -Width 600 -Height 400 -Format base64 -EnableLegend -LegendOrientation Horizontal -LegendAlignment UpperCenter -AxesMarginsTop 0.5 -TitleFontBold -TitleFontSize 16
 

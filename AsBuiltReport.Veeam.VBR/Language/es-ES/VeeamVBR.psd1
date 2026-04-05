@@ -65,7 +65,7 @@
     LegendEnabled = Habilitado
     LegendDisabled = Deshabilitado
     ISEErrorMessage = No puede ejecutar este script dentro de PowerShell ISE. Por favor ejecútelo desde la ventana de comandos de PowerShell.
-    SponsorMessage =   - Para patrocinar este proyecto, visite: 
+    SponsorMessage =   - Para patrocinar este proyecto, visite:
     GettingDependencyInfo =   - Obteniendo información de dependencias:
     ModuleInstalled =     - El módulo {0} v{1} está instalado actualmente.
     ModuleAvailable =       - El módulo {0} v{1} está disponible.

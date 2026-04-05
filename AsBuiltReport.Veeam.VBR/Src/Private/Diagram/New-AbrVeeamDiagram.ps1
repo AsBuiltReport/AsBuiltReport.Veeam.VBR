@@ -124,7 +124,7 @@ function New-AbrVeeamDiagram {
         For best results, ensure all image assets meet the recommended size guidelines.
 
     .NOTES
-        Version:        0.9.0
+        Version:        1.0.0
         Author(s):      Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -502,7 +502,7 @@ function New-AbrVeeamDiagram {
         } elseif ($DiagramTheme -eq 'White') {
             $MainGraphBGColor = 'White'
             $Edgecolor = '#71797E'
-            $Fontcolor = '#505861'
+            $Fontcolor = '#565656'
             $NodeFontcolor = 'Black'
             $EdgeArrowSize = 1
             $EdgeLineWidth = 3
@@ -511,7 +511,7 @@ function New-AbrVeeamDiagram {
                 $false { '#ceedc4' }
             }
             $BackupServerFontColor = switch ($NewIcons) {
-                $true { '#505861' }
+                $true { '#565656' }
                 $false { '#007F49' }
             }
         }

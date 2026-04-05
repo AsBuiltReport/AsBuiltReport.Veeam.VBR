@@ -5,7 +5,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.9.0
+        Version:        1.0.0
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -47,11 +47,11 @@ function Invoke-AsBuiltReport.Veeam.VBR {
     if ($Options.UpdateCheck) {
         Write-ReportModuleInfo -ModuleName 'Veeam.VBR'
     }
-    Write-Host $reportTranslate.InvokeAsBuiltReportVeeamVBR.SponsorMessage -NoNewline
+    Write-Host "  $($reportTranslate.InvokeAsBuiltReportVeeamVBR.SponsorMessage)" -NoNewline
     Write-Host ' https://ko-fi.com/F1F8DEV80' -ForegroundColor Cyan
 
     if ($Options.UpdateCheck) {
-        Write-Host $reportTranslate.InvokeAsBuiltReportVeeamVBR.GettingDependencyInfo
+        Write-Host "  $($reportTranslate.InvokeAsBuiltReportVeeamVBR.GettingDependencyInfo)"
         # Check the version of the dependency modules
         $ModuleArray = @('AsBuiltReport.Core', 'AsBuiltReport.Chart', 'AsBuiltReport.Diagram')
 
@@ -60,11 +60,11 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                 $InstalledVersion = Get-Module -ListAvailable -Name $Module -ErrorAction SilentlyContinue | Sort-Object -Property Version -Descending | Select-Object -First 1 -ExpandProperty Version
 
                 if ($InstalledVersion) {
-                    Write-Host ($reportTranslate.InvokeAsBuiltReportVeeamVBR.ModuleInstalled -f $Module, $InstalledVersion.ToString())
+                    Write-Host ("    $($reportTranslate.InvokeAsBuiltReportVeeamVBR.ModuleInstalled)" -f $Module, $InstalledVersion.ToString())
                     $LatestVersion = Find-Module -Name $Module -Repository PSGallery -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Version
                     if ($InstalledVersion -lt $LatestVersion) {
-                        Write-Host ($reportTranslate.InvokeAsBuiltReportVeeamVBR.ModuleAvailable -f $Module, $LatestVersion.ToString()) -ForegroundColor Red
-                        Write-Host ($reportTranslate.InvokeAsBuiltReportVeeamVBR.ModuleUpdateCmd -f $Module) -ForegroundColor Red
+                        Write-Host ("    $($reportTranslate.InvokeAsBuiltReportVeeamVBR.ModuleAvailable)" -f $Module, $LatestVersion.ToString()) -ForegroundColor Red
+                        Write-Host ("    $($reportTranslate.InvokeAsBuiltReportVeeamVBR.ModuleUpdateCmd)" -f $Module) -ForegroundColor Red
                     }
                 }
             } catch {
@@ -77,8 +77,8 @@ function Invoke-AsBuiltReport.Veeam.VBR {
     if ($Options.ReportStyle -eq 'Veeam') {
         & "$PSScriptRoot\..\..\AsBuiltReport.Veeam.VBR.Style.ps1"
         $Legend = {
-            Text "$($reportTranslate.InvokeAsBuiltReportVeeamVBR.LegendEnabled) \" -Color 00D15F -Bold
-            Text " $($reportTranslate.InvokeAsBuiltReportVeeamVBR.LegendDisabled)" -Color ADACAF -Bold
+            Text "$($reportTranslate.InvokeAsBuiltReportVeeamVBR.LegendEnabled) \" -Color 81BC50 -Bold
+            Text " $($reportTranslate.InvokeAsBuiltReportVeeamVBR.LegendDisabled)" -Color dddf62 -Bold
         }
     } else {
         # Set Custom styles for Default AsBuiltReport template
@@ -89,6 +89,147 @@ function Invoke-AsBuiltReport.Veeam.VBR {
             Text " $($reportTranslate.InvokeAsBuiltReportVeeamVBR.LegendDisabled)" -Color ADDBDB -Bold
         }
     }
+    if ($Options.NewIcons) {
+    $script:Images = @{
+        'VBR_Server' = 'New_VBR_server.png'
+        'VBR_Repository' = 'New_VBR_Repository.png'
+        'VBR_Veeam_Repository' = 'New_Veeam_Repository.png'
+        'VBR_NAS' = 'New_NAS.png'
+        'VBR_Deduplicating_Storage' = 'New_Deduplication.png'
+        'VBR_Linux_Repository' = 'New_Linux_Repository.png'
+        'VBR_Windows_Repository' = 'New_Windows_Repository.png'
+        'VBR_Cloud_Repository' = 'New_Cloud_Repository.png'
+        'VBR_Cloud_Connect' = 'New_Cloud_Connect.png'
+        'VBR_Cloud_Connect_Gateway' = 'New_VSPC_server.png'
+        'VBR_Cloud_Connect_Gateway_Pools' = 'New_Folder.png'
+        'VBR_Object_Repository' = 'New_Object_storage.png'
+        'VBR_Object' = 'New_Object_storage.png'
+        'VBR_Amazon_S3_Compatible' = 'New_S3-compatible.png'
+        'VBR_Amazon_S3' = 'New_AWS_S3.png'
+        'VBR_Azure_Blob' = 'New_Azure_Blob.png'
+        'VBR_Server_DB' = 'New_Microsoft_SQL.png'
+        'VBR_Proxy' = 'New_Proxy.png'
+        'VBR_Proxy_Server' = 'New_Proxy.png'
+        'VBR_Wan_Accel' = 'New_WAN_accelerator.png'
+        'VBR_SOBR' = 'New_Scale-out_Backup_Repository.png'
+        'VBR_SOBR_Repo' = 'New_Scale_out_Backup_Repository.png'
+        'VBR_LOGO' = 'Veeam_logo_new.png'
+        'VBR_No_Icon' = 'no_icon.png'
+        'VBR_Blank_Filler' = 'BlankFiller.png'
+        'VBR_Storage_NetApp' = 'Storage_NetApp.png'
+        'VBR_vCenter_Server' = 'New_VMware_vSphere.png'
+        'VBR_ESXi_Server' = 'New_Hypervisor.png'
+        'VBR_HyperV_Server' = 'New_Hypervisor.png'
+        'VBR_Esxi_AHV_HyperV_Server' = 'New_Hypervisor.png'
+        'VBR_Server_EM' = 'New_Veeam_Backup_Enterprise_Manager.png'
+        'VBR_Tape_Server' = 'New_VBR_server.png'
+        'VBR_Tape_Library' = 'New_Tape_Library.png'
+        'VBR_Tape_Drive' = 'New_Server_1U.png'
+        'VBR_Tape_Vaults' = 'New_Tape_Drive.png'
+        'VBR_Server_DB_PG' = 'New_PostgreSQL.png'
+        'VBR_LOGO_Footer' = 'verified_recoverability.png'
+        'VBR_AGENT_Container' = 'New_Folder.png'
+        'VBR_AGENT_AD' = 'New_VBR_server.png'
+        'VBR_AGENT_MC' = 'New_Tasks.png'
+        'VBR_AGENT_IC' = 'New_Workstation.png'
+        'VBR_AGENT_CSV' = 'CSV_Computers.png'
+        'VBR_AGENT_AD_Logo' = 'New_Microsoft_Active_Directory.png'
+        'VBR_AGENT_CSV_Logo' = 'New_File.png'
+        'VBR_AGENT_Server' = 'New_Veeam_Agent.png'
+        'VBR_vSphere' = 'New_VMware_vSphere.png'
+        'VBR_HyperV' = 'New_Microsoft_SCVMM.png'
+        'VBR_Tape' = 'New_Tape_Drive.png'
+        'VBR_Service_Providers' = 'New_VSPC_server.png'
+        'VBR_Service_Providers_Server' = 'New_Service_Provider_Server.png'
+        'VBR_NetApp' = 'New_Storage_array.png'
+        'VBR_Dell' = 'New_Storage_array.png'
+        'VBR_SAN' = 'New_Storage_array.png'
+        'VBR_Virtual_Lab' = 'New_Hypervisor.png'
+        'VBR_SureBackup' = 'New_SureBackup.png'
+        'VBR_Application_Groups' = 'New_Service.png'
+        'VBR_vSphere_Cluster' = 'New_Cluster.png'
+        'VBR_HyperV_Cluster' = 'New_Cluster.png'
+        'VBR_Microsoft_Entra_ID' = 'New_Microsoft_Entra_ID.png'
+        'VBR_Bid_Arrow' = 'BidirectionalArrow.png'
+        'VBR_Hardware_Resources' = 'New_CPU.png'
+        'VBR_Cloud_Network_Extension' = 'New_Hardware_controller.png'
+        'VBR_Cloud_Storage' = 'New_Datastore.png'
+        'VBR_Cloud_Connect_vCD' = 'New_VMware_vCloud_Director.png'
+        'VBR_Cloud_Connect_Server' = 'New_VMware_vCloud_Director.png'
+        'VBR_Cloud_Connect_VM' = 'New_VM_with_a_snapshot.png'
+        'VBR_Cloud_Sub_Tenant' = 'New_User_group.png'
+    }
+} else {
+    $script:Images = @{
+        'VBR_Server' = 'VBR_server.png'
+        'VBR_Repository' = 'VBR_Repository.png'
+        'VBR_Veeam_Repository' = 'Veeam_Repository.png'
+        'VBR_NAS' = 'NAS.png'
+        'VBR_Deduplicating_Storage' = 'Deduplication.png'
+        'VBR_Linux_Repository' = 'Linux_Repository.png'
+        'VBR_Windows_Repository' = 'Windows_Repository.png'
+        'VBR_Cloud_Repository' = 'Cloud_Repository.png'
+        'VBR_Cloud_Connect' = 'Veeam_Cloud_Connect.png'
+        'VBR_Cloud_Connect_Gateway' = 'VSPC_server.png'
+        'VBR_Cloud_Connect_Gateway_Pools' = 'Folder.png'
+        'VBR_Object_Repository' = 'Object_Storage.png'
+        'VBR_Object' = 'Object_Storage_support.png'
+        'VBR_Amazon_S3_Compatible' = 'S3-compatible.png'
+        'VBR_Amazon_S3' = 'AWS S3.png'
+        'VBR_Azure_Blob' = 'Azure Blob.png'
+        'VBR_Server_DB' = 'Microsoft_SQL_DB.png'
+        'VBR_Proxy' = 'Veeam_Proxy.png'
+        'VBR_Proxy_Server' = 'Proxy_Server.png'
+        'VBR_Wan_Accel' = 'WAN_accelerator.png'
+        'VBR_SOBR' = 'Logo_SOBR.png'
+        'VBR_SOBR_Repo' = 'Scale_out_Backup_Repository.png'
+        'VBR_LOGO' = 'Veeam_logo_new.png'
+        'VBR_No_Icon' = 'no_icon.png'
+        'VBR_Blank_Filler' = 'BlankFiller.png'
+        'VBR_Storage_NetApp' = 'Storage_NetApp.png'
+        'VBR_vCenter_Server' = 'vCenter_server.png'
+        'VBR_ESXi_Server' = 'ESXi_host.png'
+        'VBR_HyperV_Server' = 'Hyper-V_host.png'
+        'VBR_Esxi_AHV_HyperV_Server' = 'ESXi_Hyper-V_AHV_host.png'
+        'VBR_Server_EM' = 'Veeam_Backup_Enterprise_Manager.png'
+        'VBR_Tape_Server' = 'Tape_Server.png'
+        'VBR_Tape_Library' = 'Tape_Library.png'
+        'VBR_Tape_Drive' = 'Tape_Drive.png'
+        'VBR_Tape_Vaults' = 'Tape encrypted.png'
+        'VBR_Server_DB_PG' = 'PostGre_SQL_DB.png'
+        'VBR_LOGO_Footer' = 'verified_recoverability.png'
+        'VBR_AGENT_Container' = 'Folder.png'
+        'VBR_AGENT_AD' = 'Server.png'
+        'VBR_AGENT_MC' = 'Task list.png'
+        'VBR_AGENT_IC' = 'Workstation.png'
+        'VBR_AGENT_CSV' = 'CSV_Computers.png'
+        'VBR_AGENT_AD_Logo' = 'Microsoft Active Directory.png'
+        'VBR_AGENT_CSV_Logo' = 'File.png'
+        'VBR_AGENT_Server' = 'Server_with_Veeam_Agent.png'
+        'VBR_vSphere' = 'VMware_vSphere.png'
+        'VBR_HyperV' = 'Microsoft_SCVMM.png'
+        'VBR_Tape' = 'Tape.png'
+        'VBR_Service_Providers' = 'Veeam_Service_Provider_Console.png'
+        'VBR_Service_Providers_Server' = 'Veeam_Service_Provider_Server.png'
+        'VBR_NetApp' = 'Storage_with_snapshot.png'
+        'VBR_Dell' = 'Storage_with_snapshot.png'
+        'VBR_SAN' = 'Storage_Stack.png'
+        'VBR_Virtual_Lab' = 'Virtual_host.png'
+        'VBR_SureBackup' = 'SureBackup.png'
+        'VBR_Application_Groups' = 'Service-Application.png'
+        'VBR_vSphere_Cluster' = 'Server_Cluster.png'
+        'VBR_HyperV_Cluster' = 'Server_Cluster.png'
+        'VBR_Microsoft_Entra_ID' = 'Microsoft_Entra_ID.png'
+        'VBR_Bid_Arrow' = 'BidirectionalArrow.png'
+        'VBR_Hardware_Resources' = 'RAM.png'
+        'VBR_Cloud_Network_Extension' = 'Hardware_controller.png'
+        'VBR_Cloud_Storage' = 'Datastore.png'
+        'VBR_Cloud_Connect_vCD' = 'VMware vCloud Director.png'
+        'VBR_Cloud_Connect_Server' = 'vCloud_Director_server.png'
+        'VBR_Cloud_Connect_VM' = 'VM_with_a_snapshot.png'
+        'VBR_Cloud_Sub_Tenant' = 'SubTenant.png'
+    }
+}
 
     # Used to set values to TitleCase where required
     $script:TextInfo = (Get-Culture).TextInfo

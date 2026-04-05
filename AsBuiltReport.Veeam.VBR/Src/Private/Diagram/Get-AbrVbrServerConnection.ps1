@@ -13,7 +13,7 @@ function Get-AbrServerConnection {
         The TCP Port of the target Veeam Backup Server.
 
     .NOTES
-        Version:        0.8.24
+        Version:        1.0.0
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         GitHub:         rebelinux

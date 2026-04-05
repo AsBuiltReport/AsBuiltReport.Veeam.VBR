@@ -6,7 +6,7 @@ function Get-AbrVbrBackupRepository {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.9.0
+        Version:        1.0.0
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -96,7 +96,7 @@ function Get-AbrVbrBackupRepository {
                                 $chartValues += , @($chartUsedValues[$chartLabels.IndexOf($i)], $chartFreeValues[$chartLabels.IndexOf($i)])
                             }
 
-                            $statusCustomPalette = @('#9CFFA3', '#FFF3C4', '#FECDD1', '#ADACAF')
+                            $statusCustomPalette = @('#DFF0D0', '#FFF3C4', '#FECDD1', '#ADACAF')
 
                             $chartFileItem = New-StackedBarChart -Title $LocalizedData.ChartTitle -Values $chartValues -Labels $chartLabels -LegendCategories $chartCategories -EnableCustomColorPalette -CustomColorPalette $statusCustomPalette -Width 600 -Height 600 -Format base64 -TitleFontBold -TitleFontSize 16 -AreaOrientation Horizontal -LabelXAxis $LocalizedData.ChartXAxis -LabelYAxis $LocalizedData.ChartYAxis
                         } catch {
