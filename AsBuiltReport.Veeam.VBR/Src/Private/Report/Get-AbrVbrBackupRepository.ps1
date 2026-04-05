@@ -96,7 +96,7 @@ function Get-AbrVbrBackupRepository {
                                 $chartValues += , @($chartUsedValues[$chartLabels.IndexOf($i)], $chartFreeValues[$chartLabels.IndexOf($i)])
                             }
 
-                            $statusCustomPalette = @('#DFF0D0', '#FFF4C7', '#FEDDD7', '#878787')
+                            $statusCustomPalette = @('#9CFFA3', '#FFF3C4', '#FECDD1', '#ADACAF')
 
                             $chartFileItem = New-StackedBarChart -Title $LocalizedData.ChartTitle -Values $chartValues -Labels $chartLabels -LegendCategories $chartCategories -EnableCustomColorPalette -CustomColorPalette $statusCustomPalette -Width 600 -Height 600 -Format base64 -TitleFontBold -TitleFontSize 16 -AreaOrientation Horizontal -LabelXAxis $LocalizedData.ChartXAxis -LabelYAxis $LocalizedData.ChartYAxis
                         } catch {

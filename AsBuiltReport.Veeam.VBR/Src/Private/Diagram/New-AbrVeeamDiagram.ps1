@@ -502,7 +502,7 @@ function New-AbrVeeamDiagram {
         } elseif ($DiagramTheme -eq 'White') {
             $MainGraphBGColor = 'White'
             $Edgecolor = '#71797E'
-            $Fontcolor = '#565656'
+            $Fontcolor = '#505861'
             $NodeFontcolor = 'Black'
             $EdgeArrowSize = 1
             $EdgeLineWidth = 3
@@ -511,8 +511,8 @@ function New-AbrVeeamDiagram {
                 $false { '#ceedc4' }
             }
             $BackupServerFontColor = switch ($NewIcons) {
-                $true { '#565656' }
-                $false { '#005f4b' }
+                $true { '#505861' }
+                $false { '#007F49' }
             }
         }
 

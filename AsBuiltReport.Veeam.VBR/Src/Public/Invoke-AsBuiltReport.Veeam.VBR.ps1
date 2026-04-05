@@ -77,8 +77,8 @@ function Invoke-AsBuiltReport.Veeam.VBR {
     if ($Options.ReportStyle -eq 'Veeam') {
         & "$PSScriptRoot\..\..\AsBuiltReport.Veeam.VBR.Style.ps1"
         $Legend = {
-            Text "$($reportTranslate.InvokeAsBuiltReportVeeamVBR.LegendEnabled) \" -Color 81BC50 -Bold
-            Text " $($reportTranslate.InvokeAsBuiltReportVeeamVBR.LegendDisabled)" -Color dddf62 -Bold
+            Text "$($reportTranslate.InvokeAsBuiltReportVeeamVBR.LegendEnabled) \" -Color 00D15F -Bold
+            Text " $($reportTranslate.InvokeAsBuiltReportVeeamVBR.LegendDisabled)" -Color ADACAF -Bold
         }
     } else {
         # Set Custom styles for Default AsBuiltReport template

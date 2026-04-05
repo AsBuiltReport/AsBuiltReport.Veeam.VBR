@@ -19,6 +19,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Update module references in README.md for Veeam VBR As Built Report
 - Reorganize module structure - moved module files to AsBuiltReport.Veeam.VBR/ subdirectory
 - Improve report Sections structure and organization
+- Enhance localization support by adding new messages and improving existing translations in English and Spanish language files.
+
+### Removed
+
+- Remove unused PNG files from the Tools folder to clean up the project and reduce clutter.
 
 ## [0.8.26] - 2026-02-20
 

@@ -111,7 +111,7 @@ function Get-AbrVbrInstalledLicense {
                                     $chartLabels = [string[]]$sampleData.Category
                                     $chartValues = [double[]]$sampleData.Value
 
-                                    $statusCustomPalette = @('#DFF0D0', '#FFF4C7', '#FEDDD7', '#878787')
+                                    $statusCustomPalette = @('#9CFFA3', '#FFF3C4', '#FECDD1', '#ADACAF')
 
                                     $chartFileItem = New-PieChart -Title ' ' -Values $chartValues -Labels $chartLabels -EnableCustomColorPalette -CustomColorPalette $statusCustomPalette -Width 600 -Height 400 -Format base64 -EnableLegend -LegendOrientation Vertical -LegendAlignment UpperRight -TitleFontBold -TitleFontSize 16
 
@@ -203,7 +203,7 @@ function Get-AbrVbrInstalledLicense {
                                     $chartLabels = [string[]]$sampleData.Category
                                     $chartValues = [double[]]$sampleData.Value
 
-                                    $statusCustomPalette = @('#DFF0D0', '#FFF4C7', '#FEDDD7', '#878787')
+                                    $statusCustomPalette = @('#9CFFA3', '#FFF3C4', '#FECDD1', '#ADACAF')
 
                                     $chartFileItem = New-PieChart -Title ' ' -Values $chartValues -Labels $chartLabels -EnableCustomColorPalette -CustomColorPalette $statusCustomPalette -Width 600 -Height 400 -Format base64 -EnableLegend -LegendOrientation Vertical -LegendAlignment UpperRight -TitleFontBold -TitleFontSize 16
                                 } catch {
@@ -255,7 +255,7 @@ function Get-AbrVbrInstalledLicense {
                                     $chartLabels = [string[]]$sampleData.Category
                                     $chartValues = [double[]]$sampleData.Value
 
-                                    $statusCustomPalette = @('#DFF0D0', '#FFF4C7', '#FEDDD7', '#878787')
+                                    $statusCustomPalette = @('#9CFFA3', '#FFF3C4', '#FECDD1', '#ADACAF')
 
                                     $chartFileItem = New-PieChart -Title ' ' -Values $chartValues -Labels $chartLabels -EnableCustomColorPalette -CustomColorPalette $statusCustomPalette -Width 600 -Height 400 -Format base64 -EnableLegend -LegendOrientation Vertical -LegendAlignment UpperRight -TitleFontBold -TitleFontSize 16
                                 } catch {
