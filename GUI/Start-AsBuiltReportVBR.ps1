@@ -18,7 +18,8 @@
 using namespace GliderUI
 using namespace GliderUI.Avalonia
 using namespace GliderUI.Avalonia.Controls
-using namespace GliderUI.Avalonia.Controls.Primitives
+using namespace GliderUI.Avalonia.Platform.Storage
+
 
 # ── Bootstrap GliderUI ──────────────────────────────────────────────────────
 if (-not (Get-Module -ListAvailable -Name GliderUI)) {
@@ -70,30 +71,27 @@ function New-InlineLabel ([string]$Text) {
 
 # ── Connection Controls ─────────────────────────────────────────────────────
 $txtServer = [TextBox]::new()
-$txtServer.Width = 270
+$txtServer.Width = 175
 $txtServer.Watermark = 'hostname or IP address'
 
-$nudPort = [NumericUpDown]::new()
-$nudPort.Value = 9392
-$nudPort.Minimum = 1
-$nudPort.Maximum = 65535
-$nudPort.Width = 150
-$nudPort.Increment = 1
-try { $nudPort.FormatString = '0' } catch { }
+$txtPort = [TextBox]::new()
+$txtPort.Text = '9392'
+$txtPort.Width = 80
+$txtPort.Watermark = 'port'
 
 $serverRow = [StackPanel]::new()
 $serverRow.Orientation = 'Horizontal'
 $serverRow.Spacing = 6
 $serverRow.Children.Add($txtServer)
 $serverRow.Children.Add((New-InlineLabel 'Port'))
-$serverRow.Children.Add($nudPort)
+$serverRow.Children.Add($txtPort)
 
 $txtUser = [TextBox]::new()
-$txtUser.Width = 300
+$txtUser.Width = 200
 $txtUser.Watermark = 'DOMAIN\username  or  username'
 
 $txtPass = [TextBox]::new()
-$txtPass.Width = 300
+$txtPass.Width = 200
 $txtPass.Watermark = 'Password'
 try { $txtPass.PasswordChar = [char]'●' } catch { }
 
@@ -110,30 +108,27 @@ $fmtPanel.Children.Add($chkWord)
 $fmtPanel.Children.Add($chkText)
 
 $txtOutput = [TextBox]::new()
-$txtOutput.Width = 310
+$txtOutput.Width = 240
 $txtOutput.Text = [System.IO.Path]::Combine($env:USERPROFILE, 'Documents', 'AsBuiltReport')
 
 $btnBrowse = [Button]::new()
 $btnBrowse.Content = 'Browse…'
 $btnBrowse.AddClick({
         try {
-            # WinForms FolderBrowserDialog in a dedicated STA runspace
-            $iss = [System.Management.Automation.Runspaces.InitialSessionState]::CreateDefault()
-            $rs = [System.Management.Automation.Runspaces.RunspaceFactory]::CreateRunspace($iss)
-            $rs.ApartmentState = 'STA'
-            $rs.Open()
-            $ps = [System.Management.Automation.PowerShell]::Create()
-            $ps.Runspace = $rs
-            [void]$ps.AddScript({
-                    Add-Type -AssemblyName System.Windows.Forms
-                    $dlg = [System.Windows.Forms.FolderBrowserDialog]::new()
-                    $dlg.Description = 'Select report output folder'
-                    if ($dlg.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) { $dlg.SelectedPath }
-                })
-            $selected = $ps.Invoke()[0]
-            $ps.Dispose(); $rs.Dispose()
-            if (-not [string]::IsNullOrEmpty($selected)) { $txtOutput.Text = $selected }
-        } catch { }
+            $storageProvider = [Window]::GetTopLevel($btnBrowse).StorageProvider
+            if ($null -eq $storageProvider) {
+                Write-Host 'Storage provider not available.' -ForegroundColor Yellow
+                return
+            }
+            $options = [FolderPickerOpenOptions]::new()
+            $options.Title = 'Select Output Folder Path'
+            $folders = $storageProvider.OpenFolderPickerAsync($options).WaitForCompleted()
+            if ($folders -and $folders.Count -gt 0) {
+                $txtOutput.Text = $folders[0].Path.LocalPath
+            }
+        } catch {
+            Write-Host "Folder picker error: $_" -ForegroundColor Red
+        }
     })
 
 $outputPathRow = [StackPanel]::new()
@@ -175,20 +170,10 @@ $swNewIcons = [ToggleSwitch]::new(); $swNewIcons.IsChecked = $true
 $swHealthChk = [ToggleSwitch]::new(); $swHealthChk.IsChecked = $true
 $swTimestamp = [ToggleSwitch]::new(); $swTimestamp.IsChecked = $true
 
-$cboDiagTheme = [ComboBox]::new()
-$cboDiagTheme.Width = 120
-$cboDiagTheme.Items.Add('White') | Out-Null
-$cboDiagTheme.Items.Add('Black') | Out-Null
-$cboDiagTheme.Items.Add('Neon') | Out-Null
-$cboDiagTheme.SelectedIndex = 0
-
-$nudColSize = [NumericUpDown]::new()
-$nudColSize.Value = 3
-$nudColSize.Minimum = 1
-$nudColSize.Maximum = 10
-$nudColSize.Width = 130
-$nudColSize.Increment = 1
-try { $nudColSize.FormatString = '0' } catch { }
+$txtColSize = [TextBox]::new()
+$txtColSize.Text = '3'
+$txtColSize.Width = 80
+$txtColSize.Watermark = 'columns'
 
 # ── InfoLevel Controls ───────────────────────────────────────────────────────
 function New-LevelCombo {
@@ -199,13 +184,13 @@ function New-LevelCombo {
     return $cbo
 }
 
-$cboLvlBackupServer = New-LevelCombo
-$cboLvlProxy = New-LevelCombo
-$cboLvlRepository = New-LevelCombo
-$cboLvlBackupJobs = New-LevelCombo
-$cboLvlReplica = New-LevelCombo
-$cboLvlTape = New-LevelCombo
-$cboLvlCloudConnect = New-LevelCombo
+$cboLvlInfrastructure = New-LevelCombo
+$cboLvlTape           = New-LevelCombo
+$cboLvlInventory      = New-LevelCombo
+$cboLvlStorage        = New-LevelCombo
+$cboLvlReplication    = New-LevelCombo
+$cboLvlCloudConnect   = New-LevelCombo
+$cboLvlJobs           = New-LevelCombo
 
 # ── Progress Bar & Log ──────────────────────────────────────────────────────
 $progressBar = [ProgressBar]::new()
@@ -251,7 +236,7 @@ $generateCallback.DisabledControlsWhileProcessing = $btnGenerate
 $generateCallback.ArgumentList = @{
     SyncHash = $syncHash
     Server = $txtServer
-    Port = $nudPort
+    Port = $txtPort
     Username = $txtUser
     Password = $txtPass
     ReportName = $txtReportName
@@ -261,21 +246,20 @@ $generateCallback.ArgumentList = @{
     FmtText = $chkText
     Style = $cboStyle
     Lang = $cboLang
-    DiagTheme = $cboDiagTheme
-    DiagColSize = $nudColSize
+    DiagColSize = $txtColSize
     Diagrams = $swDiagrams
     ExportDia = $swExportDia
     HWInv = $swHWInv
     NewIcons = $swNewIcons
     HealthChk = $swHealthChk
     Timestamp = $swTimestamp
-    LvlBackupServer = $cboLvlBackupServer
-    LvlProxy = $cboLvlProxy
-    LvlRepository = $cboLvlRepository
-    LvlBackupJobs = $cboLvlBackupJobs
-    LvlReplica = $cboLvlReplica
-    LvlTape = $cboLvlTape
-    LvlCloudConnect = $cboLvlCloudConnect
+    LvlInfrastructure = $cboLvlInfrastructure
+    LvlTape           = $cboLvlTape
+    LvlInventory      = $cboLvlInventory
+    LvlStorage        = $cboLvlStorage
+    LvlReplication    = $cboLvlReplication
+    LvlCloudConnect   = $cboLvlCloudConnect
+    LvlJobs           = $cboLvlJobs
 }
 
 $generateCallback.ScriptBlock = {
@@ -294,7 +278,7 @@ $generateCallback.ScriptBlock = {
 
     # ── Collect values ───────────────────────────────────────────────────────
     $server = $ui.Server.Text.Trim()
-    $port = [int]$ui.Port.Value
+    $port = [int]$ui.Port.Text
     $username = $ui.Username.Text.Trim()
     $password = $ui.Password.Text
     $reportName = $ui.ReportName.Text.Trim()
@@ -302,7 +286,7 @@ $generateCallback.ScriptBlock = {
     $style = [string]$ui.Style.SelectedItem
     $lang = [string]$ui.Lang.SelectedItem
     $theme = [string]$ui.DiagTheme.SelectedItem
-    $colSize = [int]$ui.DiagColSize.Value
+    $colSize = [int]$ui.DiagColSize.Text
 
     $formats = @()
     if ($ui.FmtHTML.IsChecked -eq $true) { $formats += 'HTML' }
@@ -318,13 +302,13 @@ $generateCallback.ScriptBlock = {
     $addTimestamp = [bool]$ui.Timestamp.IsChecked
 
     # Parse InfoLevel (first char = number) — passed to Build-VbrConfigObject below
-    $lvlBackupServer = [int]([string]$ui.LvlBackupServer.SelectedItem)[0]
-    $lvlProxy = [int]([string]$ui.LvlProxy.SelectedItem)[0]
-    $lvlRepository = [int]([string]$ui.LvlRepository.SelectedItem)[0]
-    $lvlBackupJobs = [int]([string]$ui.LvlBackupJobs.SelectedItem)[0]
-    $lvlReplica = [int]([string]$ui.LvlReplica.SelectedItem)[0]
-    $lvlTape = [int]([string]$ui.LvlTape.SelectedItem)[0]
-    $lvlCloudConnect = [int]([string]$ui.LvlCloudConnect.SelectedItem)[0]
+    $lvlInfrastructure = [int]([string]$ui.LvlInfrastructure.SelectedItem)[0]
+    $lvlTape           = [int]([string]$ui.LvlTape.SelectedItem)[0]
+    $lvlInventory      = [int]([string]$ui.LvlInventory.SelectedItem)[0]
+    $lvlStorage        = [int]([string]$ui.LvlStorage.SelectedItem)[0]
+    $lvlReplication    = [int]([string]$ui.LvlReplication.SelectedItem)[0]
+    $lvlCloudConnect   = [int]([string]$ui.LvlCloudConnect.SelectedItem)[0]
+    $lvlJobs           = [int]([string]$ui.LvlJobs.SelectedItem)[0]
 
     # ── Validation ───────────────────────────────────────────────────────────
     if ([string]::IsNullOrWhiteSpace($server)) {
@@ -379,13 +363,13 @@ $generateCallback.ScriptBlock = {
         -HWInv $hwInventory `
         -NewIcons $newIcons `
         -HealthCheck $healthCheck `
-        -LvlBackupServer (Get-Level $ui.LvlBackupServer) `
-        -LvlProxy (Get-Level $ui.LvlProxy) `
-        -LvlRepository (Get-Level $ui.LvlRepository) `
-        -LvlBackupJobs (Get-Level $ui.LvlBackupJobs) `
-        -LvlReplica (Get-Level $ui.LvlReplica) `
-        -LvlTape (Get-Level $ui.LvlTape) `
-        -LvlCloudConnect (Get-Level $ui.LvlCloudConnect)
+        -LvlInfrastructure (Get-Level $ui.LvlInfrastructure) `
+        -LvlTape           (Get-Level $ui.LvlTape) `
+        -LvlInventory      (Get-Level $ui.LvlInventory) `
+        -LvlStorage        (Get-Level $ui.LvlStorage) `
+        -LvlReplication    (Get-Level $ui.LvlReplication) `
+        -LvlCloudConnect   (Get-Level $ui.LvlCloudConnect) `
+        -LvlJobs           (Get-Level $ui.LvlJobs)
 
     $tempConfig = Join-Path $env:TEMP "VBR_AsBuilt_$(New-Guid).json"
     $configObj | ConvertTo-Json -Depth 6 | Set-Content -Path $tempConfig -Encoding UTF8
@@ -432,8 +416,8 @@ function Build-VbrConfigObject {
         [int]$Port, [string]$Theme, [int]$ColSize,
         [bool]$EnableDiagrams, [bool]$ExportDiagrams, [bool]$HWInv,
         [bool]$NewIcons, [bool]$HealthCheck,
-        [int]$LvlBackupServer, [int]$LvlProxy, [int]$LvlRepository,
-        [int]$LvlBackupJobs, [int]$LvlReplica, [int]$LvlTape, [int]$LvlCloudConnect
+        [int]$LvlInfrastructure, [int]$LvlTape, [int]$LvlInventory,
+        [int]$LvlStorage, [int]$LvlReplication, [int]$LvlCloudConnect, [int]$LvlJobs
     )
     return [ordered]@{
         Report = [ordered]@{
@@ -469,23 +453,23 @@ function Build-VbrConfigObject {
         }
         InfoLevel = [ordered]@{
             Infrastructure = [ordered]@{
-                BackupServer = $LvlBackupServer
-                BR = $LvlRepository
-                Licenses = 1
-                Proxy = $LvlProxy
-                Settings = 1
-                SOBR = $LvlRepository
-                ServiceProvider = 1
-                SureBackup = 1
-                WANAccel = 1
+                BackupServer = $LvlInfrastructure
+                BR = $LvlInfrastructure
+                Licenses = $LvlInfrastructure
+                Proxy = $LvlInfrastructure
+                Settings = $LvlInfrastructure
+                SOBR = $LvlInfrastructure
+                ServiceProvider = $LvlInfrastructure
+                SureBackup = $LvlInfrastructure
+                WANAccel = $LvlInfrastructure
             }
             Tape = [ordered]@{
                 Library = $LvlTape; MediaPool = $LvlTape
                 NDMP = $LvlTape; Server = $LvlTape; Vault = $LvlTape
             }
-            Inventory = [ordered]@{ EntraID = 1; FileShare = 1; Nutanix = 1; PHY = 1; VI = 1 }
-            Storage = [ordered]@{ ISILON = 1; ONTAP = 1 }
-            Replication = [ordered]@{ FailoverPlan = $LvlReplica; Replica = $LvlReplica }
+            Inventory = [ordered]@{ EntraID = $LvlInventory; FileShare = $LvlInventory; Nutanix = $LvlInventory; PHY = $LvlInventory; VI = $LvlInventory }
+            Storage = [ordered]@{ ISILON = $LvlStorage; ONTAP = $LvlStorage }
+            Replication = [ordered]@{ FailoverPlan = $LvlReplication; Replica = $LvlReplication }
             CloudConnect = [ordered]@{
                 BackupStorage = $LvlCloudConnect; Certificate = $LvlCloudConnect
                 CloudGateway = $LvlCloudConnect; GatewayPools = $LvlCloudConnect
@@ -493,9 +477,9 @@ function Build-VbrConfigObject {
                 Tenants = $LvlCloudConnect
             }
             Jobs = [ordered]@{
-                Agent = $LvlBackupJobs; Backup = $LvlBackupJobs; BackupCopy = $LvlBackupJobs
-                EntraID = $LvlBackupJobs; FileShare = $LvlBackupJobs; Nutanix = $LvlBackupJobs
-                Surebackup = $LvlBackupJobs; Replication = $LvlReplica; Restores = 0; Tape = $LvlTape
+                Agent = $LvlJobs; Backup = $LvlJobs; BackupCopy = $LvlJobs
+                EntraID = $LvlJobs; FileShare = $LvlJobs; Nutanix = $LvlJobs
+                Surebackup = $LvlJobs; Replication = $LvlReplication; Restores = 0; Tape = $LvlTape
             }
         }
         HealthCheck = [ordered]@{
@@ -520,29 +504,32 @@ function Build-VbrConfigObject {
 $txtConfigPath = [TextBox]::new()
 $txtConfigPath.Width = 298
 $txtConfigPath.Watermark = 'Path to .json config file'
-$txtConfigPath.Text = [System.IO.Path]::Combine(
-    $env:USERPROFILE, 'Documents', 'AsBuiltReport', 'AsBuiltReport.Veeam.VBR.json')
+$txtConfigPath.Text = if ($IsWindows) {
+    [System.IO.Path]::Combine(
+        $env:USERPROFILE, 'Documents', 'AsBuiltReport', 'AsBuiltReport.Veeam.VBR.json')
+} else {
+    [System.IO.Path]::Combine(
+        $env:HOME, 'Documents', 'AsBuiltReport', 'AsBuiltReport.Veeam.VBR.json')
+}
 
 $btnBrowseConfig = [Button]::new()
 $btnBrowseConfig.Content = 'Browse…'
 $btnBrowseConfig.AddClick({
         try {
-            $iss = [System.Management.Automation.Runspaces.InitialSessionState]::CreateDefault()
-            $rs = [System.Management.Automation.Runspaces.RunspaceFactory]::CreateRunspace($iss)
-            $rs.ApartmentState = 'STA'; $rs.Open()
-            $ps = [System.Management.Automation.PowerShell]::Create()
-            $ps.Runspace = $rs
-            [void]$ps.AddScript({
-                    Add-Type -AssemblyName System.Windows.Forms
-                    $dlg = [System.Windows.Forms.OpenFileDialog]::new()
-                    $dlg.Title = 'Select AsBuiltReport Config File'
-                    $dlg.Filter = 'JSON Config|*.json|All Files|*.*'
-                    if ($dlg.ShowDialog() -eq 'OK') { $dlg.FileName }
-                })
-            $selected = $ps.Invoke()[0]
-            $ps.Dispose(); $rs.Dispose()
-            if (-not [string]::IsNullOrEmpty($selected)) { $txtConfigPath.Text = $selected }
-        } catch { }
+            $storageProvider = [Window]::GetTopLevel($btnBrowseConfig).StorageProvider
+            if ($null -eq $storageProvider) {
+                Write-Host 'Storage provider not available.' -ForegroundColor Yellow
+                return
+            }
+            $options = [FilePickerOpenOptions]::new()
+            $options.Title = 'Select Veeam.VBR JSON File'
+            $JsonConfigFile = $storageProvider.OpenFilePickerAsync($options).WaitForCompleted()
+            if ($JsonConfigFile -and $JsonConfigFile.Count -gt 0) {
+                $txtConfigPath.Text = $JsonConfigFile.Path.AbsolutePath
+            }
+        } catch {
+            Write-Host "Folder picker error: $_" -ForegroundColor Red
+        }
     })
 
 $configPathRow = [StackPanel]::new()
@@ -585,21 +572,20 @@ $btnSaveConfig.AddClick({
                 -ReportName ($txtReportName.Text.Trim() -or 'Veeam VBR As-Built Report') `
                 -Style ([string]$cboStyle.SelectedItem) `
                 -Lang ([string]$cboLang.SelectedItem) `
-                -Port ([int]$nudPort.Value) `
-                -Theme ([string]$cboDiagTheme.SelectedItem) `
-                -ColSize ([int]$nudColSize.Value) `
+                -Port ([int]$txtPort.Text) `
+                -ColSize ([int]$txtColSize.Text) `
                 -EnableDiagrams ([bool]$swDiagrams.IsChecked) `
                 -ExportDiagrams ([bool]$swExportDia.IsChecked) `
                 -HWInv ([bool]$swHWInv.IsChecked) `
                 -NewIcons ([bool]$swNewIcons.IsChecked) `
                 -HealthCheck ([bool]$swHealthChk.IsChecked) `
-                -LvlBackupServer (Get-LevelVal $cboLvlBackupServer) `
-                -LvlProxy (Get-LevelVal $cboLvlProxy) `
-                -LvlRepository (Get-LevelVal $cboLvlRepository) `
-                -LvlBackupJobs (Get-LevelVal $cboLvlBackupJobs) `
-                -LvlReplica (Get-LevelVal $cboLvlReplica) `
-                -LvlTape (Get-LevelVal $cboLvlTape) `
-                -LvlCloudConnect (Get-LevelVal $cboLvlCloudConnect)
+                -LvlInfrastructure (Get-LevelVal $cboLvlInfrastructure) `
+                -LvlTape           (Get-LevelVal $cboLvlTape) `
+                -LvlInventory      (Get-LevelVal $cboLvlInventory) `
+                -LvlStorage        (Get-LevelVal $cboLvlStorage) `
+                -LvlReplication    (Get-LevelVal $cboLvlReplication) `
+                -LvlCloudConnect   (Get-LevelVal $cboLvlCloudConnect) `
+                -LvlJobs           (Get-LevelVal $cboLvlJobs)
 
             $configObj | ConvertTo-Json -Depth 6 | Set-Content -Path $destPath -Encoding UTF8
             $syncHash.lblConfigStatus.Text = "✅ Config saved: $destPath"
@@ -645,10 +631,9 @@ $btnLoadConfig.AddClick({
             if ($json.Report.Language) { Set-ComboByValue $cboLang $json.Report.Language }
 
             # Options section
-            if ($null -ne $json.Options.BackupServerPort) { $nudPort.Value = $json.Options.BackupServerPort }
+            if ($null -ne $json.Options.BackupServerPort) { $txtPort.Text = [string]$json.Options.BackupServerPort }
             if ($json.Options.ReportStyle) { Set-ComboByValue $cboStyle $json.Options.ReportStyle }
-            if ($json.Options.DiagramTheme) { Set-ComboByValue $cboDiagTheme $json.Options.DiagramTheme }
-            if ($null -ne $json.Options.DiagramColumnSize) { $nudColSize.Value = $json.Options.DiagramColumnSize }
+            if ($null -ne $json.Options.DiagramColumnSize) { $txtColSize.Text = [string]$json.Options.DiagramColumnSize }
             if ($null -ne $json.Options.EnableDiagrams) { $swDiagrams.IsChecked = [bool]$json.Options.EnableDiagrams }
             if ($null -ne $json.Options.ExportDiagrams) { $swExportDia.IsChecked = [bool]$json.Options.ExportDiagrams }
             if ($null -ne $json.Options.EnableHardwareInventory) { $swHWInv.IsChecked = [bool]$json.Options.EnableHardwareInventory }
@@ -657,21 +642,25 @@ $btnLoadConfig.AddClick({
             # InfoLevel section
             if ($null -ne $json.InfoLevel) {
                 if ($null -ne $json.InfoLevel.Infrastructure) {
-                    Set-LevelCombo $cboLvlBackupServer $json.InfoLevel.Infrastructure.BackupServer
-                    Set-LevelCombo $cboLvlProxy $json.InfoLevel.Infrastructure.Proxy
-                    Set-LevelCombo $cboLvlRepository $json.InfoLevel.Infrastructure.BR
-                }
-                if ($null -ne $json.InfoLevel.Jobs) {
-                    Set-LevelCombo $cboLvlBackupJobs $json.InfoLevel.Jobs.Backup
-                }
-                if ($null -ne $json.InfoLevel.Replication) {
-                    Set-LevelCombo $cboLvlReplica $json.InfoLevel.Replication.Replica
+                    Set-LevelCombo $cboLvlInfrastructure $json.InfoLevel.Infrastructure.BackupServer
                 }
                 if ($null -ne $json.InfoLevel.Tape) {
                     Set-LevelCombo $cboLvlTape $json.InfoLevel.Tape.Library
                 }
+                if ($null -ne $json.InfoLevel.Inventory) {
+                    Set-LevelCombo $cboLvlInventory $json.InfoLevel.Inventory.VI
+                }
+                if ($null -ne $json.InfoLevel.Storage) {
+                    Set-LevelCombo $cboLvlStorage $json.InfoLevel.Storage.ONTAP
+                }
+                if ($null -ne $json.InfoLevel.Replication) {
+                    Set-LevelCombo $cboLvlReplication $json.InfoLevel.Replication.Replica
+                }
                 if ($null -ne $json.InfoLevel.CloudConnect) {
                     Set-LevelCombo $cboLvlCloudConnect $json.InfoLevel.CloudConnect.Tenants
+                }
+                if ($null -ne $json.InfoLevel.Jobs) {
+                    Set-LevelCombo $cboLvlJobs $json.InfoLevel.Jobs.Backup
                 }
             }
 
@@ -688,6 +677,32 @@ $btnLoadConfig.AddClick({
             $syncHash.lblConfigStatus.Text = "✅ Config loaded: $(Split-Path $srcPath -Leaf)"
         } catch {
             $syncHash.lblConfigStatus.Text = "❌ Load failed: $_"
+        }
+    })
+
+# ── Open Config Button ────────────────────────────────────────────────────────
+$btnOpenConfig = [Button]::new()
+$btnOpenConfig.Content = '📝  Open Config'
+$btnOpenConfig.HorizontalAlignment = 'Stretch'
+$btnOpenConfig.HorizontalContentAlignment = 'Center'
+$btnOpenConfig.Width = 196
+$btnOpenConfig.Margin = '4,0,0,0'
+
+$btnOpenConfig.AddClick({
+        $srcPath = $txtConfigPath.Text.Trim()
+        if ([string]::IsNullOrWhiteSpace($srcPath)) {
+            $syncHash.lblConfigStatus.Text = '⚠ Please enter a config file path first.'
+            return
+        }
+        if (-not (Test-Path $srcPath)) {
+            $syncHash.lblConfigStatus.Text = '⚠ Config file not found.'
+            return
+        }
+        try {
+            Start-Process -FilePath $srcPath
+            $syncHash.lblConfigStatus.Text = "📝 Opened: $(Split-Path $srcPath -Leaf)"
+        } catch {
+            $syncHash.lblConfigStatus.Text = "❌ Could not open file: $_"
         }
     })
 
@@ -717,39 +732,49 @@ $headerPanel.Children.Add($hTitle)
 $headerPanel.Children.Add($hSub)
 $mainPanel.Children.Add($headerPanel)
 
-# Section: Connection
-$mainPanel.Children.Add((New-SectionTitle '🔌  Server Connection'))
-$mainPanel.Children.Add((New-FormRow 'VBR Server' $serverRow))
-$mainPanel.Children.Add((New-FormRow 'Username' $txtUser))
-$mainPanel.Children.Add((New-FormRow 'Password' $txtPass))
+# Section: Connection + Options — two-column side-by-side grid
+$twoColGrid = [Grid]::new()
+$twoColGrid.ColumnDefinitions = [ColumnDefinitions]::Parse('*, *')
+$twoColGrid.ColumnSpacing = 24
+$twoColGrid.Margin = '0,4,0,0'
 
-# Section: Report Output
-$mainPanel.Children.Add((New-SectionTitle '📄  Report Output'))
-$mainPanel.Children.Add((New-FormRow 'Report Name' $txtReportName))
-$mainPanel.Children.Add((New-FormRow 'Format' $fmtPanel))
-$mainPanel.Children.Add((New-FormRow 'Output Folder' $outputPathRow))
-$mainPanel.Children.Add((New-FormRow 'Report Style' $styleRow))
+$connPanel = [StackPanel]::new()
+$connPanel.Spacing = 2
+$connPanel.Children.Add((New-SectionTitle '🔌  Server Connection'))
+$connPanel.Children.Add((New-FormRow -Label 'VBR Server' -Control $serverRow -LabelWidth 130))
+$connPanel.Children.Add((New-FormRow -Label 'Username' -Control $txtUser -LabelWidth 130))
+$connPanel.Children.Add((New-FormRow -Label 'Password' -Control $txtPass -LabelWidth 130))
+$connPanel.Children.Add((New-SectionTitle '📄  Report Output'))
+$connPanel.Children.Add((New-FormRow -Label 'Report Name' -Control $txtReportName -LabelWidth 130))
+$connPanel.Children.Add((New-FormRow -Label 'Format' -Control $fmtPanel -LabelWidth 130))
+$connPanel.Children.Add((New-FormRow -Label 'Output Folder' -Control $outputPathRow -LabelWidth 130))
+$connPanel.Children.Add((New-FormRow -Label 'Report Style' -Control $styleRow -LabelWidth 130))
+[Grid]::SetColumn($connPanel, 0)
+$twoColGrid.Children.Add($connPanel)
 
-# Section: Options
-$mainPanel.Children.Add((New-SectionTitle '⚙️  Options'))
-$mainPanel.Children.Add((New-FormRow 'Enable Diagrams' $swDiagrams))
-$mainPanel.Children.Add((New-FormRow 'Export Diagrams' $swExportDia))
-$mainPanel.Children.Add((New-FormRow 'Hardware Inventory' $swHWInv))
-$mainPanel.Children.Add((New-FormRow 'Use New Icons' $swNewIcons))
-$mainPanel.Children.Add((New-FormRow 'Enable Health Check' $swHealthChk))
-$mainPanel.Children.Add((New-FormRow 'Add Timestamp' $swTimestamp))
-$mainPanel.Children.Add((New-FormRow 'Diagram Theme' $cboDiagTheme))
-$mainPanel.Children.Add((New-FormRow 'Diagram Columns' $nudColSize))
+$optPanel = [StackPanel]::new()
+$optPanel.Spacing = 2
+$optPanel.Children.Add((New-SectionTitle '⚙️  Options'))
+$optPanel.Children.Add((New-FormRow -Label 'Enable Diagrams' -Control $swDiagrams -LabelWidth 165))
+$optPanel.Children.Add((New-FormRow -Label 'Export Diagrams' -Control $swExportDia -LabelWidth 165))
+$optPanel.Children.Add((New-FormRow -Label 'Hardware Inventory' -Control $swHWInv -LabelWidth 165))
+$optPanel.Children.Add((New-FormRow -Label 'Use New Icons' -Control $swNewIcons -LabelWidth 165))
+$optPanel.Children.Add((New-FormRow -Label 'Enable Health Check' -Control $swHealthChk -LabelWidth 165))
+$optPanel.Children.Add((New-FormRow -Label 'Add Timestamp' -Control $swTimestamp -LabelWidth 165))
+$optPanel.Children.Add((New-FormRow -Label 'Diagram Columns' -Control $txtColSize -LabelWidth 165))
+[Grid]::SetColumn($optPanel, 1)
+$twoColGrid.Children.Add($optPanel)
 
-# Section: InfoLevel
+$mainPanel.Children.Add($twoColGrid)
+
 $mainPanel.Children.Add((New-SectionTitle '📊  Info Level'))
-$mainPanel.Children.Add((New-FormRow 'Backup Server' $cboLvlBackupServer))
-$mainPanel.Children.Add((New-FormRow 'Proxy' $cboLvlProxy))
-$mainPanel.Children.Add((New-FormRow 'Repository' $cboLvlRepository))
-$mainPanel.Children.Add((New-FormRow 'Backup Jobs' $cboLvlBackupJobs))
-$mainPanel.Children.Add((New-FormRow 'Replication' $cboLvlReplica))
-$mainPanel.Children.Add((New-FormRow 'Tape' $cboLvlTape))
-$mainPanel.Children.Add((New-FormRow 'Cloud Connect' $cboLvlCloudConnect))
+$mainPanel.Children.Add((New-FormRow -Label 'Infrastructure' -Control $cboLvlInfrastructure))
+$mainPanel.Children.Add((New-FormRow -Label 'Tape'          -Control $cboLvlTape))
+$mainPanel.Children.Add((New-FormRow -Label 'Inventory'     -Control $cboLvlInventory))
+$mainPanel.Children.Add((New-FormRow -Label 'Storage'       -Control $cboLvlStorage))
+$mainPanel.Children.Add((New-FormRow -Label 'Replication'   -Control $cboLvlReplication))
+$mainPanel.Children.Add((New-FormRow -Label 'Cloud Connect' -Control $cboLvlCloudConnect))
+$mainPanel.Children.Add((New-FormRow -Label 'Jobs'          -Control $cboLvlJobs))
 
 # Section: Config Management
 $mainPanel.Children.Add((New-SectionTitle '🗂️  Config Management'))
@@ -759,8 +784,9 @@ $cfgBtnRow.Orientation = 'Horizontal'
 $cfgBtnRow.Margin = '0,4,0,0'
 $cfgBtnRow.Children.Add($btnSaveConfig)
 $cfgBtnRow.Children.Add($btnLoadConfig)
+$cfgBtnRow.Children.Add($btnOpenConfig)
 
-$mainPanel.Children.Add((New-FormRow 'Config File' $configPathRow))
+$mainPanel.Children.Add((New-FormRow -Label 'Config File' -Control $configPathRow))
 $mainPanel.Children.Add($cfgBtnRow)
 $mainPanel.Children.Add($lblConfigStatus)
 
@@ -784,9 +810,9 @@ $scrollView.Content = $mainPanel
 # ── Window ──────────────────────────────────────────────────────────────────
 $win = [Window]::new()
 $win.Title = 'Veeam VBR — As-Built Report Generator'
-$win.Width = 700
+$win.Width = 1050
 $win.Height = 920
-$win.MinWidth = 620
+$win.MinWidth = 880
 $win.MinHeight = 500
 $win.Content = $scrollView
 
