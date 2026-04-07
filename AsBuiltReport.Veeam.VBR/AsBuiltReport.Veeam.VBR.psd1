@@ -15,7 +15,7 @@
     ModuleVersion = '1.0.0'
 
     # Supported PSEditions
-    # CompatiblePSEditions = @()
+    CompatiblePSEditions = @('Desktop', 'Core')
 
     # ID used to uniquely identify this module
     GUID = '7f25f32e-70cb-49e6-a71b-eec42e0595c1'
@@ -32,7 +32,7 @@
     # Description of the functionality provided by this module
     Description = 'A PowerShell module to generate an as built report on the configuration of Veeam VBR.'
 
-    # Minimum version of the Windows PowerShell engine required by this module
+    # Minimum version of the PowerShell engine required by this module
     PowerShellVersion = '5.1'
 
     # Name of the Windows PowerShell host required by this module
