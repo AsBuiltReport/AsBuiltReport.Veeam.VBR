@@ -21,6 +21,10 @@ function Start-AsBuiltReportVBR {
             AsBuiltReport.Veeam.VBR               — Install-PSResource -Name AsBuiltReport.Veeam.VBR
             Veeam B&R console / PS module         — must be installed on this machine
     #>
+
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseShouldProcessForStateChangingFunctions', '', Scope = 'Function')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingConvertToSecureStringWithPlainText', '', Scope = 'Function')]
+
     [CmdletBinding()]
     param()
 
@@ -96,7 +100,7 @@ function Start-AsBuiltReportVBR {
     $txtPass = [TextBox]::new()
     $txtPass.Width = 200
     $txtPass.Watermark = 'Password'
-    try { $txtPass.PasswordChar = [char]'●' } catch { }
+    try { $txtPass.PasswordChar = [char]'●' } catch { Out-Null }
 
     # ── Output Controls ─────────────────────────────────────────────────────────
     $chkHTML = [CheckBox]::new(); $chkHTML.Content = 'HTML'; $chkHTML.IsChecked = $true
@@ -209,7 +213,7 @@ function Start-AsBuiltReportVBR {
     $txtLog.FontSize = 11
     $txtLog.TextWrapping = 'Wrap'
     $txtLog.Watermark = 'Output log will appear here…'
-    try { $txtLog.FontFamily = 'Consolas,Courier New,Monospace' } catch { }
+    try { $txtLog.FontFamily = 'Consolas,Courier New,Monospace' } catch { Out-Null }
     $syncHash.txtLog = $txtLog
 
     # ── Action Buttons ──────────────────────────────────────────────────────────
@@ -274,7 +278,7 @@ function Start-AsBuiltReportVBR {
         $sh.btnCancel.IsVisible = $true
         $sh.txtLog.Text = ''
 
-        function Write-Log ([string]$Msg, [string]$Level = 'INFO') {
+        function Write-Logging ([string]$Msg, [string]$Level = 'INFO') {
             $ts = Get-Date -Format 'HH:mm:ss'
             $sh.txtLog.Text += "[$ts][$Level] $Msg`n"
         }
@@ -315,15 +319,15 @@ function Start-AsBuiltReportVBR {
 
         # ── Validation ───────────────────────────────────────────────────────────
         if ([string]::IsNullOrWhiteSpace($server)) {
-            Write-Log 'VBR Server address is required.' 'ERROR'
+            Write-Logging 'VBR Server address is required.' 'ERROR'
             $sh.progressBar.IsVisible = $false; $sh.btnCancel.IsVisible = $false; return
         }
         if ([string]::IsNullOrWhiteSpace($username)) {
-            Write-Log 'Username is required.' 'ERROR'
+            Write-Logging 'Username is required.' 'ERROR'
             $sh.progressBar.IsVisible = $false; $sh.btnCancel.IsVisible = $false; return
         }
         if ([string]::IsNullOrWhiteSpace($password)) {
-            Write-Log 'Password is required.' 'ERROR'
+            Write-Logging 'Password is required.' 'ERROR'
             $sh.progressBar.IsVisible = $false; $sh.btnCancel.IsVisible = $false; return
         }
         if ([string]::IsNullOrWhiteSpace($outPath)) {
@@ -331,23 +335,23 @@ function Start-AsBuiltReportVBR {
         }
         if (-not (Test-Path $outPath)) {
             New-Item -Path $outPath -ItemType Directory -Force | Out-Null
-            Write-Log "Created output folder: $outPath"
+            Write-Logging "Created output folder: $outPath"
         }
         if ([string]::IsNullOrWhiteSpace($reportName)) { $reportName = 'Veeam VBR As-Built Report' }
 
-        Write-Log "Target   : $server`:$port"
-        Write-Log "Username : $username"
-        Write-Log "Formats  : $($formats -join ', ')"
-        Write-Log "Output   : $outPath"
-        Write-Log "Style    : $style  |  Language: $lang"
+        Write-Logging "Target   : $server`:$port"
+        Write-Logging "Username : $username"
+        Write-Logging "Formats  : $($formats -join ', ')"
+        Write-Logging "Output   : $outPath"
+        Write-Logging "Style    : $style  |  Language: $lang"
 
         # ── Import modules in this runspace ──────────────────────────────────────
-        Write-Log 'Loading AsBuiltReport modules…'
+        Write-Logging 'Loading AsBuiltReport modules…'
         try {
             Import-Module AsBuiltReport.Core -Force -ErrorAction Stop
             Import-Module AsBuiltReport.Veeam.VBR -Force -ErrorAction Stop
         } catch {
-            Write-Log "Failed to load modules: $_" 'ERROR'
+            Write-Logging "Failed to load modules: $_" 'ERROR'
             $sh.progressBar.IsVisible = $false; $sh.btnCancel.IsVisible = $false; return
         }
 
@@ -379,9 +383,9 @@ function Start-AsBuiltReportVBR {
 
         # ── Build credential and invoke New-AsBuiltReport ─────────────────────────
         try {
-            if ($sh.CancelRequested) { Write-Log 'Cancelled before start.' 'WARN'; return }
+            if ($sh.CancelRequested) { Write-Logging 'Cancelled before start.' 'WARN'; return }
 
-            Write-Log 'Starting report generation (PS7 native)…'
+            Write-Logging 'Starting report generation (PS7 native)…'
             $secPass = ConvertTo-SecureString $password -AsPlainText -Force
             $cred = [System.Management.Automation.PSCredential]::new($username, $secPass)
 
@@ -398,11 +402,11 @@ function Start-AsBuiltReportVBR {
 
             New-AsBuiltReport @params
 
-            Write-Log ''
-            Write-Log "Report saved to: $outPath" 'SUCCESS'
+            Write-Logging ''
+            Write-Logging "Report saved to: $outPath" 'SUCCESS'
         } catch {
-            Write-Log $_.Exception.Message 'ERROR'
-            if ($_.ScriptStackTrace) { Write-Log $_.ScriptStackTrace 'ERROR' }
+            Write-Logging $_.Exception.Message 'ERROR'
+            if ($_.ScriptStackTrace) { Write-Logging $_.ScriptStackTrace 'ERROR' }
         } finally {
             Remove-Item -Path $tempConfig -Force -ErrorAction SilentlyContinue
             $sh.progressBar.IsVisible = $false
