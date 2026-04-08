@@ -267,6 +267,8 @@ function Start-AsBuiltReportVBR {
         LvlReplication = $cboLvlReplication
         LvlCloudConnect = $cboLvlCloudConnect
         LvlJobs = $cboLvlJobs
+        AbrConfigPath = $txtAbrConfigPath
+        ConfigPath = $txtConfigPath
     }
 
     $generateCallback.ScriptBlock = {
@@ -284,38 +286,39 @@ function Start-AsBuiltReportVBR {
         }
 
         # ── Collect values ───────────────────────────────────────────────────────
-        $server = $ui.Server.Text.Trim()
-        $port = [int]$ui.Port.Text
-        $username = $ui.Username.Text.Trim()
-        $password = $ui.Password.Text
-        $reportName = $ui.ReportName.Text.Trim()
-        $outPath = $ui.OutPath.Text.Trim()
-        $style = [string]$ui.Style.SelectedItem
-        $lang = [string]$ui.Lang.SelectedItem
-        $theme = [string]$ui.DiagTheme.SelectedItem
-        $colSize = [int]$ui.DiagColSize.Text
+        $server       = $ui.Server.Text.Trim()
+        $port         = if ($ui.Port.Text -match '^\d+$') { [int]$ui.Port.Text } else { 9392 }
+        $username     = $ui.Username.Text.Trim()
+        $password     = $ui.Password.Text
+        $reportName   = $ui.ReportName.Text.Trim()
+        $outPath      = $ui.OutPath.Text.Trim()
+        $style        = [string]$ui.Style.SelectedItem
+        $lang         = [string]$ui.Lang.SelectedItem
+        $colSize      = if ($ui.DiagColSize.Text -match '^\d+$') { [int]$ui.DiagColSize.Text } else { 3 }
+        $configPath   = $ui.ConfigPath.Text.Trim()
+        $abrConfigPath = $ui.AbrConfigPath.Text.Trim()
 
         $formats = @()
-        if ($ui.FmtHTML.IsChecked -eq $true) { $formats += 'HTML' }
+        if ($ui.FmtHTML.IsChecked -eq $true) { $formats += 'Html' }
         if ($ui.FmtWord.IsChecked -eq $true) { $formats += 'Word' }
         if ($ui.FmtText.IsChecked -eq $true) { $formats += 'Text' }
-        if ($formats.Count -eq 0) { $formats = @('HTML') }
+        if ($formats.Count -eq 0) { $formats = @('Html') }
 
         $enableDiagrams = [bool]$ui.Diagrams.IsChecked
         $exportDiagrams = [bool]$ui.ExportDia.IsChecked
-        $hwInventory = [bool]$ui.HWInv.IsChecked
-        $newIcons = [bool]$ui.NewIcons.IsChecked
-        $healthCheck = [bool]$ui.HealthChk.IsChecked
-        $addTimestamp = [bool]$ui.Timestamp.IsChecked
+        $hwInventory    = [bool]$ui.HWInv.IsChecked
+        $newIcons       = [bool]$ui.NewIcons.IsChecked
+        $healthCheck    = [bool]$ui.HealthChk.IsChecked
+        $addTimestamp   = [bool]$ui.Timestamp.IsChecked
 
-        # Parse InfoLevel (first char = number) — passed to Build-VbrConfigObject below
+        # Parse InfoLevel (first char = number)
         $lvlInfrastructure = [int]([string]$ui.LvlInfrastructure.SelectedItem)[0]
-        $lvlTape = [int]([string]$ui.LvlTape.SelectedItem)[0]
-        $lvlInventory = [int]([string]$ui.LvlInventory.SelectedItem)[0]
-        $lvlStorage = [int]([string]$ui.LvlStorage.SelectedItem)[0]
-        $lvlReplication = [int]([string]$ui.LvlReplication.SelectedItem)[0]
-        $lvlCloudConnect = [int]([string]$ui.LvlCloudConnect.SelectedItem)[0]
-        $lvlJobs = [int]([string]$ui.LvlJobs.SelectedItem)[0]
+        $lvlTape           = [int]([string]$ui.LvlTape.SelectedItem)[0]
+        $lvlInventory      = [int]([string]$ui.LvlInventory.SelectedItem)[0]
+        $lvlStorage        = [int]([string]$ui.LvlStorage.SelectedItem)[0]
+        $lvlReplication    = [int]([string]$ui.LvlReplication.SelectedItem)[0]
+        $lvlCloudConnect   = [int]([string]$ui.LvlCloudConnect.SelectedItem)[0]
+        $lvlJobs           = [int]([string]$ui.LvlJobs.SelectedItem)[0]
 
         # ── Validation ───────────────────────────────────────────────────────────
         if ([string]::IsNullOrWhiteSpace($server)) {
@@ -331,7 +334,7 @@ function Start-AsBuiltReportVBR {
             $sh.progressBar.IsVisible = $false; $sh.btnCancel.IsVisible = $false; return
         }
         if ([string]::IsNullOrWhiteSpace($outPath)) {
-            $outPath = Join-Path $env:USERPROFILE 'Documents\AsBuiltReport'
+            $outPath = [System.IO.Path]::Combine($env:USERPROFILE, 'Documents', 'AsBuiltReport')
         }
         if (-not (Test-Path $outPath)) {
             New-Item -Path $outPath -ItemType Directory -Force | Out-Null
@@ -339,66 +342,80 @@ function Start-AsBuiltReportVBR {
         }
         if ([string]::IsNullOrWhiteSpace($reportName)) { $reportName = 'Veeam VBR As-Built Report' }
 
-        Write-Logging "Target   : $server`:$port"
-        Write-Logging "Username : $username"
-        Write-Logging "Formats  : $($formats -join ', ')"
-        Write-Logging "Output   : $outPath"
-        Write-Logging "Style    : $style  |  Language: $lang"
+        Write-Logging "Target  : $server (port $port)"
+        Write-Logging "User    : $username"
+        Write-Logging "Formats : $($formats -join ', ')"
+        Write-Logging "Output  : $outPath"
 
         # ── Import modules in this runspace ──────────────────────────────────────
         Write-Logging 'Loading AsBuiltReport modules…'
         try {
-            Import-Module AsBuiltReport.Core -Force -ErrorAction Stop
+            Import-Module AsBuiltReport.Core     -Force -ErrorAction Stop
             Import-Module AsBuiltReport.Veeam.VBR -Force -ErrorAction Stop
         } catch {
             Write-Logging "Failed to load modules: $_" 'ERROR'
             $sh.progressBar.IsVisible = $false; $sh.btnCancel.IsVisible = $false; return
         }
 
-        # ── Build config using shared helper ────────────────────────────────────────
-        function Get-Level ($cbo) { [int]([string]$cbo.SelectedItem)[0] }
+        # ── Resolve ReportConfigFilePath ──────────────────────────────────────────
+        # Use the saved config file from Config Management if it exists;
+        # otherwise build a temp config from the current UI control values.
+        $tempConfig = $null
+        if (-not [string]::IsNullOrWhiteSpace($configPath) -and (Test-Path $configPath)) {
+            $reportConfigFilePath = $configPath
+            Write-Logging "Using config file: $(Split-Path $configPath -Leaf)"
+        } else {
+            function Get-Level ($cbo) { [int]([string]$cbo.SelectedItem)[0] }
 
-        $configObj = Build-VbrConfigObject `
-            -ReportName $reportName `
-            -Style $style `
-            -Lang $lang `
-            -Port $port `
-            -Theme $theme `
-            -ColSize $colSize `
-            -EnableDiagrams $enableDiagrams `
-            -ExportDiagrams $exportDiagrams `
-            -HWInv $hwInventory `
-            -NewIcons $newIcons `
-            -HealthCheck $healthCheck `
-            -LvlInfrastructure (Get-Level $ui.LvlInfrastructure) `
-            -LvlTape (Get-Level $ui.LvlTape) `
-            -LvlInventory (Get-Level $ui.LvlInventory) `
-            -LvlStorage (Get-Level $ui.LvlStorage) `
-            -LvlReplication (Get-Level $ui.LvlReplication) `
-            -LvlCloudConnect (Get-Level $ui.LvlCloudConnect) `
-            -LvlJobs (Get-Level $ui.LvlJobs)
+            $configObj = Build-VbrConfigObject `
+                -ReportName $reportName `
+                -Style      $style `
+                -Lang       $lang `
+                -Port       $port `
+                -Theme      '' `
+                -ColSize    $colSize `
+                -EnableDiagrams  $enableDiagrams `
+                -ExportDiagrams  $exportDiagrams `
+                -HWInv           $hwInventory `
+                -NewIcons        $newIcons `
+                -HealthCheck     $healthCheck `
+                -LvlInfrastructure (Get-Level $ui.LvlInfrastructure) `
+                -LvlTape           (Get-Level $ui.LvlTape) `
+                -LvlInventory      (Get-Level $ui.LvlInventory) `
+                -LvlStorage        (Get-Level $ui.LvlStorage) `
+                -LvlReplication    (Get-Level $ui.LvlReplication) `
+                -LvlCloudConnect   (Get-Level $ui.LvlCloudConnect) `
+                -LvlJobs           (Get-Level $ui.LvlJobs)
 
-        $tempConfig = Join-Path $env:TEMP "VBR_AsBuilt_$(New-Guid).json"
-        $configObj | ConvertTo-Json -Depth 6 | Set-Content -Path $tempConfig -Encoding UTF8
+            $tempConfig = [System.IO.Path]::Combine($env:TEMP, "VBR_cfg_$(New-Guid).json")
+            $configObj | ConvertTo-Json -Depth 6 | Set-Content -Path $tempConfig -Encoding UTF8
+            $reportConfigFilePath = $tempConfig
+            Write-Logging 'Using config built from UI controls.'
+        }
 
-        # ── Build credential and invoke New-AsBuiltReport ─────────────────────────
+        # ── Invoke New-AsBuiltReport ──────────────────────────────────────────────
         try {
             if ($sh.CancelRequested) { Write-Logging 'Cancelled before start.' 'WARN'; return }
 
-            Write-Logging 'Starting report generation (PS7 native)…'
-            $secPass = ConvertTo-SecureString $password -AsPlainText -Force
-            $cred = [System.Management.Automation.PSCredential]::new($username, $secPass)
+            Write-Logging 'Starting report generation…'
 
+            # New-AsBuiltReport -Report Veeam.VBR -Target <server> -Username <user> -Password <pass>
+            #   -Format Html,Word -OutputFolderPath <path> -ReportConfigFilePath <json>
             $params = @{
-                Report = 'Veeam.VBR'
-                Target = $server
-                Credential = $cred
-                OutputFolderPath = $outPath
-                Format = $formats
-                ReportConfigFilePath = $tempConfig
+                Report               = 'Veeam.VBR'
+                Target               = $server
+                Username             = $username
+                Password             = $password
+                OutputFolderPath     = $outPath
+                Format               = $formats
+                ReportConfigFilePath = $reportConfigFilePath
             }
             if ($addTimestamp) { $params['Timestamp'] = $true }
-            if ($healthCheck) { $params['EnableHealthCheck'] = $true }
+            if ($healthCheck)  { $params['EnableHealthCheck'] = $true }
+            if (-not [string]::IsNullOrWhiteSpace($abrConfigPath) -and (Test-Path $abrConfigPath)) {
+                $params['AsBuiltConfigFilePath'] = $abrConfigPath
+                Write-Logging "AsBuiltReport config: $(Split-Path $abrConfigPath -Leaf)"
+            }
 
             New-AsBuiltReport @params
 
@@ -408,9 +425,11 @@ function Start-AsBuiltReportVBR {
             Write-Logging $_.Exception.Message 'ERROR'
             if ($_.ScriptStackTrace) { Write-Logging $_.ScriptStackTrace 'ERROR' }
         } finally {
-            Remove-Item -Path $tempConfig -Force -ErrorAction SilentlyContinue
+            if ($null -ne $tempConfig) {
+                Remove-Item -Path $tempConfig -Force -ErrorAction SilentlyContinue
+            }
             $sh.progressBar.IsVisible = $false
-            $sh.btnCancel.IsVisible = $false
+            $sh.btnCancel.IsVisible   = $false
         }
     }
 
@@ -550,6 +569,36 @@ function Start-AsBuiltReportVBR {
     $lblConfigStatus.Margin = '0,4,0,0'
     $lblConfigStatus.Text = ''
     $syncHash.lblConfigStatus = $lblConfigStatus
+
+    # ── AsBuiltReport Global Config (AsBuiltReport.json) ─────────────────────────
+    $txtAbrConfigPath = [TextBox]::new()
+    $txtAbrConfigPath.Width = 298
+    $txtAbrConfigPath.Watermark = 'Optional: path to AsBuiltReport.json (global settings)'
+
+    $btnBrowseAbrConfig = [Button]::new()
+    $btnBrowseAbrConfig.Content = 'Browse…'
+    $btnBrowseAbrConfig.AddClick({
+            try {
+                $storageProvider = [Window]::GetTopLevel($btnBrowseAbrConfig).StorageProvider
+                if ($null -eq $storageProvider) { return }
+                $options = [FilePickerOpenOptions]::new()
+                $options.Title = 'Select AsBuiltReport.json'
+                $options.AllowMultiple = $false
+                $picked = $storageProvider.OpenFilePickerAsync($options).WaitForCompleted()
+                if ($picked -and $picked.Count -gt 0) {
+                    $txtAbrConfigPath.Text = $picked[0].Path.AbsolutePath
+                    $syncHash.lblConfigStatus.Text = "📄 AsBuiltReport config selected: $(Split-Path $txtAbrConfigPath.Text -Leaf)"
+                }
+            } catch {
+                $syncHash.lblConfigStatus.Text = "❌ Browse error: $_"
+            }
+        })
+
+    $abrConfigPathRow = [StackPanel]::new()
+    $abrConfigPathRow.Orientation = 'Horizontal'
+    $abrConfigPathRow.Spacing = 8
+    $abrConfigPathRow.Children.Add($txtAbrConfigPath)
+    $abrConfigPathRow.Children.Add($btnBrowseAbrConfig)
 
     # ── Save Config Button ────────────────────────────────────────────────────────
     $btnSaveConfig = [Button]::new()
@@ -810,7 +859,8 @@ function Start-AsBuiltReportVBR {
     $cfgBtnRow.Children.Add($btnLoadConfig)
     $cfgBtnRow.Children.Add($btnOpenConfig)
 
-    $mainPanel.Children.Add((New-FormRow -Label 'Config File' -Control $configPathRow))
+    $mainPanel.Children.Add((New-FormRow -Label 'Veeam VBR Config File' -Control $configPathRow))
+    $mainPanel.Children.Add((New-FormRow -Label 'AsBuiltReport Config File' -Control $abrConfigPathRow))
     $mainPanel.Children.Add($cfgBtnRow)
     $mainPanel.Children.Add($lblConfigStatus)
 
