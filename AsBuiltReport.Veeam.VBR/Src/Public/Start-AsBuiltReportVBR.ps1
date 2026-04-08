@@ -739,11 +739,11 @@ function Start-AsBuiltReportVBR {
     $headerPanel.Children.Add($hSub)
     $mainPanel.Children.Add($headerPanel)
 
-    # Section: Connection + Options — two-column side-by-side grid
-    $twoColGrid = [Grid]::new()
-    $twoColGrid.ColumnDefinitions = [ColumnDefinitions]::Parse('*, *')
-    $twoColGrid.ColumnSpacing = 24
-    $twoColGrid.Margin = '0,4,0,0'
+    # Row 1: Server Connection | Report Output — two-column side-by-side grid
+    $topGrid = [Grid]::new()
+    $topGrid.ColumnDefinitions = [ColumnDefinitions]::Parse('*, *')
+    $topGrid.ColumnSpacing = 24
+    $topGrid.Margin = '0,4,0,0'
 
     $connPanel = [StackPanel]::new()
     $connPanel.Spacing = 2
@@ -751,13 +751,26 @@ function Start-AsBuiltReportVBR {
     $connPanel.Children.Add((New-FormRow -Label 'VBR Server' -Control $serverRow -LabelWidth 130))
     $connPanel.Children.Add((New-FormRow -Label 'Username' -Control $txtUser -LabelWidth 130))
     $connPanel.Children.Add((New-FormRow -Label 'Password' -Control $txtPass -LabelWidth 130))
-    $connPanel.Children.Add((New-SectionTitle '📄  Report Output'))
-    $connPanel.Children.Add((New-FormRow -Label 'Report Name' -Control $txtReportName -LabelWidth 130))
-    $connPanel.Children.Add((New-FormRow -Label 'Format' -Control $fmtPanel -LabelWidth 130))
-    $connPanel.Children.Add((New-FormRow -Label 'Output Folder' -Control $outputPathRow -LabelWidth 130))
-    $connPanel.Children.Add((New-FormRow -Label 'Report Style' -Control $styleRow -LabelWidth 130))
     [Grid]::SetColumn($connPanel, 0)
-    $twoColGrid.Children.Add($connPanel)
+    $topGrid.Children.Add($connPanel)
+
+    $outPanel = [StackPanel]::new()
+    $outPanel.Spacing = 2
+    $outPanel.Children.Add((New-SectionTitle '📄  Report Output'))
+    $outPanel.Children.Add((New-FormRow -Label 'Report Name' -Control $txtReportName -LabelWidth 130))
+    $outPanel.Children.Add((New-FormRow -Label 'Format' -Control $fmtPanel -LabelWidth 130))
+    $outPanel.Children.Add((New-FormRow -Label 'Output Folder' -Control $outputPathRow -LabelWidth 130))
+    $outPanel.Children.Add((New-FormRow -Label 'Report Style' -Control $styleRow -LabelWidth 130))
+    [Grid]::SetColumn($outPanel, 1)
+    $topGrid.Children.Add($outPanel)
+
+    $mainPanel.Children.Add($topGrid)
+
+    # Row 2: Options | Info Level — two-column side-by-side grid
+    $bottomGrid = [Grid]::new()
+    $bottomGrid.ColumnDefinitions = [ColumnDefinitions]::Parse('*, *')
+    $bottomGrid.ColumnSpacing = 24
+    $bottomGrid.Margin = '0,4,0,0'
 
     $optPanel = [StackPanel]::new()
     $optPanel.Spacing = 2
@@ -769,19 +782,23 @@ function Start-AsBuiltReportVBR {
     $optPanel.Children.Add((New-FormRow -Label 'Enable Health Check' -Control $swHealthChk -LabelWidth 165))
     $optPanel.Children.Add((New-FormRow -Label 'Add Timestamp' -Control $swTimestamp -LabelWidth 165))
     $optPanel.Children.Add((New-FormRow -Label 'Diagram Columns' -Control $txtColSize -LabelWidth 165))
-    [Grid]::SetColumn($optPanel, 1)
-    $twoColGrid.Children.Add($optPanel)
+    [Grid]::SetColumn($optPanel, 0)
+    $bottomGrid.Children.Add($optPanel)
 
-    $mainPanel.Children.Add($twoColGrid)
+    $lvlPanel = [StackPanel]::new()
+    $lvlPanel.Spacing = 2
+    $lvlPanel.Children.Add((New-SectionTitle '📊  Info Level'))
+    $lvlPanel.Children.Add((New-FormRow -Label 'Infrastructure' -Control $cboLvlInfrastructure))
+    $lvlPanel.Children.Add((New-FormRow -Label 'Tape' -Control $cboLvlTape))
+    $lvlPanel.Children.Add((New-FormRow -Label 'Inventory' -Control $cboLvlInventory))
+    $lvlPanel.Children.Add((New-FormRow -Label 'Storage' -Control $cboLvlStorage))
+    $lvlPanel.Children.Add((New-FormRow -Label 'Replication' -Control $cboLvlReplication))
+    $lvlPanel.Children.Add((New-FormRow -Label 'Cloud Connect' -Control $cboLvlCloudConnect))
+    $lvlPanel.Children.Add((New-FormRow -Label 'Jobs' -Control $cboLvlJobs))
+    [Grid]::SetColumn($lvlPanel, 1)
+    $bottomGrid.Children.Add($lvlPanel)
 
-    $mainPanel.Children.Add((New-SectionTitle '📊  Info Level'))
-    $mainPanel.Children.Add((New-FormRow -Label 'Infrastructure' -Control $cboLvlInfrastructure))
-    $mainPanel.Children.Add((New-FormRow -Label 'Tape' -Control $cboLvlTape))
-    $mainPanel.Children.Add((New-FormRow -Label 'Inventory' -Control $cboLvlInventory))
-    $mainPanel.Children.Add((New-FormRow -Label 'Storage' -Control $cboLvlStorage))
-    $mainPanel.Children.Add((New-FormRow -Label 'Replication' -Control $cboLvlReplication))
-    $mainPanel.Children.Add((New-FormRow -Label 'Cloud Connect' -Control $cboLvlCloudConnect))
-    $mainPanel.Children.Add((New-FormRow -Label 'Jobs' -Control $cboLvlJobs))
+    $mainPanel.Children.Add($bottomGrid)
 
     # Section: Config Management
     $mainPanel.Children.Add((New-SectionTitle '🗂️  Config Management'))
