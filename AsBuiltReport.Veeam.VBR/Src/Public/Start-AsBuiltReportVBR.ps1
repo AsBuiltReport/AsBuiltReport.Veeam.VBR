@@ -273,8 +273,6 @@ function Start-AsBuiltReportVBR {
         LvlReplication = $cboLvlReplication
         LvlCloudConnect = $cboLvlCloudConnect
         LvlJobs = $cboLvlJobs
-        AbrConfigPath = $txtAbrConfigPath
-        ConfigPath = $txtConfigPath
     }
 
     $generateCallback.ScriptBlock = {
@@ -508,7 +506,7 @@ function Start-AsBuiltReportVBR {
                 Username = $username
                 Password = $password
                 OutputFolderPath = $outPath
-                Frmat = $formats
+                Format = $formats
                 ReportConfigFilePath = $reportConfigFilePath
             }
             if ($addTimestamp) { $params['Timestamp'] = $true }
@@ -624,6 +622,9 @@ function Start-AsBuiltReportVBR {
     $abrConfigPathRow.Spacing = 8
     $abrConfigPathRow.Children.Add($txtAbrConfigPath)
     $abrConfigPathRow.Children.Add($btnBrowseAbrConfig)
+    # Late-bind controls created after ArgumentList; must be set after the TextBox objects exist
+    $generateCallback.ArgumentList['ConfigPath'] = $txtConfigPath
+    $generateCallback.ArgumentList['AbrConfigPath'] = $txtAbrConfigPath
 
     # ── Save Config Button ────────────────────────────────────────────────────────
     function Build-VbrConfigObject {
