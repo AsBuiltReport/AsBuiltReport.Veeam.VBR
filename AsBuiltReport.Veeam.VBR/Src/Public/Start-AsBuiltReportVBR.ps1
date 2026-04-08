@@ -116,7 +116,13 @@ function Start-AsBuiltReportVBR {
 
     $txtOutput = [TextBox]::new()
     $txtOutput.Width = 240
-    $txtOutput.Text = [System.IO.Path]::Combine($env:USERPROFILE, 'Documents', 'AsBuiltReport')
+    $txtOutput.Text = if ($IsWindows) {
+        [System.IO.Path]::Combine(
+            [System.IO.Path]::Combine($env:USERPROFILE, 'Documents', 'AsBuiltReport'))
+    } else {
+        [System.IO.Path]::Combine(
+            [System.IO.Path]::Combine($env:HOME, 'Documents', 'AsBuiltReport'))
+    }
 
     $btnBrowse = [Button]::new()
     $btnBrowse.Content = 'Browse…'
@@ -375,16 +381,16 @@ function Start-AsBuiltReportVBR {
         }
 
         # ── Collect values ───────────────────────────────────────────────────────
-        $server       = $ui.Server.Text.Trim()
-        $port         = if ($ui.Port.Text -match '^\d+$') { [int]$ui.Port.Text } else { 9392 }
-        $username     = $ui.Username.Text.Trim()
-        $password     = $ui.Password.Text
-        $reportName   = $ui.ReportName.Text.Trim()
-        $outPath      = $ui.OutPath.Text.Trim()
-        $style        = [string]$ui.Style.SelectedItem
-        $lang         = [string]$ui.Lang.SelectedItem
-        $colSize      = if ($ui.DiagColSize.Text -match '^\d+$') { [int]$ui.DiagColSize.Text } else { 3 }
-        $configPath   = $ui.ConfigPath.Text.Trim()
+        $server = $ui.Server.Text.Trim()
+        $port = if ($ui.Port.Text -match '^\d+$') { [int]$ui.Port.Text } else { 9392 }
+        $username = $ui.Username.Text.Trim()
+        $password = $ui.Password.Text
+        $reportName = $ui.ReportName.Text.Trim()
+        $outPath = $ui.OutPath.Text.Trim()
+        $style = [string]$ui.Style.SelectedItem
+        $lang = [string]$ui.Lang.SelectedItem
+        $colSize = if ($ui.DiagColSize.Text -match '^\d+$') { [int]$ui.DiagColSize.Text } else { 3 }
+        $configPath = $ui.ConfigPath.Text.Trim()
         $abrConfigPath = $ui.AbrConfigPath.Text.Trim()
 
         $formats = @()
@@ -395,19 +401,19 @@ function Start-AsBuiltReportVBR {
 
         $enableDiagrams = [bool]$ui.Diagrams.IsChecked
         $exportDiagrams = [bool]$ui.ExportDia.IsChecked
-        $hwInventory    = [bool]$ui.HWInv.IsChecked
-        $newIcons       = [bool]$ui.NewIcons.IsChecked
-        $healthCheck    = [bool]$ui.HealthChk.IsChecked
-        $addTimestamp   = [bool]$ui.Timestamp.IsChecked
+        $hwInventory = [bool]$ui.HWInv.IsChecked
+        $newIcons = [bool]$ui.NewIcons.IsChecked
+        $healthCheck = [bool]$ui.HealthChk.IsChecked
+        $addTimestamp = [bool]$ui.Timestamp.IsChecked
 
         # Parse InfoLevel (first char = number)
         $lvlInfrastructure = [int]([string]$ui.LvlInfrastructure.SelectedItem)[0]
-        $lvlTape           = [int]([string]$ui.LvlTape.SelectedItem)[0]
-        $lvlInventory      = [int]([string]$ui.LvlInventory.SelectedItem)[0]
-        $lvlStorage        = [int]([string]$ui.LvlStorage.SelectedItem)[0]
-        $lvlReplication    = [int]([string]$ui.LvlReplication.SelectedItem)[0]
-        $lvlCloudConnect   = [int]([string]$ui.LvlCloudConnect.SelectedItem)[0]
-        $lvlJobs           = [int]([string]$ui.LvlJobs.SelectedItem)[0]
+        $lvlTape = [int]([string]$ui.LvlTape.SelectedItem)[0]
+        $lvlInventory = [int]([string]$ui.LvlInventory.SelectedItem)[0]
+        $lvlStorage = [int]([string]$ui.LvlStorage.SelectedItem)[0]
+        $lvlReplication = [int]([string]$ui.LvlReplication.SelectedItem)[0]
+        $lvlCloudConnect = [int]([string]$ui.LvlCloudConnect.SelectedItem)[0]
+        $lvlJobs = [int]([string]$ui.LvlJobs.SelectedItem)[0]
 
         # ── Validation ───────────────────────────────────────────────────────────
         if ([string]::IsNullOrWhiteSpace($server)) {
@@ -423,7 +429,13 @@ function Start-AsBuiltReportVBR {
             $sh.progressBar.IsVisible = $false; $sh.btnCancel.IsVisible = $false; return
         }
         if ([string]::IsNullOrWhiteSpace($outPath)) {
-            $outPath = [System.IO.Path]::Combine($env:USERPROFILE, 'Documents', 'AsBuiltReport')
+            $outPath = if ($IsWindows) {
+                [System.IO.Path]::Combine(
+                    [System.IO.Path]::Combine($env:USERPROFILE, 'Documents', 'AsBuiltReport'))
+            } else {
+                [System.IO.Path]::Combine(
+                    [System.IO.Path]::Combine($env:HOME, 'Documents', 'AsBuiltReport'))
+            }
         }
         if (-not (Test-Path $outPath)) {
             New-Item -Path $outPath -ItemType Directory -Force | Out-Null
@@ -439,7 +451,7 @@ function Start-AsBuiltReportVBR {
         # ── Import modules in this runspace ──────────────────────────────────────
         Write-Logging 'Loading AsBuiltReport modules…'
         try {
-            Import-Module AsBuiltReport.Core     -Force -ErrorAction Stop
+            Import-Module AsBuiltReport.Core -Force -ErrorAction Stop
             Import-Module AsBuiltReport.Veeam.VBR -Force -ErrorAction Stop
         } catch {
             Write-Logging "Failed to load modules: $_" 'ERROR'
@@ -458,23 +470,23 @@ function Start-AsBuiltReportVBR {
 
             $configObj = Build-VbrConfigObject `
                 -ReportName $reportName `
-                -Style      $style `
-                -Lang       $lang `
-                -Port       $port `
-                -Theme      '' `
-                -ColSize    $colSize `
-                -EnableDiagrams  $enableDiagrams `
-                -ExportDiagrams  $exportDiagrams `
-                -HWInv           $hwInventory `
-                -NewIcons        $newIcons `
-                -HealthCheck     $healthCheck `
+                -Style $style `
+                -Lang $lang `
+                -Port $port `
+                -Theme '' `
+                -ColSize $colSize `
+                -EnableDiagrams $enableDiagrams `
+                -ExportDiagrams $exportDiagrams `
+                -HWInv $hwInventory `
+                -NewIcons $newIcons `
+                -HealthCheck $healthCheck `
                 -LvlInfrastructure (Get-Level $ui.LvlInfrastructure) `
-                -LvlTape           (Get-Level $ui.LvlTape) `
-                -LvlInventory      (Get-Level $ui.LvlInventory) `
-                -LvlStorage        (Get-Level $ui.LvlStorage) `
-                -LvlReplication    (Get-Level $ui.LvlReplication) `
-                -LvlCloudConnect   (Get-Level $ui.LvlCloudConnect) `
-                -LvlJobs           (Get-Level $ui.LvlJobs)
+                -LvlTape (Get-Level $ui.LvlTape) `
+                -LvlInventory (Get-Level $ui.LvlInventory) `
+                -LvlStorage (Get-Level $ui.LvlStorage) `
+                -LvlReplication (Get-Level $ui.LvlReplication) `
+                -LvlCloudConnect (Get-Level $ui.LvlCloudConnect) `
+                -LvlJobs (Get-Level $ui.LvlJobs)
 
             $tempConfig = [System.IO.Path]::Combine($env:TEMP, "VBR_cfg_$(New-Guid).json")
             $configObj | ConvertTo-Json -Depth 6 | Set-Content -Path $tempConfig -Encoding UTF8
@@ -491,16 +503,16 @@ function Start-AsBuiltReportVBR {
             # New-AsBuiltReport -Report Veeam.VBR -Target <server> -Username <user> -Password <pass>
             #   -Format Html,Word -OutputFolderPath <path> -ReportConfigFilePath <json>
             $params = @{
-                Report               = 'Veeam.VBR'
-                Target               = $server
-                Username             = $username
-                Password             = $password
-                OutputFolderPath     = $outPath
-                Format               = $formats
+                Report = 'Veeam.VBR'
+                Target = $server
+                Username = $username
+                Password = $password
+                OutputFolderPath = $outPath
+                Frmat = $formats
                 ReportConfigFilePath = $reportConfigFilePath
             }
             if ($addTimestamp) { $params['Timestamp'] = $true }
-            if ($healthCheck)  { $params['EnableHealthCheck'] = $true }
+            if ($healthCheck) { $params['EnableHealthCheck'] = $true }
             if (-not [string]::IsNullOrWhiteSpace($abrConfigPath) -and (Test-Path $abrConfigPath)) {
                 $params['AsBuiltConfigFilePath'] = $abrConfigPath
                 Write-Logging "AsBuiltReport config: $(Split-Path $abrConfigPath -Leaf)"
@@ -533,7 +545,7 @@ function Start-AsBuiltReportVBR {
                 Remove-Item -Path $tempConfig -Force -ErrorAction SilentlyContinue
             }
             $sh.progressBar.IsVisible = $false
-            $sh.btnCancel.IsVisible   = $false
+            $sh.btnCancel.IsVisible = $false
         }
     }
 
