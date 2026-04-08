@@ -38,6 +38,7 @@ function Start-AsBuiltReportVBR {
     # Thread-safe store shared between the main runspace and the report runspace
     $syncHash = [Hashtable]::Synchronized(@{
             CancelRequested = $false
+            reportPS = $null
         })
 
     # ── UI Helper Functions ─────────────────────────────────────────────────────
@@ -228,7 +229,11 @@ function Start-AsBuiltReportVBR {
     $btnCancel.IsVisible = $false
     $btnCancel.HorizontalAlignment = 'Right'
     $btnCancel.Margin = '0,6,0,0'
-    $btnCancel.AddClick({ $syncHash.CancelRequested = $true })
+    $btnCancel.AddClick({
+            $syncHash.CancelRequested = $true
+            $rps = $syncHash.reportPS
+            if ($null -ne $rps) { $rps.Stop() }
+        })
     $syncHash.btnCancel = $btnCancel
 
     $btnGenerate = [Button]::new()
@@ -516,22 +521,58 @@ function Start-AsBuiltReportVBR {
                 Write-Logging "AsBuiltReport config: $(Split-Path $abrConfigPath -Leaf)"
             }
 
-            New-AsBuiltReport @params *>&1 | ForEach-Object {
-                $line = if ($_ -is [System.Management.Automation.ErrorRecord]) {
-                    Write-Logging "$($_.Exception.Message)" 'ERROR'
-                    return
-                } elseif ($_ -is [System.Management.Automation.WarningRecord]) {
-                    Write-Logging "$($_.Message)" 'WARN'
-                    return
-                } elseif ($_ -is [System.Management.Automation.InformationRecord]) {
-                    "$($_.MessageData)"
-                } else {
-                    "$_"
+            # Run New-AsBuiltReport in a dedicated PowerShell instance so it can be
+            # stopped immediately when the Cancel button is pressed.
+            $reportPS = [System.Management.Automation.PowerShell]::Create()
+            $reportPS.AddScript({
+                    param ($p)
+                    Import-Module AsBuiltReport.Core, AsBuiltReport.Veeam.VBR -Force -ErrorAction Stop
+                    New-AsBuiltReport @p
+                }).AddParameter('p', $params) | Out-Null
+
+            $sh.reportPS = $reportPS
+
+            $outputBuffer = [System.Management.Automation.PSDataCollection[psobject]]::new()
+            $asyncResult = $reportPS.BeginInvoke(
+                [System.Management.Automation.PSDataCollection[psobject]]::new(),
+                $outputBuffer
+            )
+
+            # Poll: drain output and honour Cancel while report runs
+            $lastIdx = 0
+            while (-not $asyncResult.IsCompleted) {
+                if ($sh.CancelRequested) {
+                    $reportPS.Stop()
+                    Write-Logging 'Report cancelled by user.' 'WARN'
+                    break
                 }
-                if (-not [string]::IsNullOrWhiteSpace($line)) {
-                    Write-Logging $line
+                while ($outputBuffer.Count -gt $lastIdx) {
+                    $item = "$($outputBuffer[$lastIdx++])"
+                    if (-not [string]::IsNullOrWhiteSpace($item)) { Write-Logging $item }
+                }
+                [System.Threading.Thread]::Sleep(300)
+            }
+
+            if (-not $sh.CancelRequested) {
+                try { $reportPS.EndInvoke($asyncResult) }
+                catch { Write-Logging $_.Exception.Message 'ERROR' }
+                # Drain any remaining output
+                while ($outputBuffer.Count -gt $lastIdx) {
+                    $item = "$($outputBuffer[$lastIdx++])"
+                    if (-not [string]::IsNullOrWhiteSpace($item)) { Write-Logging $item }
                 }
             }
+
+            # Surface errors and warnings from the inner runspace
+            foreach ($err  in $reportPS.Streams.Error) { Write-Logging $err.Exception.Message 'ERROR' }
+            foreach ($warn in $reportPS.Streams.Warning) { Write-Logging $warn.Message 'WARN' }
+            foreach ($info in $reportPS.Streams.Information) {
+                $msg = "$($info.MessageData)"
+                if (-not [string]::IsNullOrWhiteSpace($msg)) { Write-Logging $msg }
+            }
+
+            $reportPS.Dispose()
+            $sh.reportPS = $null
         } catch {
             Write-Logging $_.Exception.Message 'ERROR'
             if ($_.ScriptStackTrace) { Write-Logging $_.ScriptStackTrace 'ERROR' }
