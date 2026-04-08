@@ -285,6 +285,95 @@ function Start-AsBuiltReportVBR {
             $sh.txtLog.Text += "[$ts][$Level] $Msg`n"
         }
 
+        function Build-VbrConfigObject {
+            param (
+                [string]$ReportName, [string]$Style, [string]$Lang,
+                [int]$Port, [string]$Theme, [int]$ColSize,
+                [bool]$EnableDiagrams, [bool]$ExportDiagrams, [bool]$HWInv,
+                [bool]$NewIcons, [bool]$HealthCheck,
+                [int]$LvlInfrastructure, [int]$LvlTape, [int]$LvlInventory,
+                [int]$LvlStorage, [int]$LvlReplication, [int]$LvlCloudConnect, [int]$LvlJobs
+            )
+            return [ordered]@{
+                Report = [ordered]@{
+                    Name = $ReportName
+                    Version = '1.0'
+                    Status = 'Released'
+                    Language = $Lang
+                    ShowCoverPageImage = $true
+                    ShowTableOfContents = $true
+                    ShowHeaderFooter = $true
+                    ShowTableCaptions = $true
+                }
+                Options = [ordered]@{
+                    ReportStyle = $Style
+                    BackupServerPort = $Port
+                    EnableDiagrams = $EnableDiagrams
+                    ExportDiagrams = $ExportDiagrams
+                    EnableHardwareInventory = $HWInv
+                    DiagramTheme = $Theme
+                    DiagramColumnSize = $ColSize
+                    NewIcons = $NewIcons
+                    EnableDiagramDebug = $false
+                    DiagramWaterMark = ''
+                    ExportDiagramsFormat = @('pdf')
+                    EnableDiagramSignature = $false
+                    SignatureAuthorName = ''
+                    SignatureCompanyName = ''
+                    PSDefaultAuthentication = 'Default'
+                    RoundUnits = 1
+                    UpdateCheck = $false
+                    IsLocalServer = $false
+                    ShowExecutionTime = $false
+                }
+                InfoLevel = [ordered]@{
+                    Infrastructure = [ordered]@{
+                        BackupServer = $LvlInfrastructure
+                        BR = $LvlInfrastructure
+                        Licenses = $LvlInfrastructure
+                        Proxy = $LvlInfrastructure
+                        Settings = $LvlInfrastructure
+                        SOBR = $LvlInfrastructure
+                        ServiceProvider = $LvlInfrastructure
+                        SureBackup = $LvlInfrastructure
+                        WANAccel = $LvlInfrastructure
+                    }
+                    Tape = [ordered]@{ Library = $LvlTape; MediaPool = $LvlTape
+                        NDMP = $LvlTape; Server = $LvlTape; Vault = $LvlTape
+                    }
+                    Inventory = [ordered]@{ EntraID = $LvlInventory; FileShare = $LvlInventory; Nutanix = $LvlInventory; PHY = $LvlInventory; VI = $LvlInventory }
+                    Storage = [ordered]@{ ISILON = $LvlStorage; ONTAP = $LvlStorage }
+                    Replication = [ordered]@{ FailoverPlan = $LvlReplication; Replica = $LvlReplication }
+                    CloudConnect = [ordered]@{
+                        BackupStorage = $LvlCloudConnect; Certificate = $LvlCloudConnect
+                        CloudGateway = $LvlCloudConnect; GatewayPools = $LvlCloudConnect
+                        PublicIP = $LvlCloudConnect; ReplicaResources = $LvlCloudConnect
+                        Tenants = $LvlCloudConnect
+                    }
+                    Jobs = [ordered]@{
+                        Agent = $LvlJobs; Backup = $LvlJobs; BackupCopy = $LvlJobs
+                        EntraID = $LvlJobs; FileShare = $LvlJobs; Nutanix = $LvlJobs
+                        Surebackup = $LvlJobs; Replication = $LvlReplication; Restores = 0; Tape = $LvlTape
+                    }
+                }
+                HealthCheck = [ordered]@{
+                    Infrastructure = [ordered]@{
+                        BackupServer = $HealthCheck; Proxy = $HealthCheck; Settings = $HealthCheck
+                        BR = $HealthCheck; SOBR = $HealthCheck; Server = $HealthCheck
+                        Status = $HealthCheck; BestPractice = $HealthCheck
+                    }
+                    Tape = [ordered]@{ Status = $HealthCheck; BestPractice = $HealthCheck }
+                    Replication = [ordered]@{ Status = $HealthCheck; BestPractice = $HealthCheck }
+                    Security = [ordered]@{ BestPractice = $HealthCheck }
+                    CloudConnect = [ordered]@{
+                        Tenants = $HealthCheck; BackupStorage = $HealthCheck
+                        ReplicaResources = $HealthCheck; BestPractice = $HealthCheck
+                    }
+                    Jobs = [ordered]@{ Status = $HealthCheck; BestPractice = $HealthCheck }
+                }
+            }
+        }
+
         # ── Collect values ───────────────────────────────────────────────────────
         $server       = $ui.Server.Text.Trim()
         $port         = if ($ui.Port.Text -match '^\d+$') { [int]$ui.Port.Text } else { 9392 }
@@ -434,97 +523,6 @@ function Start-AsBuiltReportVBR {
     }
 
     $btnGenerate.AddClick($generateCallback)
-
-    # ── Config Helper: build the config object from current UI controls ─────────
-    function Build-VbrConfigObject {
-        param (
-            [string]$ReportName, [string]$Style, [string]$Lang,
-            [int]$Port, [string]$Theme, [int]$ColSize,
-            [bool]$EnableDiagrams, [bool]$ExportDiagrams, [bool]$HWInv,
-            [bool]$NewIcons, [bool]$HealthCheck,
-            [int]$LvlInfrastructure, [int]$LvlTape, [int]$LvlInventory,
-            [int]$LvlStorage, [int]$LvlReplication, [int]$LvlCloudConnect, [int]$LvlJobs
-        )
-        return [ordered]@{
-            Report = [ordered]@{
-                Name = $ReportName
-                Version = '1.0'
-                Status = 'Released'
-                Language = $Lang
-                ShowCoverPageImage = $true
-                ShowTableOfContents = $true
-                ShowHeaderFooter = $true
-                ShowTableCaptions = $true
-            }
-            Options = [ordered]@{
-                ReportStyle = $Style
-                BackupServerPort = $Port
-                EnableDiagrams = $EnableDiagrams
-                ExportDiagrams = $ExportDiagrams
-                EnableHardwareInventory = $HWInv
-                DiagramTheme = $Theme
-                DiagramColumnSize = $ColSize
-                NewIcons = $NewIcons
-                EnableDiagramDebug = $false
-                DiagramWaterMark = ''
-                ExportDiagramsFormat = @('pdf')
-                EnableDiagramSignature = $false
-                SignatureAuthorName = ''
-                SignatureCompanyName = ''
-                PSDefaultAuthentication = 'Default'
-                RoundUnits = 1
-                UpdateCheck = $false
-                IsLocalServer = $false
-                ShowExecutionTime = $false
-            }
-            InfoLevel = [ordered]@{
-                Infrastructure = [ordered]@{
-                    BackupServer = $LvlInfrastructure
-                    BR = $LvlInfrastructure
-                    Licenses = $LvlInfrastructure
-                    Proxy = $LvlInfrastructure
-                    Settings = $LvlInfrastructure
-                    SOBR = $LvlInfrastructure
-                    ServiceProvider = $LvlInfrastructure
-                    SureBackup = $LvlInfrastructure
-                    WANAccel = $LvlInfrastructure
-                }
-                Tape = [ordered]@{
-                    Library = $LvlTape; MediaPool = $LvlTape
-                    NDMP = $LvlTape; Server = $LvlTape; Vault = $LvlTape
-                }
-                Inventory = [ordered]@{ EntraID = $LvlInventory; FileShare = $LvlInventory; Nutanix = $LvlInventory; PHY = $LvlInventory; VI = $LvlInventory }
-                Storage = [ordered]@{ ISILON = $LvlStorage; ONTAP = $LvlStorage }
-                Replication = [ordered]@{ FailoverPlan = $LvlReplication; Replica = $LvlReplication }
-                CloudConnect = [ordered]@{
-                    BackupStorage = $LvlCloudConnect; Certificate = $LvlCloudConnect
-                    CloudGateway = $LvlCloudConnect; GatewayPools = $LvlCloudConnect
-                    PublicIP = $LvlCloudConnect; ReplicaResources = $LvlCloudConnect
-                    Tenants = $LvlCloudConnect
-                }
-                Jobs = [ordered]@{
-                    Agent = $LvlJobs; Backup = $LvlJobs; BackupCopy = $LvlJobs
-                    EntraID = $LvlJobs; FileShare = $LvlJobs; Nutanix = $LvlJobs
-                    Surebackup = $LvlJobs; Replication = $LvlReplication; Restores = 0; Tape = $LvlTape
-                }
-            }
-            HealthCheck = [ordered]@{
-                Infrastructure = [ordered]@{
-                    BackupServer = $HealthCheck; Proxy = $HealthCheck; Settings = $HealthCheck
-                    BR = $HealthCheck; SOBR = $HealthCheck; Server = $HealthCheck
-                    Status = $HealthCheck; BestPractice = $HealthCheck
-                }
-                Tape = [ordered]@{ Status = $HealthCheck; BestPractice = $HealthCheck }
-                Replication = [ordered]@{ Status = $HealthCheck; BestPractice = $HealthCheck }
-                Security = [ordered]@{ BestPractice = $HealthCheck }
-                CloudConnect = [ordered]@{
-                    Tenants = $HealthCheck; BackupStorage = $HealthCheck
-                    ReplicaResources = $HealthCheck; BestPractice = $HealthCheck
-                }
-                Jobs = [ordered]@{ Status = $HealthCheck; BestPractice = $HealthCheck }
-            }
-        }
-    }
 
     # ── Config Management Controls ───────────────────────────────────────────────
     $txtConfigPath = [TextBox]::new()
