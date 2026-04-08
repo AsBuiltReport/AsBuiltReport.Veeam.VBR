@@ -506,7 +506,22 @@ function Start-AsBuiltReportVBR {
                 Write-Logging "AsBuiltReport config: $(Split-Path $abrConfigPath -Leaf)"
             }
 
-            New-AsBuiltReport @params
+            New-AsBuiltReport @params *>&1 | ForEach-Object {
+                $line = if ($_ -is [System.Management.Automation.ErrorRecord]) {
+                    Write-Logging "$($_.Exception.Message)" 'ERROR'
+                    return
+                } elseif ($_ -is [System.Management.Automation.WarningRecord]) {
+                    Write-Logging "$($_.Message)" 'WARN'
+                    return
+                } elseif ($_ -is [System.Management.Automation.InformationRecord]) {
+                    "$($_.MessageData)"
+                } else {
+                    "$_"
+                }
+                if (-not [string]::IsNullOrWhiteSpace($line)) {
+                    Write-Logging $line
+                }
+            }
 
             Write-Logging ''
             Write-Logging "Report saved to: $outPath" 'SUCCESS'
