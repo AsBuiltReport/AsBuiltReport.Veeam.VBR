@@ -216,7 +216,7 @@ function Start-AsBuiltReportVBR {
     $txtLog.IsReadOnly = $true
     $txtLog.AcceptsReturn = $true
     $txtLog.Height = 220
-    $txtLog.FontSize = 11
+    $txtLog.FontSize = 16
     $txtLog.TextWrapping = 'Wrap'
     $txtLog.Watermark = 'Output log will appear here…'
     try { $txtLog.FontFamily = 'Consolas,Courier New,Monospace' } catch { Out-Null }
@@ -532,9 +532,6 @@ function Start-AsBuiltReportVBR {
                     Write-Logging $line
                 }
             }
-
-            Write-Logging ''
-            Write-Logging "Report saved to: $outPath" 'SUCCESS'
         } catch {
             Write-Logging $_.Exception.Message 'ERROR'
             if ($_.ScriptStackTrace) { Write-Logging $_.ScriptStackTrace 'ERROR' }
@@ -555,7 +552,7 @@ function Start-AsBuiltReportVBR {
     $txtConfigPath.Watermark = 'Path to .json config file'
     $txtConfigPath.Text = if ($IsWindows) {
         [System.IO.Path]::Combine(
-            $env:USERPROFILE, 'Documents', 'AsBuiltReport', 'AsBuiltReport.Veeam.VBR.json')
+            $env:USERPROFILE, 'AsBuiltReport', 'AsBuiltReport.Veeam.VBR.json')
     } else {
         [System.IO.Path]::Combine(
             $env:HOME, 'Documents', 'AsBuiltReport', 'AsBuiltReport.Veeam.VBR.json')
@@ -664,7 +661,7 @@ function Start-AsBuiltReportVBR {
                 SignatureCompanyName = ''
                 PSDefaultAuthentication = 'Default'
                 RoundUnits = 1
-                UpdateCheck = $false
+                UpdateCheck = $true
                 IsLocalServer = $false
                 ShowExecutionTime = $false
             }
