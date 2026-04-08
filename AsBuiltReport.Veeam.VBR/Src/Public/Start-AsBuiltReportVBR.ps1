@@ -551,7 +551,7 @@ function Start-AsBuiltReportVBR {
                 $options.Title = 'Select Veeam.VBR JSON File'
                 $JsonConfigFile = $storageProvider.OpenFilePickerAsync($options).WaitForCompleted()
                 if ($JsonConfigFile -and $JsonConfigFile.Count -gt 0) {
-                    $txtConfigPath.Text = $JsonConfigFile.Path.AbsolutePath
+                    $txtConfigPath.Text = $JsonConfigFile.Path.LocalPath
                 }
             } catch {
                 Write-Host "Folder picker error: $_" -ForegroundColor Red
@@ -586,7 +586,7 @@ function Start-AsBuiltReportVBR {
                 $options.AllowMultiple = $false
                 $picked = $storageProvider.OpenFilePickerAsync($options).WaitForCompleted()
                 if ($picked -and $picked.Count -gt 0) {
-                    $txtAbrConfigPath.Text = $picked[0].Path.AbsolutePath
+                    $txtAbrConfigPath.Text = $picked[0].Path.LocalPath
                     $syncHash.lblConfigStatus.Text = "📄 AsBuiltReport config selected: $(Split-Path $txtAbrConfigPath.Text -Leaf)"
                 }
             } catch {
