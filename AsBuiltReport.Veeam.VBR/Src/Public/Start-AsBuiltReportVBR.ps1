@@ -518,7 +518,7 @@ function Start-AsBuiltReportVBR {
                 -Style $style `
                 -Lang $lang `
                 -Port $port `
-                -Theme '' `
+                -Theme 'Veeam' `
                 -ColSize $colSize `
                 -EnableDiagrams $enableDiagrams `
                 -ExportDiagrams $exportDiagrams `
