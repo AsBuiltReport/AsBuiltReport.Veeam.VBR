@@ -82,7 +82,7 @@ function Start-AsBuiltReportVBR {
     $txtServer.Watermark = 'Backup Server FQDN'
 
     $txtPort = [TextBox]::new()
-    $txtPort.Text = '9392'
+    $txtPort.Text = '443'
     $txtPort.Width = 80
     $txtPort.Watermark = 'port'
 
@@ -95,7 +95,7 @@ function Start-AsBuiltReportVBR {
 
     $txtUser = [TextBox]::new()
     $txtUser.Width = 200
-    $txtUser.Watermark = 'username@domain.local'
+    $txtUser.Watermark = 'username@domain'
 
     $txtPass = [TextBox]::new()
     $txtPass.Width = 200
@@ -228,36 +228,36 @@ function Start-AsBuiltReportVBR {
     $btnCancel.IsVisible = $false
     $btnCancel.Margin = '0,0,0,0'
     $btnCancel.AddClick({
-        $syncHash.CancelRequested = $true
-        $rps = $syncHash.reportPS
-        if ($null -ne $rps) { $rps.Stop() }
-    })
+            $syncHash.CancelRequested = $true
+            $rps = $syncHash.reportPS
+            if ($null -ne $rps) { $rps.Stop() }
+        })
     $syncHash.btnCancel = $btnCancel
 
     $btnExportLog = [Button]::new()
     $btnExportLog.Content = '💾  Export Log'
     $btnExportLog.Margin = '0,0,0,0'
     $btnExportLog.AddClick({
-        try {
-            $logText = $syncHash.txtLog.Text
-            if ([string]::IsNullOrWhiteSpace($logText)) {
-                $syncHash.lblConfigStatus.Text = '⚠ Log is empty — nothing to export.'
-                return
+            try {
+                $logText = $syncHash.txtLog.Text
+                if ([string]::IsNullOrWhiteSpace($logText)) {
+                    $syncHash.lblConfigStatus.Text = '⚠ Log is empty — nothing to export.'
+                    return
+                }
+                $storageProvider = [Window]::GetTopLevel($btnExportLog).StorageProvider
+                if ($null -eq $storageProvider) { return }
+                $saveOpts = [FilePickerSaveOptions]::new()
+                $saveOpts.Title = 'Export Output Log'
+                $saveOpts.SuggestedFileName = "VBR-AsBuiltReport-$(Get-Date -Format 'yyyyMMdd-HHmmss').log"
+                $file = $storageProvider.SaveFilePickerAsync($saveOpts).WaitForCompleted()
+                if ($null -ne $file) {
+                    $logText | Set-Content -Path $file.Path.LocalPath -Encoding UTF8
+                    $syncHash.lblConfigStatus.Text = "✅ Log exported: $(Split-Path $file.Path.LocalPath -Leaf)"
+                }
+            } catch {
+                $syncHash.lblConfigStatus.Text = "❌ Log export failed: $_"
             }
-            $storageProvider = [Window]::GetTopLevel($btnExportLog).StorageProvider
-            if ($null -eq $storageProvider) { return }
-            $saveOpts = [FilePickerSaveOptions]::new()
-            $saveOpts.Title = 'Export Output Log'
-            $saveOpts.SuggestedFileName = "VBR-AsBuiltReport-$(Get-Date -Format 'yyyyMMdd-HHmmss').log"
-            $file = $storageProvider.SaveFilePickerAsync($saveOpts).WaitForCompleted()
-            if ($null -ne $file) {
-                $logText | Set-Content -Path $file.Path.LocalPath -Encoding UTF8
-                $syncHash.lblConfigStatus.Text = "✅ Log exported: $(Split-Path $file.Path.LocalPath -Leaf)"
-            }
-        } catch {
-            $syncHash.lblConfigStatus.Text = "❌ Log export failed: $_"
-        }
-    })
+        })
 
     $btnGenerate = [Button]::new()
     $btnGenerate.Content = '▶  Generate Report'
@@ -420,7 +420,7 @@ function Start-AsBuiltReportVBR {
 
         # ── Collect values ───────────────────────────────────────────────────────
         $server = $ui.Server.Text.Trim()
-        $port = if ($ui.Port.Text -match '^\d+$') { [int]$ui.Port.Text } else { 9392 }
+        $port = if ($ui.Port.Text -match '^\d+$') { [int]$ui.Port.Text } else { 443 }
         $username = $ui.Username.Text.Trim()
         $password = $ui.Password.Text
         $reportName = $ui.ReportName.Text.Trim()
@@ -445,13 +445,13 @@ function Start-AsBuiltReportVBR {
         $addTimestamp = [bool]$ui.Timestamp.IsChecked
 
         # Parse InfoLevel (first char = number)
-        $lvlInfrastructure = [int]([string]$ui.LvlInfrastructure.SelectedItem).Substring(0,1)
-        $lvlTape = [int]([string]$ui.LvlTape.SelectedItem).Substring(0,1)
-        $lvlInventory = [int]([string]$ui.LvlInventory.SelectedItem).Substring(0,1)
-        $lvlStorage = [int]([string]$ui.LvlStorage.SelectedItem).Substring(0,1)
-        $lvlReplication = [int]([string]$ui.LvlReplication.SelectedItem).Substring(0,1)
-        $lvlCloudConnect = [int]([string]$ui.LvlCloudConnect.SelectedItem).Substring(0,1)
-        $lvlJobs = [int]([string]$ui.LvlJobs.SelectedItem).Substring(0,1)
+        $lvlInfrastructure = [int]([string]$ui.LvlInfrastructure.SelectedItem).Substring(0, 1)
+        $lvlTape = [int]([string]$ui.LvlTape.SelectedItem).Substring(0, 1)
+        $lvlInventory = [int]([string]$ui.LvlInventory.SelectedItem).Substring(0, 1)
+        $lvlStorage = [int]([string]$ui.LvlStorage.SelectedItem).Substring(0, 1)
+        $lvlReplication = [int]([string]$ui.LvlReplication.SelectedItem).Substring(0, 1)
+        $lvlCloudConnect = [int]([string]$ui.LvlCloudConnect.SelectedItem).Substring(0, 1)
+        $lvlJobs = [int]([string]$ui.LvlJobs.SelectedItem).Substring(0, 1)
 
         # ── Validation ───────────────────────────────────────────────────────────
         if ([string]::IsNullOrWhiteSpace($server)) {
@@ -480,6 +480,14 @@ function Start-AsBuiltReportVBR {
             Write-Logging "Created output folder: $outPath"
         }
         if ([string]::IsNullOrWhiteSpace($reportName)) { $reportName = 'Veeam VBR As-Built Report' }
+        if ([string]::IsNullOrWhiteSpace($abrConfigPath)) {
+            Write-Logging 'AsBuiltReport config file path is required. Use the "⚙️ AsBuiltReport Global Settings" section to create one, then set the path above.' 'ERROR'
+            $sh.progressBar.IsVisible = $false; $sh.btnCancel.IsVisible = $false; return
+        }
+        if (-not (Test-Path $abrConfigPath)) {
+            Write-Logging "AsBuiltReport config file not found: $abrConfigPath" 'ERROR'
+            $sh.progressBar.IsVisible = $false; $sh.btnCancel.IsVisible = $false; return
+        }
 
         Write-Logging "Target  : $server (port $port)"
         Write-Logging "User    : $username"
@@ -503,7 +511,7 @@ function Start-AsBuiltReportVBR {
             $reportConfigFilePath = $configPath
             Write-Logging "Using config file: $(Split-Path $configPath -Leaf)"
         } else {
-            function Get-Level ($cbo) { [int]([string]$cbo.SelectedItem).Substring(0,1) }
+            function Get-Level ($cbo) { [int]([string]$cbo.SelectedItem).Substring(0, 1) }
 
             $configObj = Build-VbrConfigObject `
                 -ReportName $reportName `
@@ -550,10 +558,8 @@ function Start-AsBuiltReportVBR {
             }
             if ($addTimestamp) { $params['Timestamp'] = $true }
             if ($healthCheck) { $params['EnableHealthCheck'] = $true }
-            if (-not [string]::IsNullOrWhiteSpace($abrConfigPath) -and (Test-Path $abrConfigPath)) {
-                $params['AsBuiltConfigFilePath'] = $abrConfigPath
-                Write-Logging "Using AsBuiltReport config file: $(Split-Path $abrConfigPath -Leaf)"
-            }
+            $params['AsBuiltConfigFilePath'] = $abrConfigPath
+            Write-Logging "Using AsBuiltReport config file: $(Split-Path $abrConfigPath -Leaf)"
 
             New-AsBuiltReport @params *>&1 | ForEach-Object {
                 $line = if ($_ -is [System.Management.Automation.ErrorRecord]) {
@@ -632,7 +638,7 @@ function Start-AsBuiltReportVBR {
     # ── AsBuiltReport Global Config (AsBuiltReport.json) ─────────────────────────
     $txtAbrConfigPath = [TextBox]::new()
     $txtAbrConfigPath.Width = 298
-    $txtAbrConfigPath.Watermark = 'Optional: path to AsBuiltReport.json'
+    $txtAbrConfigPath.Watermark = 'Required: path to AsBuiltReport.json'
 
     $btnBrowseAbrConfig = [Button]::new()
     $btnBrowseAbrConfig.Content = 'Browse…'
@@ -661,6 +667,202 @@ function Start-AsBuiltReportVBR {
     # Late-bind controls created after ArgumentList; must be set after the TextBox objects exist
     $generateCallback.ArgumentList['ConfigPath'] = $txtConfigPath
     $generateCallback.ArgumentList['AbrConfigPath'] = $txtAbrConfigPath
+
+    # ── AsBuiltReport Global Settings editor ─────────────────────────────────────────
+    # Company
+    $txtAbrCoFullName = [TextBox]::new(); $txtAbrCoFullName.Width = 298; $txtAbrCoFullName.Watermark = 'e.g. Acme Corporation'
+    $txtAbrCoShortName = [TextBox]::new(); $txtAbrCoShortName.Width = 298; $txtAbrCoShortName.Watermark = 'e.g. ACME'
+    $txtAbrCoContact = [TextBox]::new(); $txtAbrCoContact.Width = 298; $txtAbrCoContact.Watermark = 'Contact person'
+    $txtAbrCoPhone = [TextBox]::new(); $txtAbrCoPhone.Width = 298; $txtAbrCoPhone.Watermark = 'e.g. +1-800-555-0100'
+    $txtAbrCoAddress = [TextBox]::new(); $txtAbrCoAddress.Width = 298; $txtAbrCoAddress.Watermark = 'Street, City, Country'
+    $txtAbrCoEmail = [TextBox]::new(); $txtAbrCoEmail.Width = 298; $txtAbrCoEmail.Watermark = 'company@example.com'
+    # Report
+    $txtAbrRptAuthor = [TextBox]::new(); $txtAbrRptAuthor.Width = 298; $txtAbrRptAuthor.Watermark = 'Report author'
+    # Email
+    $txtAbrMailServer = [TextBox]::new(); $txtAbrMailServer.Width = 298; $txtAbrMailServer.Watermark = 'smtp.example.com'
+    $txtAbrMailPort = [TextBox]::new(); $txtAbrMailPort.Width = 298; $txtAbrMailPort.Watermark = '587'
+    $txtAbrMailFrom = [TextBox]::new(); $txtAbrMailFrom.Width = 298; $txtAbrMailFrom.Watermark = 'from@example.com'
+    $txtAbrMailTo = [TextBox]::new(); $txtAbrMailTo.Width = 298; $txtAbrMailTo.Watermark = 'to@example.com, other@example.com'
+    $txtAbrMailBody = [TextBox]::new(); $txtAbrMailBody.Width = 298; $txtAbrMailBody.Watermark = 'Email body text'
+    $swAbrMailUseSSL = [ToggleSwitch]::new(); $swAbrMailUseSSL.IsChecked = $true
+    $swAbrMailCreds = [ToggleSwitch]::new(); $swAbrMailCreds.IsChecked = $true
+    # UserFolder
+    $txtAbrFolderPath = [TextBox]::new(); $txtAbrFolderPath.Width = 298; $txtAbrFolderPath.Watermark = '.\AsBuiltReport'
+
+    # Helper: populate all fields from a parsed JSON object
+    $loadAbrFields = {
+        param ([hashtable]$j)
+        $txtAbrCoFullName.Text = if ($j.Company.FullName) { $j.Company.FullName }  else { '' }
+        $txtAbrCoShortName.Text = if ($j.Company.ShortName) { $j.Company.ShortName } else { '' }
+        $txtAbrCoContact.Text = if ($j.Company.Contact) { $j.Company.Contact }   else { '' }
+        $txtAbrCoPhone.Text = if ($j.Company.Phone) { $j.Company.Phone }     else { '' }
+        $txtAbrCoAddress.Text = if ($j.Company.Address) { $j.Company.Address }   else { '' }
+        $txtAbrCoEmail.Text = if ($j.Company.Email) { $j.Company.Email }     else { '' }
+        $txtAbrRptAuthor.Text = if ($j.Report.Author) { $j.Report.Author }     else { '' }
+        $txtAbrMailServer.Text = if ($j.Email.Server) { $j.Email.Server }      else { '' }
+        $txtAbrMailPort.Text = if ($j.Email.Port) { $j.Email.Port }        else { '' }
+        $txtAbrMailFrom.Text = if ($j.Email.From) { $j.Email.From }        else { '' }
+        $txtAbrMailTo.Text = if ($j.Email.To) { ($j.Email.To -join ', ') } else { '' }
+        $txtAbrMailBody.Text = if ($j.Email.Body) { $j.Email.Body }        else { '' }
+        $swAbrMailUseSSL.IsChecked = if ($null -ne $j.Email.UseSSL) { [bool]$j.Email.UseSSL }      else { $true }
+        $swAbrMailCreds.IsChecked = if ($null -ne $j.Email.Credentials) { [bool]$j.Email.Credentials } else { $true }
+        $txtAbrFolderPath.Text = if ($j.UserFolder.Path) { $j.UserFolder.Path }   else { '' }
+    }
+
+    # Helper: build the config ordered hashtable from current field values
+    $buildAbrConfig = {
+        # Helper: return $null for blank strings so JSON fields are null, not ""
+        function NullIfEmpty ([string]$v) { if ([string]::IsNullOrWhiteSpace($v)) { $null } else { $v.Trim() } }
+
+        $toList = $txtAbrMailTo.Text.Trim() -split '\s*,\s*' | Where-Object { $_ -ne '' }
+        $portRaw = $txtAbrMailPort.Text.Trim()
+        $portVal = if ($portRaw -match '^\d+$') { [int]$portRaw } else { $null }
+
+        return [ordered]@{
+            Company = [ordered]@{
+                FullName  = NullIfEmpty $txtAbrCoFullName.Text
+                Phone     = NullIfEmpty $txtAbrCoPhone.Text
+                Address   = NullIfEmpty $txtAbrCoAddress.Text
+                ShortName = NullIfEmpty $txtAbrCoShortName.Text
+                Contact   = NullIfEmpty $txtAbrCoContact.Text
+                Email     = NullIfEmpty $txtAbrCoEmail.Text
+            }
+            Email = [ordered]@{
+                Credentials = [bool]$swAbrMailCreds.IsChecked
+                Body        = NullIfEmpty $txtAbrMailBody.Text
+                From        = NullIfEmpty $txtAbrMailFrom.Text
+                UseSSL      = [bool]$swAbrMailUseSSL.IsChecked
+                Server      = NullIfEmpty $txtAbrMailServer.Text
+                To          = if ($toList.Count -gt 0) { @($toList) } else { @() }
+                Port        = $portVal
+            }
+            Report     = [ordered]@{ Author = NullIfEmpty $txtAbrRptAuthor.Text }
+            UserFolder = [ordered]@{ Path   = NullIfEmpty $txtAbrFolderPath.Text }
+        }
+    }.GetNewClosure()
+    # Also store in syncHash so click handlers always find it regardless of scope
+    $syncHash.buildAbrConfig = $buildAbrConfig
+
+    # New button — fills form data into a new file chosen via Save dialog
+    $btnAbrNew = [Button]::new()
+    $btnAbrNew.Content = '🆕  New'
+    $btnAbrNew.Margin  = '0,0,8,0'
+    $btnAbrNew.AddClick({
+            try {
+                # Open a Save dialog so the user picks where the new file will live
+                $storageProvider = [Window]::GetTopLevel($btnAbrNew).StorageProvider
+                if ($null -eq $storageProvider) {
+                    $syncHash.lblConfigStatus.Text = '⚠ Cannot open save dialog.'
+                    return
+                }
+                $defaultDir = [IO.Path]::Combine($env:USERPROFILE, 'Documents', 'AsBuiltReport')
+                if (-not (Test-Path $defaultDir)) { New-Item -Path $defaultDir -ItemType Directory -Force | Out-Null }
+                $saveOpts = [FilePickerSaveOptions]::new()
+                $saveOpts.Title           = 'Create New AsBuiltReport Config File'
+                $saveOpts.SuggestedFileName = 'AsBuiltReport.json'
+                $saveOpts.DefaultExtension  = 'json'
+                $file = $storageProvider.SaveFilePickerAsync($saveOpts).WaitForCompleted()
+                if ($null -eq $file) { return }   # user cancelled
+                if ($null -eq $file.Path) {
+                    $syncHash.lblConfigStatus.Text = '⚠ Could not resolve file path from dialog.'
+                    return
+                }
+
+                # Write current form data to the chosen path
+                $dest = $file.Path.LocalPath
+                $cfg  = & $syncHash.buildAbrConfig
+                $destDir = Split-Path $dest -Parent
+                if (-not (Test-Path $destDir)) { New-Item -Path $destDir -ItemType Directory -Force | Out-Null }
+                $cfg | ConvertTo-Json -Depth 4 | Set-Content -Path $dest -Encoding UTF8
+
+                # Update the AsBuiltReport Config File field so Generate can use it
+                $txtAbrConfigPath.Text = $dest
+                $syncHash.lblConfigStatus.Text = "✅ Created: $(Split-Path $dest -Leaf)"
+            } catch {
+                $syncHash.lblConfigStatus.Text = "❌ Create failed: $_"
+            }
+        })
+
+    # Load button — reads the path from $txtAbrConfigPath and populates fields
+    $btnAbrLoad = [Button]::new()
+    $btnAbrLoad.Content = '📂  Load from File'
+    $btnAbrLoad.Margin = '0,0,8,0'
+    $btnAbrLoad.AddClick({
+            try {
+                $src = $txtAbrConfigPath.Text.Trim()
+                if ([string]::IsNullOrWhiteSpace($src) -or -not (Test-Path $src)) {
+                    $syncHash.lblConfigStatus.Text = '⚠ Set a valid AsBuiltReport.json path first.'
+                    return
+                }
+                $j = Get-Content -Path $src -Raw | ConvertFrom-Json -AsHashtable
+                & $loadAbrFields $j
+                $syncHash.lblConfigStatus.Text = "✅ Loaded: $(Split-Path $src -Leaf)"
+            } catch {
+                $syncHash.lblConfigStatus.Text = "❌ Load failed: $_"
+            }
+        })
+
+    # Helper: build the config ordered hashtable from current field values
+    # Save button — opens a Save dialog when no path is set; otherwise writes in-place
+    $btnAbrSave = [Button]::new()
+    $btnAbrSave.Content = '💾  Save to File'
+    $btnAbrSave.AddClick({
+            try {
+                $dest = $txtAbrConfigPath.Text.Trim()
+                if ([string]::IsNullOrWhiteSpace($dest)) {
+                    # No path set → fall back to $env:USERPROFILE\Documents\AsBuiltReport\AsBuiltReport.json
+                    $dest = [IO.Path]::Combine($env:USERPROFILE, 'Documents', 'AsBuiltReport', 'AsBuiltReport.json')
+                    $txtAbrConfigPath.Text = $dest
+                }
+                $cfg = & $syncHash.buildAbrConfig
+                $destDir = Split-Path $dest -Parent
+                if (-not (Test-Path $destDir)) { New-Item -Path $destDir -ItemType Directory -Force | Out-Null }
+                $cfg | ConvertTo-Json -Depth 4 | Set-Content -Path $dest -Encoding UTF8
+                $syncHash.lblConfigStatus.Text = "✅ Saved: $(Split-Path $dest -Leaf)"
+            } catch {
+                $syncHash.lblConfigStatus.Text = "❌ Save failed: $_"
+            }
+        })
+
+    # Action row (New + Load + Save)
+    $abrActionRow = [StackPanel]::new()
+    $abrActionRow.Orientation = 'Horizontal'
+    $abrActionRow.Margin = '0,10,0,0'
+    $abrActionRow.Children.Add($btnAbrNew)
+    $abrActionRow.Children.Add($btnAbrLoad)
+    $abrActionRow.Children.Add($btnAbrSave)
+
+    # Content panel inside the expander
+    $abrInnerPanel = [StackPanel]::new()
+    $abrInnerPanel.Spacing = 2
+    $abrInnerPanel.Margin = '4,4,4,8'
+    $abrInnerPanel.Children.Add((New-SectionTitle '🏢  Company'))
+    $abrInnerPanel.Children.Add((New-FormRow -Label 'Full Name' -Control $txtAbrCoFullName))
+    $abrInnerPanel.Children.Add((New-FormRow -Label 'Short Name' -Control $txtAbrCoShortName))
+    $abrInnerPanel.Children.Add((New-FormRow -Label 'Contact' -Control $txtAbrCoContact))
+    $abrInnerPanel.Children.Add((New-FormRow -Label 'Phone' -Control $txtAbrCoPhone))
+    $abrInnerPanel.Children.Add((New-FormRow -Label 'Address' -Control $txtAbrCoAddress))
+    $abrInnerPanel.Children.Add((New-FormRow -Label 'Email' -Control $txtAbrCoEmail))
+    $abrInnerPanel.Children.Add((New-SectionTitle '📝  Report'))
+    $abrInnerPanel.Children.Add((New-FormRow -Label 'Author' -Control $txtAbrRptAuthor))
+    $abrInnerPanel.Children.Add((New-SectionTitle '📧  Email'))
+    $abrInnerPanel.Children.Add((New-FormRow -Label 'SMTP Server' -Control $txtAbrMailServer))
+    $abrInnerPanel.Children.Add((New-FormRow -Label 'Port' -Control $txtAbrMailPort))
+    $abrInnerPanel.Children.Add((New-FormRow -Label 'From' -Control $txtAbrMailFrom))
+    $abrInnerPanel.Children.Add((New-FormRow -Label 'To (comma-sep.)' -Control $txtAbrMailTo))
+    $abrInnerPanel.Children.Add((New-FormRow -Label 'Body' -Control $txtAbrMailBody))
+    $abrInnerPanel.Children.Add((New-FormRow -Label 'Use SSL' -Control $swAbrMailUseSSL))
+    $abrInnerPanel.Children.Add((New-FormRow -Label 'Credentials' -Control $swAbrMailCreds))
+    $abrInnerPanel.Children.Add((New-SectionTitle '📁  User Folder'))
+    $abrInnerPanel.Children.Add((New-FormRow -Label 'Path' -Control $txtAbrFolderPath))
+    $abrInnerPanel.Children.Add($abrActionRow)
+
+    # Expander — collapsed by default
+    $abrExpander = [Expander]::new()
+    $abrExpander.Header = '⚙️  AsBuiltReport Global Settings'
+    $abrExpander.IsExpanded = $false
+    $abrExpander.Margin = '0,8,0,0'
+    $abrExpander.Content = $abrInnerPanel
 
     # ── Save Config Button ────────────────────────────────────────────────────────
     function Build-VbrConfigObject {
@@ -774,7 +976,7 @@ function Start-AsBuiltReportVBR {
                     New-Item -Path $parent -ItemType Directory -Force | Out-Null
                 }
 
-                function Get-LevelVal ($cbo) { [int]([string]$cbo.SelectedItem).Substring(0,1) }
+                function Get-LevelVal ($cbo) { [int]([string]$cbo.SelectedItem).Substring(0, 1) }
 
                 $configObj = Build-VbrConfigObject `
                     -ReportName ($txtReportName.Text.Trim() -or 'Veeam VBR As-Built Report') `
@@ -1012,8 +1214,9 @@ function Start-AsBuiltReportVBR {
     $cfgBtnRow.Children.Add($btnOpenConfig)
 
     $mainPanel.Children.Add((New-FormRow -Label 'Veeam VBR Config File' -Control $configPathRow))
-    $mainPanel.Children.Add((New-FormRow -Label 'AsBuiltReport Config File' -Control $abrConfigPathRow))
     $mainPanel.Children.Add($cfgBtnRow)
+    $mainPanel.Children.Add((New-FormRow -Label 'AsBuiltReport Config File' -Control $abrConfigPathRow))
+    $mainPanel.Children.Add($abrExpander)
     $mainPanel.Children.Add($lblConfigStatus)
 
     # Generate button + progress
