@@ -720,24 +720,24 @@ function Start-AsBuiltReportVBR {
 
         return [ordered]@{
             Company = [ordered]@{
-                FullName  = NullIfEmpty $txtAbrCoFullName.Text
-                Phone     = NullIfEmpty $txtAbrCoPhone.Text
-                Address   = NullIfEmpty $txtAbrCoAddress.Text
+                FullName = NullIfEmpty $txtAbrCoFullName.Text
+                Phone = NullIfEmpty $txtAbrCoPhone.Text
+                Address = NullIfEmpty $txtAbrCoAddress.Text
                 ShortName = NullIfEmpty $txtAbrCoShortName.Text
-                Contact   = NullIfEmpty $txtAbrCoContact.Text
-                Email     = NullIfEmpty $txtAbrCoEmail.Text
+                Contact = NullIfEmpty $txtAbrCoContact.Text
+                Email = NullIfEmpty $txtAbrCoEmail.Text
             }
             Email = [ordered]@{
                 Credentials = [bool]$swAbrMailCreds.IsChecked
-                Body        = NullIfEmpty $txtAbrMailBody.Text
-                From        = NullIfEmpty $txtAbrMailFrom.Text
-                UseSSL      = [bool]$swAbrMailUseSSL.IsChecked
-                Server      = NullIfEmpty $txtAbrMailServer.Text
-                To          = if ($toList.Count -gt 0) { @($toList) } else { @() }
-                Port        = $portVal
+                Body = NullIfEmpty $txtAbrMailBody.Text
+                From = NullIfEmpty $txtAbrMailFrom.Text
+                UseSSL = [bool]$swAbrMailUseSSL.IsChecked
+                Server = NullIfEmpty $txtAbrMailServer.Text
+                To = if ($toList.Count -gt 0) { @($toList) } else { @() }
+                Port = $portVal
             }
-            Report     = [ordered]@{ Author = NullIfEmpty $txtAbrRptAuthor.Text }
-            UserFolder = [ordered]@{ Path   = NullIfEmpty $txtAbrFolderPath.Text }
+            Report = [ordered]@{ Author = NullIfEmpty $txtAbrRptAuthor.Text }
+            UserFolder = [ordered]@{ Path = NullIfEmpty $txtAbrFolderPath.Text }
         }
     }.GetNewClosure()
     # Also store in syncHash so click handlers always find it regardless of scope
@@ -746,7 +746,7 @@ function Start-AsBuiltReportVBR {
     # New button — fills form data into a new file chosen via Save dialog
     $btnAbrNew = [Button]::new()
     $btnAbrNew.Content = '🆕  New'
-    $btnAbrNew.Margin  = '0,0,8,0'
+    $btnAbrNew.Margin = '0,0,8,0'
     $btnAbrNew.AddClick({
             try {
                 # Open a Save dialog so the user picks where the new file will live
@@ -758,9 +758,9 @@ function Start-AsBuiltReportVBR {
                 $defaultDir = [IO.Path]::Combine($env:USERPROFILE, 'Documents', 'AsBuiltReport')
                 if (-not (Test-Path $defaultDir)) { New-Item -Path $defaultDir -ItemType Directory -Force | Out-Null }
                 $saveOpts = [FilePickerSaveOptions]::new()
-                $saveOpts.Title           = 'Create New AsBuiltReport Config File'
+                $saveOpts.Title = 'Create New AsBuiltReport Config File'
                 $saveOpts.SuggestedFileName = 'AsBuiltReport.json'
-                $saveOpts.DefaultExtension  = 'json'
+                $saveOpts.DefaultExtension = 'json'
                 $file = $storageProvider.SaveFilePickerAsync($saveOpts).WaitForCompleted()
                 if ($null -eq $file) { return }   # user cancelled
                 if ($null -eq $file.Path) {
@@ -770,7 +770,7 @@ function Start-AsBuiltReportVBR {
 
                 # Write current form data to the chosen path
                 $dest = $file.Path.LocalPath
-                $cfg  = & $syncHash.buildAbrConfig
+                $cfg = & $syncHash.buildAbrConfig
                 $destDir = Split-Path $dest -Parent
                 if (-not (Test-Path $destDir)) { New-Item -Path $destDir -ItemType Directory -Force | Out-Null }
                 $cfg | ConvertTo-Json -Depth 4 | Set-Content -Path $dest -Encoding UTF8
@@ -979,7 +979,7 @@ function Start-AsBuiltReportVBR {
                 function Get-LevelVal ($cbo) { [int]([string]$cbo.SelectedItem).Substring(0, 1) }
 
                 $configObj = Build-VbrConfigObject `
-                    -ReportName ($txtReportName.Text.Trim() -or 'Veeam VBR As-Built Report') `
+                    -ReportName ($txtReportName.Text.Trim()) `
                     -Style ([string]$cboStyle.SelectedItem) `
                     -Lang ([string]$cboLang.SelectedItem) `
                     -Port ([int]$txtPort.Text) `
