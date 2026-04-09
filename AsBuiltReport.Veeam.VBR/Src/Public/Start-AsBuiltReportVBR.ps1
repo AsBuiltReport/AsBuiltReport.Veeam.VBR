@@ -38,7 +38,6 @@ function Start-AsBuiltReportVBR {
     # Thread-safe store shared between the main runspace and the report runspace
     $syncHash = [Hashtable]::Synchronized(@{
             CancelRequested = $false
-            reportPS = $null
         })
 
     # ── UI Helper Functions ─────────────────────────────────────────────────────
@@ -80,7 +79,7 @@ function Start-AsBuiltReportVBR {
     # ── Connection Controls ─────────────────────────────────────────────────────
     $txtServer = [TextBox]::new()
     $txtServer.Width = 175
-    $txtServer.Watermark = 'hostname or IP address'
+    $txtServer.Watermark = 'Backup Server FQDN'
 
     $txtPort = [TextBox]::new()
     $txtPort.Text = '9392'
@@ -96,7 +95,7 @@ function Start-AsBuiltReportVBR {
 
     $txtUser = [TextBox]::new()
     $txtUser.Width = 200
-    $txtUser.Watermark = 'DOMAIN\username  or  username'
+    $txtUser.Watermark = 'username@domain.local'
 
     $txtPass = [TextBox]::new()
     $txtPass.Width = 200
@@ -227,14 +226,38 @@ function Start-AsBuiltReportVBR {
     $btnCancel = [Button]::new()
     $btnCancel.Content = '✕  Cancel'
     $btnCancel.IsVisible = $false
-    $btnCancel.HorizontalAlignment = 'Right'
-    $btnCancel.Margin = '0,6,0,0'
+    $btnCancel.Margin = '0,0,0,0'
     $btnCancel.AddClick({
-            $syncHash.CancelRequested = $true
-            $rps = $syncHash.reportPS
-            if ($null -ne $rps) { $rps.Stop() }
-        })
+        $syncHash.CancelRequested = $true
+        $rps = $syncHash.reportPS
+        if ($null -ne $rps) { $rps.Stop() }
+    })
     $syncHash.btnCancel = $btnCancel
+
+    $btnExportLog = [Button]::new()
+    $btnExportLog.Content = '💾  Export Log'
+    $btnExportLog.Margin = '0,0,0,0'
+    $btnExportLog.AddClick({
+        try {
+            $logText = $syncHash.txtLog.Text
+            if ([string]::IsNullOrWhiteSpace($logText)) {
+                $syncHash.lblConfigStatus.Text = '⚠ Log is empty — nothing to export.'
+                return
+            }
+            $storageProvider = [Window]::GetTopLevel($btnExportLog).StorageProvider
+            if ($null -eq $storageProvider) { return }
+            $saveOpts = [FilePickerSaveOptions]::new()
+            $saveOpts.Title = 'Export Output Log'
+            $saveOpts.SuggestedFileName = "VBR-AsBuiltReport-$(Get-Date -Format 'yyyyMMdd-HHmmss').log"
+            $file = $storageProvider.SaveFilePickerAsync($saveOpts).WaitForCompleted()
+            if ($null -ne $file) {
+                $logText | Set-Content -Path $file.Path.LocalPath -Encoding UTF8
+                $syncHash.lblConfigStatus.Text = "✅ Log exported: $(Split-Path $file.Path.LocalPath -Leaf)"
+            }
+        } catch {
+            $syncHash.lblConfigStatus.Text = "❌ Log export failed: $_"
+        }
+    })
 
     $btnGenerate = [Button]::new()
     $btnGenerate.Content = '▶  Generate Report'
@@ -289,9 +312,21 @@ function Start-AsBuiltReportVBR {
         $sh.btnCancel.IsVisible = $true
         $sh.txtLog.Text = ''
 
-        function Write-Logging ([string]$Msg, [string]$Level = 'INFO') {
+        function Write-Logging ([string]$Msg, [string]$Level = '', [bool]$AddTimestamp = $false) {
             $ts = Get-Date -Format 'HH:mm:ss'
-            $sh.txtLog.Text += "[$ts][$Level] $Msg`n"
+            if ($Level -eq '') {
+                if ($AddTimestamp) {
+                    $sh.txtLog.Text += "[$ts] $Msg`n"
+                } else {
+                    $sh.txtLog.Text += "$Msg`n"
+                }
+            } else {
+                if ($AddTimestamp) {
+                    $sh.txtLog.Text += "[$ts][$Level] $Msg`n"
+                } else {
+                    $sh.txtLog.Text += "[$Level] $Msg`n"
+                }
+            }
         }
 
         function Build-VbrConfigObject {
@@ -454,8 +489,7 @@ function Start-AsBuiltReportVBR {
         # ── Import modules in this runspace ──────────────────────────────────────
         Write-Logging 'Loading AsBuiltReport modules…'
         try {
-            Import-Module AsBuiltReport.Core -Force -ErrorAction Stop
-            Import-Module AsBuiltReport.Veeam.VBR -Force -ErrorAction Stop
+            Import-Module AsBuiltReport.Core, AsBuiltReport.Chart, AsBuiltReport.Diagram, AsBuiltReport.Veeam.VBR -Force -ErrorAction Stop
         } catch {
             Write-Logging "Failed to load modules: $_" 'ERROR'
             $sh.progressBar.IsVisible = $false; $sh.btnCancel.IsVisible = $false; return
@@ -518,61 +552,25 @@ function Start-AsBuiltReportVBR {
             if ($healthCheck) { $params['EnableHealthCheck'] = $true }
             if (-not [string]::IsNullOrWhiteSpace($abrConfigPath) -and (Test-Path $abrConfigPath)) {
                 $params['AsBuiltConfigFilePath'] = $abrConfigPath
-                Write-Logging "AsBuiltReport config: $(Split-Path $abrConfigPath -Leaf)"
+                Write-Logging "Using AsBuiltReport config file: $(Split-Path $abrConfigPath -Leaf)"
             }
 
-            # Run New-AsBuiltReport in a dedicated PowerShell instance so it can be
-            # stopped immediately when the Cancel button is pressed.
-            $reportPS = [System.Management.Automation.PowerShell]::Create()
-            $reportPS.AddScript({
-                    param ($p)
-                    Import-Module AsBuiltReport.Core, AsBuiltReport.Veeam.VBR -Force -ErrorAction Stop
-                    New-AsBuiltReport @p
-                }).AddParameter('p', $params) | Out-Null
-
-            $sh.reportPS = $reportPS
-
-            $outputBuffer = [System.Management.Automation.PSDataCollection[psobject]]::new()
-            $asyncResult = $reportPS.BeginInvoke(
-                [System.Management.Automation.PSDataCollection[psobject]]::new(),
-                $outputBuffer
-            )
-
-            # Poll: drain output and honour Cancel while report runs
-            $lastIdx = 0
-            while (-not $asyncResult.IsCompleted) {
-                if ($sh.CancelRequested) {
-                    $reportPS.Stop()
-                    Write-Logging 'Report cancelled by user.' 'WARN'
-                    break
+            New-AsBuiltReport @params *>&1 | ForEach-Object {
+                $line = if ($_ -is [System.Management.Automation.ErrorRecord]) {
+                    Write-Logging "$($_.Exception.Message)" 'ERROR'
+                    return
+                } elseif ($_ -is [System.Management.Automation.WarningRecord]) {
+                    Write-Logging "$($_.Message)" 'WARN'
+                    return
+                } elseif ($_ -is [System.Management.Automation.InformationRecord]) {
+                    "$($_.MessageData)"
+                } else {
+                    "$_"
                 }
-                while ($outputBuffer.Count -gt $lastIdx) {
-                    $item = "$($outputBuffer[$lastIdx++])"
-                    if (-not [string]::IsNullOrWhiteSpace($item)) { Write-Logging $item }
-                }
-                [System.Threading.Thread]::Sleep(300)
-            }
-
-            if (-not $sh.CancelRequested) {
-                try { $reportPS.EndInvoke($asyncResult) }
-                catch { Write-Logging $_.Exception.Message 'ERROR' }
-                # Drain any remaining output
-                while ($outputBuffer.Count -gt $lastIdx) {
-                    $item = "$($outputBuffer[$lastIdx++])"
-                    if (-not [string]::IsNullOrWhiteSpace($item)) { Write-Logging $item }
+                if (-not [string]::IsNullOrWhiteSpace($line)) {
+                    Write-Logging $line
                 }
             }
-
-            # Surface errors and warnings from the inner runspace
-            foreach ($err  in $reportPS.Streams.Error) { Write-Logging $err.Exception.Message 'ERROR' }
-            foreach ($warn in $reportPS.Streams.Warning) { Write-Logging $warn.Message 'WARN' }
-            foreach ($info in $reportPS.Streams.Information) {
-                $msg = "$($info.MessageData)"
-                if (-not [string]::IsNullOrWhiteSpace($msg)) { Write-Logging $msg }
-            }
-
-            $reportPS.Dispose()
-            $sh.reportPS = $null
         } catch {
             Write-Logging $_.Exception.Message 'ERROR'
             if ($_.ScriptStackTrace) { Write-Logging $_.ScriptStackTrace 'ERROR' }
@@ -634,7 +632,7 @@ function Start-AsBuiltReportVBR {
     # ── AsBuiltReport Global Config (AsBuiltReport.json) ─────────────────────────
     $txtAbrConfigPath = [TextBox]::new()
     $txtAbrConfigPath.Width = 298
-    $txtAbrConfigPath.Watermark = 'Optional: path to AsBuiltReport.json (global settings)'
+    $txtAbrConfigPath.Watermark = 'Optional: path to AsBuiltReport.json'
 
     $btnBrowseAbrConfig = [Button]::new()
     $btnBrowseAbrConfig.Content = 'Browse…'
@@ -1022,15 +1020,34 @@ function Start-AsBuiltReportVBR {
     $mainPanel.Children.Add($btnGenerate)
     $mainPanel.Children.Add($progressBar)
 
-    # Log area
+    # Log area — header row: title (left) + Export Log button (right)
     $logTitle = [TextBlock]::new()
     $logTitle.Text = '📋  Output Log'
     $logTitle.FontSize = 13
     $logTitle.FontWeight = 'SemiBold'
-    $logTitle.Margin = '0,14,0,6'
-    $mainPanel.Children.Add($logTitle)
+    $logTitle.VerticalAlignment = 'Center'
+
+    $logHeaderGrid = [Grid]::new()
+    $logHeaderGrid.Margin = '0,14,0,6'
+    $logHeaderGrid.ColumnDefinitions.Add(
+        [ColumnDefinition]::new([GridLength]::new(1, [GridUnitType]::Star)))
+    $logHeaderGrid.ColumnDefinitions.Add(
+        [ColumnDefinition]::new([GridLength]::new(0, [GridUnitType]::Auto)))
+    [Grid]::SetColumn($logTitle, 0)
+    [Grid]::SetColumn($btnExportLog, 1)
+    $logHeaderGrid.Children.Add($logTitle)
+    $logHeaderGrid.Children.Add($btnExportLog)
+
+    # Cancel button row — right-aligned, only visible during generation
+    $logActionsRow = [StackPanel]::new()
+    $logActionsRow.Orientation = 'Horizontal'
+    $logActionsRow.HorizontalAlignment = 'Right'
+    $logActionsRow.Margin = '0,6,0,0'
+    $logActionsRow.Children.Add($btnCancel)
+
+    $mainPanel.Children.Add($logHeaderGrid)
     $mainPanel.Children.Add($txtLog)
-    $mainPanel.Children.Add($btnCancel)
+    $mainPanel.Children.Add($logActionsRow)
 
     $scrollView = [ScrollViewer]::new()
     $scrollView.Content = $mainPanel
