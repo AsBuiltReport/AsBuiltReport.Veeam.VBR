@@ -981,6 +981,7 @@ function Start-AsBuiltReportVBR {
                 $configObj = Build-VbrConfigObject `
                     -ReportName ($txtReportName.Text.Trim()) `
                     -Style ([string]$cboStyle.SelectedItem) `
+                    -Theme 'Veeam' `
                     -Lang ([string]$cboLang.SelectedItem) `
                     -Port ([int]$txtPort.Text) `
                     -ColSize ([int]$txtColSize.Text) `
