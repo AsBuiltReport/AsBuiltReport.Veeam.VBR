@@ -445,13 +445,13 @@ function Start-AsBuiltReportVBR {
         $addTimestamp = [bool]$ui.Timestamp.IsChecked
 
         # Parse InfoLevel (first char = number)
-        $lvlInfrastructure = [int]([string]$ui.LvlInfrastructure.SelectedItem)[0]
-        $lvlTape = [int]([string]$ui.LvlTape.SelectedItem)[0]
-        $lvlInventory = [int]([string]$ui.LvlInventory.SelectedItem)[0]
-        $lvlStorage = [int]([string]$ui.LvlStorage.SelectedItem)[0]
-        $lvlReplication = [int]([string]$ui.LvlReplication.SelectedItem)[0]
-        $lvlCloudConnect = [int]([string]$ui.LvlCloudConnect.SelectedItem)[0]
-        $lvlJobs = [int]([string]$ui.LvlJobs.SelectedItem)[0]
+        $lvlInfrastructure = [int]([string]$ui.LvlInfrastructure.SelectedItem).Substring(0,1)
+        $lvlTape = [int]([string]$ui.LvlTape.SelectedItem).Substring(0,1)
+        $lvlInventory = [int]([string]$ui.LvlInventory.SelectedItem).Substring(0,1)
+        $lvlStorage = [int]([string]$ui.LvlStorage.SelectedItem).Substring(0,1)
+        $lvlReplication = [int]([string]$ui.LvlReplication.SelectedItem).Substring(0,1)
+        $lvlCloudConnect = [int]([string]$ui.LvlCloudConnect.SelectedItem).Substring(0,1)
+        $lvlJobs = [int]([string]$ui.LvlJobs.SelectedItem).Substring(0,1)
 
         # ── Validation ───────────────────────────────────────────────────────────
         if ([string]::IsNullOrWhiteSpace($server)) {
@@ -503,7 +503,7 @@ function Start-AsBuiltReportVBR {
             $reportConfigFilePath = $configPath
             Write-Logging "Using config file: $(Split-Path $configPath -Leaf)"
         } else {
-            function Get-Level ($cbo) { [int]([string]$cbo.SelectedItem)[0] }
+            function Get-Level ($cbo) { [int]([string]$cbo.SelectedItem).Substring(0,1) }
 
             $configObj = Build-VbrConfigObject `
                 -ReportName $reportName `
@@ -774,7 +774,7 @@ function Start-AsBuiltReportVBR {
                     New-Item -Path $parent -ItemType Directory -Force | Out-Null
                 }
 
-                function Get-LevelVal ($cbo) { [int]([string]$cbo.SelectedItem)[0] }
+                function Get-LevelVal ($cbo) { [int]([string]$cbo.SelectedItem).Substring(0,1) }
 
                 $configObj = Build-VbrConfigObject `
                     -ReportName ($txtReportName.Text.Trim() -or 'Veeam VBR As-Built Report') `
