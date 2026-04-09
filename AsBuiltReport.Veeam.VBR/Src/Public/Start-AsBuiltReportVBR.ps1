@@ -188,6 +188,11 @@ function Start-AsBuiltReportVBR {
     $txtColSize.Width = 80
     $txtColSize.Watermark = 'columns'
 
+    $cboDiagramTheme = [ComboBox]::new()
+    $cboDiagramTheme.Width = 120
+    @('White', 'Black', 'Neon') | ForEach-Object { $cboDiagramTheme.Items.Add($_) | Out-Null }
+    $cboDiagramTheme.SelectedIndex = 0
+
     # ── InfoLevel Controls ───────────────────────────────────────────────────────
     function New-LevelCombo {
         $cbo = [ComboBox]::new()
@@ -288,6 +293,7 @@ function Start-AsBuiltReportVBR {
         Style = $cboStyle
         Lang = $cboLang
         DiagColSize = $txtColSize
+        DiagramTheme = $cboDiagramTheme
         Diagrams = $swDiagrams
         ExportDia = $swExportDia
         HWInv = $swHWInv
@@ -357,6 +363,19 @@ function Start-AsBuiltReportVBR {
                     EnableHardwareInventory = $HWInv
                     DiagramTheme = $Theme
                     DiagramColumnSize = $ColSize
+                    DiagramType = [ordered]@{
+                        CloudConnect = $true
+                        CloudConnectTenant = $true
+                        Infrastructure = $true
+                        FileProxy = $true
+                        HyperVProxy = $true
+                        Repository = $true
+                        Sobr = $true
+                        Tape = $true
+                        ProtectedGroup = $true
+                        vSphereProxy = $true
+                        WanAccelerator = $true
+                    }
                     NewIcons = $NewIcons
                     EnableDiagramDebug = $false
                     DiagramWaterMark = ''
@@ -366,7 +385,7 @@ function Start-AsBuiltReportVBR {
                     SignatureCompanyName = ''
                     PSDefaultAuthentication = 'Default'
                     RoundUnits = 1
-                    UpdateCheck = $false
+                    UpdateCheck = $true
                     IsLocalServer = $false
                     ShowExecutionTime = $false
                 }
@@ -518,7 +537,7 @@ function Start-AsBuiltReportVBR {
                 -Style $style `
                 -Lang $lang `
                 -Port $port `
-                -Theme 'Veeam' `
+                -Theme ([string]$ui.DiagramTheme.SelectedItem) `
                 -ColSize $colSize `
                 -EnableDiagrams $enableDiagrams `
                 -ExportDiagrams $exportDiagrams `
@@ -893,6 +912,19 @@ function Start-AsBuiltReportVBR {
                 EnableHardwareInventory = $HWInv
                 DiagramTheme = $Theme
                 DiagramColumnSize = $ColSize
+                DiagramType = [ordered]@{
+                    CloudConnect = $true
+                    CloudConnectTenant = $true
+                    Infrastructure = $true
+                    FileProxy = $true
+                    HyperVProxy = $true
+                    Repository = $true
+                    Sobr = $true
+                    Tape = $true
+                    ProtectedGroup = $true
+                    vSphereProxy = $true
+                    WanAccelerator = $true
+                }
                 NewIcons = $NewIcons
                 EnableDiagramDebug = $false
                 DiagramWaterMark = ''
@@ -981,7 +1013,7 @@ function Start-AsBuiltReportVBR {
                 $configObj = Build-VbrConfigObject `
                     -ReportName ($txtReportName.Text.Trim()) `
                     -Style ([string]$cboStyle.SelectedItem) `
-                    -Theme 'Veeam' `
+                    -Theme ([string]$cboDiagramTheme.SelectedItem) `
                     -Lang ([string]$cboLang.SelectedItem) `
                     -Port ([int]$txtPort.Text) `
                     -ColSize ([int]$txtColSize.Text) `
@@ -1049,6 +1081,7 @@ function Start-AsBuiltReportVBR {
                 if ($null -ne $json.Options.ExportDiagrams) { $swExportDia.IsChecked = [bool]$json.Options.ExportDiagrams }
                 if ($null -ne $json.Options.EnableHardwareInventory) { $swHWInv.IsChecked = [bool]$json.Options.EnableHardwareInventory }
                 if ($null -ne $json.Options.NewIcons) { $swNewIcons.IsChecked = [bool]$json.Options.NewIcons }
+                if ($json.Options.DiagramTheme) { Set-ComboByValue $cboDiagramTheme $json.Options.DiagramTheme }
 
                 # InfoLevel section
                 if ($null -ne $json.InfoLevel) {
@@ -1186,6 +1219,7 @@ function Start-AsBuiltReportVBR {
     $optPanel.Children.Add((New-FormRow -Label 'Enable Health Check' -Control $swHealthChk -LabelWidth 165))
     $optPanel.Children.Add((New-FormRow -Label 'Add Timestamp' -Control $swTimestamp -LabelWidth 165))
     $optPanel.Children.Add((New-FormRow -Label 'Diagram Columns' -Control $txtColSize -LabelWidth 165))
+    $optPanel.Children.Add((New-FormRow -Label 'Diagram Theme' -Control $cboDiagramTheme -LabelWidth 165))
     [Grid]::SetColumn($optPanel, 0)
     $bottomGrid.Children.Add($optPanel)
 
