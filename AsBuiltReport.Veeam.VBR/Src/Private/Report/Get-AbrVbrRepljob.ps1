@@ -6,7 +6,7 @@ function Get-AbrVbrRepljob {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.24
+        Version:        1.0.0
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -22,29 +22,30 @@ function Get-AbrVbrRepljob {
 
     begin {
         Write-PScriboMessage "Discovering Veeam VBR Replication jobs information from $System."
+        $LocalizedData = $reportTranslate.GetAbrVbrRepljob
         Show-AbrDebugExecutionTime -Start -TitleMessage 'Replication Jobs'
     }
 
     process {
         try {
             if ($Bkjobs = Get-VBRJob -WarningAction SilentlyContinue | Where-Object { $_.TypeToString -eq 'VMware Replication' -or $_.TypeToString -eq 'Hyper-V Replication' } | Sort-Object -Property Name) {
-                Section -Style Heading3 'Replication Jobs' {
-                    Paragraph 'The following section provides a summary of all replication jobs configured in Veeam Backup & Replication, along with their current status and last run result.'
+                Section -Style Heading3 $LocalizedData.Heading {
+                    Paragraph $LocalizedData.Paragraph
                     BlankLine
                     $OutObj = @()
                     foreach ($Bkjob in $Bkjobs) {
                         try {
 
                             $inObj = [ordered] @{
-                                'Name' = $Bkjob.Name
-                                'Type' = $Bkjob.TypeToString
-                                'Status' = switch ($Bkjob.IsScheduleEnabled) {
-                                    'False' { 'Disabled' }
-                                    'True' { 'Enabled' }
+                                $LocalizedData.Name = $Bkjob.Name
+                                $LocalizedData.Type = $Bkjob.TypeToString
+                                $LocalizedData.Status = switch ($Bkjob.IsScheduleEnabled) {
+                                    'False' { $LocalizedData.Disabled }
+                                    'True' { $LocalizedData.Enabled }
                                 }
-                                'Latest Result' = $Bkjob.info.LatestStatus
-                                'Last Run' = switch ($Bkjob.FindLastSession().EndTimeUTC) {
-                                    $null { 'Never' }
+                                $LocalizedData.LatestResult = $Bkjob.info.LatestStatus
+                                $LocalizedData.LastRun = switch ($Bkjob.FindLastSession().EndTimeUTC) {
+                                    $null { $LocalizedData.Never }
                                     default { $Bkjob.FindLastSession().EndTimeUTC }
                                 }
                             }
@@ -55,7 +56,7 @@ function Get-AbrVbrRepljob {
                     }
 
                     $TableParams = @{
-                        Name = "Replication Jobs - $VeeamBackupServer"
+                        Name = "$($LocalizedData.TableHeading) - $VeeamBackupServer"
                         List = $false
                         ColumnWidths = 25, 20, 15, 15, 25
                     }

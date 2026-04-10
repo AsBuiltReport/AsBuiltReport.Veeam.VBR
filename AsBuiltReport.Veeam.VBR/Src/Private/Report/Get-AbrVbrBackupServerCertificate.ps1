@@ -22,24 +22,27 @@ function Get-AbrVbrBackupServerCertificate {
 
     begin {
         Write-PScriboMessage "Discovering Veeam VBR TLS certificates information from $System."
+        $LocalizedData = $reportTranslate.GetAbrVbrBackupServerCertificate
         Show-AbrDebugExecutionTime -Start -TitleMessage 'Backup Server TLS Certificate'
     }
 
     process {
         try {
             if ($TLSSettings = Get-VBRBackupServerCertificate) {
-                Section -Style Heading4 'Backup Server TLS Certificate' {
+                Section -Style Heading4 $LocalizedData.Heading {
+                    Paragraph $LocalizedData.Paragraph
+                    BlankLine
                     $OutObj = @()
                     try {
                         foreach ($EmailSetting in $TLSSettings) {
                             $inObj = [ordered] @{
-                                'Friendly Name' = $TLSSettings.FriendlyName
-                                'Subject Name' = $TLSSettings.SubjectName
-                                'Issuer Name' = $TLSSettings.IssuerName
-                                'Expiration Date' = $TLSSettings.NotAfter.ToShortDateString()
-                                'Issued Date' = $TLSSettings.NotBefore.ToShortDateString()
-                                'Thumbprint' = $TLSSettings.Thumbprint
-                                'Serial Number' = $TLSSettings.SerialNumber
+                                $LocalizedData.FriendlyName = $TLSSettings.FriendlyName
+                                $LocalizedData.SubjectName = $TLSSettings.SubjectName
+                                $LocalizedData.IssuerName = $TLSSettings.IssuerName
+                                $LocalizedData.ExpirationDate = $TLSSettings.NotAfter.ToShortDateString()
+                                $LocalizedData.IssuedDate = $TLSSettings.NotBefore.ToShortDateString()
+                                $LocalizedData.Thumbprint = $TLSSettings.Thumbprint
+                                $LocalizedData.SerialNumber = $TLSSettings.SerialNumber
                             }
                             $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                         }
@@ -48,11 +51,11 @@ function Get-AbrVbrBackupServerCertificate {
                     }
 
                     if ($HealthCheck.Infrastructure.Settings) {
-                        $OutObj | Where-Object { $_.'Enabled' -like 'No' } | Set-Style -Style Warning -Property 'Enabled'
+                        $OutObj | Where-Object { $_.$($LocalizedData.Enabled) -like 'No' } | Set-Style -Style Warning -Property ($LocalizedData.Enabled)
                     }
 
                     $TableParams = @{
-                        Name = "TLS Certificate - $VeeamBackupServer"
+                        Name = "$($LocalizedData.TableHeading) - $VeeamBackupServer"
                         List = $true
                         ColumnWidths = 40, 60
                     }

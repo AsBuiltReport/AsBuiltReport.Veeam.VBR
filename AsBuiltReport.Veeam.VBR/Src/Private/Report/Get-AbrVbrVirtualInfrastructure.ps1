@@ -22,34 +22,35 @@ function Get-AbrVbrVirtualInfrastructure {
 
     begin {
         Write-PScriboMessage "Discovering Veeam VBR Virtual Infrastructure inventory from $System."
+        $LocalizedData = $reportTranslate.GetAbrVbrVirtualInfrastructure
         Show-AbrDebugExecutionTime -Start -TitleMessage 'Virtual Infrastructure'
     }
 
     process {
         try {
             if ($VbrServer = Get-VBRServer) {
-                Section -Style Heading3 'Virtual Infrastructure' {
-                    Paragraph "The following sections detail the virtual infrastructure backed up by Veeam Backup Server $VeeamBackupServer, including VMware vSphere and Microsoft Hyper-V environments."
+                Section -Style Heading3 $LocalizedData.Heading {
+                    Paragraph $LocalizedData.Paragraph
                     BlankLine
                     #---------------------------------------------------------------------------------------------#
                     #                            VMware vSphere information Section                               #
                     #---------------------------------------------------------------------------------------------#
                     try {
                         if ($VbrServer | Where-Object { $_.Type -eq 'VC' -or $_.Type -eq 'ESXi' }) {
-                            Section -Style Heading4 'VMware vSphere' {
-                                Paragraph "The following section details the VMware vSphere infrastructure components, including vCenter Servers, ESXi hosts, and virtual machines, managed by Veeam Backup Server $VeeamBackupServer."
+                            Section -Style Heading4 $LocalizedData.VMwareHeading {
+                                Paragraph $LocalizedData.VMwareParagraph
                                 BlankLine
                                 $InventObjs = $VbrServer | Where-Object { $_.Type -eq 'VC' }
                                 if ($InventObjs) {
-                                    Section -Style NOTOCHeading5 -ExcludeFromTOC 'VMware vCenter' {
+                                    Section -Style NOTOCHeading5 -ExcludeFromTOC $LocalizedData.VCenterHeading {
                                         $OutObj = @()
                                         foreach ($InventObj in $InventObjs) {
                                             try {
 
                                                 $inObj = [ordered] @{
-                                                    'Name' = $InventObj.Name
-                                                    'Version' = ($InventObj).Info.Info
-                                                    'Child Host' = $InventObj.GetChilds().Name -join ', '
+                                                    $LocalizedData.Name = $InventObj.Name
+                                                    $LocalizedData.Version = ($InventObj).Info.Info
+                                                    $LocalizedData.ChildHost = $InventObj.GetChilds().Name -join ', '
                                                 }
 
                                                 $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
@@ -59,7 +60,7 @@ function Get-AbrVbrVirtualInfrastructure {
                                         }
 
                                         $TableParams = @{
-                                            Name = "vCenter Servers - $VeeamBackupServer"
+                                            Name = "$($LocalizedData.TableVCenter) - $VeeamBackupServer"
                                             List = $false
                                             ColumnWidths = 33, 33, 34
                                         }
@@ -67,7 +68,7 @@ function Get-AbrVbrVirtualInfrastructure {
                                         if ($Report.ShowTableCaptions) {
                                             $TableParams['Caption'] = "- $($TableParams.Name)"
                                         }
-                                        $OutObj | Sort-Object -Property 'Name' | Table @TableParams
+                                        $OutObj | Sort-Object -Property $LocalizedData.Name | Table @TableParams
                                     }
                                 }
                                 #---------------------------------------------------------------------------------------------#
@@ -76,15 +77,15 @@ function Get-AbrVbrVirtualInfrastructure {
                                 try {
                                     $InventObjs = $VbrServer | Where-Object { $_.Type -eq 'ESXi' }
                                     if ($InventObjs) {
-                                        Section -Style NOTOCHeading6 -ExcludeFromTOC 'Esxi Host' {
+                                        Section -Style NOTOCHeading6 -ExcludeFromTOC $LocalizedData.EsxiHostHeading {
                                             $OutObj = @()
                                             foreach ($InventObj in $InventObjs) {
                                                 try {
 
                                                     $inObj = [ordered] @{
-                                                        'Name' = $InventObj.Name
-                                                        'Version' = ($InventObj).Info.Info
-                                                        'Connected Vcenter' = (Invoke-FindVBRViEntityWithTimeout -Name $InventObj.Name).Path.split('\')[0]
+                                                        $LocalizedData.Name = $InventObj.Name
+                                                        $LocalizedData.Version = ($InventObj).Info.Info
+                                                        $LocalizedData.ConnectedVcenter = (Invoke-FindVBRViEntityWithTimeout -Name $InventObj.Name).Path.split('\')[0]
                                                     }
 
                                                     $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
@@ -94,7 +95,7 @@ function Get-AbrVbrVirtualInfrastructure {
                                             }
 
                                             $TableParams = @{
-                                                Name = "Esxi Hosts - $VeeamBackupServer"
+                                                Name = "$($LocalizedData.TableEsxiHosts) - $VeeamBackupServer"
                                                 List = $false
                                                 ColumnWidths = 40, 20, 40
                                             }
@@ -102,7 +103,7 @@ function Get-AbrVbrVirtualInfrastructure {
                                             if ($Report.ShowTableCaptions) {
                                                 $TableParams['Caption'] = "- $($TableParams.Name)"
                                             }
-                                            $OutObj | Sort-Object -Property 'Name' | Table @TableParams
+                                            $OutObj | Sort-Object -Property $LocalizedData.Name | Table @TableParams
                                         }
                                     }
                                 } catch {
@@ -118,18 +119,18 @@ function Get-AbrVbrVirtualInfrastructure {
                     #---------------------------------------------------------------------------------------------#
                     try {
                         if ($VbrServer | Where-Object { $_.Type -eq 'HvCluster' -or $_.Type -eq 'HvServer' }) {
-                            Section -Style Heading4 'Microsoft Hyper-V' {
+                            Section -Style Heading4 $LocalizedData.HyperVHeading {
                                 $InventObjs = $VbrServer | Where-Object { $_.Type -eq 'HvCluster' }
                                 if ($InventObjs) {
-                                    Section -Style NOTOCHeading5 -ExcludeFromTOC 'Hyper-V Clusters' {
+                                    Section -Style NOTOCHeading5 -ExcludeFromTOC $LocalizedData.HyperVClustersHeading {
                                         $OutObj = @()
                                         foreach ($InventObj in $InventObjs) {
                                             try {
 
                                                 $inObj = [ordered] @{
-                                                    'Name' = $InventObj.Name
-                                                    'Credentials' = ($InventObj).ProxyServicesCreds.Name
-                                                    'Child Host' = $InventObj.GetChilds().Name -join ', '
+                                                    $LocalizedData.Name = $InventObj.Name
+                                                    $LocalizedData.Credentials = ($InventObj).ProxyServicesCreds.Name
+                                                    $LocalizedData.ChildHost = $InventObj.GetChilds().Name -join ', '
                                                 }
 
                                                 $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
@@ -139,7 +140,7 @@ function Get-AbrVbrVirtualInfrastructure {
                                         }
 
                                         $TableParams = @{
-                                            Name = "Hyper-V Clusters - $VeeamBackupServer"
+                                            Name = "$($LocalizedData.TableHyperVClusters) - $VeeamBackupServer"
                                             List = $false
                                             ColumnWidths = 34, 33, 33
                                         }
@@ -147,7 +148,7 @@ function Get-AbrVbrVirtualInfrastructure {
                                         if ($Report.ShowTableCaptions) {
                                             $TableParams['Caption'] = "- $($TableParams.Name)"
                                         }
-                                        $OutObj | Sort-Object -Property 'Name' | Table @TableParams
+                                        $OutObj | Sort-Object -Property $LocalizedData.Name | Table @TableParams
                                     }
                                 }
                                 #---------------------------------------------------------------------------------------------#
@@ -156,14 +157,14 @@ function Get-AbrVbrVirtualInfrastructure {
                                 try {
                                     $InventObjs = $VbrServer | Where-Object { $_.Type -eq 'HvServer' }
                                     if ($InventObjs) {
-                                        Section -Style NOTOCHeading6 -ExcludeFromTOC 'Hyper-V Host' {
+                                        Section -Style NOTOCHeading6 -ExcludeFromTOC $LocalizedData.HyperVHostHeading {
                                             $OutObj = @()
                                             foreach ($InventObj in $InventObjs) {
                                                 try {
 
                                                     $inObj = [ordered] @{
-                                                        'Name' = $InventObj.Name
-                                                        'Version' = ($InventObj).Info.Info
+                                                        $LocalizedData.Name = $InventObj.Name
+                                                        $LocalizedData.Version = ($InventObj).Info.Info
                                                         #'Hyper-V CLuster' = (Find-VBRHvEntity -Name $InventObj.Name).Path.split("\")[0]
                                                     }
 
@@ -174,7 +175,7 @@ function Get-AbrVbrVirtualInfrastructure {
                                             }
 
                                             $TableParams = @{
-                                                Name = "Hyper-V Hosts - $VeeamBackupServer"
+                                                Name = "$($LocalizedData.TableHyperVHosts) - $VeeamBackupServer"
                                                 List = $false
                                                 ColumnWidths = 40, 60
                                             }
@@ -182,7 +183,7 @@ function Get-AbrVbrVirtualInfrastructure {
                                             if ($Report.ShowTableCaptions) {
                                                 $TableParams['Caption'] = "- $($TableParams.Name)"
                                             }
-                                            $OutObj | Sort-Object -Property 'Name' | Table @TableParams
+                                            $OutObj | Sort-Object -Property $LocalizedData.Name | Table @TableParams
                                         }
                                     }
                                 } catch {

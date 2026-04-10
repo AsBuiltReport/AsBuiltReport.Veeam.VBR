@@ -6,7 +6,7 @@ function Get-AbrVbrBackupProxy {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.24
+        Version:        1.0.0
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -22,17 +22,18 @@ function Get-AbrVbrBackupProxy {
 
     begin {
         Write-PScriboMessage "Discovering Veeam V&R Backup Proxies information from $System."
+        $LocalizedData = $reportTranslate.GetAbrVbrBackupProxy
         Show-AbrDebugExecutionTime -Start -TitleMessage 'Backup Proxies'
     }
 
     process {
         try {
             if (((Get-VBRViProxy).count -gt 0) -or ((Get-VBRHvProxy).count -gt 0)) {
-                Section -Style Heading3 'Backup Proxies' {
-                    Paragraph 'The following section provides a summary of all configured Veeam Backup Proxies, including their type, status, and maximum concurrent task settings.'
+                Section -Style Heading3 $LocalizedData.Heading {
+                    Paragraph $LocalizedData.Paragraph
                     BlankLine
                     if ($BackupProxies = Get-VBRViProxy | Sort-Object -Property Name) {
-                        Section -Style Heading4 'VMware Backup Proxies' {
+                        Section -Style Heading4 $LocalizedData.VMwareHeading {
                             $OutObj = @()
                             try {
                                 if ($InfoLevel.Infrastructure.Proxy -eq 1) {
@@ -41,13 +42,13 @@ function Get-AbrVbrBackupProxy {
                                     foreach ($BackupProxy in $BackupProxies) {
 
                                         $inObj = [ordered] @{
-                                            'Name' = $BackupProxy.Name
-                                            'Type' = $BackupProxy.Type
-                                            'Max Tasks Count' = $BackupProxy.MaxTasksCount
-                                            'Disabled' = $BackupProxy.IsDisabled
-                                            'Status' = switch (($BackupProxy.Host).IsUnavailable) {
-                                                'False' { 'Available' }
-                                                'True' { 'Unavailable' }
+                                            $LocalizedData.Name = $BackupProxy.Name
+                                            $LocalizedData.Type = $BackupProxy.Type
+                                            $LocalizedData.MaxTasksCount = $BackupProxy.MaxTasksCount
+                                            $LocalizedData.Disabled = $BackupProxy.IsDisabled
+                                            $LocalizedData.Status = switch (($BackupProxy.Host).IsUnavailable) {
+                                                'False' { $LocalizedData.Available }
+                                                'True' { $LocalizedData.Unavailable }
                                                 default { ($BackupProxy.Host).IsUnavailable }
                                             }
                                         }
@@ -55,11 +56,11 @@ function Get-AbrVbrBackupProxy {
                                     }
 
                                     if ($HealthCheck.Infrastructure.Proxy) {
-                                        $OutObj | Where-Object { $_.'Status' -eq 'Unavailable' } | Set-Style -Style Warning -Property 'Status'
+                                        $OutObj | Where-Object { $_."$($LocalizedData.Status)" -eq $LocalizedData.Unavailable } | Set-Style -Style Warning -Property $LocalizedData.Status
                                     }
 
                                     $TableParams = @{
-                                        Name = "Backup Proxy - $VeeamBackupServer"
+                                        Name = "$($LocalizedData.TableHeading) - $VeeamBackupServer"
                                         List = $false
                                         ColumnWidths = 35, 15, 15, 15, 20
                                     }
@@ -72,31 +73,31 @@ function Get-AbrVbrBackupProxy {
                                     Write-PScriboMessage "Backup Proxy InfoLevel set at $($InfoLevel.Infrastructure.Proxy)."
                                     foreach ($BackupProxy in $BackupProxies) {
                                         $inObj = [ordered] @{
-                                            'Name' = $BackupProxy.Name
-                                            'Host Name' = $BackupProxy.Host.Name
-                                            'Type' = $BackupProxy.Type
-                                            'Disabled' = $BackupProxy.IsDisabled
-                                            'Max Tasks Count' = $BackupProxy.MaxTasksCount
-                                            'Use Ssl' = $BackupProxy.UseSsl
-                                            'Failover To Network' = $BackupProxy.FailoverToNetwork
-                                            'Transport Mode' = $BackupProxy.TransportMode
-                                            'Chassis Type' = $BackupProxy.ChassisType
-                                            'OS Type' = $BackupProxy.Host.Type
-                                            'Services Credential' = $BackupProxy.Host.ProxyServicesCreds.Name
-                                            'Status' = switch (($BackupProxy.Host).IsUnavailable) {
-                                                'False' { 'Available' }
-                                                'True' { 'Unavailable' }
+                                            $LocalizedData.Name = $BackupProxy.Name
+                                            $LocalizedData.HostName = $BackupProxy.Host.Name
+                                            $LocalizedData.Type = $BackupProxy.Type
+                                            $LocalizedData.Disabled = $BackupProxy.IsDisabled
+                                            $LocalizedData.MaxTasksCount = $BackupProxy.MaxTasksCount
+                                            $LocalizedData.UseSsl = $BackupProxy.UseSsl
+                                            $LocalizedData.FailoverToNetwork = $BackupProxy.FailoverToNetwork
+                                            $LocalizedData.TransportMode = $BackupProxy.TransportMode
+                                            $LocalizedData.ChassisType = $BackupProxy.ChassisType
+                                            $LocalizedData.OsType = $BackupProxy.Host.Type
+                                            $LocalizedData.ServicesCredential = $BackupProxy.Host.ProxyServicesCreds.Name
+                                            $LocalizedData.Status = switch (($BackupProxy.Host).IsUnavailable) {
+                                                'False' { $LocalizedData.Available }
+                                                'True' { $LocalizedData.Unavailable }
                                                 default { ($BackupProxy.Host).IsUnavailable }
                                             }
                                         }
                                         $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                         if ($HealthCheck.Infrastructure.Proxy) {
-                                            $OutObj | Where-Object { $_.'Status' -eq 'Unavailable' } | Set-Style -Style Warning -Property 'Status'
+                                            $OutObj | Where-Object { $_."$($LocalizedData.Status)" -eq $LocalizedData.Unavailable } | Set-Style -Style Warning -Property $LocalizedData.Status
                                         }
 
                                         $TableParams = @{
-                                            Name = "Backup Proxy - $($BackupProxy.Name)"
+                                            Name = "$($LocalizedData.TableHeading) - $($BackupProxy.Name)"
                                             List = $true
                                             ColumnWidths = 40, 60
                                         }
@@ -141,36 +142,36 @@ function Get-AbrVbrBackupProxy {
                                                             Section -Style Heading5 $($BackupProxy.Host.Name.Split('.')[0]) {
                                                                 $OutObj = @()
                                                                 $inObj = [ordered] @{
-                                                                    'Name' = $HW.CsDNSHostName
-                                                                    'Windows Product Name' = $HW.WindowsProductName
-                                                                    'Windows Current Version' = $HW.WindowsCurrentVersion
-                                                                    'Windows Build Number' = $HW.OsVersion
-                                                                    'Windows Install Type' = $HW.WindowsInstallationType
-                                                                    'Active Directory Domain' = $HW.CsDomain
-                                                                    'Windows Installation Date' = $HW.OsInstallDate
-                                                                    'Time Zone' = $HW.TimeZone
-                                                                    'License Type' = $License.ProductKeyChannel
-                                                                    'Partial Product Key' = $License.PartialProductKey
-                                                                    'Manufacturer' = $HW.CsManufacturer
-                                                                    'Model' = $HW.CsModel
-                                                                    'Serial Number' = $HWBIOS.SerialNumber
-                                                                    'Bios Type' = $HW.BiosFirmwareType
-                                                                    'BIOS Version' = $HWBIOS.Version
-                                                                    'Processor Manufacturer' = $HWCPU[0].Manufacturer
-                                                                    'Processor Model' = $HWCPU[0].Name
-                                                                    'Number of CPU Cores' = $HWCPU[0].NumberOfCores
-                                                                    'Number of Logical Cores' = $HWCPU[0].NumberOfLogicalProcessors
-                                                                    'Physical Memory (GB)' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $HW.CsTotalPhysicalMemory
+                                                                    $LocalizedData.Name = $HW.CsDNSHostName
+                                                                    $LocalizedData.WindowsProductName = $HW.WindowsProductName
+                                                                    $LocalizedData.WindowsCurrentVersion = $HW.WindowsCurrentVersion
+                                                                    $LocalizedData.WindowsBuildNumber = $HW.OsVersion
+                                                                    $LocalizedData.WindowsInstallType = $HW.WindowsInstallationType
+                                                                    $LocalizedData.ActiveDirectoryDomain = $HW.CsDomain
+                                                                    $LocalizedData.WindowsInstallationDate = $HW.OsInstallDate
+                                                                    $LocalizedData.TimeZone = $HW.TimeZone
+                                                                    $LocalizedData.LicenseType = $License.ProductKeyChannel
+                                                                    $LocalizedData.PartialProductKey = $License.PartialProductKey
+                                                                    $LocalizedData.Manufacturer = $HW.CsManufacturer
+                                                                    $LocalizedData.Model = $HW.CsModel
+                                                                    $LocalizedData.SerialNumber = $HWBIOS.SerialNumber
+                                                                    $LocalizedData.BiosType = $HW.BiosFirmwareType
+                                                                    $LocalizedData.BiosVersion = $HWBIOS.Version
+                                                                    $LocalizedData.ProcessorManufacturer = $HWCPU[0].Manufacturer
+                                                                    $LocalizedData.ProcessorModel = $HWCPU[0].Name
+                                                                    $LocalizedData.NumberOfCpuCores = $HWCPU[0].NumberOfCores
+                                                                    $LocalizedData.NumberOfLogicalCores = $HWCPU[0].NumberOfLogicalProcessors
+                                                                    $LocalizedData.PhysicalMemoryGb = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $HW.CsTotalPhysicalMemory
                                                                 }
                                                                 $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                                 if ($HealthCheck.Infrastructure.Server) {
-                                                                    $OutObj | Where-Object { $_.'Number of CPU Cores' -lt 4 } | Set-Style -Style Warning -Property 'Number of CPU Cores'
-                                                                    if ([int]([regex]::Matches($OutObj.'Physical Memory (GB)', '\d+(?!.*\d+)').value) -lt 8) { $OutObj | Set-Style -Style Warning -Property 'Physical Memory (GB)' }
+                                                                    $OutObj | Where-Object { $_."$($LocalizedData.NumberOfCpuCores)" -lt 4 } | Set-Style -Style Warning -Property $LocalizedData.NumberOfCpuCores
+                                                                    if ([int]([regex]::Matches($OutObj."$($LocalizedData.PhysicalMemoryGb)", '\d+(?!.*\d+)').value) -lt 8) { $OutObj | Set-Style -Style Warning -Property $LocalizedData.PhysicalMemoryGb }
                                                                 }
 
                                                                 $TableParams = @{
-                                                                    Name = "Backup Proxy Inventory - $($BackupProxy.Host.Name.Split('.')[0])"
+                                                                    Name = "$($LocalizedData.InventoryTableHeading) - $($BackupProxy.Host.Name.Split('.')[0])"
                                                                     List = $true
                                                                     ColumnWidths = 40, 60
                                                                 }
@@ -185,16 +186,16 @@ function Get-AbrVbrBackupProxy {
                                                                     try {
                                                                         $HostDisks = Invoke-Command -Session $PssSession -ScriptBlock { Get-Disk | Where-Object { $_.BusType -ne 'iSCSI' -and $_.BusType -ne 'Fibre Channel' } }
                                                                         if ($HostDisks) {
-                                                                            Section -Style NOTOCHeading6 -ExcludeFromTOC 'Local Disks' {
+                                                                            Section -Style NOTOCHeading6 -ExcludeFromTOC $LocalizedData.LocalDisksHeading {
                                                                                 $LocalDiskReport = @()
                                                                                 foreach ($Disk in $HostDisks) {
                                                                                     try {
                                                                                         $TempLocalDiskReport = [PSCustomObject]@{
-                                                                                            'Disk Number' = $Disk.Number
-                                                                                            'Model' = $Disk.Model
-                                                                                            'Serial Number' = $Disk.SerialNumber
-                                                                                            'Partition Style' = $Disk.PartitionStyle
-                                                                                            'Disk Size' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $Disk.Size
+                                                                                            $LocalizedData.DiskNumber = $Disk.Number
+                                                                                            $LocalizedData.Model = $Disk.Model
+                                                                                            $LocalizedData.SerialNumber = $Disk.SerialNumber
+                                                                                            $LocalizedData.PartitionStyle = $Disk.PartitionStyle
+                                                                                            $LocalizedData.DiskSize = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $Disk.Size
                                                                                         }
                                                                                         $LocalDiskReport += $TempLocalDiskReport
                                                                                     } catch {
@@ -202,14 +203,14 @@ function Get-AbrVbrBackupProxy {
                                                                                     }
                                                                                 }
                                                                                 $TableParams = @{
-                                                                                    Name = "Local Disks - $($BackupProxies.Host.Name.Split('.')[0])"
+                                                                                    Name = "$($LocalizedData.LocalDisksTableHeading) - $($BackupProxies.Host.Name.Split('.')[0])"
                                                                                     List = $false
                                                                                     ColumnWidths = 20, 20, 20, 20, 20
                                                                                 }
                                                                                 if ($Report.ShowTableCaptions) {
                                                                                     $TableParams['Caption'] = "- $($TableParams.Name)"
                                                                                 }
-                                                                                $LocalDiskReport | Sort-Object -Property 'Disk Number' | Table @TableParams
+                                                                                $LocalDiskReport | Sort-Object -Property $LocalizedData.DiskNumber | Table @TableParams
                                                                             }
                                                                         }
                                                                     } catch {
@@ -221,16 +222,16 @@ function Get-AbrVbrBackupProxy {
                                                                     try {
                                                                         $SanDisks = Invoke-Command -Session $PssSession -ScriptBlock { Get-Disk | Where-Object { $_.BusType -eq 'iSCSI' -or $_.BusType -eq 'Fibre Channel' } }
                                                                         if ($SanDisks) {
-                                                                            Section -Style NOTOCHeading6 -ExcludeFromTOC 'SAN Disks' {
+                                                                            Section -Style NOTOCHeading6 -ExcludeFromTOC $LocalizedData.SanDisksHeading {
                                                                                 $SanDiskReport = @()
                                                                                 foreach ($Disk in $SanDisks) {
                                                                                     try {
                                                                                         $TempSanDiskReport = [PSCustomObject]@{
-                                                                                            'Disk Number' = $Disk.Number
-                                                                                            'Model' = $Disk.Model
-                                                                                            'Serial Number' = $Disk.SerialNumber
-                                                                                            'Partition Style' = $Disk.PartitionStyle
-                                                                                            'Disk Size' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $Disk.Size
+                                                                                            $LocalizedData.DiskNumber = $Disk.Number
+                                                                                            $LocalizedData.Model = $Disk.Model
+                                                                                            $LocalizedData.SerialNumber = $Disk.SerialNumber
+                                                                                            $LocalizedData.PartitionStyle = $Disk.PartitionStyle
+                                                                                            $LocalizedData.DiskSize = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $Disk.Size
                                                                                         }
                                                                                         $SanDiskReport += $TempSanDiskReport
                                                                                     } catch {
@@ -238,14 +239,14 @@ function Get-AbrVbrBackupProxy {
                                                                                     }
                                                                                 }
                                                                                 $TableParams = @{
-                                                                                    Name = "SAN Disks - $($BackupProxies.Host.Name.Split('.')[0])"
+                                                                                    Name = "$($LocalizedData.SanDisksTableHeading) - $($BackupProxies.Host.Name.Split('.')[0])"
                                                                                     List = $false
                                                                                     ColumnWidths = 20, 20, 20, 20, 20
                                                                                 }
                                                                                 if ($Report.ShowTableCaptions) {
                                                                                     $TableParams['Caption'] = "- $($TableParams.Name)"
                                                                                 }
-                                                                                $SanDiskReport | Sort-Object -Property 'Disk Number' | Table @TableParams
+                                                                                $SanDiskReport | Sort-Object -Property $LocalizedData.DiskNumber | Table @TableParams
                                                                             }
                                                                         }
                                                                     } catch {
@@ -255,17 +256,17 @@ function Get-AbrVbrBackupProxy {
                                                                 try {
                                                                     $HostVolumes = Invoke-Command -Session $PssSession -ScriptBlock { Get-Volume | Where-Object { $_.DriveType -ne 'CD-ROM' -and $NUll -ne $_.DriveLetter } }
                                                                     if ($HostVolumes) {
-                                                                        Section -Style NOTOCHeading6 -ExcludeFromTOC 'Host Volumes' {
+                                                                        Section -Style NOTOCHeading6 -ExcludeFromTOC $LocalizedData.HostVolumesHeading {
                                                                             $HostVolumeReport = @()
                                                                             foreach ($HostVolume in $HostVolumes) {
                                                                                 try {
                                                                                     $TempHostVolumeReport = [PSCustomObject]@{
-                                                                                        'Drive Letter' = $HostVolume.DriveLetter
-                                                                                        'File System Label' = $HostVolume.FileSystemLabel
-                                                                                        'File System' = $HostVolume.FileSystem
-                                                                                        'Size' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $HostVolume.Size
-                                                                                        'Free Space' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $HostVolume.SizeRemaining
-                                                                                        'Health Status' = $HostVolume.HealthStatus
+                                                                                        $LocalizedData.DriveLetter = $HostVolume.DriveLetter
+                                                                                        $LocalizedData.FileSystemLabel = $HostVolume.FileSystemLabel
+                                                                                        $LocalizedData.FileSystem = $HostVolume.FileSystem
+                                                                                        $LocalizedData.Size = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $HostVolume.Size
+                                                                                        $LocalizedData.FreeSpace = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $HostVolume.SizeRemaining
+                                                                                        $LocalizedData.HealthStatus = $HostVolume.HealthStatus
                                                                                     }
                                                                                     $HostVolumeReport += $TempHostVolumeReport
                                                                                 } catch {
@@ -273,14 +274,14 @@ function Get-AbrVbrBackupProxy {
                                                                                 }
                                                                             }
                                                                             $TableParams = @{
-                                                                                Name = "Volumes - $($BackupProxies.Host.Name.Split('.')[0])"
+                                                                                Name = "$($LocalizedData.VolumesTableHeading) - $($BackupProxies.Host.Name.Split('.')[0])"
                                                                                 List = $false
                                                                                 ColumnWidths = 15, 15, 15, 20, 20, 15
                                                                             }
                                                                             if ($Report.ShowTableCaptions) {
                                                                                 $TableParams['Caption'] = "- $($TableParams.Name)"
                                                                             }
-                                                                            $HostVolumeReport | Sort-Object -Property 'Drive Letter' | Table @TableParams
+                                                                            $HostVolumeReport | Sort-Object -Property $LocalizedData.DriveLetter | Table @TableParams
                                                                         }
                                                                     }
                                                                 } catch {
@@ -293,15 +294,15 @@ function Get-AbrVbrBackupProxy {
                                                                     try {
                                                                         $HostAdapters = Invoke-Command -Session $PssSession { Get-NetAdapter }
                                                                         if ($HostAdapters) {
-                                                                            Section -Style NOTOCHeading4 -ExcludeFromTOC 'Network Adapters' {
+                                                                            Section -Style NOTOCHeading4 -ExcludeFromTOC $LocalizedData.NetworkAdaptersHeading {
                                                                                 $HostAdaptersReport = @()
                                                                                 foreach ($HostAdapter in $HostAdapters) {
                                                                                     try {
                                                                                         $TempHostAdaptersReport = [PSCustomObject]@{
-                                                                                            'Adapter Name' = $HostAdapter.Name
-                                                                                            'Adapter Description' = $HostAdapter.InterfaceDescription
-                                                                                            'Mac Address' = $HostAdapter.MacAddress
-                                                                                            'Link Speed' = $HostAdapter.LinkSpeed
+                                                                                            $LocalizedData.AdapterName = $HostAdapter.Name
+                                                                                            $LocalizedData.AdapterDescription = $HostAdapter.InterfaceDescription
+                                                                                            $LocalizedData.MacAddress = $HostAdapter.MacAddress
+                                                                                            $LocalizedData.LinkSpeed = $HostAdapter.LinkSpeed
                                                                                         }
                                                                                         $HostAdaptersReport += $TempHostAdaptersReport
                                                                                     } catch {
@@ -309,14 +310,14 @@ function Get-AbrVbrBackupProxy {
                                                                                     }
                                                                                 }
                                                                                 $TableParams = @{
-                                                                                    Name = "Network Adapters - $($BackupProxies.Host.Name.Split('.')[0])"
+                                                                                    Name = "$($LocalizedData.NetworkAdaptersTableHeading) - $($BackupProxies.Host.Name.Split('.')[0])"
                                                                                     List = $false
                                                                                     ColumnWidths = 30, 35, 20, 15
                                                                                 }
                                                                                 if ($Report.ShowTableCaptions) {
                                                                                     $TableParams['Caption'] = "- $($TableParams.Name)"
                                                                                 }
-                                                                                $HostAdaptersReport | Sort-Object -Property 'Adapter Name' | Table @TableParams
+                                                                                $HostAdaptersReport | Sort-Object -Property $LocalizedData.AdapterName | Table @TableParams
                                                                             }
                                                                         }
                                                                     } catch {
@@ -325,16 +326,16 @@ function Get-AbrVbrBackupProxy {
                                                                     try {
                                                                         $NetIPs = Invoke-Command -Session $PssSession { Get-NetIPConfiguration | Where-Object -FilterScript { ($_.NetAdapter.Status -eq 'Up') } }
                                                                         if ($NetIPs) {
-                                                                            Section -Style NOTOCHeading4 -ExcludeFromTOC 'IP Address' {
+                                                                            Section -Style NOTOCHeading4 -ExcludeFromTOC $LocalizedData.IpAddressHeading {
                                                                                 $NetIpsReport = @()
                                                                                 foreach ($NetIp in $NetIps) {
                                                                                     try {
                                                                                         $TempNetIpsReport = [PSCustomObject]@{
-                                                                                            'Interface Name' = $NetIp.InterfaceAlias
-                                                                                            'Interface Description' = $NetIp.InterfaceDescription
-                                                                                            'IPv4 Addresses' = $NetIp.IPv4Address.IPAddress -join ','
-                                                                                            'Subnet Mask' = $NetIp.IPv4Address[0].PrefixLength
-                                                                                            'IPv4 Gateway' = $NetIp.IPv4DefaultGateway.NextHop
+                                                                                            $LocalizedData.InterfaceName = $NetIp.InterfaceAlias
+                                                                                            $LocalizedData.InterfaceDescription = $NetIp.InterfaceDescription
+                                                                                            $LocalizedData.IPv4Addresses = $NetIp.IPv4Address.IPAddress -join ','
+                                                                                            $LocalizedData.SubnetMask = $NetIp.IPv4Address[0].PrefixLength
+                                                                                            $LocalizedData.IPv4Gateway = $NetIp.IPv4DefaultGateway.NextHop
                                                                                         }
                                                                                         $NetIpsReport += $TempNetIpsReport
                                                                                     } catch {
@@ -342,14 +343,14 @@ function Get-AbrVbrBackupProxy {
                                                                                     }
                                                                                 }
                                                                                 $TableParams = @{
-                                                                                    Name = "IP Address - $($BackupProxies.Host.Name.Split('.')[0])"
+                                                                                    Name = "$($LocalizedData.IpAddressTableHeading) - $($BackupProxies.Host.Name.Split('.')[0])"
                                                                                     List = $false
                                                                                     ColumnWidths = 25, 25, 20, 10, 20
                                                                                 }
                                                                                 if ($Report.ShowTableCaptions) {
                                                                                     $TableParams['Caption'] = "- $($TableParams.Name)"
                                                                                 }
-                                                                                $NetIpsReport | Sort-Object -Property 'Interface Name' | Table @TableParams
+                                                                                $NetIpsReport | Sort-Object -Property $LocalizedData.InterfaceName | Table @TableParams
                                                                             }
                                                                         }
                                                                     } catch {
@@ -378,7 +379,7 @@ function Get-AbrVbrBackupProxy {
                                             }
                                         }
                                         if ($vSphereVBProxyObj) {
-                                            Section -Style Heading4 'Hardware & Software Inventory' {
+                                            Section -Style Heading4 $LocalizedData.HardwareSoftwareHeading {
                                                 $vSphereVBProxyObj
                                             }
                                         }
@@ -415,31 +416,31 @@ function Get-AbrVbrBackupProxy {
                                                                 Remove-PSSession -Session $PssSession
                                                             }
                                                             if ($Available -and $Services) {
-                                                                Section -Style NOTOCHeading4 -ExcludeFromTOC "HealthCheck - $($BackupProxy.Host.Name.Split('.')[0]) Services Status" {
+                                                                Section -Style NOTOCHeading4 -ExcludeFromTOC "$($LocalizedData.HealthCheckSectionPrefix) $($BackupProxy.Host.Name.Split('.')[0]) $($LocalizedData.ServicesStatus)" {
                                                                     $OutObj = @()
                                                                     foreach ($Service in $Services) {
                                                                         Write-PScriboMessage "Collecting '$($Service.DisplayName)' status on $($BackupProxy.Name)."
                                                                         $inObj = [ordered] @{
-                                                                            'Display Name' = $Service.DisplayName
-                                                                            'Short Name' = $Service.Name
-                                                                            'Status' = $Service.Status
+                                                                            $LocalizedData.DisplayName = $Service.DisplayName
+                                                                            $LocalizedData.ShortName = $Service.Name
+                                                                            $LocalizedData.Status = $Service.Status
                                                                         }
                                                                         $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                                                                     }
 
                                                                     if ($HealthCheck.Infrastructure.Server) {
-                                                                        $OutObj | Where-Object { $_.'Status' -notlike 'Running' } | Set-Style -Style Warning -Property 'Status'
+                                                                        $OutObj | Where-Object { $_."$($LocalizedData.Status)" -notlike 'Running' } | Set-Style -Style Warning -Property $LocalizedData.Status
                                                                     }
 
                                                                     $TableParams = @{
-                                                                        Name = "HealthCheck - Services Status - $($BackupProxy.Host.Name.Split('.')[0])"
+                                                                        Name = "$($LocalizedData.HealthCheckServicesTableHeading) - $($BackupProxy.Host.Name.Split('.')[0])"
                                                                         List = $false
                                                                         ColumnWidths = 45, 35, 20
                                                                     }
                                                                     if ($Report.ShowTableCaptions) {
                                                                         $TableParams['Caption'] = "- $($TableParams.Name)"
                                                                     }
-                                                                    $OutObj | Sort-Object -Property 'Display Name' | Table @TableParams
+                                                                    $OutObj | Sort-Object -Property $LocalizedData.DisplayName | Table @TableParams
                                                                 }
                                                             }
                                                         } else { Write-PScriboMessage -IsWarning "VMware Backup Proxies Services Status Section: Unable to connect to $($BackupProxy.Host.Name)" }
@@ -464,11 +465,12 @@ function Get-AbrVbrBackupProxy {
                                         Write-PScriboMessage -IsWarning "VMware Backup Proxy Diagram: $($_.Exception.Message)"
                                     }
                                     if ($Graph) {
-                                        $BestAspectRatio = Get-BestImageAspectRatio -GraphObj $Graph -MaxWidth 600
-                                        Section -Style Heading3 'VMware Backup Proxy Diagram' {
-                                            Image -Base64 $Graph -Text 'VMware Backup Proxy Diagram' -Width $BestAspectRatio.Width -Height $BestAspectRatio.Height -Align Center
+                                        $BestAspectRatio = Get-BestImageAspectRatio -GraphObj $Graph -MaxWidth 600 -MaxHeight 600
+                                        PageBreak
+                                        Section -Style Heading3 $LocalizedData.VMwareDiagramHeading {
+                                            Image -Base64 $Graph -Text $LocalizedData.VMwareDiagramAltText -Width $BestAspectRatio.Width -Height $BestAspectRatio.Height -Align Center
+                                            PageBreak
                                         }
-                                        BlankLine
                                     }
                                 } catch {
                                     Write-PScriboMessage -IsWarning "VMware Backup Proxy Diagram Section: $($_.Exception.Message)"
@@ -481,7 +483,7 @@ function Get-AbrVbrBackupProxy {
                     #---------------------------------------------------------------------------------------------#
                     try {
                         if ($BackupProxies = Get-VBRHvProxy | Sort-Object -Property Name) {
-                            Section -Style Heading4 'Hyper-V Backup Proxies' {
+                            Section -Style Heading4 $LocalizedData.HyperVHeading {
                                 $OutObj = @()
                                 if ($InfoLevel.Infrastructure.Proxy -eq 1) {
                                     Write-PScriboMessage "Backup Proxy InfoLevel set at $($InfoLevel.Infrastructure.Proxy)."
@@ -490,13 +492,13 @@ function Get-AbrVbrBackupProxy {
                                         try {
 
                                             $inObj = [ordered] @{
-                                                'Name' = $BackupProxy.Name
-                                                'Type' = $BackupProxy.Type
-                                                'Max Tasks Count' = $BackupProxy.MaxTasksCount
-                                                'Disabled' = $BackupProxy.IsDisabled
-                                                'Status' = switch (($BackupProxy.Host).IsUnavailable) {
-                                                    'False' { 'Available' }
-                                                    'True' { 'Unavailable' }
+                                                $LocalizedData.Name = $BackupProxy.Name
+                                                $LocalizedData.Type = $BackupProxy.Type
+                                                $LocalizedData.MaxTasksCount = $BackupProxy.MaxTasksCount
+                                                $LocalizedData.Disabled = $BackupProxy.IsDisabled
+                                                $LocalizedData.Status = switch (($BackupProxy.Host).IsUnavailable) {
+                                                    'False' { $LocalizedData.Available }
+                                                    'True' { $LocalizedData.Unavailable }
                                                     default { ($BackupProxy.Host).IsUnavailable }
                                                 }
                                             }
@@ -507,11 +509,11 @@ function Get-AbrVbrBackupProxy {
                                     }
 
                                     if ($HealthCheck.Infrastructure.Proxy) {
-                                        $OutObj | Where-Object { $_.'Status' -eq 'Unavailable' } | Set-Style -Style Warning -Property 'Status'
+                                        $OutObj | Where-Object { $_."$($LocalizedData.Status)" -eq $LocalizedData.Unavailable } | Set-Style -Style Warning -Property $LocalizedData.Status
                                     }
 
                                     $TableParams = @{
-                                        Name = "Backup Proxy - $VeeamBackupServer"
+                                        Name = "$($LocalizedData.TableHeading) - $VeeamBackupServer"
                                         List = $false
                                         ColumnWidths = 35, 15, 15, 15, 20
                                     }
@@ -527,28 +529,28 @@ function Get-AbrVbrBackupProxy {
                                         try {
 
                                             $inObj = [ordered] @{
-                                                'Name' = $BackupProxy.Name
-                                                'Host Name' = $BackupProxy.Host.Name
-                                                'Type' = $BackupProxy.Type
-                                                'Disabled' = $BackupProxy.IsDisabled
-                                                'Max Tasks Count' = $BackupProxy.MaxTasksCount
-                                                'AutoDetect Volumes' = $BackupProxy.Options.IsAutoDetectVolumes
-                                                'OS Type' = $BackupProxy.Host.Type
-                                                'Services Credential' = $BackupProxy.Host.ProxyServicesCreds.Name
-                                                'Status' = switch (($BackupProxy.Host).IsUnavailable) {
-                                                    'False' { 'Available' }
-                                                    'True' { 'Unavailable' }
+                                                $LocalizedData.Name = $BackupProxy.Name
+                                                $LocalizedData.HostName = $BackupProxy.Host.Name
+                                                $LocalizedData.Type = $BackupProxy.Type
+                                                $LocalizedData.Disabled = $BackupProxy.IsDisabled
+                                                $LocalizedData.MaxTasksCount = $BackupProxy.MaxTasksCount
+                                                $LocalizedData.AutoDetectVolumes = $BackupProxy.Options.IsAutoDetectVolumes
+                                                $LocalizedData.OsType = $BackupProxy.Host.Type
+                                                $LocalizedData.ServicesCredential = $BackupProxy.Host.ProxyServicesCreds.Name
+                                                $LocalizedData.Status = switch (($BackupProxy.Host).IsUnavailable) {
+                                                    'False' { $LocalizedData.Available }
+                                                    'True' { $LocalizedData.Unavailable }
                                                     default { ($BackupProxy.Host).IsUnavailable }
                                                 }
                                             }
                                             $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                             if ($HealthCheck.Infrastructure.Proxy) {
-                                                $OutObj | Where-Object { $_.'Status' -eq 'Unavailable' } | Set-Style -Style Warning -Property 'Status'
+                                                $OutObj | Where-Object { $_."$($LocalizedData.Status)" -eq $LocalizedData.Unavailable } | Set-Style -Style Warning -Property $LocalizedData.Status
                                             }
 
                                             $TableParams = @{
-                                                Name = "Backup Proxy - $($BackupProxy.Host.Name.Split('.')[0])"
+                                                Name = "$($LocalizedData.TableHeading) - $($BackupProxy.Host.Name.Split('.')[0])"
                                                 List = $true
                                                 ColumnWidths = 40, 60
                                             }
@@ -595,36 +597,36 @@ function Get-AbrVbrBackupProxy {
                                                                 Section -Style Heading5 $($BackupProxy.Host.Name.Split('.')[0]) {
                                                                     $OutObj = @()
                                                                     $inObj = [ordered] @{
-                                                                        'Name' = $HW.CsDNSHostName
-                                                                        'Windows Product Name' = $HW.WindowsProductName
-                                                                        'Windows Current Version' = $HW.WindowsCurrentVersion
-                                                                        'Windows Build Number' = $HW.OsVersion
-                                                                        'Windows Install Type' = $HW.WindowsInstallationType
-                                                                        'Active Directory Domain' = $HW.CsDomain
-                                                                        'Windows Installation Date' = $HW.OsInstallDate
-                                                                        'Time Zone' = $HW.TimeZone
-                                                                        'License Type' = $License.ProductKeyChannel
-                                                                        'Partial Product Key' = $License.PartialProductKey
-                                                                        'Manufacturer' = $HW.CsManufacturer
-                                                                        'Model' = $HW.CsModel
-                                                                        'Serial Number' = $HWBIOS.SerialNumber
-                                                                        'Bios Type' = $HW.BiosFirmwareType
-                                                                        'BIOS Version' = $HWBIOS.Version
-                                                                        'Processor Manufacturer' = $HWCPU[0].Manufacturer
-                                                                        'Processor Model' = $HWCPU[0].Name
-                                                                        'Number of CPU Cores' = $HWCPU[0].NumberOfCores
-                                                                        'Number of Logical Cores' = $HWCPU[0].NumberOfLogicalProcessors
-                                                                        'Physical Memory (GB)' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $HW.CsTotalPhysicalMemory
+                                                                        $LocalizedData.Name = $HW.CsDNSHostName
+                                                                        $LocalizedData.WindowsProductName = $HW.WindowsProductName
+                                                                        $LocalizedData.WindowsCurrentVersion = $HW.WindowsCurrentVersion
+                                                                        $LocalizedData.WindowsBuildNumber = $HW.OsVersion
+                                                                        $LocalizedData.WindowsInstallType = $HW.WindowsInstallationType
+                                                                        $LocalizedData.ActiveDirectoryDomain = $HW.CsDomain
+                                                                        $LocalizedData.WindowsInstallationDate = $HW.OsInstallDate
+                                                                        $LocalizedData.TimeZone = $HW.TimeZone
+                                                                        $LocalizedData.LicenseType = $License.ProductKeyChannel
+                                                                        $LocalizedData.PartialProductKey = $License.PartialProductKey
+                                                                        $LocalizedData.Manufacturer = $HW.CsManufacturer
+                                                                        $LocalizedData.Model = $HW.CsModel
+                                                                        $LocalizedData.SerialNumber = $HWBIOS.SerialNumber
+                                                                        $LocalizedData.BiosType = $HW.BiosFirmwareType
+                                                                        $LocalizedData.BiosVersion = $HWBIOS.Version
+                                                                        $LocalizedData.ProcessorManufacturer = $HWCPU[0].Manufacturer
+                                                                        $LocalizedData.ProcessorModel = $HWCPU[0].Name
+                                                                        $LocalizedData.NumberOfCpuCores = $HWCPU[0].NumberOfCores
+                                                                        $LocalizedData.NumberOfLogicalCores = $HWCPU[0].NumberOfLogicalProcessors
+                                                                        $LocalizedData.PhysicalMemoryGb = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $HW.CsTotalPhysicalMemory
                                                                     }
                                                                     $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                                     if ($HealthCheck.Infrastructure.Server) {
-                                                                        $OutObj | Where-Object { $_.'Number of CPU Cores' -lt 4 } | Set-Style -Style Warning -Property 'Number of CPU Cores'
-                                                                        if ([int]([regex]::Matches($OutObj.'Physical Memory (GB)', '\d+(?!.*\d+)').value) -lt 8) { $OutObj | Set-Style -Style Warning -Property 'Physical Memory (GB)' }
+                                                                        $OutObj | Where-Object { $_."$($LocalizedData.NumberOfCpuCores)" -lt 4 } | Set-Style -Style Warning -Property $LocalizedData.NumberOfCpuCores
+                                                                        if ([int]([regex]::Matches($OutObj."$($LocalizedData.PhysicalMemoryGb)", '\d+(?!.*\d+)').value) -lt 8) { $OutObj | Set-Style -Style Warning -Property $LocalizedData.PhysicalMemoryGb }
                                                                     }
 
                                                                     $TableParams = @{
-                                                                        Name = "Backup Proxy Inventory - $($BackupProxy.Host.Name.Split('.')[0])"
+                                                                        Name = "$($LocalizedData.InventoryTableHeading) - $($BackupProxy.Host.Name.Split('.')[0])"
                                                                         List = $true
                                                                         ColumnWidths = 40, 60
                                                                     }
@@ -639,16 +641,16 @@ function Get-AbrVbrBackupProxy {
                                                                         try {
                                                                             $HostDisks = Invoke-Command -Session $PssSession -ScriptBlock { Get-Disk | Where-Object { $_.BusType -ne 'iSCSI' -and $_.BusType -ne 'Fibre Channel' } }
                                                                             if ($HostDisks) {
-                                                                                Section -Style NOTOCHeading6 -ExcludeFromTOC 'Local Disks' {
+                                                                                Section -Style NOTOCHeading6 -ExcludeFromTOC $LocalizedData.LocalDisksHeading {
                                                                                     $LocalDiskReport = @()
                                                                                     foreach ($Disk in $HostDisks) {
                                                                                         try {
                                                                                             $TempLocalDiskReport = [PSCustomObject]@{
-                                                                                                'Disk Number' = $Disk.Number
-                                                                                                'Model' = $Disk.Model
-                                                                                                'Serial Number' = $Disk.SerialNumber
-                                                                                                'Partition Style' = $Disk.PartitionStyle
-                                                                                                'Disk Size' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $Disk.Size
+                                                                                                $LocalizedData.DiskNumber = $Disk.Number
+                                                                                                $LocalizedData.Model = $Disk.Model
+                                                                                                $LocalizedData.SerialNumber = $Disk.SerialNumber
+                                                                                                $LocalizedData.PartitionStyle = $Disk.PartitionStyle
+                                                                                                $LocalizedData.DiskSize = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $Disk.Size
                                                                                             }
                                                                                             $LocalDiskReport += $TempLocalDiskReport
                                                                                         } catch {
@@ -656,14 +658,14 @@ function Get-AbrVbrBackupProxy {
                                                                                         }
                                                                                     }
                                                                                     $TableParams = @{
-                                                                                        Name = "Local Disks - $($BackupProxies.Host.Name.Split('.')[0])"
+                                                                                        Name = "$($LocalizedData.LocalDisksTableHeading) - $($BackupProxies.Host.Name.Split('.')[0])"
                                                                                         List = $false
                                                                                         ColumnWidths = 20, 20, 20, 20, 20
                                                                                     }
                                                                                     if ($Report.ShowTableCaptions) {
                                                                                         $TableParams['Caption'] = "- $($TableParams.Name)"
                                                                                     }
-                                                                                    $LocalDiskReport | Sort-Object -Property 'Disk Number' | Table @TableParams
+                                                                                    $LocalDiskReport | Sort-Object -Property $LocalizedData.DiskNumber | Table @TableParams
                                                                                 }
                                                                             }
                                                                         } catch {
@@ -675,16 +677,16 @@ function Get-AbrVbrBackupProxy {
                                                                         try {
                                                                             $SanDisks = Invoke-Command -Session $PssSession -ScriptBlock { Get-Disk | Where-Object { $_.BusType -eq 'iSCSI' -or $_.BusType -eq 'Fibre Channel' } }
                                                                             if ($SanDisks) {
-                                                                                Section -Style NOTOCHeading6 -ExcludeFromTOC 'SAN Disks' {
+                                                                                Section -Style NOTOCHeading6 -ExcludeFromTOC $LocalizedData.SanDisksHeading {
                                                                                     $SanDiskReport = @()
                                                                                     foreach ($Disk in $SanDisks) {
                                                                                         try {
                                                                                             $TempSanDiskReport = [PSCustomObject]@{
-                                                                                                'Disk Number' = $Disk.Number
-                                                                                                'Model' = $Disk.Model
-                                                                                                'Serial Number' = $Disk.SerialNumber
-                                                                                                'Partition Style' = $Disk.PartitionStyle
-                                                                                                'Disk Size' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $Disk.Size
+                                                                                                $LocalizedData.DiskNumber = $Disk.Number
+                                                                                                $LocalizedData.Model = $Disk.Model
+                                                                                                $LocalizedData.SerialNumber = $Disk.SerialNumber
+                                                                                                $LocalizedData.PartitionStyle = $Disk.PartitionStyle
+                                                                                                $LocalizedData.DiskSize = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $Disk.Size
                                                                                             }
                                                                                             $SanDiskReport += $TempSanDiskReport
                                                                                         } catch {
@@ -692,14 +694,14 @@ function Get-AbrVbrBackupProxy {
                                                                                         }
                                                                                     }
                                                                                     $TableParams = @{
-                                                                                        Name = "SAN Disks - $($BackupProxies.Host.Name.Split('.')[0])"
+                                                                                        Name = "$($LocalizedData.SanDisksTableHeading) - $($BackupProxies.Host.Name.Split('.')[0])"
                                                                                         List = $false
                                                                                         ColumnWidths = 20, 20, 20, 20, 20
                                                                                     }
                                                                                     if ($Report.ShowTableCaptions) {
                                                                                         $TableParams['Caption'] = "- $($TableParams.Name)"
                                                                                     }
-                                                                                    $SanDiskReport | Sort-Object -Property 'Disk Number' | Table @TableParams
+                                                                                    $SanDiskReport | Sort-Object -Property $LocalizedData.DiskNumber | Table @TableParams
                                                                                 }
                                                                             }
                                                                         } catch {
@@ -712,17 +714,17 @@ function Get-AbrVbrBackupProxy {
                                                                     try {
                                                                         $HostVolumes = Invoke-Command -Session $PssSession -ScriptBlock { Get-Volume | Where-Object { $_.DriveType -ne 'CD-ROM' -and $NUll -ne $_.DriveLetter } }
                                                                         if ($HostVolumes) {
-                                                                            Section -Style NOTOCHeading6 -ExcludeFromTOC 'Host Volumes' {
+                                                                            Section -Style NOTOCHeading6 -ExcludeFromTOC $LocalizedData.HostVolumesHeading {
                                                                                 $HostVolumeReport = @()
                                                                                 foreach ($HostVolume in $HostVolumes) {
                                                                                     try {
                                                                                         $TempHostVolumeReport = [PSCustomObject]@{
-                                                                                            'Drive Letter' = $HostVolume.DriveLetter
-                                                                                            'File System Label' = $HostVolume.FileSystemLabel
-                                                                                            'File System' = $HostVolume.FileSystem
-                                                                                            'Size' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $HostVolume.Size
-                                                                                            'Free Space' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $HostVolume.SizeRemaining
-                                                                                            'Health Status' = $HostVolume.HealthStatus
+                                                                                            $LocalizedData.DriveLetter = $HostVolume.DriveLetter
+                                                                                            $LocalizedData.FileSystemLabel = $HostVolume.FileSystemLabel
+                                                                                            $LocalizedData.FileSystem = $HostVolume.FileSystem
+                                                                                            $LocalizedData.Size = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $HostVolume.Size
+                                                                                            $LocalizedData.FreeSpace = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $HostVolume.SizeRemaining
+                                                                                            $LocalizedData.HealthStatus = $HostVolume.HealthStatus
                                                                                         }
                                                                                         $HostVolumeReport += $TempHostVolumeReport
                                                                                     } catch {
@@ -730,14 +732,14 @@ function Get-AbrVbrBackupProxy {
                                                                                     }
                                                                                 }
                                                                                 $TableParams = @{
-                                                                                    Name = "Volumes - $($BackupProxies.Host.Name.Split('.')[0])"
+                                                                                    Name = "$($LocalizedData.VolumesTableHeading) - $($BackupProxies.Host.Name.Split('.')[0])"
                                                                                     List = $false
                                                                                     ColumnWidths = 15, 15, 15, 20, 20, 15
                                                                                 }
                                                                                 if ($Report.ShowTableCaptions) {
                                                                                     $TableParams['Caption'] = "- $($TableParams.Name)"
                                                                                 }
-                                                                                $HostVolumeReport | Sort-Object -Property 'Drive Letter' | Table @TableParams
+                                                                                $HostVolumeReport | Sort-Object -Property $LocalizedData.DriveLetter | Table @TableParams
                                                                             }
                                                                         }
                                                                     } catch {
@@ -750,15 +752,15 @@ function Get-AbrVbrBackupProxy {
                                                                         try {
                                                                             $HostAdapters = Invoke-Command -Session $PssSession { Get-NetAdapter }
                                                                             if ($HostAdapters) {
-                                                                                Section -Style NOTOCHeading6 -ExcludeFromTOC 'Network Adapters' {
+                                                                                Section -Style NOTOCHeading6 -ExcludeFromTOC $LocalizedData.NetworkAdaptersHeading {
                                                                                     $HostAdaptersReport = @()
                                                                                     foreach ($HostAdapter in $HostAdapters) {
                                                                                         try {
                                                                                             $TempHostAdaptersReport = [PSCustomObject]@{
-                                                                                                'Adapter Name' = $HostAdapter.Name
-                                                                                                'Adapter Description' = $HostAdapter.InterfaceDescription
-                                                                                                'Mac Address' = $HostAdapter.MacAddress
-                                                                                                'Link Speed' = $HostAdapter.LinkSpeed
+                                                                                                $LocalizedData.AdapterName = $HostAdapter.Name
+                                                                                                $LocalizedData.AdapterDescription = $HostAdapter.InterfaceDescription
+                                                                                                $LocalizedData.MacAddress = $HostAdapter.MacAddress
+                                                                                                $LocalizedData.LinkSpeed = $HostAdapter.LinkSpeed
                                                                                             }
                                                                                             $HostAdaptersReport += $TempHostAdaptersReport
                                                                                         } catch {
@@ -766,14 +768,14 @@ function Get-AbrVbrBackupProxy {
                                                                                         }
                                                                                     }
                                                                                     $TableParams = @{
-                                                                                        Name = "Network Adapters - $($BackupProxies.Host.Name.Split('.')[0])"
+                                                                                        Name = "$($LocalizedData.NetworkAdaptersTableHeading) - $($BackupProxies.Host.Name.Split('.')[0])"
                                                                                         List = $false
                                                                                         ColumnWidths = 30, 35, 20, 15
                                                                                     }
                                                                                     if ($Report.ShowTableCaptions) {
                                                                                         $TableParams['Caption'] = "- $($TableParams.Name)"
                                                                                     }
-                                                                                    $HostAdaptersReport | Sort-Object -Property 'Adapter Name' | Table @TableParams
+                                                                                    $HostAdaptersReport | Sort-Object -Property $LocalizedData.AdapterName | Table @TableParams
                                                                                 }
                                                                             }
                                                                         } catch {
@@ -782,16 +784,16 @@ function Get-AbrVbrBackupProxy {
                                                                         try {
                                                                             $NetIPs = Invoke-Command -Session $PssSession { Get-NetIPConfiguration | Where-Object -FilterScript { ($_.NetAdapter.Status -eq 'Up') } }
                                                                             if ($NetIPs) {
-                                                                                Section -Style NOTOCHeading6 -ExcludeFromTOC 'IP Address' {
+                                                                                Section -Style NOTOCHeading6 -ExcludeFromTOC $LocalizedData.IpAddressHeading {
                                                                                     $NetIpsReport = @()
                                                                                     foreach ($NetIp in $NetIps) {
                                                                                         try {
                                                                                             $TempNetIpsReport = [PSCustomObject]@{
-                                                                                                'Interface Name' = $NetIp.InterfaceAlias
-                                                                                                'Interface Description' = $NetIp.InterfaceDescription
-                                                                                                'IPv4 Addresses' = $NetIp.IPv4Address.IPAddress -join ','
-                                                                                                'Subnet Mask' = $NetIp.IPv4Address[0].PrefixLength
-                                                                                                'IPv4 Gateway' = $NetIp.IPv4DefaultGateway.NextHop
+                                                                                                $LocalizedData.InterfaceName = $NetIp.InterfaceAlias
+                                                                                                $LocalizedData.InterfaceDescription = $NetIp.InterfaceDescription
+                                                                                                $LocalizedData.IPv4Addresses = $NetIp.IPv4Address.IPAddress -join ','
+                                                                                                $LocalizedData.SubnetMask = $NetIp.IPv4Address[0].PrefixLength
+                                                                                                $LocalizedData.IPv4Gateway = $NetIp.IPv4DefaultGateway.NextHop
                                                                                             }
                                                                                             $NetIpsReport += $TempNetIpsReport
                                                                                         } catch {
@@ -799,14 +801,14 @@ function Get-AbrVbrBackupProxy {
                                                                                         }
                                                                                     }
                                                                                     $TableParams = @{
-                                                                                        Name = "IP Address - $($BackupProxies.Host.Name.Split('.')[0])"
+                                                                                        Name = "$($LocalizedData.IpAddressTableHeading) - $($BackupProxies.Host.Name.Split('.')[0])"
                                                                                         List = $false
                                                                                         ColumnWidths = 25, 25, 20, 10, 20
                                                                                     }
                                                                                     if ($Report.ShowTableCaptions) {
                                                                                         $TableParams['Caption'] = "- $($TableParams.Name)"
                                                                                     }
-                                                                                    $NetIpsReport | Sort-Object -Property 'Interface Name' | Table @TableParams
+                                                                                    $NetIpsReport | Sort-Object -Property $LocalizedData.InterfaceName | Table @TableParams
                                                                                 }
                                                                             }
                                                                         } catch {
@@ -835,7 +837,7 @@ function Get-AbrVbrBackupProxy {
                                                 }
                                             }
                                             if ($HyperVBProxyObj) {
-                                                Section -Style Heading4 'Hardware & Software Inventory' {
+                                                Section -Style Heading4 $LocalizedData.HardwareSoftwareHeading {
                                                     $HyperVBProxyObj
                                                 }
                                             }
@@ -872,31 +874,31 @@ function Get-AbrVbrBackupProxy {
                                                                     Remove-PSSession -Session $PssSession
                                                                 }
                                                                 if ($Available -and $Services) {
-                                                                    Section -Style NOTOCHeading4 -ExcludeFromTOC "HealthCheck - $($BackupProxy.Host.Name.Split('.')[0]) Services Status" {
+                                                                    Section -Style NOTOCHeading4 -ExcludeFromTOC "$($LocalizedData.HealthCheckSectionPrefix) $($BackupProxy.Host.Name.Split('.')[0]) $($LocalizedData.ServicesStatus)" {
                                                                         $OutObj = @()
                                                                         foreach ($Service in $Services) {
                                                                             Write-PScriboMessage "Collecting '$($Service.DisplayName)' status on $($BackupProxy.Name)."
                                                                             $inObj = [ordered] @{
-                                                                                'Display Name' = $Service.DisplayName
-                                                                                'Short Name' = $Service.Name
-                                                                                'Status' = $Service.Status
+                                                                                $LocalizedData.DisplayName = $Service.DisplayName
+                                                                                $LocalizedData.ShortName = $Service.Name
+                                                                                $LocalizedData.Status = $Service.Status
                                                                             }
                                                                             $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                                                                         }
 
                                                                         if ($HealthCheck.Infrastructure.Server) {
-                                                                            $OutObj | Where-Object { $_.'Status' -notlike 'Running' } | Set-Style -Style Warning -Property 'Status'
+                                                                            $OutObj | Where-Object { $_."$($LocalizedData.Status)" -notlike 'Running' } | Set-Style -Style Warning -Property $LocalizedData.Status
                                                                         }
 
                                                                         $TableParams = @{
-                                                                            Name = "HealthCheck - Services Status - $($BackupProxy.Host.Name.Split('.')[0])"
+                                                                            Name = "$($LocalizedData.HealthCheckServicesTableHeading) - $($BackupProxy.Host.Name.Split('.')[0])"
                                                                             List = $false
                                                                             ColumnWidths = 45, 35, 20
                                                                         }
                                                                         if ($Report.ShowTableCaptions) {
                                                                             $TableParams['Caption'] = "- $($TableParams.Name)"
                                                                         }
-                                                                        $OutObj | Sort-Object -Property 'Display Name' | Table @TableParams
+                                                                        $OutObj | Sort-Object -Property $LocalizedData.DisplayName | Table @TableParams
                                                                     }
                                                                 }
                                                             } else { Write-PScriboMessage -IsWarning "VMware Backup Proxies Services Status Section: Unable to connect to $($BackupProxy.Host.Name)" }
@@ -921,11 +923,12 @@ function Get-AbrVbrBackupProxy {
                                             Write-PScriboMessage -IsWarning "Hyper-V Backup Proxy Diagram: $($_.Exception.Message)"
                                         }
                                         if ($Graph) {
-                                            $BestAspectRatio = Get-BestImageAspectRatio -GraphObj $Graph -MaxWidth 600
-                                            Section -Style Heading3 'Hyper-V Backup Proxy Diagram' {
-                                                Image -Base64 $Graph -Text 'Hyper-V Backup Proxy Diagram' -Width $BestAspectRatio.Width -Height $BestAspectRatio.Height -Align Center
+                                            $BestAspectRatio = Get-BestImageAspectRatio -GraphObj $Graph -MaxWidth 600 -MaxHeight 600
+                                            PageBreak
+                                            Section -Style Heading3 $LocalizedData.HyperVDiagramHeading {
+                                                Image -Base64 $Graph -Text $LocalizedData.HyperVDiagramAltText -Width $BestAspectRatio.Width -Height $BestAspectRatio.Height -Align Center
+                                                PageBreak
                                             }
-                                            BlankLine
                                         }
                                     } catch {
                                         Write-PScriboMessage -IsWarning "Hyper-V Backup Proxy Diagram Section: $($_.Exception.Message)"

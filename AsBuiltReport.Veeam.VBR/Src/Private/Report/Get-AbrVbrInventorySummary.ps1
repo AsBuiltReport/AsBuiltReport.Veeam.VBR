@@ -21,7 +21,8 @@ function Get-AbrVbrInventorySummary {
     )
 
     begin {
-        Write-PScriboMessage "Discovering Veeam VBR Inventory Summary from $System."
+        $LocalizedData = $reportTranslate.GetAbrVbrInventorySummary
+        Write-PScriboMessage ($LocalizedData.Collecting -f $System)
         Show-AbrDebugExecutionTime -Start -TitleMessage 'Inventory Summary'
     }
 
@@ -47,20 +48,20 @@ function Get-AbrVbrInventorySummary {
                     $ObjectStorage = Get-VBRUnstructuredServer | Where-Object { $_.Type -eq 'AzureBlobServer' -or $_.Type -eq 'AmazonS3Server' -or $_.Type -eq 'S3CompatibleServer' }
                 }
                 $inObj = [ordered] @{
-                    'vCenter Servers' = ($vCenter | Measure-Object).Count
-                    'ESXi Servers' = ($ESXi | Measure-Object).Count
-                    'Hyper-V Clusters' = ($HvCluster | Measure-Object).Count
-                    'Hyper-V Servers' = ($HvServer | Measure-Object).Count
-                    'Protection Groups' = ($ProtectionGroups | Measure-Object).Count
+                    $LocalizedData.vCenterServers = ($vCenter | Measure-Object).Count
+                    $LocalizedData.ESXiServers = ($ESXi | Measure-Object).Count
+                    $LocalizedData.HyperVClusters = ($HvCluster | Measure-Object).Count
+                    $LocalizedData.HyperVServers = ($HvServer | Measure-Object).Count
+                    $LocalizedData.ProtectionGroups = ($ProtectionGroups | Measure-Object).Count
                 }
 
                 if ($VbrVersion -lt 12.1) {
-                    $inObj.add('File Shares', ($Shares | Measure-Object).Count)
+                    $inObj.add($LocalizedData.FileShares, ($Shares | Measure-Object).Count)
                 } else {
-                    $inObj.add('File Server', ($FileServers | Measure-Object).Count)
-                    $inObj.add('NAS Filers', ($NASFillers | Measure-Object).Count)
-                    $inObj.add('File Shares', ($FileShares | Measure-Object).Count)
-                    $inObj.add('Object Storage', ($ObjectStorage | Measure-Object).Count)
+                    $inObj.add($LocalizedData.FileServer, ($FileServers | Measure-Object).Count)
+                    $inObj.add($LocalizedData.NASFilers, ($NASFillers | Measure-Object).Count)
+                    $inObj.add($LocalizedData.FileShares, ($FileShares | Measure-Object).Count)
+                    $inObj.add($LocalizedData.ObjectStorage, ($ObjectStorage | Measure-Object).Count)
                 }
 
                 $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
@@ -69,7 +70,7 @@ function Get-AbrVbrInventorySummary {
             }
 
             $TableParams = @{
-                Name = "Inventory Summary - $VeeamBackupServer"
+                Name = "$($LocalizedData.TableHeading) - $VeeamBackupServer"
                 List = $true
                 ColumnWidths = 50, 50
             }
@@ -78,7 +79,7 @@ function Get-AbrVbrInventorySummary {
             }
             $OutObj | Table @TableParams
         } catch {
-            Write-PScriboMessage -IsWarning "Inventory Summary Section: $($_.Exception.Message)"s
+            Write-PScriboMessage -IsWarning "Inventory Summary Section: $($_.Exception.Message)"
         }
     }
     end {

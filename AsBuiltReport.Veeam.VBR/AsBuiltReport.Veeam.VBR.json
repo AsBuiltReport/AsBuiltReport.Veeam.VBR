@@ -3,6 +3,7 @@
         "Name": "Veeam Backup & Replication As Built Report",
         "Version": "1.0",
         "Status": "Released",
+        "Language": "en-US",
         "ShowCoverPageImage": true,
         "ShowTableOfContents": true,
         "ShowHeaderFooter": true,
@@ -40,7 +41,7 @@
         "SignatureCompanyName": "",
         "PSDefaultAuthentication": "Default",
         "RoundUnits": 1,
-        "NewIcons": false,
+        "NewIcons": true,
         "UpdateCheck": true,
         "IsLocalServer": false
     },

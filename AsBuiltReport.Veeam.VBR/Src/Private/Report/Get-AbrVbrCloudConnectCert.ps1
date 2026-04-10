@@ -6,7 +6,7 @@ function Get-AbrVbrCloudConnectCert {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.24
+        Version:        1.0.0
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -22,6 +22,7 @@ function Get-AbrVbrCloudConnectCert {
 
     begin {
         Write-PScriboMessage "Discovering Veeam VBR Cloud SSL Certificate information from $System."
+        $LocalizedData = $reportTranslate.GetAbrVbrCloudConnectCert
         Show-AbrDebugExecutionTime -Start -TitleMessage 'Cloud Connect SSL Certificate'
     }
 
@@ -29,23 +30,21 @@ function Get-AbrVbrCloudConnectCert {
         try {
             if ($VbrLicenses | Where-Object { $_.CloudConnect -ne 'Disabled' }) {
                 if ($CloudObjects = Get-VBRCloudGatewayCertificate) {
-                    Section -Style Heading3 'Gateway Certificate' {
-                        Paragraph 'The following section provides information about the TLS/SSL certificate configured for the Veeam Cloud Connect gateway.'
+                    Section -Style Heading3 $LocalizedData.Heading {
+                        Paragraph $LocalizedData.Paragraph
                         BlankLine
                         try {
                             $OutObj = @()
                             foreach ($CloudObject in $CloudObjects) {
                                 try {
-
-
                                     $inObj = [ordered] @{
-                                        'Name' = $CloudObject.DisplayName
-                                        'Subject Name' = $CloudObject.SubjectName
-                                        'Issuer Name' = $CloudObject.IssuerName
-                                        'Issued Date' = $CloudObject.NotBefore
-                                        'Expiration Date' = $CloudObject.NotAfter
-                                        'Thumbprint' = $CloudObject.Thumbprint
-                                        'Serial Number' = $CloudObject.SerialNumber
+                                        $LocalizedData.Name = $CloudObject.DisplayName
+                                        $LocalizedData.SubjectName = $CloudObject.SubjectName
+                                        $LocalizedData.IssuerName = $CloudObject.IssuerName
+                                        $LocalizedData.IssuedDate = $CloudObject.NotBefore
+                                        $LocalizedData.ExpirationDate = $CloudObject.NotAfter
+                                        $LocalizedData.Thumbprint = $CloudObject.Thumbprint
+                                        $LocalizedData.SerialNumber = $CloudObject.SerialNumber
                                     }
 
                                     $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
@@ -56,7 +55,7 @@ function Get-AbrVbrCloudConnectCert {
                             }
 
                             $TableParams = @{
-                                Name = "Gateway SSL Certificate - $VeeamBackupServer"
+                                Name = "$($LocalizedData.TableHeading) - $VeeamBackupServer"
                                 List = $true
                                 ColumnWidths = 40, 60
                             }

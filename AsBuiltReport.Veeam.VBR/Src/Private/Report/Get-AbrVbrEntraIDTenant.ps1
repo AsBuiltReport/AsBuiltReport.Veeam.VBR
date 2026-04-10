@@ -6,7 +6,7 @@ function Get-AbrVbrEntraIDTenant {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.24
+        Version:        1.0.0
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -21,14 +21,15 @@ function Get-AbrVbrEntraIDTenant {
     )
 
     begin {
-        Write-PScriboMessage "Discovering Veeam VBR EntraID information from $System."
+        $LocalizedData = $reportTranslate.GetAbrVbrEntraIDTenant
+        Write-PScriboMessage ($LocalizedData.Collecting -f $System)
         Show-AbrDebugExecutionTime -Start -TitleMessage 'EntraID Tenant'
     }
 
     process {
         if ($EntraIDObjs = Get-VBREntraIDTenant) {
-            Section -Style Heading3 'Entra ID Tenant' {
-                Paragraph "The following table provides a summary of Microsoft Entra ID tenants registered with Veeam Backup Server $VeeamBackupServer."
+            Section -Style Heading3 $LocalizedData.Heading {
+                Paragraph ($LocalizedData.Paragraph -f $VeeamBackupServer)
                 BlankLine
                 $OutObj = @()
                 try {
@@ -36,12 +37,12 @@ function Get-AbrVbrEntraIDTenant {
                         try {
 
                             $inObj = [ordered] @{
-                                'Name' = $EntraIDObj.Name
-                                'Azure Tenant Id' = $EntraIDObj.AzureTenantId
-                                'Application Id' = $EntraIDObj.ApplicationId
-                                'Region' = $EntraIDObj.Region
-                                'Cache Repository' = $EntraIDObj.CacheRepository.Name
-                                'Description' = $EntraIDObj.Description
+                                $LocalizedData.Name = $EntraIDObj.Name
+                                $LocalizedData.AzureTenantId = $EntraIDObj.AzureTenantId
+                                $LocalizedData.ApplicationId = $EntraIDObj.ApplicationId
+                                $LocalizedData.Region = $EntraIDObj.Region
+                                $LocalizedData.CacheRepository = $EntraIDObj.CacheRepository.Name
+                                $LocalizedData.Description = $EntraIDObj.Description
                             }
 
                             $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
@@ -50,8 +51,8 @@ function Get-AbrVbrEntraIDTenant {
                         }
 
                         if ($HealthCheck.Infrastructure.BestPractice) {
-                            $OutObj | Where-Object { $_.'Description' -eq '--' } | Set-Style -Style Warning -Property 'Description'
-                            $OutObj | Where-Object { $_.'Description' -match 'Created by' } | Set-Style -Style Warning -Property 'Description'
+                            $OutObj | Where-Object { $_.$LocalizedData.Description -eq '--' } | Set-Style -Style Warning -Property $LocalizedData.Description
+                            $OutObj | Where-Object { $_.$LocalizedData.Description -match 'Created by' } | Set-Style -Style Warning -Property $LocalizedData.Description
                         }
 
                         $TableParams = @{
@@ -63,14 +64,14 @@ function Get-AbrVbrEntraIDTenant {
                         if ($Report.ShowTableCaptions) {
                             $TableParams['Caption'] = "- $($TableParams.Name)"
                         }
-                        $OutObj | Sort-Object -Property 'Name' | Table @TableParams
+                        $OutObj | Sort-Object -Property $LocalizedData.Name | Table @TableParams
                         if ($HealthCheck.Infrastructure.BestPractice) {
-                            if ($OutObj | Where-Object { $_.'Description' -match 'Created by' -or $_.'Description' -eq '--' }) {
-                                Paragraph 'Health Check:' -Bold -Underline
+                            if ($OutObj | Where-Object { $_.$LocalizedData.Description -match 'Created by' -or $_.$LocalizedData.Description -eq '--' }) {
+                                Paragraph $LocalizedData.HealthCheck -Bold -Underline
                                 BlankLine
                                 Paragraph {
-                                    Text 'Best Practice:' -Bold
-                                    Text 'It is a general rule of good practice to establish well-defined descriptions. This helps to speed up the fault identification process, as well as enabling better documentation of the environment.'
+                                    Text $LocalizedData.BestPractice -Bold
+                                    Text $LocalizedData.BPDescription
                                 }
                                 BlankLine
                             }

@@ -6,7 +6,7 @@ function Get-AbrVbrFileSharesInfo {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.24
+        Version:        1.0.0
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -21,14 +21,15 @@ function Get-AbrVbrFileSharesInfo {
     )
 
     begin {
-        Write-PScriboMessage "Discovering Veeam VBR File Share information from $System."
+        $LocalizedData = $reportTranslate.GetAbrVbrFileSharesInfo
+        Write-PScriboMessage ($LocalizedData.Collecting -f $System)
         Show-AbrDebugExecutionTime -Start -TitleMessage 'File Share'
     }
 
     process {
         if ($ShareObjs = Get-VBRNASServer -WarningAction SilentlyContinue) {
-            Section -Style Heading3 'File Shares' {
-                Paragraph "The following table provides a summary of the file shares and NAS resources protected by Veeam Backup Server $VeeamBackupServer."
+            Section -Style Heading3 $LocalizedData.Heading {
+                Paragraph ($LocalizedData.Paragraph -f $VeeamBackupServer)
                 BlankLine
                 $OutObj = @()
                 try {
@@ -44,21 +45,21 @@ function Get-AbrVbrFileSharesInfo {
                             }
 
                             $inObj = [ordered] @{
-                                'Path' = $Path
-                                'Type' = switch ($ShareObj.Type) {
-                                    'FileServer' { 'File Server' }
-                                    'SANSMB' { 'NAS Filer' }
-                                    'SMB' { 'SMB Share' }
-                                    'NFS' { 'NFS Share' }
-                                    'SANNFS' { 'NAS Filer' }
+                                $LocalizedData.Path = $Path
+                                $LocalizedData.Type = switch ($ShareObj.Type) {
+                                    'FileServer' { $LocalizedData.FileServerType }
+                                    'SANSMB' { $LocalizedData.NASFilerType }
+                                    'SMB' { $LocalizedData.SMBShareType }
+                                    'NFS' { $LocalizedData.NFSShareType }
+                                    'SANNFS' { $LocalizedData.NASFilerType }
                                     default { $ShareObj.Type }
                                 }
-                                'Backup IO Control' = $ShareObj.BackupIOControlLevel
-                                'Credentials' = switch (($AccessCredentials).count) {
-                                    0 { 'None' }
+                                $LocalizedData.BackupIOControl = $ShareObj.BackupIOControlLevel
+                                $LocalizedData.Credentials = switch (($AccessCredentials).count) {
+                                    0 { $LocalizedData.None }
                                     default { $AccessCredentials }
                                 }
-                                'Cache Repository' = $ShareObj.CacheRepository.Name
+                                $LocalizedData.CacheRepository = $ShareObj.CacheRepository.Name
                             }
 
                             $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
@@ -68,7 +69,7 @@ function Get-AbrVbrFileSharesInfo {
                     }
 
                     $TableParams = @{
-                        Name = "File Shares - $VeeamBackupServer"
+                        Name = "$($LocalizedData.TableHeading) - $VeeamBackupServer"
                         List = $false
                         ColumnWidths = 30, 13, 12, 22, 23
                     }
@@ -76,7 +77,7 @@ function Get-AbrVbrFileSharesInfo {
                     if ($Report.ShowTableCaptions) {
                         $TableParams['Caption'] = "- $($TableParams.Name)"
                     }
-                    $OutObj | Sort-Object -Property 'Path' | Table @TableParams
+                    $OutObj | Sort-Object -Property $LocalizedData.Path | Table @TableParams
                 } catch {
                     Write-PScriboMessage -IsWarning "File Shares Section: $($_.Exception.Message)"
                 }

@@ -21,32 +21,33 @@ function Get-AbrVbrEnterpriseManagerInfo {
     )
 
     begin {
-        Write-PScriboMessage "Discovering Enterprise Manager information from $System."
+        $LocalizedData = $reportTranslate.GetAbrVbrEnterpriseManagerInfo
+        Write-PScriboMessage ($LocalizedData.Collecting -f $System)
         Show-AbrDebugExecutionTime -Start -TitleMessage 'Enterprise Manager Information'
     }
 
     process {
         try {
             if ($BackupServers) {
-                Section -Style Heading3 'Enterprise Manager Information' {
-                    Paragraph 'The following table details the Veeam Enterprise Manager connection settings and current configuration status.'
+                Section -Style Heading3 $LocalizedData.Heading {
+                    Paragraph $LocalizedData.Paragraph
                     BlankLine
                     $OutObj = @()
                     foreach ($BackupServer in $BackupServers) {
-                        Write-PScriboMessage "Collecting Enterprise Manager information from $($BackupServer.Name)."
+                        Write-PScriboMessage ($LocalizedData.CollectingNode -f $BackupServer.Name)
                         $EMInfo = [Veeam.Backup.Core.SBackupOptions]::GetEnterpriseServerInfo()
                         if ($EMInfo) {
                             $inObj = [ordered] @{
-                                'Server Name' = switch ([string]::IsNullOrEmpty($EMInfo.ServerName)) {
-                                    $true { 'Not Connected' }
+                                $LocalizedData.ServerName = switch ([string]::IsNullOrEmpty($EMInfo.ServerName)) {
+                                    $true { $LocalizedData.NotConnected }
                                     default { $EMInfo.ServerName }
                                 }
-                                'Server URL' = switch ([string]::IsNullOrEmpty($EMInfo.URL)) {
-                                    $true { 'Not Connected' }
+                                $LocalizedData.ServerURL = switch ([string]::IsNullOrEmpty($EMInfo.URL)) {
+                                    $true { $LocalizedData.NotConnected }
                                     default { $EMInfo.URL }
                                 }
-                                'Skip License Push' = $EMInfo.SkipLicensePush
-                                'Is Connected' = $EMInfo.IsConnected
+                                $LocalizedData.SkipLicensePush = $EMInfo.SkipLicensePush
+                                $LocalizedData.IsConnected = $EMInfo.IsConnected
                             }
                         }
 
@@ -55,11 +56,11 @@ function Get-AbrVbrEnterpriseManagerInfo {
                         if ($OutObj) {
 
                             if ($HealthCheck.Infrastructure.BackupServer) {
-                                $OutObj | Where-Object { $_.'Skip License Push' -eq 'Yes' } | Set-Style -Style Warning -Property 'Skip License Push'
+                                $OutObj | Where-Object { $_.$LocalizedData.SkipLicensePush -eq 'Yes' } | Set-Style -Style Warning -Property $LocalizedData.SkipLicensePush
                             }
 
                             $TableParams = @{
-                                Name = "Enterprise Manager - $($BackupServer.Name.Split('.')[0])"
+                                Name = "$($LocalizedData.TableHeading) - $($BackupServer.Name.Split('.')[0])"
                                 List = $true
                                 ColumnWidths = 40, 60
                             }
@@ -67,12 +68,12 @@ function Get-AbrVbrEnterpriseManagerInfo {
                                 $TableParams['Caption'] = "- $($TableParams.Name)"
                             }
                             $OutObj | Table @TableParams
-                            if ($HealthCheck.Infrastructure.BestPractice -and ($OutObj | Where-Object { $_.'Skip License Push' -eq 'Yes' })) {
-                                Paragraph 'Health Check:' -Bold -Underline
+                            if ($HealthCheck.Infrastructure.BestPractice -and ($OutObj | Where-Object { $_.$LocalizedData.SkipLicensePush -eq 'Yes' })) {
+                                Paragraph $LocalizedData.HealthCheck -Bold -Underline
                                 BlankLine
                                 Paragraph {
-                                    Text 'Best Practice:' -Bold
-                                    Text 'Veeam recommends centralized license management through Enterprise Manager.'
+                                    Text $LocalizedData.BestPractice -Bold
+                                    Text $LocalizedData.BPEnterpriseManager
                                 }
                                 BlankLine
                             }

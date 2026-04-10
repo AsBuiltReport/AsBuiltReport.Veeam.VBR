@@ -22,6 +22,7 @@ function Get-AbrVbrIOControlSetting {
 
     begin {
         Write-PScriboMessage "Discovering Veeam VBR storage latency control settings information from $System."
+        $LocalizedData = $reportTranslate.GetAbrVbrIOControlSetting
         Show-AbrDebugExecutionTime -Start -TitleMessage 'Storage latency control settings'
     }
 
@@ -29,14 +30,16 @@ function Get-AbrVbrIOControlSetting {
         try {
             if ($VbrLicenses | Where-Object { $_.Edition -in @('EnterprisePlus', 'Enterprise') -and $_.Status -ne 'Expired' }) {
                 if ($StorageLatencyControls = Get-VBRStorageLatencyControlOptions) {
-                    Section -Style Heading4 'Storage Latency Control' {
+                    Section -Style Heading4 $LocalizedData.Heading {
+                        Paragraph $LocalizedData.Paragraph
+                        BlankLine
                         $OutObj = @()
                         foreach ($StorageLatencyControl in $StorageLatencyControls) {
                             try {
                                 $inObj = [ordered] @{
-                                    'Latency Limit' = "$($StorageLatencyControl.LatencyLimitMs)/ms"
-                                    'Throttling IO Limit' = "$($StorageLatencyControl.ThrottlingIOLimitMs)/ms"
-                                    'Enabled' = $StorageLatencyControl.Enabled
+                                    $LocalizedData.LatencyLimit = "$($StorageLatencyControl.LatencyLimitMs)/ms"
+                                    $LocalizedData.ThrottlingIOLimit = "$($StorageLatencyControl.ThrottlingIOLimitMs)/ms"
+                                    $LocalizedData.Enabled = $StorageLatencyControl.Enabled
                                 }
                                 $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                             } catch {
@@ -45,11 +48,11 @@ function Get-AbrVbrIOControlSetting {
                         }
 
                         if ($HealthCheck.Infrastructure.Settings) {
-                            $OutObj | Where-Object { $_.'Enabled' -like 'No' } | Set-Style -Style Warning -Property 'Enabled'
+                            $OutObj | Where-Object { $_.$($LocalizedData.Enabled) -like 'No' } | Set-Style -Style Warning -Property $LocalizedData.Enabled
                         }
 
                         $TableParams = @{
-                            Name = "Storage Latency Control - $VeeamBackupServer"
+                            Name = "$($LocalizedData.TableHeading) - $VeeamBackupServer"
                             List = $false
                             ColumnWidths = 35, 35, 30
                         }
@@ -63,7 +66,7 @@ function Get-AbrVbrIOControlSetting {
                         try {
                             $StorageLatencyControls = Get-VBRAdvancedLatencyOptions
                             if (($VbrLicenses | Where-Object { $_.Edition -eq 'EnterprisePlus' }) -and $StorageLatencyControls) {
-                                Section -Style NOTOCHeading5 -ExcludeFromTOC 'Per Datastore Latency Control Options' {
+                                Section -Style NOTOCHeading5 -ExcludeFromTOC $LocalizedData.SubHeading {
                                     $OutObj = @()
                                     try {
                                         $Datastores = Invoke-FindVBRViEntityWithTimeout -DatastoresAndVMsOnly | Where-Object { ($_.type -eq 'Datastore') }
@@ -76,12 +79,12 @@ function Get-AbrVbrIOControlSetting {
                                         try {
                                             $DatastoreName = ($Datastores | Where-Object { $_.Reference -eq $StorageLatencyControl.DatastoreId }).Name | Select-Object -Unique
                                             $inObj = [ordered] @{
-                                                'Datastore Name' = switch ([string]::IsNullOrEmpty($DatastoreName)) {
+                                                $LocalizedData.DatastoreName = switch ([string]::IsNullOrEmpty($DatastoreName)) {
                                                     $true { $StorageLatencyControl.DatastoreId }
                                                     default { $DatastoreName }
                                                 }
-                                                'Latency Limit' = "$($StorageLatencyControl.LatencyLimitMs)/ms"
-                                                'Throttling IO Limit' = "$($StorageLatencyControl.ThrottlingIOLimitMs)/ms"
+                                                $LocalizedData.LatencyLimit = "$($StorageLatencyControl.LatencyLimitMs)/ms"
+                                                $LocalizedData.ThrottlingIOLimit = "$($StorageLatencyControl.ThrottlingIOLimitMs)/ms"
                                             }
                                             $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                                         } catch {
@@ -90,7 +93,7 @@ function Get-AbrVbrIOControlSetting {
                                     }
 
                                     $TableParams = @{
-                                        Name = "Per Datastore Latency Control Options - $VeeamBackupServer"
+                                        Name = "$($LocalizedData.SubTableHeading) - $VeeamBackupServer"
                                         List = $false
                                         ColumnWidths = 40, 30, 30
                                     }

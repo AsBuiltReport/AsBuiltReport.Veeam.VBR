@@ -1,3 +1,9 @@
+# Veeam Official Color Palette — https://www.veeam.com/company/brand-resource-center.html
+# Primary:       Viridis      #00D15F | Black  #000000 | White  #FFFFFF
+# Complementary: Pine         #007F49 | Dark Mineral #505861 | French Grey #ADACAF | Fog #F0F0F0
+#                Lime         #9CFFA3 | Mint   #32F26F
+# Secondary:     Sol          #FFD839 | Suma   #FE8A25 | Sky    #57E0FF | Ignis  #ED2B3D
+
 # Veeam Default Heading and Font Styles
 Style -Name 'Title' -Size 24 -Color '005f4b' -Align Center
 Style -Name 'Title 2' -Size 18 -Color '565656' -Align Center

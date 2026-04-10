@@ -124,7 +124,7 @@ function New-AbrVeeamDiagram {
         For best results, ensure all image assets meet the recommended size guidelines.
 
     .NOTES
-        Version:        0.9.0
+        Version:        1.0.0
         Author(s):      Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -512,7 +512,7 @@ function New-AbrVeeamDiagram {
             }
             $BackupServerFontColor = switch ($NewIcons) {
                 $true { '#565656' }
-                $false { '#005f4b' }
+                $false { '#007F49' }
             }
         }
 

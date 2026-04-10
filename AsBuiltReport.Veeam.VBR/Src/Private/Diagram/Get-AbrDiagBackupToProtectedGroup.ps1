@@ -5,7 +5,7 @@ function Get-AbrDiagBackupToProtectedGroup {
     .DESCRIPTION
         Build a diagram of the configuration of Veeam VBR in PDF/PNG/SVG formats using Psgraph.
     .NOTES
-        Version:        0.9.0
+        Version:        1.0.0
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -77,7 +77,7 @@ function Get-AbrDiagBackupToProtectedGroup {
                                     $Ous
                                 )
 
-                                Convert-TableToHTML -Label $PGOBJ.Name -Name $PGOBJ.Name -Row $Rows -HeaderColor '#005f4b' -HeaderFontColor 'white' -BorderColor 'black' -FontSize 14 -IconDebug $IconDebug -HTMLOutput $true
+                                Convert-TableToHTML -Label $PGOBJ.Name -Name $PGOBJ.Name -Row $Rows -HeaderColor '#007F49' -HeaderFontColor 'white' -BorderColor 'black' -FontSize 14 -IconDebug $IconDebug -HTMLOutput $true
                             }
                         } catch {
                             Write-PScriboMessage 'Error: Unable to create ADCNodes Objects. Disabling the section'
@@ -117,7 +117,7 @@ function Get-AbrDiagBackupToProtectedGroup {
                                     "<B>Type</B>: $($PGOBJ.Object.Type) <B>Status</B>: $($Status) <B>Schedule</B>: $($PGOBJ.Object.ScheduleOptions.PolicyType)"
                                 )
 
-                                Convert-TableToHTML -Label $PGOBJ.Name -Name $PGOBJ.Name -Row $Rows -HeaderColor '#005f4b' -HeaderFontColor 'white' -BorderColor 'black' -FontSize 14 -IconDebug $IconDebug -HTMLOutput $true
+                                Convert-TableToHTML -Label $PGOBJ.Name -Name $PGOBJ.Name -Row $Rows -HeaderColor '#007F49' -HeaderFontColor 'white' -BorderColor 'black' -FontSize 14 -IconDebug $IconDebug -HTMLOutput $true
                             }
                         } catch {
                             Write-PScriboMessage 'Error: Unable to create MCNodes Objects. Disabling the section'
@@ -165,7 +165,7 @@ function Get-AbrDiagBackupToProtectedGroup {
                                     $Entities
                                 )
 
-                                Convert-TableToHTML -Label $PGOBJ.Name -Name $PGOBJ.Name -Row $Rows -HeaderColor '#005f4b' -HeaderFontColor 'white' -BorderColor 'black' -FontSize 14 -IconDebug $IconDebug -HTMLOutput $true
+                                Convert-TableToHTML -Label $PGOBJ.Name -Name $PGOBJ.Name -Row $Rows -HeaderColor '#007F49' -HeaderFontColor 'white' -BorderColor 'black' -FontSize 14 -IconDebug $IconDebug -HTMLOutput $true
                             }
                         } catch {
                             Write-PScriboMessage 'Error: Unable to create ICCNodes Objects. Disabling the section'
@@ -201,7 +201,7 @@ function Get-AbrDiagBackupToProtectedGroup {
                                     "<B>Credential</B> : $($PGOBJ.Object.Container.MasterCredentials.Name)"
                                 )
 
-                                Convert-TableToHTML -Label $PGOBJ.Name -Name $PGOBJ.Name -Row $Rows -HeaderColor '#005f4b' -HeaderFontColor 'white' -BorderColor 'black' -FontSize 14 -IconDebug $IconDebug -HTMLOutput $true
+                                Convert-TableToHTML -Label $PGOBJ.Name -Name $PGOBJ.Name -Row $Rows -HeaderColor '#007F49' -HeaderFontColor 'white' -BorderColor 'black' -FontSize 14 -IconDebug $IconDebug -HTMLOutput $true
                             }
                         } catch {
                             Write-PScriboMessage 'Error: Unable to create CSVCNodes Objects. Disabling the section'

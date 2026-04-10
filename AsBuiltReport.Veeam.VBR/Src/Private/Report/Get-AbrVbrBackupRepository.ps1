@@ -6,7 +6,7 @@ function Get-AbrVbrBackupRepository {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.24
+        Version:        1.0.0
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -22,6 +22,7 @@ function Get-AbrVbrBackupRepository {
 
     begin {
         Write-PScriboMessage "Discovering Veeam VBR Backup Repository information from $System."
+        $LocalizedData = $reportTranslate.GetAbrVbrBackupRepository
         Show-AbrDebugExecutionTime -Start -TitleMessage 'Backup Repository'
     }
 
@@ -46,14 +47,14 @@ function Get-AbrVbrBackupRepository {
                             }
                         }
                         $inObj = [ordered] @{
-                            'Name' = $BackupRepo.Name
-                            'Total Space' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $BackupRepo.GetContainer().CachedTotalSpace.InBytesAsUInt64
-                            'Free Space' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $BackupRepo.GetContainer().CachedFreeSpace.InBytesAsUInt64
-                            'Used Space %' = $PercentFree
-                            'Free Space %' = 100 - $PercentFree
-                            'Status' = switch ($BackupRepo.IsUnavailable) {
-                                'False' { 'Available' }
-                                'True' { 'Unavailable' }
+                            $LocalizedData.Name = $BackupRepo.Name
+                            $LocalizedData.TotalSpace = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $BackupRepo.GetContainer().CachedTotalSpace.InBytesAsUInt64
+                            $LocalizedData.FreeSpace = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $BackupRepo.GetContainer().CachedFreeSpace.InBytesAsUInt64
+                            $LocalizedData.UsedSpacePct = $PercentFree
+                            $LocalizedData.FreeSpacePct = 100 - $PercentFree
+                            $LocalizedData.Status = switch ($BackupRepo.IsUnavailable) {
+                                'False' { $LocalizedData.Available }
+                                'True' { $LocalizedData.Unavailable }
                                 default { $BackupRepo.IsUnavailable }
                             }
                         }
@@ -64,15 +65,15 @@ function Get-AbrVbrBackupRepository {
                 }
 
                 if ($HealthCheck.Infrastructure.BR) {
-                    $OutObj | Where-Object { $_.'Status' -eq 'Unavailable' } | Set-Style -Style Warning -Property 'Status'
-                    $OutObj | Where-Object { $_.'Used Space %' -ge 75 } | Set-Style -Style Warning -Property 'Used Space %'
-                    $OutObj | Where-Object { $_.'Used Space %' -ge 90 } | Set-Style -Style Critical -Property 'Used Space %'
+                    $OutObj | Where-Object { $_."$($LocalizedData.Status)" -eq $LocalizedData.Unavailable } | Set-Style -Style Warning -Property $LocalizedData.Status
+                    $OutObj | Where-Object { $_."$($LocalizedData.UsedSpacePct)" -ge 75 } | Set-Style -Style Warning -Property $LocalizedData.UsedSpacePct
+                    $OutObj | Where-Object { $_."$($LocalizedData.UsedSpacePct)" -ge 90 } | Set-Style -Style Critical -Property $LocalizedData.UsedSpacePct
                 }
 
                 $TableParams = @{
-                    Name = "Backup Repository - $VeeamBackupServer"
+                    Name = "$($LocalizedData.TableHeading) - $VeeamBackupServer"
                     List = $false
-                    Columns = 'Name', 'Total Space', 'Free Space', 'Used Space %', 'Status'
+                    Columns = $LocalizedData.Name, $LocalizedData.TotalSpace, $LocalizedData.FreeSpace, $LocalizedData.UsedSpacePct, $LocalizedData.Status
                     ColumnWidths = 46, 12, 12, 17, 13
                 }
                 if ($Report.ShowTableCaptions) {
@@ -80,41 +81,41 @@ function Get-AbrVbrBackupRepository {
                 }
 
                 if ($OutObj) {
-                    Section -Style Heading3 'Backup Repository' {
-                        Paragraph 'The following section summarizes all configured backup repositories, including total capacity, available free space, and current utilization.'
+                    Section -Style Heading3 $LocalizedData.Heading {
+                        Paragraph $LocalizedData.Paragraph
                         BlankLine
                         try {
-                            $sampleData = $OutObj | Select-Object Name, 'Used Space %', 'Free Space %'
+                            $sampleData = $OutObj | Select-Object $LocalizedData.Name, $LocalizedData.UsedSpacePct, $LocalizedData.FreeSpacePct
 
-                            $chartLabels = [string[]]$sampleData.Name
-                            $chartCategories = @('Used Space %', 'Free Space %')
-                            $chartUsedValues = [double[]]@($sampleData.'Used Space %')
-                            $chartFreeValues = [double[]]@($sampleData.'Free Space %')
+                            $chartLabels = [string[]]$sampleData."$($LocalizedData.Name)"
+                            $chartCategories = @($LocalizedData.UsedSpacePct, $LocalizedData.FreeSpacePct)
+                            $chartUsedValues = [double[]]@($sampleData."$($LocalizedData.UsedSpacePct)")
+                            $chartFreeValues = [double[]]@($sampleData."$($LocalizedData.FreeSpacePct)")
                             $chartValues = @()
                             foreach ($i in $chartLabels) {
                                 $chartValues += , @($chartUsedValues[$chartLabels.IndexOf($i)], $chartFreeValues[$chartLabels.IndexOf($i)])
                             }
 
-                            $statusCustomPalette = @('#DFF0D0', '#FFF4C7', '#FEDDD7', '#878787')
+                            $statusCustomPalette = @('#DFF0D0', '#FFF3C4', '#FECDD1', '#ADACAF')
 
-                            $chartFileItem = New-StackedBarChart -Title '% Space Utilization' -Values $chartValues -Labels $chartLabels -LegendCategories $chartCategories -EnableCustomColorPalette -CustomColorPalette $statusCustomPalette -Width 600 -Height 600 -Format base64 -TitleFontBold -TitleFontSize 16 -AreaOrientation Horizontal -LabelXAxis 'Backup Repositories' -LabelYAxis 'Percentage'
+                            $chartFileItem = New-StackedBarChart -Title $LocalizedData.ChartTitle -Values $chartValues -Labels $chartLabels -LegendCategories $chartCategories -EnableCustomColorPalette -CustomColorPalette $statusCustomPalette -Width 600 -Height 600 -Format base64 -TitleFontBold -TitleFontSize 16 -AreaOrientation Horizontal -LabelXAxis $LocalizedData.ChartXAxis -LabelYAxis $LocalizedData.ChartYAxis
                         } catch {
                             Write-PScriboMessage -IsWarning "Backup Repository graph Section: $($_.Exception.Message)"
                         }
 
                         if ($chartFileItem) {
-                            Image -Text 'Backup Repository - Chart' -Align 'Center' -Percent 100 -Base64 $chartFileItem
+                            Image -Text $LocalizedData.ChartAltText -Align 'Center' -Percent 100 -Base64 $chartFileItem
                         }
 
                         BlankLine
-                        $OutObj | Sort-Object -Property 'Used Space %' | Table @TableParams
+                        $OutObj | Sort-Object -Property $LocalizedData.UsedSpacePct | Table @TableParams
                         #---------------------------------------------------------------------------------------------#
                         #                        Backup Repository Configuration Section                              #
                         #---------------------------------------------------------------------------------------------#
                         if ($InfoLevel.Infrastructure.BR -ge 2) {
                             try {
-                                Section -Style Heading4 'Backup Repository Configuration' {
-                                    Paragraph 'The following section provides detailed configuration information for each backup repository, including storage type, path, and retention settings.'
+                                Section -Style Heading4 $LocalizedData.ConfigHeading {
+                                    Paragraph $LocalizedData.ConfigParagraph
                                     BlankLine
                                     foreach ($BackupRepo in $BackupRepos) {
                                         try {
@@ -122,77 +123,77 @@ function Get-AbrVbrBackupRepository {
                                                 $OutObj = @()
 
                                                 $inObj = [ordered] @{
-                                                    'Extent of ScaleOut Backup Repository' = (($ScaleOuts | Where-Object { ($Extents | Where-Object { $_.name -eq $BackupRepo.Name }).ParentId -eq $_.Id }).Name)
-                                                    'Backup Proxy' = switch ([string]::IsNullOrEmpty(($BackupRepo.Host).Name)) {
-                                                        $true { '--' }
+                                                    $LocalizedData.ExtentOfScaleOut = (($ScaleOuts | Where-Object { ($Extents | Where-Object { $_.name -eq $BackupRepo.Name }).ParentId -eq $_.Id }).Name)
+                                                    $LocalizedData.BackupProxy = switch ([string]::IsNullOrEmpty(($BackupRepo.Host).Name)) {
+                                                        $true { $LocalizedData.Dash }
                                                         $false { ($BackupRepo.Host).Name }
-                                                        default { 'Unknown' }
+                                                        default { $LocalizedData.Unknown }
                                                     }
-                                                    'Integration Type' = $BackupRepo.TypeDisplay
-                                                    'Path' = switch ([string]::IsNullOrEmpty($BackupRepo.FriendlyPath)) {
-                                                        $true { '--' }
+                                                    $LocalizedData.IntegrationType = $BackupRepo.TypeDisplay
+                                                    $LocalizedData.Path = switch ([string]::IsNullOrEmpty($BackupRepo.FriendlyPath)) {
+                                                        $true { $LocalizedData.Dash }
                                                         $false { $BackupRepo.FriendlyPath }
-                                                        default { 'Unknown' }
+                                                        default { $LocalizedData.Unknown }
                                                     }
-                                                    'Connection Type' = $BackupRepo.Type
-                                                    'Max Task Count' = switch ([string]::IsNullOrEmpty($BackupRepo.Options.IsTaskCountUnlim)) {
+                                                    $LocalizedData.ConnectionType = $BackupRepo.Type
+                                                    $LocalizedData.MaxTaskCount = switch ([string]::IsNullOrEmpty($BackupRepo.Options.IsTaskCountUnlim)) {
                                                         $true {
                                                             switch ([string]::IsNullOrEmpty($BackupRepo.Options.MaxTasksCount)) {
-                                                                $true { '--' }
+                                                                $true { $LocalizedData.Dash }
                                                                 $false { $BackupRepo.Options.MaxTasksCount }
-                                                                default { 'Unknown' }
+                                                                default { $LocalizedData.Unknown }
                                                             }
                                                         }
                                                         $false { $BackupRepo.Options.MaxTaskCount }
-                                                        default { 'Unknown' }
+                                                        default { $LocalizedData.Unknown }
                                                     }
-                                                    'Data Rate Limit' = switch ($BackupRepo.Options.CombinedDataRateLimit) {
-                                                        $Null { 'Unlimited' }
-                                                        0 { 'Unlimited' }
+                                                    $LocalizedData.DataRateLimit = switch ($BackupRepo.Options.CombinedDataRateLimit) {
+                                                        $Null { $LocalizedData.Unlimited }
+                                                        0 { $LocalizedData.Unlimited }
                                                         default { "$($BackupRepo.Options.CombinedDataRateLimit) MB/s" }
                                                     }
-                                                    'Use Nfs On Mount Host' = $BackupRepo.UseNfsOnMountHost
-                                                    'San Snapshot Only' = $BackupRepo.IsSanSnapshotOnly
-                                                    'Dedup Storage' = $BackupRepo.IsDedupStorage
-                                                    'Split Storages Per Vm' = $BackupRepo.SplitStoragesPerVm
-                                                    'Immutability Supported' = $BackupRepo.IsImmutabilitySupported
-                                                    'Immutability Enabled' = $BackupRepo.GetImmutabilitySettings().IsEnabled
-                                                    'Immutability Interval' = $BackupRepo.GetImmutabilitySettings().IntervalDays
-                                                    'Version Of Creation' = $BackupRepo.VersionOfCreation
-                                                    'Has Backup Chain Length Limitation' = $BackupRepo.HasBackupChainLengthLimitation
+                                                    $LocalizedData.UseNfsOnMountHost = $BackupRepo.UseNfsOnMountHost
+                                                    $LocalizedData.SanSnapshotOnly = $BackupRepo.IsSanSnapshotOnly
+                                                    $LocalizedData.DedupStorage = $BackupRepo.IsDedupStorage
+                                                    $LocalizedData.SplitStoragesPerVm = $BackupRepo.SplitStoragesPerVm
+                                                    $LocalizedData.ImmutabilitySupported = $BackupRepo.IsImmutabilitySupported
+                                                    $LocalizedData.ImmutabilityEnabled = $BackupRepo.GetImmutabilitySettings().IsEnabled
+                                                    $LocalizedData.ImmutabilityInterval = $BackupRepo.GetImmutabilitySettings().IntervalDays
+                                                    $LocalizedData.VersionOfCreation = $BackupRepo.VersionOfCreation
+                                                    $LocalizedData.HasBackupChainLengthLimitation = $BackupRepo.HasBackupChainLengthLimitation
                                                 }
-                                                if ($null -eq $inObj.'Extent of ScaleOut Backup Repository') {
-                                                    $inObj.Remove('Extent of ScaleOut Backup Repository')
+                                                if ($null -eq $inObj[$LocalizedData.ExtentOfScaleOut]) {
+                                                    $inObj.Remove($LocalizedData.ExtentOfScaleOut)
                                                 }
 
                                                 if ($BackupRepo.Type -in @('GoogleCloudStorage')) {
-                                                    $inObj.Add('Region Id', ($BackupRepos.GoogleCloudOptions.RegionId))
-                                                    $inObj.Add('Region Type', ( $BackupRepos.GoogleCloudOptions.RegionType))
-                                                    $inObj.Add('Bucket Name', ( $BackupRepos.GoogleCloudOptions.BucketName))
-                                                    $inObj.Add('Folder Name', ( $BackupRepos.GoogleCloudOptions.FolderName))
-                                                    $inObj.Add('Storage Class', ( $BackupRepos.GoogleCloudOptions.StorageClass))
-                                                    $inObj.Add('Enable Nearline Storage Class', ( $BackupRepos.GoogleCloudOptions.EnableNearlineStorageClass))
-                                                    $inObj.Add('Enable Coldline Storage Class', ( $BackupRepos.GoogleCloudOptions.EnableColdlineStorageClass))
-                                                    $inObj.Remove('Path')
+                                                    $inObj.Add($LocalizedData.RegionId, ($BackupRepos.GoogleCloudOptions.RegionId))
+                                                    $inObj.Add($LocalizedData.RegionType, ($BackupRepos.GoogleCloudOptions.RegionType))
+                                                    $inObj.Add($LocalizedData.BucketName, ($BackupRepos.GoogleCloudOptions.BucketName))
+                                                    $inObj.Add($LocalizedData.FolderName, ($BackupRepos.GoogleCloudOptions.FolderName))
+                                                    $inObj.Add($LocalizedData.StorageClass, ($BackupRepos.GoogleCloudOptions.StorageClass))
+                                                    $inObj.Add($LocalizedData.EnableNearlineStorageClass, ($BackupRepos.GoogleCloudOptions.EnableNearlineStorageClass))
+                                                    $inObj.Add($LocalizedData.EnableColdlineStorageClass, ($BackupRepos.GoogleCloudOptions.EnableColdlineStorageClass))
+                                                    $inObj.Remove($LocalizedData.Path)
                                                 }
 
                                                 if ($BackupRepo.Type -in @('AmazonS3Compatible', 'WasabiS3', 'GoogleCloudStorage')) {
-                                                    $inObj.Add('Object Lock Enabled', ($BackupRepo.ObjectLockEnabled))
+                                                    $inObj.Add($LocalizedData.ObjectLockEnabled, ($BackupRepo.ObjectLockEnabled))
                                                 }
 
                                                 if ($BackupRepo.Type -in @('AmazonS3Compatible', 'WasabiS3', 'GoogleCloudStorage')) {
-                                                    $inObj.Add('Mount Server', (Get-VBRServer | Where-Object { $_.id -eq $BackupRepo.MountHostId.Guid }).Name)
+                                                    $inObj.Add($LocalizedData.MountServer, (Get-VBRServer | Where-Object { $_.id -eq $BackupRepo.MountHostId.Guid }).Name)
                                                 }
 
                                                 $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                 if ($HealthCheck.Infrastructure.BR) {
-                                                    $OutObj | Where-Object { $_.'Immutability Supported' -eq 'Yes' } | Set-Style -Style OK -Property 'Immutability Supported'
-                                                    $OutObj | Where-Object { $_.'Immutability Supported' -eq 'Yes' -and $_.'Immutability Enabled' -eq 'No' } | Set-Style -Style Warning -Property 'Immutability Enabled'
+                                                    $OutObj | Where-Object { $_."$($LocalizedData.ImmutabilitySupported)" -eq $LocalizedData.Yes } | Set-Style -Style OK -Property $LocalizedData.ImmutabilitySupported
+                                                    $OutObj | Where-Object { $_."$($LocalizedData.ImmutabilitySupported)" -eq $LocalizedData.Yes -and $_."$($LocalizedData.ImmutabilityEnabled)" -eq $LocalizedData.No } | Set-Style -Style Warning -Property $LocalizedData.ImmutabilityEnabled
                                                 }
 
                                                 $TableParams = @{
-                                                    Name = "Backup Repository - $($BackupRepo.Name)"
+                                                    Name = "$($LocalizedData.TableHeading) - $($BackupRepo.Name)"
                                                     List = $true
                                                     ColumnWidths = 40, 60
                                                 }
@@ -201,12 +202,12 @@ function Get-AbrVbrBackupRepository {
                                                 }
                                                 $OutObj | Table @TableParams
 
-                                                if (($HealthCheck.Infrastructure.BestPractice) -and ($OutObj | Where-Object { $_.'Immutability Supported' -eq 'Yes' -and $_.'Immutability Enabled' -eq 'No' })) {
-                                                    Paragraph 'Health Check:' -Bold -Underline
+                                                if (($HealthCheck.Infrastructure.BestPractice) -and ($OutObj | Where-Object { $_."$($LocalizedData.ImmutabilitySupported)" -eq $LocalizedData.Yes -and $_."$($LocalizedData.ImmutabilityEnabled)" -eq $LocalizedData.No })) {
+                                                    Paragraph $LocalizedData.HealthCheckTitle -Bold -Underline
                                                     BlankLine
                                                     Paragraph {
-                                                        Text 'Best Practice:' -Bold
-                                                        Text 'Veeam recommend to implement Immutability where it is supported. It is done for increased security: immutability protects your data from loss as a result of attacks, malware activity or any other injurious actions.'
+                                                        Text $LocalizedData.BestPracticeTitle -Bold
+                                                        Text $LocalizedData.BestPracticeText
                                                     }
                                                     BlankLine
                                                 }
@@ -228,11 +229,12 @@ function Get-AbrVbrBackupRepository {
                                     Write-PScriboMessage -IsWarning "Backup Repository Diagram: $($_.Exception.Message)"
                                 }
                                 if ($Graph) {
-                                    $BestAspectRatio = Get-BestImageAspectRatio -GraphObj $Graph -MaxWidth 600
-                                    Section -Style Heading4 'Backup Repository Diagram' {
-                                        Image -Base64 $Graph -Text 'Backup Repository Diagram' -Width $BestAspectRatio.Width -Height $BestAspectRatio.Height -Align Center
+                                    $BestAspectRatio = Get-BestImageAspectRatio -GraphObj $Graph -MaxWidth 600 -MaxHeight 600
+                                    PageBreak
+                                    Section -Style Heading4 $LocalizedData.DiagramHeading {
+                                        Image -Base64 $Graph -Text $LocalizedData.DiagramAltText -Width $BestAspectRatio.Width -Height $BestAspectRatio.Height -Align Center
+                                        PageBreak
                                     }
-                                    BlankLine
                                 }
                             } catch {
                                 Write-PScriboMessage -IsWarning "Backup Repository Diagram Section: $($_.Exception.Message)"

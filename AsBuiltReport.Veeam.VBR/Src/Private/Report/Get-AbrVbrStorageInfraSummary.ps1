@@ -22,6 +22,7 @@ function Get-AbrVbrStorageInfraSummary {
 
     begin {
         Write-PScriboMessage "Discovering Veeam VBR Storage Infrastructure Summary from $System."
+        $LocalizedData = $reportTranslate.GetAbrVbrStorageInfraSummary
         Show-AbrDebugExecutionTime -Start -TitleMessage 'Storage Infrastructure Summary'
     }
 
@@ -33,10 +34,10 @@ function Get-AbrVbrStorageInfraSummary {
                 $IsilonHosts = Get-VBRIsilonHost
                 $IsilonVols = Get-VBRIsilonVolume
                 $inObj = [ordered] @{
-                    'NetApp Ontap Storage' = $OntapHosts.Count
-                    'NetApp Ontap Volumes' = $OntapHosts.Count
-                    'Dell Isilon Storage' = $IsilonHosts.Count
-                    'Dell Isilon Volumes' = $IsilonVols.Count
+                    $LocalizedData.NetAppOntapStorage = $OntapHosts.Count
+                    $LocalizedData.NetAppOntapVolumes = $OntapHosts.Count
+                    $LocalizedData.DellIsilonStorage = $IsilonHosts.Count
+                    $LocalizedData.DellIsilonVolumes = $IsilonVols.Count
                 }
                 $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
             } catch {
@@ -44,7 +45,7 @@ function Get-AbrVbrStorageInfraSummary {
             }
 
             $TableParams = @{
-                Name = "Storage Infrastructure Inventory - $VeeamBackupServer"
+                Name = "$($LocalizedData.TableHeading) - $VeeamBackupServer"
                 List = $true
                 ColumnWidths = 50, 50
             }

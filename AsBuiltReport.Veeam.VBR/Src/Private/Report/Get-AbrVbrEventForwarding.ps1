@@ -21,6 +21,7 @@ function Get-AbrVbrEventForwarding {
 
     begin {
         Write-PScriboMessage "Discovering Veeam VBR Event Forwarding settings information from $System."
+        $LocalizedData = $reportTranslate.GetAbrVbrEventForwarding
         Show-AbrDebugExecutionTime -Start -TitleMessage 'Event Forwarding'
     }
 
@@ -29,16 +30,18 @@ function Get-AbrVbrEventForwarding {
             $SNMPSettings = (Get-VBRSNMPOptions).Receiver
             $SyslogSettings = try { Get-VBRSyslogServer } catch { Write-PScriboMessage 'No syslog server configured' }
             if ($SNMPSettings -or $SyslogSettings) {
-                Section -Style Heading4 'Event Forwarding' {
+                Section -Style Heading4 $LocalizedData.Heading {
+                    Paragraph $LocalizedData.Paragraph
+                    BlankLine
                     $OutObj = @()
 
                     $inObj = [ordered] @{
-                        'SNMP Servers' = switch ([string]::IsNullOrEmpty($SNMPSettings)) {
+                        $LocalizedData.SNMPServers = switch ([string]::IsNullOrEmpty($SNMPSettings)) {
                             $true { '--' }
                             $false { $SNMPSettings | ForEach-Object { "Receiver: $($_.ReceiverIP), Port: $($_.ReceiverPort), Community: $($_.CommunityString)" } }
                             default { 'Unknown' }
                         }
-                        'Syslog Servers' = switch ([string]::IsNullOrEmpty($SyslogSettings)) {
+                        $LocalizedData.SyslogServers = switch ([string]::IsNullOrEmpty($SyslogSettings)) {
                             $true { '--' }
                             $false { $SyslogSettings | ForEach-Object { "Receiver: $($_.ServerHost), Port: $($_.Port), Protocol: $($_.Protocol)" } }
                             default { 'Unknown' }
@@ -47,11 +50,11 @@ function Get-AbrVbrEventForwarding {
                     $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
 
                     if ($HealthCheck.Infrastructure.Settings) {
-                        $OutObj | Where-Object { $_.'Syslog Servers' -eq '--' } | Set-Style -Style Warning -Property 'Syslog Servers'
+                        $OutObj | Where-Object { $_.$($LocalizedData.SyslogServers) -eq '--' } | Set-Style -Style Warning -Property $LocalizedData.SyslogServers
                     }
 
                     $TableParams = @{
-                        Name = "Event Forwarding - $VeeamBackupServer"
+                        Name = "$($LocalizedData.Heading) - $VeeamBackupServer"
                         List = $true
                         ColumnWidths = 40, 60
                     }
@@ -59,19 +62,19 @@ function Get-AbrVbrEventForwarding {
                         $TableParams['Caption'] = "- $($TableParams.Name)"
                     }
                     $OutObj | Table @TableParams
-                    if ($HealthCheck.Infrastructure.BestPractice -and ($OutObj | Where-Object { $_.'Syslog Servers' -eq '--' })) {
-                        Paragraph 'Health Check:' -Bold -Underline
+                    if ($HealthCheck.Infrastructure.BestPractice -and ($OutObj | Where-Object { $_.$($LocalizedData.SyslogServers) -eq '--' })) {
+                        Paragraph $LocalizedData.HealthCheck -Bold -Underline
                         BlankLine
                         Paragraph {
-                            Text 'Security Best Practice:' -Bold
-                            Text 'It is a recommends best practice to configure Event Forwarding to an external SIEM or Log Collector to increase the organization security posture.'
+                            Text $LocalizedData.SecurityBestPractice -Bold
+                            Text $LocalizedData.BPSyslog
                         }
                         BlankLine
                     }
                     try {
                         $SyslogEventFilters = try { Get-VBRSyslogEventFilters } catch { Write-PScriboMessage 'No syslog event filter configured' }
                         if ($SyslogEventFilters) {
-                            Section -Style Heading4 'Syslog Event Filter' {
+                            Section -Style Heading4 $LocalizedData.SyslogEventFilterHeading {
                                 $OutObj = @()
                                 foreach ($SyslogEventFilter in $SyslogEventFilters) {
 
@@ -88,14 +91,14 @@ function Get-AbrVbrEventForwarding {
                                     }
 
                                     $inObj = [ordered] @{
-                                        'EventId' = $SyslogEventFilter.EventId
-                                        'Level' = $SyslogEventFilterLevel -join ', '
+                                        $LocalizedData.EventId = $SyslogEventFilter.EventId
+                                        $LocalizedData.Level = $SyslogEventFilterLevel -join ', '
                                     }
                                     $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                                 }
 
                                 $TableParams = @{
-                                    Name = "Syslog Event Filter - $VeeamBackupServer"
+                                    Name = "$($LocalizedData.SyslogEventFilterTableHeading) - $VeeamBackupServer"
                                     List = $false
                                     ColumnWidths = 50, 50
                                 }

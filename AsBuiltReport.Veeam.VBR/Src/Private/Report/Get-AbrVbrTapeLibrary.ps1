@@ -6,7 +6,7 @@ function Get-AbrVbrTapeLibrary {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.24
+        Version:        1.0.0
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -22,14 +22,15 @@ function Get-AbrVbrTapeLibrary {
 
     begin {
         Write-PScriboMessage "Discovering Veeam VBR Tape Library information from $System."
+        $LocalizedData = $reportTranslate.GetAbrVbrTapeLibrary
         Show-AbrDebugExecutionTime -Start -TitleMessage 'Tape Libraries'
     }
 
     process {
         try {
             if ($TapeObjs = Get-VBRTapeLibrary | Sort-Object -Property Name) {
-                Section -Style Heading3 'Tape Libraries' {
-                    Paragraph 'The following section provides a summary of the tape libraries connected to Tape Servers managed by Veeam Backup & Replication.'
+                Section -Style Heading3 $LocalizedData.Heading {
+                    Paragraph $LocalizedData.Paragraph
                     BlankLine
                     $OutObj = @()
                     try {
@@ -39,15 +40,15 @@ function Get-AbrVbrTapeLibrary {
 
                                     $TapeServer = (Get-VBRTapeServer | Where-Object { $_.Id -eq $TapeObj.TapeServerId }).Name
                                     $inObj = [ordered] @{
-                                        'Library Name' = $TapeObj.Name
-                                        'Library Model' = $TapeObj.Model
-                                        'Library Type' = $TapeObj.Type
-                                        'Number of Slots' = $TapeObj.Slots
-                                        'Connected to' = $TapeServer
-                                        'Enabled' = $TapeObj.Enabled
-                                        'Status' = switch ($TapeObj.State) {
-                                            'Online' { 'Available' }
-                                            'Offline' { 'Unavailable' }
+                                        $LocalizedData.LibraryName = $TapeObj.Name
+                                        $LocalizedData.LibraryModel = $TapeObj.Model
+                                        $LocalizedData.LibraryType = $TapeObj.Type
+                                        $LocalizedData.NumberOfSlots = $TapeObj.Slots
+                                        $LocalizedData.ConnectedTo = $TapeServer
+                                        $LocalizedData.Enabled = $TapeObj.Enabled
+                                        $LocalizedData.Status = switch ($TapeObj.State) {
+                                            'Online' { $LocalizedData.Available }
+                                            'Offline' { $LocalizedData.Unavailable }
                                             default { $TapeObj.State }
                                         }
                                     }
@@ -55,11 +56,11 @@ function Get-AbrVbrTapeLibrary {
                                     $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                     if ($HealthCheck.Tape.Status) {
-                                        $OutObj | Where-Object { $_.'Status' -eq 'Unavailable' } | Set-Style -Style Warning -Property 'Status'
+                                        $OutObj | Where-Object { $_.$($LocalizedData.Status) -eq $LocalizedData.Unavailable } | Set-Style -Style Warning -Property $LocalizedData.Status
                                     }
 
                                     $TableParams = @{
-                                        Name = "Tape Library - $($TapeObj.Name)"
+                                        Name = "$($LocalizedData.TapeLibraryTable) - $($TapeObj.Name)"
                                         List = $true
                                         ColumnWidths = 40, 60
                                     }
@@ -74,33 +75,33 @@ function Get-AbrVbrTapeLibrary {
                                     try {
                                         if ($DriveObjs = Get-VBRTapeDrive -Library $TapeObj.Id) {
                                             Write-PScriboMessage "Collecting $($TapeObj.Name) Tape Drives"
-                                            Section -Style NOTOCHeading5 -ExcludeFromTOC 'Tape Drives' {
+                                            Section -Style NOTOCHeading5 -ExcludeFromTOC $LocalizedData.TapeDrives {
                                                 $OutObj = @()
                                                 try {
                                                     foreach ($DriveObj in $DriveObjs) {
 
                                                         $inObj = [ordered] @{
-                                                            'Name' = $DriveObj.Name
-                                                            'Model' = $DriveObj.Model
-                                                            'Serial Number' = $DriveObj.SerialNumber
-                                                            'Medium' = switch ([string]::IsNullOrEmpty($DriveObj.Medium)) {
+                                                            $LocalizedData.Name = $DriveObj.Name
+                                                            $LocalizedData.Model = $DriveObj.Model
+                                                            $LocalizedData.SerialNumber = $DriveObj.SerialNumber
+                                                            $LocalizedData.Medium = switch ([string]::IsNullOrEmpty($DriveObj.Medium)) {
                                                                 $true { '--' }
                                                                 $false { $DriveObj.Medium }
-                                                                default { 'Unknown' }
+                                                                default { $LocalizedData.Unknown }
                                                             }
-                                                            'Enabled' = $DriveObj.Enabled
-                                                            'Is Locked' = $DriveObj.IsLocked
-                                                            'State' = $DriveObj.State
+                                                            $LocalizedData.Enabled = $DriveObj.Enabled
+                                                            $LocalizedData.IsLocked = $DriveObj.IsLocked
+                                                            $LocalizedData.State = $DriveObj.State
                                                         }
                                                         $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                                                     }
 
                                                     if ($HealthCheck.Tape.Status) {
-                                                        $OutObj | Where-Object { $_.'Status' -eq 'Unavailable' } | Set-Style -Style Warning -Property 'Status'
+                                                        $OutObj | Where-Object { $_.$($LocalizedData.Status) -eq $LocalizedData.Unavailable } | Set-Style -Style Warning -Property $LocalizedData.Status
                                                     }
 
                                                     $TableParams = @{
-                                                        Name = "Tape Drives - $($TapeObj.Name)"
+                                                        Name = "$($LocalizedData.TapeDrives) - $($TapeObj.Name)"
                                                         List = $false
                                                         ColumnWidths = 14, 18, 16, 16, 12, 12, 12
                                                     }
@@ -124,23 +125,23 @@ function Get-AbrVbrTapeLibrary {
                                         if ($InfoLevel.Tape.Library -ge 2) {
                                             if ($MediumObjs = Get-VBRTapeMedium -Library $TapeObj.Id) {
                                                 Write-PScriboMessage "Collecting $($TapeObj.Name) Tape Medium"
-                                                Section -Style NOTOCHeading5 -ExcludeFromTOC 'Tape Mediums' {
+                                                Section -Style NOTOCHeading5 -ExcludeFromTOC $LocalizedData.TapeMediums {
                                                     $OutObj = @()
                                                     foreach ($MediumObj in $MediumObjs) {
                                                         try {
 
 
                                                             $inObj = [ordered] @{
-                                                                'Name' = $MediumObj.Name
-                                                                'Expiration Date' = switch (($MediumObj.ExpirationDate).count) {
+                                                                $LocalizedData.Name = $MediumObj.Name
+                                                                $LocalizedData.ExpirationDate = switch (($MediumObj.ExpirationDate).count) {
                                                                     0 { '--' }
                                                                     default { $MediumObj.ExpirationDate.ToShortDateString() }
                                                                 }
-                                                                'Total Space' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $MediumObj.Capacity
-                                                                'Free Space' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $MediumObj.Free
-                                                                'Locked' = $MediumObj.IsLocked
-                                                                'Retired' = $MediumObj.IsRetired
-                                                                'Worm' = $MediumObj.IsWorm
+                                                                $LocalizedData.TotalSpace = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $MediumObj.Capacity
+                                                                $LocalizedData.FreeSpace = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $MediumObj.Free
+                                                                $LocalizedData.Locked = $MediumObj.IsLocked
+                                                                $LocalizedData.Retired = $MediumObj.IsRetired
+                                                                $LocalizedData.Worm = $MediumObj.IsWorm
                                                             }
                                                             $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                                                         } catch {
@@ -149,7 +150,7 @@ function Get-AbrVbrTapeLibrary {
                                                     }
 
                                                     $TableParams = @{
-                                                        Name = "Tape Mediums - $($TapeObj.Name)"
+                                                        Name = "$($LocalizedData.TapeMediums) - $($TapeObj.Name)"
                                                         List = $false
                                                         ColumnWidths = 30, 16, 12, 12, 10, 10, 10
                                                     }

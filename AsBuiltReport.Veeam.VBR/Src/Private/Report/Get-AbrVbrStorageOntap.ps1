@@ -6,7 +6,7 @@ function Get-AbrVbrStorageOntap {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.24
+        Version:        1.0.0
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -22,13 +22,14 @@ function Get-AbrVbrStorageOntap {
 
     begin {
         Write-PScriboMessage "Discovering NetApp Ontap Storage information connected to $System."
+        $LocalizedData = $reportTranslate.GetAbrVbrStorageOntap
         Show-AbrDebugExecutionTime -Start -TitleMessage 'NetApp Ontap Storage'
     }
 
     process {
         if ($OntapHosts = Get-NetAppHost) {
-            Section -Style Heading3 'NetApp Ontap Storage' {
-                Paragraph 'The following section details the NetApp ONTAP storage systems integrated with Veeam Backup & Replication for storage snapshot-based data protection.'
+            Section -Style Heading3 $LocalizedData.Heading {
+                Paragraph $LocalizedData.Paragraph
                 BlankLine
                 $OutObj = @()
                 try {
@@ -39,25 +40,25 @@ function Get-AbrVbrStorageOntap {
                                 $UsedCred = Get-VBRCredentials | Where-Object { $_.Id -eq $OntapHost.Info.CredsId }
                                 $OntapOptions = [xml]$OntapHost.info.Options
                                 $inObj = [ordered] @{
-                                    'DNS Name' = switch (($OntapHost.Info.HostInstanceId).count) {
+                                    $LocalizedData.DNSName = switch (($OntapHost.Info.HostInstanceId).count) {
                                         0 { $OntapHost.Info.DnsName }
                                         default { $OntapHost.Info.HostInstanceId }
                                     }
-                                    'Description' = $OntapHost.Description
-                                    'Storage Type' = $OntapHost.NaOptions.HostType
-                                    'Used Credential' = switch (($UsedCred).count) {
+                                    $LocalizedData.Description = $OntapHost.Description
+                                    $LocalizedData.StorageType = $OntapHost.NaOptions.HostType
+                                    $LocalizedData.UsedCredential = switch (($UsedCred).count) {
                                         0 { '--' }
                                         default { "$($UsedCred.Name) - ($($UsedCred.Description))" }
                                     }
-                                    'Connection Address' = $OntapHost.ConnPoints -join ', '
-                                    'Connection Port' = "$($OntapOptions.NaHostOptions.NaHostOptions.NaHostConnectionOptions.Port)\TCP"
-                                    'Installed Licenses' = $OntapHost.NaOptions.License
+                                    $LocalizedData.ConnectionAddress = $OntapHost.ConnPoints -join ', '
+                                    $LocalizedData.ConnectionPort = "$($OntapOptions.NaHostOptions.NaHostOptions.NaHostConnectionOptions.Port)\TCP"
+                                    $LocalizedData.InstalledLicenses = $OntapHost.NaOptions.License
                                 }
 
                                 $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                 $TableParams = @{
-                                    Name = "NetApp Host - $($OntapHost.Name)"
+                                    Name = "$($LocalizedData.NetAppHostTableHeading) - $($OntapHost.Name)"
                                     List = $true
                                     ColumnWidths = 40, 60
                                 }
@@ -70,16 +71,16 @@ function Get-AbrVbrStorageOntap {
                                     try {
                                         $OntapVols = Get-NetAppVolume -Host $OntapHost
                                         if ($OntapVols) {
-                                            Section -Style NOTOCHeading5 -ExcludeFromTOC 'Volumes' {
+                                            Section -Style NOTOCHeading5 -ExcludeFromTOC $LocalizedData.VolumesSubHeading {
                                                 $OutObj = @()
                                                 foreach ($OntapVol in $OntapVols) {
                                                     try {
 
                                                         $inObj = [ordered] @{
-                                                            'Name' = $OntapVol.Name
-                                                            'Total Space' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $OntapVol.Size
-                                                            'Used Space' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $OntapVol.ConsumedSpace
-                                                            'Thin Provision' = $OntapVol.IsThinProvision
+                                                            $LocalizedData.Name = $OntapVol.Name
+                                                            $LocalizedData.TotalSpace = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $OntapVol.Size
+                                                            $LocalizedData.UsedSpace = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $OntapVol.ConsumedSpace
+                                                            $LocalizedData.ThinProvision = $OntapVol.IsThinProvision
                                                         }
 
                                                         $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
@@ -89,7 +90,7 @@ function Get-AbrVbrStorageOntap {
                                                 }
 
                                                 $TableParams = @{
-                                                    Name = "NetApp Volumes - $($OntapHost.Name)"
+                                                    Name = "$($LocalizedData.NetAppVolumesTableHeading) - $($OntapHost.Name)"
                                                     List = $false
                                                     ColumnWidths = 52, 15, 15, 18
                                                 }
@@ -97,7 +98,7 @@ function Get-AbrVbrStorageOntap {
                                                 if ($Report.ShowTableCaptions) {
                                                     $TableParams['Caption'] = "- $($TableParams.Name)"
                                                 }
-                                                $OutObj | Sort-Object -Property 'Name' | Table @TableParams
+                                                $OutObj | Sort-Object -Property $LocalizedData.Name | Table @TableParams
                                             }
                                         }
                                     } catch {

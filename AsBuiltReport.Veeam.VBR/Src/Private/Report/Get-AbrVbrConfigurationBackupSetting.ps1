@@ -22,39 +22,42 @@ function Get-AbrVbrConfigurationBackupSetting {
 
     begin {
         Write-PScriboMessage "Discovering Veeam VBR Configuration Backup settings information from $System."
+        $LocalizedData = $reportTranslate.GetAbrVbrConfigurationBackupSetting
         Show-AbrDebugExecutionTime -Start -TitleMessage 'Configuration Backup'
     }
 
     process {
         try {
             if ($BackupSettings = Get-VBRConfigurationBackupJob | Sort-Object -Property Name) {
-                Section -Style Heading4 'Configuration Backup' {
+                Section -Style Heading4 $LocalizedData.Heading {
+                    Paragraph $LocalizedData.Paragraph
+                    BlankLine
                     $OutObj = @()
                     try {
                         if ($BackupSettings.ScheduleOptions.Type -like 'Daily') {
-                            $ScheduleOptions = "Type: $($BackupSettings.ScheduleOptions.DailyOptions.Type)`r`nPeriod: $($BackupSettings.ScheduleOptions.DailyOptions.Period)`r`nDay Of Week: $($BackupSettings.ScheduleOptions.DailyOptions.DayOfWeek)"
+                            $ScheduleOptions = $LocalizedData.DailyScheduleTemplate -f $BackupSettings.ScheduleOptions.DailyOptions.Type, $BackupSettings.ScheduleOptions.DailyOptions.Period, $BackupSettings.ScheduleOptions.DailyOptions.DayOfWeek
                         } elseif ($BackupSettings.ScheduleOptions.Type -like 'Monthly') {
-                            $ScheduleOptions = "Period: $($BackupSettings.ScheduleOptions.MonthlyOptions.Period)`r`nDay Number In Month: $($BackupSettings.ScheduleOptions.MonthlyOptions.DayNumberInMonth)`r`nDay of Week: $($BackupSettings.ScheduleOptions.MonthlyOptions.DayOfWeek)`r`nDay of Month: $($BackupSettings.ScheduleOptions.MonthlyOptions.DayOfMonth)"
+                            $ScheduleOptions = $LocalizedData.MonthlyScheduleTemplate -f $BackupSettings.ScheduleOptions.MonthlyOptions.Period, $BackupSettings.ScheduleOptions.MonthlyOptions.DayNumberInMonth, $BackupSettings.ScheduleOptions.MonthlyOptions.DayOfWeek, $BackupSettings.ScheduleOptions.MonthlyOptions.DayOfMonth
                         }
                         $inObj = [ordered] @{
-                            'Name' = $BackupSettings.Name
-                            'Run Job Automatically' = $BackupSettings.ScheduleOptions.Enabled
-                            'Schedule Type' = $BackupSettings.ScheduleOptions.Type
-                            'Schedule Options' = $ScheduleOptions
-                            'Restore Points To Keep' = $BackupSettings.RestorePointsToKeep
-                            'Encryption Enabled' = $BackupSettings.EncryptionOptions
-                            'Encryption Key' = $BackupSettings.EncryptionOptions.Key.Description
-                            'Additional Address' = $BackupSettings.NotificationOptions.AdditionalAddress
-                            'Email Subject' = $BackupSettings.NotificationOptions.NotificationSubject
-                            'Notify On' = switch ($BackupSettings.NotificationOptions.EnableAdditionalNotification) {
+                            $LocalizedData.Name = $BackupSettings.Name
+                            $LocalizedData.RunJobAutomatically = $BackupSettings.ScheduleOptions.Enabled
+                            $LocalizedData.ScheduleType = $BackupSettings.ScheduleOptions.Type
+                            $LocalizedData.ScheduleOptions = $ScheduleOptions
+                            $LocalizedData.RestorePointsToKeep = $BackupSettings.RestorePointsToKeep
+                            $LocalizedData.EncryptionEnabled = $BackupSettings.EncryptionOptions
+                            $LocalizedData.EncryptionKey = $BackupSettings.EncryptionOptions.Key.Description
+                            $LocalizedData.AdditionalAddress = $BackupSettings.NotificationOptions.AdditionalAddress
+                            $LocalizedData.EmailSubject = $BackupSettings.NotificationOptions.NotificationSubject
+                            $LocalizedData.NotifyOn = switch ($BackupSettings.NotificationOptions.EnableAdditionalNotification) {
                                 '' { '--'; break }
                                 $Null { '--'; break }
-                                default { "Notify On Success: $($BackupSettings.NotificationOptions.NotifyOnSuccess)`r`nNotify On Warning: $($BackupSettings.NotificationOptions.NotifyOnWarning)`r`nNotify On Error: $($BackupSettings.NotificationOptions.NotifyOnError)`r`nNotify On Last Retry Only: $($BackupSettings.NotificationOptions.NotifyOnLastRetryOnly)" }
+                                default { $LocalizedData.NotifyOnTemplate -f $BackupSettings.NotificationOptions.NotifyOnSuccess, $BackupSettings.NotificationOptions.NotifyOnWarning, $BackupSettings.NotificationOptions.NotifyOnError, $BackupSettings.NotificationOptions.NotifyOnLastRetryOnly }
                             }
-                            'NextRun' = $BackupSettings.NextRun
-                            'Target' = $BackupSettings.Target
-                            'Enabled' = $BackupSettings.Enabled
-                            'LastResult' = $BackupSettings.LastResult
+                            $LocalizedData.NextRun = $BackupSettings.NextRun
+                            $LocalizedData.Target = $BackupSettings.Target
+                            $LocalizedData.Enabled = $BackupSettings.Enabled
+                            $LocalizedData.LastResult = $BackupSettings.LastResult
                         }
                         $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                     } catch {
@@ -64,33 +67,33 @@ function Get-AbrVbrConfigurationBackupSetting {
                     if ($HealthCheck.Infrastructure.Settings) {
                         $List = @()
                         $Num = 0
-                        $OutObj | Where-Object { $_.'Run Job Automatically' -like 'No' } | Set-Style -Style Warning -Property 'Run Job Automatically'
-                        foreach ( $OBJ in ($OutObj | Where-Object { $_.'Run Job Automatically' -like 'No' })) {
+                        $OutObj | Where-Object { $_.$($LocalizedData.RunJobAutomatically) -like 'No' } | Set-Style -Style Warning -Property $LocalizedData.RunJobAutomatically
+                        foreach ( $OBJ in ($OutObj | Where-Object { $_.$($LocalizedData.RunJobAutomatically) -like 'No' })) {
                             $Num++
-                            $OBJ.'Run Job Automatically' = $OBJ.'Run Job Automatically' + " ($Num)"
-                            $List += "It's a recommended best practice to activate the 'Run job automatically' option of the Backup Configuration job."
+                            $OBJ.$($LocalizedData.RunJobAutomatically) = $OBJ.$($LocalizedData.RunJobAutomatically) + " ($Num)"
+                            $List += $LocalizedData.BP1
                         }
 
-                        $OutObj | Where-Object { $_.'Encryption Enabled' -like 'No' } | Set-Style -Style Warning -Property 'Encryption Enabled'
-                        foreach ( $OBJ in ($OutObj | Where-Object { $_.'Encryption Enabled' -like 'No' })) {
+                        $OutObj | Where-Object { $_.$($LocalizedData.EncryptionEnabled) -like 'No' } | Set-Style -Style Warning -Property $LocalizedData.EncryptionEnabled
+                        foreach ( $OBJ in ($OutObj | Where-Object { $_.$($LocalizedData.EncryptionEnabled) -like 'No' })) {
                             $Num++
-                            $OBJ.'Encryption Enabled' = $OBJ.'Encryption Enabled' + " ($Num)"
-                            $List += 'Whenever possible, enable configuration backup encryption.'
+                            $OBJ.$($LocalizedData.EncryptionEnabled) = $OBJ.$($LocalizedData.EncryptionEnabled) + " ($Num)"
+                            $List += $LocalizedData.BP2
                         }
 
-                        $OutObj | Where-Object { $_.'Enabled' -like 'No' } | Set-Style -Style Warning -Property 'Enabled'
-                        foreach ( $OBJ in ($OutObj | Where-Object { $_.'Enabled' -eq 'No' })) {
+                        $OutObj | Where-Object { $_.$($LocalizedData.Enabled) -like 'No' } | Set-Style -Style Warning -Property $LocalizedData.Enabled
+                        foreach ( $OBJ in ($OutObj | Where-Object { $_.$($LocalizedData.Enabled) -eq 'No' })) {
                             $Num++
-                            $OBJ.'Enabled' = $OBJ.'Enabled' + " ($Num)"
-                            $List += "It's a recommended best practice to enable the Backup Configuration job"
+                            $OBJ.$($LocalizedData.Enabled) = $OBJ.$($LocalizedData.Enabled) + " ($Num)"
+                            $List += $LocalizedData.BP3
                         }
 
-                        $OutObj | Where-Object { $_.'LastResult' -like 'Warning' } | Set-Style -Style Warning -Property 'LastResult'
-                        $OutObj | Where-Object { $_.'LastResult' -like 'Failed' } | Set-Style -Style Critical -Property 'LastResult'
+                        $OutObj | Where-Object { $_.$($LocalizedData.LastResult) -like 'Warning' } | Set-Style -Style Warning -Property $LocalizedData.LastResult
+                        $OutObj | Where-Object { $_.$($LocalizedData.LastResult) -like 'Failed' } | Set-Style -Style Critical -Property $LocalizedData.LastResult
                     }
 
                     $TableParams = @{
-                        Name = "Configuration Backup Settings - $VeeamBackupServer"
+                        Name = "$($LocalizedData.TableHeading) - $VeeamBackupServer"
                         List = $true
                         ColumnWidths = 40, 60
                     }
@@ -99,9 +102,9 @@ function Get-AbrVbrConfigurationBackupSetting {
                     }
                     $OutObj | Table @TableParams
                     if ($HealthCheck.Infrastructure.BestPractice -and $List) {
-                        Paragraph 'Health Check:' -Bold -Underline
+                        Paragraph $LocalizedData.HealthCheck -Bold -Underline
                         BlankLine
-                        Paragraph 'Best Practice:' -Bold
+                        Paragraph $LocalizedData.BestPractice -Bold
                         List -Item $List -Numbered
                     }
                 }

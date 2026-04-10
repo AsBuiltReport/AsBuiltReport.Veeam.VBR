@@ -21,41 +21,44 @@ function Get-AbrVbrEmailNotificationSetting {
     )
 
     begin {
-        Write-PScriboMessage "Discovering Veeam VBR Email Notification settings information from $System."
+        $LocalizedData = $reportTranslate.GetAbrVbrEmailNotificationSetting
+        Write-PScriboMessage ($LocalizedData.Collecting -f $System)
         Show-AbrDebugExecutionTime -Start -TitleMessage 'Email Notification Settings'
     }
 
     process {
         try {
             if ($EmailSettings = Get-VBRMailNotificationConfiguration) {
-                Section -Style Heading4 'Email Notification' {
+                Section -Style Heading4 $LocalizedData.Heading {
+                    Paragraph $LocalizedData.Paragraph
+                    BlankLine
                     $OutObj = @()
                     foreach ($EmailSetting in $EmailSettings) {
                         $inObj = [ordered] @{
-                            'Email Recipient' = $EmailSetting.Recipient
-                            'Email Sender' = $EmailSetting.Sender
-                            'SMTP Server' = $EmailSetting.SmtpServer
-                            'Email Subject' = $EmailSetting.Subject
-                            'SSL Enabled' = $EmailSetting.SSLEnabled
-                            'Auth Enabled' = $EmailSetting.AuthEnabled
-                            'Credentials' = $EmailSetting.Credentials.Name
-                            'Daily Reports Time' = $EmailSetting.DailyReportsTime.ToShortTimeString()
-                            'Enabled' = $EmailSetting.Enabled
-                            'Notify On' = switch ($EmailSetting.NotifyOnSuccess) {
-                                '' { '--'; break }
-                                $Null { '--'; break }
-                                default { "Notify On Success: $($EmailSetting.NotifyOnSuccess)`r`nNotify On Warning: $($EmailSetting.NotifyOnWarning)`r`nNotify On Failure: $($EmailSetting.NotifyOnFailure)`r`nNotify On Last Retry Only: $($EmailSetting.NotifyOnLastRetryOnly)" }
+                            $LocalizedData.EmailRecipient = $EmailSetting.Recipient
+                            $LocalizedData.EmailSender = $EmailSetting.Sender
+                            $LocalizedData.SMTPServer = $EmailSetting.SmtpServer
+                            $LocalizedData.EmailSubject = $EmailSetting.Subject
+                            $LocalizedData.SSLEnabled = $EmailSetting.SSLEnabled
+                            $LocalizedData.AuthEnabled = $EmailSetting.AuthEnabled
+                            $LocalizedData.Credentials = $EmailSetting.Credentials.Name
+                            $LocalizedData.DailyReportsTime = $EmailSetting.DailyReportsTime.ToShortTimeString()
+                            $LocalizedData.Enabled = $EmailSetting.Enabled
+                            $LocalizedData.NotifyOn = switch ($EmailSetting.NotifyOnSuccess) {
+                                '' { $LocalizedData.NA; break }
+                                $Null { $LocalizedData.NA; break }
+                                default { "$($LocalizedData.NotifyOnSuccessLabel): $($EmailSetting.NotifyOnSuccess)`r`n$($LocalizedData.NotifyOnWarningLabel): $($EmailSetting.NotifyOnWarning)`r`n$($LocalizedData.NotifyOnFailureLabel): $($EmailSetting.NotifyOnFailure)`r`n$($LocalizedData.NotifyOnLastRetryOnlyLabel): $($EmailSetting.NotifyOnLastRetryOnly)" }
                             }
                         }
                         $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                     }
 
                     if ($HealthCheck.Infrastructure.Settings) {
-                        $OutObj | Where-Object { $_.'Enabled' -like 'No' } | Set-Style -Style Warning -Property 'Enabled'
+                        $OutObj | Where-Object { $_.$LocalizedData.Enabled -like 'No' } | Set-Style -Style Warning -Property $LocalizedData.Enabled
                     }
 
                     $TableParams = @{
-                        Name = "Email Notification Settings - $VeeamBackupServer"
+                        Name = "$($LocalizedData.TableHeading) - $VeeamBackupServer"
                         List = $true
                         ColumnWidths = 40, 60
                     }
@@ -63,12 +66,12 @@ function Get-AbrVbrEmailNotificationSetting {
                         $TableParams['Caption'] = "- $($TableParams.Name)"
                     }
                     $OutObj | Table @TableParams
-                    if ($HealthCheck.Infrastructure.BestPractice -and ($OutObj | Where-Object { $_.'Enabled' -eq 'No' })) {
-                        Paragraph 'Health Check:' -Bold -Underline
+                    if ($HealthCheck.Infrastructure.BestPractice -and ($OutObj | Where-Object { $_.$LocalizedData.Enabled -eq 'No' })) {
+                        Paragraph $LocalizedData.HealthCheck -Bold -Underline
                         BlankLine
                         Paragraph {
-                            Text 'Best Practice:' -Bold
-                            Text 'Veeam recommends configuring email notifications to be able to receive alerts with the results of jobs performed on the backup server.'
+                            Text $LocalizedData.BestPractice -Bold
+                            Text $LocalizedData.BPEmailNotification
                         }
                         BlankLine
                     }

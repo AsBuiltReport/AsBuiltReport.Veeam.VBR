@@ -20,65 +20,68 @@ function Get-AbrVbrGlobalExclusion {
     )
 
     begin {
-        Write-PScriboMessage "Discovering Veeam VBR Global Exclusion settings information from $System."
+        $LocalizedData = $reportTranslate.GetAbrVbrGlobalExclusion
+        Write-PScriboMessage ($LocalizedData.Collecting -f $System)
         Show-AbrDebugExecutionTime -Start -TitleMessage 'Global Exclusion settings'
     }
 
     process {
         try {
             if ($MalwareDetectionExclusions = Get-VBRMalwareDetectionExclusion) {
-                Section -Style Heading4 'Global Exclusions' {
+                Section -Style Heading4 $LocalizedData.Heading {
+                    Paragraph $LocalizedData.Paragraph
+                    BlankLine
                     try {
-                        Write-PScriboMessage "Discovering Veeam VBR Malware Detection Exclusions settings information from $System."
-                        Section -ExcludeFromTOC -Style Heading5 'Malware Detection Exclusions' {
+                        Write-PScriboMessage ($LocalizedData.CollectingMalware -f $System)
+                        Section -ExcludeFromTOC -Style Heading5 $LocalizedData.HeadingMalware {
                             foreach ($MalwareDetectionExclusion in $MalwareDetectionExclusions) {
                                 $OutObj = @()
 
                                 $inObj = [ordered] @{
-                                    'Name' = $MalwareDetectionExclusion.Name
-                                    'Platform' = $MalwareDetectionExclusion.Platform
-                                    'Note' = $MalwareDetectionExclusion.Note
+                                    $LocalizedData.Name = $MalwareDetectionExclusion.Name
+                                    $LocalizedData.Platform = $MalwareDetectionExclusion.Platform
+                                    $LocalizedData.Note = $MalwareDetectionExclusion.Note
                                 }
                                 $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                             }
 
                             $TableParams = @{
-                                Name = "Malware Detection Exclusions - $VeeamBackupServer"
+                                Name = "$($LocalizedData.TableHeadingMalware) - $VeeamBackupServer"
                                 List = $false
                                 ColumnWidths = 33, 33, 34
                             }
                             if ($Report.ShowTableCaptions) {
                                 $TableParams['Caption'] = "- $($TableParams.Name)"
                             }
-                            $OutObj | Sort-Object -Property Name | Table @TableParams
+                            $OutObj | Sort-Object -Property $LocalizedData.Name | Table @TableParams
                         }
                     } catch {
                         Write-PScriboMessage -IsWarning "Malware Detection Exclusions Section: $($_.Exception.Message)"
                     }
                     if ($VMExclusions = Get-VBRVMExclusion) {
                         try {
-                            Write-PScriboMessage "Discovering Veeam VBR VM Exclusions settings information from $System."
-                            Section -ExcludeFromTOC -Style Heading5 'VM Exclusions' {
+                            Write-PScriboMessage ($LocalizedData.CollectingVM -f $System)
+                            Section -ExcludeFromTOC -Style Heading5 $LocalizedData.HeadingVM {
                                 foreach ($VMExclusion in $VMExclusions) {
                                     $OutObj = @()
 
                                     $inObj = [ordered] @{
-                                        'Name' = $VMExclusion.Name
-                                        'Platform' = $VMExclusion.Platform
-                                        'Note' = $VMExclusion.Note
+                                        $LocalizedData.Name = $VMExclusion.Name
+                                        $LocalizedData.Platform = $VMExclusion.Platform
+                                        $LocalizedData.Note = $VMExclusion.Note
                                     }
                                     $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                                 }
 
                                 $TableParams = @{
-                                    Name = "VM Exclusions - $VeeamBackupServer"
+                                    Name = "$($LocalizedData.TableHeadingVM) - $VeeamBackupServer"
                                     List = $false
                                     ColumnWidths = 33, 33, 34
                                 }
                                 if ($Report.ShowTableCaptions) {
                                     $TableParams['Caption'] = "- $($TableParams.Name)"
                                 }
-                                $OutObj | Sort-Object -Property Name | Table @TableParams
+                                $OutObj | Sort-Object -Property $LocalizedData.Name | Table @TableParams
                             }
                         } catch {
                             Write-PScriboMessage -IsWarning "VM Exclusions Section: $($_.Exception.Message)"

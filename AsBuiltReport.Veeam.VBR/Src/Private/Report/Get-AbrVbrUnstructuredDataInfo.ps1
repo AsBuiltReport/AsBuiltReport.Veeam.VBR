@@ -6,7 +6,7 @@ function Get-AbrVbrUnstructuredDataInfo {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.24
+        Version:        1.0.0
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -22,27 +22,28 @@ function Get-AbrVbrUnstructuredDataInfo {
 
     begin {
         Write-PScriboMessage "Discovering Veeam VBR Unstructured Data information from $System."
+        $LocalizedData = $reportTranslate.GetAbrVbrUnstructuredDataInfo
         Show-AbrDebugExecutionTime -Start -TitleMessage 'Unstructured Data'
     }
 
     process {
         if ($ShareObjs = Get-VBRUnstructuredServer) {
-            Section -Style Heading3 'Unstructured Data' {
-                Paragraph "The following table provides a summary of the unstructured data sources (file shares, NAS, and object storage) protected by Veeam Backup Server $VeeamBackupServer."
+            Section -Style Heading3 $LocalizedData.Heading {
+                Paragraph ($LocalizedData.Paragraph -f $VeeamBackupServer)
                 $OutObj = @()
                 try {
                     foreach ($ShareObj in $ShareObjs | Where-Object { $_.Type -eq 'FileServer' }) {
                         try {
 
                             $inObj = [ordered] @{
-                                'Name' = $ShareObj.Name
-                                'Backup IO Control' = $ShareObj.BackupIOControlLevel
-                                'Credentials' = switch ([string]::IsNullOrEmpty($ShareObj.Server.ProxyServicesCreds.Name)) {
-                                    $true { '--' }
+                                $LocalizedData.Name = $ShareObj.Name
+                                $LocalizedData.BackupIOControl = $ShareObj.BackupIOControlLevel
+                                $LocalizedData.Credentials = switch ([string]::IsNullOrEmpty($ShareObj.Server.ProxyServicesCreds.Name)) {
+                                    $true { $LocalizedData.Dash }
                                     $false { $ShareObj.Server.ProxyServicesCreds.Name }
-                                    default { 'Unknown' }
+                                    default { $LocalizedData.Unknown }
                                 }
-                                'Cache Repository' = $ShareObj.CacheRepository.Name
+                                $LocalizedData.CacheRepository = $ShareObj.CacheRepository.Name
                             }
 
                             $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
@@ -51,9 +52,9 @@ function Get-AbrVbrUnstructuredDataInfo {
                         }
                     }
                     if ($OutObj) {
-                        Section -Style Heading4 'File Servers' {
+                        Section -Style Heading4 $LocalizedData.FileServersHeading {
                             $TableParams = @{
-                                Name = "File Servers - $VeeamBackupServer"
+                                Name = "$($LocalizedData.TableFileServers) - $VeeamBackupServer"
                                 List = $false
                                 ColumnWidths = 30, 15, 28, 27
                             }
@@ -81,21 +82,21 @@ function Get-AbrVbrUnstructuredDataInfo {
                             }
 
                             $inObj = [ordered] @{
-                                'Path' = $Path
-                                'Type' = switch ($ShareObj.Type) {
-                                    'FileServer' { 'File Server' }
-                                    'SANSMB' { 'NAS Filer' }
-                                    'SMB' { 'SMB Share' }
-                                    'NFS' { 'NFS Share' }
-                                    'SANNFS' { 'NAS Filer' }
+                                $LocalizedData.Path = $Path
+                                $LocalizedData.Type = switch ($ShareObj.Type) {
+                                    'FileServer' { $LocalizedData.FileServer }
+                                    'SANSMB' { $LocalizedData.NASFiler }
+                                    'SMB' { $LocalizedData.SMBShare }
+                                    'NFS' { $LocalizedData.NFSShare }
+                                    'SANNFS' { $LocalizedData.NASFiler }
                                     default { $ShareObj.Type }
                                 }
-                                'Backup IO Control' = $ShareObj.BackupIOControlLevel
-                                'Credentials' = switch (($AccessCredentials).count) {
-                                    0 { 'None' }
+                                $LocalizedData.BackupIOControl = $ShareObj.BackupIOControlLevel
+                                $LocalizedData.Credentials = switch (($AccessCredentials).count) {
+                                    0 { $LocalizedData.None }
                                     default { $AccessCredentials }
                                 }
-                                'Cache Repository' = $ShareObj.CacheRepository.Name
+                                $LocalizedData.CacheRepository = $ShareObj.CacheRepository.Name
                             }
 
                             $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
@@ -105,9 +106,9 @@ function Get-AbrVbrUnstructuredDataInfo {
                     }
 
                     if ($OutObj) {
-                        Section -Style Heading4 'NAS Filers' {
+                        Section -Style Heading4 $LocalizedData.NASFilersHeading {
                             $TableParams = @{
-                                Name = "NAS Filers - $VeeamBackupServer"
+                                Name = "$($LocalizedData.TableNASFilers) - $VeeamBackupServer"
                                 List = $false
                                 ColumnWidths = 30, 13, 12, 22, 23
                             }
@@ -135,21 +136,21 @@ function Get-AbrVbrUnstructuredDataInfo {
                             }
 
                             $inObj = [ordered] @{
-                                'Path' = $Path
-                                'Type' = switch ($ShareObj.Type) {
-                                    'FileServer' { 'File Server' }
-                                    'SANSMB' { 'NAS Filer' }
-                                    'SMB' { 'SMB Share' }
-                                    'NFS' { 'NFS Share' }
-                                    'SANNFS' { 'NAS Filer' }
+                                $LocalizedData.Path = $Path
+                                $LocalizedData.Type = switch ($ShareObj.Type) {
+                                    'FileServer' { $LocalizedData.FileServer }
+                                    'SANSMB' { $LocalizedData.NASFiler }
+                                    'SMB' { $LocalizedData.SMBShare }
+                                    'NFS' { $LocalizedData.NFSShare }
+                                    'SANNFS' { $LocalizedData.NASFiler }
                                     default { $ShareObj.Type }
                                 }
-                                'Backup IO Control' = $ShareObj.BackupIOControlLevel
-                                'Credentials' = switch (($AccessCredentials).count) {
-                                    0 { 'None' }
+                                $LocalizedData.BackupIOControl = $ShareObj.BackupIOControlLevel
+                                $LocalizedData.Credentials = switch (($AccessCredentials).count) {
+                                    0 { $LocalizedData.None }
                                     default { $AccessCredentials }
                                 }
-                                'Cache Repository' = $ShareObj.CacheRepository.Name
+                                $LocalizedData.CacheRepository = $ShareObj.CacheRepository.Name
                             }
 
                             $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
@@ -159,9 +160,9 @@ function Get-AbrVbrUnstructuredDataInfo {
                     }
 
                     if ($OutObj) {
-                        Section -Style Heading4 'File Shares' {
+                        Section -Style Heading4 $LocalizedData.FileSharesHeading {
                             $TableParams = @{
-                                Name = "File Shares - $VeeamBackupServer"
+                                Name = "$($LocalizedData.TableFileShares) - $VeeamBackupServer"
                                 List = $false
                                 ColumnWidths = 30, 13, 12, 22, 23
                             }
@@ -181,15 +182,15 @@ function Get-AbrVbrUnstructuredDataInfo {
                         try {
 
                             $inObj = [ordered] @{
-                                'Name' = $ShareObj.FriendlyName
-                                'Region' = $ShareObj.Info
-                                'Account' = switch ([string]::IsNullOrEmpty($ShareObj.Account.Name)) {
-                                    $true { '--' }
+                                $LocalizedData.Name = $ShareObj.FriendlyName
+                                $LocalizedData.Region = $ShareObj.Info
+                                $LocalizedData.Account = switch ([string]::IsNullOrEmpty($ShareObj.Account.Name)) {
+                                    $true { $LocalizedData.Dash }
                                     $false { $ShareObj.Account.Name }
-                                    default { 'Unknown' }
+                                    default { $LocalizedData.Unknown }
                                 }
-                                'Backup IO Control' = $ShareObj.BackupIOControlLevel
-                                'Cache Repository' = $ShareObj.CacheRepository.Name
+                                $LocalizedData.BackupIOControl = $ShareObj.BackupIOControlLevel
+                                $LocalizedData.CacheRepository = $ShareObj.CacheRepository.Name
                             }
 
                             $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
@@ -198,9 +199,9 @@ function Get-AbrVbrUnstructuredDataInfo {
                         }
                     }
                     if ($OutObj) {
-                        Section -Style Heading4 'Object Storage' {
+                        Section -Style Heading4 $LocalizedData.ObjectStorageHeading {
                             $TableParams = @{
-                                Name = "Object Storage - $VeeamBackupServer"
+                                Name = "$($LocalizedData.TableObjectStorage) - $VeeamBackupServer"
                                 List = $false
                                 ColumnWidths = 25, 20, 20, 15, 20
                             }

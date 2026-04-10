@@ -6,7 +6,7 @@ function Get-AbrVbrEntraIDBackupjobConf {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.24
+        Version:        1.0.0
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -22,29 +22,30 @@ function Get-AbrVbrEntraIDBackupjobConf {
 
     begin {
         Write-PScriboMessage "Discovering Veeam VBR EntraID Tenant Backup jobs information from $System."
+        $LocalizedData = $reportTranslate.GetAbrVbrEntraIDBackupjobConf
         Show-AbrDebugExecutionTime -Start -TitleMessage 'EntraID Tenant Backup Jobs'
     }
 
     process {
         try {
             if ($Bkjobs = Get-VBREntraIDTenantBackupJob | Sort-Object -Property 'Name') {
-                Section -Style Heading3 'Entra ID Tenant Backup Jobs Configuration' {
-                    Paragraph 'The following section provides detailed configuration information for each Microsoft Entra ID backup job, including schedule, retention policy, and protected objects.'
+                Section -Style Heading3 $LocalizedData.Heading {
+                    Paragraph $LocalizedData.Paragraph
                     BlankLine
                     $OutObj = @()
                     foreach ($Bkjob in $Bkjobs) {
                         try {
                             Section -Style Heading4 $($Bkjob.Name) {
-                                Section -Style NOTOCHeading4 -ExcludeFromTOC 'Common Information' {
+                                Section -Style NOTOCHeading4 -ExcludeFromTOC $LocalizedData.CommonInfoSection {
                                     $OutObj = @()
                                     try {
                                         try {
 
                                             $inObj = [ordered] @{
-                                                'Name' = $Bkjob.Name
-                                                'Id' = $Bkjob.Id
-                                                'Next Run' = $Bkjob.ScheduleOptions.NextRun
-                                                'Description' = $Bkjob.Description
+                                                $LocalizedData.Name        = $Bkjob.Name
+                                                $LocalizedData.Id          = $Bkjob.Id
+                                                $LocalizedData.NextRun     = $Bkjob.ScheduleOptions.NextRun
+                                                $LocalizedData.Description = $Bkjob.Description
                                             }
                                             $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
                                         } catch {
@@ -52,12 +53,12 @@ function Get-AbrVbrEntraIDBackupjobConf {
                                         }
 
                                         if ($HealthCheck.Jobs.BestPractice) {
-                                            $OutObj | Where-Object { $Null -like $_.'Description' -or $_.'Description' -eq '--' } | Set-Style -Style Warning -Property 'Description'
-                                            $OutObj | Where-Object { $_.'Description' -match 'Created by' } | Set-Style -Style Warning -Property 'Description'
+                                            $OutObj | Where-Object { $Null -like $_.$($LocalizedData.Description) -or $_.$($LocalizedData.Description) -eq '--' } | Set-Style -Style Warning -Property $LocalizedData.Description
+                                            $OutObj | Where-Object { $_.$($LocalizedData.Description) -match 'Created by' } | Set-Style -Style Warning -Property $LocalizedData.Description
                                         }
 
                                         $TableParams = @{
-                                            Name = "Common Information - $($Bkjob.Name)"
+                                            Name = "$($LocalizedData.CommonInfoTable) - $($Bkjob.Name)"
                                             List = $true
                                             ColumnWidths = 40, 60
                                         }
@@ -66,12 +67,12 @@ function Get-AbrVbrEntraIDBackupjobConf {
                                         }
                                         $OutObj | Table @TableParams
                                         if ($HealthCheck.Jobs.BestPractice) {
-                                            if ($OutObj | Where-Object { $_.'Description' -match 'Created by' -or $_.'Description' -eq '--' }) {
-                                                Paragraph 'Health Check:' -Bold -Underline
+                                            if ($OutObj | Where-Object { $_.$($LocalizedData.Description) -match 'Created by' -or $_.$($LocalizedData.Description) -eq '--' }) {
+                                                Paragraph $LocalizedData.HealthCheck -Bold -Underline
                                                 BlankLine
                                                 Paragraph {
-                                                    Text 'Best Practice:' -Bold
-                                                    Text 'It is a general rule of good practice to establish well-defined descriptions. This helps to speed up the fault identification process, as well as enabling better documentation of the environment.'
+                                                    Text $LocalizedData.BestPractice -Bold
+                                                    Text $LocalizedData.BestPracticeDesc
                                                 }
                                                 BlankLine
                                             }
@@ -80,18 +81,18 @@ function Get-AbrVbrEntraIDBackupjobConf {
                                         Write-PScriboMessage -IsWarning $_.Exception.Message
                                     }
                                 }
-                                Section -Style NOTOCHeading4 -ExcludeFromTOC 'Tenant' {
+                                Section -Style NOTOCHeading4 -ExcludeFromTOC $LocalizedData.TenantSection {
                                     $OutObj = @()
                                     try {
 
                                         $inObj = [ordered] @{
-                                            'Name' = $Bkjob.Tenant.Name
-                                            'Azure Tenant Id' = $Bkjob.Tenant.AzureTenantId
-                                            'Application Id' = $Bkjob.Tenant.ApplicationId
-                                            'Region' = $Bkjob.Tenant.Region
-                                            'Cache Repository' = $Bkjob.Tenant.CacheRepository.Name
-                                            'Retention Policy' = "$($Bkjob.RetentionPolicy) days"
-                                            'Description' = $Bkjob.Tenant.Description
+                                            $LocalizedData.Name = $Bkjob.Tenant.Name
+                                            $LocalizedData.AzureTenantId = $Bkjob.Tenant.AzureTenantId
+                                            $LocalizedData.ApplicationId = $Bkjob.Tenant.ApplicationId
+                                            $LocalizedData.Region = $Bkjob.Tenant.Region
+                                            $LocalizedData.CacheRepository = $Bkjob.Tenant.CacheRepository.Name
+                                            $LocalizedData.RetentionPolicy = ($LocalizedData.RetentionPolicyValue -f $Bkjob.RetentionPolicy)
+                                            $LocalizedData.Description = $Bkjob.Tenant.Description
                                         }
 
                                         $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
@@ -100,12 +101,12 @@ function Get-AbrVbrEntraIDBackupjobConf {
                                     }
 
                                     if ($HealthCheck.Jobs.BestPractice) {
-                                        $OutObj | Where-Object { $_.'Description' -eq '--' } | Set-Style -Style Warning -Property 'Description'
-                                        $OutObj | Where-Object { $_.'Description' -match 'Created by' } | Set-Style -Style Warning -Property 'Description'
+                                        $OutObj | Where-Object { $_.$($LocalizedData.Description) -eq '--' } | Set-Style -Style Warning -Property $LocalizedData.Description
+                                        $OutObj | Where-Object { $_.$($LocalizedData.Description) -match 'Created by' } | Set-Style -Style Warning -Property $LocalizedData.Description
                                     }
 
                                     $TableParams = @{
-                                        Name = "Tenant Information - $($Bkjob.Name)"
+                                        Name = "$($LocalizedData.TenantInfoTable) - $($Bkjob.Name)"
                                         List = $True
                                         ColumnWidths = 40, 60
                                     }
@@ -113,28 +114,28 @@ function Get-AbrVbrEntraIDBackupjobConf {
                                     if ($Report.ShowTableCaptions) {
                                         $TableParams['Caption'] = "- $($TableParams.Name)"
                                     }
-                                    $OutObj | Sort-Object -Property 'Name' | Table @TableParams
+                                    $OutObj | Sort-Object -Property $LocalizedData.Name | Table @TableParams
                                     if ($HealthCheck.Jobs.BestPractice) {
-                                        if ($OutObj | Where-Object { $_.'Description' -match 'Created by' -or $_.'Description' -eq '--' }) {
-                                            Paragraph 'Health Check:' -Bold -Underline
+                                        if ($OutObj | Where-Object { $_.$($LocalizedData.Description) -match 'Created by' -or $_.$($LocalizedData.Description) -eq '--' }) {
+                                            Paragraph $LocalizedData.HealthCheck -Bold -Underline
                                             BlankLine
                                             Paragraph {
-                                                Text 'Best Practice:' -Bold
-                                                Text 'It is a general rule of good practice to establish well-defined descriptions. This helps to speed up the fault identification process, as well as enabling better documentation of the environment.'
+                                                Text $LocalizedData.BestPractice -Bold
+                                                Text $LocalizedData.BestPracticeDesc
                                             }
                                             BlankLine
                                         }
                                     }
                                     if ($InfoLevel.Jobs.EntraID -ge 2) {
-                                        Section -Style NOTOCHeading5 -ExcludeFromTOC 'Advanced Settings (Encryption)' {
+                                        Section -Style NOTOCHeading5 -ExcludeFromTOC $LocalizedData.EncryptionSection {
                                             $OutObj = @()
                                             try {
 
                                                 $inObj = [ordered] @{
-                                                    'Enabled' = $Bkjob.EncryptionOptions.Enabled
-                                                    'Id' = $Bkjob.EncryptionOptions.key.Id
-                                                    'Last Modified Date' = $Bkjob.EncryptionOptions.key.LastModifiedDate
-                                                    'Description' = $Bkjob.EncryptionOptions.key.Description
+                                                    $LocalizedData.Enabled = $Bkjob.EncryptionOptions.Enabled
+                                                    $LocalizedData.Id = $Bkjob.EncryptionOptions.key.Id
+                                                    $LocalizedData.LastModifiedDate = $Bkjob.EncryptionOptions.key.LastModifiedDate
+                                                    $LocalizedData.Description = $Bkjob.EncryptionOptions.key.Description
                                                 }
 
                                                 $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
@@ -143,11 +144,11 @@ function Get-AbrVbrEntraIDBackupjobConf {
                                             }
 
                                             if ($HealthCheck.Jobs.BestPractice) {
-                                                $OutObj | Where-Object { $_.'Enabled' -eq 'No' } | Set-Style -Style Warning -Property 'Enabled'
+                                                $OutObj | Where-Object { $_.$($LocalizedData.Enabled) -eq 'No' } | Set-Style -Style Warning -Property $LocalizedData.Enabled
                                             }
 
                                             $TableParams = @{
-                                                Name = "Encryption - $($Bkjob.Name)"
+                                                Name = "$($LocalizedData.EncryptionTable) - $($Bkjob.Name)"
                                                 List = $True
                                                 ColumnWidths = 40, 60
                                             }
@@ -157,12 +158,12 @@ function Get-AbrVbrEntraIDBackupjobConf {
                                             }
                                             $OutObj | Table @TableParams
                                             if ($HealthCheck.Jobs.BestPractice) {
-                                                if ($OutObj | Where-Object { $_.'Enabled Backup File Encryption' -eq 'No' }) {
-                                                    Paragraph 'Health Check:' -Bold -Underline
+                                                if ($OutObj | Where-Object { $_.$($LocalizedData.Enabled) -eq 'No' }) {
+                                                    Paragraph $LocalizedData.HealthCheck -Bold -Underline
                                                     BlankLine
                                                     Paragraph {
-                                                        Text 'Best Practice:' -Bold
-                                                        Text 'Backup and replica data is a high potential source of vulnerability. To secure data stored in backups and replicas, use Veeam Backup & Replication inbuilt encryption to protect data in backups'
+                                                        Text $LocalizedData.BestPractice -Bold
+                                                        Text $LocalizedData.BestPracticeEncDesc
                                                     }
                                                     BlankLine
                                                 }
@@ -170,33 +171,33 @@ function Get-AbrVbrEntraIDBackupjobConf {
                                         }
                                     }
                                     if ($InfoLevel.Jobs.EntraID -ge 2) {
-                                        Section -Style NOTOCHeading5 -ExcludeFromTOC 'Advanced Settings (Notification)' {
+                                        Section -Style NOTOCHeading5 -ExcludeFromTOC $LocalizedData.NotificationSection {
                                             $OutObj = @()
                                             try {
 
                                                 $inObj = [ordered] @{
-                                                    'Send Snmp Notification' = $Bkjob.NotificationOptions.EnableSnmpNotification
-                                                    'Send Email Notification' = $Bkjob.NotificationOptions.EnableAdditionalNotification
-                                                    'Email Notification Additional Addresses' = switch ($Bkjob.NotificationOptions.AdditionalAddress) {
+                                                    $LocalizedData.SendSnmpNotification = $Bkjob.NotificationOptions.EnableSnmpNotification
+                                                    $LocalizedData.SendEmailNotification = $Bkjob.NotificationOptions.EnableAdditionalNotification
+                                                    $LocalizedData.EmailAdditionalAddresses = switch ($Bkjob.NotificationOptions.AdditionalAddress) {
                                                         $Null { '--' }
                                                         default { $Bkjob.NotificationOptions.AdditionalAddress }
                                                     }
-                                                    'Email Notify Time' = $Bkjob.NotificationOptions.SendTime
-                                                    'Use Custom Email Notification Options' = $Bkjob.NotificationOptions.UseNotificationOptions
-                                                    'Use Custom Notification Setting' = $Bkjob.NotificationOptions.NotificationSubject
-                                                    'Notify On Success' = $Bkjob.NotificationOptions.NotifyOnSuccess
-                                                    'Notify On Warning' = $Bkjob.NotificationOptions.NotifyOnWarning
-                                                    'Notify On Error' = $Bkjob.NotificationOptions.NotifyOnError
-                                                    'Send notification' = switch ($Bkjob.NotificationOptions.EnableDailyNotification) {
-                                                        'False' { 'Immediately after each copied backup' }
-                                                        'True' { 'Daily as a summary' }
-                                                        default { 'Unknown' }
+                                                    $LocalizedData.EmailNotifyTime = $Bkjob.NotificationOptions.SendTime
+                                                    $LocalizedData.UseCustomEmailNotification = $Bkjob.NotificationOptions.UseNotificationOptions
+                                                    $LocalizedData.UseCustomNotificationSetting = $Bkjob.NotificationOptions.NotificationSubject
+                                                    $LocalizedData.NotifyOnSuccess = $Bkjob.NotificationOptions.NotifyOnSuccess
+                                                    $LocalizedData.NotifyOnWarning = $Bkjob.NotificationOptions.NotifyOnWarning
+                                                    $LocalizedData.NotifyOnError = $Bkjob.NotificationOptions.NotifyOnError
+                                                    $LocalizedData.SendNotification = switch ($Bkjob.NotificationOptions.EnableDailyNotification) {
+                                                        'False' { $LocalizedData.ImmediatelyAfterBackup }
+                                                        'True' { $LocalizedData.DailyAsSummary }
+                                                        default { $LocalizedData.Unknown }
                                                     }
                                                 }
                                                 $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                 $TableParams = @{
-                                                    Name = "Notification - $($Bkjob.Name)"
+                                                    Name = "$($LocalizedData.NotificationTable) - $($Bkjob.Name)"
                                                     List = $true
                                                     ColumnWidths = 40, 60
                                                 }
@@ -210,7 +211,7 @@ function Get-AbrVbrEntraIDBackupjobConf {
                                         }
                                     }
                                     if ($Bkjob.EnableSchedule) {
-                                        Section -Style NOTOCHeading5 -ExcludeFromTOC 'Schedule' {
+                                        Section -Style NOTOCHeading5 -ExcludeFromTOC $LocalizedData.ScheduleSection {
                                             $OutObj = @()
                                             try {
 
@@ -230,18 +231,18 @@ function Get-AbrVbrEntraIDBackupjobConf {
                                                     $ScheduleType = 'After Job'
                                                 }
                                                 $inObj = [ordered] @{
-                                                    'Retry Failed item' = $Bkjob.ScheduleOptions.RetryTimes
-                                                    'Wait before each retry' = "$($Bkjob.ScheduleOptions.RetryTimeout)/min"
-                                                    'Backup Window' = $Bkjob.ScheduleOptions.OptionsBackupWindow.IsEnabled
-                                                    'Shedule type' = $ScheduleType
-                                                    'Shedule Options' = $Schedule
-                                                    'Start Time' = $Bkjob.ScheduleOptions.OptionsDaily.TimeLocal.ToShorttimeString()
-                                                    'Latest Run' = $Bkjob.ScheduleOptions.LatestRunLocal
+                                                    $LocalizedData.RetryFailedItem = $Bkjob.ScheduleOptions.RetryTimes
+                                                    $LocalizedData.WaitBeforeRetry = ($LocalizedData.RetryTimeoutValue -f $Bkjob.ScheduleOptions.RetryTimeout)
+                                                    $LocalizedData.BackupWindow = $Bkjob.ScheduleOptions.OptionsBackupWindow.IsEnabled
+                                                    $LocalizedData.ScheduleType = $ScheduleType
+                                                    $LocalizedData.ScheduleOptions = $Schedule
+                                                    $LocalizedData.StartTime = $Bkjob.ScheduleOptions.OptionsDaily.TimeLocal.ToShorttimeString()
+                                                    $LocalizedData.LatestRun = $Bkjob.ScheduleOptions.LatestRunLocal
                                                 }
                                                 $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                 $TableParams = @{
-                                                    Name = "Schedule Options - $($Bkjob.Name)"
+                                                    Name = "$($LocalizedData.ScheduleOptionsTable) - $($Bkjob.Name)"
                                                     List = $true
                                                     ColumnWidths = 40, 60
                                                 }
@@ -250,7 +251,7 @@ function Get-AbrVbrEntraIDBackupjobConf {
                                                 }
                                                 $OutObj | Table @TableParams
                                                 if ($Bkjob.ScheduleOptions.OptionsBackupWindow.IsEnabled -or $Bkjob.ScheduleOptions.OptionsContinuous.Enabled) {
-                                                    Section -Style NOTOCHeading6 -ExcludeFromTOC 'Backup Window Time Period' {
+                                                    Section -Style NOTOCHeading6 -ExcludeFromTOC $LocalizedData.BackupWindowSection {
                                                         Paragraph -ScriptBlock $Legend
 
                                                         $OutObj = @()
@@ -274,7 +275,7 @@ function Get-AbrVbrEntraIDBackupjobConf {
                                                             $OutObj = Get-WindowsTimePeriod -InputTimePeriod $ScheduleTimePeriod
 
                                                             $TableParams = @{
-                                                                Name = "Backup Window - $($Bkjob.Name)"
+                                                                Name = "$($LocalizedData.BackupWindowTable) - $($Bkjob.Name)"
                                                                 List = $true
                                                                 ColumnWidths = 6, 4, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4
                                                                 Key = 'H'

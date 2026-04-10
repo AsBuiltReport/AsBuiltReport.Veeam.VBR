@@ -6,7 +6,7 @@ function Get-AbrVbrBackupServerInfo {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.24
+        Version:        1.0.0
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -22,6 +22,7 @@ function Get-AbrVbrBackupServerInfo {
 
     begin {
         Write-PScriboMessage "Discovering Veeam VB&R Server information from $System."
+        $LocalizedData = $reportTranslate.GetAbrVbrBackupServerInfo
         Show-AbrDebugExecutionTime -Start -TitleMessage 'Backup Server'
     }
 
@@ -54,8 +55,8 @@ function Get-AbrVbrBackupServerInfo {
                 }
             }
             if ($BackupServers) {
-                Section -Style Heading3 'Backup Server' {
-                    Paragraph 'The following table details the Veeam Backup & Replication server configuration, including version, database settings, network ports, and security options.'
+                Section -Style Heading3 $LocalizedData.Heading {
+                    Paragraph $LocalizedData.Paragraph
                     BlankLine
                     $OutObj = @()
                     try {
@@ -78,7 +79,7 @@ function Get-AbrVbrBackupServerInfo {
                             if ($CimSession) {
                                 try { $DomainJoined = Get-CimInstance -Class Win32_ComputerSystem -Property PartOfDomain -CimSession $CimSession } catch { 'Unknown' }
                             }
-                            Write-PScriboMessage "Collecting Backup Server information from $($BackupServer.Name)."
+                            Write-PScriboMessage ($LocalizedData.Collecting -f $BackupServer.Name)
 
                             if (-not ($BackupServer.Type -eq 'Linux' -and $BackupServer.Description -eq 'Backup server')) {
                                 if ($PssSession) {
@@ -101,56 +102,56 @@ function Get-AbrVbrBackupServerInfo {
 
 
                             $inObj = [ordered] @{
-                                'Server Name' = $BackupServer.Name
-                                'Is Domain Joined?' = $DomainJoined.PartOfDomain
-                                'Version' = switch (($VeeamVersion).count) {
+                                $LocalizedData.ServerName = $BackupServer.Name
+                                $LocalizedData.IsDomainJoined = $DomainJoined.PartOfDomain
+                                $LocalizedData.Version = switch (($VeeamVersion).count) {
                                     0 { '--' }
                                     default { $VeeamVersion.DisplayVersion }
                                 }
-                                'Database Type' = switch ([string]::IsNullOrEmpty($VeeamDBFlavor.SqlActiveConfiguration)) {
+                                $LocalizedData.DatabaseType = switch ([string]::IsNullOrEmpty($VeeamDBFlavor.SqlActiveConfiguration)) {
                                     $true { '--' }
                                     $false { $VeeamDBFlavor.SqlActiveConfiguration }
                                     default { 'Unknown' }
                                 }
-                                'Database Name' = switch ([string]::IsNullOrEmpty($VeeamDBInfo.SqlDatabaseName)) {
+                                $LocalizedData.DatabaseName = switch ([string]::IsNullOrEmpty($VeeamDBInfo.SqlDatabaseName)) {
                                     $true { '--' }
                                     $false { $VeeamDBInfo.SqlDatabaseName }
                                     default { 'Unknown' }
                                 }
-                                'Database Server' = switch ([string]::IsNullOrEmpty($VeeamDBInfo.SqlHostName)) {
+                                $LocalizedData.DatabaseServer = switch ([string]::IsNullOrEmpty($VeeamDBInfo.SqlHostName)) {
                                     $true { '--' }
                                     $false { $VeeamDBInfo.SqlHostName }
                                     default { 'Unknown' }
                                 }
-                                'Database Port' = switch ([string]::IsNullOrEmpty($VeeamDBInfo.SqlHostPort)) {
+                                $LocalizedData.DatabasePort = switch ([string]::IsNullOrEmpty($VeeamDBInfo.SqlHostPort)) {
                                     $true { '--' }
                                     $false { "$($VeeamDBInfo.SqlHostPort)/TCP" }
                                     default { 'Unknown' }
                                 }
-                                'Connection Ports' = switch (($VeeamInfo.BackupServerPort).count) {
+                                $LocalizedData.ConnectionPorts = switch (($VeeamInfo.BackupServerPort).count) {
                                     0 { '--' }
                                     default { "Backup Server Port: $($VeeamInfo.BackupServerPort)`r`nSecure Connections Port: $($VeeamInfo.SecureConnectionsPort)`r`nCloud Server Port: $($VeeamInfo.CloudServerPort)`r`nCloud Service Port: $($VeeamInfo.CloudSvcPort)" }
                                 }
-                                'Install Path' = switch (($VeeamInfo.CorePath).count) {
+                                $LocalizedData.InstallPath = switch (($VeeamInfo.CorePath).count) {
                                     0 { '--' }
                                     default { $VeeamInfo.CorePath }
                                 }
-                                'Audit Logs Path' = $SecurityOptions.AuditLogsPath
-                                'Compress Old Audit Logs' = $SecurityOptions.CompressOldAuditLogs
-                                'Fips Compliant Mode' = switch ($SecurityOptions.FipsCompliantModeEnabled) {
+                                $LocalizedData.AuditLogsPath = $SecurityOptions.AuditLogsPath
+                                $LocalizedData.CompressOldAuditLogs = $SecurityOptions.CompressOldAuditLogs
+                                $LocalizedData.FipsCompliantMode = switch ($SecurityOptions.FipsCompliantModeEnabled) {
                                     'True' { 'Enabled' }
                                     'False' { 'Disabled' }
                                 }
-                                'Linux host authentication' = switch ($SecurityOptions.HostPolicy.Type) {
+                                $LocalizedData.LinuxHostAuthentication = switch ($SecurityOptions.HostPolicy.Type) {
                                     'All' { 'Add all discovered host to the list automatically' }
                                     'KnownHosts' { 'Add unknown host to the list manually' }
                                 }
-                                'Logging Level' = $VeeamInfo.LoggingLevel
+                                $LocalizedData.LoggingLevel = $VeeamInfo.LoggingLevel
 
                             }
 
                             if ($Null -notlike $VeeamInfo.LogDirectory) {
-                                $inObj.add('Log Directory', ($VeeamInfo.LogDirectory))
+                                $inObj.add($LocalizedData.LogDirectory, ($VeeamInfo.LogDirectory))
                             }
 
                             $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
@@ -160,12 +161,12 @@ function Get-AbrVbrBackupServerInfo {
                     }
 
                     if ($HealthCheck.Infrastructure.BackupServer) {
-                        $OutObj | Where-Object { $_.'Logging Level' -gt 4 } | Set-Style -Style Warning -Property 'Logging Level'
-                        $OutObj | Where-Object { $_.'Is Domain Joined?' -eq 'Yes' } | Set-Style -Style Warning -Property 'Is Domain Joined?'
+                        $OutObj | Where-Object { $_."$($LocalizedData.LoggingLevel)" -gt 4 } | Set-Style -Style Warning -Property $LocalizedData.LoggingLevel
+                        $OutObj | Where-Object { $_."$($LocalizedData.IsDomainJoined)" -eq 'Yes' } | Set-Style -Style Warning -Property $LocalizedData.IsDomainJoined
                     }
 
                     $TableParams = @{
-                        Name = "Backup Server - $($BackupServer.Name.Split('.')[0])"
+                        Name = "$($LocalizedData.TableHeading) - $($BackupServer.Name.Split('.')[0])"
                         List = $true
                         ColumnWidths = 40, 60
                     }
@@ -174,17 +175,17 @@ function Get-AbrVbrBackupServerInfo {
                     }
                     $OutObj | Table @TableParams
                     if ($HealthCheck.Infrastructure.BestPractice) {
-                        if ($OutObj | Where-Object { $_.'Is Domain Joined?' -eq 'Yes' }) {
-                            Paragraph 'Health Check:' -Bold -Underline
+                        if ($OutObj | Where-Object { $_."$($LocalizedData.IsDomainJoined)" -eq 'Yes' }) {
+                            Paragraph $LocalizedData.healthCheck -Bold -Underline
                             BlankLine
                             Paragraph {
-                                Text 'Best Practice:' -Bold
-                                Text "When setting up the Veeam Availability infrastructure keep in mind the principle that a data protection system should not rely on the environment it is meant to protect in any way! This is because when your production environment goes down along with its domain controllers, it will impact your ability to perform actual restores due to the backup server's dependency on those domain controllers for backup console authentication, DNS for name resolution, etc."
+                                Text $LocalizedData.bestPractice -Bold
+                                Text $LocalizedData.domainJoinBestPracticeText
                             }
                             BlankLine
                             Paragraph {
-                                Text 'Reference:' -Bold
-                                Text 'https://bp.veeam.com/vbr/Security/Security_domains.html'
+                                Text $LocalizedData.Reference -Bold
+                                Text $LocalizedData.domainJoinReference
                             }
                             BlankLine
                         }
@@ -195,7 +196,7 @@ function Get-AbrVbrBackupServerInfo {
                     try {
                         Write-PScriboMessage "Hardware Inventory Status set as $($Options.EnableHardwareInventory)."
                         if ($Options.EnableHardwareInventory -and ($PssSession)) {
-                            Write-PScriboMessage "Collecting Backup Server Inventory Summary from $($BackupServer.Name)."
+                            Write-PScriboMessage ($LocalizedData.CollectingInventory -f $BackupServer.Name)
                             if ($CimSession) {
                                 $License = Get-CimInstance -Query 'Select * from SoftwareLicensingProduct' -CimSession $CimSession | Where-Object { $_.LicenseStatus -eq 1 }
                                 $HWCPU = Get-CimInstance -Class Win32_Processor -CimSession $CimSession
@@ -203,39 +204,39 @@ function Get-AbrVbrBackupServerInfo {
                             }
 
                             if ($HW = Invoke-Command -Session $PssSession -ScriptBlock { Get-ComputerInfo }) {
-                                Section -Style Heading4 'Hardware & Software Inventory' {
+                                Section -Style Heading4 $LocalizedData.HWInventoryHeading {
                                     $OutObj = @()
                                     $inObj = [ordered] @{
-                                        'Name' = $HW.CsDNSHostName
-                                        'Windows Product Name' = $HW.WindowsProductName
-                                        'Windows Current Version' = $HW.WindowsCurrentVersion
-                                        'Windows Build Number' = $HW.OsVersion
-                                        'Windows Install Type' = $HW.WindowsInstallationType
-                                        'Active Directory Domain' = $HW.CsDomain
-                                        'Windows Installation Date' = $HW.OsInstallDate
-                                        'Time Zone' = $HW.TimeZone
-                                        'License Type' = $License.ProductKeyChannel
-                                        'Partial Product Key' = $License.PartialProductKey
-                                        'Manufacturer' = $HW.CsManufacturer
-                                        'Model' = $HW.CsModel
-                                        'Serial Number' = $HWBIOS.SerialNumber
-                                        'Bios Type' = $HW.BiosFirmwareType
-                                        'BIOS Version' = $HWBIOS.Version
-                                        'Processor Manufacturer' = $HWCPU[0].Manufacturer
-                                        'Processor Model' = $HWCPU[0].Name
-                                        'Number of CPU Cores' = ($HWCPU.NumberOfCores | Measure-Object -Sum).Sum
-                                        'Number of Logical Cores' = ($HWCPU.NumberOfLogicalProcessors | Measure-Object -Sum).Sum
-                                        'Physical Memory (GB)' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $HW.CsTotalPhysicalMemory
+                                        $LocalizedData.Name = $HW.CsDNSHostName
+                                        $LocalizedData.WindowsProductName = $HW.WindowsProductName
+                                        $LocalizedData.WindowsCurrentVersion = $HW.WindowsCurrentVersion
+                                        $LocalizedData.WindowsBuildNumber = $HW.OsVersion
+                                        $LocalizedData.WindowsInstallType = $HW.WindowsInstallationType
+                                        $LocalizedData.ADDomain = $HW.CsDomain
+                                        $LocalizedData.WindowsInstallDate = $HW.OsInstallDate
+                                        $LocalizedData.TimeZone = $HW.TimeZone
+                                        $LocalizedData.LicenseType = $License.ProductKeyChannel
+                                        $LocalizedData.PartialProductKey = $License.PartialProductKey
+                                        $LocalizedData.Manufacturer = $HW.CsManufacturer
+                                        $LocalizedData.Model = $HW.CsModel
+                                        $LocalizedData.SerialNumber = $HWBIOS.SerialNumber
+                                        $LocalizedData.BiosType = $HW.BiosFirmwareType
+                                        $LocalizedData.BIOSVersion = $HWBIOS.Version
+                                        $LocalizedData.ProcessorManufacturer = $HWCPU[0].Manufacturer
+                                        $LocalizedData.ProcessorModel = $HWCPU[0].Name
+                                        $LocalizedData.CPUCores = ($HWCPU.NumberOfCores | Measure-Object -Sum).Sum
+                                        $LocalizedData.LogicalCores = ($HWCPU.NumberOfLogicalProcessors | Measure-Object -Sum).Sum
+                                        $LocalizedData.PhysicalMemory = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $HW.CsTotalPhysicalMemory
                                     }
                                     $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                     if ($HealthCheck.Infrastructure.Server) {
-                                        $OutObj | Where-Object { $_.'Number of CPU Cores' -lt 2 } | Set-Style -Style Warning -Property 'Number of CPU Cores'
-                                        if ([int]([regex]::Matches($OutObj.'Physical Memory (GB)', '\d+(?!.*\d+)').value) -lt 8) { $OutObj | Set-Style -Style Warning -Property 'Physical Memory (GB)' }
+                                        $OutObj | Where-Object { $_."$($LocalizedData.CPUCores)" -lt 2 } | Set-Style -Style Warning -Property $LocalizedData.CPUCores
+                                        if ([int]([regex]::Matches($OutObj."$($LocalizedData.PhysicalMemory)", '\d+(?!.*\d+)').value) -lt 8) { $OutObj | Set-Style -Style Warning -Property $LocalizedData.PhysicalMemory }
                                     }
 
                                     $TableParams = @{
-                                        Name = "Backup Server Inventory - $($BackupServer.Name.Split('.')[0])"
+                                        Name = "$($LocalizedData.HWInventoryHeading) - $($BackupServer.Name.Split('.')[0])"
                                         List = $true
                                         ColumnWidths = 40, 60
                                     }
@@ -244,12 +245,12 @@ function Get-AbrVbrBackupServerInfo {
                                     }
                                     $OutObj | Table @TableParams
                                     if ($HealthCheck.Infrastructure.BestPractice) {
-                                        if (([int]([regex]::Matches($OutObj.'Physical Memory (GB)', '\d+(?!.*\d+)').value) -lt 8) -or ($OutObj | Where-Object { $_.'Number of CPU Cores' -lt 2 })) {
-                                            Paragraph 'Health Check:' -Bold -Underline
+                                        if (([int]([regex]::Matches($OutObj."$($LocalizedData.PhysicalMemory)", '\d+(?!.*\d+)').value) -lt 8) -or ($OutObj | Where-Object { $_."$($LocalizedData.CPUCores)" -lt 2 })) {
+                                            Paragraph $LocalizedData.healthCheck -Bold -Underline
                                             BlankLine
                                             Paragraph {
-                                                Text 'Best Practice:' -Bold
-                                                Text 'Recommended Veeam Backup Server minimum configuration is two CPU cores and 8GB of RAM.'
+                                                Text $LocalizedData.bestPractice -Bold
+                                                Text $LocalizedData.minConfigBestPracticeText
                                             }
                                             BlankLine
                                         }
@@ -261,16 +262,16 @@ function Get-AbrVbrBackupServerInfo {
                                         try {
                                             $HostDisks = Invoke-Command -Session $PssSession -ScriptBlock { Get-Disk | Where-Object { $_.BusType -ne 'iSCSI' -and $_.BusType -ne 'Fibre Channel' } }
                                             if ($HostDisks) {
-                                                Section -Style NOTOCHeading5 -ExcludeFromTOC 'Local Disks' {
+                                                Section -Style NOTOCHeading5 -ExcludeFromTOC $LocalizedData.LocalDisksHeading {
                                                     $LocalDiskReport = @()
                                                     foreach ($Disk in $HostDisks) {
                                                         try {
                                                             $TempLocalDiskReport = [PSCustomObject]@{
-                                                                'Disk Number' = $Disk.Number
-                                                                'Model' = $Disk.Model
-                                                                'Serial Number' = $Disk.SerialNumber
-                                                                'Partition Style' = $Disk.PartitionStyle
-                                                                'Disk Size' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $Disk.Size
+                                                                $LocalizedData.DiskNumber = $Disk.Number
+                                                                $LocalizedData.Model = $Disk.Model
+                                                                $LocalizedData.SerialNumber = $Disk.SerialNumber
+                                                                $LocalizedData.PartitionStyle = $Disk.PartitionStyle
+                                                                $LocalizedData.DiskSize = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $Disk.Size
                                                             }
                                                             $LocalDiskReport += $TempLocalDiskReport
                                                         } catch {
@@ -278,14 +279,14 @@ function Get-AbrVbrBackupServerInfo {
                                                         }
                                                     }
                                                     $TableParams = @{
-                                                        Name = 'Backup Server - Local Disks'
+                                                        Name = "$($LocalizedData.TableHeading) - $($LocalizedData.LocalDisksHeading)"
                                                         List = $false
                                                         ColumnWidths = 20, 20, 20, 20, 20
                                                     }
                                                     if ($Report.ShowTableCaptions) {
                                                         $TableParams['Caption'] = "- $($TableParams.Name)"
                                                     }
-                                                    $LocalDiskReport | Sort-Object -Property 'Disk Number' | Table @TableParams
+                                                    $LocalDiskReport | Sort-Object -Property $LocalizedData.DiskNumber | Table @TableParams
                                                 }
                                             }
                                         } catch {
@@ -297,16 +298,16 @@ function Get-AbrVbrBackupServerInfo {
                                         try {
                                             $SanDisks = Invoke-Command -Session $PssSession -ScriptBlock { Get-Disk | Where-Object { $_.BusType -eq 'iSCSI' -or $_.BusType -eq 'Fibre Channel' } }
                                             if ($SanDisks) {
-                                                Section -Style NOTOCHeading5 -ExcludeFromTOC 'SAN Disks' {
+                                                Section -Style NOTOCHeading5 -ExcludeFromTOC $LocalizedData.SANDisksHeading {
                                                     $SanDiskReport = @()
                                                     foreach ($Disk in $SanDisks) {
                                                         try {
                                                             $TempSanDiskReport = [PSCustomObject]@{
-                                                                'Disk Number' = $Disk.Number
-                                                                'Model' = $Disk.Model
-                                                                'Serial Number' = $Disk.SerialNumber
-                                                                'Partition Style' = $Disk.PartitionStyle
-                                                                'Disk Size' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $Disk.Size
+                                                                $LocalizedData.DiskNumber = $Disk.Number
+                                                                $LocalizedData.Model = $Disk.Model
+                                                                $LocalizedData.SerialNumber = $Disk.SerialNumber
+                                                                $LocalizedData.PartitionStyle = $Disk.PartitionStyle
+                                                                $LocalizedData.DiskSize = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $Disk.Size
                                                             }
                                                             $SanDiskReport += $TempSanDiskReport
                                                         } catch {
@@ -314,14 +315,14 @@ function Get-AbrVbrBackupServerInfo {
                                                         }
                                                     }
                                                     $TableParams = @{
-                                                        Name = 'Backup Server - SAN Disks'
+                                                        Name = "$($LocalizedData.TableHeading) - $($LocalizedData.SANDisksHeading)"
                                                         List = $false
                                                         ColumnWidths = 20, 20, 20, 20, 20
                                                     }
                                                     if ($Report.ShowTableCaptions) {
                                                         $TableParams['Caption'] = "- $($TableParams.Name)"
                                                     }
-                                                    $SanDiskReport | Sort-Object -Property 'Disk Number' | Table @TableParams
+                                                    $SanDiskReport | Sort-Object -Property $LocalizedData.DiskNumber | Table @TableParams
                                                 }
                                             }
                                         } catch {
@@ -334,17 +335,17 @@ function Get-AbrVbrBackupServerInfo {
                                     try {
                                         $HostVolumes = Invoke-Command -Session $PssSession -ScriptBlock { Get-Volume | Where-Object { $_.DriveType -ne 'CD-ROM' -and $NUll -ne $_.DriveLetter } }
                                         if ($HostVolumes) {
-                                            Section -Style NOTOCHeading5 -ExcludeFromTOC 'Host Volumes' {
+                                            Section -Style NOTOCHeading5 -ExcludeFromTOC $LocalizedData.HostVolumesHeading {
                                                 $HostVolumeReport = @()
                                                 foreach ($HostVolume in $HostVolumes) {
                                                     try {
                                                         $TempHostVolumeReport = [PSCustomObject]@{
-                                                            'Drive Letter' = $HostVolume.DriveLetter
-                                                            'File System Label' = $HostVolume.FileSystemLabel
-                                                            'File System' = $HostVolume.FileSystem
-                                                            'Size' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $HostVolume.Size
-                                                            'Free Space' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $HostVolume.SizeRemaining
-                                                            'Health Status' = $HostVolume.HealthStatus
+                                                            $LocalizedData.DriveLetter = $HostVolume.DriveLetter
+                                                            $LocalizedData.FileSystemLabel = $HostVolume.FileSystemLabel
+                                                            $LocalizedData.FileSystem = $HostVolume.FileSystem
+                                                            $LocalizedData.Size = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $HostVolume.Size
+                                                            $LocalizedData.FreeSpace = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $HostVolume.SizeRemaining
+                                                            $LocalizedData.HealthStatus = $HostVolume.HealthStatus
                                                         }
                                                         $HostVolumeReport += $TempHostVolumeReport
                                                     } catch {
@@ -352,14 +353,14 @@ function Get-AbrVbrBackupServerInfo {
                                                     }
                                                 }
                                                 $TableParams = @{
-                                                    Name = 'Backup Server - Volumes'
+                                                    Name = "$($LocalizedData.TableHeading) - $($LocalizedData.HostVolumesHeading)"
                                                     List = $false
                                                     ColumnWidths = 15, 15, 15, 20, 20, 15
                                                 }
                                                 if ($Report.ShowTableCaptions) {
                                                     $TableParams['Caption'] = "- $($TableParams.Name)"
                                                 }
-                                                $HostVolumeReport | Sort-Object -Property 'Drive Letter' | Table @TableParams
+                                                $HostVolumeReport | Sort-Object -Property $LocalizedData.DriveLetter | Table @TableParams
                                             }
                                         }
                                     } catch {
@@ -372,15 +373,15 @@ function Get-AbrVbrBackupServerInfo {
                                         try {
                                             $HostAdapters = Invoke-Command -Session $PssSession { Get-NetAdapter }
                                             if ($HostAdapters) {
-                                                Section -Style NOTOCHeading5 -ExcludeFromTOC 'Network Adapters' {
+                                                Section -Style NOTOCHeading5 -ExcludeFromTOC $LocalizedData.NetworkAdaptersHeading {
                                                     $HostAdaptersReport = @()
                                                     foreach ($HostAdapter in $HostAdapters) {
                                                         try {
                                                             $TempHostAdaptersReport = [PSCustomObject]@{
-                                                                'Adapter Name' = $HostAdapter.Name
-                                                                'Adapter Description' = $HostAdapter.InterfaceDescription
-                                                                'Mac Address' = $HostAdapter.MacAddress
-                                                                'Link Speed' = $HostAdapter.LinkSpeed
+                                                                $LocalizedData.AdapterName = $HostAdapter.Name
+                                                                $LocalizedData.AdapterDescription = $HostAdapter.InterfaceDescription
+                                                                $LocalizedData.MacAddress = $HostAdapter.MacAddress
+                                                                $LocalizedData.LinkSpeed = $HostAdapter.LinkSpeed
                                                             }
                                                             $HostAdaptersReport += $TempHostAdaptersReport
                                                         } catch {
@@ -388,14 +389,14 @@ function Get-AbrVbrBackupServerInfo {
                                                         }
                                                     }
                                                     $TableParams = @{
-                                                        Name = 'Backup Server - Network Adapters'
+                                                        Name = "$($LocalizedData.TableHeading) - $($LocalizedData.NetworkAdaptersHeading)"
                                                         List = $false
                                                         ColumnWidths = 30, 35, 20, 15
                                                     }
                                                     if ($Report.ShowTableCaptions) {
                                                         $TableParams['Caption'] = "- $($TableParams.Name)"
                                                     }
-                                                    $HostAdaptersReport | Sort-Object -Property 'Adapter Name' | Table @TableParams
+                                                    $HostAdaptersReport | Sort-Object -Property $LocalizedData.AdapterName | Table @TableParams
                                                 }
                                             }
                                         } catch {
@@ -404,16 +405,16 @@ function Get-AbrVbrBackupServerInfo {
                                         try {
                                             $NetIPs = Invoke-Command -Session $PssSession { Get-NetIPConfiguration | Where-Object -FilterScript { ($_.NetAdapter.Status -eq 'Up') } }
                                             if ($NetIPs) {
-                                                Section -Style NOTOCHeading5 -ExcludeFromTOC 'IP Address' {
+                                                Section -Style NOTOCHeading5 -ExcludeFromTOC $LocalizedData.IPAddressHeading {
                                                     $NetIpsReport = @()
                                                     foreach ($NetIp in $NetIps) {
                                                         try {
                                                             $TempNetIpsReport = [PSCustomObject]@{
-                                                                'Interface Name' = $NetIp.InterfaceAlias
-                                                                'Interface Description' = $NetIp.InterfaceDescription
-                                                                'IPv4 Addresses' = $NetIp.IPv4Address.IPAddress -join ','
-                                                                'Subnet Mask' = $NetIp.IPv4Address[0].PrefixLength
-                                                                'IPv4 Gateway' = $NetIp.IPv4DefaultGateway.NextHop
+                                                                $LocalizedData.InterfaceName = $NetIp.InterfaceAlias
+                                                                $LocalizedData.InterfaceDescription = $NetIp.InterfaceDescription
+                                                                $LocalizedData.IPv4Addresses = $NetIp.IPv4Address.IPAddress -join ','
+                                                                $LocalizedData.SubnetMask = $NetIp.IPv4Address[0].PrefixLength
+                                                                $LocalizedData.IPv4Gateway = $NetIp.IPv4DefaultGateway.NextHop
                                                             }
                                                             $NetIpsReport += $TempNetIpsReport
                                                         } catch {
@@ -421,14 +422,14 @@ function Get-AbrVbrBackupServerInfo {
                                                         }
                                                     }
                                                     $TableParams = @{
-                                                        Name = 'Backup Server - IP Address'
+                                                        Name = "$($LocalizedData.TableHeading) - $($LocalizedData.IPAddressHeading)"
                                                         List = $false
                                                         ColumnWidths = 25, 25, 20, 10, 20
                                                     }
                                                     if ($Report.ShowTableCaptions) {
                                                         $TableParams['Caption'] = "- $($TableParams.Name)"
                                                     }
-                                                    $NetIpsReport | Sort-Object -Property 'Interface Name' | Table @TableParams
+                                                    $NetIpsReport | Sort-Object -Property $LocalizedData.InterfaceName | Table @TableParams
                                                 }
                                             }
                                         } catch {
@@ -497,8 +498,8 @@ function Get-AbrVbrBackupServerInfo {
                                     foreach ($Registry in $Hashtable) {
                                         if ($Registry.Key -notin $DefaultRegistryHash.Keys) {
                                             $inObj = [ordered] @{
-                                                'Registry Key' = $Registry.Key
-                                                'Registry Value' = switch (($Registry.Value).count) {
+                                                $LocalizedData.RegistryKey = $Registry.Key
+                                                $LocalizedData.RegistryValue = switch (($Registry.Value).count) {
                                                     0 { '--' }
                                                     1 { $Registry.Value }
                                                     default { $Registry.Value -join ', ' }
@@ -509,7 +510,7 @@ function Get-AbrVbrBackupServerInfo {
                                     }
 
                                     $TableParams = @{
-                                        Name = "Non-Default Registry Keys - $($BackupServer.Name.Split('.')[0])"
+                                        Name = "$($LocalizedData.NonDefaultRegistryHeading) - $($BackupServer.Name.Split('.')[0])"
                                         List = $false
                                         ColumnWidths = 50, 50
                                     }
@@ -518,8 +519,8 @@ function Get-AbrVbrBackupServerInfo {
                                     }
                                 }
                                 if ($OutObj) {
-                                    Section -Style Heading4 'Non-Default Registry Keys' {
-                                        $OutObj | Sort-Object -Property 'Registry Key' | Table @TableParams
+                                    Section -Style Heading4 $LocalizedData.NonDefaultRegistryHeading {
+                                        $OutObj | Sort-Object -Property $LocalizedData.RegistryKey | Table @TableParams
                                     }
                                 }
                             }
@@ -535,28 +536,28 @@ function Get-AbrVbrBackupServerInfo {
                             try {
                                 Write-PScriboMessage "Infrastructure Backup Server InfoLevel set at $($InfoLevel.Infrastructure.BackupServer)."
                                 if ($InfoLevel.Infrastructure.BackupServer -ge 2) {
-                                    Write-PScriboMessage "Collecting Backup Server Service Summary from $($BackupServer.Name)."
+                                    Write-PScriboMessage ($LocalizedData.CollectingServices -f $BackupServer.Name)
                                     $Available = Invoke-Command -Session $PssSession -ScriptBlock { Get-Service 'W32Time' | Select-Object DisplayName, Name, Status }
                                     if ($Available) {
                                         $Services = Invoke-Command -Session $PssSession -ScriptBlock { Get-Service Veeam* }
-                                        Section -Style Heading4 'HealthCheck - Services Status' {
+                                        Section -Style Heading4 $LocalizedData.ServicesStatusHeading {
                                             $OutObj = @()
                                             foreach ($Service in $Services) {
-                                                Write-PScriboMessage "Collecting '$($Service.DisplayName)' status on $($BackupServer.Name)."
+                                                Write-PScriboMessage ($LocalizedData.CollectingServiceStatus -f $Service.DisplayName, $BackupServer.Name)
                                                 $inObj = [ordered] @{
-                                                    'Display Name' = $Service.DisplayName
-                                                    'Short Name' = $Service.Name
-                                                    'Status' = $Service.Status
+                                                    $LocalizedData.DisplayName = $Service.DisplayName
+                                                    $LocalizedData.ShortName = $Service.Name
+                                                    $LocalizedData.Status = $Service.Status
                                                 }
                                                 $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                                             }
 
                                             if ($HealthCheck.Infrastructure.Server) {
-                                                $OutObj | Where-Object { $_.'Status' -notlike 'Running' } | Set-Style -Style Warning -Property 'Status'
+                                                $OutObj | Where-Object { $_."$($LocalizedData.Status)" -notlike 'Running' } | Set-Style -Style Warning -Property $LocalizedData.Status
                                             }
 
                                             $TableParams = @{
-                                                Name = "HealthCheck - Services Status - $($BackupServer.Name.Split('.')[0])"
+                                                Name = "$($LocalizedData.ServicesStatusHeading) - $($BackupServer.Name.Split('.')[0])"
                                                 List = $false
                                                 ColumnWidths = 45, 35, 20
                                             }
@@ -581,8 +582,8 @@ function Get-AbrVbrBackupServerInfo {
                                 foreach ($Update in $Updates) {
                                     try {
                                         $inObj = [ordered] @{
-                                            'KB Article' = "KB$($Update.KBArticleIDs)"
-                                            'Name' = $Update.Title
+                                            $LocalizedData.KBArticle = "KB$($Update.KBArticleIDs)"
+                                            $LocalizedData.Name = $Update.Title
                                         }
                                         $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
 
@@ -597,7 +598,7 @@ function Get-AbrVbrBackupServerInfo {
                                 $OutObj | Set-Style -Style Warning
 
                                 $TableParams = @{
-                                    Name = "Missing Windows Updates - $($BackupServer.Name.Split('.')[0])"
+                                    Name = "$($LocalizedData.MissingUpdatesHeading) - $($BackupServer.Name.Split('.')[0])"
                                     List = $false
                                     ColumnWidths = 40, 60
                                 }
@@ -607,16 +608,16 @@ function Get-AbrVbrBackupServerInfo {
                                 $OutObj | Sort-Object -Property 'Name' | Table @TableParams
                             }
                             if ($UpdObj) {
-                                Section -Style Heading4 'Missing Windows Updates' {
-                                    Paragraph 'The following table provides a summary of pending or missing Windows updates on the backup server.'
+                                Section -Style Heading4 $LocalizedData.MissingUpdatesHeading {
+                                    Paragraph $LocalizedData.MissingUpdatesParagraph
                                     BlankLine
                                     $UpdObj
                                 }
-                                Paragraph 'Health Check:' -Bold -Underline
+                                Paragraph $LocalizedData.healthCheck -Bold -Underline
                                 BlankLine
                                 Paragraph {
-                                    Text 'Security Best Practices:' -Bold
-                                    Text 'Patch operating systems, software, and firmware on Veeam components. Most hacks succeed because there is already vulnerable software in use which is not up-to-date with current patch levels. So make sure all software and hardware where Veeam components are running are up-to-date. One of the most possible causes of a credential theft are missing guest OS updates and use of outdated authentication protocols.'
+                                    Text $LocalizedData.securityBestPractices -Bold
+                                    Text $LocalizedData.securityPatchBestPracticeText
                                 }
                             }
                         } catch {

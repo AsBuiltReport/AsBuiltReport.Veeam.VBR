@@ -6,7 +6,7 @@ function Get-AbrVbrCloudConnectStatus {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.24
+        Version:        1.0.0
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -22,14 +22,15 @@ function Get-AbrVbrCloudConnectStatus {
 
     begin {
         Write-PScriboMessage "Discovering Veeam VBR Cloud Connect Service Status information from $System."
+        $LocalizedData = $reportTranslate.GetAbrVbrCloudConnectStatus
         Show-AbrDebugExecutionTime -Start -TitleMessage 'Cloud Connect Service Status'
     }
 
     process {
         if ($VbrLicenses | Where-Object { $_.CloudConnect -ne 'Disabled' }) {
             if ($CloudConnectInfraStatus = Get-VBRCloudInfrastructureState) {
-                Section -Style Heading3 'Service Status' {
-                    Paragraph 'The following section provides information about the current operational status of the Veeam Cloud Connect service and its components.'
+                Section -Style Heading3 $LocalizedData.Heading {
+                    Paragraph $LocalizedData.Paragraph
                     BlankLine
                     try {
                         $CloudConnectInfraServiceStatus = Get-VBRCloudInfrastructureServiceState
@@ -37,10 +38,10 @@ function Get-AbrVbrCloudConnectStatus {
                         try {
 
                             $inObj = [ordered] @{
-                                'Server Name' = $VeeamBackupServer
-                                'Global Status' = $CloudConnectInfraStatus
-                                'Service State' = $CloudConnectInfraServiceStatus.State
-                                'Service Response Delay' = $CloudConnectInfraServiceStatus.ServiceResponseDelay
+                                $LocalizedData.ServerName = $VeeamBackupServer
+                                $LocalizedData.GlobalStatus = $CloudConnectInfraStatus
+                                $LocalizedData.ServiceState = $CloudConnectInfraServiceStatus.State
+                                $LocalizedData.ServiceResponseDelay = $CloudConnectInfraServiceStatus.ServiceResponseDelay
                             }
 
                             $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
@@ -50,11 +51,11 @@ function Get-AbrVbrCloudConnectStatus {
                         }
 
                         if ($HealthCheck.Infrastructure.BackupServer) {
-                            $OutObj | Where-Object { $_.'Global Status' -eq 'Maintenance' } | Set-Style -Style Warning -Property 'Global Status'
+                            $OutObj | Where-Object { $_."$($LocalizedData.GlobalStatus)" -eq 'Maintenance' } | Set-Style -Style Warning -Property $LocalizedData.GlobalStatus
                         }
 
                         $TableParams = @{
-                            Name = "Service Status - $VeeamBackupServer"
+                            Name = "$($LocalizedData.TableHeading) - $VeeamBackupServer"
                             List = $true
                             ColumnWidths = 40, 60
                         }

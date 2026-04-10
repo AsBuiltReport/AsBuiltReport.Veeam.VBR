@@ -6,7 +6,7 @@ function Get-AbrVbrStorageIsilon {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.24
+        Version:        1.0.0
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -22,13 +22,14 @@ function Get-AbrVbrStorageIsilon {
 
     begin {
         Write-PScriboMessage "Discovering Dell Isilon Storage information connected to $System."
+        $LocalizedData = $reportTranslate.GetAbrVbrStorageIsilon
         Show-AbrDebugExecutionTime -Start -TitleMessage 'Dell Isilon Storage'
     }
 
     process {
         if ($IsilonHosts = Get-VBRIsilonHost) {
-            Section -Style Heading3 'Dell Isilon Storage' {
-                Paragraph 'The following section details the Dell EMC PowerScale (Isilon) storage systems integrated with Veeam Backup & Replication for storage snapshot-based data protection.'
+            Section -Style Heading3 $LocalizedData.Heading {
+                Paragraph $LocalizedData.Paragraph
                 BlankLine
                 $OutObj = @()
                 foreach ($IsilonHost in $IsilonHosts) {
@@ -38,23 +39,23 @@ function Get-AbrVbrStorageIsilon {
                             $UsedCred = Get-VBRCredentials | Where-Object { $_.Id -eq $IsilonHost.Info.CredsId }
                             $IsilonOptions = [xml]$IsilonHost.info.Options
                             $inObj = [ordered] @{
-                                'DNS Name' = switch (($IsilonHost.Info.HostInstanceId).count) {
+                                $LocalizedData.DNSName = switch (($IsilonHost.Info.HostInstanceId).count) {
                                     0 { $IsilonHost.Info.DnsName }
                                     default { $IsilonHost.Info.HostInstanceId }
                                 }
-                                'Description' = $IsilonHost.Description
-                                'Used Credential' = switch (($UsedCred).count) {
+                                $LocalizedData.Description = $IsilonHost.Description
+                                $LocalizedData.UsedCredential = switch (($UsedCred).count) {
                                     0 { '--' }
                                     default { "$($UsedCred.Name) - ($($UsedCred.Description))" }
                                 }
-                                'Connection Address' = $IsilonOptions.IsilonHostOptions.AdditionalAddresses.IP -join ', '
-                                'Connection Port' = "$($IsilonOptions.IsilonHostOptions.Port)\TCP"
+                                $LocalizedData.ConnectionAddress = $IsilonOptions.IsilonHostOptions.AdditionalAddresses.IP -join ', '
+                                $LocalizedData.ConnectionPort = "$($IsilonOptions.IsilonHostOptions.Port)\TCP"
                             }
 
                             $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                             $TableParams = @{
-                                Name = "Isilon Host - $($IsilonHost.Name)"
+                                Name = "$($LocalizedData.IsilonHostTableHeading) - $($IsilonHost.Name)"
                                 List = $true
                                 ColumnWidths = 40, 60
                             }
@@ -66,16 +67,16 @@ function Get-AbrVbrStorageIsilon {
                             if ($InfoLevel.Storage.Isilon -ge 2) {
                                 try {
                                     if ($IsilonVols = Get-VBRIsilonVolume -Host $IsilonHost) {
-                                        Section -Style NOTOCHeading5 -ExcludeFromTOC 'Volumes' {
+                                        Section -Style NOTOCHeading5 -ExcludeFromTOC $LocalizedData.VolumesSubHeading {
                                             $OutObj = @()
                                             foreach ($IsilonVol in $IsilonVols) {
                                                 try {
 
                                                     $inObj = [ordered] @{
-                                                        'Name' = $IsilonVol.Name
-                                                        'Total Space' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $IsilonVol.Size
-                                                        'Used Space' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $IsilonVol.ConsumedSpace
-                                                        'Thin Provision' = $IsilonVol.IsThinProvision
+                                                        $LocalizedData.Name = $IsilonVol.Name
+                                                        $LocalizedData.TotalSpace = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $IsilonVol.Size
+                                                        $LocalizedData.UsedSpace = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $IsilonVol.ConsumedSpace
+                                                        $LocalizedData.ThinProvision = $IsilonVol.IsThinProvision
                                                     }
 
                                                     $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
@@ -85,7 +86,7 @@ function Get-AbrVbrStorageIsilon {
                                             }
 
                                             $TableParams = @{
-                                                Name = "Isilon Volumes - $($IsilonHost.Name)"
+                                                Name = "$($LocalizedData.IsilonVolumesTableHeading) - $($IsilonHost.Name)"
                                                 List = $false
                                                 ColumnWidths = 52, 15, 15, 18
                                             }
@@ -93,7 +94,7 @@ function Get-AbrVbrStorageIsilon {
                                             if ($Report.ShowTableCaptions) {
                                                 $TableParams['Caption'] = "- $($TableParams.Name)"
                                             }
-                                            $OutObj | Sort-Object -Property 'Name' | Table @TableParams
+                                            $OutObj | Sort-Object -Property $LocalizedData.Name | Table @TableParams
                                         }
                                     }
                                 } catch {

@@ -22,22 +22,25 @@ function Get-AbrVbrHistorySetting {
 
     begin {
         Write-PScriboMessage "Discovering Veeam VBR History settings information from $System."
+        $LocalizedData = $reportTranslate.GetAbrVbrHistorySetting
         Show-AbrDebugExecutionTime -Start -TitleMessage 'History settings '
     }
 
     process {
         try {
             if ($HistorySettings = Get-VBRHistoryOptions) {
-                Section -Style Heading4 'History Retention' {
+                Section -Style Heading4 $LocalizedData.Heading {
+                    Paragraph $LocalizedData.Paragraph
+                    BlankLine
                     $OutObj = @()
                     $inObj = [ordered] @{
-                        'Keep All Sessions' = $HistorySettings.KeepAllSessions
-                        'Retention Limit' = "$($HistorySettings.RetentionLimitWeeks) weeks"
+                        $LocalizedData.KeepAllSessions = $HistorySettings.KeepAllSessions
+                        $LocalizedData.RetentionLimit = "$($HistorySettings.RetentionLimitWeeks) weeks"
                     }
                     $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                     $TableParams = @{
-                        Name = "History Settings - $VeeamBackupServer"
+                        Name = "$($LocalizedData.TableHeading) - $VeeamBackupServer"
                         List = $true
                         ColumnWidths = 40, 60
                     }

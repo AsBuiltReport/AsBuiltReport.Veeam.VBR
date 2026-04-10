@@ -5,7 +5,7 @@ function Get-AbrVbrNDMPInfo {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.24
+        Version:        1.0.0
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -21,6 +21,7 @@ function Get-AbrVbrNDMPInfo {
 
     begin {
         Write-PScriboMessage "Discovering Veeam VBR NDMP Servers information from $System."
+        $LocalizedData = $reportTranslate.GetAbrVbrNDMPInfo
         Show-AbrDebugExecutionTime -Start -TitleMessage 'NDMP Servers'
     }
 
@@ -28,18 +29,20 @@ function Get-AbrVbrNDMPInfo {
         try {
             if ($VbrLicenses | Where-Object { $_.Edition -in @('EnterprisePlus', 'Enterprise') -and $_.Status -ne 'Expired' }) {
                 if ($NDMPObjs = Get-VBRNDMPServer | Sort-Object -Property Name) {
-                    Section -Style Heading3 'NDMP Servers' {
+                    Section -Style Heading3 $LocalizedData.Heading {
+                        Paragraph $LocalizedData.Paragraph
+                        BlankLine
                         $OutObj = @()
                         try {
                             foreach ($NDMPObj in $NDMPObjs) {
                                 try {
 
                                     $inObj = [ordered] @{
-                                        'Name' = $NDMPObj.Name
-                                        'Credentials' = $NDMPObj.Credentials
-                                        'Port' = $NDMPObj.Port
-                                        'Gateway' = switch ($NDMPObj.SelectedGatewayId) {
-                                            '00000000-0000-0000-0000-000000000000' { 'Automatic' }
+                                        $LocalizedData.Name = $NDMPObj.Name
+                                        $LocalizedData.Credentials = $NDMPObj.Credentials
+                                        $LocalizedData.Port = $NDMPObj.Port
+                                        $LocalizedData.Gateway = switch ($NDMPObj.SelectedGatewayId) {
+                                            '00000000-0000-0000-0000-000000000000' { $LocalizedData.Automatic }
                                             default { (Get-VBRServer | Where-Object { $_.Id -eq $NDMPObj.SelectedGatewayId }).Name }
                                         }
                                     }
@@ -51,7 +54,7 @@ function Get-AbrVbrNDMPInfo {
                             }
 
                             $TableParams = @{
-                                Name = "NDMP Servers - $VeeamBackupServer"
+                                Name = "$($LocalizedData.TableHeading) - $VeeamBackupServer"
                                 List = $false
                                 ColumnWidths = 35, 20, 10, 35
                             }

@@ -6,7 +6,7 @@ function Get-AbrVbrTapeVault {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.24
+        Version:        1.0.0
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -21,7 +21,8 @@ function Get-AbrVbrTapeVault {
     )
 
     begin {
-        Write-PScriboMessage "Discovering Veeam VBR Tape Vault information from $System."
+        $LocalizedData = $reportTranslate.GetAbrVbrTapeVault
+        Write-PScriboMessage ($LocalizedData.Collecting -f $System)
         Show-AbrDebugExecutionTime -Start -TitleMessage 'Tape Vaults'
     }
 
@@ -29,17 +30,19 @@ function Get-AbrVbrTapeVault {
         try {
             if ($VbrLicenses | Where-Object { $_.Edition -in @('EnterprisePlus', 'Enterprise') -and $_.Status -ne 'Expired' }) {
                 if ($TapeObjs = Get-VBRTapeVault | Sort-Object -Property Name) {
-                    Section -Style Heading3 'Tape Vaults' {
+                    Section -Style Heading3 $LocalizedData.Heading {
+                        Paragraph $LocalizedData.Paragraph
+                        BlankLine
                         $OutObj = @()
                         try {
                             foreach ($TapeObj in $TapeObjs) {
                                 try {
 
                                     $inObj = [ordered] @{
-                                        'Name' = $TapeObj.Name
-                                        'Description' = $TapeObj.Description
-                                        'Automatic Protect' = $TapeObj.Protect
-                                        'Location' = (Get-VBRLocation -Object $TapeObj -ErrorAction SilentlyContinue)
+                                        $LocalizedData.Name = $TapeObj.Name
+                                        $LocalizedData.Description = $TapeObj.Description
+                                        $LocalizedData.AutomaticProtect = $TapeObj.Protect
+                                        $LocalizedData.Location = try {(Get-VBRLocation -Object $TapeObj -ErrorAction SilentlyContinue).Location} catch { '--' }
                                     }
                                     $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                                 } catch {
@@ -48,12 +51,12 @@ function Get-AbrVbrTapeVault {
                             }
 
                             if ($HealthCheck.Tape.BestPractice) {
-                                $OutObj | Where-Object { $_.'Description' -eq '--' } | Set-Style -Style Warning -Property 'Description'
-                                $OutObj | Where-Object { $_.'Description' -match 'Created by' } | Set-Style -Style Warning -Property 'Description'
+                                $OutObj | Where-Object { $_.$LocalizedData.Description -eq '--' } | Set-Style -Style Warning -Property $LocalizedData.Description
+                                $OutObj | Where-Object { $_.$LocalizedData.Description -match 'Created by' } | Set-Style -Style Warning -Property $LocalizedData.Description
                             }
 
                             $TableParams = @{
-                                Name = "Tape Vault - $VeeamBackupServer"
+                                Name = "$($LocalizedData.TableHeading) - $VeeamBackupServer"
                                 List = $false
                                 ColumnWidths = 32, 32, 16, 20
                             }
@@ -63,12 +66,12 @@ function Get-AbrVbrTapeVault {
                             }
                             $OutObj | Table @TableParams
                             if ($HealthCheck.Tape.BestPractice) {
-                                if ($OutObj | Where-Object { $_.'Description' -match 'Created by' -or $_.'Description' -eq '--' }) {
-                                    Paragraph 'Health Check:' -Bold -Underline
+                                if ($OutObj | Where-Object { $_.$LocalizedData.Description -match 'Created by' -or $_.$LocalizedData.Description -eq '--' }) {
+                                    Paragraph $LocalizedData.HealthCheck -Bold -Underline
                                     BlankLine
                                     Paragraph {
-                                        Text 'Best Practice:' -Bold
-                                        Text 'It is a general rule of good practice to establish well-defined descriptions. This helps to speed up the fault identification process, as well as enabling better documentation of the environment.'
+                                        Text $LocalizedData.BestPractice -Bold
+                                        Text $LocalizedData.BPDescription
                                     }
                                     BlankLine
                                 }

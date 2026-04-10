@@ -6,7 +6,7 @@ function Get-AbrVbrFileShareBackupjob {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.24
+        Version:        1.0.0
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -21,7 +21,7 @@ function Get-AbrVbrFileShareBackupjob {
     )
 
     begin {
-        Write-PScriboMessage "Discovering Veeam VBR File Share Backup jobs information from $System."
+        Write-PScriboMessage ($reportTranslate.GetAbrVbrFileShareBackupjob.Collecting -f $System)
         Show-AbrDebugExecutionTime -Start -TitleMessage 'File Share Backup Jobs'
     }
 
@@ -29,27 +29,27 @@ function Get-AbrVbrFileShareBackupjob {
         try {
             if ($FSBkjobs = Get-VBRJob -WarningAction SilentlyContinue | Where-Object { $_.TypeToString -like 'File Backup' -or $_.TypeToString -like 'Object Storage Backup' }) {
                 if ($VbrVersion -lt 12.1) {
-                    $BSName = 'File Share Backup Jobs'
+                    $BSName = $reportTranslate.GetAbrVbrFileShareBackupjob.FileShareBackupJobs
                 } else {
-                    $BSName = 'Unstructured Data Backup Jobs'
+                    $BSName = $reportTranslate.GetAbrVbrFileShareBackupjob.UnstructuredDataBackupJobs
                 }
                 Section -Style Heading3 $BSName {
-                    Paragraph "The following section lists all $($BSName.ToLower()) configured in Veeam Backup & Replication, along with their current status and last run result."
+                    Paragraph ($reportTranslate.GetAbrVbrFileShareBackupjob.Paragraph -f $BSName.ToLower())
                     BlankLine
                     $OutObj = @()
                     foreach ($FSBkjob in $FSBkjobs) {
                         try {
 
                             $inObj = [ordered] @{
-                                'Name' = $FSBkjob.Name
-                                'Type' = $FSBkjob.TypeToString
-                                'Status' = switch ($FSBkjob.IsScheduleEnabled) {
-                                    'False' { 'Disabled' }
-                                    'True' { 'Enabled' }
+                                $reportTranslate.GetAbrVbrFileShareBackupjob.Name = $FSBkjob.Name
+                                $reportTranslate.GetAbrVbrFileShareBackupjob.Type = $FSBkjob.TypeToString
+                                $reportTranslate.GetAbrVbrFileShareBackupjob.Status = switch ($FSBkjob.IsScheduleEnabled) {
+                                    'False' { $reportTranslate.GetAbrVbrFileShareBackupjob.Disabled }
+                                    'True' { $reportTranslate.GetAbrVbrFileShareBackupjob.Enabled }
                                 }
-                                'Latest Result' = $FSBkjob.info.LatestStatus
-                                'Last Run' = switch ($FSBkjob.FindLastSession()) {
-                                    $Null { 'Unknown' }
+                                $reportTranslate.GetAbrVbrFileShareBackupjob.LatestResult = $FSBkjob.info.LatestStatus
+                                $reportTranslate.GetAbrVbrFileShareBackupjob.LastRun = switch ($FSBkjob.FindLastSession()) {
+                                    $Null { $reportTranslate.GetAbrVbrFileShareBackupjob.Unknown }
                                     default { $FSBkjob.FindLastSession().EndTimeUTC }
                                 }
                             }
@@ -60,9 +60,9 @@ function Get-AbrVbrFileShareBackupjob {
                     }
 
                     if ($HealthCheck.Jobs.Status) {
-                        $OutObj | Where-Object { $_.'Latest Result' -eq 'Failed' } | Set-Style -Style Critical -Property 'Latest Result'
-                        $OutObj | Where-Object { $_.'Latest Result' -eq 'Warning' } | Set-Style -Style Warning -Property 'Latest Result'
-                        $OutObj | Where-Object { $_.'Status' -eq 'Disabled' } | Set-Style -Style Warning -Property 'Status'
+                        $OutObj | Where-Object { $_.$reportTranslate.GetAbrVbrFileShareBackupjob.LatestResult -eq 'Failed' } | Set-Style -Style Critical -Property $reportTranslate.GetAbrVbrFileShareBackupjob.LatestResult
+                        $OutObj | Where-Object { $_.$reportTranslate.GetAbrVbrFileShareBackupjob.LatestResult -eq 'Warning' } | Set-Style -Style Warning -Property $reportTranslate.GetAbrVbrFileShareBackupjob.LatestResult
+                        $OutObj | Where-Object { $_.$reportTranslate.GetAbrVbrFileShareBackupjob.Status -eq $reportTranslate.GetAbrVbrFileShareBackupjob.Disabled } | Set-Style -Style Warning -Property $reportTranslate.GetAbrVbrFileShareBackupjob.Status
                         $OutObj | Where-Object { $_.'Scheduled?' -eq 'No' } | Set-Style -Style Warning -Property 'Scheduled?'
                     }
 
@@ -74,7 +74,7 @@ function Get-AbrVbrFileShareBackupjob {
                     if ($Report.ShowTableCaptions) {
                         $TableParams['Caption'] = "- $($TableParams.Name)"
                     }
-                    $OutObj | Sort-Object -Property 'Name' | Table @TableParams
+                    $OutObj | Sort-Object -Property $reportTranslate.GetAbrVbrFileShareBackupjob.Name | Table @TableParams
                 }
             }
         } catch {

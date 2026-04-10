@@ -6,7 +6,7 @@ function Get-AbrVbrEntraIDBackupjob {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.24
+        Version:        1.0.0
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -22,25 +22,26 @@ function Get-AbrVbrEntraIDBackupjob {
 
     begin {
         Write-PScriboMessage "Discovering Veeam VBR EntraID Tenant Backup jobs information from $System."
+        $LocalizedData = $reportTranslate.GetAbrVbrEntraIDBackupjob
         Show-AbrDebugExecutionTime -Start -TitleMessage 'EntraID Tenant Backup Jobs'
     }
 
     process {
         try {
             if ($Bkjobs = Get-VBREntraIDTenantBackupJob | Sort-Object -Property 'Name') {
-                Section -Style Heading3 'EntraID Tenant Backup Jobs' {
-                    Paragraph 'The following section lists all Microsoft Entra ID tenant backup jobs configured in Veeam Backup & Replication, along with their current status and last run result.'
+                Section -Style Heading3 $LocalizedData.Heading {
+                    Paragraph $LocalizedData.Paragraph
                     BlankLine
                     $OutObj = @()
                     foreach ($Bkjob in $Bkjobs) {
                         try {
 
                             $inObj = [ordered] @{
-                                'Name' = $Bkjob.Name
-                                'Tenant' = $Bkjob.Tenant.Name
-                                'Schedule Status' = switch ($Bkjob.EnableSchedule) {
-                                    'False' { 'Not Scheduled' }
-                                    'True' { 'Scheduled' }
+                                $LocalizedData.Name = $Bkjob.Name
+                                $LocalizedData.Tenant = $Bkjob.Tenant.Name
+                                $LocalizedData.ScheduleStatus = switch ($Bkjob.EnableSchedule) {
+                                    'False' { $LocalizedData.NotScheduled }
+                                    'True' { $LocalizedData.Scheduled }
                                 }
                             }
                             $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
@@ -50,14 +51,14 @@ function Get-AbrVbrEntraIDBackupjob {
                     }
 
                     $TableParams = @{
-                        Name = "EntraID Tenant Backup Jobs - $VeeamBackupServer"
+                        Name = "$($LocalizedData.TableHeading) - $VeeamBackupServer"
                         List = $false
                         ColumnWidths = 40, 40, 20
                     }
                     if ($Report.ShowTableCaptions) {
                         $TableParams['Caption'] = "- $($TableParams.Name)"
                     }
-                    $OutObj | Sort-Object -Property 'Tenant' | Table @TableParams
+                    $OutObj | Sort-Object -Property $LocalizedData.Tenant | Table @TableParams
                 }
             }
         } catch {

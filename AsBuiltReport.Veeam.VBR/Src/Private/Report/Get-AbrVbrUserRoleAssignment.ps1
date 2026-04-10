@@ -6,7 +6,7 @@ function Get-AbrVbrUserRoleAssignment {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.24
+        Version:        1.0.0
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -22,13 +22,14 @@ function Get-AbrVbrUserRoleAssignment {
 
     begin {
         Write-PScriboMessage "Discovering Veeam VBR Roles information from $System."
+        $LocalizedData = $reportTranslate.GetAbrVbrUserRoleAssignment
         Show-AbrDebugExecutionTime -Start -TitleMessage 'Roles and Users'
     }
 
     process {
         try {
-            Section -Style Heading3 'Roles and Users' {
-                Paragraph 'The following section provides information about the roles and permissions assigned to users and groups within Veeam Backup & Replication.'
+            Section -Style Heading3 $LocalizedData.Heading {
+                Paragraph $LocalizedData.Paragraph
                 BlankLine
                 $OutObj = @()
                 try {
@@ -36,9 +37,9 @@ function Get-AbrVbrUserRoleAssignment {
                     foreach ($RoleAssignment in $RoleAssignments) {
 
                         $inObj = [ordered] @{
-                            'Name' = $RoleAssignment.Name
-                            'Type' = $RoleAssignment.Type
-                            'Role' = $RoleAssignment.Role
+                            $LocalizedData.Name = $RoleAssignment.Name
+                            $LocalizedData.Type = $RoleAssignment.Type
+                            $LocalizedData.Role = $RoleAssignment.Role
                         }
                         $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                     }
@@ -48,42 +49,42 @@ function Get-AbrVbrUserRoleAssignment {
 
                 if ($HealthCheck.Infrastructure.Settings) {
                     $List = @()
-                    $OutObj | Where-Object { $_.'Name' -eq 'BUILTIN\Administrators' } | Set-Style -Style Warning -Property 'Name'
-                    foreach ( $OBJ in ($OutObj | Where-Object { $_.'Name' -eq 'BUILTIN\Administrators' })) {
-                        $OBJ.'Name' = $OBJ.'Name' + ' (1)'
-                        $List += "Veeam recommends to give every Veeam admin his own admin account or add their admin account to the appropriate security group within Veeam and to remove the default 'Veeam Backup Administrator' role from local Administrators group, for traceability and easy adding and removal"
+                    $OutObj | Where-Object { $_.$($LocalizedData.Name) -eq 'BUILTIN\Administrators' } | Set-Style -Style Warning -Property $LocalizedData.Name
+                    foreach ( $OBJ in ($OutObj | Where-Object { $_.$($LocalizedData.Name) -eq 'BUILTIN\Administrators' })) {
+                        $OBJ.$($LocalizedData.Name) = $OBJ.$($LocalizedData.Name) + ' (1)'
+                        $List += $LocalizedData.BP1
 
                     }
                 }
 
                 $TableParams = @{
-                    Name = "Roles and Users - $VeeamBackupServer"
+                    Name = "$($LocalizedData.TableHeading) - $VeeamBackupServer"
                     List = $false
                     ColumnWidths = 45, 15, 40
                 }
                 if ($Report.ShowTableCaptions) {
                     $TableParams['Caption'] = "- $($TableParams.Name)"
                 }
-                $OutObj | Sort-Object -Property 'Name' | Table @TableParams
+                $OutObj | Sort-Object -Property $LocalizedData.Name | Table @TableParams
                 if ($HealthCheck.Infrastructure.BestPractice -and $List) {
-                    Paragraph 'Health Check:' -Bold -Underline
+                    Paragraph $LocalizedData.HealthCheck -Bold -Underline
                     BlankLine
-                    Paragraph 'Security Best Practice:' -Bold
+                    Paragraph $LocalizedData.SecurityBestPractice -Bold
                     List -Item $List -Numbered
                     if ($List ) {
                         Paragraph {
-                            Text -Bold 'Reference:'
+                            Text -Bold $LocalizedData.Reference
                         }
                         BlankLine
                         Paragraph {
-                            Text 'https://bp.veeam.com/security/Design-and-implementation/Roles_And_Users.html#roles-and-users'
+                            Text $LocalizedData.BPUrl
                         }
                         BlankLine
                     }
                 }
                 if ($VbrVersion -ge 12) {
                     try {
-                        Section -ExcludeFromTOC -Style NOTOCHeading4 'Roles and Users Settings' {
+                        Section -ExcludeFromTOC -Style NOTOCHeading4 $LocalizedData.SettingsSubHeading {
                             BlankLine
                             $OutObj = @()
                             try {
@@ -105,11 +106,11 @@ function Get-AbrVbrUserRoleAssignment {
                                 foreach ($RoleAssignment in $RoleAssignments) {
 
                                     $inObj = [ordered] @{
-                                        'Is MFA globally enabled?' = $MFAGlobalSetting
-                                        'Is auto logoff on inactivity enabled?' = $AutoTerminateSession
-                                        'Auto logoff on inactivity after' = "$($AutoTerminateSessionMin) minutes"
-                                        'Is Four-eye Authorization enabled?' = $UserActionNotification
-                                        'Auto reject pending approvals after' = "$($UserActionRetention) days"
+                                        $LocalizedData.IsMFAEnabled = $MFAGlobalSetting
+                                        $LocalizedData.IsAutoLogoffEnabled = $AutoTerminateSession
+                                        $LocalizedData.AutoLogoffAfter = "$($AutoTerminateSessionMin) minutes"
+                                        $LocalizedData.IsFourEyeEnabled = $UserActionNotification
+                                        $LocalizedData.AutoRejectPending = "$($UserActionRetention) days"
                                     }
                                     $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
                                 }
@@ -120,30 +121,30 @@ function Get-AbrVbrUserRoleAssignment {
                             if ($HealthCheck.Infrastructure.Settings) {
                                 $List = @()
                                 $Num = 0
-                                $OutObj | Where-Object { $_.'Is MFA globally enabled?' -like 'No' } | Set-Style -Style Warning -Property 'Is MFA globally enabled?'
-                                foreach ( $OBJ in ($OutObj | Where-Object { $_.'Is MFA globally enabled?' -eq 'No' })) {
+                                $OutObj | Where-Object { $_.$($LocalizedData.IsMFAEnabled) -like 'No' } | Set-Style -Style Warning -Property $LocalizedData.IsMFAEnabled
+                                foreach ( $OBJ in ($OutObj | Where-Object { $_.$($LocalizedData.IsMFAEnabled) -eq 'No' })) {
                                     $Num++
-                                    $OBJ.'Is MFA globally enabled?' = $OBJ.'Is MFA globally enabled?' + " ($Num)"
-                                    $List += "To ensure comprehensive security, it's crucial to implement MFA across all user accounts. By using a combination of different authentication factors like passwords, biometrics, and one-time passcodes, you create layers of security that make it harder for attackers to gain unauthorized access."
+                                    $OBJ.$($LocalizedData.IsMFAEnabled) = $OBJ.$($LocalizedData.IsMFAEnabled) + " ($Num)"
+                                    $List += $LocalizedData.BPMfa
 
                                 }
-                                $OutObj | Where-Object { $_.'Is auto logoff on inactivity enabled?' -like 'No' } | Set-Style -Style Warning -Property 'Is auto logoff on inactivity enabled?'
-                                foreach ( $OBJ in ($OutObj | Where-Object { $_.'Is auto logoff on inactivity enabled?' -eq 'No' })) {
+                                $OutObj | Where-Object { $_.$($LocalizedData.IsAutoLogoffEnabled) -like 'No' } | Set-Style -Style Warning -Property $LocalizedData.IsAutoLogoffEnabled
+                                foreach ( $OBJ in ($OutObj | Where-Object { $_.$($LocalizedData.IsAutoLogoffEnabled) -eq 'No' })) {
                                     $Num++
-                                    $OBJ.'Is auto logoff on inactivity enabled?' = $OBJ.'Is auto logoff on inactivity enabled?' + " ($Num)"
-                                    $List += 'Limiting the length of inactive sessions can help protect sensitive information and prevent unauthorized account access.'
+                                    $OBJ.$($LocalizedData.IsAutoLogoffEnabled) = $OBJ.$($LocalizedData.IsAutoLogoffEnabled) + " ($Num)"
+                                    $List += $LocalizedData.BPAutoLogoff
 
                                 }
-                                $OutObj | Where-Object { $_.'Is Four-eye Authorization enabled?' -like 'No' } | Set-Style -Style Warning -Property 'Is Four-eye Authorization enabled?'
-                                foreach ( $OBJ in ($OutObj | Where-Object { $_.'Is Four-eye Authorization enabled?' -eq 'No' })) {
+                                $OutObj | Where-Object { $_.$($LocalizedData.IsFourEyeEnabled) -like 'No' } | Set-Style -Style Warning -Property $LocalizedData.IsFourEyeEnabled
+                                foreach ( $OBJ in ($OutObj | Where-Object { $_.$($LocalizedData.IsFourEyeEnabled) -eq 'No' })) {
                                     $Num++
-                                    $OBJ.'Is Four-eye Authorization enabled?' = $OBJ.'Is Four-eye Authorization enabled?' + " ($Num)"
-                                    $List += 'Veeam recommends configuring Four-eye Authorization to be able to protect against accidental deletion of backup and repositories by requiring an approval from another Backup Administrator.'
+                                    $OBJ.$($LocalizedData.IsFourEyeEnabled) = $OBJ.$($LocalizedData.IsFourEyeEnabled) + " ($Num)"
+                                    $List += $LocalizedData.BPFourEye
                                 }
                             }
 
                             $TableParams = @{
-                                Name = "Roles and Users Settings - $VeeamBackupServer"
+                                Name = "$($LocalizedData.SettingsTableHeading) - $VeeamBackupServer"
                                 List = $True
                                 ColumnWidths = 40, 60
                             }
@@ -152,9 +153,9 @@ function Get-AbrVbrUserRoleAssignment {
                             }
                             $OutObj | Table @TableParams
                             if ($HealthCheck.Infrastructure.BestPractice -and $List) {
-                                Paragraph 'Health Check:' -Bold -Underline
+                                Paragraph $LocalizedData.HealthCheck -Bold -Underline
                                 BlankLine
-                                Paragraph 'Security Best Practice:' -Bold
+                                Paragraph $LocalizedData.SecurityBestPractice -Bold
                                 List -Item $List -Numbered
                             }
                         }

@@ -6,7 +6,7 @@ function Get-AbrVbrFileToTape {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.24
+        Version:        1.0.0
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -22,41 +22,42 @@ function Get-AbrVbrFileToTape {
 
     begin {
         Write-PScriboMessage "Discovering Veeam VBR File to Tape Backup jobs configuration information from $System."
+        $LocalizedData = $reportTranslate.GetAbrVbrFileToTape
         Show-AbrDebugExecutionTime -Start -TitleMessage 'File to Tape Backup jobs'
     }
 
     process {
         try {
             if ($TBkjobs = Get-VBRTapeJob | Where-Object { $_.Type -eq 'FileToTape' } | Sort-Object -Property Name) {
-                Section -Style Heading3 'File To Tape Job Configuration' {
-                    Paragraph 'The following section provides detailed configuration information for each File-to-Tape job, including source paths, tape media pool, and schedule settings.'
+                Section -Style Heading3 $LocalizedData.Heading {
+                    Paragraph $LocalizedData.Paragraph
                     BlankLine
                     $OutObj = @()
                     if ($TBkjobs) {
                         foreach ($TBkjob in $TBkjobs) {
                             Section -Style Heading4 $($TBkjob.Name) {
-                                Section -Style NOTOCHeading5 -ExcludeFromTOC 'Backups Information' {
+                                Section -Style NOTOCHeading5 -ExcludeFromTOC $LocalizedData.BackupsInformation {
                                     $OutObj = @()
                                     try {
 
                                         $inObj = [ordered] @{
-                                            'Name' = $TBkjob.Name
-                                            'Type' = $TBkjob.Type
-                                            'Next Run' = switch ($TBkjob.Enabled) {
-                                                'False' { 'Disabled' }
+                                            $LocalizedData.Name = $TBkjob.Name
+                                            $LocalizedData.Type = $TBkjob.Type
+                                            $LocalizedData.NextRun = switch ($TBkjob.Enabled) {
+                                                'False' { $LocalizedData.Disabled }
                                                 default { $TBkjob.NextRun }
                                             }
-                                            'Description' = $TBkjob.Description
+                                            $LocalizedData.Description = $TBkjob.Description
                                         }
                                         $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                         if ($HealthCheck.Jobs.BestPractice) {
-                                            $OutObj | Where-Object { $_.'Description' -eq '--' } | Set-Style -Style Warning -Property 'Description'
-                                            $OutObj | Where-Object { $_.'Description' -match 'Created by' } | Set-Style -Style Warning -Property 'Description'
+                                            $OutObj | Where-Object { $_.$($LocalizedData.Description) -eq '--' } | Set-Style -Style Warning -Property $LocalizedData.Description
+                                            $OutObj | Where-Object { $_.$($LocalizedData.Description) -match 'Created by' } | Set-Style -Style Warning -Property $LocalizedData.Description
                                         }
 
                                         $TableParams = @{
-                                            Name = "Common Information - $($TBkjob.Name)"
+                                            Name = "$($LocalizedData.CommonInformation) - $($TBkjob.Name)"
                                             List = $true
                                             ColumnWidths = 40, 60
                                         }
@@ -65,12 +66,12 @@ function Get-AbrVbrFileToTape {
                                         }
                                         $OutObj | Table @TableParams
                                         if ($HealthCheck.Jobs.BestPractice) {
-                                            if ($OutObj | Where-Object { $_.'Description' -match 'Created by' -or $_.'Description' -eq '--' }) {
-                                                Paragraph 'Health Check:' -Bold -Underline
+                                            if ($OutObj | Where-Object { $_.$($LocalizedData.Description) -match 'Created by' -or $_.$($LocalizedData.Description) -eq '--' }) {
+                                                Paragraph $LocalizedData.HealthCheck -Bold -Underline
                                                 BlankLine
                                                 Paragraph {
-                                                    Text 'Best Practice:' -Bold
-                                                    Text 'It is a general rule of good practice to establish well-defined descriptions. This helps to speed up the fault identification process, as well as enabling better documentation of the environment.'
+                                                    Text $LocalizedData.BestPractice -Bold
+                                                    Text $LocalizedData.BestPracticeDescription
                                                 }
                                                 BlankLine
                                             }
@@ -81,18 +82,18 @@ function Get-AbrVbrFileToTape {
                                 }
                                 if ($TBkjob.Object) {
                                     try {
-                                        Section -Style NOTOCHeading5 -ExcludeFromTOC 'Files and Folders' {
+                                        Section -Style NOTOCHeading5 -ExcludeFromTOC $LocalizedData.FilesAndFolders {
                                             $OutObj = @()
                                             foreach ($File in $TBkjob.Object) {
                                                 try {
 
                                                     $inObj = [ordered] @{
-                                                        'Name' = $File.Server.Name
-                                                        'Type' = $File.Server.Type
-                                                        'Selection Type' = $File.SelectionType
-                                                        'Path' = $File.Path
-                                                        'Include Filter' = $File.IncludeMask
-                                                        'Exclude Filter' = $File.ExcludeMask
+                                                        $LocalizedData.Name = $File.Server.Name
+                                                        $LocalizedData.Type = $File.Server.Type
+                                                        $LocalizedData.SelectionType = $File.SelectionType
+                                                        $LocalizedData.Path = $File.Path
+                                                        $LocalizedData.IncludeFilter = $File.IncludeMask
+                                                        $LocalizedData.ExcludeFilter = $File.ExcludeMask
                                                     }
                                                     $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                                                 } catch {
@@ -104,15 +105,15 @@ function Get-AbrVbrFileToTape {
                                                     try {
 
                                                         $inObj2 = [ordered] @{
-                                                            'Name' = switch ((Get-VBRNDMPServer -Id $NDMP.ServerId).Name) {
-                                                                $Null { 'NDMP Object' }
+                                                            $LocalizedData.Name = switch ((Get-VBRNDMPServer -Id $NDMP.ServerId).Name) {
+                                                                $Null { $LocalizedData.NdmpObject }
                                                                 default { (Get-VBRNDMPServer -Id $NDMP.ServerId).Name }
                                                             }
-                                                            'Type' = 'NDMP'
-                                                            'Selection Type' = 'Directory'
-                                                            'Path' = $NDMP.Name
-                                                            'Include Filter' = '--'
-                                                            'Exclude Filter' = '--'
+                                                            $LocalizedData.Type = $LocalizedData.Ndmp
+                                                            $LocalizedData.SelectionType = $LocalizedData.Directory
+                                                            $LocalizedData.Path = $NDMP.Name
+                                                            $LocalizedData.IncludeFilter = '--'
+                                                            $LocalizedData.ExcludeFilter = '--'
                                                         }
                                                         $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj2)
                                                     } catch {
@@ -122,7 +123,7 @@ function Get-AbrVbrFileToTape {
                                             }
 
                                             $TableParams = @{
-                                                Name = "Files and Folders - $($TBkjob.Name)"
+                                                Name = "$($LocalizedData.FilesAndFolders) - $($TBkjob.Name)"
                                                 List = $false
                                                 ColumnWidths = 25, 15, 15, 25, 10, 10
                                             }
@@ -137,32 +138,32 @@ function Get-AbrVbrFileToTape {
                                 }
                                 if ($TBkjob.FullBackupMediaPool) {
                                     try {
-                                        Section -Style NOTOCHeading5 -ExcludeFromTOC 'Full Backup' {
+                                        Section -Style NOTOCHeading5 -ExcludeFromTOC $LocalizedData.FullBackup {
                                             $OutObj = @()
                                             foreach ($BackupMediaPool in $TBkjob.FullBackupMediaPool) {
                                                 try {
 
                                                     $inObj = [ordered] @{
-                                                        'Name' = $BackupMediaPool.Name
-                                                        'Pool Type' = $BackupMediaPool.Type
-                                                        'Tape Count' = (Get-VBRTapeMedium -MediaPool $BackupMediaPool.Name).count
-                                                        'Capacity' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $BackupMediaPool.Capacity
-                                                        'Remaining' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $BackupMediaPool.FreeSpace
-                                                        'Is WORM' = $BackupMediaPool.Worm
-                                                        'Schedule Enabled' = $TBkjob.FullBackupPolicy.Enabled
+                                                        $LocalizedData.Name = $BackupMediaPool.Name
+                                                        $LocalizedData.PoolType = $BackupMediaPool.Type
+                                                        $LocalizedData.TapeCount = (Get-VBRTapeMedium -MediaPool $BackupMediaPool.Name).count
+                                                        $LocalizedData.Capacity = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $BackupMediaPool.Capacity
+                                                        $LocalizedData.Remaining = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $BackupMediaPool.FreeSpace
+                                                        $LocalizedData.IsWorm = $BackupMediaPool.Worm
+                                                        $LocalizedData.ScheduleEnabled = $TBkjob.FullBackupPolicy.Enabled
                                                     }
                                                     if ($BackupMediaPool.Type -eq 'Custom' -and $TBkjob.FullBackupPolicy.Enabled) {
                                                         if ($TBkjob.FullBackupPolicy.Type -eq 'Daily') {
-                                                            $inObj.add('Daily at this Time', ("$($TBkjob.FullBackupPolicy.DailyOptions.Period) - $($TBkjob.FullBackupPolicy.DailyOptions.DayOfWeek -join ', ')"))
+                                                            $inObj.add($LocalizedData.DailyAtThisTime, ("$($TBkjob.FullBackupPolicy.DailyOptions.Period) - $($TBkjob.FullBackupPolicy.DailyOptions.DayOfWeek -join ', ')"))
                                                         } elseif ($TBkjob.FullBackupPolicy.Type -eq 'Monthly') {
                                                             $Months = switch (($TBkjob.FullBackupPolicy.MonthlyOptions.Months).count) {
-                                                                12 { 'Every Month' }
+                                                                12 { $LocalizedData.EveryMonth }
                                                                 default { $TBkjob.FullBackupPolicy.MonthlyOptions.Months -join ', ' }
                                                             }
                                                             if ($TBkjob.FullBackupPolicy.MonthlyOptions.DayNumberInMonth -eq 'OnDay') {
-                                                                $inObj.add('Monthly at this Time', ("At $($TBkjob.FullBackupPolicy.DailyOptions.Period), Monthly on the: $($TBkjob.FullBackupPolicy.MonthlyOptions.DayOfMonth) day of $Months"))
+                                                                $inObj.add($LocalizedData.MonthlyAtThisTime, ($LocalizedData.MonthlyOnTheDayOf -f $TBkjob.FullBackupPolicy.DailyOptions.Period, $TBkjob.FullBackupPolicy.MonthlyOptions.DayOfMonth, $Months))
                                                             } else {
-                                                                $inObj.add('Monthly at this Time', ("At $($TBkjob.FullBackupPolicy.DailyOptions.Period), Monthly on the: $($TBkjob.FullBackupPolicy.MonthlyOptions.DayNumberInMonth) $($TBkjob.FullBackupPolicy.MonthlyOptions.DayOfWeek) of $Months"))
+                                                                $inObj.add($LocalizedData.MonthlyAtThisTime, ($LocalizedData.MonthlyOnTheDayNumberOf -f $TBkjob.FullBackupPolicy.DailyOptions.Period, $TBkjob.FullBackupPolicy.MonthlyOptions.DayNumberInMonth, $TBkjob.FullBackupPolicy.MonthlyOptions.DayOfWeek, $Months))
                                                             }
                                                         }
                                                     }
@@ -173,7 +174,7 @@ function Get-AbrVbrFileToTape {
                                             }
 
                                             $TableParams = @{
-                                                Name = "Full Backup - $($TBkjob.Name)"
+                                                Name = "$($LocalizedData.FullBackup) - $($TBkjob.Name)"
                                                 List = $True
                                                 ColumnWidths = 40, 60
                                             }
@@ -188,32 +189,32 @@ function Get-AbrVbrFileToTape {
                                 }
                                 if ($TBkjob.IncrementalBackupPolicy) {
                                     try {
-                                        Section -Style NOTOCHeading5 -ExcludeFromTOC 'Incremental Backup' {
+                                        Section -Style NOTOCHeading5 -ExcludeFromTOC $LocalizedData.IncrementalBackup {
                                             $OutObj = @()
                                             foreach ($BackupMediaPool in $TBkjob.IncrementalBackupMediaPool) {
                                                 try {
 
                                                     $inObj = [ordered] @{
-                                                        'Name' = $BackupMediaPool.Name
-                                                        'Pool Type' = $BackupMediaPool.Type
-                                                        'Tape Count' = (Get-VBRTapeMedium -MediaPool $BackupMediaPool.Name).count
-                                                        'Capacity' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $BackupMediaPool.Capacity
-                                                        'Remaining' = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $BackupMediaPool.FreeSpace
-                                                        'Is WORM' = $BackupMediaPool.Worm
-                                                        'Schedule Enabled' = $TBkjob.IncrementalBackupPolicy.Enabled
+                                                        $LocalizedData.Name = $BackupMediaPool.Name
+                                                        $LocalizedData.PoolType = $BackupMediaPool.Type
+                                                        $LocalizedData.TapeCount = (Get-VBRTapeMedium -MediaPool $BackupMediaPool.Name).count
+                                                        $LocalizedData.Capacity = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $BackupMediaPool.Capacity
+                                                        $LocalizedData.Remaining = ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $BackupMediaPool.FreeSpace
+                                                        $LocalizedData.IsWorm = $BackupMediaPool.Worm
+                                                        $LocalizedData.ScheduleEnabled = $TBkjob.IncrementalBackupPolicy.Enabled
                                                     }
                                                     if ($BackupMediaPool.Type -eq 'Custom' -and $TBkjob.IncrementalBackupPolicy.Enabled) {
                                                         if ($TBkjob.IncrementalBackupPolicy.Type -eq 'Daily') {
-                                                            $inObj.add('Daily at this Time', ("$($TBkjob.IncrementalBackupPolicy.DailyOptions.Period) - $($TBkjob.IncrementalBackupPolicy.DailyOptions.DayOfWeek -join ', ')"))
+                                                            $inObj.add($LocalizedData.DailyAtThisTime, ("$($TBkjob.IncrementalBackupPolicy.DailyOptions.Period) - $($TBkjob.IncrementalBackupPolicy.DailyOptions.DayOfWeek -join ', ')"))
                                                         } elseif ($TBkjob.IncrementalBackupPolicy.Type -eq 'Monthly') {
                                                             $Months = switch (($TBkjob.IncrementalBackupPolicy.MonthlyOptions.Months).count) {
-                                                                12 { 'Every Month' }
+                                                                12 { $LocalizedData.EveryMonth }
                                                                 default { $TBkjob.IncrementalBackupPolicy.MonthlyOptions.Months -join ', ' }
                                                             }
                                                             if ($TBkjob.IncrementalBackupPolicy.MonthlyOptions.DayNumberInMonth -eq 'OnDay') {
-                                                                $inObj.add('Monthly at this Time', ("At $($TBkjob.IncrementalBackupPolicy.DailyOptions.Period), Monthly on the: $($TBkjob.IncrementalBackupPolicy.MonthlyOptions.DayOfMonth) day of $Months"))
+                                                                $inObj.add($LocalizedData.MonthlyAtThisTime, ($LocalizedData.MonthlyOnTheDayOf -f $TBkjob.IncrementalBackupPolicy.DailyOptions.Period, $TBkjob.IncrementalBackupPolicy.MonthlyOptions.DayOfMonth, $Months))
                                                             } else {
-                                                                $inObj.add('Monthly at this Time', ("At $($TBkjob.IncrementalBackupPolicy.DailyOptions.Period), Monthly on the: $($TBkjob.IncrementalBackupPolicy.MonthlyOptions.DayNumberInMonth) $($TBkjob.IncrementalBackupPolicy.MonthlyOptions.DayOfWeek) of $Months"))
+                                                                $inObj.add($LocalizedData.MonthlyAtThisTime, ($LocalizedData.MonthlyOnTheDayNumberOf -f $TBkjob.IncrementalBackupPolicy.DailyOptions.Period, $TBkjob.IncrementalBackupPolicy.MonthlyOptions.DayNumberInMonth, $TBkjob.IncrementalBackupPolicy.MonthlyOptions.DayOfWeek, $Months))
                                                             }
                                                         }
                                                     }
@@ -224,7 +225,7 @@ function Get-AbrVbrFileToTape {
                                             }
 
                                             $TableParams = @{
-                                                Name = "Incremental Backup - $($TBkjob.Name)"
+                                                Name = "$($LocalizedData.IncrementalBackup) - $($TBkjob.Name)"
                                                 List = $True
                                                 ColumnWidths = 40, 60
                                             }
@@ -238,14 +239,14 @@ function Get-AbrVbrFileToTape {
                                     }
                                 }
                                 try {
-                                    Section -Style NOTOCHeading5 -ExcludeFromTOC 'Options' {
+                                    Section -Style NOTOCHeading5 -ExcludeFromTOC $LocalizedData.OptionsSection {
                                         $OutObj = @()
                                         try {
 
                                             $inObj = [ordered] @{
-                                                'Use Microsoft volume shadow copy (VSS)' = $TBkjob.UseVss
-                                                'Eject Tape Media Upon Job Completion' = $TBkjob.EjectCurrentMedium
-                                                'Export the following MediaSet Upon Job Completion' = $TBkjob.ExportCurrentMediaSet
+                                                $LocalizedData.UseVss = $TBkjob.UseVss
+                                                $LocalizedData.EjectTapeMedia = $TBkjob.EjectCurrentMedium
+                                                $LocalizedData.ExportMediaSet = $TBkjob.ExportCurrentMediaSet
                                             }
                                             $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                                         } catch {
@@ -253,7 +254,7 @@ function Get-AbrVbrFileToTape {
                                         }
 
                                         $TableParams = @{
-                                            Name = "Options - $($TBkjob.Name)"
+                                            Name = "$($LocalizedData.OptionsTable) - $($TBkjob.Name)"
                                             List = $True
                                             ColumnWidths = 40, 60
                                         }
@@ -263,13 +264,13 @@ function Get-AbrVbrFileToTape {
                                         $OutObj | Sort-Object -Property 'Name' | Table @TableParams
                                         if ($InfoLevel.Jobs.Tape -ge 2 -and $TBkjob.NotificationOptions.EnableAdditionalNotification) {
                                             try {
-                                                Section -Style NOTOCHeading6 -ExcludeFromTOC 'Advanced Settings (Notifications)' {
+                                                Section -Style NOTOCHeading6 -ExcludeFromTOC $LocalizedData.AdvancedSettingsNotifications {
                                                     $OutObj = @()
                                                     try {
 
                                                         $inObj = [ordered] @{
-                                                            'Send Email Notification' = $TBkjob.NotificationOptions.EnableAdditionalNotification
-                                                            'Email Notification Additional Recipients' = $TBkjob.NotificationOptions.AdditionalAddress -join ','
+                                                            $LocalizedData.SendEmailNotification = $TBkjob.NotificationOptions.EnableAdditionalNotification
+                                                            $LocalizedData.EmailAdditionalRecipients = $TBkjob.NotificationOptions.AdditionalAddress -join ','
                                                         }
                                                         if (!$TBkjob.NotificationOptions.UseNotificationOptions) {
                                                             $inObj.add('Use Global Notification Settings', ($TBkjob.NotificationOptions.UseNotificationOptions))
@@ -288,7 +289,7 @@ function Get-AbrVbrFileToTape {
                                                     }
 
                                                     $TableParams = @{
-                                                        Name = "Advanced Settings (Notifications) - $($TBkjob.Name)"
+                                                        Name = "$($LocalizedData.AdvancedSettingsNotificationsTable) - $($TBkjob.Name)"
                                                         List = $True
                                                         ColumnWidths = 40, 60
                                                     }
@@ -303,12 +304,12 @@ function Get-AbrVbrFileToTape {
                                         }
                                         if ($InfoLevel.Jobs.Tape -ge 2 -and $TBkjob.NotificationOptions.EnableAdditionalNotification) {
                                             try {
-                                                Section -Style NOTOCHeading6 -ExcludeFromTOC 'Advanced Settings (Advanced)' {
+                                                Section -Style NOTOCHeading6 -ExcludeFromTOC $LocalizedData.AdvancedSettingsAdvanced {
                                                     $OutObj = @()
                                                     try {
 
                                                         $inObj = [ordered] @{
-                                                            'Use Hardware Compression when available' = $TBkjob.UseHardwareCompression
+                                                            $LocalizedData.UseHardwareCompression = $TBkjob.UseHardwareCompression
                                                         }
                                                         if (!$TBkjob.JobScriptOptions.PreScriptEnabled) {
                                                             $inObj.add('Pre Job Script Enabled', ($TBkjob.JobScriptOptions.PreScriptEnabled))
@@ -336,7 +337,7 @@ function Get-AbrVbrFileToTape {
                                                     }
 
                                                     $TableParams = @{
-                                                        Name = "Advanced Settings (Advanced) - $($TBkjob.Name)"
+                                                        Name = "$($LocalizedData.AdvancedSettingsAdvancedTable) - $($TBkjob.Name)"
                                                         List = $True
                                                         ColumnWidths = 40, 60
                                                     }

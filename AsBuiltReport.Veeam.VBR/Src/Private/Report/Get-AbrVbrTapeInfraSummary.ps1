@@ -22,6 +22,7 @@ function Get-AbrVbrTapeInfraSummary {
 
     begin {
         Write-PScriboMessage "Discovering Veeam VBR Tape Infrastructure Summary from $System."
+        $LocalizedData = $reportTranslate.GetAbrVbrTapeInfraSummary
         Show-AbrDebugExecutionTime -Start -TitleMessage 'Tape Infrastructure Inventory'
     }
 
@@ -36,12 +37,12 @@ function Get-AbrVbrTapeInfraSummary {
                 $TapeDrive = Get-VBRTapeDrive
                 $TapeMedium = Get-VBRTapeMedium
                 $inObj = [ordered] @{
-                    'Tape Servers' = $TapeServer.Count
-                    'Tape Library' = $TapeLibrary.Count
-                    'Tape MediaPool' = $TapeMediaPool.Count
-                    'Tape Vault' = $TapeVault.Count
-                    'Tape Drives' = $TapeDrive.Count
-                    'Tape Medium' = $TapeMedium.Count
+                    $LocalizedData.TapeServers = $TapeServer.Count
+                    $LocalizedData.TapeLibrary = $TapeLibrary.Count
+                    $LocalizedData.TapeMediaPool = $TapeMediaPool.Count
+                    $LocalizedData.TapeVault = $TapeVault.Count
+                    $LocalizedData.TapeDrives = $TapeDrive.Count
+                    $LocalizedData.TapeMedium = $TapeMedium.Count
                 }
                 $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
             } catch {
@@ -49,7 +50,7 @@ function Get-AbrVbrTapeInfraSummary {
             }
 
             $TableParams = @{
-                Name = "Tape Infrastructure Inventory - $VeeamBackupServer"
+                Name = "$($LocalizedData.TableHeading) - $VeeamBackupServer"
                 List = $true
                 ColumnWidths = 50, 50
             }

@@ -6,7 +6,7 @@ function Get-AbrVbrCloudConnectRR {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.24
+        Version:        1.0.0
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -22,14 +22,15 @@ function Get-AbrVbrCloudConnectRR {
 
     begin {
         Write-PScriboMessage "Discovering Veeam VBR Cloud Connect Replica Resources information from $System."
+        $LocalizedData = $reportTranslate.GetAbrVbrCloudConnectRR
         Show-AbrDebugExecutionTime -Start -TitleMessage 'Cloud Connect Replica Resources'
     }
 
     process {
         if ($VbrLicenses | Where-Object { $_.CloudConnect -ne 'Disabled' }) {
             if ($CloudObjects = Get-VBRCloudHardwarePlan | Sort-Object -Property Name) {
-                Section -Style Heading3 'Replica Resources' {
-                    Paragraph 'The following table provides a summary of Replica Resources allocated to Cloud Connect tenants for virtual machine replication.'
+                Section -Style Heading3 $LocalizedData.Heading {
+                    Paragraph $LocalizedData.Paragraph
                     BlankLine
                     try {
                         $OutObj = @()
@@ -37,21 +38,21 @@ function Get-AbrVbrCloudConnectRR {
                             try {
 
                                 $inObj = [ordered] @{
-                                    'Name' = $CloudObject.Name
-                                    'Platform' = $CloudObject.Platform
-                                    'CPU' = switch ([string]::IsNullOrEmpty($CloudObject.CPU)) {
-                                        $true { 'Unlimited' }
+                                    $LocalizedData.Name = $CloudObject.Name
+                                    $LocalizedData.Platform = $CloudObject.Platform
+                                    $LocalizedData.CPU = switch ([string]::IsNullOrEmpty($CloudObject.CPU)) {
+                                        $true { $LocalizedData.Unlimited }
                                         $false { "$([math]::Round($CloudObject.CPU / 1000, 1)) Ghz" }
-                                        default { '--' }
+                                        default { $LocalizedData.Dash }
                                     }
-                                    'Memory' = switch ([string]::IsNullOrEmpty($CloudObject.Memory)) {
-                                        $true { 'Unlimited' }
+                                    $LocalizedData.Memory = switch ([string]::IsNullOrEmpty($CloudObject.Memory)) {
+                                        $true { $LocalizedData.Unlimited }
                                         $false { ConvertTo-FileSizeString -Size (Convert-Size -From MB -To Bytes -Value $CloudObject.Memory) -RoundUnits $Options.RoundUnits }
-                                        default { '--' }
+                                        default { $LocalizedData.Dash }
                                     }
-                                    'Storage Quota' = ConvertTo-FileSizeString -Size (Convert-Size -From GB -To Bytes -Value ($CloudObject.Datastore.Quota | Measure-Object -Sum).Sum) -RoundUnits $Options.RoundUnits
-                                    'Network Count' = $CloudObject.NumberOfNetWithInternet + $CloudObject.NumberOfNetWithoutInternet
-                                    'Subscribers Count' = ($CloudObject.SubscribedTenantId).count
+                                    $LocalizedData.StorageQuota = ConvertTo-FileSizeString -Size (Convert-Size -From GB -To Bytes -Value ($CloudObject.Datastore.Quota | Measure-Object -Sum).Sum) -RoundUnits $Options.RoundUnits
+                                    $LocalizedData.NetworkCount = $CloudObject.NumberOfNetWithInternet + $CloudObject.NumberOfNetWithoutInternet
+                                    $LocalizedData.SubscribersCount = ($CloudObject.SubscribedTenantId).count
                                 }
 
                                 $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
@@ -61,11 +62,11 @@ function Get-AbrVbrCloudConnectRR {
                         }
 
                         if ($HealthCheck.CloudConnect.ReplicaResources) {
-                            $OutObj | Where-Object { $_.'Subscribers Count' -eq 0 } | Set-Style -Style Warning -Property 'Subscribers Count'
+                            $OutObj | Where-Object { $_.$($LocalizedData.SubscribersCount) -eq 0 } | Set-Style -Style Warning -Property $LocalizedData.SubscribersCount
                         }
 
                         $TableParams = @{
-                            Name = "Replica Resources - $($VeeamBackupServer)"
+                            Name = "$($LocalizedData.TableHeading) - $($VeeamBackupServer)"
                             List = $false
                             ColumnWidths = 26, 12, 12, 12, 12, 12, 14
                         }
@@ -78,45 +79,45 @@ function Get-AbrVbrCloudConnectRR {
                         #                          Replica Resources Configuration Section                            #
                         #---------------------------------------------------------------------------------------------#
                         if ($InfoLevel.CloudConnect.ReplicaResources -ge 2) {
-                            Section -Style Heading4 'Replica Resources Configuration' {
+                            Section -Style Heading4 $LocalizedData.ConfigHeading {
                                 try {
                                     $OutObj = @()
                                     foreach ($CloudObject in $CloudObjects) {
                                         try {
                                             Section -Style Heading5 $CloudObject.Name {
                                                 try {
-                                                    Section -ExcludeFromTOC -Style NOTOCHeading6 'Host Hardware Quota' {
+                                                    Section -ExcludeFromTOC -Style NOTOCHeading6 $LocalizedData.HostHardwareQuotaHeading {
 
                                                         $inObj = [ordered] @{
-                                                            'Host or Cluster' = "$($CloudObject.Host.Name) ($($CloudObject.Host.Type))"
-                                                            'Platform' = $CloudObject.Platform
-                                                            'CPU' = switch ([string]::IsNullOrEmpty($CloudObject.CPU)) {
-                                                                $true { 'Unlimited' }
+                                                            $LocalizedData.HostOrCluster = "$($CloudObject.Host.Name) ($($CloudObject.Host.Type))"
+                                                            $LocalizedData.Platform = $CloudObject.Platform
+                                                            $LocalizedData.CPU = switch ([string]::IsNullOrEmpty($CloudObject.CPU)) {
+                                                                $true { $LocalizedData.Unlimited }
                                                                 $false { "$([math]::Round($CloudObject.CPU / 1000, 1)) Ghz" }
-                                                                default { '--' }
+                                                                default { $LocalizedData.Dash }
                                                             }
-                                                            'Memory' = switch ([string]::IsNullOrEmpty($CloudObject.Memory)) {
-                                                                $true { 'Unlimited' }
+                                                            $LocalizedData.Memory = switch ([string]::IsNullOrEmpty($CloudObject.Memory)) {
+                                                                $true { $LocalizedData.Unlimited }
                                                                 $false { ConvertTo-FileSizeString -Size (Convert-Size -From MB -To Bytes -Value $CloudObject.Memory) -RoundUnits $Options.RoundUnits }
-                                                                default { '--' }
+                                                                default { $LocalizedData.Dash }
                                                             }
-                                                            'Network Count' = $CloudObject.NumberOfNetWithInternet + $CloudObject.NumberOfNetWithoutInternet
-                                                            'Subscribed Tenant' = switch ([string]::IsNullOrEmpty($CloudObject.SubscribedTenantId)) {
-                                                                $true { 'None' }
+                                                            $LocalizedData.NetworkCount = $CloudObject.NumberOfNetWithInternet + $CloudObject.NumberOfNetWithoutInternet
+                                                            $LocalizedData.SubscribedTenant = switch ([string]::IsNullOrEmpty($CloudObject.SubscribedTenantId)) {
+                                                                $true { $LocalizedData.None }
                                                                 $false { ($CloudObject.SubscribedTenantId | ForEach-Object { Get-VBRCloudTenant -Id $_ }).Name -join ', ' }
-                                                                default { 'Unknown' }
+                                                                default { $LocalizedData.Unknown }
                                                             }
-                                                            'Description' = $CloudObject.Description
+                                                            $LocalizedData.Description = $CloudObject.Description
                                                         }
 
                                                         $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                         if ($HealthCheck.CloudConnect.ReplicaResources) {
-                                                            $OutObj | Where-Object { $_.'Subscribed Tenant' -eq 'None' } | Set-Style -Style Warning -Property 'Subscribed Tenant'
+                                                            $OutObj | Where-Object { $_.$($LocalizedData.SubscribedTenant) -eq $LocalizedData.None } | Set-Style -Style Warning -Property $LocalizedData.SubscribedTenant
                                                         }
 
                                                         $TableParams = @{
-                                                            Name = "Host Hardware Quota - $($CloudObject.Name)"
+                                                            Name = "$($LocalizedData.TableHostHardwareQuota) - $($CloudObject.Name)"
                                                             List = $true
                                                             ColumnWidths = 40, 60
                                                         }
@@ -130,26 +131,26 @@ function Get-AbrVbrCloudConnectRR {
                                                     Write-PScriboMessage -IsWarning "Host Hardware Quota $($CloudObject.Host.Name) Section: $($_.Exception.Message)"
                                                 }
                                                 try {
-                                                    Section -ExcludeFromTOC -Style NOTOCHeading6 'Storage Quota' {
+                                                    Section -ExcludeFromTOC -Style NOTOCHeading6 $LocalizedData.StorageQuotaHeading {
                                                         $OutObj = @()
 
                                                         foreach ($Storage in $CloudObject.Datastore) {
                                                             $inObj = [ordered] @{
-                                                                'Datastore Name' = $Storage.Datastore
-                                                                'Friendly Name' = $Storage.FriendlyName
-                                                                'Platform' = $Storage.Platform
-                                                                'Storage Quota' = ConvertTo-FileSizeString -Size (Convert-Size -From GB -To Bytes -Value $Storage.Quota) -RoundUnits $Options.RoundUnits
-                                                                'Storage Policy' = switch ([string]::IsNullOrEmpty($Storage.StoragePolicy.Name)) {
-                                                                    $true { '--' }
+                                                                $LocalizedData.DatastoreName = $Storage.Datastore
+                                                                $LocalizedData.FriendlyName = $Storage.FriendlyName
+                                                                $LocalizedData.Platform = $Storage.Platform
+                                                                $LocalizedData.StorageQuota = ConvertTo-FileSizeString -Size (Convert-Size -From GB -To Bytes -Value $Storage.Quota) -RoundUnits $Options.RoundUnits
+                                                                $LocalizedData.StoragePolicyCol = switch ([string]::IsNullOrEmpty($Storage.StoragePolicy.Name)) {
+                                                                    $true { $LocalizedData.Dash }
                                                                     $false { $Storage.StoragePolicy.Name }
-                                                                    default { 'Unknown' }
+                                                                    default { $LocalizedData.Unknown }
                                                                 }
                                                             }
 
                                                             $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                             $TableParams = @{
-                                                                Name = "Storage Quota - $($Storage.Datastore)"
+                                                                Name = "$($LocalizedData.TableStorageQuota) - $($Storage.Datastore)"
                                                                 List = $true
                                                                 ColumnWidths = 40, 60
                                                             }
@@ -164,27 +165,27 @@ function Get-AbrVbrCloudConnectRR {
                                                     Write-PScriboMessage -IsWarning "Storage Quota $($CloudObject.Name) Section: $($_.Exception.Message)"
                                                 }
                                                 try {
-                                                    Section -ExcludeFromTOC -Style NOTOCHeading6 'Network Quota' {
+                                                    Section -ExcludeFromTOC -Style NOTOCHeading6 $LocalizedData.NetworkQuotaHeading {
                                                         $OutObj = @()
                                                         $VlanConfiguration = Get-VBRCloudVLANConfiguration | Where-Object { $_.Host.Name -eq $CloudObject.Host.Name }
 
                                                         $inObj = [ordered] @{
-                                                            'Specify number of networks with Internet Access' = $CloudObject.NumberOfNetWithInternet + $CloudObject.NumberOfNetWithoutInternet
-                                                            'Specify number of internal networks' = $CloudObject.NumberOfNetWithoutInternet
+                                                            $LocalizedData.SpecifyNetworksWithInternet = $CloudObject.NumberOfNetWithInternet + $CloudObject.NumberOfNetWithoutInternet
+                                                            $LocalizedData.SpecifyInternalNetworks = $CloudObject.NumberOfNetWithoutInternet
                                                         }
 
                                                         if ($VlanConfiguration) {
-                                                            $inObj.add('Host or Cluster', "$($VlanConfiguration.Host.Name) ($($VlanConfiguration.Host.Type))")
-                                                            $inObj.add('Platform', $VlanConfiguration.Platform)
-                                                            $inObj.add('Virtual Switch', $VlanConfiguration.VirtualSwitch)
-                                                            $inObj.add('VLANs With Internet', "$($VlanConfiguration.FirstVLANWithInternet) - $($VlanConfiguration.LastVLANWithInternet)")
-                                                            $inObj.add('VLANs Without Internet', "$($VlanConfiguration.FirstVLANWithoutInternet) - $($VlanConfiguration.LastVLANWithoutInternet)")
+                                                            $inObj.add($LocalizedData.HostOrCluster, "$($VlanConfiguration.Host.Name) ($($VlanConfiguration.Host.Type))")
+                                                            $inObj.add($LocalizedData.Platform, $VlanConfiguration.Platform)
+                                                            $inObj.add($LocalizedData.VirtualSwitch, $VlanConfiguration.VirtualSwitch)
+                                                            $inObj.add($LocalizedData.VLANsWithInternet, "$($VlanConfiguration.FirstVLANWithInternet) - $($VlanConfiguration.LastVLANWithInternet)")
+                                                            $inObj.add($LocalizedData.VLANsWithoutInternet, "$($VlanConfiguration.FirstVLANWithoutInternet) - $($VlanConfiguration.LastVLANWithoutInternet)")
                                                         }
 
                                                         $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                                         $TableParams = @{
-                                                            Name = "Network Quota - $($CloudObject.Name)"
+                                                            Name = "$($LocalizedData.TableNetworkQuota) - $($CloudObject.Name)"
                                                             List = $true
                                                             ColumnWidths = 40, 60
                                                         }
@@ -205,21 +206,21 @@ function Get-AbrVbrCloudConnectRR {
                                                         $TenantHardwarePlan += $Tenant | Select-Object Name, @{n = 'CPUUsage'; e = { $planOption.UsedCPU } }, @{n = 'MemoryUsage'; e = { $planOption.UsedMemory } }, @{n = 'StorageUsage'; e = { $planOption.DatastoreQuota } }
                                                     }
                                                     if ($TenantHardwarePlan) {
-                                                        Section -ExcludeFromTOC -Style NOTOCHeading6 'Tenant Utilization' {
+                                                        Section -ExcludeFromTOC -Style NOTOCHeading6 $LocalizedData.TenantUtilizationHeading {
                                                             $OutObj = @()
                                                             foreach ($TenantUtil in $TenantHardwarePlan) {
                                                                 $inObj = [ordered] @{
-                                                                    'Name' = $TenantUtil.Name
-                                                                    'CPU Usage' = $TenantUtil.CPUUsage
-                                                                    'Memory Usage' = $TenantUtil.MemoryUsage
-                                                                    'Storage Usage' = $TenantUtil.StorageUsage | ForEach-Object { "$(ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $_.UsedSpace) ($($_.FriendlyName))" }
+                                                                    $LocalizedData.Name = $TenantUtil.Name
+                                                                    $LocalizedData.CPUUsage = $TenantUtil.CPUUsage
+                                                                    $LocalizedData.MemoryUsage = $TenantUtil.MemoryUsage
+                                                                    $LocalizedData.StorageUsage = $TenantUtil.StorageUsage | ForEach-Object { "$(ConvertTo-FileSizeString -RoundUnits $Options.RoundUnits -Size $_.UsedSpace) ($($_.FriendlyName))" }
                                                                 }
 
                                                                 $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                                                             }
 
                                                             $TableParams = @{
-                                                                Name = "Tenant Utilization - $($CloudObject.Name)"
+                                                                Name = "$($LocalizedData.TableTenantUtilization) - $($CloudObject.Name)"
                                                                 List = $false
                                                                 ColumnWidths = 25, 25, 25, 25
                                                             }

@@ -6,7 +6,7 @@ function Get-AbrVbrNetworkTrafficRule {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.24
+        Version:        1.0.0
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -22,26 +22,27 @@ function Get-AbrVbrNetworkTrafficRule {
 
     begin {
         Write-PScriboMessage "Discovering Veeam VBR network traffic rules settings information from $System."
+        $LocalizedData = $reportTranslate.GetAbrVbrNetworkTrafficRule
         Show-AbrDebugExecutionTime -Start -TitleMessage 'NDMP Servers'
     }
 
     process {
         try {
             if ($TrafficOptions = Get-VBRNetworkTrafficRuleOptions) {
-                Section -Style Heading4 'Network Traffic Rules Options' {
-                    Paragraph 'The following section details the global network traffic rule options configured in Veeam Backup & Replication, including upload stream and IPv6 settings.'
+                Section -Style Heading4 $LocalizedData.Heading {
+                    Paragraph $LocalizedData.Paragraph
                     BlankLine
                     $OutObj = @()
                     try {
                         $inObj = [ordered] @{
-                            'Is Multiple Upload Streams Enabled?' = $TrafficOptions.MultipleUploadStreamsEnabled
-                            'Upload Streams Per Job' = $TrafficOptions.StreamsPerJobCount
-                            'Is IPv6 Enabled?' = $TrafficOptions.IPv6Enabled
+                            $LocalizedData.IsMultipleUploadStreamsEnabled = $TrafficOptions.MultipleUploadStreamsEnabled
+                            $LocalizedData.UploadStreamsPerJob = $TrafficOptions.StreamsPerJobCount
+                            $LocalizedData.IsIPv6Enabled = $TrafficOptions.IPv6Enabled
                         }
                         $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                         $TableParams = @{
-                            Name = "Network Traffic Rule Options - $VeeamBackupServer"
+                            Name = "$($LocalizedData.TableHeading) - $VeeamBackupServer"
                             List = $true
                             ColumnWidths = 40, 60
                         }
@@ -50,29 +51,29 @@ function Get-AbrVbrNetworkTrafficRule {
                         }
                         $OutObj | Table @TableParams
                         if ($TrafficRules = Get-VBRNetworkTrafficRule) {
-                            Section -Style Heading5 'Network Traffic Rule' {
-                                Paragraph 'The following section details the individual network traffic rules configured in Veeam Backup & Replication, including IP ranges, encryption, and throttling settings.'
+                            Section -Style Heading5 $LocalizedData.TrafficRuleHeading {
+                                Paragraph $LocalizedData.TrafficRuleParagraph
                                 BlankLine
                                 $OutObj = @()
                                 try {
                                     foreach ($TrafficRule in $TrafficRules) {
                                         $inObj = [ordered] @{
-                                            'Name' = $TrafficRule.Name
-                                            'Source IP Start' = $TrafficRule.SourceIPStart
-                                            'Source IP End' = $TrafficRule.SourceIPEnd
-                                            'Target IP Start' = $TrafficRule.TargetIPStart
-                                            'Target IP End' = $TrafficRule.TargetIPEnd
-                                            'Encryption Enabled' = $TrafficRule.EncryptionEnabled
-                                            'Throttling' = "Throttling Enabled: $($TrafficRule.ThrottlingEnabled)`r`nThrottling Unit: $($TrafficRule.ThrottlingUnit)`r`nThrottling Value: $($TrafficRule.ThrottlingValue)`r`nThrottling Windows: $($TrafficRule.ThrottlingWindowEnabled)"
+                                            $LocalizedData.Name = $TrafficRule.Name
+                                            $LocalizedData.SourceIPStart = $TrafficRule.SourceIPStart
+                                            $LocalizedData.SourceIPEnd = $TrafficRule.SourceIPEnd
+                                            $LocalizedData.TargetIPStart = $TrafficRule.TargetIPStart
+                                            $LocalizedData.TargetIPEnd = $TrafficRule.TargetIPEnd
+                                            $LocalizedData.EncryptionEnabled = $TrafficRule.EncryptionEnabled
+                                            $LocalizedData.Throttling = "Throttling Enabled: $($TrafficRule.ThrottlingEnabled)`r`nThrottling Unit: $($TrafficRule.ThrottlingUnit)`r`nThrottling Value: $($TrafficRule.ThrottlingValue)`r`nThrottling Windows: $($TrafficRule.ThrottlingWindowEnabled)"
                                         }
                                         $OutObj = [pscustomobject](ConvertTo-HashToYN $inObj)
 
                                         if ($HealthCheck.Infrastructure.Settings) {
-                                            $OutObj | Where-Object { $_.'Encryption Enabled' -like 'No' } | Set-Style -Style Warning -Property 'Encryption Enabled'
+                                            $OutObj | Where-Object { $_.$($LocalizedData.EncryptionEnabled) -like 'No' } | Set-Style -Style Warning -Property $LocalizedData.EncryptionEnabled
                                         }
 
                                         $TableParams = @{
-                                            Name = "Network Traffic Rules - $($TrafficRule.Name)"
+                                            Name = "$($LocalizedData.TrafficRuleHeading) - $($TrafficRule.Name)"
                                             List = $true
                                             ColumnWidths = 40, 60
                                         }
@@ -81,7 +82,7 @@ function Get-AbrVbrNetworkTrafficRule {
                                         }
                                         $OutObj | Table @TableParams
                                         if ($TrafficRule.ThrottlingWindowEnabled) {
-                                            Section -Style NOTOCHeading6 -ExcludeFromTOC 'Throttling Windows Time Period' {
+                                            Section -Style NOTOCHeading6 -ExcludeFromTOC $LocalizedData.ThrottlingWindowsHeading {
                                                 Paragraph -ScriptBlock $Legend
 
                                                 try {
@@ -89,7 +90,7 @@ function Get-AbrVbrNetworkTrafficRule {
                                                     $OutObj = Get-WindowsTimePeriod -InputTimePeriod $TrafficRule.ThrottlingWindowOptions
 
                                                     $TableParams = @{
-                                                        Name = "Throttling Windows - $($TrafficRule.Name)"
+                                                        Name = "$($LocalizedData.ThrottlingWindowsTableHeading) - $($TrafficRule.Name)"
                                                         List = $true
                                                         ColumnWidths = 6, 4, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4
                                                         Key = 'H'
@@ -130,16 +131,16 @@ function Get-AbrVbrNetworkTrafficRule {
                                 #---------------------------------------------------------------------------------------------#
                                 try {
                                     if ((Get-VBRPreferredNetwork).count -gt 0) {
-                                        Section -Style NOTOCHeading6 -ExcludeFromTOC 'Preferred Networks' {
+                                        Section -Style NOTOCHeading6 -ExcludeFromTOC $LocalizedData.PreferredNetworksHeading {
                                             $OutObj = @()
                                             $PreferedNetworks = Get-VBRPreferredNetwork
                                             foreach ($PreferedNetwork in $PreferedNetworks) {
                                                 try {
 
                                                     $inObj = [ordered] @{
-                                                        'IP Address' = $PreferedNetwork.IpAddress
-                                                        'Subnet Mask' = $PreferedNetwork.SubnetMask
-                                                        'CIDR Notation' = $PreferedNetwork.CIDRNotation
+                                                        $LocalizedData.IPAddress = $PreferedNetwork.IpAddress
+                                                        $LocalizedData.SubnetMask = $PreferedNetwork.SubnetMask
+                                                        $LocalizedData.CIDRNotation = $PreferedNetwork.CIDRNotation
                                                     }
                                                     $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                                                 } catch {
@@ -148,7 +149,7 @@ function Get-AbrVbrNetworkTrafficRule {
                                             }
 
                                             $TableParams = @{
-                                                Name = "Preferred Networks - $VeeamBackupServer"
+                                                Name = "$($LocalizedData.PreferredNetworksTableHeading) - $VeeamBackupServer"
                                                 List = $false
                                                 ColumnWidths = 30, 30, 40
                                             }

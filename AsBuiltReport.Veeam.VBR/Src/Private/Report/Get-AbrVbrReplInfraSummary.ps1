@@ -21,6 +21,7 @@ function Get-AbrVbrReplInfraSummary {
 
     begin {
         Write-PScriboMessage "Discovering Veeam VBR Replication Summary from $System."
+        $LocalizedData = $reportTranslate.GetAbrVbrReplInfraSummary
         Show-AbrDebugExecutionTime -Start -TitleMessage 'Replication Summary'
     }
 
@@ -30,20 +31,24 @@ function Get-AbrVbrReplInfraSummary {
             $Replicas = Get-VBRReplica
             $FailOverPlans = Get-VBRFailoverPlan
             $inObj = [ordered] @{
-                'Replicas' = $Replicas.Count
-                'Failover Plans' = $FailOverPlans.Count
+                $LocalizedData.Replicas = $Replicas.Count
+                $LocalizedData.FailoverPlans = $FailOverPlans.Count
             }
             $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
 
             $TableParams = @{
-                Name = "Replication Inventory - $VeeamBackupServer"
+                Name = "$($LocalizedData.TableHeading) - $VeeamBackupServer"
                 List = $true
                 ColumnWidths = 50, 50
             }
             if ($Report.ShowTableCaptions) {
                 $TableParams['Caption'] = "- $($TableParams.Name)"
             }
-            $OutObj | Table @TableParams
+            Section -Style Heading3 $LocalizedData.Heading {
+                Paragraph $LocalizedData.Paragraph
+                BlankLine
+                $OutObj | Table @TableParams
+            }
         } catch {
             Write-PScriboMessage -IsWarning "Replication Summary Section: $($_.Exception.Message)"
         }

@@ -6,7 +6,7 @@ function Get-AbrVbrLocation {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        0.8.24
+        Version:        1.0.0
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -22,14 +22,15 @@ function Get-AbrVbrLocation {
 
     begin {
         Write-PScriboMessage "Discovering Veeam VBR locations information from $System."
+        $LocalizedData = $reportTranslate.GetAbrVbrLocation
         Show-AbrDebugExecutionTime -Start -TitleMessage 'Geographical Locations'
     }
 
     process {
         try {
             if ($Locations = Get-VBRLocation) {
-                Section -Style Heading3 'Geographical Locations' {
-                    Paragraph 'The following section provides a summary of the geographical locations configured in Veeam Backup & Replication for organizing infrastructure components.'
+                Section -Style Heading3 $LocalizedData.Heading {
+                    Paragraph $LocalizedData.Paragraph
                     BlankLine
                     try {
                         $OutObj = @()
@@ -37,8 +38,8 @@ function Get-AbrVbrLocation {
                             try {
 
                                 $inObj = [ordered] @{
-                                    'Name' = $Location.Name
-                                    'id' = $Location.id
+                                    $LocalizedData.Name = $Location.Name
+                                    $LocalizedData.Id = $Location.id
                                 }
                                 $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                             } catch {
@@ -47,7 +48,7 @@ function Get-AbrVbrLocation {
                         }
 
                         $TableParams = @{
-                            Name = "Location - $VeeamBackupServer"
+                            Name = "$($LocalizedData.TableHeading) - $VeeamBackupServer"
                             List = $false
                             ColumnWidths = 50, 50
                         }

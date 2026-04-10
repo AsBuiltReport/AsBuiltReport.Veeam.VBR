@@ -12,10 +12,10 @@
     RootModule = 'AsBuiltReport.Veeam.VBR.psm1'
 
     # Version number of this module.
-    ModuleVersion = '0.9.0'
+    ModuleVersion = '1.0.0'
 
     # Supported PSEditions
-    # CompatiblePSEditions = @()
+    CompatiblePSEditions = @('Desktop', 'Core')
 
     # ID used to uniquely identify this module
     GUID = '7f25f32e-70cb-49e6-a71b-eec42e0595c1'
@@ -32,7 +32,7 @@
     # Description of the functionality provided by this module
     Description = 'A PowerShell module to generate an as built report on the configuration of Veeam VBR.'
 
-    # Minimum version of the Windows PowerShell engine required by this module
+    # Minimum version of the PowerShell engine required by this module
     PowerShellVersion = '5.1'
 
     # Name of the Windows PowerShell host required by this module
@@ -63,7 +63,7 @@
         }
         @{
             ModuleName = 'AsBuiltReport.Diagram';
-            ModuleVersion = '1.0.3'
+            ModuleVersion = '1.0.5'
         }
     )
 
@@ -83,7 +83,7 @@
     # NestedModules = @()
 
     # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
-    FunctionsToExport = @('Invoke-AsBuiltReport.Veeam.VBR')
+    FunctionsToExport = @('Invoke-AsBuiltReport.Veeam.VBR', 'Start-AsBuiltReportVBR')
 
     # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
     #CmdletsToExport = '*'
