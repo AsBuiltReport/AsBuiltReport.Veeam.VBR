@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.0.0] - 2026-03-??
 
+## :toolbox: Added
+
+- Add support for Veeam Backup & Replication v13
+- Add initial release for GUI tool (Start-AsBuiltReportVBR) to generate Veeam VBR As Built Report
+
 ### :arrows_clockwise: Changed
 
 - Update module version to `v1.0.0`
