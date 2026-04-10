@@ -333,6 +333,7 @@ function Start-AsBuiltReportVBR {
                     $sh.txtLog.Text += "[$Level] $Msg`n"
                 }
             }
+            $sh.txtLog.CaretIndex = $sh.txtLog.Text.Length
         }
 
         function Build-VbrConfigObject {
