@@ -44,7 +44,7 @@ function Get-AbrVbrGlobalNotificationSetting {
                         $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
 
                         if ($HealthCheck.Infrastructure.Settings) {
-                            $OutObj | Where-Object { $_.$LocalizedData.WarnFreeDiskSpace -eq $LocalizedData.Disabled } | Set-Style -Style Warning -Property $LocalizedData.WarnFreeDiskSpace
+                            $OutObj | Where-Object { $_.$($LocalizedData.WarnFreeDiskSpace) -eq $LocalizedData.Disabled } | Set-Style -Style Warning -Property $LocalizedData.WarnFreeDiskSpace
                         }
 
                         $TableParams = @{
