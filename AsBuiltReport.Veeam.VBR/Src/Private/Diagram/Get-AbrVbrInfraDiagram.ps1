@@ -187,7 +187,7 @@ function Get-AbrInfraDiagram {
 
                     if ($ViStandAloneNodes) {
                         try {
-                            $ViStandAloneSubgraph += Add-HtmlSubGraph -Name 'ViStandAloneSubgraph' -ImagesObj $Images -TableArray $ViStandAloneNodes -Align 'Center' -IconDebug $IconDebug -Label 'ESxi StandAlone Hosts' -LabelPos 'top' -FontColor $Fontcolor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -ColumnSize $columnSize -FontSize 24 -FontBold
+                            $ViStandAloneSubgraph += Add-HtmlSubGraph -Name 'ViStandAloneSubgraph' -ImagesObj $Images -TableArray $ViStandAloneNodes -Align 'Center' -IconDebug $IconDebug -Label 'ESXi StandAlone Hosts' -LabelPos 'top' -FontColor $Fontcolor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -ColumnSize $columnSize -FontSize 24 -FontBold
                         } catch {
                             Write-PScriboMessage 'Error: Unable to create vSphere StandAlone Objects. Disabling the section'
                             Write-PScriboMessage "Error Message: $($_.Exception.Message)"
