@@ -262,7 +262,7 @@ The table below outlines the default and maximum **InfoLevel** settings for each
 
 The **Healthcheck** schema is used to toggle health checks on or off.
 
-## :computer: Examples
+## :computer: Pwsh Console Examples
 
 Below are a few examples of running the AsBuiltReport script against a Veeam Backup Server. Refer to the `README.md` file in the main AsBuiltReport project repository for more examples.
 
@@ -280,6 +280,19 @@ PS C:\> New-AsBuiltReport -Report Veeam.VBR -Target veeam-vbr.pharmax.local -Cre
 # Generate a Veeam VBR As Built Report for Backup Server veeam-vbr.pharmax.local using stored credentials. Export report to HTML & DOCX formats. Use default report style. Reports are saved to the user profile folder by default. Attach and send reports via e-mail.
 PS C:\> New-AsBuiltReport -Report Veeam.VBR -Target veeam-vbr.pharmax.local -Username 'Domain\veeam_admin' -Password 'P@ssw0rd' -Format Html,Word -OutputFolderPath 'C:\Users\Jon\Documents' -SendEmail
 ```
+
+## :computer: Pwsh GUI Examples
+
+The Veeam VBR As Built Report GUI can be used to generate reports without using the console. The GUI provides the same functionality as the console, but with a user-friendly interface. To launch the GUI, run the following command in a PowerShell terminal window:
+
+```powershell
+# Launch the Veeam VBR As Built Report GUI
+PS C:\> Start-AsBuiltReportVBR
+```
+
+**Beta** versions of the GUI may contain bugs and issues. If you encounter any problems while using the GUI, please report them on the project's GitHub Issues page.
+
+![alt text](Samples/Sample-Gui.png)
 
 ## :x: Known Issues
 

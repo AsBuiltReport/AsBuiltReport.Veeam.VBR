@@ -25,6 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Reorganize module structure - moved module files to AsBuiltReport.Veeam.VBR/ subdirectory
 - Improve report Sections structure and organization
 - Enhance localization support by adding new messages and improving existing translations in English and Spanish language files
+- Update README with Pwsh GUI examples and add sample GUI image
 
 ### Fixed
 
