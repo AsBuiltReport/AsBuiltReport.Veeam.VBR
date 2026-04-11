@@ -38,7 +38,7 @@ function Get-AbrBackupvSphereStandAloneInfo {
 
                         $TempViObjsInfo = [PSCustomObject]@{
                             Name = $ViObj.Name
-                            Label = Add-NodeIcon -Name $ViObj.Name -IconType 'VBR_ESXi_Server' -Align 'Center' -Rows $Rows -ImagesObj $Images -IconDebug $IconDebug -FontBold
+                            Label = Add-NodeIcon -Name $ViObj.Name -IconType 'VBR_ESXi_Server' -Align 'Center' -Rows $Rows -ImagesObj $Images -IconDebug $IconDebug -FontBold -TableBackgroundColor $MainGraphBGColor -CellBackgroundColor $MainGraphBGColor -FontColor $Fontcolor
                             AditionalInfo = $Rows
                         }
                         $ViObjsInfo += $TempViObjsInfo

@@ -39,7 +39,7 @@ function Get-AbrBackupvSphereInfo {
 
                         $TempHyObjsInfo = [PSCustomObject]@{
                             Name = $HyObj.Name
-                            Label = Add-NodeIcon -Name $HyObj.Name -IconType 'VBR_vCenter_Server' -Align 'Center' -Rows $Rows -ImagesObj $Images -IconDebug $IconDebug -FontSize 18 -FontBold
+                            Label = Add-NodeIcon -Name $HyObj.Name -IconType 'VBR_vCenter_Server' -Align 'Center' -Rows $Rows -ImagesObj $Images -IconDebug $IconDebug -FontSize 18 -FontBold -TableBackgroundColor $MainGraphBGColor -CellBackgroundColor $MainGraphBGColor -FontColor $Fontcolor
                             AditionalInfo = $Rows
                             Childs = & {
                                 $VIClusters = Invoke-FindVBRViEntityWithTimeout -Server $HyObj.Name -HostsAndClustersOnly | Where-Object { ($_.type -eq 'cluster') }
@@ -47,7 +47,7 @@ function Get-AbrBackupvSphereInfo {
                                 foreach ($Cluster in $VIClusters) {
                                     [PSCustomObject]@{
                                         Name = $Cluster.Name
-                                        Label = Add-NodeIcon -Name $Cluster.Name -IconType 'VBR_vSphere_Cluster' -Align 'Center' -Rows $Rows -ImagesObj $Images -IconDebug $IconDebug -FontSize 18 -FontBold
+                                        Label = Add-NodeIcon -Name $Cluster.Name -IconType 'VBR_vSphere_Cluster' -Align 'Center' -Rows $Rows -ImagesObj $Images -IconDebug $IconDebug -FontSize 18 -FontBold -TableBackgroundColor $MainGraphBGColor -CellBackgroundColor $MainGraphBGColor -FontColor $Fontcolor
                                         EsxiHost = foreach ($Esxi in $ESXis | Where-Object { $_.path -match $Cluster.Name }) {
                                             $Rows = @{
                                                 IP = Get-AbrNodeIP -Hostname $Esxi.Info.DnsName
@@ -58,7 +58,7 @@ function Get-AbrBackupvSphereInfo {
                                             }
                                             [PSCustomObject]@{
                                                 Name = $Esxi.Name
-                                                Label = Add-NodeIcon -Name $Esxi.Name -IconType 'VBR_ESXi_Server' -Align 'Center' -Rows $Rows -ImagesObj $Images -IconDebug $IconDebug -FontSize 18 -FontBold
+                                                Label = Add-NodeIcon -Name $Esxi.Name -IconType 'VBR_ESXi_Server' -Align 'Center' -Rows $Rows -ImagesObj $Images -IconDebug $IconDebug -FontSize 18 -FontBold -TableBackgroundColor $MainGraphBGColor -CellBackgroundColor $MainGraphBGColor -FontColor $Fontcolor
                                                 AditionalInfo = $Rows
                                             }
                                         }

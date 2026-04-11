@@ -34,7 +34,7 @@ function Get-AbrBackupEntraIDInfo {
 
                     $TempEntraIDInfo = [PSCustomObject]@{
                         Name = $EntraID.Name.toUpper()
-                        Label = Add-NodeIcon -FontBold -Name "$($EntraID.Name.toUpper())" -IconType 'VBR_Microsoft_Entra_ID' -Align 'Center' -Rows $Rows -ImagesObj $Images -IconDebug $IconDebug
+                        Label = Add-NodeIcon -FontBold -Name "$($EntraID.Name.toUpper())" -IconType 'VBR_Microsoft_Entra_ID' -Align 'Center' -Rows $Rows -ImagesObj $Images -IconDebug $IconDebug -TableBackgroundColor $MainGraphBGColor -CellBackgroundColor $MainGraphBGColor -FontColor $Fontcolor
                         AditionalInfo = $Rows
                     }
                     $EntraIDInfo += $TempEntraIDInfo

@@ -130,7 +130,7 @@ function Get-AbrBackupSobrInfo {
 
                     $TempSobrInfo = [PSCustomObject]@{
                         Name = "$($Sobr.Name.toUpper())"
-                        Label = Add-NodeIcon -Name "$($Sobr.Name)" -IconType 'VBR_SOBR_Repo' -Align 'Center' -Rows $SobrRows -ImagesObj $Images -IconDebug $IconDebug -FontSize 16 -FontBold
+                        Label = Add-NodeIcon -Name "$($Sobr.Name)" -IconType 'VBR_SOBR_Repo' -Align 'Center' -Rows $SobrRows -ImagesObj $Images -IconDebug $IconDebug -FontSize 16 -FontBold -TableBackgroundColor $MainGraphBGColor -CellBackgroundColor $MainGraphBGColor -FontColor $Fontcolor
 
                         Capacity = $SobrsCapacityExtents
 

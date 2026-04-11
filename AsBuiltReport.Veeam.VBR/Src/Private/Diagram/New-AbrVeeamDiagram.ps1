@@ -147,8 +147,6 @@ function New-AbrVeeamDiagram {
         DefaultParameterSetName = 'Credential'
     )]
 
-    #Requires -RunAsAdministrator
-
     param (
 
         [Parameter(
@@ -483,6 +481,7 @@ function New-AbrVeeamDiagram {
         # Used to set diagram theme
         if ($DiagramTheme -eq 'Black') {
             $MainGraphBGColor = 'Black'
+            $TableBorderColor = 'White'
             $Edgecolor = 'White'
             $Fontcolor = 'White'
             $NodeFontcolor = 'White'
@@ -492,6 +491,7 @@ function New-AbrVeeamDiagram {
             $BackupServerFontColor = 'White'
         } elseif ($DiagramTheme -eq 'Neon') {
             $MainGraphBGColor = 'grey14'
+            $TableBorderColor = 'gold2'
             $Edgecolor = 'gold2'
             $Fontcolor = 'gold2'
             $NodeFontcolor = 'gold2'
@@ -501,6 +501,7 @@ function New-AbrVeeamDiagram {
             $BackupServerFontColor = 'gold2'
         } elseif ($DiagramTheme -eq 'White') {
             $MainGraphBGColor = 'White'
+            $TableBorderColor = 'gold2'
             $Edgecolor = '#71797E'
             $Fontcolor = '#565656'
             $NodeFontcolor = 'Black'
@@ -621,7 +622,7 @@ function New-AbrVeeamDiagram {
                 }
 
                 SubGraph OUTERDRAWBOARD1 -Attributes @{Label = $Signature; fontsize = 24; penwidth = 1.5; labelloc = 'b'; labeljust = 'r'; style = $SubGraphDebug.style; color = $SubGraphDebug.color } {
-                    SubGraph MainGraph -Attributes @{Label = (Add-HtmlLabel -ImagesObj $Images -Label $MainGraphLabel -IconType $CustomLogo -IconDebug $IconDebug -IconWidth 300 -IconHeight 90 -FontName 'Segoe Ui Black' -FontColor $Fontcolor -Fontsize 28); fontsize = 24; penwidth = 0; labelloc = 't'; labeljust = 'c' } {
+                    SubGraph MainGraph -Attributes @{Label = (Add-HtmlLabel -ImagesObj $Images -Label $MainGraphLabel -IconType $CustomLogo -IconDebug $IconDebug -IconWidth 300 -IconHeight 90 -FontName 'Segoe Ui Black' -FontColor $Fontcolor -Fontsize 28 -TableBackgroundColor $MainGraphBGColor -CellBackgroundColor $MainGraphBGColor); fontsize = 24; penwidth = 0; labelloc = 't'; labeljust = 'c' } {
 
                         if ($DiagramType -eq 'Backup-to-HyperV-Proxy') {
                             Get-AbrDiagBackupServer

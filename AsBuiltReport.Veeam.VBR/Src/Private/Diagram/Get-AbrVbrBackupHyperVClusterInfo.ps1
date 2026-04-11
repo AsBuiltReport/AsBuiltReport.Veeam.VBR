@@ -34,7 +34,7 @@ function Get-AbrBackupHyperVClusterInfo {
 
                         $TempHyObjsInfo = [PSCustomObject]@{
                             Name = $HyObj.Info.HostInstanceIdV2
-                            Label = Add-NodeIcon -Name $HyObj.Name -IconType 'VBR_HyperV_Cluster' -Align 'Center' -Rows $Rows -ImagesObj $Images -IconDebug $IconDebug -FontSize 18 -FontBold
+                            Label = Add-NodeIcon -Name $HyObj.Name -IconType 'VBR_HyperV_Cluster' -Align 'Center' -Rows $Rows -ImagesObj $Images -IconDebug $IconDebug -FontSize 18 -FontBold -TableBackgroundColor $MainGraphBGColor -CellBackgroundColor $MainGraphBGColor -FontColor $Fontcolor
                             AditionalInfo = $Rows
                             Childs = & {
                                 foreach ($HvHost in $HvHosts) {
@@ -44,7 +44,7 @@ function Get-AbrBackupHyperVClusterInfo {
                                     }
                                     [PSCustomObject]@{
                                         Name = $HvHost.Name
-                                        Label = Add-NodeIcon -Name $HvHost.Name -IconType 'VBR_HyperV_Server' -Align 'Center' -Rows $Rows -ImagesObj $Images -IconDebug $IconDebug -FontSize 18 -FontBold
+                                        Label = Add-NodeIcon -Name $HvHost.Name -IconType 'VBR_HyperV_Server' -Align 'Center' -Rows $Rows -ImagesObj $Images -IconDebug $IconDebug -FontSize 18 -FontBold -TableBackgroundColor $MainGraphBGColor -CellBackgroundColor $MainGraphBGColor -FontColor $Fontcolor
                                         AditionalInfo = $Rows
                                     }
                                 }

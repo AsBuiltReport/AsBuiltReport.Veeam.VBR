@@ -43,7 +43,7 @@ function Get-AbrDiagBackupToProtectedGroup {
                                 $FileBackupProxyColumnSize = $FileBackupProxy.Name.Count
                             }
 
-                            Node FileProxies @{Label = (Add-HtmlNodeTable -Name 'FileProxies' -ImagesObj $Images -inputObject ($FileBackupProxy | ForEach-Object { $_.Name.split('.')[0] }) -Align 'Center' -iconType 'VBR_Proxy_Server' -ColumnSize $FileBackupProxyColumnSize -IconDebug $IconDebug -MultiIcon -AditionalInfo $FileBackupProxy.AditionalInfo -Subgraph -SubgraphIconType 'VBR_Proxy' -SubgraphLabel 'File Backup Proxies' -SubgraphLabelPos 'top' -SubgraphTableStyle 'dashed,rounded' -FontColor '#000000'-TableBorderColor $Edgecolor -TableBorder '1' -SubgraphLabelFontSize 24 -FontSize 18 -SubgraphFontBold -SubgraphLabelFontColor $Fontcolor); shape = 'plain'; fontsize = 14; fontname = 'Segoe Ui' }
+                            Node FileProxies @{Label = (Add-HtmlNodeTable -Name 'FileProxies' -ImagesObj $Images -inputObject ($FileBackupProxy | ForEach-Object { $_.Name.split('.')[0] }) -Align 'Center' -iconType 'VBR_Proxy_Server' -ColumnSize $FileBackupProxyColumnSize -IconDebug $IconDebug -MultiIcon -AditionalInfo $FileBackupProxy.AditionalInfo -Subgraph -SubgraphIconType 'VBR_Proxy' -SubgraphLabel 'File Backup Proxies' -SubgraphLabelPos 'top' -SubgraphTableStyle 'dashed,rounded' -FontColor $FontColor -TableBorderColor $Edgecolor -TableBorder '1' -SubgraphLabelFontSize 24 -FontSize 18 -SubgraphFontBold -SubgraphLabelFontColor $FontColor -TableBackgroundColor $MainGraphBGColor -CellBackgroundColor $MainGraphBGColor); shape = 'plain'; fontsize = 14; fontname = 'Segoe Ui' }
 
                             Edge BackupServers -To FileProxies @{minlen = 3 }
 
@@ -93,7 +93,7 @@ function Get-AbrDiagBackupToProtectedGroup {
                                 $ADCNodesColumnSize = $ADCNodes.Count
                             }
                             try {
-                                $ADCNodesSubgraph = Add-HtmlSubGraph -Name 'ADCNodesSubgraph' -ImagesObj $Images -TableArray $ADCNodes -Align 'Center' -IconDebug $IconDebug -Label 'Active Directory Computers' -LabelPos 'top' -FontColor $Fontcolor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -ColumnSize $ADCNodesColumnSize -IconType 'VBR_AGENT_AD' -FontSize 18 -FontBold
+                                $ADCNodesSubgraph = Add-HtmlSubGraph -Name 'ADCNodesSubgraph' -ImagesObj $Images -TableArray $ADCNodes -Align 'Center' -IconDebug $IconDebug -Label 'Active Directory Computers' -LabelPos 'top' -FontColor $Fontcolor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -ColumnSize $ADCNodesColumnSize -IconType 'VBR_AGENT_AD' -FontSize 18 -FontBold -TableBackgroundColor $MainGraphBGColor
                             } catch {
                                 Write-PScriboMessage 'Error: Unable to create ADCNodesSubgraph Objects. Disabling the section'
                                 Write-PScriboMessage "Error Message: $($_.Exception.Message)"
@@ -133,7 +133,7 @@ function Get-AbrDiagBackupToProtectedGroup {
                                 $MCNodesColumnSize = $MCNodes.Count
                             }
                             try {
-                                $MCNodesSubgraph = Add-HtmlSubGraph -Name 'MCNodesSubgraph' -ImagesObj $Images -TableArray $MCNodes -Align 'Center' -IconDebug $IconDebug -Label 'Manual Computers' -LabelPos 'top' -FontColor $Fontcolor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -ColumnSize $MCNodesColumnSize -IconType 'VBR_AGENT_MC' -FontSize 18 -FontBold
+                                $MCNodesSubgraph = Add-HtmlSubGraph -Name 'MCNodesSubgraph' -ImagesObj $Images -TableArray $MCNodes -Align 'Center' -IconDebug $IconDebug -Label 'Manual Computers' -LabelPos 'top' -FontColor $Fontcolor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -ColumnSize $MCNodesColumnSize -IconType 'VBR_AGENT_MC' -FontSize 18 -FontBold -TableBackgroundColor $MainGraphBGColor
                             } catch {
                                 Write-PScriboMessage 'Error: Unable to create MCNodesSubgraph Objects. Disabling the section'
                                 Write-PScriboMessage "Error Message: $($_.Exception.Message)"
@@ -181,7 +181,7 @@ function Get-AbrDiagBackupToProtectedGroup {
                                 $ICCNodesColumnSize = $ICCNodes.Count
                             }
                             try {
-                                $ICCNodesSubgraph = Add-HtmlSubGraph -Name 'ICCNodesSubgraph' -ImagesObj $Images -TableArray $ICCNodes -Align 'Center' -IconDebug $IconDebug -Label 'Individual Computers' -LabelPos 'top' -FontColor $Fontcolor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -ColumnSize $ICCNodesColumnSize -IconType 'VBR_AGENT_IC' -FontSize 18 -FontBold
+                                $ICCNodesSubgraph = Add-HtmlSubGraph -Name 'ICCNodesSubgraph' -ImagesObj $Images -TableArray $ICCNodes -Align 'Center' -IconDebug $IconDebug -Label 'Individual Computers' -LabelPos 'top' -FontColor $Fontcolor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -ColumnSize $ICCNodesColumnSize -IconType 'VBR_AGENT_IC' -FontSize 18 -FontBold -TableBackgroundColor $MainGraphBGColor
                             } catch {
                                 Write-PScriboMessage 'Error: Unable to create ICCNodesSubgraph Objects. Disabling the section'
                                 Write-PScriboMessage "Error Message: $($_.Exception.Message)"
@@ -217,7 +217,7 @@ function Get-AbrDiagBackupToProtectedGroup {
                                 $CSVCNodesColumnSize = $CSVCNodes.Count
                             }
                             try {
-                                $CSVCNodesSubgraph = Add-HtmlSubGraph -Name 'CSVCNodesSubgraph' -ImagesObj $Images -TableArray $CSVCNodes -Align 'Center' -IconDebug $IconDebug -Label 'CSV Computers' -LabelPos 'top' -FontColor $Fontcolor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -ColumnSize $CSVCNodesColumnSize -IconType 'VBR_AGENT_CSV_Logo' -FontSize 18 -FontBold
+                                $CSVCNodesSubgraph = Add-HtmlSubGraph -Name 'CSVCNodesSubgraph' -ImagesObj $Images -TableArray $CSVCNodes -Align 'Center' -IconDebug $IconDebug -Label 'CSV Computers' -LabelPos 'top' -FontColor $Fontcolor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -ColumnSize $CSVCNodesColumnSize -IconType 'VBR_AGENT_CSV_Logo' -FontSize 18 -FontBold -TableBackgroundColor $MainGraphBGColor
                             } catch {
                                 Write-PScriboMessage 'Error: Unable to create CSVCNodesSubgraph Objects. Disabling the section'
                                 Write-PScriboMessage "Error Message: $($_.Exception.Message)"
@@ -236,14 +236,14 @@ function Get-AbrDiagBackupToProtectedGroup {
                         }
                         if ($Dir -eq 'LR') {
                             try {
-                                $ComputerAgentSubGraph = Node -Name 'ComputerAgentsSubgraph' -Attributes @{Label = (Add-HtmlSubGraph -Name 'ComputerAgentsSubgraph' -ImagesObj $Images -TableArray $ComputerAgentsArray -Align 'Center' -IconDebug $IconDebug -Label 'Protected Groups' -LabelPos 'top' -FontColor $Fontcolor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -ColumnSize $ComputerAgentsArrayColumnSize -FontSize 26 -SubgraphFontBold); shape = 'plain'; fillColor = 'transparent'; fontsize = 14; fontname = 'Segoe Ui' }
+                                $ComputerAgentSubGraph = Node -Name 'ComputerAgentsSubgraph' -Attributes @{Label = (Add-HtmlSubGraph -Name 'ComputerAgentsSubgraph' -ImagesObj $Images -TableArray $ComputerAgentsArray -Align 'Center' -IconDebug $IconDebug -Label 'Protected Groups' -LabelPos 'top' -FontColor $Fontcolor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -ColumnSize $ComputerAgentsArrayColumnSize -FontSize 26 -SubgraphFontBold -TableBackgroundColor $MainGraphBGColor); shape = 'plain'; fillColor = 'transparent'; fontsize = 14; fontname = 'Segoe Ui' }
                             } catch {
                                 Write-PScriboMessage 'Error: Unable to create ComputerAgentsSubgraph Objects. Disabling the section'
                                 Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                             }
                         } else {
                             try {
-                                $ComputerAgentSubGraph = Node -Name 'ComputerAgentsSubgraph' -Attributes @{Label = (Add-HtmlSubGraph -Name 'ComputerAgentsSubgraph' -ImagesObj $Images -TableArray $ComputerAgentsArray -Align 'Center' -IconDebug $IconDebug -Label 'Protected Groups' -LabelPos 'top' -FontColor $Fontcolor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -ColumnSize $ComputerAgentsArrayColumnSize -FontSize 26 -FontBold); shape = 'plain'; fillColor = 'transparent'; fontsize = 14; fontname = 'Segoe Ui' }
+                                $ComputerAgentSubGraph = Node -Name 'ComputerAgentsSubgraph' -Attributes @{Label = (Add-HtmlSubGraph -Name 'ComputerAgentsSubgraph' -ImagesObj $Images -TableArray $ComputerAgentsArray -Align 'Center' -IconDebug $IconDebug -Label 'Protected Groups' -LabelPos 'top' -FontColor $Fontcolor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -ColumnSize $ComputerAgentsArrayColumnSize -FontSize 26 -FontBold -TableBackgroundColor $MainGraphBGColor); shape = 'plain'; fillColor = 'transparent'; fontsize = 14; fontname = 'Segoe Ui' }
                             } catch {
                                 Write-PScriboMessage 'Error: Unable to create ComputerAgentsSubgraph Objects. Disabling the section'
                                 Write-PScriboMessage "Error Message: $($_.Exception.Message)"

@@ -41,7 +41,7 @@ function Get-AbrBackupProtectedGroupInfo {
 
                     $TempProtectedGroupInfo = [PSCustomObject]@{
                         Name = "$((Remove-SpecialCharacter -String $ProtectedGroup.Name -SpecialChars '\').toUpper())"
-                        Label = Add-NodeIcon -Name "$((Remove-SpecialCharacter -String $ProtectedGroup.Name -SpecialChars '\').toUpper())" -IconType $Type -Align 'Center' -Rows $Rows -ImagesObj $Images -IconDebug $IconDebug -FontBold
+                        Label = Add-NodeIcon -Name "$((Remove-SpecialCharacter -String $ProtectedGroup.Name -SpecialChars '\').toUpper())" -IconType $Type -Align 'Center' -Rows $Rows -ImagesObj $Images -IconDebug $IconDebug -FontBold -TableBackgroundColor $MainGraphBGColor -CellBackgroundColor $MainGraphBGColor -FontColor $Fontcolor
                         Container = $ProtectedGroup.Container.Type
                         Object = $ProtectedGroup
                     }

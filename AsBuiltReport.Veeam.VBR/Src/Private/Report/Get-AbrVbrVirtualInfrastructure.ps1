@@ -85,7 +85,7 @@ function Get-AbrVbrVirtualInfrastructure {
                                                     $inObj = [ordered] @{
                                                         $LocalizedData.Name = $InventObj.Name
                                                         $LocalizedData.Version = ($InventObj).Info.Info
-                                                        $LocalizedData.ConnectedVcenter = (Invoke-FindVBRViEntityWithTimeout -Name $InventObj.Name).Path.split('\')[0]
+                                                        $LocalizedData.ConnectedVcenter = try { (Find-VBRViEntity -Name $InventObj.Name -ServersOnly).Path.split('\')[0] } catch { Out-Null }
                                                     }
 
                                                     $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)

@@ -11,24 +11,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## :toolbox: Added
 
-- Add support for Veeam Backup & Replication v13
-- Add initial release for GUI tool (Start-AsBuiltReportVBR) to generate Veeam VBR As Built Report
+- Add support for Veeam Backup & Replication v13 (Windows and Linux Appliance)
+- Add initial release for GUI tool (Start-AsBuiltReportVBR) to generate Veeam VBR As Built Report *Beta Version*
 
 ### :arrows_clockwise: Changed
 
 - Update module version to `v1.0.0`
 - Update AsBuiltReport.Chart module to `v0.3.0`
-- Update bluesky-post-action to version 0.4.0
+- Update bluesky-post-action to version `0.4.0`
 - Migrate charts to use AsBuiltReport.Chart charting functions
 - Migrate diagrams to use AsBuiltReport.Diagram diagramming functions
 - Update module references in README.md for Veeam VBR As Built Report
 - Reorganize module structure - moved module files to AsBuiltReport.Veeam.VBR/ subdirectory
 - Improve report Sections structure and organization
 - Enhance localization support by adding new messages and improving existing translations in English and Spanish language files
+- Update README with Pwsh GUI examples and add sample GUI image
 
 ### Fixed
 
 - Fix issue with the new icons not being displayed in the diagrams due to incorrect file paths
+- Fix diagrams theme not being applied correctly in the generated diagrams
 
 ### Removed
 
