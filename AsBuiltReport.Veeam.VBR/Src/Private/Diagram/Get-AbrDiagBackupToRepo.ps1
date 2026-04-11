@@ -46,14 +46,14 @@ function Get-AbrDiagBackupToRepo {
                         }
                         try {
 
-                            $LocalBackupRepoArray = Add-HtmlNodeTable -Name 'LocalBackupRepoArray' -ImagesObj $Images -inputObject ($LocalBackupRepo | ForEach-Object { $_.Name.split('.')[0] }) -Align 'Center' -iconType 'VBR_Repository' -ColumnSize $LocalBackupRepoColumnSize -IconDebug $IconDebug -MultiIcon -AditionalInfo ($LocalBackupRepo.AditionalInfo ) -FontSize 18 -SubgraphFontBold
+                            $LocalBackupRepoArray = Add-HtmlNodeTable -Name 'LocalBackupRepoArray' -ImagesObj $Images -inputObject ($LocalBackupRepo | ForEach-Object { $_.Name.split('.')[0] }) -Align 'Center' -iconType 'VBR_Repository' -ColumnSize $LocalBackupRepoColumnSize -IconDebug $IconDebug -MultiIcon -AditionalInfo ($LocalBackupRepo.AditionalInfo ) -FontSize 18 -SubgraphFontBold -TableBackgroundColor $MainGraphBGColor -CellBackgroundColor $MainGraphBGColor -FontColor $Fontcolor
                         } catch {
                             Write-PScriboMessage 'Error: Unable to create Local Backup Repositories table Objects. Disabling the section'
                             Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                         }
                         try {
 
-                            $LocalBackupRepoSubgraph = Add-HtmlSubGraph -Name 'LocalBackupRepoSubgraph' -ImagesObj $Images -TableArray $LocalBackupRepoArray -Align 'Center' -IconDebug $IconDebug -Label 'Local Repositories' -LabelPos 'top' -FontColor $Fontcolor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -ColumnSize $LocalBackupRepoColumnSize -FontSize 24 -FontBold
+                            $LocalBackupRepoSubgraph = Add-HtmlSubGraph -Name 'LocalBackupRepoSubgraph' -ImagesObj $Images -TableArray $LocalBackupRepoArray -Align 'Center' -IconDebug $IconDebug -Label 'Local Repositories' -LabelPos 'top' -FontColor $Fontcolor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -ColumnSize $LocalBackupRepoColumnSize -FontSize 24 -FontBold -TableBackgroundColor $MainGraphBGColor
                         } catch {
                             Write-PScriboMessage 'Error: Unable to create Local Backup Repositories Subgraph. Disabling the section'
                             Write-PScriboMessage "Error Message: $($_.Exception.Message)"
@@ -73,14 +73,14 @@ function Get-AbrDiagBackupToRepo {
                         }
                         try {
 
-                            $NASBackupRepoArray = Add-HtmlNodeTable -Name 'NASBackupRepoArray' -ImagesObj $Images -inputObject ($NASBackupRepo | ForEach-Object { $_.Name.split('.')[0] }) -Align 'Center' -iconType 'VBR_NAS' -ColumnSize $NASBackupRepoColumnSize -IconDebug $IconDebug -MultiIcon -AditionalInfo ($NASBackupRepo.AditionalInfo ) -FontSize 18 -SubgraphFontBold
+                            $NASBackupRepoArray = Add-HtmlNodeTable -Name 'NASBackupRepoArray' -ImagesObj $Images -inputObject ($NASBackupRepo | ForEach-Object { $_.Name.split('.')[0] }) -Align 'Center' -iconType 'VBR_NAS' -ColumnSize $NASBackupRepoColumnSize -IconDebug $IconDebug -MultiIcon -AditionalInfo ($NASBackupRepo.AditionalInfo ) -FontSize 18 -SubgraphFontBold -TableBackgroundColor $MainGraphBGColor -CellBackgroundColor $MainGraphBGColor -FontColor $Fontcolor
                         } catch {
                             Write-PScriboMessage 'Error: Unable to create NAS Backup Repositories table Objects. Disabling the section'
                             Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                         }
 
                         try {
-                            $NASBackupRepoSubgraph = Add-HtmlSubGraph -Name 'NASBackupRepoSubgraph' -ImagesObj $Images -TableArray $NASBackupRepoArray -Align 'Center' -IconDebug $IconDebug -Label 'NAS Repositories' -LabelPos 'top' -FontColor $Fontcolor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -ColumnSize $NASBackupRepoColumnSize -FontSize 24 -FontBold
+                            $NASBackupRepoSubgraph = Add-HtmlSubGraph -Name 'NASBackupRepoSubgraph' -ImagesObj $Images -TableArray $NASBackupRepoArray -Align 'Center' -IconDebug $IconDebug -Label 'NAS Repositories' -LabelPos 'top' -FontColor $Fontcolor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -ColumnSize $NASBackupRepoColumnSize -FontSize 24 -FontBold -TableBackgroundColor $MainGraphBGColor
                         } catch {
                             Write-PScriboMessage 'Error: Unable to create NAS Backup Repositories Subgraph. Disabling the section'
                             Write-PScriboMessage "Error Message: $($_.Exception.Message)"
@@ -100,14 +100,14 @@ function Get-AbrDiagBackupToRepo {
                         }
                         try {
 
-                            $DedupBackupRepoArray = Add-HtmlNodeTable -Name 'DedupBackupRepoArray' -ImagesObj $Images -inputObject ($DedupBackupRepo | ForEach-Object { $_.Name.split('.')[0] }) -Align 'Center' -iconType 'VBR_Deduplicating_Storage' -ColumnSize $DedupBackupRepoColumnSize -IconDebug $IconDebug -MultiIcon -AditionalInfo ($DedupBackupRepo.AditionalInfo ) -FontSize 18 -SubgraphFontBold
+                            $DedupBackupRepoArray = Add-HtmlNodeTable -Name 'DedupBackupRepoArray' -ImagesObj $Images -inputObject ($DedupBackupRepo | ForEach-Object { $_.Name.split('.')[0] }) -Align 'Center' -iconType 'VBR_Deduplicating_Storage' -ColumnSize $DedupBackupRepoColumnSize -IconDebug $IconDebug -MultiIcon -AditionalInfo ($DedupBackupRepo.AditionalInfo ) -FontSize 18 -SubgraphFontBold -TableBackgroundColor $MainGraphBGColor -CellBackgroundColor $MainGraphBGColor -FontColor $Fontcolor
                         } catch {
                             Write-PScriboMessage 'Error: Unable to create Dedup Backup Repositories table Objects. Disabling the section'
                             Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                         }
 
                         try {
-                            $DedupBackupRepoSubgraph = Add-HtmlSubGraph -Name 'DedupBackupRepoSubgraph' -ImagesObj $Images -TableArray $DedupBackupRepoArray -Align 'Center' -IconDebug $IconDebug -Label 'Deduplicating Storage Appliances' -LabelPos 'top' -FontColor $Fontcolor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -ColumnSize $DedupBackupRepoColumnSize -FontSize 24 -FontBold
+                            $DedupBackupRepoSubgraph = Add-HtmlSubGraph -Name 'DedupBackupRepoSubgraph' -ImagesObj $Images -TableArray $DedupBackupRepoArray -Align 'Center' -IconDebug $IconDebug -Label 'Deduplicating Storage Appliances' -LabelPos 'top' -FontColor $Fontcolor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -ColumnSize $DedupBackupRepoColumnSize -FontSize 24 -FontBold -TableBackgroundColor $MainGraphBGColor
                         } catch {
                             Write-PScriboMessage 'Error: Unable to create Dedup Backup Repositories Subgraph. Disabling the section'
                             Write-PScriboMessage "Error Message: $($_.Exception.Message)"
@@ -126,14 +126,14 @@ function Get-AbrDiagBackupToRepo {
                             $ObjStorageColumnSize = $ObjStorage.Name.Count
                         }
                         try {
-                            $ObjStorageArray = Add-HtmlNodeTable -Name 'ObjStorageArray' -ImagesObj $Images -inputObject ($ObjStorage | ForEach-Object { $_.Name.split('.')[0] }) -Align 'Center' -iconType 'VBR_Cloud_Repository' -ColumnSize $ObjStorageColumnSize -IconDebug $IconDebug -MultiIcon -AditionalInfo ($ObjStorage.AditionalInfo ) -FontSize 18 -SubgraphFontBold
+                            $ObjStorageArray = Add-HtmlNodeTable -Name 'ObjStorageArray' -ImagesObj $Images -inputObject ($ObjStorage | ForEach-Object { $_.Name.split('.')[0] }) -Align 'Center' -iconType 'VBR_Cloud_Repository' -ColumnSize $ObjStorageColumnSize -IconDebug $IconDebug -MultiIcon -AditionalInfo ($ObjStorage.AditionalInfo ) -FontSize 18 -SubgraphFontBold -TableBackgroundColor $MainGraphBGColor -CellBackgroundColor $MainGraphBGColor -FontColor $Fontcolor
                         } catch {
                             Write-PScriboMessage 'Error: Unable to create Object Repositories table Objects. Disabling the section'
                             Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                         }
 
                         try {
-                            $ObjStorageSubgraph = Add-HtmlSubGraph -Name 'ObjStorageSubgraph' -ImagesObj $Images -TableArray $ObjStorageArray -Align 'Center' -IconDebug $IconDebug -Label 'Object Repositories' -LabelPos 'top' -FontColor $Fontcolor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -ColumnSize $ObjStorageColumnSize -FontSize 24 -FontBold
+                            $ObjStorageSubgraph = Add-HtmlSubGraph -Name 'ObjStorageSubgraph' -ImagesObj $Images -TableArray $ObjStorageArray -Align 'Center' -IconDebug $IconDebug -Label 'Object Repositories' -LabelPos 'top' -FontColor $Fontcolor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -ColumnSize $ObjStorageColumnSize -FontSize 24 -FontBold -TableBackgroundColor $MainGraphBGColor
                         } catch {
                             Write-PScriboMessage 'Error: Unable to create Object Repositories Subgraph. Disabling the section'
                             Write-PScriboMessage "Error Message: $($_.Exception.Message)"
@@ -152,14 +152,14 @@ function Get-AbrDiagBackupToRepo {
                             $ArchiveObjStorageColumnSize = $ArchiveObjStorage.Name.Count
                         }
                         try {
-                            $ArchiveObjStorageArray = Add-HtmlNodeTable -Name 'ArchiveObjStorageArray' -ImagesObj $Images -inputObject ($ArchiveObjStorage | ForEach-Object { $_.Name.split('.')[0] }) -Align 'Center' -iconType 'VBR_Cloud_Repository' -ColumnSize $ArchiveObjStorageColumnSize -IconDebug $IconDebug -MultiIcon -AditionalInfo ($ArchiveObjStorage.AditionalInfo ) -FontSize 18 -SubgraphFontBold
+                            $ArchiveObjStorageArray = Add-HtmlNodeTable -Name 'ArchiveObjStorageArray' -ImagesObj $Images -inputObject ($ArchiveObjStorage | ForEach-Object { $_.Name.split('.')[0] }) -Align 'Center' -iconType 'VBR_Cloud_Repository' -ColumnSize $ArchiveObjStorageColumnSize -IconDebug $IconDebug -MultiIcon -AditionalInfo ($ArchiveObjStorage.AditionalInfo ) -FontSize 18 -SubgraphFontBold -TableBackgroundColor $MainGraphBGColor -CellBackgroundColor $MainGraphBGColor -FontColor $Fontcolor
                         } catch {
                             Write-PScriboMessage 'Error: Unable to create Archive Object Repositories table Objects. Disabling the section'
                             Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                         }
                         try {
 
-                            $ArchiveObjStorageSubgraph = Add-HtmlSubGraph -Name 'ArchiveObjStorageSubgraph' -ImagesObj $Images -TableArray $ArchiveObjStorageArray -Align 'Center' -IconDebug $IconDebug -Label 'Archive Object Repositories' -LabelPos 'top' -FontColor $Fontcolor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -ColumnSize $ArchiveObjStorageColumnSize -FontSize 24 -FontBold
+                            $ArchiveObjStorageSubgraph = Add-HtmlSubGraph -Name 'ArchiveObjStorageSubgraph' -ImagesObj $Images -TableArray $ArchiveObjStorageArray -Align 'Center' -IconDebug $IconDebug -Label 'Archive Object Repositories' -LabelPos 'top' -FontColor $Fontcolor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -ColumnSize $ArchiveObjStorageColumnSize -FontSize 24 -FontBold -TableBackgroundColor $MainGraphBGColor
                         } catch {
                             Write-PScriboMessage 'Error: Unable to create Archive Object Repositories Subgraph. Disabling the section'
                             Write-PScriboMessage "Error Message: $($_.Exception.Message)"
@@ -180,14 +180,14 @@ function Get-AbrDiagBackupToRepo {
                         }
                         try {
 
-                            $CloudBackupRepoArray = Add-HtmlNodeTable -Name 'CloudBackupRepoArray' -ImagesObj $Images -inputObject ($CloudBackupRepo | ForEach-Object { $_.Name.split('.')[0] }) -Align 'Center' -iconType 'VBR_Cloud_Repository' -ColumnSize $CloudBackupRepoColumnSize -IconDebug $IconDebug -MultiIcon -AditionalInfo ($CloudBackupRepo.AditionalInfo ) -FontSize 18 -SubgraphFontBold
+                            $CloudBackupRepoArray = Add-HtmlNodeTable -Name 'CloudBackupRepoArray' -ImagesObj $Images -inputObject ($CloudBackupRepo | ForEach-Object { $_.Name.split('.')[0] }) -Align 'Center' -iconType 'VBR_Cloud_Repository' -ColumnSize $CloudBackupRepoColumnSize -IconDebug $IconDebug -MultiIcon -AditionalInfo ($CloudBackupRepo.AditionalInfo ) -FontSize 18 -SubgraphFontBold -TableBackgroundColor $MainGraphBGColor -CellBackgroundColor $MainGraphBGColor -FontColor $Fontcolor
                         } catch {
                             Write-PScriboMessage 'Error: Unable to create Cloud Backup Repositories table Objects. Disabling the section'
                             Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                         }
                         try {
 
-                            $CloudBackupRepoSubgraph = Add-HtmlSubGraph -Name 'CloudBackupRepoSubgraph' -ImagesObj $Images -TableArray $CloudBackupRepoArray -Align 'Center' -IconDebug $IconDebug -Label 'Cloud Repositories' -LabelPos 'top' -FontColor $Fontcolor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -ColumnSize $CloudBackupRepoColumnSize -FontSize 24 -FontBold
+                            $CloudBackupRepoSubgraph = Add-HtmlSubGraph -Name 'CloudBackupRepoSubgraph' -ImagesObj $Images -TableArray $CloudBackupRepoArray -Align 'Center' -IconDebug $IconDebug -Label 'Cloud Repositories' -LabelPos 'top' -FontColor $Fontcolor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -ColumnSize $CloudBackupRepoColumnSize -FontSize 24 -FontBold -TableBackgroundColor $MainGraphBGColor
                         } catch {
                             Write-PScriboMessage 'Error: Unable to create Cloud Backup Repositories Subgraph. Disabling the section'
                             Write-PScriboMessage "Error Message: $($_.Exception.Message)"
@@ -206,7 +206,7 @@ function Get-AbrDiagBackupToRepo {
                         } else {
                             $RepoSubgraphArrayColumnSize = $RepoSubgraphArray.Count
                         }
-                        Node -Name MainSubGraph -Attributes @{Label = (Add-HtmlSubGraph -Name 'MainSubGraph' -ImagesObj $Images -TableArray $RepoSubgraphArray -Align 'Center' -IconDebug $IconDebug -Label 'Backup Repositories' -LabelPos 'top' -FontColor $Fontcolor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -ColumnSize $RepoSubgraphArrayColumnSize -FontSize 26 -FontBold); shape = 'plain'; fillColor = 'transparent'; fontsize = 14; fontname = 'Segoe Ui' }
+                        Node -Name MainSubGraph -Attributes @{Label = (Add-HtmlSubGraph -Name 'MainSubGraph' -ImagesObj $Images -TableArray $RepoSubgraphArray -Align 'Center' -IconDebug $IconDebug -Label 'Backup Repositories' -LabelPos 'top' -FontColor $Fontcolor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -ColumnSize $RepoSubgraphArrayColumnSize -FontSize 26 -FontBold -TableBackgroundColor $MainGraphBGColor); shape = 'plain'; fillColor = 'transparent'; fontsize = 14; fontname = 'Segoe Ui' }
                     }
 
                     Edge -From BackupServers -To MainSubGraph @{minlen = 3 }

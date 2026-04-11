@@ -38,7 +38,7 @@ function Get-AbrBackupHyperVStandAloneInfo {
 
                         $TempHyObjsInfo = [PSCustomObject]@{
                             Name = $HyObj.Name
-                            Label = Add-NodeIcon -Name $HyObj.Name -IconType 'VBR_HyperV_Server' -Align 'Center' -Rows $Rows -ImagesObj $Images -IconDebug $IconDebug -FontBold
+                            Label = Add-NodeIcon -Name $HyObj.Name -IconType 'VBR_HyperV_Server' -Align 'Center' -Rows $Rows -ImagesObj $Images -IconDebug $IconDebug -FontBold -TableBackgroundColor $MainGraphBGColor -CellBackgroundColor $MainGraphBGColor -FontColor $Fontcolor
                             AditionalInfo = $Rows
                         }
                         $HyObjsInfo += $TempHyObjsInfo

@@ -66,7 +66,7 @@ function Get-AbrBackupRepoInfo {
 
                     $TempBackupRepoInfo = [PSCustomObject]@{
                         Name = "$((Remove-SpecialCharacter -String $BackupRepo.Name -SpecialChars '\').toUpper())"
-                        Label = Add-NodeIcon -Name "$((Remove-SpecialCharacter -String $BackupRepo.Name -SpecialChars '\').toUpper())" -IconType $Type -Align 'Center' -Rows $Rows -ImagesObj $Images -IconDebug $IconDebug -FontBold
+                        Label = Add-NodeIcon -Name "$((Remove-SpecialCharacter -String $BackupRepo.Name -SpecialChars '\').toUpper())" -IconType $Type -Align 'Center' -Rows $Rows -ImagesObj $Images -IconDebug $IconDebug -FontBold -TableBackgroundColor $MainGraphBGColor -CellBackgroundColor $MainGraphBGColor -FontColor $Fontcolor
                         Role = $Role
                         AditionalInfo = $Rows
                     }

@@ -40,7 +40,7 @@ function Get-AbrBackupTapeServerInfo {
 
                     $TempBackupTapeServersInfo = [PSCustomObject]@{
                         Name = $TapeServer.Name
-                        Label = Add-NodeIcon -Name "$((Remove-SpecialCharacter -String $TapeServer.Name.split('.')[0] -SpecialChars '\').toUpper())" -IconType 'VBR_Tape_Server' -Align 'Center' -Rows $Rows -ImagesObj $Images -IconDebug $IconDebug -FontSize 18 -FontBold
+                        Label = Add-NodeIcon -Name "$((Remove-SpecialCharacter -String $TapeServer.Name.split('.')[0] -SpecialChars '\').toUpper())" -IconType 'VBR_Tape_Server' -Align 'Center' -Rows $Rows -ImagesObj $Images -IconDebug $IconDebug -FontSize 18 -FontBold -TableBackgroundColor $MainGraphBGColor -CellBackgroundColor $MainGraphBGColor -FontColor $Fontcolor
                         Id = $TapeServer.Id
                     }
 

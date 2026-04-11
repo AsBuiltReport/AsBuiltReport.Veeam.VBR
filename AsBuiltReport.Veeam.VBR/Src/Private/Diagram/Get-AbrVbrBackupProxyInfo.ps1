@@ -92,7 +92,7 @@ function Get-AbrBackupProxyInfo {
 
                     $TempBackupProxyInfo = [PSCustomObject]@{
                         Name = "$($Hostname.toUpper().split('.')[0])"
-                        Label = Add-NodeIcon -Name "$($Hostname.toUpper().split('.')[0])" -IconType $IconType -Align 'Center' -Rows $BPRows -ImagesObj $Images -IconDebug $IconDebug -FontSize 18 -FontBold
+                        Label = Add-NodeIcon -Name "$($Hostname.toUpper().split('.')[0])" -IconType $IconType -Align 'Center' -Rows $BPRows -ImagesObj $Images -IconDebug $IconDebug -FontSize 18 -FontBold -TableBackgroundColor $MainGraphBGColor -CellBackgroundColor $MainGraphBGColor -FontColor $Fontcolor -TableBorderColor $Edgecolor -TableBorder '1'
                         AditionalInfo = $BPRows
                     }
 

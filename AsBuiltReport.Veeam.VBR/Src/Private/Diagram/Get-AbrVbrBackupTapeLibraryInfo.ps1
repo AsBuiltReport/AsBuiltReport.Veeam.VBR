@@ -40,7 +40,7 @@ function Get-AbrBackupTapeLibraryInfo {
 
                     $TempBackupTapelibraryInfo = [PSCustomObject]@{
                         Name = "$((Remove-SpecialCharacter -String $TapeLibrary.Name -SpecialChars '\').toUpper())_$(Get-Random)"
-                        Label = Add-NodeIcon -Name "$((Remove-SpecialCharacter -String $TapeLibrary.Name.split('.')[0] -SpecialChars '\').toUpper())" -IconType 'VBR_Tape_Library' -Align 'Center' -Rows $Rows -ImagesObj $Images -IconDebug $IconDebug -FontSize 18 -FontBold
+                        Label = Add-NodeIcon -Name "$((Remove-SpecialCharacter -String $TapeLibrary.Name.split('.')[0] -SpecialChars '\').toUpper())" -IconType 'VBR_Tape_Library' -Align 'Center' -Rows $Rows -ImagesObj $Images -IconDebug $IconDebug -FontSize 18 -FontBold -TableBackgroundColor $MainGraphBGColor -CellBackgroundColor $MainGraphBGColor -FontColor $Fontcolor
                         TapeServerId = $TapeLibrary.TapeServerId
                         Id = $TapeLibrary.Id
                     }

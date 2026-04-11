@@ -64,7 +64,7 @@ function Get-AbrBackupArchObjRepoInfo {
 
                     $TempObjStorageInfo = [PSCustomObject]@{
                         Name = "$($ArchObjStorage.Name)"
-                        Label = Add-NodeIcon -Name $($ArchObjStorage.Name) -IconType 'VBR_Cloud_Repository' -Align 'Center' -Rows $Rows -ImagesObj $Images -IconDebug $IconDebug -FontBold
+                        Label = Add-NodeIcon -Name $($ArchObjStorage.Name) -IconType 'VBR_Cloud_Repository' -Align 'Center' -Rows $Rows -ImagesObj $Images -IconDebug $IconDebug -FontBold -TableBackgroundColor $MainGraphBGColor -CellBackgroundColor $MainGraphBGColor -FontColor $Fontcolor
                         AditionalInfo = $Rows
                     }
                     $ArchObjStorageInfo += $TempObjStorageInfo

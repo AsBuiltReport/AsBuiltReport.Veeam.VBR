@@ -73,7 +73,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
         }
     }
 
-    Write-Host 'Collecting Veeam Backup & Replication information...' -NoNewline
+    Write-Host '  - Collecting Veeam Backup & Replication information...' -NoNewline
 
 
     # Set Custom styles for Veeam theme template

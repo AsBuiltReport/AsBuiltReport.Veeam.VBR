@@ -1,4 +1,5 @@
 #Requires -Version 7.4
+#Requires -RunAsAdministrator
 
 using namespace GliderUI
 using namespace GliderUI.Avalonia
