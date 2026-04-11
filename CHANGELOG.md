@@ -11,8 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## :toolbox: Added
 
-- Add support for Veeam Backup & Replication v13
-- Add initial release for GUI tool (Start-AsBuiltReportVBR) to generate Veeam VBR As Built Report
+- Add support for Veeam Backup & Replication v13 (Windows and Linux Appliance)
+- Add initial release for GUI tool (Start-AsBuiltReportVBR) to generate Veeam VBR As Built Report *Beta Version*
 
 ### :arrows_clockwise: Changed
 
