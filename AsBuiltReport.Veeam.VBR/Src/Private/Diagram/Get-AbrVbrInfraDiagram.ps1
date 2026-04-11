@@ -119,9 +119,9 @@ function Get-AbrInfraDiagram {
                     try {
                         $ViClustersChildsNodes = foreach ($ViCluster in $vCenter.Childs) {
                             if ($ViCluster.EsxiHost.Name) {
-                                Add-HtmlTable -Name 'ViClustersChildsNodes' -ImagesObj $Images -Rows $ViCluster.EsxiHost.Name -ALIGN 'Center' -ColumnSize 3 -IconDebug $IconDebug -Subgraph -SubgraphIconType 'VBR_ESXi_Server' -SubgraphLabel $ViCluster.Name -SubgraphLabelPos 'top' -FontColor $FontColor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder 1 -FontSize 22 -SubgraphFontBold -NoFontBold -SubgraphTableStyle 'dashed,rounded' -TableBackgroundColor $MainGraphBGColor
+                                Add-HtmlTable -Name 'ViClustersChildsNodes' -ImagesObj $Images -Rows $ViCluster.EsxiHost.Name -ALIGN 'Center' -ColumnSize 3 -IconDebug $IconDebug -Subgraph -SubgraphIconType 'VBR_ESXi_Server' -SubgraphLabel $ViCluster.Name -SubgraphLabelPos 'top' -FontColor $FontColor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder 1 -FontSize 22 -SubgraphFontBold -NoFontBold -SubgraphTableStyle 'dashed,rounded' -TableBackgroundColor $MainGraphBGColor -SubgraphFontColor $FontColor
                             } else {
-                                Add-HtmlTable -Name 'ViClustersChildsNodes' -ImagesObj $Images -Rows 'No Esxi Host' -ALIGN 'Center' -ColumnSize 3 -IconDebug $IconDebug -Subgraph -SubgraphIconType 'VBR_ESXi_Server' -SubgraphLabel $ViCluster.Name -SubgraphLabelPos 'top' -FontColor $FontColor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder 1 -FontSize 22 -NoFontBold -SubgraphFontBold -SubgraphTableStyle 'dashed,rounded' -TableBackgroundColor $MainGraphBGColor
+                                Add-HtmlTable -Name 'ViClustersChildsNodes' -ImagesObj $Images -Rows 'No Esxi Host' -ALIGN 'Center' -ColumnSize 3 -IconDebug $IconDebug -Subgraph -SubgraphIconType 'VBR_ESXi_Server' -SubgraphLabel $ViCluster.Name -SubgraphLabelPos 'top' -FontColor $FontColor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder 1 -FontSize 22 -NoFontBold -SubgraphFontBold -SubgraphTableStyle 'dashed,rounded' -TableBackgroundColor $MainGraphBGColor -SubgraphFontColor $FontColor
                             }
                         }
                     } catch {
