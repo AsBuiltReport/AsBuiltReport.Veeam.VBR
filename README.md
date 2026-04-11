@@ -77,7 +77,7 @@ The Veeam VBR As Built Report is only supported on PowerShell 5.1 when generatin
 
 ## :wrench: System Requirements
 
-PowerShell 5.1 and the following PowerShell modules are required to generate a Veeam VBR As Built report:
+PowerShell 5.1/7 and the following PowerShell modules are required to generate a Veeam VBR As Built report:
 
 - [AsBuiltReport.Core Module](https://github.com/AsBuiltReport/AsBuiltReport.Core)
 - [AsBuiltReport.Chart Module](https://github.com/AsBuiltReport/AsBuiltReport.Chart)
@@ -262,7 +262,7 @@ The table below outlines the default and maximum **InfoLevel** settings for each
 
 The **Healthcheck** schema is used to toggle health checks on or off.
 
-## :computer: Pwsh Console Examples
+## :computer: Pwsh 5.1/7 Console Examples
 
 Below are a few examples of running the AsBuiltReport script against a Veeam Backup Server. Refer to the `README.md` file in the main AsBuiltReport project repository for more examples.
 
@@ -281,7 +281,7 @@ PS C:\> New-AsBuiltReport -Report Veeam.VBR -Target veeam-vbr.pharmax.local -Cre
 PS C:\> New-AsBuiltReport -Report Veeam.VBR -Target veeam-vbr.pharmax.local -Username 'Domain\veeam_admin' -Password 'P@ssw0rd' -Format Html,Word -OutputFolderPath 'C:\Users\Jon\Documents' -SendEmail
 ```
 
-## :computer: Pwsh GUI Examples
+## :computer: Pwsh 7 GUI Examples
 
 The Veeam VBR As Built Report GUI can be used to generate reports without using the console. The GUI provides the same functionality as the console, but with a user-friendly interface. To launch the GUI, run the following command in a PowerShell terminal window:
 
