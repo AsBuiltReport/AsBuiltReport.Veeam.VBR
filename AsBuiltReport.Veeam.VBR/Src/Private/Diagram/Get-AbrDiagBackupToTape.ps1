@@ -61,7 +61,7 @@ function Get-AbrDiagBackupToTape {
                                         } else {
                                             $TapeLibraryDriveColumnSize = $TapeLibraryDrives.Name.Count
                                         }
-                                        $TapeLibraryDrivesNode = Add-HtmlNodeTable -Name 'TapeLibraryDrivesNode' -ImagesObj $Images -inputObject $TapeLibraryDrives.Name -Align 'Center' -iconType 'VBR_Tape_Drive' -ColumnSize $TapeLibraryDriveColumnSize -IconDebug $IconDebug -MultiIcon -AditionalInfo $TapeLibraryDrives.AditionalInfo -Subgraph -SubgraphLabel 'Tape Drives' -SubgraphLabelPos 'top' -SubgraphTableStyle 'dashed,rounded' -FontColor $Fontcolor -TableBorderColor $Edgecolor -TableBorder '1' -FontSize 18 -SubgraphFontBold -TableBackgroundColor $MainGraphBGColor -CellBackgroundColor $MainGraphBGColor
+                                        $TapeLibraryDrivesNode = Add-HtmlNodeTable -Name 'TapeLibraryDrivesNode' -ImagesObj $Images -inputObject $TapeLibraryDrives.Name -Align 'Center' -iconType 'VBR_Tape_Drive' -ColumnSize $TapeLibraryDriveColumnSize -IconDebug $IconDebug -MultiIcon -AditionalInfo $TapeLibraryDrives.AditionalInfo -Subgraph -SubgraphLabel 'Tape Drives' -SubgraphLabelPos 'top' -SubgraphTableStyle 'dashed,rounded' -FontColor $Fontcolor -TableBorderColor $Edgecolor -TableBorder '1' -FontSize 18 -SubgraphFontBold -TableBackgroundColor $MainGraphBGColor -CellBackgroundColor $MainGraphBGColor -SubgraphLabelFontColor $FontColor
 
                                     } catch {
                                         Write-PScriboMessage 'Error: Unable to create Tape Library Drives Objects. Disabling the section'
