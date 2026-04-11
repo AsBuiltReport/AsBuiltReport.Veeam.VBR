@@ -179,7 +179,7 @@ function Get-AbrInfraDiagram {
                     }
 
                     try {
-                        [array]$ViStandAloneNodes = (Add-HtmlNodeTable -Name 'ViStandAloneNodes' -ImagesObj $Images -inputObject ($vSphereServerObj | ForEach-Object { $_.Name.split('.')[0] }) -Align 'Center' -iconType 'VBR_ESXi_Server' -ColumnSize $columnSize -IconDebug $IconDebug -MultiIcon -AditionalInfo $vSphereServerObj.AditionalInfo -Subgraph -SubgraphLabel ' ' -SubgraphLabelPos 'top' -SubgraphTableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -FontBold -FontColor $FontColor -SubgraphLabelFontColor $FontColor -FontSize 22 -TableBackgroundColor $MainGraphBGColor -CellBackgroundColor $MainGraphBGColor -TableBackgroundColor $MainGraphBGColor -CellBackgroundColor $MainGraphBGColor)
+                        [array]$ViStandAloneNodes = (Add-HtmlNodeTable -Name 'ViStandAloneNodes' -ImagesObj $Images -inputObject ($vSphereServerObj | ForEach-Object { $_.Name.split('.')[0] }) -Align 'Center' -iconType 'VBR_ESXi_Server' -ColumnSize $columnSize -IconDebug $IconDebug -MultiIcon -AditionalInfo $vSphereServerObj.AditionalInfo -Subgraph -SubgraphLabel ' ' -SubgraphLabelPos 'top' -SubgraphTableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -FontBold -FontColor $FontColor -SubgraphLabelFontColor $FontColor -FontSize 22 -TableBackgroundColor $MainGraphBGColor -CellBackgroundColor $MainGraphBGColor)
                     } catch {
                         Write-PScriboMessage 'Error: Unable to create vSphere StandAlone Table. Disabling the section'
                         Write-PScriboMessage "Error Message: $($_.Exception.Message)"
