@@ -23,12 +23,6 @@
             <img src="https://img.shields.io/twitter/follow/AsBuiltReport.svg?style=social"/></a>
 </p>
 
-#### :exclamation:Veeam Backup & Replication v13 in any variant (Windows or Appliance) is not supported:exclamation:
-
-> [!WARNING]
-> Veeam Backup & Replication v13 introduces several new features and improvements, one of which is support for .Net Core. To support this version of .Net, it is necessary to update the AsBuiltReport.Veeam.VBR report to work in PowerShell v7. This effort requires many hours of work that place an additional burden on my already heavy work schedule. If you wish to support this effort, please do not hesitate to donate!
-> https://ko-fi.com/jcolonfzenpr/goal?g=0
-
 #### Community Maintained Project
 
 This project is maintained by the community and is not sponsored by Veeam, its employees, or any affiliates.
@@ -62,11 +56,11 @@ Below are the instructions on how to install, configure, and generate a Veeam VB
 The Veeam VBR As Built Report supports the following Veeam Backup & Replication versions:
 
 - Veeam Backup & Replication v12+ (Standard, Enterprise & Enterprise Plus Edition)
+- Veeam Backup & Replication v13+ (Windows and Linux Appliance)
 
 ## :no_entry_sign: Unsupported Versions
 
 - Veeam Backup & Replication v11 and earlier are no longer supported. Compatibility with these versions is not guaranteed, and any issues related to versions prior to v12 will not be addressed.
-- Veeam Backup & Replication v13 in any variant (Windows or Appliance) is not supported.
 - Community Edition is not supported
 
 [Veeam Product Lifecycle Policy](https://www.veeam.com/product-lifecycle.html)
@@ -75,18 +69,20 @@ The Veeam VBR As Built Report supports the following Veeam Backup & Replication 
 
 This report is compatible with the following PowerShell versions:
 
-| Windows PowerShell 5.1 | PowerShell 7 |
-| :--------------------: | :----------: |
-|   :white_check_mark:   |     :x:      |
+| Windows PowerShell 5.1 |    PowerShell 7    |
+| :--------------------: | :----------------: |
+|   :white_check_mark:   | :white_check_mark: |
+
+The Veeam VBR As Built Report is only supported on PowerShell 5.1 when generating a report for Veeam Backup & Replication v12. For Veeam Backup & Replication v13, the report can be generated using PowerShell 7.
 
 ## :wrench: System Requirements
 
-PowerShell 5.1 and the following PowerShell modules are required to generate a Veeam VBR As Built report:
+PowerShell 5.1/7 and the following PowerShell modules are required to generate a Veeam VBR As Built report:
 
 - [AsBuiltReport.Core Module](https://github.com/AsBuiltReport/AsBuiltReport.Core)
-- [Diagrammer.Core Module](https://github.com/rebelinux/Diagrammer.Core)
+- [AsBuiltReport.Chart Module](https://github.com/AsBuiltReport/AsBuiltReport.Chart)
+- [AsBuiltReport.Diagram Module](https://github.com/AsBuiltReport/AsBuiltReport.Diagram)
 - [PScribo Module](https://github.com/iainbrighton/PScribo)
-- [PScriboCharts Module](https://github.com/iainbrighton/PScriboCharts)
 - [PSGraph Module](https://github.com/KevinMarquette/PSGraph)
 - [Veeam.Backup.PowerShell Module](https://helpcenter.veeam.com/docs/backup/powershell/getting_started.html?ver=110)
 
@@ -266,7 +262,7 @@ The table below outlines the default and maximum **InfoLevel** settings for each
 
 The **Healthcheck** schema is used to toggle health checks on or off.
 
-## :computer: Examples
+## :computer: Pwsh 5.1/7 Console Examples
 
 Below are a few examples of running the AsBuiltReport script against a Veeam Backup Server. Refer to the `README.md` file in the main AsBuiltReport project repository for more examples.
 
@@ -284,6 +280,19 @@ PS C:\> New-AsBuiltReport -Report Veeam.VBR -Target veeam-vbr.pharmax.local -Cre
 # Generate a Veeam VBR As Built Report for Backup Server veeam-vbr.pharmax.local using stored credentials. Export report to HTML & DOCX formats. Use default report style. Reports are saved to the user profile folder by default. Attach and send reports via e-mail.
 PS C:\> New-AsBuiltReport -Report Veeam.VBR -Target veeam-vbr.pharmax.local -Username 'Domain\veeam_admin' -Password 'P@ssw0rd' -Format Html,Word -OutputFolderPath 'C:\Users\Jon\Documents' -SendEmail
 ```
+
+## :computer: Pwsh 7 GUI Examples
+
+The Veeam VBR As Built Report GUI can be used to generate reports without using the console. The GUI provides the same functionality as the console, but with a user-friendly interface. To launch the GUI, run the following command in a PowerShell terminal window:
+
+```powershell
+# Launch the Veeam VBR As Built Report GUI
+PS C:\> Start-AsBuiltReportVBR
+```
+
+**Beta** versions of the GUI may contain bugs and issues. If you encounter any problems while using the GUI, please report them on the project's GitHub Issues page.
+
+![alt text](Samples/Sample-Gui.png)
 
 ## :x: Known Issues
 

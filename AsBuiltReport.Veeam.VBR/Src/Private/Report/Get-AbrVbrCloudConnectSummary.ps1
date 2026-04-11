@@ -1,0 +1,75 @@
+function Get-AbrVbrCloudConnectSummary {
+    <#
+    .SYNOPSIS
+    Used by As Built Report to retrieve Veeam VBR Cloud Connect Infrastructure Summary.
+    .DESCRIPTION
+        Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
+    .NOTES
+        Version:        0.8.20
+        Author:         Jonathan Colon
+        Twitter:        @jcolonfzenpr
+        Github:         rebelinux
+        Credits:        Iain Brighton (@iainbrighton) - PScribo module
+
+    .LINK
+        https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR
+    #>
+    [CmdletBinding()]
+    param (
+
+    )
+
+    begin {
+        Write-PScriboMessage "Discovering Veeam VBR Cloud Connect Summary from $System."
+        $LocalizedData = $reportTranslate.GetAbrVbrCloudConnectSummary
+        Show-AbrDebugExecutionTime -Start -TitleMessage 'Cloud Connect Summary'
+    }
+
+    process {
+        try {
+            $OutObj = @()
+            try {
+                $CloudConnectRR = Get-VBRCloudHardwarePlan
+                $CloudConnectTenant = Get-VBRCloudTenant
+                $CloudConnectGW = Get-VBRCloudGateway
+                $CloudConnectGWPool = Get-VBRCloudGatewayPool
+                $CloudConnectPublicIP = Get-VBRCloudPublicIP
+                $CloudConnectBS = (Get-VBRCloudTenant).Resources.Repository
+
+                $inObj = [ordered] @{
+                    $LocalizedData.CloudGateways = $CloudConnectGW.Count
+                    $LocalizedData.GatewayPools = $CloudConnectGWPool.Count
+                    $LocalizedData.Tenants = $CloudConnectTenant.Count
+                    $LocalizedData.BackupStorage = $CloudConnectBS.Count
+                    $LocalizedData.PublicIPAddresses = $CloudConnectPublicIP.Count
+                    $LocalizedData.HardwarePlans = $CloudConnectRR.Count
+                }
+                $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
+            } catch {
+                Write-PScriboMessage -IsWarning "Cloud Connect Summary Section: $($_.Exception.Message)"
+            }
+
+            $TableParams = @{
+                Name = "$($LocalizedData.TableHeading) - $VeeamBackupServer"
+                List = $true
+                ColumnWidths = 50, 50
+            }
+            if ($Report.ShowTableCaptions) {
+                $TableParams['Caption'] = "- $($TableParams.Name)"
+            }
+
+            Section -Style Heading3 $LocalizedData.Heading {
+                Paragraph $LocalizedData.Paragraph
+                BlankLine
+                $OutObj | Table @TableParams
+            }
+
+        } catch {
+            Write-PScriboMessage -IsWarning "Cloud Connect Summary Section: $($_.Exception.Message)"
+        }
+    }
+    end {
+        Show-AbrDebugExecutionTime -End -TitleMessage 'Cloud Connect Summary'
+    }
+
+}
