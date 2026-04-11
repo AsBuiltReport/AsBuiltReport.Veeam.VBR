@@ -639,7 +639,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
 
             if ($Options.ExportDiagrams) {
                 Write-Host ' '
-                Write-Host $reportTranslate.InvokeAsBuiltReportVeeamVBR.ExportDiagramsEnabled
+                Write-Host "  - $($reportTranslate.InvokeAsBuiltReportVeeamVBR.ExportDiagramsEnabled)"
                 $DiagramTypeHash = @{
                     'CloudConnect' = 'Backup-to-CloudConnect'
                     'CloudConnectTenant' = 'Backup-to-CloudConnect-Tenant'
