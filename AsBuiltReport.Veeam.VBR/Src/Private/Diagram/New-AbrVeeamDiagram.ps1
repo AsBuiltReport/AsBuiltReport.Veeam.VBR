@@ -501,7 +501,7 @@ function New-AbrVeeamDiagram {
             $BackupServerFontColor = 'gold2'
         } elseif ($DiagramTheme -eq 'White') {
             $MainGraphBGColor = 'White'
-            $TableBorderColor = 'gold2'
+            $TableBorderColor = '#71797E'
             $Edgecolor = '#71797E'
             $Fontcolor = '#565656'
             $NodeFontcolor = 'Black'
