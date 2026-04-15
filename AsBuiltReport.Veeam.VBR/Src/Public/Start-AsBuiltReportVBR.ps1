@@ -713,20 +713,20 @@ function Start-AsBuiltReportVBR {
     # Helper: populate all fields from a parsed JSON object
     $loadAbrFields = {
         param ([hashtable]$j)
-        $txtAbrCoFullName.Text  = if ($j.Company.FullName)  { $j.Company.FullName }  else { '' }
+        $txtAbrCoFullName.Text = if ($j.Company.FullName) { $j.Company.FullName }  else { '' }
         $txtAbrCoShortName.Text = if ($j.Company.ShortName) { $j.Company.ShortName } else { '' }
-        $txtAbrCoContact.Text   = if ($j.Company.Contact)   { $j.Company.Contact }   else { '' }
-        $txtAbrCoPhone.Text     = if ($j.Company.Phone)     { $j.Company.Phone }     else { '' }
-        $txtAbrCoAddress.Text   = if ($j.Company.Address)   { $j.Company.Address }   else { '' }
-        $txtAbrCoEmail.Text     = if ($j.Company.Email)     { $j.Company.Email }     else { '' }
-        $txtAbrRptAuthor.Text   = if ($j.Report.Author)     { $j.Report.Author }     else { '' }
-        $txtAbrMailServer.Text  = if ($j.Email.Server)      { $j.Email.Server }      else { '' }
-        $txtAbrMailPort.Text    = if ($j.Email.Port)        { $j.Email.Port }        else { '' }
-        $txtAbrMailFrom.Text    = if ($j.Email.From)        { $j.Email.From }        else { '' }
-        $txtAbrMailTo.Text      = if ($j.Email.To)          { ($j.Email.To -join ', ') } else { '' }
-        $txtAbrMailBody.Text    = if ($j.Email.Body)        { $j.Email.Body }        else { '' }
-        $swAbrMailUseSSL.IsChecked = if ($null -ne $j.Email.UseSSL)      { [bool]$j.Email.UseSSL }      else { $true }
-        $swAbrMailCreds.IsChecked  = if ($null -ne $j.Email.Credentials) { [bool]$j.Email.Credentials } else { $true }
+        $txtAbrCoContact.Text = if ($j.Company.Contact) { $j.Company.Contact }   else { '' }
+        $txtAbrCoPhone.Text = if ($j.Company.Phone) { $j.Company.Phone }     else { '' }
+        $txtAbrCoAddress.Text = if ($j.Company.Address) { $j.Company.Address }   else { '' }
+        $txtAbrCoEmail.Text = if ($j.Company.Email) { $j.Company.Email }     else { '' }
+        $txtAbrRptAuthor.Text = if ($j.Report.Author) { $j.Report.Author }     else { '' }
+        $txtAbrMailServer.Text = if ($j.Email.Server) { $j.Email.Server }      else { '' }
+        $txtAbrMailPort.Text = if ($j.Email.Port) { $j.Email.Port }        else { '' }
+        $txtAbrMailFrom.Text = if ($j.Email.From) { $j.Email.From }        else { '' }
+        $txtAbrMailTo.Text = if ($j.Email.To) { ($j.Email.To -join ', ') } else { '' }
+        $txtAbrMailBody.Text = if ($j.Email.Body) { $j.Email.Body }        else { '' }
+        $swAbrMailUseSSL.IsChecked = if ($null -ne $j.Email.UseSSL) { [bool]$j.Email.UseSSL }      else { $true }
+        $swAbrMailCreds.IsChecked = if ($null -ne $j.Email.Credentials) { [bool]$j.Email.Credentials } else { $true }
         $txtAbrFolderPath.Text = if ($j.UserFolder.Path) { $j.UserFolder.Path } else {
             if ($IsWindows) { [System.IO.Path]::Combine($env:USERPROFILE, 'Documents', 'AsBuiltReport') } else { [System.IO.Path]::Combine($env:HOME, 'AsBuiltReport') }
         }
@@ -740,24 +740,24 @@ function Start-AsBuiltReportVBR {
 
         return [ordered]@{
             Company = [ordered]@{
-                FullName  = ([string]$txtAbrCoFullName.Text).Trim()
-                Phone     = ([string]$txtAbrCoPhone.Text).Trim()
-                Address   = ([string]$txtAbrCoAddress.Text).Trim()
+                FullName = ([string]$txtAbrCoFullName.Text).Trim()
+                Phone = ([string]$txtAbrCoPhone.Text).Trim()
+                Address = ([string]$txtAbrCoAddress.Text).Trim()
                 ShortName = ([string]$txtAbrCoShortName.Text).Trim()
-                Contact   = ([string]$txtAbrCoContact.Text).Trim()
-                Email     = ([string]$txtAbrCoEmail.Text).Trim()
+                Contact = ([string]$txtAbrCoContact.Text).Trim()
+                Email = ([string]$txtAbrCoEmail.Text).Trim()
             }
             Email = [ordered]@{
                 Credentials = [bool]$swAbrMailCreds.IsChecked
-                Body        = ([string]$txtAbrMailBody.Text).Trim()
-                From        = ([string]$txtAbrMailFrom.Text).Trim()
-                UseSSL      = [bool]$swAbrMailUseSSL.IsChecked
-                Server      = ([string]$txtAbrMailServer.Text).Trim()
-                To          = if ($toList.Count -gt 0) { @($toList) } else { @() }
-                Port        = $portVal
+                Body = ([string]$txtAbrMailBody.Text).Trim()
+                From = ([string]$txtAbrMailFrom.Text).Trim()
+                UseSSL = [bool]$swAbrMailUseSSL.IsChecked
+                Server = ([string]$txtAbrMailServer.Text).Trim()
+                To = if ($toList.Count -gt 0) { @($toList) } else { @() }
+                Port = $portVal
             }
-            Report     = [ordered]@{ Author = ([string]$txtAbrRptAuthor.Text).Trim() }
-            UserFolder = [ordered]@{ Path   = ([string]$txtAbrFolderPath.Text).Trim() }
+            Report = [ordered]@{ Author = ([string]$txtAbrRptAuthor.Text).Trim() }
+            UserFolder = [ordered]@{ Path = ([string]$txtAbrFolderPath.Text).Trim() }
         }
     }.GetNewClosure()
     # Also store in syncHash so click handlers always find it regardless of scope
@@ -766,12 +766,12 @@ function Start-AsBuiltReportVBR {
     # Helper: validate required fields; returns $null on success or an error message
     $validateAbrRequired = {
         $missing = @()
-        if ([string]::IsNullOrWhiteSpace($txtAbrCoFullName.Text))  { $missing += 'Full Name' }
+        if ([string]::IsNullOrWhiteSpace($txtAbrCoFullName.Text)) { $missing += 'Full Name' }
         if ([string]::IsNullOrWhiteSpace($txtAbrCoShortName.Text)) { $missing += 'Short Name' }
-        if ([string]::IsNullOrWhiteSpace($txtAbrCoContact.Text))   { $missing += 'Contact' }
-        if ([string]::IsNullOrWhiteSpace($txtAbrCoEmail.Text))     { $missing += 'Email' }
-        if ([string]::IsNullOrWhiteSpace($txtAbrRptAuthor.Text))   { $missing += 'Author' }
-        if ([string]::IsNullOrWhiteSpace($txtAbrFolderPath.Text))  { $missing += 'Path' }
+        if ([string]::IsNullOrWhiteSpace($txtAbrCoContact.Text)) { $missing += 'Contact' }
+        if ([string]::IsNullOrWhiteSpace($txtAbrCoEmail.Text)) { $missing += 'Email' }
+        if ([string]::IsNullOrWhiteSpace($txtAbrRptAuthor.Text)) { $missing += 'Author' }
+        if ([string]::IsNullOrWhiteSpace($txtAbrFolderPath.Text)) { $missing += 'Path' }
         if ($missing.Count -gt 0) {
             return "⚠ Required fields missing: $($missing -join ', ')"
         }
