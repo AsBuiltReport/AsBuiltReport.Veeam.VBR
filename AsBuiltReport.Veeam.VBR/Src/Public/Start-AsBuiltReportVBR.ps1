@@ -122,7 +122,7 @@ function Start-AsBuiltReportVBR {
             [System.IO.Path]::Combine($env:USERPROFILE, 'Documents', 'AsBuiltReport'))
     } else {
         [System.IO.Path]::Combine(
-            [System.IO.Path]::Combine($env:HOME, 'Documents', 'AsBuiltReport'))
+            [System.IO.Path]::Combine($env:HOME, 'AsBuiltReport'))
     }
 
     $btnBrowse = [Button]::new()
@@ -493,7 +493,7 @@ function Start-AsBuiltReportVBR {
                     [System.IO.Path]::Combine($env:USERPROFILE, 'Documents', 'AsBuiltReport'))
             } else {
                 [System.IO.Path]::Combine(
-                    [System.IO.Path]::Combine($env:HOME, 'Documents', 'AsBuiltReport'))
+                    [System.IO.Path]::Combine($env:HOME, 'AsBuiltReport'))
             }
         }
         if (-not (Test-Path $outPath)) {
@@ -621,7 +621,7 @@ function Start-AsBuiltReportVBR {
             $env:USERPROFILE, 'AsBuiltReport', 'AsBuiltReport.Veeam.VBR.json')
     } else {
         [System.IO.Path]::Combine(
-            $env:HOME, 'Documents', 'AsBuiltReport', 'AsBuiltReport.Veeam.VBR.json')
+            $env:HOME, 'AsBuiltReport', 'AsBuiltReport.Veeam.VBR.json')
     }
 
     $btnBrowseConfig = [Button]::new()
@@ -713,56 +713,71 @@ function Start-AsBuiltReportVBR {
     # Helper: populate all fields from a parsed JSON object
     $loadAbrFields = {
         param ([hashtable]$j)
-        $txtAbrCoFullName.Text = if ($j.Company.FullName) { $j.Company.FullName }  else { '' }
+        $txtAbrCoFullName.Text  = if ($j.Company.FullName)  { $j.Company.FullName }  else { '' }
         $txtAbrCoShortName.Text = if ($j.Company.ShortName) { $j.Company.ShortName } else { '' }
-        $txtAbrCoContact.Text = if ($j.Company.Contact) { $j.Company.Contact }   else { '' }
-        $txtAbrCoPhone.Text = if ($j.Company.Phone) { $j.Company.Phone }     else { '' }
-        $txtAbrCoAddress.Text = if ($j.Company.Address) { $j.Company.Address }   else { '' }
-        $txtAbrCoEmail.Text = if ($j.Company.Email) { $j.Company.Email }     else { '' }
-        $txtAbrRptAuthor.Text = if ($j.Report.Author) { $j.Report.Author }     else { '' }
-        $txtAbrMailServer.Text = if ($j.Email.Server) { $j.Email.Server }      else { '' }
-        $txtAbrMailPort.Text = if ($j.Email.Port) { $j.Email.Port }        else { '' }
-        $txtAbrMailFrom.Text = if ($j.Email.From) { $j.Email.From }        else { '' }
-        $txtAbrMailTo.Text = if ($j.Email.To) { ($j.Email.To -join ', ') } else { '' }
-        $txtAbrMailBody.Text = if ($j.Email.Body) { $j.Email.Body }        else { '' }
-        $swAbrMailUseSSL.IsChecked = if ($null -ne $j.Email.UseSSL) { [bool]$j.Email.UseSSL }      else { $true }
-        $swAbrMailCreds.IsChecked = if ($null -ne $j.Email.Credentials) { [bool]$j.Email.Credentials } else { $true }
-        $txtAbrFolderPath.Text = if ($j.UserFolder.Path) { $j.UserFolder.Path }   else { '' }
+        $txtAbrCoContact.Text   = if ($j.Company.Contact)   { $j.Company.Contact }   else { '' }
+        $txtAbrCoPhone.Text     = if ($j.Company.Phone)     { $j.Company.Phone }     else { '' }
+        $txtAbrCoAddress.Text   = if ($j.Company.Address)   { $j.Company.Address }   else { '' }
+        $txtAbrCoEmail.Text     = if ($j.Company.Email)     { $j.Company.Email }     else { '' }
+        $txtAbrRptAuthor.Text   = if ($j.Report.Author)     { $j.Report.Author }     else { '' }
+        $txtAbrMailServer.Text  = if ($j.Email.Server)      { $j.Email.Server }      else { '' }
+        $txtAbrMailPort.Text    = if ($j.Email.Port)        { $j.Email.Port }        else { '' }
+        $txtAbrMailFrom.Text    = if ($j.Email.From)        { $j.Email.From }        else { '' }
+        $txtAbrMailTo.Text      = if ($j.Email.To)          { ($j.Email.To -join ', ') } else { '' }
+        $txtAbrMailBody.Text    = if ($j.Email.Body)        { $j.Email.Body }        else { '' }
+        $swAbrMailUseSSL.IsChecked = if ($null -ne $j.Email.UseSSL)      { [bool]$j.Email.UseSSL }      else { $true }
+        $swAbrMailCreds.IsChecked  = if ($null -ne $j.Email.Credentials) { [bool]$j.Email.Credentials } else { $true }
+        $txtAbrFolderPath.Text = if ($j.UserFolder.Path) { $j.UserFolder.Path } else {
+            if ($IsWindows) { [System.IO.Path]::Combine($env:USERPROFILE, 'Documents', 'AsBuiltReport') } else { [System.IO.Path]::Combine($env:HOME, 'AsBuiltReport') }
+        }
     }
 
     # Helper: build the config ordered hashtable from current field values
     $buildAbrConfig = {
-        # Helper: return $null for blank strings so JSON fields are null, not ""
-        function NullIfEmpty ([string]$v) { if ([string]::IsNullOrWhiteSpace($v)) { $null } else { $v.Trim() } }
-
-        $toList = $txtAbrMailTo.Text.Trim() -split '\s*,\s*' | Where-Object { $_ -ne '' }
-        $portRaw = $txtAbrMailPort.Text.Trim()
+        $toList = ([string]$txtAbrMailTo.Text).Trim() -split '\s*,\s*' | Where-Object { $_ -ne '' }
+        $portRaw = ([string]$txtAbrMailPort.Text).Trim()
         $portVal = if ($portRaw -match '^\d+$') { [int]$portRaw } else { $null }
 
         return [ordered]@{
             Company = [ordered]@{
-                FullName = NullIfEmpty $txtAbrCoFullName.Text
-                Phone = NullIfEmpty $txtAbrCoPhone.Text
-                Address = NullIfEmpty $txtAbrCoAddress.Text
-                ShortName = NullIfEmpty $txtAbrCoShortName.Text
-                Contact = NullIfEmpty $txtAbrCoContact.Text
-                Email = NullIfEmpty $txtAbrCoEmail.Text
+                FullName  = ([string]$txtAbrCoFullName.Text).Trim()
+                Phone     = ([string]$txtAbrCoPhone.Text).Trim()
+                Address   = ([string]$txtAbrCoAddress.Text).Trim()
+                ShortName = ([string]$txtAbrCoShortName.Text).Trim()
+                Contact   = ([string]$txtAbrCoContact.Text).Trim()
+                Email     = ([string]$txtAbrCoEmail.Text).Trim()
             }
             Email = [ordered]@{
                 Credentials = [bool]$swAbrMailCreds.IsChecked
-                Body = NullIfEmpty $txtAbrMailBody.Text
-                From = NullIfEmpty $txtAbrMailFrom.Text
-                UseSSL = [bool]$swAbrMailUseSSL.IsChecked
-                Server = NullIfEmpty $txtAbrMailServer.Text
-                To = if ($toList.Count -gt 0) { @($toList) } else { @() }
-                Port = $portVal
+                Body        = ([string]$txtAbrMailBody.Text).Trim()
+                From        = ([string]$txtAbrMailFrom.Text).Trim()
+                UseSSL      = [bool]$swAbrMailUseSSL.IsChecked
+                Server      = ([string]$txtAbrMailServer.Text).Trim()
+                To          = if ($toList.Count -gt 0) { @($toList) } else { @() }
+                Port        = $portVal
             }
-            Report = [ordered]@{ Author = NullIfEmpty $txtAbrRptAuthor.Text }
-            UserFolder = [ordered]@{ Path = NullIfEmpty $txtAbrFolderPath.Text }
+            Report     = [ordered]@{ Author = ([string]$txtAbrRptAuthor.Text).Trim() }
+            UserFolder = [ordered]@{ Path   = ([string]$txtAbrFolderPath.Text).Trim() }
         }
     }.GetNewClosure()
     # Also store in syncHash so click handlers always find it regardless of scope
     $syncHash.buildAbrConfig = $buildAbrConfig
+
+    # Helper: validate required fields; returns $null on success or an error message
+    $validateAbrRequired = {
+        $missing = @()
+        if ([string]::IsNullOrWhiteSpace($txtAbrCoFullName.Text))  { $missing += 'Full Name' }
+        if ([string]::IsNullOrWhiteSpace($txtAbrCoShortName.Text)) { $missing += 'Short Name' }
+        if ([string]::IsNullOrWhiteSpace($txtAbrCoContact.Text))   { $missing += 'Contact' }
+        if ([string]::IsNullOrWhiteSpace($txtAbrCoEmail.Text))     { $missing += 'Email' }
+        if ([string]::IsNullOrWhiteSpace($txtAbrRptAuthor.Text))   { $missing += 'Author' }
+        if ([string]::IsNullOrWhiteSpace($txtAbrFolderPath.Text))  { $missing += 'Path' }
+        if ($missing.Count -gt 0) {
+            return "⚠ Required fields missing: $($missing -join ', ')"
+        }
+        return $null
+    }.GetNewClosure()
+    $syncHash.validateAbrRequired = $validateAbrRequired
 
     # New button — fills form data into a new file chosen via Save dialog
     $btnAbrNew = [Button]::new()
@@ -776,7 +791,13 @@ function Start-AsBuiltReportVBR {
                     $syncHash.lblConfigStatus.Text = '⚠ Cannot open save dialog.'
                     return
                 }
-                $defaultDir = [IO.Path]::Combine($env:USERPROFILE, 'Documents', 'AsBuiltReport')
+                $defaultDir = if ($IsWindows) {
+                    [System.IO.Path]::Combine(
+                        [System.IO.Path]::Combine($env:USERPROFILE, 'Documents', 'AsBuiltReport'))
+                } else {
+                    [System.IO.Path]::Combine(
+                        [System.IO.Path]::Combine($env:HOME, 'AsBuiltReport'))
+                }
                 if (-not (Test-Path $defaultDir)) { New-Item -Path $defaultDir -ItemType Directory -Force | Out-Null }
                 $saveOpts = [FilePickerSaveOptions]::new()
                 $saveOpts.Title = 'Create New AsBuiltReport Config File'
@@ -786,6 +807,13 @@ function Start-AsBuiltReportVBR {
                 if ($null -eq $file) { return }   # user cancelled
                 if ($null -eq $file.Path) {
                     $syncHash.lblConfigStatus.Text = '⚠ Could not resolve file path from dialog.'
+                    return
+                }
+
+                # Validate required fields before writing
+                $validationError = & $syncHash.validateAbrRequired
+                if ($null -ne $validationError) {
+                    $syncHash.lblConfigStatus.Text = $validationError
                     return
                 }
 
@@ -829,6 +857,11 @@ function Start-AsBuiltReportVBR {
     $btnAbrSave.Content = '💾  Save to File'
     $btnAbrSave.AddClick({
             try {
+                $validationError = & $syncHash.validateAbrRequired
+                if ($null -ne $validationError) {
+                    $syncHash.lblConfigStatus.Text = $validationError
+                    return
+                }
                 $dest = $txtAbrConfigPath.Text.Trim()
                 if ([string]::IsNullOrWhiteSpace($dest)) {
                     # No path set → fall back to $env:USERPROFILE\Documents\AsBuiltReport\AsBuiltReport.json
@@ -853,19 +886,26 @@ function Start-AsBuiltReportVBR {
     $abrActionRow.Children.Add($btnAbrLoad)
     $abrActionRow.Children.Add($btnAbrSave)
 
+    $Text = [TextBlock]::new()
+    $Text.Text = '* Required'
+    $Text.FontSize = 12
+    $Text.Margin = '0,0,0,8'
+    $Text.TextAlignment = 'Right'
+
     # Content panel inside the expander
     $abrInnerPanel = [StackPanel]::new()
     $abrInnerPanel.Spacing = 2
     $abrInnerPanel.Margin = '4,4,4,8'
+    $abrInnerPanel.Children.Add(($Text))
     $abrInnerPanel.Children.Add((New-SectionTitle '🏢  Company'))
-    $abrInnerPanel.Children.Add((New-FormRow -Label 'Full Name' -Control $txtAbrCoFullName))
-    $abrInnerPanel.Children.Add((New-FormRow -Label 'Short Name' -Control $txtAbrCoShortName))
-    $abrInnerPanel.Children.Add((New-FormRow -Label 'Contact' -Control $txtAbrCoContact))
+    $abrInnerPanel.Children.Add((New-FormRow -Label '* Full Name' -Control $txtAbrCoFullName))
+    $abrInnerPanel.Children.Add((New-FormRow -Label '* Short Name' -Control $txtAbrCoShortName))
+    $abrInnerPanel.Children.Add((New-FormRow -Label '* Contact' -Control $txtAbrCoContact))
     $abrInnerPanel.Children.Add((New-FormRow -Label 'Phone' -Control $txtAbrCoPhone))
     $abrInnerPanel.Children.Add((New-FormRow -Label 'Address' -Control $txtAbrCoAddress))
-    $abrInnerPanel.Children.Add((New-FormRow -Label 'Email' -Control $txtAbrCoEmail))
+    $abrInnerPanel.Children.Add((New-FormRow -Label '* Email' -Control $txtAbrCoEmail))
     $abrInnerPanel.Children.Add((New-SectionTitle '📝  Report'))
-    $abrInnerPanel.Children.Add((New-FormRow -Label 'Author' -Control $txtAbrRptAuthor))
+    $abrInnerPanel.Children.Add((New-FormRow -Label '* Author' -Control $txtAbrRptAuthor))
     $abrInnerPanel.Children.Add((New-SectionTitle '📧  Email'))
     $abrInnerPanel.Children.Add((New-FormRow -Label 'SMTP Server' -Control $txtAbrMailServer))
     $abrInnerPanel.Children.Add((New-FormRow -Label 'Port' -Control $txtAbrMailPort))
@@ -875,7 +915,7 @@ function Start-AsBuiltReportVBR {
     $abrInnerPanel.Children.Add((New-FormRow -Label 'Use SSL' -Control $swAbrMailUseSSL))
     $abrInnerPanel.Children.Add((New-FormRow -Label 'Credentials' -Control $swAbrMailCreds))
     $abrInnerPanel.Children.Add((New-SectionTitle '📁  User Folder'))
-    $abrInnerPanel.Children.Add((New-FormRow -Label 'Path' -Control $txtAbrFolderPath))
+    $abrInnerPanel.Children.Add((New-FormRow -Label '* Path' -Control $txtAbrFolderPath))
     $abrInnerPanel.Children.Add($abrActionRow)
 
     # Expander — collapsed by default
