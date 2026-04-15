@@ -1948,6 +1948,16 @@
         DisplayName = Display Name
         ShortName = Short Name
         Status = Status
+        HAHeading = High Availability
+        HAClusterEndpoint = Cluster Endpoint
+        HAClusterDnsName = Cluster DNS Name
+        HAIsHealthyCluster = Healthy Cluster
+        HAIsFailoverInProgress = Failover In Progress
+        HAIsAnyActivityInProgress = Activity In Progress
+        HANodesHeading = Cluster Nodes
+        HAHostname = Hostname
+        HARole = Role
+        CollectingHA = Collecting Veeam VBR High Availability information.
         KBArticle = KB Article
         healthCheck = Health Check:
         bestPractice = Best Practice:

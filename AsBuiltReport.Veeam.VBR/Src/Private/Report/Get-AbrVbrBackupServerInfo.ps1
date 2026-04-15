@@ -6,7 +6,7 @@ function Get-AbrVbrBackupServerInfo {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        1.0.0
+        Version:        1.0.1
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -572,6 +572,84 @@ function Get-AbrVbrBackupServerInfo {
                                 Write-PScriboMessage -IsWarning "Backup Server Service Status Section: $($_.Exception.Message)"
                             }
                         }
+                    }
+                    #---------------------------------------------------------------------------------------------#
+                    #                        Backup Server High Availability Section                            #
+                    #---------------------------------------------------------------------------------------------#
+                    try {
+                        Write-PScriboMessage $LocalizedData.CollectingHA
+                        $HACluster = Get-VBRHighAvailabilityCluster
+                        if ($HACluster) {
+                            Section -Style Heading4 $LocalizedData.HAHeading {
+                                $OutObj = @()
+                                $inObj = [ordered] @{
+                                    $LocalizedData.HAClusterEndpoint         = $HACluster.ClusterEndpoint
+                                    $LocalizedData.HAClusterDnsName          = $HACluster.ClusterDnsName
+                                    $LocalizedData.HAIsHealthyCluster        = $HACluster.IsHealthyCluster
+                                    $LocalizedData.HAIsFailoverInProgress    = $HACluster.IsFailoverInProgress
+                                    $LocalizedData.HAIsAnyActivityInProgress = $HACluster.IsAnyActivityInProgress
+                                }
+                                $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
+
+                                if ($HealthCheck.Infrastructure.BackupServer) {
+                                    $OutObj | Where-Object { $_."$($LocalizedData.HAIsHealthyCluster)" -eq 'No' } | Set-Style -Style Warning -Property $LocalizedData.HAIsHealthyCluster
+                                    $OutObj | Where-Object { $_."$($LocalizedData.HAIsFailoverInProgress)" -eq 'Yes' } | Set-Style -Style Warning -Property $LocalizedData.HAIsFailoverInProgress
+                                    $OutObj | Where-Object { $_."$($LocalizedData.HAIsAnyActivityInProgress)" -eq 'Yes' } | Set-Style -Style Warning -Property $LocalizedData.HAIsAnyActivityInProgress
+                                }
+
+                                $TableParams = @{
+                                    Name         = "$($LocalizedData.HAHeading) - $($BackupServer.Name.Split('.')[0])"
+                                    List         = $true
+                                    ColumnWidths = 40, 60
+                                }
+                                if ($Report.ShowTableCaptions) {
+                                    $TableParams['Caption'] = "- $($TableParams.Name)"
+                                }
+                                $OutObj | Table @TableParams
+
+                                #-------------------------------------------------------------------------------------#
+                                #                            HA Cluster Nodes Sub-Section                             #
+                                #-------------------------------------------------------------------------------------#
+                                try {
+                                    $HANodes = @($HACluster.Primary) + @($HACluster.Secondary)
+                                    if ($HANodes) {
+                                        Section -Style NOTOCHeading5 -ExcludeFromTOC $LocalizedData.HANodesHeading {
+                                            $NodesObj = @()
+                                            foreach ($Node in $HANodes) {
+                                                try {
+                                                    $inObj = [ordered] @{
+                                                        $LocalizedData.HAHostname = $Node.Hostname
+                                                        $LocalizedData.HARole     = $Node.Role
+                                                        $LocalizedData.Status     = $Node.Status
+                                                    }
+                                                    $NodesObj += [pscustomobject](ConvertTo-HashToYN $inObj)
+                                                } catch {
+                                                    Write-PScriboMessage -IsWarning "HA Cluster Node $($Node.Hostname) Section: $($_.Exception.Message)"
+                                                }
+                                            }
+
+                                            if ($HealthCheck.Infrastructure.BackupServer) {
+                                                $NodesObj | Where-Object { $_."$($LocalizedData.Status)" -ne 'Online' } | Set-Style -Style Warning -Property $LocalizedData.Status
+                                            }
+
+                                            $TableParams = @{
+                                                Name         = "$($LocalizedData.HANodesHeading) - $($BackupServer.Name.Split('.')[0])"
+                                                List         = $false
+                                                ColumnWidths = 40, 30, 30
+                                            }
+                                            if ($Report.ShowTableCaptions) {
+                                                $TableParams['Caption'] = "- $($TableParams.Name)"
+                                            }
+                                            $NodesObj | Table @TableParams
+                                        }
+                                    }
+                                } catch {
+                                    Write-PScriboMessage -IsWarning "HA Cluster Nodes Section: $($_.Exception.Message)"
+                                }
+                            }
+                        }
+                    } catch {
+                        Write-PScriboMessage -IsWarning "Backup Server High Availability Section: $($_.Exception.Message)"
                     }
                     if ($HealthCheck.Infrastructure.BestPractice -and $PssSession) {
                         try {
