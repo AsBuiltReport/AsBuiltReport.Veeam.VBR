@@ -1796,10 +1796,31 @@ New-AsBuiltReport @params
     $logHeaderGrid.Children.Add($btnExportLog)
 
     # Cancel button row — right-aligned, only visible during generation
+    $btnOpenOutputFolder = [Button]::new()
+    $btnOpenOutputFolder.Content = '📁 Open Output Folder'
+    $btnOpenOutputFolder.Margin = '0,0,8,0'
+    $btnOpenOutputFolder.AddClick({
+            $path = $txtOutput.Text.Trim()
+            if ([string]::IsNullOrWhiteSpace($path)) {
+                $syncHash.lblConfigStatus.Text = '⚠ No output folder set.'
+                return
+            }
+            if (-not (Test-Path $path)) {
+                $syncHash.lblConfigStatus.Text = "⚠ Output folder not found: $path"
+                return
+            }
+            try {
+                Start-Process $path
+            } catch {
+                $syncHash.lblConfigStatus.Text = "❌ Could not open folder: $_"
+            }
+        })
+
     $logActionsRow = [StackPanel]::new()
     $logActionsRow.Orientation = 'Horizontal'
     $logActionsRow.HorizontalAlignment = 'Right'
     $logActionsRow.Margin = '0,6,0,0'
+    $logActionsRow.Children.Add($btnOpenOutputFolder)
     $logActionsRow.Children.Add($btnCancel)
 
     $mainPanel.Children.Add($logHeaderGrid)
