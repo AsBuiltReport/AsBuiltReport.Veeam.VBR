@@ -129,6 +129,7 @@ function Start-AsBuiltReportVBR {
     $btnBrowse.Content = 'Browse…'
     $btnBrowse.AddClick({
             try {
+                $btnBrowse.IsEnabled = $false
                 $storageProvider = [Window]::GetTopLevel($btnBrowse).StorageProvider
                 if ($null -eq $storageProvider) {
                     Write-Host 'Storage provider not available.' -ForegroundColor Yellow
@@ -142,6 +143,8 @@ function Start-AsBuiltReportVBR {
                 }
             } catch {
                 Write-Host "Folder picker error: $_" -ForegroundColor Red
+            } finally {
+                $btnBrowse.IsEnabled = $true
             }
         })
 
@@ -181,8 +184,8 @@ function Start-AsBuiltReportVBR {
     $swExportDia = [ToggleSwitch]::new(); $swExportDia.IsChecked = $true
     $swHWInv = [ToggleSwitch]::new(); $swHWInv.IsChecked = $false
     $swNewIcons = [ToggleSwitch]::new(); $swNewIcons.IsChecked = $true
-    $swHealthChk = [ToggleSwitch]::new(); $swHealthChk.IsChecked = $true
-    $swTimestamp = [ToggleSwitch]::new(); $swTimestamp.IsChecked = $true
+    $swHealthChk = [ToggleSwitch]::new(); $swHealthChk.IsChecked = $false
+    $swTimestamp = [ToggleSwitch]::new(); $swTimestamp.IsChecked = $false
 
     $txtColSize = [TextBox]::new()
     $txtColSize.Text = '3'
@@ -245,6 +248,7 @@ function Start-AsBuiltReportVBR {
     $btnExportLog.Margin = '0,0,0,0'
     $btnExportLog.AddClick({
             try {
+                $btnExportLog.IsEnabled = $false
                 $logText = $syncHash.txtLog.Text
                 if ([string]::IsNullOrWhiteSpace($logText)) {
                     $syncHash.lblConfigStatus.Text = '⚠ Log is empty — nothing to export.'
@@ -262,6 +266,8 @@ function Start-AsBuiltReportVBR {
                 }
             } catch {
                 $syncHash.lblConfigStatus.Text = "❌ Log export failed: $_"
+            } finally {
+                $btnExportLog.IsEnabled = $true
             }
         })
 
@@ -628,6 +634,7 @@ function Start-AsBuiltReportVBR {
     $btnBrowseConfig.Content = 'Browse…'
     $btnBrowseConfig.AddClick({
             try {
+                $btnBrowseConfig.IsEnabled = $false
                 $storageProvider = [Window]::GetTopLevel($btnBrowseConfig).StorageProvider
                 if ($null -eq $storageProvider) {
                     Write-Host 'Storage provider not available.' -ForegroundColor Yellow
@@ -641,6 +648,8 @@ function Start-AsBuiltReportVBR {
                 }
             } catch {
                 Write-Host "Folder picker error: $_" -ForegroundColor Red
+            } finally {
+                $btnBrowseConfig.IsEnabled = $true
             }
         })
 
@@ -665,6 +674,7 @@ function Start-AsBuiltReportVBR {
     $btnBrowseAbrConfig.Content = 'Browse…'
     $btnBrowseAbrConfig.AddClick({
             try {
+                $btnBrowseAbrConfig.IsEnabled = $false
                 $storageProvider = [Window]::GetTopLevel($btnBrowseAbrConfig).StorageProvider
                 if ($null -eq $storageProvider) { return }
                 $options = [FilePickerOpenOptions]::new()
@@ -677,6 +687,8 @@ function Start-AsBuiltReportVBR {
                 }
             } catch {
                 $syncHash.lblConfigStatus.Text = "❌ Browse error: $_"
+            } finally {
+                $btnBrowseAbrConfig.IsEnabled = $true
             }
         })
 
@@ -785,6 +797,7 @@ function Start-AsBuiltReportVBR {
     $btnAbrNew.Margin = '0,0,8,0'
     $btnAbrNew.AddClick({
             try {
+                $btnAbrNew.IsEnabled = $false
                 # Open a Save dialog so the user picks where the new file will live
                 $storageProvider = [Window]::GetTopLevel($btnAbrNew).StorageProvider
                 if ($null -eq $storageProvider) {
@@ -829,6 +842,8 @@ function Start-AsBuiltReportVBR {
                 $syncHash.lblConfigStatus.Text = "✅ Created: $(Split-Path $dest -Leaf)"
             } catch {
                 $syncHash.lblConfigStatus.Text = "❌ Create failed: $_"
+            } finally {
+                $btnAbrNew.IsEnabled = $true
             }
         })
 
@@ -838,6 +853,7 @@ function Start-AsBuiltReportVBR {
     $btnAbrLoad.Margin = '0,0,8,0'
     $btnAbrLoad.AddClick({
             try {
+                $btnAbrLoad.IsEnabled = $false
                 $src = $txtAbrConfigPath.Text.Trim()
                 if ([string]::IsNullOrWhiteSpace($src) -or -not (Test-Path $src)) {
                     $syncHash.lblConfigStatus.Text = '⚠ Set a valid AsBuiltReport.json path first.'
@@ -848,6 +864,8 @@ function Start-AsBuiltReportVBR {
                 $syncHash.lblConfigStatus.Text = "✅ Loaded: $(Split-Path $src -Leaf)"
             } catch {
                 $syncHash.lblConfigStatus.Text = "❌ Load failed: $_"
+            } finally {
+                $btnAbrLoad.IsEnabled = $true
             }
         })
 
@@ -857,16 +875,17 @@ function Start-AsBuiltReportVBR {
     $btnAbrSave.Content = '💾  Save to File'
     $btnAbrSave.AddClick({
             try {
+                $btnAbrSave.IsEnabled = $false
                 $validationError = & $syncHash.validateAbrRequired
                 if ($null -ne $validationError) {
                     $syncHash.lblConfigStatus.Text = $validationError
                     return
                 }
-                $dest = $txtAbrConfigPath.Text.Trim()
-                if ([string]::IsNullOrWhiteSpace($dest)) {
-                    # No path set → fall back to $env:USERPROFILE\Documents\AsBuiltReport\AsBuiltReport.json
-                    $dest = [IO.Path]::Combine($env:USERPROFILE, 'Documents', 'AsBuiltReport', 'AsBuiltReport.json')
-                    $txtAbrConfigPath.Text = $dest
+                if ([string]::IsNullOrWhiteSpace($txtAbrConfigPath.Text)) {
+                    $syncHash.lblConfigStatus.Text = '❌ Please provide a config file path before saving.'
+                    return
+                } else {
+                    $dest = $txtAbrConfigPath.Text.Trim()
                 }
                 $cfg = & $syncHash.buildAbrConfig
                 $destDir = Split-Path $dest -Parent
@@ -875,6 +894,8 @@ function Start-AsBuiltReportVBR {
                 $syncHash.lblConfigStatus.Text = "✅ Saved: $(Split-Path $dest -Leaf)"
             } catch {
                 $syncHash.lblConfigStatus.Text = "❌ Save failed: $_"
+            } finally {
+                $btnAbrSave.IsEnabled = $true
             }
         })
 
@@ -1044,6 +1065,7 @@ function Start-AsBuiltReportVBR {
             }
 
             try {
+                $btnSaveConfig.IsEnabled = $false
                 # Ensure parent folder exists
                 $parent = Split-Path $destPath -Parent
                 if (-not [string]::IsNullOrEmpty($parent) -and -not (Test-Path $parent)) {
@@ -1076,6 +1098,8 @@ function Start-AsBuiltReportVBR {
                 $syncHash.lblConfigStatus.Text = "✅ Config saved: $destPath"
             } catch {
                 $syncHash.lblConfigStatus.Text = "❌ Save failed: $_"
+            } finally {
+                $btnAbrSave.IsEnabled = $true
             }
         })
 
@@ -1088,6 +1112,7 @@ function Start-AsBuiltReportVBR {
     $btnLoadConfig.Margin = '4,0,0,0'
 
     $btnLoadConfig.AddClick({
+            $btnLoadConfig.IsEnabled = $false
             $srcPath = $txtConfigPath.Text.Trim()
             if ([string]::IsNullOrWhiteSpace($srcPath) -or -not (Test-Path $srcPath)) {
                 $syncHash.lblConfigStatus.Text = '⚠ Config file not found.'
@@ -1163,6 +1188,8 @@ function Start-AsBuiltReportVBR {
                 $syncHash.lblConfigStatus.Text = "✅ Config loaded: $(Split-Path $srcPath -Leaf)"
             } catch {
                 $syncHash.lblConfigStatus.Text = "❌ Load failed: $_"
+            } finally {
+                $btnLoadConfig.IsEnabled = $true
             }
         })
 
@@ -1175,6 +1202,7 @@ function Start-AsBuiltReportVBR {
     $btnOpenConfig.Margin = '4,0,0,0'
 
     $btnOpenConfig.AddClick({
+            $btnOpenConfig.IsEnabled = $false
             $srcPath = $txtConfigPath.Text.Trim()
             if ([string]::IsNullOrWhiteSpace($srcPath)) {
                 $syncHash.lblConfigStatus.Text = '⚠ Please enter a config file path first.'
@@ -1189,6 +1217,8 @@ function Start-AsBuiltReportVBR {
                 $syncHash.lblConfigStatus.Text = "📝 Opened: $(Split-Path $srcPath -Leaf)"
             } catch {
                 $syncHash.lblConfigStatus.Text = "❌ Could not open file: $_"
+            } finally {
+                $btnOpenConfig.IsEnabled = $true
             }
         })
 
