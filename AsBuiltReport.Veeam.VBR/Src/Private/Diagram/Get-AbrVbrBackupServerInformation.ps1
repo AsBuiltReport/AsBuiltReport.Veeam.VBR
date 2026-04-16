@@ -159,20 +159,27 @@ function Get-AbrBackupServerInformation {
 
             $HACluster = Get-VBRHighAvailabilityCluster
             if ($HACluster) {
-                $HAClusterIP = Get-AbrNodeIP -Hostname $HACluster.ClusterEndpoint
-
-                $Rows = [ordered] @{
-                    IP      = $HAClusterIP
-                    Role    = 'HA Cluster'
-                    DNS     = $HACluster.ClusterDnsName
-                    Healthy = $HACluster.IsHealthyCluster
+                # Cluster Endpoint / DNS Server label for the Network Infrastructure box
+                $ClusterDNSRows = [PSCustomObject][ordered] @{
+                    'Cluster IP' = $HACluster.ClusterEndpoint
+                    'DNS Name'   = $HACluster.ClusterDnsName
                 }
+                $DNSLabel = Add-NodeIcon -Name 'Cluster Endpoint' -IconType 'VBR_Server_HA' -Align 'Center' -RowsOrdered $ClusterDNSRows -ImagesObj $Images -IconDebug $IconDebug -FontSize 18 -FontBold -TableBackgroundColor $BackupServerBGColor -CellBackgroundColor $BackupServerBGColor -FontColor $Fontcolor
 
-                $Rows = [PSCustomObject]$Rows
+                # Secondary HA node label
+                $SecondaryIP = Get-AbrNodeIP -Hostname $HACluster.Secondary.Hostname
+                $SecondaryRows = [PSCustomObject][ordered] @{
+                    IP     = $SecondaryIP
+                    Role   = $HACluster.Secondary.Role
+                    Status = $HACluster.Secondary.Status
+                }
+                $SecondaryLabel = Add-NodeIcon -Name "$($HACluster.Secondary.Hostname.split('.')[0])" -IconType 'VBR_Server' -Align 'Center' -RowsOrdered $SecondaryRows -ImagesObj $Images -IconDebug $IconDebug -FontSize 18 -FontBold -TableBackgroundColor $BackupServerBGColor -CellBackgroundColor $BackupServerBGColor -FontColor $Fontcolor
 
                 $script:HAClusterInfo = [PSCustomObject]@{
-                    Name  = $HACluster.ClusterEndpoint.split('.')[0]
-                    Label = Add-NodeIcon -Name "$($HACluster.ClusterEndpoint.split('.')[0])" -IconType 'VBR_Server_HA' -Align 'Center' -RowsOrdered $Rows -ImagesObj $Images -IconDebug $IconDebug -FontSize 18 -FontBold -TableBackgroundColor $BackupServerBGColor -CellBackgroundColor $BackupServerBGColor -FontColor $Fontcolor
+                    Name          = $HACluster.ClusterEndpoint
+                    DNSLabel      = $DNSLabel
+                    SecondaryLabel = $SecondaryLabel
+                    SecondaryName  = $HACluster.Secondary.Hostname.split('.')[0]
                 }
             }
         } catch {
