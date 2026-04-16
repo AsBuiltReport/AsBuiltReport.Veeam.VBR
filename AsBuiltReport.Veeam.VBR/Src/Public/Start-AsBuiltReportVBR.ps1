@@ -1341,6 +1341,327 @@ function Start-AsBuiltReportVBR {
             }
         })
 
+    # ── Task Scheduler Section ────────────────────────────────────────────────────
+
+    # Script path
+    $txtSchedScriptPath = [TextBox]::new()
+    $txtSchedScriptPath.Width = 298
+    $txtSchedScriptPath.Text = if ($IsWindows) {
+        [System.IO.Path]::Combine($env:USERPROFILE, 'AsBuiltReport', 'AsBuiltReport-VBR.ps1')
+    } else {
+        [System.IO.Path]::Combine($env:HOME, 'AsBuiltReport', 'AsBuiltReport-VBR.ps1')
+    }
+
+    $btnBrowseSchedScript = [Button]::new()
+    $btnBrowseSchedScript.Content = 'Browse…'
+    $btnBrowseSchedScript.AddClick({
+            try {
+                $btnBrowseSchedScript.IsEnabled = $false
+                $sp = [Window]::GetTopLevel($btnBrowseSchedScript).StorageProvider
+                if ($null -eq $sp) { return }
+                $opts = [FilePickerSaveOptions]::new()
+                $opts.Title = 'Save Schedule Script As'
+                $opts.SuggestedFileName = 'AsBuiltReport-VBR.ps1'
+                $opts.DefaultExtension = 'ps1'
+                $file = $sp.SaveFilePickerAsync($opts).WaitForCompleted()
+                if ($null -ne $file) { $txtSchedScriptPath.Text = $file.Path.LocalPath }
+            } catch {
+                $syncHash.lblConfigStatus.Text = "❌ Browse error: $_"
+            } finally {
+                $btnBrowseSchedScript.IsEnabled = $true
+            }
+        })
+
+    $schedScriptPathRow = [StackPanel]::new()
+    $schedScriptPathRow.Orientation = 'Horizontal'
+    $schedScriptPathRow.Spacing = 8
+    $schedScriptPathRow.Children.Add($txtSchedScriptPath)
+    $schedScriptPathRow.Children.Add($btnBrowseSchedScript)
+
+    # Schedule frequency and day-of-week
+    $cboSchedFrequency = [ComboBox]::new()
+    $cboSchedFrequency.Width = 140
+    @('Daily', 'Weekly', 'Every 4 Weeks') | ForEach-Object { $cboSchedFrequency.Items.Add($_) | Out-Null }
+    $cboSchedFrequency.SelectedIndex = 1  # Weekly default
+
+    $cboSchedDayOfWeek = [ComboBox]::new()
+    $cboSchedDayOfWeek.Width = 140
+    @('Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday') | ForEach-Object {
+        $cboSchedDayOfWeek.Items.Add($_) | Out-Null
+    }
+    $cboSchedDayOfWeek.SelectedIndex = 0  # Sunday default
+
+    # Day row — initially visible (default is Weekly)
+    $schedDayRow = New-FormRow -Label 'Day of Week' -Control $cboSchedDayOfWeek -LabelWidth 165
+    $schedDayRow.IsVisible = $true
+
+    $cboSchedFrequency.AddSelectionChanged({
+            $schedDayRow.IsVisible = ([string]$cboSchedFrequency.SelectedItem -eq 'Weekly')
+        })
+
+    # Start time, task name, run-as credentials
+    $txtSchedTime = [TextBox]::new()
+    $txtSchedTime.Width = 100
+    $txtSchedTime.Text = '06:00'
+    $txtSchedTime.Watermark = 'HH:mm'
+
+    $txtSchedTaskName = [TextBox]::new()
+    $txtSchedTaskName.Width = 200
+    $txtSchedTaskName.Text = 'AsBuiltReport.VBR'
+
+    $txtSchedRunAs = [TextBox]::new()
+    $txtSchedRunAs.Width = 200
+    $txtSchedRunAs.Watermark = 'DOMAIN\username or user@domain'
+    try {
+        $txtSchedRunAs.Text = [System.Security.Principal.WindowsIdentity]::GetCurrent().Name
+    } catch {
+        $txtSchedRunAs.Text = ''
+    }
+
+    $txtSchedTaskPass = [TextBox]::new()
+    $txtSchedTaskPass.Width = 200
+    $txtSchedTaskPass.Watermark = 'Windows account password (for task registration)'
+    try { $txtSchedTaskPass.PasswordChar = [char]'●' } catch { Out-Null }
+
+    # Options toggles
+    $swSchedHighest   = [ToggleSwitch]::new(); $swSchedHighest.IsChecked   = $true
+    $swSchedSendEmail = [ToggleSwitch]::new(); $swSchedSendEmail.IsChecked = $false
+    $swSchedTimestamp = [ToggleSwitch]::new(); $swSchedTimestamp.IsChecked = $true
+
+    # ── Export Script Button ──────────────────────────────────────────────────────
+    $btnExportScript = [Button]::new()
+    $btnExportScript.Content = '📜 Export Script'
+    $btnExportScript.Margin = '0,0,8,0'
+    $btnExportScript.AddClick({
+            try {
+                $btnExportScript.IsEnabled = $false
+
+                $scriptPath = $txtSchedScriptPath.Text.Trim()
+                if ([string]::IsNullOrWhiteSpace($scriptPath)) {
+                    $syncHash.lblConfigStatus.Text = '⚠ Set a script path before exporting.'
+                    return
+                }
+
+                $srv = $txtServer.Text.Trim()
+                $prt = if ($txtPort.Text -match '^\d+$') { [int]$txtPort.Text } else { 443 }
+                $usr = $txtUser.Text.Trim()
+                $pwd = $txtPass.Text
+
+                if ([string]::IsNullOrWhiteSpace($srv)) {
+                    $syncHash.lblConfigStatus.Text = '⚠ VBR Server address is required.'
+                    return
+                }
+                if ([string]::IsNullOrWhiteSpace($usr)) {
+                    $syncHash.lblConfigStatus.Text = '⚠ Username is required.'
+                    return
+                }
+                if ([string]::IsNullOrWhiteSpace($pwd)) {
+                    $syncHash.lblConfigStatus.Text = '⚠ Enter the VBR password before exporting the script (it will be stored encrypted).'
+                    return
+                }
+
+                # Derive encrypted-password XML path alongside the script
+                $pwdXmlPath = [System.IO.Path]::ChangeExtension($scriptPath, 'xml')
+                $scriptDir  = Split-Path $scriptPath -Parent
+                if (-not (Test-Path $scriptDir)) { New-Item -Path $scriptDir -ItemType Directory -Force | Out-Null }
+
+                # Encrypt the VBR password with Windows DPAPI via Export-Clixml
+                $secPwd = ConvertTo-SecureString $pwd -AsPlainText -Force
+                $secPwd | Export-Clixml -Path $pwdXmlPath
+
+                # Collect current form values
+                $outPath = $txtOutput.Text.Trim()
+                $vbrCfg  = $txtConfigPath.Text.Trim()
+                $abrCfg  = $txtAbrConfigPath.Text.Trim()
+
+                $fmts = @()
+                if ($chkHTML.IsChecked -eq $true) { $fmts += "'Html'" }
+                if ($chkWord.IsChecked -eq $true) { $fmts += "'Word'" }
+                if ($chkText.IsChecked -eq $true) { $fmts += "'Text'" }
+                if ($fmts.Count -eq 0) { $fmts = @("'Html'") }
+                $fmtStr    = $fmts -join ', '
+                $addTs     = [bool]$swSchedTimestamp.IsChecked
+                $sendEmail = [bool]$swSchedSendEmail.IsChecked
+                $genDate   = Get-Date -Format 'yyyy-MM-dd HH:mm:ss'
+
+                # Build optional parameter lines
+                $optLines = ''
+                if (-not [string]::IsNullOrWhiteSpace($vbrCfg)) {
+                    $optLines += "`n    ReportConfigFilePath  = '$vbrCfg'"
+                }
+                if (-not [string]::IsNullOrWhiteSpace($abrCfg)) {
+                    $optLines += "`n    AsBuiltConfigFilePath = '$abrCfg'"
+                }
+                if ($addTs)     { $optLines += "`n    Timestamp             = `$true" }
+                if ($sendEmail) { $optLines += "`n    SendEmail             = `$true" }
+
+                $scriptContent = @"
+#Requires -Version 7.4
+<#
+.SYNOPSIS
+    AsBuiltReport.Veeam.VBR — Automated Scheduled Report
+.NOTES
+    Generated : $genDate
+    Target    : $srv (port $prt)
+    User      : $usr
+
+    SECURITY: Password.xml is encrypted with Windows DPAPI.
+    It can only be decrypted by user '$usr' on this machine.
+    Do NOT copy Password.xml to another machine or user profile.
+#>
+
+# Import encrypted VBR credential (Windows DPAPI — machine + user specific)
+`$securePassword = Import-Clixml -Path '$pwdXmlPath'
+`$vbrCredential  = [PSCredential]::new('$usr', `$securePassword)
+
+# Import required modules
+Import-Module AsBuiltReport.Core, AsBuiltReport.Chart, AsBuiltReport.Diagram, AsBuiltReport.Veeam.VBR -Force
+
+# Report parameters
+`$params = @{
+    Report           = 'Veeam.VBR'
+    Target           = '$srv'
+    Username         = `$vbrCredential.UserName
+    Password         = `$vbrCredential.GetNetworkCredential().Password
+    Format           = @($fmtStr)
+    OutputFolderPath = '$outPath'$optLines
+}
+
+New-AsBuiltReport @params
+"@
+
+                $scriptContent | Set-Content -Path $scriptPath -Encoding UTF8
+                $syncHash.lblConfigStatus.Text = "✅ Script exported to $(Split-Path $scriptPath -Leaf)  |  Encrypted password: $(Split-Path $pwdXmlPath -Leaf)"
+            } catch {
+                $syncHash.lblConfigStatus.Text = "❌ Export failed: $_"
+            } finally {
+                $btnExportScript.IsEnabled = $true
+            }
+        })
+
+    # ── Register Task Button ──────────────────────────────────────────────────────
+    $btnRegisterTask = [Button]::new()
+    $btnRegisterTask.Content = '📅 Register Task'
+    $btnRegisterTask.AddClick({
+            try {
+                $btnRegisterTask.IsEnabled = $false
+
+                if (-not $IsWindows) {
+                    $syncHash.lblConfigStatus.Text = '⚠ Windows Task Scheduler is only available on Windows.'
+                    return
+                }
+
+                $scriptPath = $txtSchedScriptPath.Text.Trim()
+                $taskName   = $txtSchedTaskName.Text.Trim()
+                $runAsUser  = $txtSchedRunAs.Text.Trim()
+                $runAsPass  = $txtSchedTaskPass.Text
+                $freq       = [string]$cboSchedFrequency.SelectedItem
+                $timeStr    = $txtSchedTime.Text.Trim()
+                $highest    = [bool]$swSchedHighest.IsChecked
+
+                if ([string]::IsNullOrWhiteSpace($scriptPath) -or -not (Test-Path $scriptPath)) {
+                    $syncHash.lblConfigStatus.Text = '⚠ Script not found — click "📜 Export Script" first.'
+                    return
+                }
+                if ([string]::IsNullOrWhiteSpace($taskName)) {
+                    $syncHash.lblConfigStatus.Text = '⚠ Task name is required.'
+                    return
+                }
+                if ([string]::IsNullOrWhiteSpace($runAsUser)) {
+                    $syncHash.lblConfigStatus.Text = '⚠ Run-as user is required.'
+                    return
+                }
+                if ([string]::IsNullOrWhiteSpace($runAsPass)) {
+                    $syncHash.lblConfigStatus.Text = '⚠ Windows account password is required to register the task.'
+                    return
+                }
+                if ($timeStr -notmatch '^\d{1,2}:\d{2}$') {
+                    $syncHash.lblConfigStatus.Text = '⚠ Start time must be in HH:mm format (e.g. 06:00).'
+                    return
+                }
+
+                $startTime = [datetime]::ParseExact($timeStr, 'H:mm', [System.Globalization.CultureInfo]::InvariantCulture)
+
+                # Resolve pwsh.exe
+                $pwshPath = (Get-Command pwsh -ErrorAction SilentlyContinue)?.Source
+                if ([string]::IsNullOrWhiteSpace($pwshPath)) { $pwshPath = Join-Path $PSHOME 'pwsh.exe' }
+
+                # Build trigger
+                $trigger = switch ($freq) {
+                    'Daily'        { New-ScheduledTaskTrigger -Daily -At $startTime }
+                    'Weekly'       {
+                        $day = [string]$cboSchedDayOfWeek.SelectedItem
+                        New-ScheduledTaskTrigger -Weekly -DaysOfWeek $day -At $startTime
+                    }
+                    'Every 4 Weeks' {
+                        $day = [string]$cboSchedDayOfWeek.SelectedItem
+                        New-ScheduledTaskTrigger -Weekly -WeeksInterval 4 -DaysOfWeek $day -At $startTime
+                    }
+                    default        { New-ScheduledTaskTrigger -Weekly -DaysOfWeek 'Sunday' -At $startTime }
+                }
+
+                $action   = New-ScheduledTaskAction -Execute $pwshPath `
+                    -Argument "-NonInteractive -NoProfile -ExecutionPolicy Bypass -File `"$scriptPath`""
+                $settings = New-ScheduledTaskSettingsSet `
+                    -ExecutionTimeLimit (New-TimeSpan -Hours 4) `
+                    -RestartCount 0 `
+                    -StartWhenAvailable
+
+                $regParams = @{
+                    TaskName    = $taskName
+                    Action      = $action
+                    Trigger     = $trigger
+                    Settings    = $settings
+                    Description = 'Automated AsBuiltReport.Veeam.VBR report — managed by GUI'
+                    User        = $runAsUser
+                    Password    = $runAsPass
+                    Force       = $true
+                }
+                if ($highest) { $regParams['RunLevel'] = 'Highest' }
+
+                Register-ScheduledTask @regParams | Out-Null
+                $syncHash.lblConfigStatus.Text = "✅ Task '$taskName' registered — next run: $startTime ($freq)"
+            } catch {
+                $syncHash.lblConfigStatus.Text = "❌ Task registration failed: $_"
+            } finally {
+                $btnRegisterTask.IsEnabled = $true
+            }
+        })
+
+    # Schedule action buttons row
+    $schedActionRow = [StackPanel]::new()
+    $schedActionRow.Orientation = 'Horizontal'
+    $schedActionRow.Margin = '0,10,0,0'
+    $schedActionRow.Spacing = 8
+    $schedActionRow.Children.Add($btnExportScript)
+    $schedActionRow.Children.Add($btnRegisterTask)
+
+    # Assemble scheduler inner panel
+    $schedInnerPanel = [StackPanel]::new()
+    $schedInnerPanel.Spacing = 2
+    $schedInnerPanel.Margin = '4,4,4,8'
+    $schedInnerPanel.Children.Add((New-SectionTitle '📜 Script'))
+    $schedInnerPanel.Children.Add((New-FormRow -Label 'Script Path' -Control $schedScriptPathRow -LabelWidth 165))
+    $schedInnerPanel.Children.Add((New-FormRow -Label 'Add Timestamp' -Control $swSchedTimestamp -LabelWidth 165))
+    $schedInnerPanel.Children.Add((New-FormRow -Label 'Send Email' -Control $swSchedSendEmail -LabelWidth 165))
+    $schedInnerPanel.Children.Add((New-SectionTitle '🕐 Schedule'))
+    $schedInnerPanel.Children.Add((New-FormRow -Label 'Frequency' -Control $cboSchedFrequency -LabelWidth 165))
+    $schedInnerPanel.Children.Add($schedDayRow)
+    $schedInnerPanel.Children.Add((New-FormRow -Label 'Start Time (HH:mm)' -Control $txtSchedTime -LabelWidth 165))
+    $schedInnerPanel.Children.Add((New-SectionTitle '⚙️ Task Settings'))
+    $schedInnerPanel.Children.Add((New-FormRow -Label 'Task Name' -Control $txtSchedTaskName -LabelWidth 165))
+    $schedInnerPanel.Children.Add((New-FormRow -Label 'Run As User' -Control $txtSchedRunAs -LabelWidth 165))
+    $schedInnerPanel.Children.Add((New-FormRow -Label 'User Password' -Control $txtSchedTaskPass -LabelWidth 165))
+    $schedInnerPanel.Children.Add((New-FormRow -Label 'Highest Privileges' -Control $swSchedHighest -LabelWidth 165))
+    $schedInnerPanel.Children.Add($schedActionRow)
+
+    $schedExpander = [Expander]::new()
+    $schedExpander.Header = '📅 Schedule Task'
+    $schedExpander.IsExpanded = $false
+    $schedExpander.Margin = '0,8,0,0'
+    $schedExpander.Content = $schedInnerPanel
+
+
     # ── Assemble Main Layout ────────────────────────────────────────────────────
     $mainPanel = [StackPanel]::new()
     $mainPanel.Margin = '28,20,28,24'
@@ -1445,6 +1766,7 @@ function Start-AsBuiltReportVBR {
     $mainPanel.Children.Add($cfgBtnRow)
     $mainPanel.Children.Add((New-FormRow -Label '📄 AsBuiltReport Config File' -Control $abrConfigPathRow))
     $mainPanel.Children.Add($abrExpander)
+    $mainPanel.Children.Add($schedExpander)
     $mainPanel.Children.Add($lblConfigStatus)
 
     # Generate button + progress
