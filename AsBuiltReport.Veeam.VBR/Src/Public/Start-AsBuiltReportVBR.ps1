@@ -334,9 +334,8 @@ function Start-AsBuiltReportVBR {
         $sh.btnCancel.IsVisible = $true
         $sh.txtLog.Text = ''
 
+        # Enable New-AsBuiltReport verbose output if the checkbox is checked in the UI.
         $verboseEnabled = $ui.Verbose.IsChecked -eq $true
-        if ($verboseEnabled) { $VerbosePreference = 'Continue' }
-
         function Write-Logging ([string]$Msg, [string]$Level = '', [bool]$AddTimestamp = $false) {
             $ts = Get-Date -Format 'HH:mm:ss'
             if ($Level -eq '') {
@@ -595,8 +594,11 @@ function Start-AsBuiltReportVBR {
                 Format = $formats
                 ReportConfigFilePath = $reportConfigFilePath
             }
+
             if ($addTimestamp) { $params['Timestamp'] = $true }
             if ($healthCheck) { $params['EnableHealthCheck'] = $true }
+            if ($verboseEnabled) { $params['Verbose'] = $true }
+
             $params['AsBuiltConfigFilePath'] = $abrConfigPath
             Write-Logging "Using AsBuiltReport config file: $(Split-Path $abrConfigPath -Leaf)"
 
