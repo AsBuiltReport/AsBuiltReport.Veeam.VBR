@@ -103,6 +103,106 @@ function Start-AsBuiltReportVBR {
     $txtPass.Watermark = 'Password'
     try { $txtPass.PasswordChar = [char]'●' } catch { Out-Null }
 
+    # ── Saved Connections ─────────────────────────────────────────────────────────
+    $savedConnPath = if ($IsWindows) {
+        [System.IO.Path]::Combine($env:USERPROFILE, 'AsBuiltReport', 'VBR-SavedConnections.json')
+    } else {
+        [System.IO.Path]::Combine($env:HOME, 'AsBuiltReport', 'VBR-SavedConnections.json')
+    }
+
+    $loadSavedConns = {
+        if (Test-Path $savedConnPath) {
+            try {
+                $raw = Get-Content -Path $savedConnPath -Raw -Encoding UTF8 | ConvertFrom-Json
+                if ($null -eq $raw) { return @() }
+                return @($raw)
+            } catch { return @() }
+        }
+        return @()
+    }.GetNewClosure()
+
+    $saveSavedConns = {
+        param ([array]$Connections)
+        $dir = Split-Path $savedConnPath -Parent
+        if (-not (Test-Path $dir)) { New-Item -Path $dir -ItemType Directory -Force | Out-Null }
+        if ($Connections.Count -eq 0) {
+            '[]' | Set-Content -Path $savedConnPath -Encoding UTF8
+        } else {
+            $Connections | ConvertTo-Json -Depth 3 | Set-Content -Path $savedConnPath -Encoding UTF8
+        }
+    }.GetNewClosure()
+
+    $cboSavedConn = [ComboBox]::new()
+    $cboSavedConn.Width = 262
+
+    $refreshSavedConnCombo = {
+        $cboSavedConn.Items.Clear()
+        foreach ($c in (& $loadSavedConns)) {
+            $cboSavedConn.Items.Add("$($c.Server):$($c.Port) ($($c.Username))") | Out-Null
+        }
+    }.GetNewClosure()
+    & $refreshSavedConnCombo
+
+    $cboSavedConn.AddSelectionChanged({
+            $idx = $cboSavedConn.SelectedIndex
+            if ($idx -lt 0) { return }
+            $conns = & $loadSavedConns
+            if ($idx -ge $conns.Count) { return }
+            $sel = $conns[$idx]
+            $txtServer.Text = $sel.Server
+            $txtPort.Text = [string]$sel.Port
+            $txtUser.Text = $sel.Username
+            $txtPass.Text = ''
+        })
+
+    $btnSaveConn = [Button]::new()
+    $btnSaveConn.Content = '💾 Save Connection'
+    $btnSaveConn.AddClick({
+            $srv = $txtServer.Text.Trim()
+            $prt = if ($txtPort.Text -match '^\d+$') { [int]$txtPort.Text } else { 443 }
+            $usr = $txtUser.Text.Trim()
+            if ([string]::IsNullOrWhiteSpace($srv) -or [string]::IsNullOrWhiteSpace($usr)) {
+                $syncHash.lblConfigStatus.Text = '⚠ Enter Server and Username before saving a connection.'
+                return
+            }
+            $conns = [System.Collections.ArrayList]@()
+            foreach ($c in (& $loadSavedConns)) { $conns.Add($c) | Out-Null }
+            $dup = $conns | Where-Object { $_.Server -eq $srv -and $_.Port -eq $prt -and $_.Username -eq $usr }
+            if (-not $dup) {
+                $conns.Add([PSCustomObject]@{ Server = $srv; Port = $prt; Username = $usr }) | Out-Null
+                & $saveSavedConns -Connections @($conns)
+                & $refreshSavedConnCombo
+                $syncHash.lblConfigStatus.Text = "✅ Connection saved: $srv ($usr)"
+            } else {
+                $syncHash.lblConfigStatus.Text = "ℹ Connection already exists: $srv ($usr)"
+            }
+        })
+
+    $btnDeleteConn = [Button]::new()
+    $btnDeleteConn.Content = '🗑 Delete'
+    $btnDeleteConn.AddClick({
+            $idx = $cboSavedConn.SelectedIndex
+            if ($idx -lt 0) {
+                $syncHash.lblConfigStatus.Text = '⚠ Select a saved connection to delete.'
+                return
+            }
+            $conns = [System.Collections.ArrayList]@()
+            foreach ($c in (& $loadSavedConns)) { $conns.Add($c) | Out-Null }
+            if ($idx -ge $conns.Count) { return }
+            $removed = $conns[$idx]
+            $conns.RemoveAt($idx)
+            & $saveSavedConns -Connections @($conns)
+            $cboSavedConn.SelectedIndex = -1
+            & $refreshSavedConnCombo
+            $syncHash.lblConfigStatus.Text = "🗑 Deleted: $($removed.Server) ($($removed.Username))"
+        })
+
+    $savedConnActionsRow = [StackPanel]::new()
+    $savedConnActionsRow.Orientation = 'Horizontal'
+    $savedConnActionsRow.Spacing = 6
+    $savedConnActionsRow.Children.Add($btnSaveConn)
+    $savedConnActionsRow.Children.Add($btnDeleteConn)
+
     # ── Output Controls ─────────────────────────────────────────────────────────
     $chkHTML = [CheckBox]::new(); $chkHTML.Content = 'HTML'; $chkHTML.IsChecked = $true
     $chkWord = [CheckBox]::new(); $chkWord.Content = 'Word'; $chkWord.IsChecked = $false
@@ -812,7 +912,7 @@ function Start-AsBuiltReportVBR {
 
     # New button — fills form data into a new file chosen via Save dialog
     $btnAbrNew = [Button]::new()
-    $btnAbrNew.Content = '🆕 New'
+    $btnAbrNew.Content = '🆕 Create New'
     $btnAbrNew.Margin = '0,0,8,0'
     $btnAbrNew.AddClick({
             try {
@@ -1276,9 +1376,11 @@ function Start-AsBuiltReportVBR {
     $connPanel = [StackPanel]::new()
     $connPanel.Spacing = 2
     $connPanel.Children.Add((New-SectionTitle '🔌 Server Connection'))
+    $connPanel.Children.Add((New-FormRow -Label 'Saved Connections' -Control $cboSavedConn -LabelWidth 130))
     $connPanel.Children.Add((New-FormRow -Label 'VBR Server' -Control $serverRow -LabelWidth 130))
     $connPanel.Children.Add((New-FormRow -Label 'Username' -Control $txtUser -LabelWidth 130))
     $connPanel.Children.Add((New-FormRow -Label 'Password' -Control $txtPass -LabelWidth 130))
+    $connPanel.Children.Add((New-FormRow -Label '' -Control $savedConnActionsRow -LabelWidth 130))
     [Grid]::SetColumn($connPanel, 0)
     $topGrid.Children.Add($connPanel)
 
