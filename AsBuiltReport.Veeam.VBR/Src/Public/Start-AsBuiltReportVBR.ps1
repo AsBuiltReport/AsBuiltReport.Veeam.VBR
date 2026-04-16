@@ -231,9 +231,17 @@ function Start-AsBuiltReportVBR {
     try { $txtLog.FontFamily = 'Consolas,Courier New,Monospace' } catch { Out-Null }
     $syncHash.txtLog = $txtLog
 
+    $chkVerbose = [CheckBox]::new()
+    $chkVerbose.Content = '🔍Verbose'
+    $chkVerbose.IsChecked = $false
+    $chkVerbose.HorizontalAlignment = 'Right'
+    $chkVerbose.VerticalAlignment = 'Center'
+    $chkVerbose.Margin = '0,0,8,0'
+    $syncHash.chkVerbose = $chkVerbose
+
     # ── Action Buttons ──────────────────────────────────────────────────────────
     $btnCancel = [Button]::new()
-    $btnCancel.Content = '✕  Cancel'
+    $btnCancel.Content = '✕ Cancel'
     $btnCancel.IsVisible = $false
     $btnCancel.Margin = '0,0,0,0'
     $btnCancel.AddClick({
@@ -244,7 +252,7 @@ function Start-AsBuiltReportVBR {
     $syncHash.btnCancel = $btnCancel
 
     $btnExportLog = [Button]::new()
-    $btnExportLog.Content = '💾  Export Log'
+    $btnExportLog.Content = '💾 Export Log'
     $btnExportLog.Margin = '0,0,0,0'
     $btnExportLog.AddClick({
             try {
@@ -272,7 +280,7 @@ function Start-AsBuiltReportVBR {
         })
 
     $btnGenerate = [Button]::new()
-    $btnGenerate.Content = '▶  Generate Report'
+    $btnGenerate.Content = '▶ Generate Report'
     $btnGenerate.HorizontalAlignment = 'Stretch'
     $btnGenerate.HorizontalContentAlignment = 'Center'
     $btnGenerate.FontSize = 14
@@ -314,6 +322,7 @@ function Start-AsBuiltReportVBR {
         LvlReplication = $cboLvlReplication
         LvlCloudConnect = $cboLvlCloudConnect
         LvlJobs = $cboLvlJobs
+        Verbose = $chkVerbose
     }
 
     $generateCallback.ScriptBlock = {
@@ -324,6 +333,9 @@ function Start-AsBuiltReportVBR {
         $sh.progressBar.IsVisible = $true
         $sh.btnCancel.IsVisible = $true
         $sh.txtLog.Text = ''
+
+        $verboseEnabled = $ui.Verbose.IsChecked -eq $true
+        if ($verboseEnabled) { $VerbosePreference = 'Continue' }
 
         function Write-Logging ([string]$Msg, [string]$Level = '', [bool]$AddTimestamp = $false) {
             $ts = Get-Date -Format 'HH:mm:ss'
@@ -595,6 +607,11 @@ function Start-AsBuiltReportVBR {
                 } elseif ($_ -is [System.Management.Automation.WarningRecord]) {
                     Write-Logging "$($_.Message)" 'WARN'
                     return
+                } elseif ($_ -is [System.Management.Automation.VerboseRecord]) {
+                    if ($verboseEnabled) {
+                        Write-Logging "$($_.Message)" 'VERBOSE'
+                    }
+                    return
                 } elseif ($_ -is [System.Management.Automation.InformationRecord]) {
                     "$($_.MessageData)"
                 } else {
@@ -793,7 +810,7 @@ function Start-AsBuiltReportVBR {
 
     # New button — fills form data into a new file chosen via Save dialog
     $btnAbrNew = [Button]::new()
-    $btnAbrNew.Content = '🆕  New'
+    $btnAbrNew.Content = '🆕 New'
     $btnAbrNew.Margin = '0,0,8,0'
     $btnAbrNew.AddClick({
             try {
@@ -849,7 +866,7 @@ function Start-AsBuiltReportVBR {
 
     # Load button — reads the path from $txtAbrConfigPath and populates fields
     $btnAbrLoad = [Button]::new()
-    $btnAbrLoad.Content = '📂  Load from File'
+    $btnAbrLoad.Content = '📂 Load from File'
     $btnAbrLoad.Margin = '0,0,8,0'
     $btnAbrLoad.AddClick({
             try {
@@ -872,7 +889,7 @@ function Start-AsBuiltReportVBR {
     # Helper: build the config ordered hashtable from current field values
     # Save button — opens a Save dialog when no path is set; otherwise writes in-place
     $btnAbrSave = [Button]::new()
-    $btnAbrSave.Content = '💾  Save to File'
+    $btnAbrSave.Content = '💾 Save to File'
     $btnAbrSave.AddClick({
             try {
                 $btnAbrSave.IsEnabled = $false
@@ -918,16 +935,16 @@ function Start-AsBuiltReportVBR {
     $abrInnerPanel.Spacing = 2
     $abrInnerPanel.Margin = '4,4,4,8'
     $abrInnerPanel.Children.Add(($Text))
-    $abrInnerPanel.Children.Add((New-SectionTitle '🏢  Company'))
+    $abrInnerPanel.Children.Add((New-SectionTitle '🏢 Company'))
     $abrInnerPanel.Children.Add((New-FormRow -Label '* Full Name' -Control $txtAbrCoFullName))
     $abrInnerPanel.Children.Add((New-FormRow -Label '* Short Name' -Control $txtAbrCoShortName))
     $abrInnerPanel.Children.Add((New-FormRow -Label '* Contact' -Control $txtAbrCoContact))
     $abrInnerPanel.Children.Add((New-FormRow -Label 'Phone' -Control $txtAbrCoPhone))
     $abrInnerPanel.Children.Add((New-FormRow -Label 'Address' -Control $txtAbrCoAddress))
     $abrInnerPanel.Children.Add((New-FormRow -Label '* Email' -Control $txtAbrCoEmail))
-    $abrInnerPanel.Children.Add((New-SectionTitle '📝  Report'))
+    $abrInnerPanel.Children.Add((New-SectionTitle '📝 Report'))
     $abrInnerPanel.Children.Add((New-FormRow -Label '* Author' -Control $txtAbrRptAuthor))
-    $abrInnerPanel.Children.Add((New-SectionTitle '📧  Email'))
+    $abrInnerPanel.Children.Add((New-SectionTitle '📧 Email'))
     $abrInnerPanel.Children.Add((New-FormRow -Label 'SMTP Server' -Control $txtAbrMailServer))
     $abrInnerPanel.Children.Add((New-FormRow -Label 'Port' -Control $txtAbrMailPort))
     $abrInnerPanel.Children.Add((New-FormRow -Label 'From' -Control $txtAbrMailFrom))
@@ -935,13 +952,13 @@ function Start-AsBuiltReportVBR {
     $abrInnerPanel.Children.Add((New-FormRow -Label 'Body' -Control $txtAbrMailBody))
     $abrInnerPanel.Children.Add((New-FormRow -Label 'Use SSL' -Control $swAbrMailUseSSL))
     $abrInnerPanel.Children.Add((New-FormRow -Label 'Credentials' -Control $swAbrMailCreds))
-    $abrInnerPanel.Children.Add((New-SectionTitle '📁  User Folder'))
+    $abrInnerPanel.Children.Add((New-SectionTitle '📁 User Folder'))
     $abrInnerPanel.Children.Add((New-FormRow -Label '* Path' -Control $txtAbrFolderPath))
     $abrInnerPanel.Children.Add($abrActionRow)
 
     # Expander — collapsed by default
     $abrExpander = [Expander]::new()
-    $abrExpander.Header = '⚙️  AsBuiltReport Global Settings'
+    $abrExpander.Header = '⚙️ AsBuiltReport Global Settings'
     $abrExpander.IsExpanded = $false
     $abrExpander.Margin = '0,8,0,0'
     $abrExpander.Content = $abrInnerPanel
@@ -1051,7 +1068,7 @@ function Start-AsBuiltReportVBR {
     }
 
     $btnSaveConfig = [Button]::new()
-    $btnSaveConfig.Content = '💾  Save Config'
+    $btnSaveConfig.Content = '💾 Save Config'
     $btnSaveConfig.HorizontalAlignment = 'Stretch'
     $btnSaveConfig.HorizontalContentAlignment = 'Center'
     $btnSaveConfig.Width = 196
@@ -1105,7 +1122,7 @@ function Start-AsBuiltReportVBR {
 
     # ── Load Config Button ────────────────────────────────────────────────────────
     $btnLoadConfig = [Button]::new()
-    $btnLoadConfig.Content = '📂  Load Config'
+    $btnLoadConfig.Content = '📂 Load Config'
     $btnLoadConfig.HorizontalAlignment = 'Stretch'
     $btnLoadConfig.HorizontalContentAlignment = 'Center'
     $btnLoadConfig.Width = 196
@@ -1195,7 +1212,7 @@ function Start-AsBuiltReportVBR {
 
     # ── Open Config Button ────────────────────────────────────────────────────────
     $btnOpenConfig = [Button]::new()
-    $btnOpenConfig.Content = '📝  Open Config'
+    $btnOpenConfig.Content = '📝 Open Config'
     $btnOpenConfig.HorizontalAlignment = 'Stretch'
     $btnOpenConfig.HorizontalContentAlignment = 'Center'
     $btnOpenConfig.Width = 196
@@ -1256,7 +1273,7 @@ function Start-AsBuiltReportVBR {
 
     $connPanel = [StackPanel]::new()
     $connPanel.Spacing = 2
-    $connPanel.Children.Add((New-SectionTitle '🔌  Server Connection'))
+    $connPanel.Children.Add((New-SectionTitle '🔌 Server Connection'))
     $connPanel.Children.Add((New-FormRow -Label 'VBR Server' -Control $serverRow -LabelWidth 130))
     $connPanel.Children.Add((New-FormRow -Label 'Username' -Control $txtUser -LabelWidth 130))
     $connPanel.Children.Add((New-FormRow -Label 'Password' -Control $txtPass -LabelWidth 130))
@@ -1265,7 +1282,7 @@ function Start-AsBuiltReportVBR {
 
     $outPanel = [StackPanel]::new()
     $outPanel.Spacing = 2
-    $outPanel.Children.Add((New-SectionTitle '📄  Report Output'))
+    $outPanel.Children.Add((New-SectionTitle '📄 Report Output'))
     $outPanel.Children.Add((New-FormRow -Label 'Report Name' -Control $txtReportName -LabelWidth 130))
     $outPanel.Children.Add((New-FormRow -Label 'Format' -Control $fmtPanel -LabelWidth 130))
     $outPanel.Children.Add((New-FormRow -Label 'Output Folder' -Control $outputPathRow -LabelWidth 130))
@@ -1283,7 +1300,7 @@ function Start-AsBuiltReportVBR {
 
     $optPanel = [StackPanel]::new()
     $optPanel.Spacing = 2
-    $optPanel.Children.Add((New-SectionTitle '⚙️  Options'))
+    $optPanel.Children.Add((New-SectionTitle '⚙️ Options'))
     $optPanel.Children.Add((New-FormRow -Label 'Enable Diagrams' -Control $swDiagrams -LabelWidth 165))
     $optPanel.Children.Add((New-FormRow -Label 'Export Diagrams' -Control $swExportDia -LabelWidth 165))
     $optPanel.Children.Add((New-FormRow -Label 'Hardware Inventory' -Control $swHWInv -LabelWidth 165))
@@ -1297,7 +1314,7 @@ function Start-AsBuiltReportVBR {
 
     $lvlPanel = [StackPanel]::new()
     $lvlPanel.Spacing = 2
-    $lvlPanel.Children.Add((New-SectionTitle '📊  Info Level'))
+    $lvlPanel.Children.Add((New-SectionTitle '📊 Info Level'))
     $lvlPanel.Children.Add((New-FormRow -Label 'Infrastructure' -Control $cboLvlInfrastructure))
     $lvlPanel.Children.Add((New-FormRow -Label 'Tape' -Control $cboLvlTape))
     $lvlPanel.Children.Add((New-FormRow -Label 'Inventory' -Control $cboLvlInventory))
@@ -1311,7 +1328,7 @@ function Start-AsBuiltReportVBR {
     $mainPanel.Children.Add($bottomGrid)
 
     # Section: Config Management
-    $mainPanel.Children.Add((New-SectionTitle '🗂️  Config Management'))
+    $mainPanel.Children.Add((New-SectionTitle '🗂️ Config Management'))
 
     $cfgBtnRow = [StackPanel]::new()
     $cfgBtnRow.Orientation = 'Horizontal'
@@ -1320,9 +1337,9 @@ function Start-AsBuiltReportVBR {
     $cfgBtnRow.Children.Add($btnLoadConfig)
     $cfgBtnRow.Children.Add($btnOpenConfig)
 
-    $mainPanel.Children.Add((New-FormRow -Label 'Veeam VBR Config File' -Control $configPathRow))
+    $mainPanel.Children.Add((New-FormRow -Label '📄 Veeam VBR Config File' -Control $configPathRow))
     $mainPanel.Children.Add($cfgBtnRow)
-    $mainPanel.Children.Add((New-FormRow -Label 'AsBuiltReport Config File' -Control $abrConfigPathRow))
+    $mainPanel.Children.Add((New-FormRow -Label '📄 AsBuiltReport Config File' -Control $abrConfigPathRow))
     $mainPanel.Children.Add($abrExpander)
     $mainPanel.Children.Add($lblConfigStatus)
 
@@ -1332,7 +1349,7 @@ function Start-AsBuiltReportVBR {
 
     # Log area — header row: title (left) + Export Log button (right)
     $logTitle = [TextBlock]::new()
-    $logTitle.Text = '📋  Output Log'
+    $logTitle.Text = '📋 Output Log'
     $logTitle.FontSize = 13
     $logTitle.FontWeight = 'SemiBold'
     $logTitle.VerticalAlignment = 'Center'
@@ -1343,9 +1360,13 @@ function Start-AsBuiltReportVBR {
         [ColumnDefinition]::new([GridLength]::new(1, [GridUnitType]::Star)))
     $logHeaderGrid.ColumnDefinitions.Add(
         [ColumnDefinition]::new([GridLength]::new(0, [GridUnitType]::Auto)))
+    $logHeaderGrid.ColumnDefinitions.Add(
+        [ColumnDefinition]::new([GridLength]::new(0, [GridUnitType]::Auto)))
     [Grid]::SetColumn($logTitle, 0)
-    [Grid]::SetColumn($btnExportLog, 1)
+    [Grid]::SetColumn($chkVerbose, 1)
+    [Grid]::SetColumn($btnExportLog, 2)
     $logHeaderGrid.Children.Add($logTitle)
+    $logHeaderGrid.Children.Add($chkVerbose)
     $logHeaderGrid.Children.Add($btnExportLog)
 
     # Cancel button row — right-aligned, only visible during generation
