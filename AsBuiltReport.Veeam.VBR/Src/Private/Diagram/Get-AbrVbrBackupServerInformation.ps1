@@ -156,6 +156,25 @@ function Get-AbrBackupServerInformation {
                     Label = Add-NodeIcon -Name "$($EMServer.ServerName.split('.')[0])" -IconType 'VBR_Server_EM' -Align 'Center' -Rows $Rows -ImagesObj $Images -IconDebug $IconDebug -FontSize 18 -FontBold -TableBackgroundColor $BackupServerBGColor -CellBackgroundColor $BackupServerBGColor -FontColor $Fontcolor
                 }
             }
+
+            $HACluster = Get-VBRHighAvailabilityCluster
+            if ($HACluster) {
+                $HAClusterIP = Get-AbrNodeIP -Hostname $HACluster.ClusterEndpoint
+
+                $Rows = [ordered] @{
+                    IP      = $HAClusterIP
+                    Role    = 'HA Cluster'
+                    DNS     = $HACluster.ClusterDnsName
+                    Healthy = $HACluster.IsHealthyCluster
+                }
+
+                $Rows = [PSCustomObject]$Rows
+
+                $script:HAClusterInfo = [PSCustomObject]@{
+                    Name  = $HACluster.ClusterEndpoint.split('.')[0]
+                    Label = Add-NodeIcon -Name "$($HACluster.ClusterEndpoint.split('.')[0])" -IconType 'VBR_Server_HA' -Align 'Center' -RowsOrdered $Rows -ImagesObj $Images -IconDebug $IconDebug -FontSize 18 -FontBold -TableBackgroundColor $BackupServerBGColor -CellBackgroundColor $BackupServerBGColor -FontColor $Fontcolor
+                }
+            }
         } catch {
             Write-PScriboMessage $_.Exception.Message
         }

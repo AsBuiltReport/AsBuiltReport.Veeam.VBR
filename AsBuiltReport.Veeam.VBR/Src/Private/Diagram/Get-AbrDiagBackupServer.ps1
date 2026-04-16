@@ -60,6 +60,11 @@ function Get-AbrDiagBackupServer {
                 $BackupServerInfoArray += $BackupServerInfo.Label
             }
 
+            if ($HAClusterInfo -and $BackupServerInfoArray) {
+                Write-PScriboMessage 'Adding High Availability Cluster to Backup Server diagram.'
+                $BackupServerInfoArray += $BackupServerInfo.Spacer
+                $BackupServerInfoArray += $HAClusterInfo.Label
+            }
 
             if ($BackupServerInfoArray) {
 
