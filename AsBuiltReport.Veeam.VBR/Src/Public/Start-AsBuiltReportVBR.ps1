@@ -1184,7 +1184,6 @@ function Start-AsBuiltReportVBR {
             }
 
             try {
-                $btnSaveConfig.IsEnabled = $false
                 # Ensure parent folder exists
                 $parent = Split-Path $destPath -Parent
                 if (-not [string]::IsNullOrEmpty($parent) -and -not (Test-Path $parent)) {
@@ -1217,8 +1216,6 @@ function Start-AsBuiltReportVBR {
                 $syncHash.lblConfigStatus.Text = "✅ Config saved: $destPath"
             } catch {
                 $syncHash.lblConfigStatus.Text = "❌ Save failed: $_"
-            } finally {
-                $btnAbrSave.IsEnabled = $true
             }
         })
 
@@ -1424,7 +1421,7 @@ function Start-AsBuiltReportVBR {
     try { $txtSchedTaskPass.PasswordChar = [char]'●' } catch { Out-Null }
 
     # Options toggles
-    $swSchedHighest   = [ToggleSwitch]::new(); $swSchedHighest.IsChecked   = $true
+    $swSchedHighest = [ToggleSwitch]::new(); $swSchedHighest.IsChecked = $true
     $swSchedSendEmail = [ToggleSwitch]::new(); $swSchedSendEmail.IsChecked = $false
     $swSchedTimestamp = [ToggleSwitch]::new(); $swSchedTimestamp.IsChecked = $true
 
@@ -1445,7 +1442,7 @@ function Start-AsBuiltReportVBR {
                 $srv = $txtServer.Text.Trim()
                 $prt = if ($txtPort.Text -match '^\d+$') { [int]$txtPort.Text } else { 443 }
                 $usr = $txtUser.Text.Trim()
-                $pwd = $txtPass.Text
+                $pwds = $txtPass.Text
 
                 if ([string]::IsNullOrWhiteSpace($srv)) {
                     $syncHash.lblConfigStatus.Text = '⚠ VBR Server address is required.'
@@ -1455,34 +1452,34 @@ function Start-AsBuiltReportVBR {
                     $syncHash.lblConfigStatus.Text = '⚠ Username is required.'
                     return
                 }
-                if ([string]::IsNullOrWhiteSpace($pwd)) {
+                if ([string]::IsNullOrWhiteSpace($pwds)) {
                     $syncHash.lblConfigStatus.Text = '⚠ Enter the VBR password before exporting the script (it will be stored encrypted).'
                     return
                 }
 
                 # Derive encrypted-password XML path alongside the script
                 $pwdXmlPath = [System.IO.Path]::ChangeExtension($scriptPath, 'xml')
-                $scriptDir  = Split-Path $scriptPath -Parent
+                $scriptDir = Split-Path $scriptPath -Parent
                 if (-not (Test-Path $scriptDir)) { New-Item -Path $scriptDir -ItemType Directory -Force | Out-Null }
 
                 # Encrypt the VBR password with Windows DPAPI via Export-Clixml
-                $secPwd = ConvertTo-SecureString $pwd -AsPlainText -Force
+                $secPwd = ConvertTo-SecureString $pwds -AsPlainText -Force
                 $secPwd | Export-Clixml -Path $pwdXmlPath
 
                 # Collect current form values
                 $outPath = $txtOutput.Text.Trim()
-                $vbrCfg  = $txtConfigPath.Text.Trim()
-                $abrCfg  = $txtAbrConfigPath.Text.Trim()
+                $vbrCfg = $txtConfigPath.Text.Trim()
+                $abrCfg = $txtAbrConfigPath.Text.Trim()
 
                 $fmts = @()
                 if ($chkHTML.IsChecked -eq $true) { $fmts += "'Html'" }
                 if ($chkWord.IsChecked -eq $true) { $fmts += "'Word'" }
                 if ($chkText.IsChecked -eq $true) { $fmts += "'Text'" }
                 if ($fmts.Count -eq 0) { $fmts = @("'Html'") }
-                $fmtStr    = $fmts -join ', '
-                $addTs     = [bool]$swSchedTimestamp.IsChecked
+                $fmtStr = $fmts -join ', '
+                $addTs = [bool]$swSchedTimestamp.IsChecked
                 $sendEmail = [bool]$swSchedSendEmail.IsChecked
-                $genDate   = Get-Date -Format 'yyyy-MM-dd HH:mm:ss'
+                $genDate = Get-Date -Format 'yyyy-MM-dd HH:mm:ss'
 
                 # Build optional parameter lines
                 $optLines = ''
@@ -1492,7 +1489,7 @@ function Start-AsBuiltReportVBR {
                 if (-not [string]::IsNullOrWhiteSpace($abrCfg)) {
                     $optLines += "`n    AsBuiltConfigFilePath = '$abrCfg'"
                 }
-                if ($addTs)     { $optLines += "`n    Timestamp             = `$true" }
+                if ($addTs) { $optLines += "`n    Timestamp             = `$true" }
                 if ($sendEmail) { $optLines += "`n    SendEmail             = `$true" }
 
                 $scriptContent = @"
@@ -1552,12 +1549,12 @@ New-AsBuiltReport @params
                 }
 
                 $scriptPath = $txtSchedScriptPath.Text.Trim()
-                $taskName   = $txtSchedTaskName.Text.Trim()
-                $runAsUser  = $txtSchedRunAs.Text.Trim()
-                $runAsPass  = $txtSchedTaskPass.Text
-                $freq       = [string]$cboSchedFrequency.SelectedItem
-                $timeStr    = $txtSchedTime.Text.Trim()
-                $highest    = [bool]$swSchedHighest.IsChecked
+                $taskName = $txtSchedTaskName.Text.Trim()
+                $runAsUser = $txtSchedRunAs.Text.Trim()
+                $runAsPass = $txtSchedTaskPass.Text
+                $freq = [string]$cboSchedFrequency.SelectedItem
+                $timeStr = $txtSchedTime.Text.Trim()
+                $highest = [bool]$swSchedHighest.IsChecked
 
                 if ([string]::IsNullOrWhiteSpace($scriptPath) -or -not (Test-Path $scriptPath)) {
                     $syncHash.lblConfigStatus.Text = '⚠ Script not found — click "📜 Export Script" first.'
@@ -1588,8 +1585,8 @@ New-AsBuiltReport @params
 
                 # Build trigger
                 $trigger = switch ($freq) {
-                    'Daily'        { New-ScheduledTaskTrigger -Daily -At $startTime }
-                    'Weekly'       {
+                    'Daily' { New-ScheduledTaskTrigger -Daily -At $startTime }
+                    'Weekly' {
                         $day = [string]$cboSchedDayOfWeek.SelectedItem
                         New-ScheduledTaskTrigger -Weekly -DaysOfWeek $day -At $startTime
                     }
@@ -1597,10 +1594,10 @@ New-AsBuiltReport @params
                         $day = [string]$cboSchedDayOfWeek.SelectedItem
                         New-ScheduledTaskTrigger -Weekly -WeeksInterval 4 -DaysOfWeek $day -At $startTime
                     }
-                    default        { New-ScheduledTaskTrigger -Weekly -DaysOfWeek 'Sunday' -At $startTime }
+                    default { New-ScheduledTaskTrigger -Weekly -DaysOfWeek 'Sunday' -At $startTime }
                 }
 
-                $action   = New-ScheduledTaskAction -Execute $pwshPath `
+                $action = New-ScheduledTaskAction -Execute $pwshPath `
                     -Argument "-NonInteractive -NoProfile -ExecutionPolicy Bypass -File `"$scriptPath`""
                 $settings = New-ScheduledTaskSettingsSet `
                     -ExecutionTimeLimit (New-TimeSpan -Hours 4) `
@@ -1608,14 +1605,14 @@ New-AsBuiltReport @params
                     -StartWhenAvailable
 
                 $regParams = @{
-                    TaskName    = $taskName
-                    Action      = $action
-                    Trigger     = $trigger
-                    Settings    = $settings
+                    TaskName = $taskName
+                    Action = $action
+                    Trigger = $trigger
+                    Settings = $settings
                     Description = 'Automated AsBuiltReport.Veeam.VBR report — managed by GUI'
-                    User        = $runAsUser
-                    Password    = $runAsPass
-                    Force       = $true
+                    User = $runAsUser
+                    Password = $runAsPass
+                    Force = $true
                 }
                 if ($highest) { $regParams['RunLevel'] = 'Highest' }
 
