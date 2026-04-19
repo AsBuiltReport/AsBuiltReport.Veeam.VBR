@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add required values to the AsBuiltReport.json configuration file for the GUI tool
 - Add High Availability configuration information to the report
+- Add High Availability Cluster diagram to the report
 
 ## :bug: Fixed
 

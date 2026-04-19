@@ -109,6 +109,7 @@ function Get-AbrVbrDiagrammer {
                     'VBR_Cloud_Connect_VM' = 'New_VM_with_a_snapshot.png'
                     'VBR_Cloud_Sub_Tenant' = 'New_User_group.png'
                     'VBR_GrayArrow' = 'GrayArrow.png'
+                    'VBR_Webconsole' = 'Webconsole.png'
                 }
             } else {
                 $script:Images = @{
@@ -180,6 +181,8 @@ function Get-AbrVbrDiagrammer {
                     'VBR_Cloud_Connect_Server' = 'vCloud_Director_server.png'
                     'VBR_Cloud_Connect_VM' = 'VM_with_a_snapshot.png'
                     'VBR_Cloud_Sub_Tenant' = 'SubTenant.png'
+                    'VBR_GrayArrow' = 'GrayArrow.png'
+                    'VBR_Webconsole' = 'Webconsole.png'
                 }
             }
             # Set default theme styles
