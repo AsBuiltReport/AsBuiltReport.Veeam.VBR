@@ -511,6 +511,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                     'Tape' = 'Backup-to-Tape'
                     'vSphereProxy' = 'Backup-to-vSphere-Proxy'
                     'WanAccelerator' = 'Backup-to-WanAccelerator'
+                    'HACluster' = 'Backup-to-HACluster'
                 }
                 $Options.DiagramType.PSobject.Properties | ForEach-Object {
                     try {

@@ -6,6 +6,7 @@
     BackupInfrastructure = Backup Infrastructure
     BackupInfrastructureParagraph = This section provides detailed configuration information for the Veeam Backup & Replication server {0}, including infrastructure settings, credentials, and backup infrastructure components.
     BackupInfrastructureDiagram = Backup Infrastructure Diagram
+    HAClusterDiagram = HA Cluster Diagram
     GeneralOptions = General Options
     GeneralOptionsParagraph = The following section details Veeam Backup & Replication general settings. General settings are applied to all jobs, backup infrastructure components and other objects managed by the backup server.
     TapeInfrastructure = Tape Infrastructure

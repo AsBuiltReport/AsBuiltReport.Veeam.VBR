@@ -299,7 +299,7 @@ function New-AbrVeeamDiagram {
             Mandatory = $true,
             HelpMessage = 'Controls type of Veeam VBR generated diagram'
         )]
-        [ValidateSet('Backup-to-Tape', 'Backup-to-File-Proxy', 'Backup-to-HyperV-Proxy', 'Backup-to-vSphere-Proxy', 'Backup-to-Repository', 'Backup-to-Sobr', 'Backup-to-WanAccelerator', 'Backup-to-ProtectedGroup', 'Backup-Infrastructure', 'Backup-to-CloudConnect', 'Backup-to-CloudConnect-Tenant')]
+        [ValidateSet('Backup-to-Tape', 'Backup-to-File-Proxy', 'Backup-to-HyperV-Proxy', 'Backup-to-vSphere-Proxy', 'Backup-to-Repository', 'Backup-to-Sobr', 'Backup-to-WanAccelerator', 'Backup-to-ProtectedGroup', 'Backup-Infrastructure', 'Backup-to-CloudConnect', 'Backup-to-CloudConnect-Tenant', 'Backup-to-HACluster')]
         [string] $DiagramType,
 
         [Parameter(
@@ -431,6 +431,7 @@ function New-AbrVeeamDiagram {
             'Backup-Infrastructure' { 'Backup Infrastructure Diagram' }
             'Backup-to-CloudConnect' { 'Cloud Connect Infrastructure Diagram' }
             'Backup-to-CloudConnect-Tenant' { "Cloud Connect $TenantName Resources Diagram" }
+            'Backup-to-HACluster' { 'High Availability Diagram' }
         }
         if ($Format -ne 'Base64') {
             Write-AbrColorOutput -Color 'Green' -String ("Please wait while the '{0}' is being generated." -f $MainGraphLabel)
@@ -710,6 +711,13 @@ function New-AbrVeeamDiagram {
                                 $BackuptoCloudConnectTenant
                             } else {
                                 throw 'No Cloud Connect Tenant infrastructure available to diagram'
+                            }
+                        } elseif ($DiagramType -eq 'Backup-to-HACluster') {
+                            $BackuptoHACluster = Get-AbrDiagBackupToHACluster | Select-String -Pattern '"([A-Z])\w+"\s\[label="";style="invis";shape="point";]' -NotMatch
+                            if ($BackuptoHACluster) {
+                                $BackuptoHACluster
+                            } else {
+                                throw 'No HA Cluster infrastructure available to diagram'
                             }
                         }
                     }

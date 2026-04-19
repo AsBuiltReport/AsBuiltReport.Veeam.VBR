@@ -6,6 +6,7 @@
     BackupInfrastructure = Infraestructura de copia de seguridad
     BackupInfrastructureParagraph = Esta sección proporciona información de configuración detallada para el servidor Veeam Backup & Replication {0}, incluida la configuración de infraestructura, credenciales y componentes de infraestructura de copia de seguridad.
     BackupInfrastructureDiagram = Diagrama de infraestructura de copia de seguridad
+    HAClusterDiagram = Diagrama de clúster de alta disponibilidad
     GeneralOptions = Opciones generales
     GeneralOptionsParagraph = La siguiente sección detalla la configuración general de Veeam Backup & Replication. La configuración general se aplica a todos los trabajos, componentes de infraestructura de copia de seguridad y otros objetos gestionados por el servidor de copia de seguridad.
     TapeInfrastructure = Infraestructura de cinta

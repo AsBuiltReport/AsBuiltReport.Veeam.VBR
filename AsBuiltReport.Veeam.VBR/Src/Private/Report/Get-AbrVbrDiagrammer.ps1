@@ -19,7 +19,7 @@ function Get-AbrVbrDiagrammer {
     param (
         [Parameter(Mandatory = $false, Position = 0)]
         [ValidateNotNullOrEmpty()]
-        [ValidateSet('Backup-to-Tape', 'Backup-to-File-Proxy', 'Backup-to-HyperV-Proxy', 'Backup-to-vSphere-Proxy', 'Backup-to-Repository', 'Backup-to-Sobr', 'Backup-to-WanAccelerator', 'Backup-to-ProtectedGroup', 'Backup-Infrastructure', 'Backup-to-CloudConnect', 'Backup-to-CloudConnect-Tenant')]
+        [ValidateSet('Backup-to-Tape', 'Backup-to-File-Proxy', 'Backup-to-HyperV-Proxy', 'Backup-to-vSphere-Proxy', 'Backup-to-Repository', 'Backup-to-Sobr', 'Backup-to-WanAccelerator', 'Backup-to-ProtectedGroup', 'Backup-Infrastructure', 'Backup-to-CloudConnect', 'Backup-to-CloudConnect-Tenant', 'Backup-to-HACluster')]
         [string]$DiagramType = 'Backup-Infrastructure',
         [Parameter(Mandatory = $false, Position = 1)]
         [ValidateNotNullOrEmpty()]
@@ -108,6 +108,7 @@ function Get-AbrVbrDiagrammer {
                     'VBR_Cloud_Connect_Server' = 'New_VMware_vCloud_Director.png'
                     'VBR_Cloud_Connect_VM' = 'New_VM_with_a_snapshot.png'
                     'VBR_Cloud_Sub_Tenant' = 'New_User_group.png'
+                    'VBR_GrayArrow' = 'GrayArrow.png'
                 }
             } else {
                 $script:Images = @{
@@ -200,6 +201,7 @@ function Get-AbrVbrDiagrammer {
                 'Backup-to-WanAccelerator' = 'WanAccelerator'
                 'Backup-to-CloudConnect' = 'CloudConnect'
                 'Backup-to-CloudConnect-Tenant' = 'CloudConnectTenant'
+                'Backup-to-HACluster' = 'HACluster'
             }
 
             if (-not $Options.DiagramType) {

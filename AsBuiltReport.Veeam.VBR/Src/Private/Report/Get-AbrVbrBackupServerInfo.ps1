@@ -583,10 +583,10 @@ function Get-AbrVbrBackupServerInfo {
                             Section -Style Heading4 $LocalizedData.HAHeading {
                                 $OutObj = @()
                                 $inObj = [ordered] @{
-                                    $LocalizedData.HAClusterEndpoint         = $HACluster.ClusterEndpoint
-                                    $LocalizedData.HAClusterDnsName          = $HACluster.ClusterDnsName
-                                    $LocalizedData.HAIsHealthyCluster        = $HACluster.IsHealthyCluster
-                                    $LocalizedData.HAIsFailoverInProgress    = $HACluster.IsFailoverInProgress
+                                    $LocalizedData.HAClusterEndpoint = $HACluster.ClusterEndpoint
+                                    $LocalizedData.HAClusterDnsName = $HACluster.ClusterDnsName
+                                    $LocalizedData.HAIsHealthyCluster = $HACluster.IsHealthyCluster
+                                    $LocalizedData.HAIsFailoverInProgress = $HACluster.IsFailoverInProgress
                                     $LocalizedData.HAIsAnyActivityInProgress = $HACluster.IsAnyActivityInProgress
                                 }
                                 $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
@@ -598,8 +598,8 @@ function Get-AbrVbrBackupServerInfo {
                                 }
 
                                 $TableParams = @{
-                                    Name         = "$($LocalizedData.HAHeading) - $($BackupServer.Name.Split('.')[0])"
-                                    List         = $true
+                                    Name = "$($LocalizedData.HAHeading) - $($BackupServer.Name.Split('.')[0])"
+                                    List = $true
                                     ColumnWidths = 40, 60
                                 }
                                 if ($Report.ShowTableCaptions) {
@@ -619,8 +619,8 @@ function Get-AbrVbrBackupServerInfo {
                                                 try {
                                                     $inObj = [ordered] @{
                                                         $LocalizedData.HAHostname = $Node.Hostname
-                                                        $LocalizedData.HARole     = $Node.Role
-                                                        $LocalizedData.Status     = $Node.Status
+                                                        $LocalizedData.HARole = $Node.Role
+                                                        $LocalizedData.Status = $Node.Status
                                                     }
                                                     $NodesObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                                                 } catch {
@@ -633,8 +633,8 @@ function Get-AbrVbrBackupServerInfo {
                                             }
 
                                             $TableParams = @{
-                                                Name         = "$($LocalizedData.HANodesHeading) - $($BackupServer.Name.Split('.')[0])"
-                                                List         = $false
+                                                Name = "$($LocalizedData.HANodesHeading) - $($BackupServer.Name.Split('.')[0])"
+                                                List = $false
                                                 ColumnWidths = 40, 30, 30
                                             }
                                             if ($Report.ShowTableCaptions) {
@@ -645,6 +645,27 @@ function Get-AbrVbrBackupServerInfo {
                                     }
                                 } catch {
                                     Write-PScriboMessage -IsWarning "HA Cluster Nodes Section: $($_.Exception.Message)"
+                                }
+                                if ($Options.EnableDiagrams -and ($VbrVersion -ge 12.1)) {
+                                    try {
+                                        $HAClusterCheck = Get-VBRHighAvailabilityCluster
+                                        if ($HAClusterCheck) {
+                                            try {
+                                                $Graph = Get-AbrVbrDiagrammer -DiagramType 'Backup-to-HACluster' -DiagramOutput base64
+                                            } catch {
+                                                Write-PScriboMessage -IsWarning "HA Cluster Diagram: $($_.Exception.Message)"
+                                            }
+                                            if ($Graph) {
+                                                $BestAspectRatio = Get-BestImageAspectRatio -GraphObj $Graph -MaxWidth 600 -MaxHeight 600
+                                                Section -Style Heading5 $reportTranslate.InvokeAsBuiltReportVeeamVBR.HAClusterDiagram {
+                                                    Image -Base64 $Graph -Text $reportTranslate.InvokeAsBuiltReportVeeamVBR.HAClusterDiagram -Align Center -Width $BestAspectRatio.Width -Height $BestAspectRatio.Height
+                                                    PageBreak
+                                                }
+                                            }
+                                        }
+                                    } catch {
+                                        Write-PScriboMessage -IsWarning "HA Cluster Diagram Section: $($_.Exception.Message)"
+                                    }
                                 }
                             }
                         }
