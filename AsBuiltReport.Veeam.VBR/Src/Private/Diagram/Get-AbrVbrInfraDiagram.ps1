@@ -32,6 +32,61 @@ function Get-AbrInfraDiagram {
             #                     Graphviz: https://graphviz.org/doc/info/shapes.html                       #
             #-----------------------------------------------------------------------------------------------#
 
+            if ($HAClusterInfo = Get-AbrHAClusterInfo) {
+                # Build node labels array: alternate labels and spacers
+                $HAClusterNodesArray = @()
+                $NodeCount = ($HAClusterInfo.Nodes | Measure-Object).Count
+
+                for ($i = 0; $i -lt $NodeCount; $i++) {
+                    $HAClusterNodesArray += $HAClusterInfo.Nodes[$i].Label
+                    if ($i -lt ($NodeCount - 1)) {
+                        $HAClusterNodesArray += $HAClusterInfo.Nodes[$i].Spacer
+                    }
+                }
+
+                $HAClusterNodesColumnSize = $HAClusterNodesArray.Count
+
+                if ($HAClusterInfo.DnsName) {
+                    $HAClusterLabel = "DNS: $($HAClusterInfo.DnsName)<BR/>Endpoint: $($HAClusterInfo.Endpoint)"
+                } else {
+                    $HAClusterLabel = "Endpoint: $($HAClusterInfo.Endpoint)"
+                }
+
+                # Inner subgraph: cluster node icons side-by-side
+                try {
+                    $HAClusterNodesSubGraph = Add-HtmlSubGraph -Name 'HAClusterNodesSubGraph' -CellSpacing 4 -ImagesObj $Images -TableArray $HAClusterNodesArray -Align 'Center' -IconDebug $IconDebug -IconType 'VBR_Server_HA' -Label $HAClusterLabel -LabelPos 'top' -FontColor $BackupServerFontColor -FontSize 18 -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '0' -TableBackgroundColor $MainGraphBGColor -ColumnSize $HAClusterNodesColumnSize -FontBold
+                } catch {
+                    Write-PScriboMessage 'Error: Unable to create HA Cluster Nodes SubGraph. Disabling the section'
+                    Write-PScriboMessage "Error Message: $($_.Exception.Message)"
+                }
+
+                if ($HAClusterNodesSubGraph) {
+                    $ClusterStatus = switch ($HAClusterInfo.IsHealthy) {
+                        $true { 'Healthy' }
+                        $false { 'Unhealthy' }
+                        default { 'Unknown' }
+                    }
+
+                    # Outer subgraph: cluster container with metadata label and cluster icon
+                    try {
+                        $HAClusterSubGraph = Add-HtmlSubGraph -Name 'HAClusterSubGraph' -CellSpacing 4 -ImagesObj $Images -TableArray $HAClusterNodesSubGraph -Align 'Right' -IconDebug $IconDebug -Label "Status: $ClusterStatus" -LabelPos 'down' -FontColor $BackupServerFontColor -FontSize 14 -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -TableBackgroundColor $MainGraphBGColor -ColumnSize 1 -FontBold
+                    } catch {
+                        Write-PScriboMessage 'Error: Unable to create HA Cluster SubGraph. Disabling the section'
+                        Write-PScriboMessage "Error Message: $($_.Exception.Message)"
+                    }
+
+                    if ($HAClusterSubGraph) {
+                        # Create the main HAClusterServers management node
+                        try {
+                            Add-HtmlSubGraph -Name HAClusterServers -ImagesObj $Images -TableArray $HAClusterSubGraph -Align 'Center' -IconDebug $IconDebug -Label 'High Availability Cluster' -LabelPos 'top' -FontColor $Fontcolor -FontSize 22 -TableStyle 'rounded' -TableBorderColor $Edgecolor -TableBorder '0' -TableBackgroundColor $MainGraphBGColor -ColumnSize 1 -FontBold -NodeObject
+                        } catch {
+                            Write-PScriboMessage 'Error: Unable to create HA Cluster Services node. Disabling the section'
+                            Write-PScriboMessage "Error Message: $($_.Exception.Message)"
+                        }
+                    }
+                }
+            }
+
             # EntraID Graphviz Cluster
             if ($EntraID = Get-AbrBackupEntraIDInfo) {
                 try {
@@ -789,6 +844,10 @@ function Get-AbrInfraDiagram {
 
             # Connect Veeam Backup server to the Dummy line
             Edge -From BackupServers -To VBRServerPointSpace @{minlen = 2; arrowtail = 'dot'; arrowhead = 'none'; style = 'dashed' }
+
+            if ($HAClusterInfo) {
+                Edge -From VBRServerPointSpace -To HAClusterServers @{minlen = 1; arrowtail = 'none'; arrowhead = 'dot'; style = 'dashed' }
+            }
 
             # Connect Microsoft Entra ID Node to the Dummy line
             if ($EntraIDNode) {

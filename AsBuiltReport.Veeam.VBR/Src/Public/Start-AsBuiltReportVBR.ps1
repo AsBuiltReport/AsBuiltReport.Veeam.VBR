@@ -494,6 +494,7 @@ function Start-AsBuiltReportVBR {
                         ProtectedGroup = $true
                         vSphereProxy = $true
                         WanAccelerator = $true
+                        HACluster = $true
                     }
                     NewIcons = $NewIcons
                     EnableDiagramDebug = $false
@@ -1106,6 +1107,7 @@ function Start-AsBuiltReportVBR {
                     ProtectedGroup = $true
                     vSphereProxy = $true
                     WanAccelerator = $true
+                    HACluster = $true
                 }
                 NewIcons = $NewIcons
                 EnableDiagramDebug = $false

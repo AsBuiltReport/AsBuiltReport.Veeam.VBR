@@ -74,41 +74,41 @@ function Get-AbrDiagBackupToHACluster {
                             Write-PScriboMessage 'Error: Unable to create HA Cluster Services node. Disabling the section'
                             Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                         }
-
-                        # Optional: separate PostgreSQL database server node
-                        if ($HAClusterInfo.EndpointNode) {
-                            $NITableArray = @($HAClusterInfo.EndpointNode)
-
-                            try {
-                                $NA = Add-HtmlSubGraph -Name Network -ImagesObj $Images -TableArray $NITableArray -Align 'Center' -IconDebug $IconDebug -Label 'DNS Server' -LabelPos 'top' -FontColor $Fontcolor -FontSize 24 -TableBorderColor $Edgecolor -TableBorder 1 -TableBackgroundColor $MainGraphBGColor -ColumnSize 1 -FontBold -TableStyle 'dashed' -IconType 'VBR_Server'
-                            } catch {
-                                Write-PScriboMessage 'Error: Unable to create Network Infrastructure node. Disabling the section'
-                                Write-PScriboMessage "Error Message: $($_.Exception.Message)"
-                            }
-
-                            try {
-                                Add-HtmlSubGraph -Name NetworkInfrastructure -ImagesObj $Images -TableArray $NA -Align 'Center' -IconDebug $IconDebug -Label 'Network Infrastructure' -LabelPos 'top' -FontColor $Fontcolor -FontSize 24 -TableStyle 'rounded' -TableBorderColor $Edgecolor -TableBorder 0 -TableBackgroundColor $MainGraphBGColor -ColumnSize 2 -FontBold -NodeObject
-
-                            } catch {
-                                Write-PScriboMessage 'Error: Unable to create Network Infrastructure node. Disabling the section'
-                                Write-PScriboMessage "Error Message: $($_.Exception.Message)"
-                            }
-
-                            Add-NodeEdge -From NetworkInfrastructure -To HAClusterServers -EdgeColor $Edgecolor -EdgeStyle solid -LabelDistance 1 -EdgeThickness 2 -Arrowhead box -Arrowtail box -EdgeLength 2
-                        }
                     }
-                    Add-NodeIcon -Name BackupConsole -LabelName 'Backup<BR/>Console' -IconType 'VBR_Webconsole' -Align 'Center' -ImagesObj $Images -IconDebug $IconDebug -FontSize 18 -FontBold -TableBackgroundColor $MainGraphBGColor -FontColor $Fontcolor -TableLayout Vertical -IconPath $IconPath -NodeObject
 
-                    Add-NodeSpacer -Name Spacer1 -ShapeWidth 2 -ShapeHeight 2 -IconDebug $IconDebug
+                    # Optional: separate PostgreSQL database server node
+                    if ($HAClusterInfo.EndpointNode) {
+                        $NITableArray = @($HAClusterInfo.EndpointNode)
 
-                    Add-NodeEdge -From BackupConsole -To HAClusterServers -EdgeColor 'blue' -EdgeStyle solid -EdgeThickness 2 -Arrowhead normal -Arrowtail normal -EdgeLength 4
+                        try {
+                            $NA = Add-HtmlSubGraph -Name Network -ImagesObj $Images -TableArray $NITableArray -Align 'Center' -IconDebug $IconDebug -Label 'Cluster Access Endpoint' -LabelPos 'top' -FontColor $Fontcolor -FontSize 20 -TableBorderColor $Edgecolor -TableBorder 1 -TableBackgroundColor $MainGraphBGColor -ColumnSize 1 -FontBold -TableStyle 'dashed' -IconType 'VBR_Server'
+                        } catch {
+                            Write-PScriboMessage 'Error: Unable to create Network Infrastructure node. Disabling the section'
+                            Write-PScriboMessage "Error Message: $($_.Exception.Message)"
+                        }
 
-                    Add-NodeEdge -From Spacer1 -To NetworkInfrastructure -EdgeColor $MainGraphBGColor -EdgeStyle solid -EdgeThickness 1 -Arrowhead normal -Arrowtail normal -EdgeLength 2
+                        try {
+                            Add-HtmlSubGraph -Name NetworkInfrastructure -ImagesObj $Images -TableArray $NA -Align 'Center' -IconDebug $IconDebug -Label 'Network Infrastructure' -LabelPos 'top' -FontColor $Fontcolor -FontSize 24 -TableStyle 'rounded' -TableBorderColor $Edgecolor -TableBorder 0 -TableBackgroundColor $MainGraphBGColor -ColumnSize 2 -FontBold -NodeObject
 
-                    Rank BackupConsole, HAClusterServers
+                        } catch {
+                            Write-PScriboMessage 'Error: Unable to create Network Infrastructure node. Disabling the section'
+                            Write-PScriboMessage "Error Message: $($_.Exception.Message)"
+                        }
 
-                    Rank Spacer1, NetworkInfrastructure
+                        Add-NodeEdge -From NetworkInfrastructure -To HAClusterServers -EdgeColor $Edgecolor -EdgeStyle solid -LabelDistance 1 -EdgeThickness 2 -Arrowhead box -Arrowtail box -EdgeLength 2
 
+                        Add-NodeIcon -Name BackupConsole -LabelName 'Backup<BR/>Console' -IconType 'VBR_Webconsole' -Align 'Center' -ImagesObj $Images -IconDebug $IconDebug -FontSize 18 -FontBold -TableBackgroundColor $MainGraphBGColor -FontColor $Fontcolor -TableLayout Vertical -IconPath $IconPath -NodeObject
+
+                        Add-NodeSpacer -Name Spacer1 -ShapeWidth 2 -ShapeHeight 2 -IconDebug $IconDebug
+
+                        Add-NodeEdge -From BackupConsole -To NetworkInfrastructure -EdgeColor 'blue' -EdgeStyle dashed -EdgeThickness 2 -Arrowhead normal -Arrowtail normal -EdgeLength 4
+
+                        Add-NodeEdge -From Spacer1 -To HAClusterServers -EdgeColor $MainGraphBGColor -EdgeStyle solid -EdgeThickness 1 -Arrowhead normal -Arrowtail normal -EdgeLength 2
+
+                        Rank Spacer1, HAClusterServers
+
+                        Rank BackupConsole, NetworkInfrastructure
+                    }
                 }
             }
         } catch {
