@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ##### This project is community maintained and has no sponsorship from Veeam, its employees or any of its affiliates.
 
+## [1.0.1] - 2026-04-??
+
+### :toolbox: Added
+
+- Add required values to the AsBuiltReport.json configuration file for the GUI tool
+- Add High Availability configuration information to the report
+- Add High Availability Cluster diagram to the report
+- Add tha capability to schedule the report using Windows Task Schedule with the GUI tool
+- Add Verbose logging button to the GUI
+- Add the capability to open the OutPutFolder from the GUI
+
+## :bug: Fixed
+
+- Fix issue with the AsBuiltReport Global Configurator form not properly saving the new configuration file when using the GUI tool (Start-AsBuiltReportVBR)
+
 ## [1.0.0] - 2026-04-10
 
 ## :toolbox: Added
@@ -27,12 +42,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Enhance localization support by adding new messages and improving existing translations in English and Spanish language files
 - Update README with Pwsh GUI examples and add sample GUI image
 
-### Fixed
+### :bug: Fixed
 
 - Fix issue with the new icons not being displayed in the diagrams due to incorrect file paths
 - Fix diagrams theme not being applied correctly in the generated diagrams
 
-### Removed
+### :x: Removed
 
 - Remove unused PNG files from the Tools folder to clean up the project and reduce clutter
 

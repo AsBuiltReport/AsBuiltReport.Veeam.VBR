@@ -103,6 +103,106 @@ function Start-AsBuiltReportVBR {
     $txtPass.Watermark = 'Password'
     try { $txtPass.PasswordChar = [char]'●' } catch { Out-Null }
 
+    # ── Saved Connections ─────────────────────────────────────────────────────────
+    $savedConnPath = if ($IsWindows) {
+        [System.IO.Path]::Combine($env:USERPROFILE, 'AsBuiltReport', 'VBR-SavedConnections.json')
+    } else {
+        [System.IO.Path]::Combine($env:HOME, 'AsBuiltReport', 'VBR-SavedConnections.json')
+    }
+
+    $loadSavedConns = {
+        if (Test-Path $savedConnPath) {
+            try {
+                $raw = Get-Content -Path $savedConnPath -Raw -Encoding UTF8 | ConvertFrom-Json
+                if ($null -eq $raw) { return @() }
+                return @($raw)
+            } catch { return @() }
+        }
+        return @()
+    }.GetNewClosure()
+
+    $saveSavedConns = {
+        param ([array]$Connections)
+        $dir = Split-Path $savedConnPath -Parent
+        if (-not (Test-Path $dir)) { New-Item -Path $dir -ItemType Directory -Force | Out-Null }
+        if ($Connections.Count -eq 0) {
+            '[]' | Set-Content -Path $savedConnPath -Encoding UTF8
+        } else {
+            $Connections | ConvertTo-Json -Depth 3 | Set-Content -Path $savedConnPath -Encoding UTF8
+        }
+    }.GetNewClosure()
+
+    $cboSavedConn = [ComboBox]::new()
+    $cboSavedConn.Width = 262
+
+    $refreshSavedConnCombo = {
+        $cboSavedConn.Items.Clear()
+        foreach ($c in (& $loadSavedConns)) {
+            $cboSavedConn.Items.Add("$($c.Server):$($c.Port) ($($c.Username))") | Out-Null
+        }
+    }.GetNewClosure()
+    & $refreshSavedConnCombo
+
+    $cboSavedConn.AddSelectionChanged({
+            $idx = $cboSavedConn.SelectedIndex
+            if ($idx -lt 0) { return }
+            $conns = & $loadSavedConns
+            if ($idx -ge $conns.Count) { return }
+            $sel = $conns[$idx]
+            $txtServer.Text = $sel.Server
+            $txtPort.Text = [string]$sel.Port
+            $txtUser.Text = $sel.Username
+            $txtPass.Text = ''
+        })
+
+    $btnSaveConn = [Button]::new()
+    $btnSaveConn.Content = '💾 Save Connection'
+    $btnSaveConn.AddClick({
+            $srv = $txtServer.Text.Trim()
+            $prt = if ($txtPort.Text -match '^\d+$') { [int]$txtPort.Text } else { 443 }
+            $usr = $txtUser.Text.Trim()
+            if ([string]::IsNullOrWhiteSpace($srv) -or [string]::IsNullOrWhiteSpace($usr)) {
+                $syncHash.lblConfigStatus.Text = '⚠ Enter Server and Username before saving a connection.'
+                return
+            }
+            $conns = [System.Collections.ArrayList]@()
+            foreach ($c in (& $loadSavedConns)) { $conns.Add($c) | Out-Null }
+            $dup = $conns | Where-Object { $_.Server -eq $srv -and $_.Port -eq $prt -and $_.Username -eq $usr }
+            if (-not $dup) {
+                $conns.Add([PSCustomObject]@{ Server = $srv; Port = $prt; Username = $usr }) | Out-Null
+                & $saveSavedConns -Connections @($conns)
+                & $refreshSavedConnCombo
+                $syncHash.lblConfigStatus.Text = "✅ Connection saved: $srv ($usr)"
+            } else {
+                $syncHash.lblConfigStatus.Text = "ℹ Connection already exists: $srv ($usr)"
+            }
+        })
+
+    $btnDeleteConn = [Button]::new()
+    $btnDeleteConn.Content = '🗑 Delete'
+    $btnDeleteConn.AddClick({
+            $idx = $cboSavedConn.SelectedIndex
+            if ($idx -lt 0) {
+                $syncHash.lblConfigStatus.Text = '⚠ Select a saved connection to delete.'
+                return
+            }
+            $conns = [System.Collections.ArrayList]@()
+            foreach ($c in (& $loadSavedConns)) { $conns.Add($c) | Out-Null }
+            if ($idx -ge $conns.Count) { return }
+            $removed = $conns[$idx]
+            $conns.RemoveAt($idx)
+            & $saveSavedConns -Connections @($conns)
+            $cboSavedConn.SelectedIndex = -1
+            & $refreshSavedConnCombo
+            $syncHash.lblConfigStatus.Text = "🗑 Deleted: $($removed.Server) ($($removed.Username))"
+        })
+
+    $savedConnActionsRow = [StackPanel]::new()
+    $savedConnActionsRow.Orientation = 'Horizontal'
+    $savedConnActionsRow.Spacing = 6
+    $savedConnActionsRow.Children.Add($btnSaveConn)
+    $savedConnActionsRow.Children.Add($btnDeleteConn)
+
     # ── Output Controls ─────────────────────────────────────────────────────────
     $chkHTML = [CheckBox]::new(); $chkHTML.Content = 'HTML'; $chkHTML.IsChecked = $true
     $chkWord = [CheckBox]::new(); $chkWord.Content = 'Word'; $chkWord.IsChecked = $false
@@ -122,13 +222,14 @@ function Start-AsBuiltReportVBR {
             [System.IO.Path]::Combine($env:USERPROFILE, 'Documents', 'AsBuiltReport'))
     } else {
         [System.IO.Path]::Combine(
-            [System.IO.Path]::Combine($env:HOME, 'Documents', 'AsBuiltReport'))
+            [System.IO.Path]::Combine($env:HOME, 'AsBuiltReport'))
     }
 
     $btnBrowse = [Button]::new()
     $btnBrowse.Content = 'Browse…'
     $btnBrowse.AddClick({
             try {
+                $btnBrowse.IsEnabled = $false
                 $storageProvider = [Window]::GetTopLevel($btnBrowse).StorageProvider
                 if ($null -eq $storageProvider) {
                     Write-Host 'Storage provider not available.' -ForegroundColor Yellow
@@ -142,6 +243,8 @@ function Start-AsBuiltReportVBR {
                 }
             } catch {
                 Write-Host "Folder picker error: $_" -ForegroundColor Red
+            } finally {
+                $btnBrowse.IsEnabled = $true
             }
         })
 
@@ -181,8 +284,8 @@ function Start-AsBuiltReportVBR {
     $swExportDia = [ToggleSwitch]::new(); $swExportDia.IsChecked = $true
     $swHWInv = [ToggleSwitch]::new(); $swHWInv.IsChecked = $false
     $swNewIcons = [ToggleSwitch]::new(); $swNewIcons.IsChecked = $true
-    $swHealthChk = [ToggleSwitch]::new(); $swHealthChk.IsChecked = $true
-    $swTimestamp = [ToggleSwitch]::new(); $swTimestamp.IsChecked = $true
+    $swHealthChk = [ToggleSwitch]::new(); $swHealthChk.IsChecked = $false
+    $swTimestamp = [ToggleSwitch]::new(); $swTimestamp.IsChecked = $false
 
     $txtColSize = [TextBox]::new()
     $txtColSize.Text = '3'
@@ -228,9 +331,17 @@ function Start-AsBuiltReportVBR {
     try { $txtLog.FontFamily = 'Consolas,Courier New,Monospace' } catch { Out-Null }
     $syncHash.txtLog = $txtLog
 
+    $chkVerbose = [CheckBox]::new()
+    $chkVerbose.Content = '🔍Verbose'
+    $chkVerbose.IsChecked = $false
+    $chkVerbose.HorizontalAlignment = 'Right'
+    $chkVerbose.VerticalAlignment = 'Center'
+    $chkVerbose.Margin = '0,0,8,0'
+    $syncHash.chkVerbose = $chkVerbose
+
     # ── Action Buttons ──────────────────────────────────────────────────────────
     $btnCancel = [Button]::new()
-    $btnCancel.Content = '✕  Cancel'
+    $btnCancel.Content = '✕ Cancel'
     $btnCancel.IsVisible = $false
     $btnCancel.Margin = '0,0,0,0'
     $btnCancel.AddClick({
@@ -241,10 +352,11 @@ function Start-AsBuiltReportVBR {
     $syncHash.btnCancel = $btnCancel
 
     $btnExportLog = [Button]::new()
-    $btnExportLog.Content = '💾  Export Log'
+    $btnExportLog.Content = '💾 Export Log'
     $btnExportLog.Margin = '0,0,0,0'
     $btnExportLog.AddClick({
             try {
+                $btnExportLog.IsEnabled = $false
                 $logText = $syncHash.txtLog.Text
                 if ([string]::IsNullOrWhiteSpace($logText)) {
                     $syncHash.lblConfigStatus.Text = '⚠ Log is empty — nothing to export.'
@@ -262,11 +374,13 @@ function Start-AsBuiltReportVBR {
                 }
             } catch {
                 $syncHash.lblConfigStatus.Text = "❌ Log export failed: $_"
+            } finally {
+                $btnExportLog.IsEnabled = $true
             }
         })
 
     $btnGenerate = [Button]::new()
-    $btnGenerate.Content = '▶  Generate Report'
+    $btnGenerate.Content = '▶ Generate Report'
     $btnGenerate.HorizontalAlignment = 'Stretch'
     $btnGenerate.HorizontalContentAlignment = 'Center'
     $btnGenerate.FontSize = 14
@@ -308,6 +422,7 @@ function Start-AsBuiltReportVBR {
         LvlReplication = $cboLvlReplication
         LvlCloudConnect = $cboLvlCloudConnect
         LvlJobs = $cboLvlJobs
+        Verbose = $chkVerbose
     }
 
     $generateCallback.ScriptBlock = {
@@ -319,6 +434,8 @@ function Start-AsBuiltReportVBR {
         $sh.btnCancel.IsVisible = $true
         $sh.txtLog.Text = ''
 
+        # Enable New-AsBuiltReport verbose output if the checkbox is checked in the UI.
+        $verboseEnabled = $ui.Verbose.IsChecked -eq $true
         function Write-Logging ([string]$Msg, [string]$Level = '', [bool]$AddTimestamp = $false) {
             $ts = Get-Date -Format 'HH:mm:ss'
             if ($Level -eq '') {
@@ -377,6 +494,7 @@ function Start-AsBuiltReportVBR {
                         ProtectedGroup = $true
                         vSphereProxy = $true
                         WanAccelerator = $true
+                        HACluster = $true
                     }
                     NewIcons = $NewIcons
                     EnableDiagramDebug = $false
@@ -493,7 +611,7 @@ function Start-AsBuiltReportVBR {
                     [System.IO.Path]::Combine($env:USERPROFILE, 'Documents', 'AsBuiltReport'))
             } else {
                 [System.IO.Path]::Combine(
-                    [System.IO.Path]::Combine($env:HOME, 'Documents', 'AsBuiltReport'))
+                    [System.IO.Path]::Combine($env:HOME, 'AsBuiltReport'))
             }
         }
         if (-not (Test-Path $outPath)) {
@@ -577,8 +695,11 @@ function Start-AsBuiltReportVBR {
                 Format = $formats
                 ReportConfigFilePath = $reportConfigFilePath
             }
+
             if ($addTimestamp) { $params['Timestamp'] = $true }
             if ($healthCheck) { $params['EnableHealthCheck'] = $true }
+            if ($verboseEnabled) { $params['Verbose'] = $true }
+
             $params['AsBuiltConfigFilePath'] = $abrConfigPath
             Write-Logging "Using AsBuiltReport config file: $(Split-Path $abrConfigPath -Leaf)"
 
@@ -588,6 +709,11 @@ function Start-AsBuiltReportVBR {
                     return
                 } elseif ($_ -is [System.Management.Automation.WarningRecord]) {
                     Write-Logging "$($_.Message)" 'WARN'
+                    return
+                } elseif ($_ -is [System.Management.Automation.VerboseRecord]) {
+                    if ($verboseEnabled) {
+                        Write-Logging "$($_.Message)" 'VERBOSE'
+                    }
                     return
                 } elseif ($_ -is [System.Management.Automation.InformationRecord]) {
                     "$($_.MessageData)"
@@ -621,13 +747,14 @@ function Start-AsBuiltReportVBR {
             $env:USERPROFILE, 'AsBuiltReport', 'AsBuiltReport.Veeam.VBR.json')
     } else {
         [System.IO.Path]::Combine(
-            $env:HOME, 'Documents', 'AsBuiltReport', 'AsBuiltReport.Veeam.VBR.json')
+            $env:HOME, 'AsBuiltReport', 'AsBuiltReport.Veeam.VBR.json')
     }
 
     $btnBrowseConfig = [Button]::new()
     $btnBrowseConfig.Content = 'Browse…'
     $btnBrowseConfig.AddClick({
             try {
+                $btnBrowseConfig.IsEnabled = $false
                 $storageProvider = [Window]::GetTopLevel($btnBrowseConfig).StorageProvider
                 if ($null -eq $storageProvider) {
                     Write-Host 'Storage provider not available.' -ForegroundColor Yellow
@@ -641,6 +768,8 @@ function Start-AsBuiltReportVBR {
                 }
             } catch {
                 Write-Host "Folder picker error: $_" -ForegroundColor Red
+            } finally {
+                $btnBrowseConfig.IsEnabled = $true
             }
         })
 
@@ -665,6 +794,7 @@ function Start-AsBuiltReportVBR {
     $btnBrowseAbrConfig.Content = 'Browse…'
     $btnBrowseAbrConfig.AddClick({
             try {
+                $btnBrowseAbrConfig.IsEnabled = $false
                 $storageProvider = [Window]::GetTopLevel($btnBrowseAbrConfig).StorageProvider
                 if ($null -eq $storageProvider) { return }
                 $options = [FilePickerOpenOptions]::new()
@@ -677,6 +807,8 @@ function Start-AsBuiltReportVBR {
                 }
             } catch {
                 $syncHash.lblConfigStatus.Text = "❌ Browse error: $_"
+            } finally {
+                $btnBrowseAbrConfig.IsEnabled = $true
             }
         })
 
@@ -727,56 +859,78 @@ function Start-AsBuiltReportVBR {
         $txtAbrMailBody.Text = if ($j.Email.Body) { $j.Email.Body }        else { '' }
         $swAbrMailUseSSL.IsChecked = if ($null -ne $j.Email.UseSSL) { [bool]$j.Email.UseSSL }      else { $true }
         $swAbrMailCreds.IsChecked = if ($null -ne $j.Email.Credentials) { [bool]$j.Email.Credentials } else { $true }
-        $txtAbrFolderPath.Text = if ($j.UserFolder.Path) { $j.UserFolder.Path }   else { '' }
+        $txtAbrFolderPath.Text = if ($j.UserFolder.Path) { $j.UserFolder.Path } else {
+            if ($IsWindows) { [System.IO.Path]::Combine($env:USERPROFILE, 'Documents', 'AsBuiltReport') } else { [System.IO.Path]::Combine($env:HOME, 'AsBuiltReport') }
+        }
     }
 
     # Helper: build the config ordered hashtable from current field values
     $buildAbrConfig = {
-        # Helper: return $null for blank strings so JSON fields are null, not ""
-        function NullIfEmpty ([string]$v) { if ([string]::IsNullOrWhiteSpace($v)) { $null } else { $v.Trim() } }
-
-        $toList = $txtAbrMailTo.Text.Trim() -split '\s*,\s*' | Where-Object { $_ -ne '' }
-        $portRaw = $txtAbrMailPort.Text.Trim()
+        $toList = ([string]$txtAbrMailTo.Text).Trim() -split '\s*,\s*' | Where-Object { $_ -ne '' }
+        $portRaw = ([string]$txtAbrMailPort.Text).Trim()
         $portVal = if ($portRaw -match '^\d+$') { [int]$portRaw } else { $null }
 
         return [ordered]@{
             Company = [ordered]@{
-                FullName = NullIfEmpty $txtAbrCoFullName.Text
-                Phone = NullIfEmpty $txtAbrCoPhone.Text
-                Address = NullIfEmpty $txtAbrCoAddress.Text
-                ShortName = NullIfEmpty $txtAbrCoShortName.Text
-                Contact = NullIfEmpty $txtAbrCoContact.Text
-                Email = NullIfEmpty $txtAbrCoEmail.Text
+                FullName = ([string]$txtAbrCoFullName.Text).Trim()
+                Phone = ([string]$txtAbrCoPhone.Text).Trim()
+                Address = ([string]$txtAbrCoAddress.Text).Trim()
+                ShortName = ([string]$txtAbrCoShortName.Text).Trim()
+                Contact = ([string]$txtAbrCoContact.Text).Trim()
+                Email = ([string]$txtAbrCoEmail.Text).Trim()
             }
             Email = [ordered]@{
                 Credentials = [bool]$swAbrMailCreds.IsChecked
-                Body = NullIfEmpty $txtAbrMailBody.Text
-                From = NullIfEmpty $txtAbrMailFrom.Text
+                Body = ([string]$txtAbrMailBody.Text).Trim()
+                From = ([string]$txtAbrMailFrom.Text).Trim()
                 UseSSL = [bool]$swAbrMailUseSSL.IsChecked
-                Server = NullIfEmpty $txtAbrMailServer.Text
+                Server = ([string]$txtAbrMailServer.Text).Trim()
                 To = if ($toList.Count -gt 0) { @($toList) } else { @() }
                 Port = $portVal
             }
-            Report = [ordered]@{ Author = NullIfEmpty $txtAbrRptAuthor.Text }
-            UserFolder = [ordered]@{ Path = NullIfEmpty $txtAbrFolderPath.Text }
+            Report = [ordered]@{ Author = ([string]$txtAbrRptAuthor.Text).Trim() }
+            UserFolder = [ordered]@{ Path = ([string]$txtAbrFolderPath.Text).Trim() }
         }
     }.GetNewClosure()
     # Also store in syncHash so click handlers always find it regardless of scope
     $syncHash.buildAbrConfig = $buildAbrConfig
 
+    # Helper: validate required fields; returns $null on success or an error message
+    $validateAbrRequired = {
+        $missing = @()
+        if ([string]::IsNullOrWhiteSpace($txtAbrCoFullName.Text)) { $missing += 'Full Name' }
+        if ([string]::IsNullOrWhiteSpace($txtAbrCoShortName.Text)) { $missing += 'Short Name' }
+        if ([string]::IsNullOrWhiteSpace($txtAbrCoContact.Text)) { $missing += 'Contact' }
+        if ([string]::IsNullOrWhiteSpace($txtAbrCoEmail.Text)) { $missing += 'Email' }
+        if ([string]::IsNullOrWhiteSpace($txtAbrRptAuthor.Text)) { $missing += 'Author' }
+        if ([string]::IsNullOrWhiteSpace($txtAbrFolderPath.Text)) { $missing += 'Path' }
+        if ($missing.Count -gt 0) {
+            return "⚠ Required fields missing: $($missing -join ', ')"
+        }
+        return $null
+    }.GetNewClosure()
+    $syncHash.validateAbrRequired = $validateAbrRequired
+
     # New button — fills form data into a new file chosen via Save dialog
     $btnAbrNew = [Button]::new()
-    $btnAbrNew.Content = '🆕  New'
+    $btnAbrNew.Content = '🆕 Create New'
     $btnAbrNew.Margin = '0,0,8,0'
     $btnAbrNew.AddClick({
             try {
+                $btnAbrNew.IsEnabled = $false
                 # Open a Save dialog so the user picks where the new file will live
                 $storageProvider = [Window]::GetTopLevel($btnAbrNew).StorageProvider
                 if ($null -eq $storageProvider) {
                     $syncHash.lblConfigStatus.Text = '⚠ Cannot open save dialog.'
                     return
                 }
-                $defaultDir = [IO.Path]::Combine($env:USERPROFILE, 'Documents', 'AsBuiltReport')
+                $defaultDir = if ($IsWindows) {
+                    [System.IO.Path]::Combine(
+                        [System.IO.Path]::Combine($env:USERPROFILE, 'Documents', 'AsBuiltReport'))
+                } else {
+                    [System.IO.Path]::Combine(
+                        [System.IO.Path]::Combine($env:HOME, 'AsBuiltReport'))
+                }
                 if (-not (Test-Path $defaultDir)) { New-Item -Path $defaultDir -ItemType Directory -Force | Out-Null }
                 $saveOpts = [FilePickerSaveOptions]::new()
                 $saveOpts.Title = 'Create New AsBuiltReport Config File'
@@ -786,6 +940,13 @@ function Start-AsBuiltReportVBR {
                 if ($null -eq $file) { return }   # user cancelled
                 if ($null -eq $file.Path) {
                     $syncHash.lblConfigStatus.Text = '⚠ Could not resolve file path from dialog.'
+                    return
+                }
+
+                # Validate required fields before writing
+                $validationError = & $syncHash.validateAbrRequired
+                if ($null -ne $validationError) {
+                    $syncHash.lblConfigStatus.Text = $validationError
                     return
                 }
 
@@ -801,15 +962,18 @@ function Start-AsBuiltReportVBR {
                 $syncHash.lblConfigStatus.Text = "✅ Created: $(Split-Path $dest -Leaf)"
             } catch {
                 $syncHash.lblConfigStatus.Text = "❌ Create failed: $_"
+            } finally {
+                $btnAbrNew.IsEnabled = $true
             }
         })
 
     # Load button — reads the path from $txtAbrConfigPath and populates fields
     $btnAbrLoad = [Button]::new()
-    $btnAbrLoad.Content = '📂  Load from File'
+    $btnAbrLoad.Content = '📂 Load from File'
     $btnAbrLoad.Margin = '0,0,8,0'
     $btnAbrLoad.AddClick({
             try {
+                $btnAbrLoad.IsEnabled = $false
                 $src = $txtAbrConfigPath.Text.Trim()
                 if ([string]::IsNullOrWhiteSpace($src) -or -not (Test-Path $src)) {
                     $syncHash.lblConfigStatus.Text = '⚠ Set a valid AsBuiltReport.json path first.'
@@ -820,20 +984,28 @@ function Start-AsBuiltReportVBR {
                 $syncHash.lblConfigStatus.Text = "✅ Loaded: $(Split-Path $src -Leaf)"
             } catch {
                 $syncHash.lblConfigStatus.Text = "❌ Load failed: $_"
+            } finally {
+                $btnAbrLoad.IsEnabled = $true
             }
         })
 
     # Helper: build the config ordered hashtable from current field values
     # Save button — opens a Save dialog when no path is set; otherwise writes in-place
     $btnAbrSave = [Button]::new()
-    $btnAbrSave.Content = '💾  Save to File'
+    $btnAbrSave.Content = '💾 Save to File'
     $btnAbrSave.AddClick({
             try {
-                $dest = $txtAbrConfigPath.Text.Trim()
-                if ([string]::IsNullOrWhiteSpace($dest)) {
-                    # No path set → fall back to $env:USERPROFILE\Documents\AsBuiltReport\AsBuiltReport.json
-                    $dest = [IO.Path]::Combine($env:USERPROFILE, 'Documents', 'AsBuiltReport', 'AsBuiltReport.json')
-                    $txtAbrConfigPath.Text = $dest
+                $btnAbrSave.IsEnabled = $false
+                $validationError = & $syncHash.validateAbrRequired
+                if ($null -ne $validationError) {
+                    $syncHash.lblConfigStatus.Text = $validationError
+                    return
+                }
+                if ([string]::IsNullOrWhiteSpace($txtAbrConfigPath.Text)) {
+                    $syncHash.lblConfigStatus.Text = '❌ Please provide a config file path before saving.'
+                    return
+                } else {
+                    $dest = $txtAbrConfigPath.Text.Trim()
                 }
                 $cfg = & $syncHash.buildAbrConfig
                 $destDir = Split-Path $dest -Parent
@@ -842,6 +1014,8 @@ function Start-AsBuiltReportVBR {
                 $syncHash.lblConfigStatus.Text = "✅ Saved: $(Split-Path $dest -Leaf)"
             } catch {
                 $syncHash.lblConfigStatus.Text = "❌ Save failed: $_"
+            } finally {
+                $btnAbrSave.IsEnabled = $true
             }
         })
 
@@ -853,20 +1027,27 @@ function Start-AsBuiltReportVBR {
     $abrActionRow.Children.Add($btnAbrLoad)
     $abrActionRow.Children.Add($btnAbrSave)
 
+    $Text = [TextBlock]::new()
+    $Text.Text = '* Required'
+    $Text.FontSize = 12
+    $Text.Margin = '0,0,0,8'
+    $Text.TextAlignment = 'Right'
+
     # Content panel inside the expander
     $abrInnerPanel = [StackPanel]::new()
     $abrInnerPanel.Spacing = 2
     $abrInnerPanel.Margin = '4,4,4,8'
-    $abrInnerPanel.Children.Add((New-SectionTitle '🏢  Company'))
-    $abrInnerPanel.Children.Add((New-FormRow -Label 'Full Name' -Control $txtAbrCoFullName))
-    $abrInnerPanel.Children.Add((New-FormRow -Label 'Short Name' -Control $txtAbrCoShortName))
-    $abrInnerPanel.Children.Add((New-FormRow -Label 'Contact' -Control $txtAbrCoContact))
+    $abrInnerPanel.Children.Add(($Text))
+    $abrInnerPanel.Children.Add((New-SectionTitle '🏢 Company'))
+    $abrInnerPanel.Children.Add((New-FormRow -Label '* Full Name' -Control $txtAbrCoFullName))
+    $abrInnerPanel.Children.Add((New-FormRow -Label '* Short Name' -Control $txtAbrCoShortName))
+    $abrInnerPanel.Children.Add((New-FormRow -Label '* Contact' -Control $txtAbrCoContact))
     $abrInnerPanel.Children.Add((New-FormRow -Label 'Phone' -Control $txtAbrCoPhone))
     $abrInnerPanel.Children.Add((New-FormRow -Label 'Address' -Control $txtAbrCoAddress))
-    $abrInnerPanel.Children.Add((New-FormRow -Label 'Email' -Control $txtAbrCoEmail))
-    $abrInnerPanel.Children.Add((New-SectionTitle '📝  Report'))
-    $abrInnerPanel.Children.Add((New-FormRow -Label 'Author' -Control $txtAbrRptAuthor))
-    $abrInnerPanel.Children.Add((New-SectionTitle '📧  Email'))
+    $abrInnerPanel.Children.Add((New-FormRow -Label '* Email' -Control $txtAbrCoEmail))
+    $abrInnerPanel.Children.Add((New-SectionTitle '📝 Report'))
+    $abrInnerPanel.Children.Add((New-FormRow -Label '* Author' -Control $txtAbrRptAuthor))
+    $abrInnerPanel.Children.Add((New-SectionTitle '📧 Email'))
     $abrInnerPanel.Children.Add((New-FormRow -Label 'SMTP Server' -Control $txtAbrMailServer))
     $abrInnerPanel.Children.Add((New-FormRow -Label 'Port' -Control $txtAbrMailPort))
     $abrInnerPanel.Children.Add((New-FormRow -Label 'From' -Control $txtAbrMailFrom))
@@ -874,13 +1055,13 @@ function Start-AsBuiltReportVBR {
     $abrInnerPanel.Children.Add((New-FormRow -Label 'Body' -Control $txtAbrMailBody))
     $abrInnerPanel.Children.Add((New-FormRow -Label 'Use SSL' -Control $swAbrMailUseSSL))
     $abrInnerPanel.Children.Add((New-FormRow -Label 'Credentials' -Control $swAbrMailCreds))
-    $abrInnerPanel.Children.Add((New-SectionTitle '📁  User Folder'))
-    $abrInnerPanel.Children.Add((New-FormRow -Label 'Path' -Control $txtAbrFolderPath))
+    $abrInnerPanel.Children.Add((New-SectionTitle '📁 User Folder'))
+    $abrInnerPanel.Children.Add((New-FormRow -Label '* Path' -Control $txtAbrFolderPath))
     $abrInnerPanel.Children.Add($abrActionRow)
 
     # Expander — collapsed by default
     $abrExpander = [Expander]::new()
-    $abrExpander.Header = '⚙️  AsBuiltReport Global Settings'
+    $abrExpander.Header = '⚙️ AsBuiltReport Global Settings'
     $abrExpander.IsExpanded = $false
     $abrExpander.Margin = '0,8,0,0'
     $abrExpander.Content = $abrInnerPanel
@@ -926,6 +1107,7 @@ function Start-AsBuiltReportVBR {
                     ProtectedGroup = $true
                     vSphereProxy = $true
                     WanAccelerator = $true
+                    HACluster = $true
                 }
                 NewIcons = $NewIcons
                 EnableDiagramDebug = $false
@@ -990,7 +1172,7 @@ function Start-AsBuiltReportVBR {
     }
 
     $btnSaveConfig = [Button]::new()
-    $btnSaveConfig.Content = '💾  Save Config'
+    $btnSaveConfig.Content = '💾 Save Config'
     $btnSaveConfig.HorizontalAlignment = 'Stretch'
     $btnSaveConfig.HorizontalContentAlignment = 'Center'
     $btnSaveConfig.Width = 196
@@ -1041,13 +1223,14 @@ function Start-AsBuiltReportVBR {
 
     # ── Load Config Button ────────────────────────────────────────────────────────
     $btnLoadConfig = [Button]::new()
-    $btnLoadConfig.Content = '📂  Load Config'
+    $btnLoadConfig.Content = '📂 Load Config'
     $btnLoadConfig.HorizontalAlignment = 'Stretch'
     $btnLoadConfig.HorizontalContentAlignment = 'Center'
     $btnLoadConfig.Width = 196
     $btnLoadConfig.Margin = '4,0,0,0'
 
     $btnLoadConfig.AddClick({
+            $btnLoadConfig.IsEnabled = $false
             $srcPath = $txtConfigPath.Text.Trim()
             if ([string]::IsNullOrWhiteSpace($srcPath) -or -not (Test-Path $srcPath)) {
                 $syncHash.lblConfigStatus.Text = '⚠ Config file not found.'
@@ -1123,18 +1306,21 @@ function Start-AsBuiltReportVBR {
                 $syncHash.lblConfigStatus.Text = "✅ Config loaded: $(Split-Path $srcPath -Leaf)"
             } catch {
                 $syncHash.lblConfigStatus.Text = "❌ Load failed: $_"
+            } finally {
+                $btnLoadConfig.IsEnabled = $true
             }
         })
 
     # ── Open Config Button ────────────────────────────────────────────────────────
     $btnOpenConfig = [Button]::new()
-    $btnOpenConfig.Content = '📝  Open Config'
+    $btnOpenConfig.Content = '📝 Open Config'
     $btnOpenConfig.HorizontalAlignment = 'Stretch'
     $btnOpenConfig.HorizontalContentAlignment = 'Center'
     $btnOpenConfig.Width = 196
     $btnOpenConfig.Margin = '4,0,0,0'
 
     $btnOpenConfig.AddClick({
+            $btnOpenConfig.IsEnabled = $false
             $srcPath = $txtConfigPath.Text.Trim()
             if ([string]::IsNullOrWhiteSpace($srcPath)) {
                 $syncHash.lblConfigStatus.Text = '⚠ Please enter a config file path first.'
@@ -1149,8 +1335,333 @@ function Start-AsBuiltReportVBR {
                 $syncHash.lblConfigStatus.Text = "📝 Opened: $(Split-Path $srcPath -Leaf)"
             } catch {
                 $syncHash.lblConfigStatus.Text = "❌ Could not open file: $_"
+            } finally {
+                $btnOpenConfig.IsEnabled = $true
             }
         })
+
+    # ── Task Scheduler Section ────────────────────────────────────────────────────
+
+    # Script path
+    $txtSchedScriptPath = [TextBox]::new()
+    $txtSchedScriptPath.Width = 298
+    $txtSchedScriptPath.Text = if ($IsWindows) {
+        [System.IO.Path]::Combine($env:USERPROFILE, 'AsBuiltReport', 'AsBuiltReport-VBR.ps1')
+    } else {
+        [System.IO.Path]::Combine($env:HOME, 'AsBuiltReport', 'AsBuiltReport-VBR.ps1')
+    }
+
+    $btnBrowseSchedScript = [Button]::new()
+    $btnBrowseSchedScript.Content = 'Browse…'
+    $btnBrowseSchedScript.AddClick({
+            try {
+                $btnBrowseSchedScript.IsEnabled = $false
+                $sp = [Window]::GetTopLevel($btnBrowseSchedScript).StorageProvider
+                if ($null -eq $sp) { return }
+                $opts = [FilePickerSaveOptions]::new()
+                $opts.Title = 'Save Schedule Script As'
+                $opts.SuggestedFileName = 'AsBuiltReport-VBR.ps1'
+                $opts.DefaultExtension = 'ps1'
+                $file = $sp.SaveFilePickerAsync($opts).WaitForCompleted()
+                if ($null -ne $file) { $txtSchedScriptPath.Text = $file.Path.LocalPath }
+            } catch {
+                $syncHash.lblConfigStatus.Text = "❌ Browse error: $_"
+            } finally {
+                $btnBrowseSchedScript.IsEnabled = $true
+            }
+        })
+
+    $schedScriptPathRow = [StackPanel]::new()
+    $schedScriptPathRow.Orientation = 'Horizontal'
+    $schedScriptPathRow.Spacing = 8
+    $schedScriptPathRow.Children.Add($txtSchedScriptPath)
+    $schedScriptPathRow.Children.Add($btnBrowseSchedScript)
+
+    # Schedule frequency and day-of-week
+    $cboSchedFrequency = [ComboBox]::new()
+    $cboSchedFrequency.Width = 140
+    @('Daily', 'Weekly', 'Every 4 Weeks') | ForEach-Object { $cboSchedFrequency.Items.Add($_) | Out-Null }
+    $cboSchedFrequency.SelectedIndex = 1  # Weekly default
+
+    $cboSchedDayOfWeek = [ComboBox]::new()
+    $cboSchedDayOfWeek.Width = 140
+    @('Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday') | ForEach-Object {
+        $cboSchedDayOfWeek.Items.Add($_) | Out-Null
+    }
+    $cboSchedDayOfWeek.SelectedIndex = 0  # Sunday default
+
+    # Day row — initially visible (default is Weekly)
+    $schedDayRow = New-FormRow -Label 'Day of Week' -Control $cboSchedDayOfWeek -LabelWidth 165
+    $schedDayRow.IsVisible = $true
+
+    $cboSchedFrequency.AddSelectionChanged({
+            $schedDayRow.IsVisible = ([string]$cboSchedFrequency.SelectedItem -eq 'Weekly')
+        })
+
+    # Start time, task name, run-as credentials
+    $txtSchedTime = [TextBox]::new()
+    $txtSchedTime.Width = 100
+    $txtSchedTime.Text = '06:00'
+    $txtSchedTime.Watermark = 'HH:mm'
+
+    $txtSchedTaskName = [TextBox]::new()
+    $txtSchedTaskName.Width = 200
+    $txtSchedTaskName.Text = 'AsBuiltReport.VBR'
+
+    $txtSchedRunAs = [TextBox]::new()
+    $txtSchedRunAs.Width = 200
+    $txtSchedRunAs.Watermark = 'DOMAIN\username or user@domain'
+    try {
+        $txtSchedRunAs.Text = [System.Security.Principal.WindowsIdentity]::GetCurrent().Name
+    } catch {
+        $txtSchedRunAs.Text = ''
+    }
+
+    $txtSchedTaskPass = [TextBox]::new()
+    $txtSchedTaskPass.Width = 200
+    $txtSchedTaskPass.Watermark = 'Windows account password (for task registration)'
+    try { $txtSchedTaskPass.PasswordChar = [char]'●' } catch { Out-Null }
+
+    # Options toggles
+    $swSchedHighest = [ToggleSwitch]::new(); $swSchedHighest.IsChecked = $true
+    $swSchedSendEmail = [ToggleSwitch]::new(); $swSchedSendEmail.IsChecked = $false
+    $swSchedTimestamp = [ToggleSwitch]::new(); $swSchedTimestamp.IsChecked = $true
+
+    # ── Export Script Button ──────────────────────────────────────────────────────
+    $btnExportScript = [Button]::new()
+    $btnExportScript.Content = '📜 Export Script'
+    $btnExportScript.Margin = '0,0,8,0'
+    $btnExportScript.AddClick({
+            try {
+                $btnExportScript.IsEnabled = $false
+
+                $scriptPath = $txtSchedScriptPath.Text.Trim()
+                if ([string]::IsNullOrWhiteSpace($scriptPath)) {
+                    $syncHash.lblConfigStatus.Text = '⚠ Set a script path before exporting.'
+                    return
+                }
+
+                $srv = $txtServer.Text.Trim()
+                $prt = if ($txtPort.Text -match '^\d+$') { [int]$txtPort.Text } else { 443 }
+                $usr = $txtUser.Text.Trim()
+                $pwds = $txtPass.Text
+
+                if ([string]::IsNullOrWhiteSpace($srv)) {
+                    $syncHash.lblConfigStatus.Text = '⚠ VBR Server address is required.'
+                    return
+                }
+                if ([string]::IsNullOrWhiteSpace($usr)) {
+                    $syncHash.lblConfigStatus.Text = '⚠ Username is required.'
+                    return
+                }
+                if ([string]::IsNullOrWhiteSpace($pwds)) {
+                    $syncHash.lblConfigStatus.Text = '⚠ Enter the VBR password before exporting the script (it will be stored encrypted).'
+                    return
+                }
+
+                # Derive encrypted-password XML path alongside the script
+                $pwdXmlPath = [System.IO.Path]::ChangeExtension($scriptPath, 'xml')
+                $scriptDir = Split-Path $scriptPath -Parent
+                if (-not (Test-Path $scriptDir)) { New-Item -Path $scriptDir -ItemType Directory -Force | Out-Null }
+
+                # Encrypt the VBR password with Windows DPAPI via Export-Clixml
+                $secPwd = ConvertTo-SecureString $pwds -AsPlainText -Force
+                $secPwd | Export-Clixml -Path $pwdXmlPath
+
+                # Collect current form values
+                $outPath = $txtOutput.Text.Trim()
+                $vbrCfg = $txtConfigPath.Text.Trim()
+                $abrCfg = $txtAbrConfigPath.Text.Trim()
+
+                $fmts = @()
+                if ($chkHTML.IsChecked -eq $true) { $fmts += "'Html'" }
+                if ($chkWord.IsChecked -eq $true) { $fmts += "'Word'" }
+                if ($chkText.IsChecked -eq $true) { $fmts += "'Text'" }
+                if ($fmts.Count -eq 0) { $fmts = @("'Html'") }
+                $fmtStr = $fmts -join ', '
+                $addTs = [bool]$swSchedTimestamp.IsChecked
+                $sendEmail = [bool]$swSchedSendEmail.IsChecked
+                $genDate = Get-Date -Format 'yyyy-MM-dd HH:mm:ss'
+
+                # Build optional parameter lines
+                $optLines = ''
+                if (-not [string]::IsNullOrWhiteSpace($vbrCfg)) {
+                    $optLines += "`n    ReportConfigFilePath  = '$vbrCfg'"
+                }
+                if (-not [string]::IsNullOrWhiteSpace($abrCfg)) {
+                    $optLines += "`n    AsBuiltConfigFilePath = '$abrCfg'"
+                }
+                if ($addTs) { $optLines += "`n    Timestamp             = `$true" }
+                if ($sendEmail) { $optLines += "`n    SendEmail             = `$true" }
+
+                $scriptContent = @"
+#Requires -Version 7.4
+<#
+.SYNOPSIS
+    AsBuiltReport.Veeam.VBR — Automated Scheduled Report
+.NOTES
+    Generated : $genDate
+    Target    : $srv (port $prt)
+    User      : $usr
+
+    SECURITY: Password.xml is encrypted with Windows DPAPI.
+    It can only be decrypted on this machine by the same Windows account that exported it:
+    '$($env:USERDOMAIN)\$($env:USERNAME)'.
+    Ensure the scheduled task runs as that same Windows account, and do NOT copy Password.xml
+    to another machine or user profile.
+#>
+
+# Import encrypted VBR credential (Windows DPAPI — tied to the exporting Windows account on this machine)
+`$securePassword = Import-Clixml -Path '$pwdXmlPath'
+`$vbrCredential  = [PSCredential]::new('$usr', `$securePassword)
+
+# Import required modules
+Import-Module AsBuiltReport.Core, AsBuiltReport.Chart, AsBuiltReport.Diagram, AsBuiltReport.Veeam.VBR -Force
+
+# Report parameters
+`$params = @{
+    Report           = 'Veeam.VBR'
+    Target           = '$srv'
+    Username         = `$vbrCredential.UserName
+    Password         = `$vbrCredential.GetNetworkCredential().Password
+    Format           = @($fmtStr)
+    OutputFolderPath = '$outPath'$optLines
+}
+
+New-AsBuiltReport @params
+"@
+
+                $scriptContent | Set-Content -Path $scriptPath -Encoding UTF8
+                $syncHash.lblConfigStatus.Text = "✅ Script exported to $(Split-Path $scriptPath -Leaf)  |  Encrypted password: $(Split-Path $pwdXmlPath -Leaf)"
+            } catch {
+                $syncHash.lblConfigStatus.Text = "❌ Export failed: $_"
+            } finally {
+                $btnExportScript.IsEnabled = $true
+            }
+        })
+
+    # ── Register Task Button ──────────────────────────────────────────────────────
+    $btnRegisterTask = [Button]::new()
+    $btnRegisterTask.Content = '📅 Register Task'
+    $btnRegisterTask.AddClick({
+            try {
+                $btnRegisterTask.IsEnabled = $false
+
+                if (-not $IsWindows) {
+                    $syncHash.lblConfigStatus.Text = '⚠ Windows Task Scheduler is only available on Windows.'
+                    return
+                }
+
+                $scriptPath = $txtSchedScriptPath.Text.Trim()
+                $taskName = $txtSchedTaskName.Text.Trim()
+                $runAsUser = $txtSchedRunAs.Text.Trim()
+                $runAsPass = $txtSchedTaskPass.Text
+                $freq = [string]$cboSchedFrequency.SelectedItem
+                $timeStr = $txtSchedTime.Text.Trim()
+                $highest = [bool]$swSchedHighest.IsChecked
+
+                if ([string]::IsNullOrWhiteSpace($scriptPath) -or -not (Test-Path $scriptPath)) {
+                    $syncHash.lblConfigStatus.Text = '⚠ Script not found — click "📜 Export Script" first.'
+                    return
+                }
+                if ([string]::IsNullOrWhiteSpace($taskName)) {
+                    $syncHash.lblConfigStatus.Text = '⚠ Task name is required.'
+                    return
+                }
+                if ([string]::IsNullOrWhiteSpace($runAsUser)) {
+                    $syncHash.lblConfigStatus.Text = '⚠ Run-as user is required.'
+                    return
+                }
+                if ([string]::IsNullOrWhiteSpace($runAsPass)) {
+                    $syncHash.lblConfigStatus.Text = '⚠ Windows account password is required to register the task.'
+                    return
+                }
+                if ($timeStr -notmatch '^\d{1,2}:\d{2}$') {
+                    $syncHash.lblConfigStatus.Text = '⚠ Start time must be in HH:mm format (e.g. 06:00).'
+                    return
+                }
+
+                $startTime = [datetime]::ParseExact($timeStr, 'H:mm', [System.Globalization.CultureInfo]::InvariantCulture)
+
+                # Resolve pwsh.exe
+                $pwshPath = (Get-Command pwsh -ErrorAction SilentlyContinue)?.Source
+                if ([string]::IsNullOrWhiteSpace($pwshPath)) { $pwshPath = Join-Path $PSHOME 'pwsh.exe' }
+
+                # Build trigger
+                $trigger = switch ($freq) {
+                    'Daily' { New-ScheduledTaskTrigger -Daily -At $startTime }
+                    'Weekly' {
+                        $day = [string]$cboSchedDayOfWeek.SelectedItem
+                        New-ScheduledTaskTrigger -Weekly -DaysOfWeek $day -At $startTime
+                    }
+                    'Every 4 Weeks' {
+                        $day = [string]$cboSchedDayOfWeek.SelectedItem
+                        New-ScheduledTaskTrigger -Weekly -WeeksInterval 4 -DaysOfWeek $day -At $startTime
+                    }
+                    default { New-ScheduledTaskTrigger -Weekly -DaysOfWeek 'Sunday' -At $startTime }
+                }
+
+                $action = New-ScheduledTaskAction -Execute $pwshPath `
+                    -Argument "-NonInteractive -NoProfile -ExecutionPolicy Bypass -File `"$scriptPath`""
+                $settings = New-ScheduledTaskSettingsSet `
+                    -ExecutionTimeLimit (New-TimeSpan -Hours 4) `
+                    -RestartCount 0 `
+                    -StartWhenAvailable
+
+                $regParams = @{
+                    TaskName = $taskName
+                    Action = $action
+                    Trigger = $trigger
+                    Settings = $settings
+                    Description = 'Automated AsBuiltReport.Veeam.VBR report — managed by GUI'
+                    User = $runAsUser
+                    Password = $runAsPass
+                    Force = $true
+                }
+                if ($highest) { $regParams['RunLevel'] = 'Highest' }
+
+                Register-ScheduledTask @regParams | Out-Null
+                $syncHash.lblConfigStatus.Text = "✅ Task '$taskName' registered — next run: $startTime ($freq)"
+            } catch {
+                $syncHash.lblConfigStatus.Text = "❌ Task registration failed: $_"
+            } finally {
+                $btnRegisterTask.IsEnabled = $true
+            }
+        })
+
+    # Schedule action buttons row
+    $schedActionRow = [StackPanel]::new()
+    $schedActionRow.Orientation = 'Horizontal'
+    $schedActionRow.Margin = '0,10,0,0'
+    $schedActionRow.Spacing = 8
+    $schedActionRow.Children.Add($btnExportScript)
+    $schedActionRow.Children.Add($btnRegisterTask)
+
+    # Assemble scheduler inner panel
+    $schedInnerPanel = [StackPanel]::new()
+    $schedInnerPanel.Spacing = 2
+    $schedInnerPanel.Margin = '4,4,4,8'
+    $schedInnerPanel.Children.Add((New-SectionTitle '📜 Script'))
+    $schedInnerPanel.Children.Add((New-FormRow -Label 'Script Path' -Control $schedScriptPathRow -LabelWidth 165))
+    $schedInnerPanel.Children.Add((New-FormRow -Label 'Add Timestamp' -Control $swSchedTimestamp -LabelWidth 165))
+    $schedInnerPanel.Children.Add((New-FormRow -Label 'Send Email' -Control $swSchedSendEmail -LabelWidth 165))
+    $schedInnerPanel.Children.Add((New-SectionTitle '🕐 Schedule'))
+    $schedInnerPanel.Children.Add((New-FormRow -Label 'Frequency' -Control $cboSchedFrequency -LabelWidth 165))
+    $schedInnerPanel.Children.Add($schedDayRow)
+    $schedInnerPanel.Children.Add((New-FormRow -Label 'Start Time (HH:mm)' -Control $txtSchedTime -LabelWidth 165))
+    $schedInnerPanel.Children.Add((New-SectionTitle '⚙️ Task Settings'))
+    $schedInnerPanel.Children.Add((New-FormRow -Label 'Task Name' -Control $txtSchedTaskName -LabelWidth 165))
+    $schedInnerPanel.Children.Add((New-FormRow -Label 'Run As User' -Control $txtSchedRunAs -LabelWidth 165))
+    $schedInnerPanel.Children.Add((New-FormRow -Label 'User Password' -Control $txtSchedTaskPass -LabelWidth 165))
+    $schedInnerPanel.Children.Add((New-FormRow -Label 'Highest Privileges' -Control $swSchedHighest -LabelWidth 165))
+    $schedInnerPanel.Children.Add($schedActionRow)
+
+    $schedExpander = [Expander]::new()
+    $schedExpander.Header = '📅 Schedule Task'
+    $schedExpander.IsExpanded = $false
+    $schedExpander.Margin = '0,8,0,0'
+    $schedExpander.Content = $schedInnerPanel
+
 
     # ── Assemble Main Layout ────────────────────────────────────────────────────
     $mainPanel = [StackPanel]::new()
@@ -1186,16 +1697,18 @@ function Start-AsBuiltReportVBR {
 
     $connPanel = [StackPanel]::new()
     $connPanel.Spacing = 2
-    $connPanel.Children.Add((New-SectionTitle '🔌  Server Connection'))
+    $connPanel.Children.Add((New-SectionTitle '🔌 Server Connection'))
+    $connPanel.Children.Add((New-FormRow -Label 'Saved Connections' -Control $cboSavedConn -LabelWidth 130))
     $connPanel.Children.Add((New-FormRow -Label 'VBR Server' -Control $serverRow -LabelWidth 130))
     $connPanel.Children.Add((New-FormRow -Label 'Username' -Control $txtUser -LabelWidth 130))
     $connPanel.Children.Add((New-FormRow -Label 'Password' -Control $txtPass -LabelWidth 130))
+    $connPanel.Children.Add((New-FormRow -Label '' -Control $savedConnActionsRow -LabelWidth 130))
     [Grid]::SetColumn($connPanel, 0)
     $topGrid.Children.Add($connPanel)
 
     $outPanel = [StackPanel]::new()
     $outPanel.Spacing = 2
-    $outPanel.Children.Add((New-SectionTitle '📄  Report Output'))
+    $outPanel.Children.Add((New-SectionTitle '📄 Report Output'))
     $outPanel.Children.Add((New-FormRow -Label 'Report Name' -Control $txtReportName -LabelWidth 130))
     $outPanel.Children.Add((New-FormRow -Label 'Format' -Control $fmtPanel -LabelWidth 130))
     $outPanel.Children.Add((New-FormRow -Label 'Output Folder' -Control $outputPathRow -LabelWidth 130))
@@ -1213,7 +1726,7 @@ function Start-AsBuiltReportVBR {
 
     $optPanel = [StackPanel]::new()
     $optPanel.Spacing = 2
-    $optPanel.Children.Add((New-SectionTitle '⚙️  Options'))
+    $optPanel.Children.Add((New-SectionTitle '⚙️ Options'))
     $optPanel.Children.Add((New-FormRow -Label 'Enable Diagrams' -Control $swDiagrams -LabelWidth 165))
     $optPanel.Children.Add((New-FormRow -Label 'Export Diagrams' -Control $swExportDia -LabelWidth 165))
     $optPanel.Children.Add((New-FormRow -Label 'Hardware Inventory' -Control $swHWInv -LabelWidth 165))
@@ -1227,7 +1740,7 @@ function Start-AsBuiltReportVBR {
 
     $lvlPanel = [StackPanel]::new()
     $lvlPanel.Spacing = 2
-    $lvlPanel.Children.Add((New-SectionTitle '📊  Info Level'))
+    $lvlPanel.Children.Add((New-SectionTitle '📊 Info Level'))
     $lvlPanel.Children.Add((New-FormRow -Label 'Infrastructure' -Control $cboLvlInfrastructure))
     $lvlPanel.Children.Add((New-FormRow -Label 'Tape' -Control $cboLvlTape))
     $lvlPanel.Children.Add((New-FormRow -Label 'Inventory' -Control $cboLvlInventory))
@@ -1241,7 +1754,7 @@ function Start-AsBuiltReportVBR {
     $mainPanel.Children.Add($bottomGrid)
 
     # Section: Config Management
-    $mainPanel.Children.Add((New-SectionTitle '🗂️  Config Management'))
+    $mainPanel.Children.Add((New-SectionTitle '🗂️ Config Management'))
 
     $cfgBtnRow = [StackPanel]::new()
     $cfgBtnRow.Orientation = 'Horizontal'
@@ -1250,10 +1763,11 @@ function Start-AsBuiltReportVBR {
     $cfgBtnRow.Children.Add($btnLoadConfig)
     $cfgBtnRow.Children.Add($btnOpenConfig)
 
-    $mainPanel.Children.Add((New-FormRow -Label 'Veeam VBR Config File' -Control $configPathRow))
+    $mainPanel.Children.Add((New-FormRow -Label '📄 Veeam VBR Config File' -Control $configPathRow))
     $mainPanel.Children.Add($cfgBtnRow)
-    $mainPanel.Children.Add((New-FormRow -Label 'AsBuiltReport Config File' -Control $abrConfigPathRow))
+    $mainPanel.Children.Add((New-FormRow -Label '📄 AsBuiltReport Config File' -Control $abrConfigPathRow))
     $mainPanel.Children.Add($abrExpander)
+    $mainPanel.Children.Add($schedExpander)
     $mainPanel.Children.Add($lblConfigStatus)
 
     # Generate button + progress
@@ -1262,7 +1776,7 @@ function Start-AsBuiltReportVBR {
 
     # Log area — header row: title (left) + Export Log button (right)
     $logTitle = [TextBlock]::new()
-    $logTitle.Text = '📋  Output Log'
+    $logTitle.Text = '📋 Output Log'
     $logTitle.FontSize = 13
     $logTitle.FontWeight = 'SemiBold'
     $logTitle.VerticalAlignment = 'Center'
@@ -1273,16 +1787,41 @@ function Start-AsBuiltReportVBR {
         [ColumnDefinition]::new([GridLength]::new(1, [GridUnitType]::Star)))
     $logHeaderGrid.ColumnDefinitions.Add(
         [ColumnDefinition]::new([GridLength]::new(0, [GridUnitType]::Auto)))
+    $logHeaderGrid.ColumnDefinitions.Add(
+        [ColumnDefinition]::new([GridLength]::new(0, [GridUnitType]::Auto)))
     [Grid]::SetColumn($logTitle, 0)
-    [Grid]::SetColumn($btnExportLog, 1)
+    [Grid]::SetColumn($chkVerbose, 1)
+    [Grid]::SetColumn($btnExportLog, 2)
     $logHeaderGrid.Children.Add($logTitle)
+    $logHeaderGrid.Children.Add($chkVerbose)
     $logHeaderGrid.Children.Add($btnExportLog)
 
     # Cancel button row — right-aligned, only visible during generation
+    $btnOpenOutputFolder = [Button]::new()
+    $btnOpenOutputFolder.Content = '📁 Open Output Folder'
+    $btnOpenOutputFolder.Margin = '0,0,8,0'
+    $btnOpenOutputFolder.AddClick({
+            $path = $txtOutput.Text.Trim()
+            if ([string]::IsNullOrWhiteSpace($path)) {
+                $syncHash.lblConfigStatus.Text = '⚠ No output folder set.'
+                return
+            }
+            if (-not (Test-Path $path)) {
+                $syncHash.lblConfigStatus.Text = "⚠ Output folder not found: $path"
+                return
+            }
+            try {
+                Start-Process $path
+            } catch {
+                $syncHash.lblConfigStatus.Text = "❌ Could not open folder: $_"
+            }
+        })
+
     $logActionsRow = [StackPanel]::new()
     $logActionsRow.Orientation = 'Horizontal'
     $logActionsRow.HorizontalAlignment = 'Right'
     $logActionsRow.Margin = '0,6,0,0'
+    $logActionsRow.Children.Add($btnOpenOutputFolder)
     $logActionsRow.Children.Add($btnCancel)
 
     $mainPanel.Children.Add($logHeaderGrid)
