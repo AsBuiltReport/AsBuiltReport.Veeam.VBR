@@ -1505,11 +1505,13 @@ function Start-AsBuiltReportVBR {
     User      : $usr
 
     SECURITY: Password.xml is encrypted with Windows DPAPI.
-    It can only be decrypted by user '$usr' on this machine.
-    Do NOT copy Password.xml to another machine or user profile.
+    It can only be decrypted on this machine by the same Windows account that exported it:
+    '$($env:USERDOMAIN)\$($env:USERNAME)'.
+    Ensure the scheduled task runs as that same Windows account, and do NOT copy Password.xml
+    to another machine or user profile.
 #>
 
-# Import encrypted VBR credential (Windows DPAPI — machine + user specific)
+# Import encrypted VBR credential (Windows DPAPI — tied to the exporting Windows account on this machine)
 `$securePassword = Import-Clixml -Path '$pwdXmlPath'
 `$vbrCredential  = [PSCredential]::new('$usr', `$securePassword)
 
