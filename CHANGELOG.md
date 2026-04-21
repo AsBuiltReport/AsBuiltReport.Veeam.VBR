@@ -14,9 +14,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add required values to the AsBuiltReport.json configuration file for the GUI tool
 - Add High Availability configuration information to the report
 - Add High Availability Cluster diagram to the report
-- Add tha capability to schedule the report using Windows Task Schedule with the GUI tool
+- Add the capability to schedule the report using Windows Task Schedule with the GUI tool
 - Add Verbose logging button to the GUI
 - Add the capability to open the OutPutFolder from the GUI
+- Add the capability to only export the diagrams in different formats (PDF, PNG, SVG) from the GUI
 
 ## :bug: Fixed
 

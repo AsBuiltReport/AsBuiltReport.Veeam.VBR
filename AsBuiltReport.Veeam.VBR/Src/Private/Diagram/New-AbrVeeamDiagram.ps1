@@ -374,11 +374,6 @@ function New-AbrVeeamDiagram {
 
     begin {
 
-        if ($psISE) {
-            Write-Error -Message 'You cannot run this script inside the PowerShell ISE. Please execute it from the PowerShell Command Window.'
-            break
-        }
-
         if ($DiagramType -eq 'Backup-to-CloudConnect-Tenant' -and ([string]::IsNullOrEmpty($TenantName) -eq $true)) {
             throw 'TenantName must be a used with the Backup-to-CloudConnect-Tenant diagram type.'
         }
@@ -387,27 +382,6 @@ function New-AbrVeeamDiagram {
             $PSCmdlet.MyInvocation.BoundParameters['Verbose'].IsPresent
         } else {
             $false
-        }
-
-        if ($EnableErrorDebug) {
-            $global:VerbosePreference = 'Continue'
-            $global:DebugPreference = 'Continue'
-        } else {
-            $global:VerbosePreference = 'SilentlyContinue'
-            $global:DebugPreference = 'SilentlyContinue'
-        }
-
-        #@tpcarman
-        # If Username and Password parameters used, convert specified Password to secure string and store in $Credential
-        if ($Username) {
-            if (-not $Password) {
-                # If the Password parameter is not provided, prompt for it securely
-                $SecurePassword = Read-Host "Password for user '$Username'" -AsSecureString
-            } else {
-                # If the Password parameter is provided, convert it to secure string
-                $SecurePassword = ConvertTo-SecureString $Password -AsPlainText -Force
-            }
-            $Credential = New-Object System.Management.Automation.PSCredential ($Username, $SecurePassword)
         }
 
         if (($Format -ne 'base64') -and !(Test-Path $OutputFolderPath)) {
@@ -491,12 +465,8 @@ function New-AbrVeeamDiagram {
 
         $RootPath = Split-Path (Split-Path $PSScriptRoot -Parent) -Parent
         $IconPath = Join-Path "$RootPath\Tools" 'icons'
-        # $ImagePath = Join-Path $RootPath 'Private\Diagram\Images.ps1'
-
-        # . $ImagePath
 
         if ($DiagramType -eq 'Backup-Infrastructure') {
-
             $Dir = 'TB'
         } else {
             $Dir = switch ($Direction) {
@@ -702,12 +672,7 @@ function New-AbrVeeamDiagram {
                 $OutputDiagram = Export-AbrDiagram -GraphObj ($diGraph | Select-String -Pattern '"([A-Z])\w+"\s\[label="";style="invis";shape="point";]' -NotMatch) -ErrorDebug $EnableErrorDebug -Format $OutputFormat -Filename $Filename -OutputFolderPath $OutputFolderPath -WaterMarkText $WaterMarkText -WaterMarkColor $WaterMarkColor -IconPath $IconPath -Verbose:$Verbose
 
                 if ($OutputDiagram) {
-                    if ($OutputFormat -ne 'Base64') {
-                        # If not Base64 format return image path
-                        Write-AbrColorOutput -Color 'White' -String ("Diagrammer diagram '{0}' has been saved to '{1}'" -f $OutputDiagram.Name, $OutputDiagram.Directory)
-                    } else {
-                        Write-PScriboMessage 'Displaying Base64 string'
-                        # Return Base64 string
+                    if ($OutputFormat -eq 'Base64') {
                         $OutputDiagram
                     }
                 }
