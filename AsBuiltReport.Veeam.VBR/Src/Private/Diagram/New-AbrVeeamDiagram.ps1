@@ -433,37 +433,6 @@ function New-AbrVeeamDiagram {
             'Backup-to-CloudConnect-Tenant' { "Cloud Connect $TenantName Resources Diagram" }
             'Backup-to-HACluster' { 'High Availability Diagram' }
         }
-        if ($Format -ne 'Base64') {
-            Write-AbrColorOutput -Color 'Green' -String ("Please wait while the '{0}' is being generated." -f $MainGraphLabel)
-            Write-AbrColorOutput -Color 'White' -String ' - Please refer to the Veeam.Diagrammer github website for more detailed information about this project.'
-            Write-AbrColorOutput -Color 'White' -String ' - Documentation: https://github.com/rebelinux/Veeam.Diagrammer'
-            Write-AbrColorOutput -Color 'White' -String ' - Issues or bug reporting: https://github.com/rebelinux/Veeam.Diagrammer/issues'
-            Write-AbrColorOutput -Color 'White' -String ' - This project is community maintained and has no sponsorship from Veeam, its employees or any of its affiliates.'
-
-
-            # Check the version of the dependency modules
-            if ($UpdateCheck) {
-                $ModuleArray = @('Veeam.Diagrammer', 'Diagrammer.Core')
-
-                foreach ($Module in $ModuleArray) {
-                    try {
-                        $InstalledVersion = Get-Module -ListAvailable -Name $Module -ErrorAction SilentlyContinue | Sort-Object -Property Version -Descending | Select-Object -First 1 -ExpandProperty Version
-
-                        if ($InstalledVersion) {
-                            Write-AbrColorOutput -Color 'White' -String " - $Module module v$($InstalledVersion.ToString()) is currently installed."
-                            $LatestVersion = Find-Module -Name $Module -Repository PSGallery -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Version
-                            if ($InstalledVersion -lt $LatestVersion) {
-                                Write-AbrColorOutput -Color 'Red' -String "  - $Module module v$($LatestVersion.ToString()) is available."
-                                Write-AbrColorOutput -Color 'Red' -String "  - Run 'Update-Module -Name $Module -Force' to install the latest version."
-                            }
-                        }
-                    } catch {
-                        Write-Error $_.Exception.Message
-                    }
-                }
-            }
-        }
-
         $IconDebug = $false
 
         if ($DraftMode) {
@@ -518,7 +487,7 @@ function New-AbrVeeamDiagram {
             }
         }
 
-        $script:NewIcons = $false
+        $script:NewIcons = $NewIcons.IsPresent
 
         $RootPath = Split-Path (Split-Path $PSScriptRoot -Parent) -Parent
         $IconPath = Join-Path "$RootPath\Tools" 'icons'
@@ -730,7 +699,7 @@ function New-AbrVeeamDiagram {
             #Export Diagram
             foreach ($OutputFormat in $Format) {
 
-                $OutputDiagram = Export-AbrDiagram -GraphObj ($diGraph | Select-String -Pattern '"([A-Z])\w+"\s\[label="";style="invis";shape="point";]' -NotMatch) -ErrorDebug $EnableErrorDebug -Format $OutputFormat -Filename $Filename -OutputFolderPath $OutputFolderPath -WaterMarkText $WaterMarkText -WaterMarkColor $WaterMarkColor -IconPath $IconPath -Verbose:$Verbose -Rotate $Rotate
+                $OutputDiagram = Export-AbrDiagram -GraphObj ($diGraph | Select-String -Pattern '"([A-Z])\w+"\s\[label="";style="invis";shape="point";]' -NotMatch) -ErrorDebug $EnableErrorDebug -Format $OutputFormat -Filename $Filename -OutputFolderPath $OutputFolderPath -WaterMarkText $WaterMarkText -WaterMarkColor $WaterMarkColor -IconPath $IconPath -Verbose:$Verbose
 
                 if ($OutputDiagram) {
                     if ($OutputFormat -ne 'Base64') {

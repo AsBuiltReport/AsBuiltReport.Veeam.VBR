@@ -191,7 +191,6 @@ function Get-AbrVbrDiagrammer {
             } else {
                 $DiagramTheme = $Options.DiagramTheme
             }
-            $DiagramTypeArray = @()
             $DiagramTypeHash = @{
                 'Backup-Infrastructure' = 'Infrastructure'
                 'Backup-to-File-Proxy' = 'FileProxy'
@@ -205,14 +204,6 @@ function Get-AbrVbrDiagrammer {
                 'Backup-to-CloudConnect' = 'CloudConnect'
                 'Backup-to-CloudConnect-Tenant' = 'CloudConnectTenant'
                 'Backup-to-HACluster' = 'HACluster'
-            }
-
-            if (-not $Options.DiagramType) {
-                $DiagramTypeArray += 'All'
-            } elseif ($Options.DiagramType) {
-                $DiagramTypeArray = $Options.DiagramType
-            } else {
-                $DiagramType = 'All'
             }
 
             if (-not $Options.ExportDiagramsFormat) {
@@ -257,7 +248,7 @@ function Get-AbrVbrDiagrammer {
             }
 
             if ($Tenant) {
-                $DiagramParams.Add('Tenant', $Tenant)
+                $DiagramParams.Add('TenantName', $Tenant)
             }
 
             if ($Options.EnableDiagramSignature) {
@@ -273,33 +264,18 @@ function Get-AbrVbrDiagrammer {
                             $Graph
                         }
                     } else {
-                        $Graph = & {
-                            if ($Tenant) {
-                                New-AbrVeeamDiagram @DiagramParams -DiagramType $DiagramType -Format $Format -Filename "AsBuiltReport.Veeam.VBR-$($DiagramTypeHash[$DiagramType])-$(Remove-SpecialCharacter -String $Tenant -SpecialChars '\').$($Format)"
-                            } else {
-                                New-AbrVeeamDiagram @DiagramParams -DiagramType $DiagramType -Format $Format -Filename "AsBuiltReport.Veeam.VBR-$($DiagramTypeHash[$DiagramType]).$($Format)"
-                            }
+                        $DiagramFilename = if ($Tenant) {
+                            "AsBuiltReport.Veeam.VBR-$($DiagramTypeHash[$DiagramType])-$(Remove-SpecialCharacter -String $Tenant -SpecialChars '\/:*?"<>|').$($Format)"
+                        } else {
+                            "AsBuiltReport.Veeam.VBR-$($DiagramTypeHash[$DiagramType]).$($Format)"
                         }
-                        if ($Graph) {
-                            if ($ExportPath) {
-                                $FilePath = & {
-                                    if ($Tenant) {
-                                        Join-Path -Path $OutputFolderPath -ChildPath "AsBuiltReport.Veeam.VBR-$($DiagramTypeHash[$DiagramType])-$(Remove-SpecialCharacter -String $Tenant -SpecialChars '\').$($Format)"
-                                    } else {
-                                        Join-Path -Path $OutputFolderPath -ChildPath "AsBuiltReport.Veeam.VBR-$($DiagramTypeHash[$DiagramType]).$($Format)"
-                                    }
-                                }
-                                if (Test-Path -Path $FilePath) {
-                                    $FilePath
-                                } else {
-                                    Write-PScriboMessage -IsWarning "Unable to export the $DiagramType Diagram: $($_.Exception.Message)"
-                                }
+                        New-AbrVeeamDiagram @DiagramParams -DiagramType $DiagramType -Format $Format -Filename $DiagramFilename
+                        if ($ExportPath) {
+                            $FilePath = Join-Path -Path $OutputFolderPath -ChildPath $DiagramFilename
+                            if (Test-Path -Path $FilePath) {
+                                $FilePath
                             } else {
-                                if ($Tenant) {
-                                    Write-Information "Saved 'AsBuiltReport.Veeam.VBR-$($DiagramTypeHash[$DiagramType])-$(Remove-SpecialCharacter -String $Tenant -SpecialChars '\').$($Format)' diagram to '$($OutputFolderPath)'." -InformationAction Continue
-                                } else {
-                                    Write-Information "Saved 'AsBuiltReport.Veeam.VBR-$($DiagramTypeHash[$DiagramType]).$($Format)' diagram to '$($OutputFolderPath)'." -InformationAction Continue
-                                }
+                                Write-PScriboMessage -IsWarning "Unable to export the $DiagramType Diagram: '$FilePath' not found after generation."
                             }
                         }
                     }
