@@ -79,6 +79,29 @@ function Start-AsBuiltReportVBR {
         return $tb
     }
 
+    # Wraps a password TextBox with an eye-toggle button.
+    # Returns a StackPanel to use as a FormRow -Control.
+    function New-PasswordRow ($PasswordTextBox) {
+        $btn = [Button]::new()
+        $btn.Content = '👁'
+        $btn.Padding = '6,2,6,2'
+        $btn.VerticalAlignment = 'Center'
+        $btn.AddClick({
+            if ($PasswordTextBox.PasswordChar -eq [char]0) {
+                $PasswordTextBox.PasswordChar = [char]'●'
+            } else {
+                $PasswordTextBox.PasswordChar = [char]0
+            }
+        }.GetNewClosure())
+
+        $row = [StackPanel]::new()
+        $row.Orientation = 'Horizontal'
+        $row.Spacing = 6
+        $row.Children.Add($PasswordTextBox)
+        $row.Children.Add($btn)
+        return $row
+    }
+
     function New-DrawerMenuItem ([string]$Title, [string]$IconGeometry, $Page, $NavigationPage) {
         $icon = [PathIcon]::new()
         $icon.Data = [Geometry]::Parse($IconGeometry)
@@ -713,60 +736,102 @@ function Start-AsBuiltReportVBR {
         }
 
         # ── Invoke New-AsBuiltReport ──────────────────────────────────────────────
+        $nestedPS = $null
+        $nestedRunspace = $null
         try {
             if ($sh.CancelRequested) { Write-Logging 'Cancelled before start.' 'WARN'; return }
 
             Write-Logging 'Starting report generation…'
 
-            # New-AsBuiltReport -Report Veeam.VBR -Target <server> -Username <user> -Password <pass>
-            #   -Format Html,Word -OutputFolderPath <path> -ReportConfigFilePath <json>
             $params = @{
-                Report = 'Veeam.VBR'
-                Target = $server
-                Username = $username
-                Password = $password
-                OutputFolderPath = $outPath
-                Format = $formats
+                Report               = 'Veeam.VBR'
+                Target               = $server
+                Username             = $username
+                Password             = $password
+                OutputFolderPath     = $outPath
+                Format               = $formats
                 ReportConfigFilePath = $reportConfigFilePath
+                AsBuiltConfigFilePath = $abrConfigPath
             }
 
             if ($addTimestamp) { $params['Timestamp'] = $true }
             if ($healthCheck) { $params['EnableHealthCheck'] = $true }
             if ($verboseEnabled) { $params['Verbose'] = $true }
 
-            $params['AsBuiltConfigFilePath'] = $abrConfigPath
             Write-Logging "Using AsBuiltReport config file: $(Split-Path $abrConfigPath -Leaf)"
 
-            New-AsBuiltReport @params *>&1 | ForEach-Object {
-                $line = if ($_ -is [System.Management.Automation.ErrorRecord]) {
-                    Write-Logging "$($_.Exception.Message)" 'ERROR'
-                    return
-                } elseif ($_ -is [System.Management.Automation.WarningRecord]) {
-                    Write-Logging "$($_.Message)" 'WARN'
-                    return
-                } elseif ($_ -is [System.Management.Automation.VerboseRecord]) {
-                    if ($verboseEnabled) {
-                        Write-Logging "$($_.Message)" 'VERBOSE'
-                    }
-                    return
-                } elseif ($_ -is [System.Management.Automation.InformationRecord]) {
-                    "$($_.MessageData)"
+            # Create a nested runspace so New-AsBuiltReport can be stopped via
+            # $syncHash.reportPS.Stop() from the Cancel button's click handler.
+            $nestedRunspace = [System.Management.Automation.Runspaces.RunspaceFactory]::CreateRunspace()
+            $nestedRunspace.Open()
+
+            $importPS = [PowerShell]::Create()
+            $importPS.Runspace = $nestedRunspace
+            [void]$importPS.AddScript(
+                'Import-Module AsBuiltReport.Core, AsBuiltReport.Chart, AsBuiltReport.Diagram, AsBuiltReport.Veeam.VBR -Force -ErrorAction Stop'
+            ).Invoke()
+            $importPS.Dispose()
+
+            $nestedPS = [PowerShell]::Create()
+            $nestedPS.Runspace = $nestedRunspace
+            [void]$nestedPS.AddScript({ param($p); New-AsBuiltReport @p *>&1 }).AddArgument($params)
+
+            # Store now so Cancel button can call .Stop() on it at any time.
+            $sh.reportPS = $nestedPS
+
+            # Stream output to the log as it arrives.
+            $capturedSh      = $sh
+            $capturedVerbose = $verboseEnabled
+            $outputColl = [System.Management.Automation.PSDataCollection[psobject]]::new()
+            $outputColl.add_DataAdded({
+                param ($src, $e)
+                $item = $src[$e.Index]
+                if ($item -is [System.Management.Automation.ErrorRecord]) {
+                    $capturedSh.txtLog.Text += "[ERROR] $($item.Exception.Message)`n"
+                } elseif ($item -is [System.Management.Automation.WarningRecord]) {
+                    $capturedSh.txtLog.Text += "[WARN] $($item.Message)`n"
+                } elseif ($item -is [System.Management.Automation.VerboseRecord]) {
+                    if ($capturedVerbose) { $capturedSh.txtLog.Text += "[VERBOSE] $($item.Message)`n" }
+                } elseif ($item -is [System.Management.Automation.InformationRecord]) {
+                    $line = "$($item.MessageData)"
+                    if (-not [string]::IsNullOrWhiteSpace($line)) { $capturedSh.txtLog.Text += "$line`n" }
                 } else {
-                    "$_"
+                    $line = "$item"
+                    if (-not [string]::IsNullOrWhiteSpace($line)) { $capturedSh.txtLog.Text += "$line`n" }
                 }
-                if (-not [string]::IsNullOrWhiteSpace($line)) {
-                    Write-Logging $line
+                $capturedSh.txtLog.CaretIndex = $capturedSh.txtLog.Text.Length
+            }.GetNewClosure())
+
+            $asyncHandle = $nestedPS.BeginInvoke(
+                [System.Management.Automation.PSDataCollection[psobject]]::new(),
+                $outputColl
+            )
+
+            # Poll until done — gives the Cancel button's .Stop() call a chance to
+            # take effect and also lets us set the flag from this side.
+            while (-not $asyncHandle.IsCompleted) {
+                if ($sh.CancelRequested) {
+                    $nestedPS.Stop()
+                    break
                 }
+                Start-Sleep -Milliseconds 300
+            }
+
+            if ($sh.CancelRequested) {
+                Write-Logging 'Report generation cancelled by user.' 'WARN'
             }
         } catch {
             Write-Logging $_.Exception.Message 'ERROR'
             if ($_.ScriptStackTrace) { Write-Logging $_.ScriptStackTrace 'ERROR' }
         } finally {
+            if ($null -ne $nestedPS)       { try { $nestedPS.Dispose() }      catch {} }
+            if ($null -ne $nestedRunspace) { try { $nestedRunspace.Close(); $nestedRunspace.Dispose() } catch {} }
+            $sh.reportPS = $null
             if ($null -ne $tempConfig) {
                 Remove-Item -Path $tempConfig -Force -ErrorAction SilentlyContinue
             }
             $sh.progressBar.IsVisible = $false
-            $sh.btnCancel.IsVisible = $false
+            $sh.btnCancel.IsVisible   = $false
             $sh.IsBusy = $false
         }
     }
@@ -1697,7 +1762,7 @@ New-AsBuiltReport @params
     $schedInnerPanel.Children.Add((New-SectionTitle '⚙️ Task Settings'))
     $schedInnerPanel.Children.Add((New-FormRow -Label 'Task Name' -Control $txtSchedTaskName -LabelWidth 165))
     $schedInnerPanel.Children.Add((New-FormRow -Label 'Run As User' -Control $txtSchedRunAs -LabelWidth 165))
-    $schedInnerPanel.Children.Add((New-FormRow -Label 'User Password' -Control $txtSchedTaskPass -LabelWidth 165))
+    $schedInnerPanel.Children.Add((New-FormRow -Label 'User Password' -Control (New-PasswordRow $txtSchedTaskPass) -LabelWidth 165))
     $schedInnerPanel.Children.Add((New-FormRow -Label 'Highest Privileges' -Control $swSchedHighest -LabelWidth 165))
     $schedInnerPanel.Children.Add($schedActionRow)
 
@@ -1716,10 +1781,40 @@ New-AsBuiltReport @params
         $diaFmtPanel.Children.Add($_) | Out-Null
     }
 
-    $cboDiaDirection = [ComboBox]::new()
-    $cboDiaDirection.Width = 180
-    @('top-to-bottom', 'left-to-right') | ForEach-Object { $cboDiaDirection.Items.Add($_) | Out-Null }
-    $cboDiaDirection.SelectedIndex = 0
+    # Dedicated output folder for the Export Diagrams page.
+    $txtDiaOutput = [TextBox]::new()
+    $txtDiaOutput.Width = 220
+    $txtDiaOutput.Text = if ($IsWindows) {
+        [System.IO.Path]::Combine($env:USERPROFILE, 'Documents', 'AsBuiltReport')
+    } else {
+        [System.IO.Path]::Combine($env:HOME, 'AsBuiltReport')
+    }
+
+    $btnDiaBrowse = [Button]::new()
+    $btnDiaBrowse.Content = 'Browse…'
+    $btnDiaBrowse.AddClick({
+        try {
+            $btnDiaBrowse.IsEnabled = $false
+            $storageProvider = [Window]::GetTopLevel($btnDiaBrowse).StorageProvider
+            if ($null -eq $storageProvider) { return }
+            $options = [FolderPickerOpenOptions]::new()
+            $options.Title = 'Select Diagram Output Folder'
+            $folders = $storageProvider.OpenFolderPickerAsync($options).WaitForCompleted()
+            if ($folders -and $folders.Count -gt 0) {
+                $txtDiaOutput.Text = $folders[0].Path.LocalPath
+            }
+        } catch {
+            Write-Host "Folder picker error: $_" -ForegroundColor Red
+        } finally {
+            $btnDiaBrowse.IsEnabled = $true
+        }
+    })
+
+    $diaOutputPathRow = [StackPanel]::new()
+    $diaOutputPathRow.Orientation = 'Horizontal'
+    $diaOutputPathRow.Spacing = 8
+    $diaOutputPathRow.Children.Add($txtDiaOutput)
+    $diaOutputPathRow.Children.Add($btnDiaBrowse)
 
     # Dedicated port for Export — defaults to 443 (VBR default), distinct from the
     # shared report port which defaults to 443.
@@ -1888,7 +1983,7 @@ New-AsBuiltReport @params
         Port = $txtDiaPort
         Username = $txtDiaUser
         Password = $txtDiaPass
-        OutPath = $txtOutput
+        OutPath = $txtDiaOutput
         DiagTheme = $cboDiagramTheme
         DiagColSize = $txtColSize
         NewIcons = $swNewIcons
@@ -1897,7 +1992,6 @@ New-AsBuiltReport @params
         FmtSvg = $chkDiaFmtSvg
         FmtDot = $chkDiaFmtDot
         FmtJpg = $chkDiaFmtJpg
-        Direction = $cboDiaDirection
         DiaTypes = $lstDiaTypes
         Verbose = $chkVerbose
     }
@@ -1932,7 +2026,6 @@ New-AsBuiltReport @params
         $username = $ui.Username.Text.Trim()
         $password = $ui.Password.Text
         $outPath = $ui.OutPath.Text.Trim()
-        $direction = [string]$ui.Direction.SelectedItem
         $theme = [string]$ui.DiagTheme.SelectedItem
         $colSize = if ($ui.DiagColSize.Text -match '^\d+$') { [int]$ui.DiagColSize.Text } else { 3 }
         $newIcons = $ui.NewIcons.IsChecked -eq $true
@@ -1972,7 +2065,6 @@ New-AsBuiltReport @params
         Write-Logging "Target    : $server (port $port)"
         Write-Logging "User      : $username"
         Write-Logging "Formats   : $($formats -join ', ')"
-        Write-Logging "Direction : $direction"
         Write-Logging "Theme     : $theme"
         Write-Logging "Types     : $($selectedTypes -join ', ')"
         Write-Logging "Output    : $outPath"
@@ -1996,7 +2088,6 @@ New-AsBuiltReport @params
                 Credential = $credential
                 OutputFolderPath = $outPath
                 Format = $formats
-                Direction = $direction
                 DiagramTheme = $theme
                 ColumnSize = $colSize
                 Port = $port
@@ -2040,7 +2131,7 @@ New-AsBuiltReport @params
     $diaConnPanel.Children.Add((New-FormRow -Label 'Saved Connections' -Control $cboDiaSavedConn -LabelWidth 130))
     $diaConnPanel.Children.Add((New-FormRow -Label 'VBR Server' -Control $diaServerRow -LabelWidth 130))
     $diaConnPanel.Children.Add((New-FormRow -Label 'Username' -Control $txtDiaUser -LabelWidth 130))
-    $diaConnPanel.Children.Add((New-FormRow -Label 'Password' -Control $txtDiaPass -LabelWidth 130))
+    $diaConnPanel.Children.Add((New-FormRow -Label 'Password' -Control (New-PasswordRow $txtDiaPass) -LabelWidth 130))
     $diaConnPanel.Children.Add((New-FormRow -Label '' -Control $diaSavedConnActionsRow -LabelWidth 130))
 
     # Right column: Diagram Types
@@ -2060,13 +2151,13 @@ New-AsBuiltReport @params
     $diaTopGrid.Children.Add($diaConnPanel)
     $diaTopGrid.Children.Add($diaTypesPanel)
 
-    # Bottom strip: Output format + direction (full width)
+    # Bottom strip: Output format + folder (full width)
     $diaOutputPanel = [StackPanel]::new()
     $diaOutputPanel.Spacing = 2
     $diaOutputPanel.Margin = '0,4,0,0'
     $diaOutputPanel.Children.Add((New-SectionTitle '📁 Output'))
     $diaOutputPanel.Children.Add((New-FormRow -Label 'Format' -Control $diaFmtPanel))
-    $diaOutputPanel.Children.Add((New-FormRow -Label 'Direction' -Control $cboDiaDirection))
+    $diaOutputPanel.Children.Add((New-FormRow -Label 'Output Folder' -Control $diaOutputPathRow))
 
     $exportDiagInnerPanel = [StackPanel]::new()
     $exportDiagInnerPanel.Spacing = 2
@@ -2114,7 +2205,7 @@ New-AsBuiltReport @params
     $connPanel.Children.Add((New-FormRow -Label 'Saved Connections' -Control $cboSavedConn -LabelWidth 130))
     $connPanel.Children.Add((New-FormRow -Label 'VBR Server' -Control $serverRow -LabelWidth 130))
     $connPanel.Children.Add((New-FormRow -Label 'Username' -Control $txtUser -LabelWidth 130))
-    $connPanel.Children.Add((New-FormRow -Label 'Password' -Control $txtPass -LabelWidth 130))
+    $connPanel.Children.Add((New-FormRow -Label 'Password' -Control (New-PasswordRow $txtPass) -LabelWidth 130))
     $connPanel.Children.Add((New-FormRow -Label '' -Control $savedConnActionsRow -LabelWidth 130))
     [Grid]::SetColumn($connPanel, 0)
     $topGrid.Children.Add($connPanel)
