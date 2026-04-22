@@ -1,4 +1,3 @@
-#Requires -Version 7.4
 #Requires -RunAsAdministrator
 
 using namespace GliderUI
@@ -29,6 +28,10 @@ function Start-AsBuiltReportVBR {
 
     [CmdletBinding()]
     param()
+
+    if ($PSVersionTable.PSVersion.Major -lt 7 -or ($PSVersionTable.PSVersion.Major -eq 7 -and $PSVersionTable.PSVersion.Minor -lt 4)) {
+        throw "Start-AsBuiltReportVBR requires PowerShell 7.4+ and Veeam Backup & Replication v13+. Current PowerShell version: $($PSVersionTable.PSVersion)"
+    }
 
     # ── Bootstrap GliderUI ──────────────────────────────────────────────────────
     $requiredGliderUIVersion = [version]'0.2.0'
@@ -1667,7 +1670,7 @@ New-AsBuiltReport @params
                 $startTime = [datetime]::ParseExact($timeStr, 'H:mm', [System.Globalization.CultureInfo]::InvariantCulture)
 
                 # Resolve pwsh.exe
-                $pwshPath = (Get-Command pwsh -ErrorAction SilentlyContinue)?.Source
+                $pwshPath = (Get-Command pwsh -ErrorAction SilentlyContinue).Source
                 if ([string]::IsNullOrWhiteSpace($pwshPath)) { $pwshPath = Join-Path $PSHOME 'pwsh.exe' }
 
                 # Build trigger

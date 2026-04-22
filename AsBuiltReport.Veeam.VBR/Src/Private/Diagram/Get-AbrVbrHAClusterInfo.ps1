@@ -21,7 +21,7 @@ function Get-AbrHAClusterInfo {
         try {
             Write-PScriboMessage "Collecting HA Cluster Node information from $($VBRServer)."
 
-            $HACluster = Get-VBRHighAvailabilityCluster -WarningAction SilentlyContinue
+            $HACluster = try {Get-VBRHighAvailabilityCluster -WarningAction SilentlyContinue} catch {Out-Null}
 
             if ($HACluster) {
                 $HAClusterNodeInfo = @()
