@@ -1,4 +1,4 @@
-#Requires -RunAsAdministrator
+﻿#Requires -RunAsAdministrator
 
 using namespace GliderUI
 using namespace GliderUI.Avalonia
