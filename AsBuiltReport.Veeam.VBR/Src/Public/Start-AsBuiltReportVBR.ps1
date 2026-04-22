@@ -18,7 +18,7 @@ function Start-AsBuiltReportVBR {
     .NOTES
         Requirements:
             PowerShell 7.4+                       — to run this script
-            GliderUI (auto-installed on first run) — Install-PSResource -Name GliderUI
+            GliderUI 0.2.0+  (auto-installed on first run) — Install-PSResource -Name GliderUI -Version 0.2.0 -Scope CurrentUser -TrustRepository
             AsBuiltReport.Core                    — Install-PSResource -Name AsBuiltReport.Core
             AsBuiltReport.Veeam.VBR               — Install-PSResource -Name AsBuiltReport.Veeam.VBR
             Veeam B&R console / PS module         — must be installed on this machine
@@ -31,10 +31,25 @@ function Start-AsBuiltReportVBR {
     param()
 
     # ── Bootstrap GliderUI ──────────────────────────────────────────────────────
+    $requiredGliderUIVersion = [version]'0.2.0'
+
     if (-not (Get-Module -ListAvailable -Name GliderUI)) {
         Write-Host 'GliderUI not found — installing from PSGallery…' -ForegroundColor Cyan
-        Install-PSResource -Name GliderUI -Scope CurrentUser -TrustRepository
+        Install-PSResource -Name GliderUI -Version $requiredGliderUIVersion -Scope CurrentUser -TrustRepository
     }
+
+    $gliderMod = Get-Module -ListAvailable -Name GliderUI |
+        Sort-Object Version -Descending |
+        Select-Object -First 1
+
+    if ($null -eq $gliderMod -or $gliderMod.Version -lt $requiredGliderUIVersion) {
+        $found = if ($null -eq $gliderMod) { 'not installed' } else { "v$($gliderMod.Version)" }
+        Write-Error ("GliderUI v{0} or later is required (found: {1}).`n" +
+            "Install it with: Install-PSResource -Name GliderUI -Version {0} -Scope CurrentUser -TrustRepository" `
+            -f $requiredGliderUIVersion, $found)
+        return
+    }
+
     Import-Module GliderUI -Force
 
     # Thread-safe store shared between the main runspace and the report runspace
