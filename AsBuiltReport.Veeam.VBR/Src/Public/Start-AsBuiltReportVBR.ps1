@@ -756,6 +756,8 @@ function Start-AsBuiltReportVBR {
 
             Write-Logging 'Starting report generation…'
 
+            # New-AsBuiltReport -Report Veeam.VBR -Target <server> -Username <user> -Password <pass>
+            #   -Format Html,Word -OutputFolderPath <path> -ReportConfigFilePath <json>
             $params = @{
                 Report = 'Veeam.VBR'
                 Target = $server
@@ -764,82 +766,40 @@ function Start-AsBuiltReportVBR {
                 OutputFolderPath = $outPath
                 Format = $formats
                 ReportConfigFilePath = $reportConfigFilePath
-                AsBuiltConfigFilePath = $abrConfigPath
             }
 
             if ($addTimestamp) { $params['Timestamp'] = $true }
             if ($healthCheck) { $params['EnableHealthCheck'] = $true }
             if ($verboseEnabled) { $params['Verbose'] = $true }
 
+            $params['AsBuiltConfigFilePath'] = $abrConfigPath
             Write-Logging "Using AsBuiltReport config file: $(Split-Path $abrConfigPath -Leaf)"
 
-            # Create a nested runspace so New-AsBuiltReport can be stopped via
-            # $syncHash.reportPS.Stop() from the Cancel button's click handler.
-            $nestedRunspace = [System.Management.Automation.Runspaces.RunspaceFactory]::CreateRunspace()
-            $nestedRunspace.Open()
-
-            $importPS = [PowerShell]::Create()
-            $importPS.Runspace = $nestedRunspace
-            [void]$importPS.AddScript(
-                'Import-Module AsBuiltReport.Core, AsBuiltReport.Chart, AsBuiltReport.Diagram, AsBuiltReport.Veeam.VBR -Force -ErrorAction Stop'
-            ).Invoke()
-            $importPS.Dispose()
-
-            $nestedPS = [PowerShell]::Create()
-            $nestedPS.Runspace = $nestedRunspace
-            [void]$nestedPS.AddScript({ param($p); New-AsBuiltReport @p *>&1 }).AddArgument($params)
-
-            # Store now so Cancel button can call .Stop() on it at any time.
-            $sh.reportPS = $nestedPS
-
-            # Stream output to the log as it arrives.
-            $capturedSh = $sh
-            $capturedVerbose = $verboseEnabled
-            $outputColl = [System.Management.Automation.PSDataCollection[psobject]]::new()
-            $outputColl.add_DataAdded({
-                    param ($src, $e)
-                    $item = $src[$e.Index]
-                    if ($item -is [System.Management.Automation.ErrorRecord]) {
-                        $capturedSh.txtLog.Text += "[ERROR] $($item.Exception.Message)`n"
-                    } elseif ($item -is [System.Management.Automation.WarningRecord]) {
-                        $capturedSh.txtLog.Text += "[WARN] $($item.Message)`n"
-                    } elseif ($item -is [System.Management.Automation.VerboseRecord]) {
-                        if ($capturedVerbose) { $capturedSh.txtLog.Text += "[VERBOSE] $($item.Message)`n" }
-                    } elseif ($item -is [System.Management.Automation.InformationRecord]) {
-                        $line = "$($item.MessageData)"
-                        if (-not [string]::IsNullOrWhiteSpace($line)) { $capturedSh.txtLog.Text += "$line`n" }
-                    } else {
-                        $line = "$item"
-                        if (-not [string]::IsNullOrWhiteSpace($line)) { $capturedSh.txtLog.Text += "$line`n" }
+            New-AsBuiltReport @params *>&1 | ForEach-Object {
+                $line = if ($_ -is [System.Management.Automation.ErrorRecord]) {
+                    Write-Logging "$($_.Exception.Message)" 'ERROR'
+                    return
+                } elseif ($_ -is [System.Management.Automation.WarningRecord]) {
+                    Write-Logging "$($_.Message)" 'WARN'
+                    return
+                } elseif ($_ -is [System.Management.Automation.VerboseRecord]) {
+                    if ($verboseEnabled) {
+                        Write-Logging "$($_.Message)" 'VERBOSE'
                     }
-                    $capturedSh.txtLog.CaretIndex = $capturedSh.txtLog.Text.Length
-                }.GetNewClosure())
-
-            $asyncHandle = $nestedPS.BeginInvoke(
-                [System.Management.Automation.PSDataCollection[psobject]]::new(),
-                $outputColl
-            )
-
-            # Poll until done — gives the Cancel button's .Stop() call a chance to
-            # take effect and also lets us set the flag from this side.
-            while (-not $asyncHandle.IsCompleted) {
-                if ($sh.CancelRequested) {
-                    $nestedPS.Stop()
-                    break
+                    return
+                } elseif ($_ -is [System.Management.Automation.InformationRecord]) {
+                    "$($_.MessageData)"
+                } else {
+                    "$_"
                 }
-                Start-Sleep -Milliseconds 300
-            }
-
-            if ($sh.CancelRequested) {
-                Write-Logging 'Report generation cancelled by user.' 'WARN'
+                if (-not [string]::IsNullOrWhiteSpace($line)) {
+                    Write-Logging $line
+                }
             }
         } catch {
             Write-Logging $_.Exception.Message 'ERROR'
             if ($_.ScriptStackTrace) { Write-Logging $_.ScriptStackTrace 'ERROR' }
         } finally {
-            if ($null -ne $nestedPS) { try { $nestedPS.Dispose() }      catch {} }
-            if ($null -ne $nestedRunspace) { try { $nestedRunspace.Close(); $nestedRunspace.Dispose() } catch {} }
-            $sh.reportPS = $null
             if ($null -ne $tempConfig) {
                 Remove-Item -Path $tempConfig -Force -ErrorAction SilentlyContinue
             }
