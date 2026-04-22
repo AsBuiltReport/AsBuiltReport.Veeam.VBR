@@ -31,7 +31,7 @@ function Start-AsBuiltReportVBR {
     param()
 
     # ── Bootstrap GliderUI ──────────────────────────────────────────────────────
-    $requiredGliderUIVersion = [version]'0.2.0'
+    $requiredGliderUIVersion = '0.2.0'
 
     if (-not (Get-Module -ListAvailable -Name GliderUI)) {
         Write-Host 'GliderUI not found — installing from PSGallery…' -ForegroundColor Cyan
