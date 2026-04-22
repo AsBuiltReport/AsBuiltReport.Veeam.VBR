@@ -39,12 +39,12 @@ function Start-AsBuiltReportVBR {
     }
 
     $gliderMod = Get-Module -ListAvailable -Name GliderUI |
-        Sort-Object Version -Descending |
-        Select-Object -First 1
+    Sort-Object Version -Descending |
+    Select-Object -First 1
 
     if ($null -eq $gliderMod -or $gliderMod.Version -lt $requiredGliderUIVersion) {
         $found = if ($null -eq $gliderMod) { 'not installed' } else { "v$($gliderMod.Version)" }
-        Write-Error ("GliderUI v{0} or later is required (found: {1}).`nInstall it with: Install-PSResource -Name GliderUI -Version {0} -Scope CurrentUser -TrustRepository" -f $requiredGliderUIVersion, $found)
+        Write-Error ("GliderUI v{0} or later is required (found: {1}).`nInstall it with: Install-PSResource -Name GliderUI -Version {0} -Scope CurrentUser -TrustRepository`n. After installing, restart PowerShell console." -f $requiredGliderUIVersion, $found)
         return
     }
 
@@ -100,12 +100,12 @@ function Start-AsBuiltReportVBR {
         $btn.Padding = '6,2,6,2'
         $btn.VerticalAlignment = 'Center'
         $btn.AddClick({
-            if ($PasswordTextBox.PasswordChar -eq [char]0) {
-                $PasswordTextBox.PasswordChar = [char]'●'
-            } else {
-                $PasswordTextBox.PasswordChar = [char]0
-            }
-        }.GetNewClosure())
+                if ($PasswordTextBox.PasswordChar -eq [char]0) {
+                    $PasswordTextBox.PasswordChar = [char]'●'
+                } else {
+                    $PasswordTextBox.PasswordChar = [char]0
+                }
+            }.GetNewClosure())
 
         $row = [StackPanel]::new()
         $row.Orientation = 'Horizontal'
@@ -757,12 +757,12 @@ function Start-AsBuiltReportVBR {
             Write-Logging 'Starting report generation…'
 
             $params = @{
-                Report               = 'Veeam.VBR'
-                Target               = $server
-                Username             = $username
-                Password             = $password
-                OutputFolderPath     = $outPath
-                Format               = $formats
+                Report = 'Veeam.VBR'
+                Target = $server
+                Username = $username
+                Password = $password
+                OutputFolderPath = $outPath
+                Format = $formats
                 ReportConfigFilePath = $reportConfigFilePath
                 AsBuiltConfigFilePath = $abrConfigPath
             }
@@ -793,27 +793,27 @@ function Start-AsBuiltReportVBR {
             $sh.reportPS = $nestedPS
 
             # Stream output to the log as it arrives.
-            $capturedSh      = $sh
+            $capturedSh = $sh
             $capturedVerbose = $verboseEnabled
             $outputColl = [System.Management.Automation.PSDataCollection[psobject]]::new()
             $outputColl.add_DataAdded({
-                param ($src, $e)
-                $item = $src[$e.Index]
-                if ($item -is [System.Management.Automation.ErrorRecord]) {
-                    $capturedSh.txtLog.Text += "[ERROR] $($item.Exception.Message)`n"
-                } elseif ($item -is [System.Management.Automation.WarningRecord]) {
-                    $capturedSh.txtLog.Text += "[WARN] $($item.Message)`n"
-                } elseif ($item -is [System.Management.Automation.VerboseRecord]) {
-                    if ($capturedVerbose) { $capturedSh.txtLog.Text += "[VERBOSE] $($item.Message)`n" }
-                } elseif ($item -is [System.Management.Automation.InformationRecord]) {
-                    $line = "$($item.MessageData)"
-                    if (-not [string]::IsNullOrWhiteSpace($line)) { $capturedSh.txtLog.Text += "$line`n" }
-                } else {
-                    $line = "$item"
-                    if (-not [string]::IsNullOrWhiteSpace($line)) { $capturedSh.txtLog.Text += "$line`n" }
-                }
-                $capturedSh.txtLog.CaretIndex = $capturedSh.txtLog.Text.Length
-            }.GetNewClosure())
+                    param ($src, $e)
+                    $item = $src[$e.Index]
+                    if ($item -is [System.Management.Automation.ErrorRecord]) {
+                        $capturedSh.txtLog.Text += "[ERROR] $($item.Exception.Message)`n"
+                    } elseif ($item -is [System.Management.Automation.WarningRecord]) {
+                        $capturedSh.txtLog.Text += "[WARN] $($item.Message)`n"
+                    } elseif ($item -is [System.Management.Automation.VerboseRecord]) {
+                        if ($capturedVerbose) { $capturedSh.txtLog.Text += "[VERBOSE] $($item.Message)`n" }
+                    } elseif ($item -is [System.Management.Automation.InformationRecord]) {
+                        $line = "$($item.MessageData)"
+                        if (-not [string]::IsNullOrWhiteSpace($line)) { $capturedSh.txtLog.Text += "$line`n" }
+                    } else {
+                        $line = "$item"
+                        if (-not [string]::IsNullOrWhiteSpace($line)) { $capturedSh.txtLog.Text += "$line`n" }
+                    }
+                    $capturedSh.txtLog.CaretIndex = $capturedSh.txtLog.Text.Length
+                }.GetNewClosure())
 
             $asyncHandle = $nestedPS.BeginInvoke(
                 [System.Management.Automation.PSDataCollection[psobject]]::new(),
@@ -837,14 +837,14 @@ function Start-AsBuiltReportVBR {
             Write-Logging $_.Exception.Message 'ERROR'
             if ($_.ScriptStackTrace) { Write-Logging $_.ScriptStackTrace 'ERROR' }
         } finally {
-            if ($null -ne $nestedPS)       { try { $nestedPS.Dispose() }      catch {} }
+            if ($null -ne $nestedPS) { try { $nestedPS.Dispose() }      catch {} }
             if ($null -ne $nestedRunspace) { try { $nestedRunspace.Close(); $nestedRunspace.Dispose() } catch {} }
             $sh.reportPS = $null
             if ($null -ne $tempConfig) {
                 Remove-Item -Path $tempConfig -Force -ErrorAction SilentlyContinue
             }
             $sh.progressBar.IsVisible = $false
-            $sh.btnCancel.IsVisible   = $false
+            $sh.btnCancel.IsVisible = $false
             $sh.IsBusy = $false
         }
     }
@@ -1806,22 +1806,22 @@ New-AsBuiltReport @params
     $btnDiaBrowse = [Button]::new()
     $btnDiaBrowse.Content = 'Browse…'
     $btnDiaBrowse.AddClick({
-        try {
-            $btnDiaBrowse.IsEnabled = $false
-            $storageProvider = [Window]::GetTopLevel($btnDiaBrowse).StorageProvider
-            if ($null -eq $storageProvider) { return }
-            $options = [FolderPickerOpenOptions]::new()
-            $options.Title = 'Select Diagram Output Folder'
-            $folders = $storageProvider.OpenFolderPickerAsync($options).WaitForCompleted()
-            if ($folders -and $folders.Count -gt 0) {
-                $txtDiaOutput.Text = $folders[0].Path.LocalPath
+            try {
+                $btnDiaBrowse.IsEnabled = $false
+                $storageProvider = [Window]::GetTopLevel($btnDiaBrowse).StorageProvider
+                if ($null -eq $storageProvider) { return }
+                $options = [FolderPickerOpenOptions]::new()
+                $options.Title = 'Select Diagram Output Folder'
+                $folders = $storageProvider.OpenFolderPickerAsync($options).WaitForCompleted()
+                if ($folders -and $folders.Count -gt 0) {
+                    $txtDiaOutput.Text = $folders[0].Path.LocalPath
+                }
+            } catch {
+                Write-Host "Folder picker error: $_" -ForegroundColor Red
+            } finally {
+                $btnDiaBrowse.IsEnabled = $true
             }
-        } catch {
-            Write-Host "Folder picker error: $_" -ForegroundColor Red
-        } finally {
-            $btnDiaBrowse.IsEnabled = $true
-        }
-    })
+        })
 
     $diaOutputPathRow = [StackPanel]::new()
     $diaOutputPathRow.Orientation = 'Horizontal'
@@ -1871,58 +1871,58 @@ New-AsBuiltReport @params
     & $refreshDiaSavedConnCombo
 
     $cboDiaSavedConn.AddSelectionChanged({
-        $idx = $cboDiaSavedConn.SelectedIndex
-        if ($idx -lt 0) { return }
-        $conns = & $loadSavedConns
-        if ($idx -ge $conns.Count) { return }
-        $sel = $conns[$idx]
-        $txtDiaServer.Text = $sel.Server
-        $txtDiaPort.Text = [string]$sel.Port
-        $txtDiaUser.Text = $sel.Username
-        $txtDiaPass.Text = ''
-    })
+            $idx = $cboDiaSavedConn.SelectedIndex
+            if ($idx -lt 0) { return }
+            $conns = & $loadSavedConns
+            if ($idx -ge $conns.Count) { return }
+            $sel = $conns[$idx]
+            $txtDiaServer.Text = $sel.Server
+            $txtDiaPort.Text = [string]$sel.Port
+            $txtDiaUser.Text = $sel.Username
+            $txtDiaPass.Text = ''
+        })
 
     $btnDiaSaveConn = [Button]::new()
     $btnDiaSaveConn.Content = '💾 Save Connection'
     $btnDiaSaveConn.AddClick({
-        $srv = $txtDiaServer.Text.Trim()
-        $prt = if ($txtDiaPort.Text -match '^\d+$') { [int]$txtDiaPort.Text } else { 443 }
-        $usr = $txtDiaUser.Text.Trim()
-        if ([string]::IsNullOrWhiteSpace($srv) -or [string]::IsNullOrWhiteSpace($usr)) {
-            $syncHash.lblConfigStatus.Text = '⚠ Enter Server and Username before saving a connection.'
-            return
-        }
-        $conns = [System.Collections.ArrayList]@()
-        foreach ($c in (& $loadSavedConns)) { $conns.Add($c) | Out-Null }
-        $dup = $conns | Where-Object { $_.Server -eq $srv -and $_.Port -eq $prt -and $_.Username -eq $usr }
-        if (-not $dup) {
-            $conns.Add([PSCustomObject]@{ Server = $srv; Port = $prt; Username = $usr }) | Out-Null
-            & $saveSavedConns -Connections @($conns)
-            & $refreshSavedConnCombo
-            $syncHash.lblConfigStatus.Text = "✅ Connection saved: $srv ($usr)"
-        } else {
-            $syncHash.lblConfigStatus.Text = "ℹ Connection already exists: $srv ($usr)"
-        }
-    })
+            $srv = $txtDiaServer.Text.Trim()
+            $prt = if ($txtDiaPort.Text -match '^\d+$') { [int]$txtDiaPort.Text } else { 443 }
+            $usr = $txtDiaUser.Text.Trim()
+            if ([string]::IsNullOrWhiteSpace($srv) -or [string]::IsNullOrWhiteSpace($usr)) {
+                $syncHash.lblConfigStatus.Text = '⚠ Enter Server and Username before saving a connection.'
+                return
+            }
+            $conns = [System.Collections.ArrayList]@()
+            foreach ($c in (& $loadSavedConns)) { $conns.Add($c) | Out-Null }
+            $dup = $conns | Where-Object { $_.Server -eq $srv -and $_.Port -eq $prt -and $_.Username -eq $usr }
+            if (-not $dup) {
+                $conns.Add([PSCustomObject]@{ Server = $srv; Port = $prt; Username = $usr }) | Out-Null
+                & $saveSavedConns -Connections @($conns)
+                & $refreshSavedConnCombo
+                $syncHash.lblConfigStatus.Text = "✅ Connection saved: $srv ($usr)"
+            } else {
+                $syncHash.lblConfigStatus.Text = "ℹ Connection already exists: $srv ($usr)"
+            }
+        })
 
     $btnDiaDeleteConn = [Button]::new()
     $btnDiaDeleteConn.Content = '🗑 Delete'
     $btnDiaDeleteConn.AddClick({
-        $idx = $cboDiaSavedConn.SelectedIndex
-        if ($idx -lt 0) {
-            $syncHash.lblConfigStatus.Text = '⚠ Select a saved connection to delete.'
-            return
-        }
-        $conns = [System.Collections.ArrayList]@()
-        foreach ($c in (& $loadSavedConns)) { $conns.Add($c) | Out-Null }
-        if ($idx -ge $conns.Count) { return }
-        $removed = $conns[$idx]
-        $conns.RemoveAt($idx)
-        & $saveSavedConns -Connections @($conns)
-        $cboDiaSavedConn.SelectedIndex = -1
-        & $refreshSavedConnCombo
-        $syncHash.lblConfigStatus.Text = "🗑 Deleted: $($removed.Server) ($($removed.Username))"
-    })
+            $idx = $cboDiaSavedConn.SelectedIndex
+            if ($idx -lt 0) {
+                $syncHash.lblConfigStatus.Text = '⚠ Select a saved connection to delete.'
+                return
+            }
+            $conns = [System.Collections.ArrayList]@()
+            foreach ($c in (& $loadSavedConns)) { $conns.Add($c) | Out-Null }
+            if ($idx -ge $conns.Count) { return }
+            $removed = $conns[$idx]
+            $conns.RemoveAt($idx)
+            & $saveSavedConns -Connections @($conns)
+            $cboDiaSavedConn.SelectedIndex = -1
+            & $refreshSavedConnCombo
+            $syncHash.lblConfigStatus.Text = "🗑 Deleted: $($removed.Server) ($($removed.Username))"
+        })
 
     $diaSavedConnActionsRow = [StackPanel]::new()
     $diaSavedConnActionsRow.Orientation = 'Horizontal'
@@ -2365,12 +2365,12 @@ New-AsBuiltReport @params
 
     # MDI path geometry for nav icons
     $reportGeometry = 'M6,2A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2H6M6,4H13V9H18V20H6V4M8,12V14H16V12H8M8,16V18H13V16H8Z'
-    $schedGeometry  = 'M19,3H18V1H16V3H8V1H6V3H5C3.89,3 3,3.89 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5C21,3.89 20.1,3 19,3M19,19H5V8H19V19Z'
-    $diagGeometry   = 'M8.5,13.5L11,16.5L14.5,12L19,18H5M21,19V5C21,3.89 20.1,3 19,3H5A2,2 0 0,0 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19Z'
+    $schedGeometry = 'M19,3H18V1H16V3H8V1H6V3H5C3.89,3 3,3.89 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5C21,3.89 20.1,3 19,3M19,19H5V8H19V19Z'
+    $diagGeometry = 'M8.5,13.5L11,16.5L14.5,12L19,18H5M21,19V5C21,3.89 20.1,3 19,3H5A2,2 0 0,0 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19Z'
 
-    $btnNavReport   = New-DrawerMenuItem -Title 'Report'          -IconGeometry $reportGeometry -Page $reportPage   -NavigationPage $navigationPage
-    $btnNavSchedule = New-DrawerMenuItem -Title 'Schedule'        -IconGeometry $schedGeometry  -Page $schedulePage -NavigationPage $navigationPage
-    $btnNavDiagrams = New-DrawerMenuItem -Title 'Export Diagrams' -IconGeometry $diagGeometry   -Page $diagramsPage -NavigationPage $navigationPage
+    $btnNavReport = New-DrawerMenuItem -Title 'Report' -IconGeometry $reportGeometry -Page $reportPage -NavigationPage $navigationPage
+    $btnNavSchedule = New-DrawerMenuItem -Title 'Schedule' -IconGeometry $schedGeometry -Page $schedulePage -NavigationPage $navigationPage
+    $btnNavDiagrams = New-DrawerMenuItem -Title 'Export Diagrams' -IconGeometry $diagGeometry -Page $diagramsPage -NavigationPage $navigationPage
 
     $drawerMenuPanel = [StackPanel]::new()
     $drawerMenuPanel.Margin = 12
