@@ -31,7 +31,7 @@ function Start-AsBuiltReportVBR {
     param()
 
     # ── Bootstrap GliderUI ──────────────────────────────────────────────────────
-    $requiredGliderUIVersion = '0.2.0'
+    $requiredGliderUIVersion = [version]'0.2.0'
 
     if (-not (Get-Module -ListAvailable -Name GliderUI)) {
         Write-Host 'GliderUI not found — installing from PSGallery…' -ForegroundColor Cyan
@@ -44,9 +44,7 @@ function Start-AsBuiltReportVBR {
 
     if ($null -eq $gliderMod -or $gliderMod.Version -lt $requiredGliderUIVersion) {
         $found = if ($null -eq $gliderMod) { 'not installed' } else { "v$($gliderMod.Version)" }
-        Write-Error ("GliderUI v{0} or later is required (found: {1}).`n" +
-            "Install it with: Install-PSResource -Name GliderUI -Version {0} -Scope CurrentUser -TrustRepository" `
-            -f $requiredGliderUIVersion, $found)
+        Write-Error ("GliderUI v{0} or later is required (found: {1}).`nInstall it with: Install-PSResource -Name GliderUI -Version {0} -Scope CurrentUser -TrustRepository" -f $requiredGliderUIVersion, $found)
         return
     }
 
