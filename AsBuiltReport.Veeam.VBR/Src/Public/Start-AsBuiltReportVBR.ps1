@@ -1442,6 +1442,11 @@ function Start-AsBuiltReportVBR {
             try {
                 $btnExportScript.IsEnabled = $false
 
+                if ($syncHash.IsBusy) {
+                    $syncHash.lblConfigStatus.Text = '⚠ Another operation is already running. Please wait.'
+                    return
+                }
+
                 $scriptPath = $txtSchedScriptPath.Text.Trim()
                 if ([string]::IsNullOrWhiteSpace($scriptPath)) {
                     $syncHash.lblConfigStatus.Text = '⚠ Set a script path before exporting.'
@@ -1553,6 +1558,11 @@ New-AsBuiltReport @params
     $btnRegisterTask.AddClick({
             try {
                 $btnRegisterTask.IsEnabled = $false
+
+                if ($syncHash.IsBusy) {
+                    $syncHash.lblConfigStatus.Text = '⚠ Another operation is already running. Please wait.'
+                    return
+                }
 
                 if (-not $IsWindows) {
                     $syncHash.lblConfigStatus.Text = '⚠ Windows Task Scheduler is only available on Windows.'
