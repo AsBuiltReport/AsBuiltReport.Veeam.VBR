@@ -294,6 +294,16 @@ PS C:\> Start-AsBuiltReportVBR
 
 ![alt text](Samples/Sample-Gui.png)
 
+## Export Diagrams
+
+The `Export-AsBuiltReportVBRDiagram` cmdlet can be used to export the infrastructure diagrams separately from the report generation process. This allows users to generate and export the diagrams in different formats (PDF, PNG, SVG) without having to generate the entire report.
+
+```powershell
+# Export the infrastructure diagram for Backup Server veeam-vbr.pharmax.local in PNG format
+PS C:\> $Creds = Get-Credential
+PS C:\> Export-AsBuiltReportVBRDiagram -Target veeam-vbr.pharmax.local -Credential $Creds -Format PNG -OutputFolderPath 'C:\Users\Jon\Documents' -DiagramType 'Backup-Infrastructure'
+```
+
 ## :x: Known Issues
 
 - Many of Veeam's features depend on the Standard+ license, so the Community edition is not supported.

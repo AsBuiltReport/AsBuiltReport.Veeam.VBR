@@ -18,6 +18,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add Verbose logging button to the GUI
 - Add the capability to open the OutPutFolder from the GUI
 - Add the capability to only export the diagrams in different formats (PDF, PNG, SVG) from the GUI
+- Add Export-AsBuiltReportVBRDiagram cmdlet to allow exporting the diagrams separately from the report generation process
+
+### :arrows_clockwise: Changed
+
+- Update module version to `v1.0.1`
+- Update the GUI tool by adding new features and improving the user experience
+-
 
 ## :bug: Fixed
 
