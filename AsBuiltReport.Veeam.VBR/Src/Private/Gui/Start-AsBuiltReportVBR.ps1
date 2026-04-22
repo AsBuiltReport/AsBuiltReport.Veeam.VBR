@@ -752,7 +752,6 @@ function Start-AsBuiltReportVBR {
         }
 
         # ── Invoke New-AsBuiltReport ──────────────────────────────────────────────
-        $nestedPS = $null
         try {
             if ($sh.CancelRequested) { Write-Logging 'Cancelled before start.' 'WARN'; return }
 
