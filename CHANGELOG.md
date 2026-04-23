@@ -24,7 +24,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Update module version to `v1.0.1`
 - Update the GUI tool by adding new features and improving the user experience
--
 
 ## :bug: Fixed
 
