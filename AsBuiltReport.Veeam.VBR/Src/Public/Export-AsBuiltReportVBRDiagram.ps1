@@ -172,7 +172,7 @@ function Export-AsBuiltReportVBRDiagram {
 
         [Parameter(
             Mandatory = $false,
-            HelpMessage = 'TCP port of the VBR server'
+            HelpMessage = 'TCP port of the VBR server. For VBR v13 and later, the underlying connection logic may use TCP 443 regardless of the value specified here.'
         )]
         [string] $Port = '9392',
 
