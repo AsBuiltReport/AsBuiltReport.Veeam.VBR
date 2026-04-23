@@ -81,7 +81,7 @@ function Export-AsBuiltReportVBRDiagram {
             HelpMessage = 'FQDN of the Veeam VBR server'
         )]
         [ValidateNotNullOrEmpty()]
-        [Alias('Server', 'IP')]
+        [Alias('Server')]
         [String[]] $Target,
 
         [Parameter(
