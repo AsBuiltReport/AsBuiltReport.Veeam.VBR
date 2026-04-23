@@ -278,7 +278,7 @@ function Get-AbrVbrDiagrammer {
                                 Write-PScriboMessage -IsWarning "Unable to export the $DiagramType Diagram: '$FilePath' not found after generation."
                             }
                         } else {
-                            Write-Host "Saved '$DiagramFilename' diagram to '$($OutputFolderPath)'." -InformationAction Continue
+                            Write-Host "Saved '$DiagramFilename' diagram to '$($OutputFolderPath)'."
                         }
                     }
                 }
