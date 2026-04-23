@@ -1,10 +1,10 @@
-#Requires -Version 7.4
-#Requires -RunAsAdministrator
+﻿#Requires -RunAsAdministrator
 
 using namespace GliderUI
 using namespace GliderUI.Avalonia
 using namespace GliderUI.Avalonia.Controls
 using namespace GliderUI.Avalonia.Platform.Storage
+using namespace GliderUI.Avalonia.Media
 
 function Start-AsBuiltReportVBR {
     <#
@@ -17,7 +17,7 @@ function Start-AsBuiltReportVBR {
     .NOTES
         Requirements:
             PowerShell 7.4+                       — to run this script
-            GliderUI (auto-installed on first run) — Install-PSResource -Name GliderUI
+            GliderUI 0.2.0+  (auto-installed on first run) — Install-PSResource -Name GliderUI -Version 0.2.0 -Scope CurrentUser -TrustRepository
             AsBuiltReport.Core                    — Install-PSResource -Name AsBuiltReport.Core
             AsBuiltReport.Veeam.VBR               — Install-PSResource -Name AsBuiltReport.Veeam.VBR
             Veeam B&R console / PS module         — must be installed on this machine
@@ -29,16 +29,34 @@ function Start-AsBuiltReportVBR {
     [CmdletBinding()]
     param()
 
+    if ($PSVersionTable.PSVersion.Major -lt 7 -or ($PSVersionTable.PSVersion.Major -eq 7 -and $PSVersionTable.PSVersion.Minor -lt 4)) {
+        throw "Start-AsBuiltReportVBR requires PowerShell 7.4+ and Veeam Backup & Replication v13+. Current PowerShell version: $($PSVersionTable.PSVersion)"
+    }
+
     # ── Bootstrap GliderUI ──────────────────────────────────────────────────────
+    $requiredGliderUIVersion = [version]'0.2.0'
+
     if (-not (Get-Module -ListAvailable -Name GliderUI)) {
         Write-Host 'GliderUI not found — installing from PSGallery…' -ForegroundColor Cyan
-        Install-PSResource -Name GliderUI -Scope CurrentUser -TrustRepository
+        Install-PSResource -Name GliderUI -Version $requiredGliderUIVersion -Scope CurrentUser -TrustRepository
     }
+
+    $gliderMod = Get-Module -ListAvailable -Name GliderUI |
+    Sort-Object Version -Descending |
+    Select-Object -First 1
+
+    if ($null -eq $gliderMod -or $gliderMod.Version -lt $requiredGliderUIVersion) {
+        $found = if ($null -eq $gliderMod) { 'not installed' } else { "v$($gliderMod.Version)" }
+        Write-Error ("GliderUI v{0} or later is required (found: {1}).`nInstall it with: Install-PSResource -Name GliderUI -Version {0} -Scope CurrentUser -TrustRepository`n. After installing, restart PowerShell console." -f $requiredGliderUIVersion, $found)
+        return
+    }
+
     Import-Module GliderUI -Force
 
     # Thread-safe store shared between the main runspace and the report runspace
     $syncHash = [Hashtable]::Synchronized(@{
             CancelRequested = $false
+            IsBusy = $false
         })
 
     # ── UI Helper Functions ─────────────────────────────────────────────────────
@@ -75,6 +93,56 @@ function Start-AsBuiltReportVBR {
         $tb.Margin = '8,0,0,0'
         $tb.FontSize = 12
         return $tb
+    }
+
+    # Wraps a password TextBox with an eye-toggle button.
+    # Returns a StackPanel to use as a FormRow -Control.
+    function New-PasswordRow ($PasswordTextBox) {
+        $btn = [Button]::new()
+        $btn.Content = '👁'
+        $btn.Padding = '6,2,6,2'
+        $btn.VerticalAlignment = 'Center'
+        $btn.AddClick({
+                if ($PasswordTextBox.PasswordChar -eq [char]0) {
+                    $PasswordTextBox.PasswordChar = [char]'●'
+                } else {
+                    $PasswordTextBox.PasswordChar = [char]0
+                }
+            }.GetNewClosure())
+
+        $row = [StackPanel]::new()
+        $row.Orientation = 'Horizontal'
+        $row.Spacing = 6
+        $row.Children.Add($PasswordTextBox)
+        $row.Children.Add($btn)
+        return $row
+    }
+
+    function New-DrawerMenuItem ([string]$Title, [string]$IconGeometry, $Page, $NavigationPage) {
+        $icon = [PathIcon]::new()
+        $icon.Data = [Geometry]::Parse($IconGeometry)
+
+        $textBlock = [TextBlock]::new()
+        $textBlock.Text = $Title
+        $textBlock.VerticalAlignment = 'Center'
+
+        $panel = [StackPanel]::new()
+        $panel.Orientation = 'Horizontal'
+        $panel.Spacing = 8
+        $panel.Children.Add($icon)
+        $panel.Children.Add($textBlock)
+
+        $button = [Button]::new()
+        $button.HorizontalAlignment = 'Stretch'
+        $button.Padding = 12
+        $button.Background = [SolidColorBrush]::new([Colors]::Transparent, 1)
+        $button.Content = $panel
+        $button.AddClick({
+                param($argumentList)
+                $targetPage, $navPage = $argumentList
+                $navPage.ReplaceAsync($targetPage) | Out-Null
+            }, @($Page, $NavigationPage))
+        return $button
     }
 
     # ── Connection Controls ─────────────────────────────────────────────────────
@@ -429,6 +497,11 @@ function Start-AsBuiltReportVBR {
         param ($ui)
 
         $sh = $ui.SyncHash
+        if ($sh.IsBusy) {
+            $sh.lblConfigStatus.Text = '⚠ Another operation is already running. Please wait.'
+            return
+        }
+        $sh.IsBusy = $true
         $sh.CancelRequested = $false
         $sh.progressBar.IsVisible = $true
         $sh.btnCancel.IsVisible = $true
@@ -595,15 +668,15 @@ function Start-AsBuiltReportVBR {
         # ── Validation ───────────────────────────────────────────────────────────
         if ([string]::IsNullOrWhiteSpace($server)) {
             Write-Logging 'VBR Server address is required.' 'ERROR'
-            $sh.progressBar.IsVisible = $false; $sh.btnCancel.IsVisible = $false; return
+            $sh.progressBar.IsVisible = $false; $sh.btnCancel.IsVisible = $false; $sh.IsBusy = $false; return
         }
         if ([string]::IsNullOrWhiteSpace($username)) {
             Write-Logging 'Username is required.' 'ERROR'
-            $sh.progressBar.IsVisible = $false; $sh.btnCancel.IsVisible = $false; return
+            $sh.progressBar.IsVisible = $false; $sh.btnCancel.IsVisible = $false; $sh.IsBusy = $false; return
         }
         if ([string]::IsNullOrWhiteSpace($password)) {
             Write-Logging 'Password is required.' 'ERROR'
-            $sh.progressBar.IsVisible = $false; $sh.btnCancel.IsVisible = $false; return
+            $sh.progressBar.IsVisible = $false; $sh.btnCancel.IsVisible = $false; $sh.IsBusy = $false; return
         }
         if ([string]::IsNullOrWhiteSpace($outPath)) {
             $outPath = if ($IsWindows) {
@@ -621,11 +694,11 @@ function Start-AsBuiltReportVBR {
         if ([string]::IsNullOrWhiteSpace($reportName)) { $reportName = 'Veeam VBR As-Built Report' }
         if ([string]::IsNullOrWhiteSpace($abrConfigPath)) {
             Write-Logging 'AsBuiltReport config file path is required. Use the "⚙️ AsBuiltReport Global Settings" section to create one, then set the path above.' 'ERROR'
-            $sh.progressBar.IsVisible = $false; $sh.btnCancel.IsVisible = $false; return
+            $sh.progressBar.IsVisible = $false; $sh.btnCancel.IsVisible = $false; $sh.IsBusy = $false; return
         }
         if (-not (Test-Path $abrConfigPath)) {
             Write-Logging "AsBuiltReport config file not found: $abrConfigPath" 'ERROR'
-            $sh.progressBar.IsVisible = $false; $sh.btnCancel.IsVisible = $false; return
+            $sh.progressBar.IsVisible = $false; $sh.btnCancel.IsVisible = $false; $sh.IsBusy = $false; return
         }
 
         Write-Logging "Target  : $server (port $port)"
@@ -639,7 +712,7 @@ function Start-AsBuiltReportVBR {
             Import-Module AsBuiltReport.Core, AsBuiltReport.Chart, AsBuiltReport.Diagram, AsBuiltReport.Veeam.VBR -Force -ErrorAction Stop
         } catch {
             Write-Logging "Failed to load modules: $_" 'ERROR'
-            $sh.progressBar.IsVisible = $false; $sh.btnCancel.IsVisible = $false; return
+            $sh.progressBar.IsVisible = $false; $sh.btnCancel.IsVisible = $false; $sh.IsBusy = $false; return
         }
 
         # ── Resolve ReportConfigFilePath ──────────────────────────────────────────
@@ -733,6 +806,7 @@ function Start-AsBuiltReportVBR {
             }
             $sh.progressBar.IsVisible = $false
             $sh.btnCancel.IsVisible = $false
+            $sh.IsBusy = $false
         }
     }
 
@@ -974,7 +1048,7 @@ function Start-AsBuiltReportVBR {
     $btnAbrLoad.AddClick({
             try {
                 $btnAbrLoad.IsEnabled = $false
-                $src = $txtAbrConfigPath.Text.Trim()
+                $src = if ($txtAbrConfigPath.Text) { $txtAbrConfigPath.Text.Trim() } else { '' }
                 if ([string]::IsNullOrWhiteSpace($src) -or -not (Test-Path $src)) {
                     $syncHash.lblConfigStatus.Text = '⚠ Set a valid AsBuiltReport.json path first.'
                     return
@@ -1435,6 +1509,11 @@ function Start-AsBuiltReportVBR {
             try {
                 $btnExportScript.IsEnabled = $false
 
+                if ($syncHash.IsBusy) {
+                    $syncHash.lblConfigStatus.Text = '⚠ Another operation is already running. Please wait.'
+                    return
+                }
+
                 $scriptPath = $txtSchedScriptPath.Text.Trim()
                 if ([string]::IsNullOrWhiteSpace($scriptPath)) {
                     $syncHash.lblConfigStatus.Text = '⚠ Set a script path before exporting.'
@@ -1547,6 +1626,11 @@ New-AsBuiltReport @params
             try {
                 $btnRegisterTask.IsEnabled = $false
 
+                if ($syncHash.IsBusy) {
+                    $syncHash.lblConfigStatus.Text = '⚠ Another operation is already running. Please wait.'
+                    return
+                }
+
                 if (-not $IsWindows) {
                     $syncHash.lblConfigStatus.Text = '⚠ Windows Task Scheduler is only available on Windows.'
                     return
@@ -1584,7 +1668,7 @@ New-AsBuiltReport @params
                 $startTime = [datetime]::ParseExact($timeStr, 'H:mm', [System.Globalization.CultureInfo]::InvariantCulture)
 
                 # Resolve pwsh.exe
-                $pwshPath = (Get-Command pwsh -ErrorAction SilentlyContinue)?.Source
+                $pwshPath = (Get-Command pwsh -ErrorAction SilentlyContinue).Source
                 if ([string]::IsNullOrWhiteSpace($pwshPath)) { $pwshPath = Join-Path $PSHOME 'pwsh.exe' }
 
                 # Build trigger
@@ -1652,15 +1736,409 @@ New-AsBuiltReport @params
     $schedInnerPanel.Children.Add((New-SectionTitle '⚙️ Task Settings'))
     $schedInnerPanel.Children.Add((New-FormRow -Label 'Task Name' -Control $txtSchedTaskName -LabelWidth 165))
     $schedInnerPanel.Children.Add((New-FormRow -Label 'Run As User' -Control $txtSchedRunAs -LabelWidth 165))
-    $schedInnerPanel.Children.Add((New-FormRow -Label 'User Password' -Control $txtSchedTaskPass -LabelWidth 165))
+    $schedInnerPanel.Children.Add((New-FormRow -Label 'User Password' -Control (New-PasswordRow $txtSchedTaskPass) -LabelWidth 165))
     $schedInnerPanel.Children.Add((New-FormRow -Label 'Highest Privileges' -Control $swSchedHighest -LabelWidth 165))
     $schedInnerPanel.Children.Add($schedActionRow)
 
-    $schedExpander = [Expander]::new()
-    $schedExpander.Header = '📅 Schedule Task'
-    $schedExpander.IsExpanded = $false
-    $schedExpander.Margin = '0,8,0,0'
-    $schedExpander.Content = $schedInnerPanel
+
+    # ── Export Diagrams Controls ─────────────────────────────────────────────────
+    $chkDiaFmtPng = [CheckBox]::new(); $chkDiaFmtPng.Content = 'PNG'; $chkDiaFmtPng.IsChecked = $true
+    $chkDiaFmtPdf = [CheckBox]::new(); $chkDiaFmtPdf.Content = 'PDF'; $chkDiaFmtPdf.IsChecked = $false
+    $chkDiaFmtSvg = [CheckBox]::new(); $chkDiaFmtSvg.Content = 'SVG'; $chkDiaFmtSvg.IsChecked = $false
+    $chkDiaFmtDot = [CheckBox]::new(); $chkDiaFmtDot.Content = 'DOT'; $chkDiaFmtDot.IsChecked = $false
+    $chkDiaFmtJpg = [CheckBox]::new(); $chkDiaFmtJpg.Content = 'JPG'; $chkDiaFmtJpg.IsChecked = $false
+
+    $diaFmtPanel = [StackPanel]::new()
+    $diaFmtPanel.Orientation = 'Horizontal'
+    $diaFmtPanel.Spacing = 14
+    @($chkDiaFmtPng, $chkDiaFmtPdf, $chkDiaFmtSvg, $chkDiaFmtDot, $chkDiaFmtJpg) | ForEach-Object {
+        $diaFmtPanel.Children.Add($_) | Out-Null
+    }
+
+    # Dedicated output folder for the Export Diagrams page.
+    $txtDiaOutput = [TextBox]::new()
+    $txtDiaOutput.Width = 220
+    $txtDiaOutput.Text = if ($IsWindows) {
+        [System.IO.Path]::Combine($env:USERPROFILE, 'Documents', 'AsBuiltReport')
+    } else {
+        [System.IO.Path]::Combine($env:HOME, 'AsBuiltReport')
+    }
+
+    $btnDiaBrowse = [Button]::new()
+    $btnDiaBrowse.Content = 'Browse…'
+    $btnDiaBrowse.AddClick({
+            try {
+                $btnDiaBrowse.IsEnabled = $false
+                $storageProvider = [Window]::GetTopLevel($btnDiaBrowse).StorageProvider
+                if ($null -eq $storageProvider) { return }
+                $options = [FolderPickerOpenOptions]::new()
+                $options.Title = 'Select Diagram Output Folder'
+                $folders = $storageProvider.OpenFolderPickerAsync($options).WaitForCompleted()
+                if ($folders -and $folders.Count -gt 0) {
+                    $txtDiaOutput.Text = $folders[0].Path.LocalPath
+                }
+            } catch {
+                Write-Host "Folder picker error: $_" -ForegroundColor Red
+            } finally {
+                $btnDiaBrowse.IsEnabled = $true
+            }
+        })
+
+    $diaOutputPathRow = [StackPanel]::new()
+    $diaOutputPathRow.Orientation = 'Horizontal'
+    $diaOutputPathRow.Spacing = 8
+    $diaOutputPathRow.Children.Add($txtDiaOutput)
+    $diaOutputPathRow.Children.Add($btnDiaBrowse)
+
+    # Dedicated port for Export — defaults to 443 (VBR default), distinct from the
+    # shared report port which defaults to 443.
+    $txtDiaPort = [TextBox]::new()
+    $txtDiaPort.Width = 80
+    $txtDiaPort.Text = '443'
+    $txtDiaPort.Watermark = 'port'
+
+    # Server connection controls specific to the Export Diagrams page
+    $txtDiaServer = [TextBox]::new()
+    $txtDiaServer.Width = 175
+    $txtDiaServer.Watermark = 'Backup Server FQDN'
+
+    $diaServerRow = [StackPanel]::new()
+    $diaServerRow.Orientation = 'Horizontal'
+    $diaServerRow.Spacing = 6
+    $diaServerRow.Children.Add($txtDiaServer)
+    $diaServerRow.Children.Add((New-InlineLabel 'Port'))
+    $diaServerRow.Children.Add($txtDiaPort)
+
+    $txtDiaUser = [TextBox]::new()
+    $txtDiaUser.Width = 200
+    $txtDiaUser.Watermark = 'username@domain'
+
+    $txtDiaPass = [TextBox]::new()
+    $txtDiaPass.Width = 200
+    $txtDiaPass.Watermark = 'Password'
+    try { $txtDiaPass.PasswordChar = [char]'●' } catch { Out-Null }
+
+    # ── Saved Connections for Export Diagrams page ────────────────────────────────
+    # Shares the same JSON file as the Report page so connections are cross-page.
+    $cboDiaSavedConn = [ComboBox]::new()
+    $cboDiaSavedConn.Width = 262
+
+    $refreshDiaSavedConnCombo = {
+        $cboDiaSavedConn.Items.Clear()
+        foreach ($c in (& $loadSavedConns)) {
+            $cboDiaSavedConn.Items.Add("$($c.Server):$($c.Port) ($($c.Username))") | Out-Null
+        }
+    }.GetNewClosure()
+    & $refreshDiaSavedConnCombo
+
+    $cboDiaSavedConn.AddSelectionChanged({
+            $idx = $cboDiaSavedConn.SelectedIndex
+            if ($idx -lt 0) { return }
+            $conns = & $loadSavedConns
+            if ($idx -ge $conns.Count) { return }
+            $sel = $conns[$idx]
+            $txtDiaServer.Text = $sel.Server
+            $txtDiaPort.Text = [string]$sel.Port
+            $txtDiaUser.Text = $sel.Username
+            $txtDiaPass.Text = ''
+        })
+
+    $btnDiaSaveConn = [Button]::new()
+    $btnDiaSaveConn.Content = '💾 Save Connection'
+    $btnDiaSaveConn.AddClick({
+            $srv = $txtDiaServer.Text.Trim()
+            $prt = if ($txtDiaPort.Text -match '^\d+$') { [int]$txtDiaPort.Text } else { 443 }
+            $usr = $txtDiaUser.Text.Trim()
+            if ([string]::IsNullOrWhiteSpace($srv) -or [string]::IsNullOrWhiteSpace($usr)) {
+                $syncHash.lblConfigStatus.Text = '⚠ Enter Server and Username before saving a connection.'
+                return
+            }
+            $conns = [System.Collections.ArrayList]@()
+            foreach ($c in (& $loadSavedConns)) { $conns.Add($c) | Out-Null }
+            $dup = $conns | Where-Object { $_.Server -eq $srv -and $_.Port -eq $prt -and $_.Username -eq $usr }
+            if (-not $dup) {
+                $conns.Add([PSCustomObject]@{ Server = $srv; Port = $prt; Username = $usr }) | Out-Null
+                & $saveSavedConns -Connections @($conns)
+                & $refreshSavedConnCombo
+                $syncHash.lblConfigStatus.Text = "✅ Connection saved: $srv ($usr)"
+            } else {
+                $syncHash.lblConfigStatus.Text = "ℹ Connection already exists: $srv ($usr)"
+            }
+        })
+
+    $btnDiaDeleteConn = [Button]::new()
+    $btnDiaDeleteConn.Content = '🗑 Delete'
+    $btnDiaDeleteConn.AddClick({
+            $idx = $cboDiaSavedConn.SelectedIndex
+            if ($idx -lt 0) {
+                $syncHash.lblConfigStatus.Text = '⚠ Select a saved connection to delete.'
+                return
+            }
+            $conns = [System.Collections.ArrayList]@()
+            foreach ($c in (& $loadSavedConns)) { $conns.Add($c) | Out-Null }
+            if ($idx -ge $conns.Count) { return }
+            $removed = $conns[$idx]
+            $conns.RemoveAt($idx)
+            & $saveSavedConns -Connections @($conns)
+            $cboDiaSavedConn.SelectedIndex = -1
+            & $refreshSavedConnCombo
+            $syncHash.lblConfigStatus.Text = "🗑 Deleted: $($removed.Server) ($($removed.Username))"
+        })
+
+    $diaSavedConnActionsRow = [StackPanel]::new()
+    $diaSavedConnActionsRow.Orientation = 'Horizontal'
+    $diaSavedConnActionsRow.Spacing = 6
+    $diaSavedConnActionsRow.Children.Add($btnDiaSaveConn)
+    $diaSavedConnActionsRow.Children.Add($btnDiaDeleteConn)
+
+    # Redefine $refreshSavedConnCombo to keep both combos in sync.
+    # The Report page's Save/Delete buttons look up this variable at call-time,
+    # so they automatically pick up this new version that refreshes both.
+    $refreshSavedConnCombo = {
+        $cboSavedConn.Items.Clear()
+        $cboDiaSavedConn.Items.Clear()
+        foreach ($c in (& $loadSavedConns)) {
+            $label = "$($c.Server):$($c.Port) ($($c.Username))"
+            $cboSavedConn.Items.Add($label) | Out-Null
+            $cboDiaSavedConn.Items.Add($label) | Out-Null
+        }
+    }.GetNewClosure()
+
+    # Multi-select ListBox: leave empty to export all diagram types.
+    # Note: Backup-to-CloudConnect-Tenant always uses left-to-right regardless of Direction.
+    $lstDiaTypes = [ListBox]::new()
+    $lstDiaTypes.SelectionMode = 'Multiple'
+    $lstDiaTypes.Height = 172
+    @(
+        'Backup-Infrastructure',
+        'Backup-to-Repository',
+        'Backup-to-Sobr',
+        'Backup-to-vSphere-Proxy',
+        'Backup-to-HyperV-Proxy',
+        'Backup-to-File-Proxy',
+        'Backup-to-WanAccelerator',
+        'Backup-to-Tape',
+        'Backup-to-ProtectedGroup',
+        'Backup-to-CloudConnect',
+        'Backup-to-CloudConnect-Tenant',
+        'Backup-to-HACluster'
+    ) | ForEach-Object { $lstDiaTypes.Items.Add($_) | Out-Null }
+
+    $btnDiaSelectAll = [Button]::new()
+    $btnDiaSelectAll.Content = 'Select All'
+    $btnDiaSelectAll.Margin = '0,0,6,0'
+    $btnDiaSelectAll.AddClick({ $lstDiaTypes.SelectAll() })
+
+    $btnDiaClearAll = [Button]::new()
+    $btnDiaClearAll.Content = 'Clear'
+    $btnDiaClearAll.AddClick({ $lstDiaTypes.UnselectAll() })
+
+    $diaTypeActionsRow = [StackPanel]::new()
+    $diaTypeActionsRow.Orientation = 'Horizontal'
+    $diaTypeActionsRow.Margin = '0,4,0,0'
+    $diaTypeActionsRow.Children.Add($btnDiaSelectAll)
+    $diaTypeActionsRow.Children.Add($btnDiaClearAll)
+
+    $btnExportDiagram = [Button]::new()
+    $btnExportDiagram.Content = '🖼 Export Diagrams'
+    $btnExportDiagram.HorizontalAlignment = 'Stretch'
+    $btnExportDiagram.HorizontalContentAlignment = 'Center'
+    $btnExportDiagram.FontSize = 14
+    $btnExportDiagram.FontWeight = 'SemiBold'
+    $btnExportDiagram.Margin = '0,14,0,0'
+    $syncHash.btnExportDiagram = $btnExportDiagram
+
+    $exportDiagramCallback = [EventCallback]::new()
+    $exportDiagramCallback.RunspaceMode = 'RunspacePoolAsyncUI'
+    $exportDiagramCallback.DisabledControlsWhileProcessing = $btnExportDiagram
+    $exportDiagramCallback.ArgumentList = @{
+        SyncHash = $syncHash
+        Server = $txtDiaServer
+        Port = $txtDiaPort
+        Username = $txtDiaUser
+        Password = $txtDiaPass
+        OutPath = $txtDiaOutput
+        DiagTheme = $cboDiagramTheme
+        DiagColSize = $txtColSize
+        NewIcons = $swNewIcons
+        FmtPng = $chkDiaFmtPng
+        FmtPdf = $chkDiaFmtPdf
+        FmtSvg = $chkDiaFmtSvg
+        FmtDot = $chkDiaFmtDot
+        FmtJpg = $chkDiaFmtJpg
+        DiaTypes = $lstDiaTypes
+        Verbose = $chkVerbose
+    }
+
+    $exportDiagramCallback.ScriptBlock = {
+        param ($ui)
+        $sh = $ui.SyncHash
+
+        if ($sh.IsBusy) {
+            $sh.lblConfigStatus.Text = '⚠ Another operation is already running. Please wait.'
+            return
+        }
+        $sh.IsBusy = $true
+        $sh.progressBar.IsVisible = $true
+        $sh.txtLog.Text = ''
+
+        $verboseEnabled = $ui.Verbose.IsChecked -eq $true
+
+        function Write-Logging ([string]$Msg, [string]$Level = '', [bool]$AddTimestamp = $false) {
+            $ts = Get-Date -Format 'HH:mm:ss'
+            if ($Level -eq '') {
+                $sh.txtLog.Text += if ($AddTimestamp) { "[$ts] $Msg`n" } else { "$Msg`n" }
+            } else {
+                $sh.txtLog.Text += if ($AddTimestamp) { "[$ts][$Level] $Msg`n" } else { "[$Level] $Msg`n" }
+            }
+            $sh.txtLog.CaretIndex = $sh.txtLog.Text.Length
+        }
+
+        # Snapshot all UI values up-front before any long-running work.
+        $server = $ui.Server.Text.Trim()
+        $port = if ($ui.Port.Text -match '^\d+$') { $ui.Port.Text } else { '9392' }
+        $username = $ui.Username.Text.Trim()
+        $password = $ui.Password.Text
+        $outPath = $ui.OutPath.Text.Trim()
+        $theme = [string]$ui.DiagTheme.SelectedItem
+        $colSize = if ($ui.DiagColSize.Text -match '^\d+$') { [int]$ui.DiagColSize.Text } else { 3 }
+        $newIcons = $ui.NewIcons.IsChecked -eq $true
+
+        $formats = @()
+        if ($ui.FmtPng.IsChecked -eq $true) { $formats += 'png' }
+        if ($ui.FmtPdf.IsChecked -eq $true) { $formats += 'pdf' }
+        if ($ui.FmtSvg.IsChecked -eq $true) { $formats += 'svg' }
+        if ($ui.FmtDot.IsChecked -eq $true) { $formats += 'dot' }
+        if ($ui.FmtJpg.IsChecked -eq $true) { $formats += 'jpg' }
+        if ($formats.Count -eq 0) { $formats = @('png') }
+
+        # Snapshot the ListBox selection — empty means all types.
+        $selectedTypes = @($ui.DiaTypes.SelectedItems | ForEach-Object { "$_" })
+        if ($selectedTypes.Count -eq 0) { $selectedTypes = @('All') }
+
+        if ([string]::IsNullOrWhiteSpace($server)) {
+            Write-Logging 'VBR Server address is required.' 'ERROR'
+            $sh.progressBar.IsVisible = $false; $sh.IsBusy = $false; return
+        }
+        if ([string]::IsNullOrWhiteSpace($username)) {
+            Write-Logging 'Username is required.' 'ERROR'
+            $sh.progressBar.IsVisible = $false; $sh.IsBusy = $false; return
+        }
+        if ([string]::IsNullOrWhiteSpace($password)) {
+            Write-Logging 'Password is required.' 'ERROR'
+            $sh.progressBar.IsVisible = $false; $sh.IsBusy = $false; return
+        }
+        if ([string]::IsNullOrWhiteSpace($outPath)) {
+            $outPath = [System.IO.Path]::GetTempPath()
+        }
+        if (-not (Test-Path $outPath)) {
+            New-Item -Path $outPath -ItemType Directory -Force | Out-Null
+            Write-Logging "Created output folder: $outPath"
+        }
+
+        Write-Logging "Target    : $server (port $port)"
+        Write-Logging "User      : $username"
+        Write-Logging "Formats   : $($formats -join ', ')"
+        Write-Logging "Theme     : $theme"
+        Write-Logging "Types     : $($selectedTypes -join ', ')"
+        Write-Logging "Output    : $outPath"
+
+        Write-Logging 'Loading AsBuiltReport modules…'
+        try {
+            Import-Module AsBuiltReport.Core, AsBuiltReport.Chart, AsBuiltReport.Diagram, AsBuiltReport.Veeam.VBR -Force -ErrorAction Stop
+        } catch {
+            Write-Logging "Failed to load modules: $_" 'ERROR'
+            $sh.progressBar.IsVisible = $false; $sh.IsBusy = $false; return
+        }
+
+        try {
+            Write-Logging 'Starting diagram export…'
+
+            $secPwd = ConvertTo-SecureString $password -AsPlainText -Force
+            $credential = [PSCredential]::new($username, $secPwd)
+
+            $params = @{
+                Target = $server
+                Credential = $credential
+                OutputFolderPath = $outPath
+                Format = $formats
+                DiagramTheme = $theme
+                ColumnSize = $colSize
+                Port = $port
+                DiagramType = $selectedTypes
+            }
+            if ($newIcons) { $params['NewIcons'] = $true }
+            if ($verboseEnabled) { $params['Verbose'] = $true }
+
+            Export-AsBuiltReportVBRDiagram @params *>&1 | ForEach-Object {
+                if ($_ -is [System.Management.Automation.ErrorRecord]) {
+                    Write-Logging "$($_.Exception.Message)" 'ERROR'
+                } elseif ($_ -is [System.Management.Automation.WarningRecord]) {
+                    Write-Logging "$($_.Message)" 'WARN'
+                } elseif ($_ -is [System.Management.Automation.VerboseRecord]) {
+                    if ($verboseEnabled) { Write-Logging "$($_.Message)" 'VERBOSE' }
+                } elseif ($_ -is [System.Management.Automation.InformationRecord]) {
+                    $line = "$($_.MessageData)"
+                    if (-not [string]::IsNullOrWhiteSpace($line)) { Write-Logging $line }
+                } else {
+                    $line = "$_"
+                    if (-not [string]::IsNullOrWhiteSpace($line)) { Write-Logging $line }
+                }
+            }
+            Write-Logging -Msg "✅ Diagram export completed. Files saved to: $outPath" -Level '' -AddTimestamp $true
+        } catch {
+            Write-Logging $_.Exception.Message 'ERROR'
+            if ($_.ScriptStackTrace) { Write-Logging $_.ScriptStackTrace 'ERROR' }
+
+        } finally {
+            $sh.progressBar.IsVisible = $false
+            $sh.IsBusy = $false
+        }
+    }
+
+    $btnExportDiagram.AddClick($exportDiagramCallback)
+
+    # Left column: Server Connection
+    $diaConnPanel = [StackPanel]::new()
+    $diaConnPanel.Spacing = 2
+    $diaConnPanel.Children.Add((New-SectionTitle '🔌 Server Connection'))
+    $diaConnPanel.Children.Add((New-FormRow -Label 'Saved Connections' -Control $cboDiaSavedConn -LabelWidth 130))
+    $diaConnPanel.Children.Add((New-FormRow -Label 'VBR Server' -Control $diaServerRow -LabelWidth 130))
+    $diaConnPanel.Children.Add((New-FormRow -Label 'Username' -Control $txtDiaUser -LabelWidth 130))
+    $diaConnPanel.Children.Add((New-FormRow -Label 'Password' -Control (New-PasswordRow $txtDiaPass) -LabelWidth 130))
+    $diaConnPanel.Children.Add((New-FormRow -Label '' -Control $diaSavedConnActionsRow -LabelWidth 130))
+
+    # Right column: Diagram Types
+    $diaTypesPanel = [StackPanel]::new()
+    $diaTypesPanel.Spacing = 2
+    $diaTypesPanel.Children.Add((New-SectionTitle '📐 Diagram Types'))
+    $diaTypesPanel.Children.Add((New-FormRow -Label 'Select (empty = All)' -Control $lstDiaTypes -LabelWidth 165))
+    $diaTypesPanel.Children.Add($diaTypeActionsRow)
+
+    # Two-column top grid: Server Connection | Diagram Types
+    $diaTopGrid = [Grid]::new()
+    $diaTopGrid.ColumnDefinitions = [ColumnDefinitions]::Parse('*, *')
+    $diaTopGrid.ColumnSpacing = 24
+    $diaTopGrid.Margin = '0,0,0,4'
+    [Grid]::SetColumn($diaConnPanel, 0)
+    [Grid]::SetColumn($diaTypesPanel, 1)
+    $diaTopGrid.Children.Add($diaConnPanel)
+    $diaTopGrid.Children.Add($diaTypesPanel)
+
+    # Bottom strip: Output format + folder (full width)
+    $diaOutputPanel = [StackPanel]::new()
+    $diaOutputPanel.Spacing = 2
+    $diaOutputPanel.Margin = '0,4,0,0'
+    $diaOutputPanel.Children.Add((New-SectionTitle '📁 Output'))
+    $diaOutputPanel.Children.Add((New-FormRow -Label 'Format' -Control $diaFmtPanel))
+    $diaOutputPanel.Children.Add((New-FormRow -Label 'Output Folder' -Control $diaOutputPathRow))
+
+    $exportDiagInnerPanel = [StackPanel]::new()
+    $exportDiagInnerPanel.Spacing = 2
+    $exportDiagInnerPanel.Margin = '4,4,4,8'
+    $exportDiagInnerPanel.Children.Add($diaTopGrid)
+    $exportDiagInnerPanel.Children.Add($diaOutputPanel)
+    $exportDiagInnerPanel.Children.Add($btnExportDiagram)
 
 
     # ── Assemble Main Layout ────────────────────────────────────────────────────
@@ -1701,7 +2179,7 @@ New-AsBuiltReport @params
     $connPanel.Children.Add((New-FormRow -Label 'Saved Connections' -Control $cboSavedConn -LabelWidth 130))
     $connPanel.Children.Add((New-FormRow -Label 'VBR Server' -Control $serverRow -LabelWidth 130))
     $connPanel.Children.Add((New-FormRow -Label 'Username' -Control $txtUser -LabelWidth 130))
-    $connPanel.Children.Add((New-FormRow -Label 'Password' -Control $txtPass -LabelWidth 130))
+    $connPanel.Children.Add((New-FormRow -Label 'Password' -Control (New-PasswordRow $txtPass) -LabelWidth 130))
     $connPanel.Children.Add((New-FormRow -Label '' -Control $savedConnActionsRow -LabelWidth 130))
     [Grid]::SetColumn($connPanel, 0)
     $topGrid.Children.Add($connPanel)
@@ -1767,12 +2245,9 @@ New-AsBuiltReport @params
     $mainPanel.Children.Add($cfgBtnRow)
     $mainPanel.Children.Add((New-FormRow -Label '📄 AsBuiltReport Config File' -Control $abrConfigPathRow))
     $mainPanel.Children.Add($abrExpander)
-    $mainPanel.Children.Add($schedExpander)
-    $mainPanel.Children.Add($lblConfigStatus)
 
-    # Generate button + progress
+    # Generate button
     $mainPanel.Children.Add($btnGenerate)
-    $mainPanel.Children.Add($progressBar)
 
     # Log area — header row: title (left) + Export Log button (right)
     $logTitle = [TextBlock]::new()
@@ -1824,12 +2299,78 @@ New-AsBuiltReport @params
     $logActionsRow.Children.Add($btnOpenOutputFolder)
     $logActionsRow.Children.Add($btnCancel)
 
-    $mainPanel.Children.Add($logHeaderGrid)
-    $mainPanel.Children.Add($txtLog)
-    $mainPanel.Children.Add($logActionsRow)
-
     $scrollView = [ScrollViewer]::new()
     $scrollView.Content = $mainPanel
+
+    # ── Drawer Pages ─────────────────────────────────────────────────────────────
+    $reportPage = [ContentPage]::new()
+    $reportPage.Header = 'Report'
+    $reportPage.Content = $scrollView
+
+    $schedInnerPanel.Margin = '28,20,28,24'
+    $schedScrollView = [ScrollViewer]::new()
+    $schedScrollView.Content = $schedInnerPanel
+    $schedulePage = [ContentPage]::new()
+    $schedulePage.Header = '📅 Schedule Task'
+    $schedulePage.Content = $schedScrollView
+
+    $exportDiagInnerPanel.Margin = '28,20,28,24'
+    $diagScrollView = [ScrollViewer]::new()
+    $diagScrollView.Content = $exportDiagInnerPanel
+    $diagramsPage = [ContentPage]::new()
+    $diagramsPage.Header = '🖼 Export Diagrams'
+    $diagramsPage.Content = $diagScrollView
+
+    $navigationPage = [NavigationPage]::new()
+    $navigationPage.Content = $reportPage
+
+    # MDI path geometry for nav icons
+    $reportGeometry = 'M6,2A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2H6M6,4H13V9H18V20H6V4M8,12V14H16V12H8M8,16V18H13V16H8Z'
+    $schedGeometry = 'M19,3H18V1H16V3H8V1H6V3H5C3.89,3 3,3.89 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5C21,3.89 20.1,3 19,3M19,19H5V8H19V19Z'
+    $diagGeometry = 'M8.5,13.5L11,16.5L14.5,12L19,18H5M21,19V5C21,3.89 20.1,3 19,3H5A2,2 0 0,0 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19Z'
+
+    $btnNavReport = New-DrawerMenuItem -Title 'Report' -IconGeometry $reportGeometry -Page $reportPage -NavigationPage $navigationPage
+    $btnNavSchedule = New-DrawerMenuItem -Title 'Schedule' -IconGeometry $schedGeometry -Page $schedulePage -NavigationPage $navigationPage
+    $btnNavDiagrams = New-DrawerMenuItem -Title 'Export Diagrams' -IconGeometry $diagGeometry -Page $diagramsPage -NavigationPage $navigationPage
+
+    $drawerMenuPanel = [StackPanel]::new()
+    $drawerMenuPanel.Margin = 12
+    $drawerMenuPanel.Children.Add($btnNavReport)
+    $drawerMenuPanel.Children.Add($btnNavSchedule)
+    $drawerMenuPanel.Children.Add($btnNavDiagrams)
+
+    $drawerMenu = [ContentPage]::new()
+    $drawerMenu.Content = $drawerMenuPanel
+
+    $drawerHeader = [TextBlock]::new()
+    $drawerHeader.Text = 'Navigation'
+    $drawerHeader.FontSize = 16
+    $drawerHeader.FontWeight = 'SemiBold'
+    $drawerHeader.VerticalAlignment = 'Center'
+    $drawerHeader.Padding = '16,10,12,10'
+
+    $drawerPage = [DrawerPage]::new()
+    $drawerPage.DrawerHeader = $drawerHeader
+    $drawerPage.Drawer = $drawerMenu
+    $drawerPage.Content = $navigationPage
+
+    # ── Shared bottom strip (log + status — visible from all drawer pages) ────────
+    $sharedBottomPanel = [StackPanel]::new()
+    $sharedBottomPanel.Margin = '28,4,28,16'
+    $sharedBottomPanel.Children.Add($progressBar)
+    $sharedBottomPanel.Children.Add($logHeaderGrid)
+    $sharedBottomPanel.Children.Add($txtLog)
+    $sharedBottomPanel.Children.Add($logActionsRow)
+    $sharedBottomPanel.Children.Add($lblConfigStatus)
+
+    # ── Outer grid: drawer (fills space) above shared log strip ──────────────────
+    $outerGrid = [Grid]::new()
+    $outerGrid.RowDefinitions.Add([RowDefinition]::new([GridLength]::new(1, [GridUnitType]::Star)))
+    $outerGrid.RowDefinitions.Add([RowDefinition]::new([GridLength]::new(0, [GridUnitType]::Auto)))
+    [Grid]::SetRow($drawerPage, 0)
+    [Grid]::SetRow($sharedBottomPanel, 1)
+    $outerGrid.Children.Add($drawerPage)
+    $outerGrid.Children.Add($sharedBottomPanel)
 
     # ── Window ──────────────────────────────────────────────────────────────────
     $win = [Window]::new()
@@ -1838,7 +2379,7 @@ New-AsBuiltReport @params
     $win.Height = 920
     $win.MinWidth = 880
     $win.MinHeight = 500
-    $win.Content = $scrollView
+    $win.Content = $outerGrid
 
     $win.Show()
     $win.WaitForClosed()

@@ -37,6 +37,7 @@
         "ExportDiagramsFormat": [
             "pdf"
         ],
+        "OnlyExportDiagrams": false,
         "EnableDiagramSignature": false,
         "SignatureAuthorName": "",
         "SignatureCompanyName": "",
