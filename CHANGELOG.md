@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ##### This project is community maintained and has no sponsorship from Veeam, its employees or any of its affiliates.
 
-## [1.0.1] - 2026-04-??
+## [1.0.1] - 2026-04-23
 
 ### :toolbox: Added
 
@@ -23,6 +23,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### :arrows_clockwise: Changed
 
 - Update module version to `v1.0.1`
+- Update AsBuiltReport.Diagram module to `v1.0.6`
+- Update AsBuiltReport.Chart module to `v0.3.1`
 - Update the GUI tool by adding new features and improving the user experience
 
 ## :bug: Fixed
