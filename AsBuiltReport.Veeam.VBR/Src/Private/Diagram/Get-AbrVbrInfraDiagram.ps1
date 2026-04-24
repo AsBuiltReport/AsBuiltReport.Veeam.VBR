@@ -32,10 +32,65 @@ function Get-AbrInfraDiagram {
             #                     Graphviz: https://graphviz.org/doc/info/shapes.html                       #
             #-----------------------------------------------------------------------------------------------#
 
+            if ($HAClusterInfo = Get-AbrHAClusterInfo) {
+                # Build node labels array: alternate labels and spacers
+                $HAClusterNodesArray = @()
+                $NodeCount = ($HAClusterInfo.Nodes | Measure-Object).Count
+
+                for ($i = 0; $i -lt $NodeCount; $i++) {
+                    $HAClusterNodesArray += $HAClusterInfo.Nodes[$i].Label
+                    if ($i -lt ($NodeCount - 1)) {
+                        $HAClusterNodesArray += $HAClusterInfo.Nodes[$i].Spacer
+                    }
+                }
+
+                $HAClusterNodesColumnSize = $HAClusterNodesArray.Count
+
+                if ($HAClusterInfo.DnsName) {
+                    $HAClusterLabel = "DNS: $($HAClusterInfo.DnsName)<BR/>Endpoint: $($HAClusterInfo.Endpoint)"
+                } else {
+                    $HAClusterLabel = "Endpoint: $($HAClusterInfo.Endpoint)"
+                }
+
+                # Inner subgraph: cluster node icons side-by-side
+                try {
+                    $HAClusterNodesSubGraph = Add-HtmlSubGraph -Name 'HAClusterNodesSubGraph' -CellSpacing 4 -ImagesObj $Images -TableArray $HAClusterNodesArray -Align 'Center' -IconDebug $IconDebug -IconType 'VBR_Server_HA' -Label $HAClusterLabel -LabelPos 'top' -FontColor $BackupServerFontColor -FontSize 18 -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '0' -TableBackgroundColor $MainGraphBGColor -ColumnSize $HAClusterNodesColumnSize -FontBold
+                } catch {
+                    Write-PScriboMessage 'Error: Unable to create HA Cluster Nodes SubGraph. Disabling the section'
+                    Write-PScriboMessage "Error Message: $($_.Exception.Message)"
+                }
+
+                if ($HAClusterNodesSubGraph) {
+                    $ClusterStatus = switch ($HAClusterInfo.IsHealthy) {
+                        $true { 'Healthy' }
+                        $false { 'Unhealthy' }
+                        default { 'Unknown' }
+                    }
+
+                    # Outer subgraph: cluster container with metadata label and cluster icon
+                    try {
+                        $HAClusterSubGraph = Add-HtmlSubGraph -Name 'HAClusterSubGraph' -CellSpacing 4 -ImagesObj $Images -TableArray $HAClusterNodesSubGraph -Align 'Right' -IconDebug $IconDebug -Label "Status: $ClusterStatus" -LabelPos 'down' -FontColor $BackupServerFontColor -FontSize 14 -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -TableBackgroundColor $MainGraphBGColor -ColumnSize 1 -FontBold
+                    } catch {
+                        Write-PScriboMessage 'Error: Unable to create HA Cluster SubGraph. Disabling the section'
+                        Write-PScriboMessage "Error Message: $($_.Exception.Message)"
+                    }
+
+                    if ($HAClusterSubGraph) {
+                        # Create the main HAClusterServers management node
+                        try {
+                            Add-HtmlSubGraph -Name HAClusterServers -ImagesObj $Images -TableArray $HAClusterSubGraph -Align 'Center' -IconDebug $IconDebug -Label 'High Availability Cluster' -LabelPos 'top' -FontColor $Fontcolor -FontSize 22 -TableStyle 'rounded' -TableBorderColor $Edgecolor -TableBorder '0' -TableBackgroundColor $MainGraphBGColor -ColumnSize 1 -FontBold -NodeObject
+                        } catch {
+                            Write-PScriboMessage 'Error: Unable to create HA Cluster Services node. Disabling the section'
+                            Write-PScriboMessage "Error Message: $($_.Exception.Message)"
+                        }
+                    }
+                }
+            }
+
             # EntraID Graphviz Cluster
             if ($EntraID = Get-AbrBackupEntraIDInfo) {
                 try {
-                    $EntraIDNode = Node EntraID @{Label = (Add-HtmlNodeTable -Name 'EntraIDNode' -ImagesObj $Images -inputObject $EntraID.Name -Align 'Center' -iconType 'VBR_Microsoft_Entra_ID' -ColumnSize 2 -IconDebug $IconDebug -MultiIcon -AditionalInfo $EntraID.AditionalInfo -Subgraph -SubgraphLabel 'Entra ID Tenants' -SubgraphFontBold -SubgraphLabelPos 'top' -SubgraphIconType 'VBR_Microsoft_Entra_ID' -SubgraphTableStyle 'dashed,rounded' -TableBorderColor $TableBorderColor -TableBorder '1' -SubgraphLabelFontColor $FontColor -SubgraphLabelFontSize 22 -FontSize 18 -TableBackgroundColor $MainGraphBGColor -CellBackgroundColor $MainGraphBGColor -FontColor $Fontcolor); shape = 'plain'; fontname = 'Segoe Ui' }
+                    $EntraIDNode = Node EntraID @{Label = (Add-HtmlNodeTable -Name 'EntraIDNode' -ImagesObj $Images -inputObject $EntraID.Name -Align 'Center' -iconType 'VBR_Microsoft_Entra_ID' -ColumnSize 2 -IconDebug $IconDebug -MultiIcon -AditionalInfo $EntraID.AditionalInfo -Subgraph -SubgraphLabel 'Entra ID Tenants' -SubgraphFontBold -SubgraphLabelPos 'top' -SubgraphIconType 'VBR_Microsoft_Entra_ID' -SubgraphTableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -SubgraphLabelFontColor $FontColor -SubgraphLabelFontSize 22 -FontSize 18 -TableBackgroundColor $MainGraphBGColor -CellBackgroundColor $MainGraphBGColor -FontColor $Fontcolor); shape = 'plain'; fontname = 'Segoe Ui' }
                 } catch {
                     Write-PScriboMessage 'Error: Unable to create EntraID Objects. Disabling the section'
                     Write-PScriboMessage "Error Message: $($_.Exception.Message)"
@@ -428,7 +483,7 @@ function Get-AbrInfraDiagram {
                     $columnSize = 5
                 }
                 try {
-                    $WanAccelsNode = Node WanAccelServer @{Label = (Add-HtmlNodeTable -Name 'WanAccelServer' -ImagesObj $Images -inputObject ($WanAccels | ForEach-Object { $_.Name.split('.')[0] }) -Align 'Center' -iconType 'VBR_Wan_Accel' -ColumnSize $columnSize -IconDebug $IconDebug -MultiIcon -AditionalInfo $WanAccels.AditionalInfo -Subgraph -SubgraphLabel 'Wan Accelerators' -SubgraphLabelPos 'top' -SubgraphIconType 'VBR_Wan_Accel' -SubgraphTableStyle 'dashed,rounded' -TableBorderColor $TableBorderColor -TableBorder '1' -SubgraphLabelFontSize 22 -FontSize 18 -SubgraphFontBold -TableBackgroundColor $MainGraphBGColor -CellBackgroundColor $MainGraphBGColor -FontColor $Fontcolor -SubgraphLabelFontColor $Fontcolor); shape = 'plain'; fontname = 'Segoe Ui' }
+                    $WanAccelsNode = Node WanAccelServer @{Label = (Add-HtmlNodeTable -Name 'WanAccelServer' -ImagesObj $Images -inputObject ($WanAccels | ForEach-Object { $_.Name.split('.')[0] }) -Align 'Center' -iconType 'VBR_Wan_Accel' -ColumnSize $columnSize -IconDebug $IconDebug -MultiIcon -AditionalInfo $WanAccels.AditionalInfo -Subgraph -SubgraphLabel 'Wan Accelerators' -SubgraphLabelPos 'top' -SubgraphIconType 'VBR_Wan_Accel' -SubgraphTableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -SubgraphLabelFontSize 22 -FontSize 18 -SubgraphFontBold -TableBackgroundColor $MainGraphBGColor -CellBackgroundColor $MainGraphBGColor -FontColor $Fontcolor -SubgraphLabelFontColor $Fontcolor); shape = 'plain'; fontname = 'Segoe Ui' }
                 } catch {
                     Write-PScriboMessage 'Error: Unable to create WanAccelerators Objects. Disabling the section'
                     Write-PScriboMessage "Error Message: $($_.Exception.Message)"
@@ -448,7 +503,7 @@ function Get-AbrInfraDiagram {
                     } else {
                         $columnSize = 5
                     }
-                    $TapeServerNode = Add-HtmlNodeTable -Name 'TapeServerNode' -ImagesObj $Images -inputObject $TapeServerInfo.Name -Align 'Center' -iconType 'VBR_Tape_Server' -ColumnSize $columnSize -IconDebug $IconDebug -MultiIcon -AditionalInfo $TapeServerInfo.AditionalInfo -Subgraph -SubgraphIconType 'VBR_Tape_Server' -SubgraphLabel 'Tape Servers' -SubgraphLabelPos 'top' -SubgraphTableStyle 'dashed,rounded' -TableBorderColor $TableBorderColor -TableBorder '1' -SubgraphLabelFontSize 22 -FontSize 18 -SubgraphFontBold -TableBackgroundColor $MainGraphBGColor -CellBackgroundColor $MainGraphBGColor -FontColor $Fontcolor -SubgraphLabelFontColor $Fontcolor
+                    $TapeServerNode = Add-HtmlNodeTable -Name 'TapeServerNode' -ImagesObj $Images -inputObject $TapeServerInfo.Name -Align 'Center' -iconType 'VBR_Tape_Server' -ColumnSize $columnSize -IconDebug $IconDebug -MultiIcon -AditionalInfo $TapeServerInfo.AditionalInfo -Subgraph -SubgraphIconType 'VBR_Tape_Server' -SubgraphLabel 'Tape Servers' -SubgraphLabelPos 'top' -SubgraphTableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -SubgraphLabelFontSize 22 -FontSize 18 -SubgraphFontBold -TableBackgroundColor $MainGraphBGColor -CellBackgroundColor $MainGraphBGColor -FontColor $Fontcolor -SubgraphLabelFontColor $Fontcolor
 
                     $TapeInfraArray += $TapeServerNode
                 } catch {
@@ -462,7 +517,7 @@ function Get-AbrInfraDiagram {
                         $columnSize = 5
                     }
                     try {
-                        $TapeLibraryNode = Add-HtmlNodeTable -Name 'TapeLibraryNode' -ImagesObj $Images -inputObject $TapeLibraryInfo.Name -Align 'Center' -iconType 'VBR_Tape_Library' -ColumnSize $columnSize -IconDebug $IconDebug -MultiIcon -AditionalInfo $TapeLibraryInfo.AditionalInfo -Subgraph -SubgraphIconType 'VBR_Tape_Library' -SubgraphLabel 'Tape Libraries' -SubgraphLabelPos 'top' -SubgraphTableStyle 'dashed,rounded' -TableBorderColor $TableBorderColor -TableBorder '1' -SubgraphLabelFontSize 22 -FontSize 18 -SubgraphFontBold -TableBackgroundColor $MainGraphBGColor -CellBackgroundColor $MainGraphBGColor -FontColor $Fontcolor -SubgraphLabelFontColor $Fontcolor
+                        $TapeLibraryNode = Add-HtmlNodeTable -Name 'TapeLibraryNode' -ImagesObj $Images -inputObject $TapeLibraryInfo.Name -Align 'Center' -iconType 'VBR_Tape_Library' -ColumnSize $columnSize -IconDebug $IconDebug -MultiIcon -AditionalInfo $TapeLibraryInfo.AditionalInfo -Subgraph -SubgraphIconType 'VBR_Tape_Library' -SubgraphLabel 'Tape Libraries' -SubgraphLabelPos 'top' -SubgraphTableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -SubgraphLabelFontSize 22 -FontSize 18 -SubgraphFontBold -TableBackgroundColor $MainGraphBGColor -CellBackgroundColor $MainGraphBGColor -FontColor $Fontcolor -SubgraphLabelFontColor $Fontcolor
 
                         $TapeInfraArray += $TapeLibraryNode
                     } catch {
@@ -477,7 +532,7 @@ function Get-AbrInfraDiagram {
                         $columnSize = 5
                     }
                     try {
-                        $TapeVaultNode = Add-HtmlNodeTable -Name 'TapeVaultNode' -ImagesObj $Images -inputObject $TapeVaultInfo.Name -Align 'Center' -iconType 'VBR_Tape_Vaults' -ColumnSize $columnSize -IconDebug $IconDebug -MultiIcon -AditionalInfo $TapeVaultInfo.AditionalInfo -Subgraph -SubgraphIconType 'VBR_Tape_Vaults' -SubgraphLabel 'Tape Vaults' -SubgraphLabelPos 'top' -SubgraphTableStyle 'dashed,rounded' -TableBorderColor $TableBorderColor -TableBorder '1' -SubgraphLabelFontSize 22 -FontSize 18 -SubgraphFontBold -TableBackgroundColor $MainGraphBGColor -CellBackgroundColor $MainGraphBGColor -FontColor $Fontcolor -SubgraphLabelFontColor $Fontcolor
+                        $TapeVaultNode = Add-HtmlNodeTable -Name 'TapeVaultNode' -ImagesObj $Images -inputObject $TapeVaultInfo.Name -Align 'Center' -iconType 'VBR_Tape_Vaults' -ColumnSize $columnSize -IconDebug $IconDebug -MultiIcon -AditionalInfo $TapeVaultInfo.AditionalInfo -Subgraph -SubgraphIconType 'VBR_Tape_Vaults' -SubgraphLabel 'Tape Vaults' -SubgraphLabelPos 'top' -SubgraphTableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -SubgraphLabelFontSize 22 -FontSize 18 -SubgraphFontBold -TableBackgroundColor $MainGraphBGColor -CellBackgroundColor $MainGraphBGColor -FontColor $Fontcolor -SubgraphLabelFontColor $Fontcolor
                         $TapeInfraArray += $TapeVaultNode
                     } catch {
                         Write-PScriboMessage 'Error: Unable to create TapeVault Objects. Disabling the section'
@@ -620,7 +675,7 @@ function Get-AbrInfraDiagram {
                     $columnSize = 5
                 }
                 try {
-                    $CGServerNode = Add-HtmlNodeTable -Name 'CGServerNode' -ImagesObj $Images -inputObject $CGServerInfo.Name -Align 'Center' -iconType 'VBR_Cloud_Connect_Gateway' -ColumnSize $columnSize -IconDebug $IconDebug -MultiIcon -AditionalInfo $CGServerInfo.AditionalInfo -Subgraph -SubgraphIconType 'VBR_Service_Providers_Server' -SubgraphLabel 'Gateway Servers' -SubgraphLabelPos 'top' -SubgraphTableStyle 'dashed,rounded' -TableBorderColor $TableBorderColor -TableBorder '1' -SubgraphLabelFontSize 22 -FontSize 18 -SubgraphFontBold -TableBackgroundColor $MainGraphBGColor -CellBackgroundColor $MainGraphBGColor -FontColor $Fontcolor -SubgraphLabelFontColor $Fontcolor
+                    $CGServerNode = Add-HtmlNodeTable -Name 'CGServerNode' -ImagesObj $Images -inputObject $CGServerInfo.Name -Align 'Center' -iconType 'VBR_Cloud_Connect_Gateway' -ColumnSize $columnSize -IconDebug $IconDebug -MultiIcon -AditionalInfo $CGServerInfo.AditionalInfo -Subgraph -SubgraphIconType 'VBR_Service_Providers_Server' -SubgraphLabel 'Gateway Servers' -SubgraphLabelPos 'top' -SubgraphTableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -SubgraphLabelFontSize 22 -FontSize 18 -SubgraphFontBold -TableBackgroundColor $MainGraphBGColor -CellBackgroundColor $MainGraphBGColor -FontColor $Fontcolor -SubgraphLabelFontColor $Fontcolor
 
                     $CloudConnectInfraArray += $CGServerNode
                 } catch {
@@ -636,7 +691,7 @@ function Get-AbrInfraDiagram {
                         $columnSize = 5
                     }
                     try {
-                        $CCBSNode = Add-HtmlNodeTable -Name 'CCBSNode' -ImagesObj $Images -inputObject $CCBSInfo.Name -Align 'Center' -iconType $CCBSInfo.IconType -ColumnSize $columnSize -IconDebug $IconDebug -MultiIcon -AditionalInfo $CCBSInfo.AditionalInfo -Subgraph -SubgraphIconType 'VBR_Repository' -SubgraphLabel 'Backup Storage' -SubgraphLabelPos 'top' -SubgraphTableStyle 'dashed,rounded' -TableBorderColor $TableBorderColor -TableBorder '1' -SubgraphLabelFontSize 22 -FontSize 18 -SubgraphFontBold -TableBackgroundColor $MainGraphBGColor -CellBackgroundColor $MainGraphBGColor -FontColor $Fontcolor -SubgraphLabelFontColor $Fontcolor
+                        $CCBSNode = Add-HtmlNodeTable -Name 'CCBSNode' -ImagesObj $Images -inputObject $CCBSInfo.Name -Align 'Center' -iconType $CCBSInfo.IconType -ColumnSize $columnSize -IconDebug $IconDebug -MultiIcon -AditionalInfo $CCBSInfo.AditionalInfo -Subgraph -SubgraphIconType 'VBR_Repository' -SubgraphLabel 'Backup Storage' -SubgraphLabelPos 'top' -SubgraphTableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -SubgraphLabelFontSize 22 -FontSize 18 -SubgraphFontBold -TableBackgroundColor $MainGraphBGColor -CellBackgroundColor $MainGraphBGColor -FontColor $Fontcolor -SubgraphLabelFontColor $Fontcolor
 
                         $CloudConnectInfraArray += $CCBSNode
                     } catch {
@@ -651,7 +706,7 @@ function Get-AbrInfraDiagram {
                         $columnSize = 5
                     }
                     try {
-                        $CCRRNode = Add-HtmlNodeTable -Name 'CCRRNode' -ImagesObj $Images -inputObject $CCRRInfo.Name -Align 'Center' -iconType 'VBR_Hardware_Resources' -ColumnSize $columnSize -IconDebug $IconDebug -MultiIcon -AditionalInfo $CCRRInfo.AditionalInfo -Subgraph -SubgraphIconType 'VBR_Hardware_Resources' -SubgraphLabel 'Replica Resources' -SubgraphLabelPos 'top' -SubgraphTableStyle 'dashed,rounded' -TableBorderColor $TableBorderColor -TableBorder '1' -SubgraphLabelFontSize 22 -FontSize 18 -SubgraphFontBold -TableBackgroundColor $MainGraphBGColor -CellBackgroundColor $MainGraphBGColor -FontColor $Fontcolor -SubgraphLabelFontColor $Fontcolor
+                        $CCRRNode = Add-HtmlNodeTable -Name 'CCRRNode' -ImagesObj $Images -inputObject $CCRRInfo.Name -Align 'Center' -iconType 'VBR_Hardware_Resources' -ColumnSize $columnSize -IconDebug $IconDebug -MultiIcon -AditionalInfo $CCRRInfo.AditionalInfo -Subgraph -SubgraphIconType 'VBR_Hardware_Resources' -SubgraphLabel 'Replica Resources' -SubgraphLabelPos 'top' -SubgraphTableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -SubgraphLabelFontSize 22 -FontSize 18 -SubgraphFontBold -TableBackgroundColor $MainGraphBGColor -CellBackgroundColor $MainGraphBGColor -FontColor $Fontcolor -SubgraphLabelFontColor $Fontcolor
 
                         $CloudConnectInfraArray += $CCRRNode
                     } catch {
@@ -668,7 +723,7 @@ function Get-AbrInfraDiagram {
                         $CCVCDRRInfocolumnSize = 5
                     }
                     try {
-                        $CCVCDRRNode = Add-HtmlNodeTable -Name 'CCVCDRRNode' -ImagesObj $Images -inputObject $CCVCDRRInfo.Name -Align 'Center' -iconType 'VBR_Cloud_Connect_vCD' -ColumnSize $CCVCDRRInfocolumnSize -IconDebug $IconDebug -MultiIcon -AditionalInfo $CCVCDRRInfo.AditionalInfo -Subgraph -SubgraphIconType 'VBR_Cloud_Connect_Server' -SubgraphLabel 'Replica Org vDCs' -SubgraphLabelPos 'top' -SubgraphTableStyle 'dashed,rounded' -TableBorderColor $TableBorderColor -TableBorder '1' -SubgraphLabelFontSize 22 -FontSize 18 -SubgraphFontBold -TableBackgroundColor $MainGraphBGColor -CellBackgroundColor $MainGraphBGColor -FontColor $Fontcolor -SubgraphLabelFontColor $Fontcolor
+                        $CCVCDRRNode = Add-HtmlNodeTable -Name 'CCVCDRRNode' -ImagesObj $Images -inputObject $CCVCDRRInfo.Name -Align 'Center' -iconType 'VBR_Cloud_Connect_vCD' -ColumnSize $CCVCDRRInfocolumnSize -IconDebug $IconDebug -MultiIcon -AditionalInfo $CCVCDRRInfo.AditionalInfo -Subgraph -SubgraphIconType 'VBR_Cloud_Connect_Server' -SubgraphLabel 'Replica Org vDCs' -SubgraphLabelPos 'top' -SubgraphTableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -SubgraphLabelFontSize 22 -FontSize 18 -SubgraphFontBold -TableBackgroundColor $MainGraphBGColor -CellBackgroundColor $MainGraphBGColor -FontColor $Fontcolor -SubgraphLabelFontColor $Fontcolor
 
                         $CloudConnectInfraArray += $CCVCDRRNode
                     } catch {
@@ -789,6 +844,10 @@ function Get-AbrInfraDiagram {
 
             # Connect Veeam Backup server to the Dummy line
             Edge -From BackupServers -To VBRServerPointSpace @{minlen = 2; arrowtail = 'dot'; arrowhead = 'none'; style = 'dashed' }
+
+            if ($HAClusterInfo) {
+                Edge -From VBRServerPointSpace -To HAClusterServers @{minlen = 1; arrowtail = 'none'; arrowhead = 'dot'; style = 'dashed' }
+            }
 
             # Connect Microsoft Entra ID Node to the Dummy line
             if ($EntraIDNode) {

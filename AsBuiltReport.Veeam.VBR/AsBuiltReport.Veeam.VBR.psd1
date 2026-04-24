@@ -12,7 +12,7 @@
     RootModule = 'AsBuiltReport.Veeam.VBR.psm1'
 
     # Version number of this module.
-    ModuleVersion = '1.0.0'
+    ModuleVersion = '1.0.1'
 
     # Supported PSEditions
     CompatiblePSEditions = @('Desktop', 'Core')
@@ -59,11 +59,11 @@
         }
         @{
             ModuleName = 'AsBuiltReport.Chart';
-            ModuleVersion = '0.3.0'
+            ModuleVersion = '0.3.1'
         }
         @{
             ModuleName = 'AsBuiltReport.Diagram';
-            ModuleVersion = '1.0.5'
+            ModuleVersion = '1.0.6'
         }
     )
 
@@ -83,7 +83,7 @@
     # NestedModules = @()
 
     # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
-    FunctionsToExport = @('Invoke-AsBuiltReport.Veeam.VBR', 'Start-AsBuiltReportVBR')
+    FunctionsToExport = @('Invoke-AsBuiltReport.Veeam.VBR', 'Start-AsBuiltReportVBR', 'Export-AsBuiltReportVBRDiagram')
 
     # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
     #CmdletsToExport = '*'

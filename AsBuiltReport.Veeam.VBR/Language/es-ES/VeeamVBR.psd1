@@ -6,6 +6,7 @@
     BackupInfrastructure = Infraestructura de copia de seguridad
     BackupInfrastructureParagraph = Esta sección proporciona información de configuración detallada para el servidor Veeam Backup & Replication {0}, incluida la configuración de infraestructura, credenciales y componentes de infraestructura de copia de seguridad.
     BackupInfrastructureDiagram = Diagrama de infraestructura de copia de seguridad
+    HAClusterDiagram = Diagrama de clúster de alta disponibilidad
     GeneralOptions = Opciones generales
     GeneralOptionsParagraph = La siguiente sección detalla la configuración general de Veeam Backup & Replication. La configuración general se aplica a todos los trabajos, componentes de infraestructura de copia de seguridad y otros objetos gestionados por el servidor de copia de seguridad.
     TapeInfrastructure = Infraestructura de cinta
@@ -1951,6 +1952,16 @@
         DisplayName = Nombre para mostrar
         ShortName = Nombre corto
         Status = Estado
+        HAHeading = Alta Disponibilidad
+        HAClusterEndpoint = Endpoint del clúster
+        HAClusterDnsName = Nombre DNS del clúster
+        HAIsHealthyCluster = Clúster saludable
+        HAIsFailoverInProgress = Conmutación por error en curso
+        HAIsAnyActivityInProgress = Actividad en curso
+        HANodesHeading = Nodos del clúster
+        HAHostname = Nombre de host
+        HARole = Rol
+        CollectingHA = Recopilando información de alta disponibilidad de Veeam VBR.
         KBArticle = Artículo KB
         healthCheck = Verificación de salud:
         bestPractice = Mejor práctica:

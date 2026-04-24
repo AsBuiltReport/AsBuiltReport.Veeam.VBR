@@ -5,7 +5,7 @@ function Get-AbrBackupServerInformation {
     .DESCRIPTION
         Build a diagram of the configuration of Veeam VBR in PDF/PNG/SVG formats using Psgraph.
     .NOTES
-        Version:        1.0.0
+        Version:        1.0.1
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -84,6 +84,8 @@ function Get-AbrBackupServerInformation {
                 $Roles = if ($VeeamDBInfo -eq $VBRServer) { 'Backup and Database' } else { 'Backup Server' }
                 $DBType = $VeeamInfo.DBFlavor.SqlActiveConfiguration
 
+                $HACluster = try { Get-VBRHighAvailabilityCluster -WarningAction SilentlyContinue } catch { Out-Null }
+
                 $Rows = [ordered] @{
                     IP = Get-AbrNodeIP -Hostname $VBRServer
                     Role = $Roles
@@ -101,12 +103,24 @@ function Get-AbrBackupServerInformation {
                     $Rows.add('Database Type', $DBType)
                 }
 
+                if (($Null -ne $HACluster) -and (-not ($ClientOSVersion -eq 'Win32NT'))) {
+                    switch ($HACluster.IsHealthyCluster) {
+                        $true { $ClusterStatus = 'Healthy' }
+                        $false { $ClusterStatus = 'Unhealthy' }
+                        default { $ClusterStatus = 'Unknown' }
+                    }
+                    $Rows.add('HA Mode', 'Cluster')
+                    $Rows.add('Cluster Status', $ClusterStatus)
+                } elseif (($Null -eq $HACluster) -and (-not ($ClientOSVersion -eq 'Win32NT'))) {
+                    $Rows.add('HA Mode', 'Non-HA')
+                }
+
                 $Rows = [PSCustomObject]$Rows
 
                 $script:BackupServerInfo = [PSCustomObject]@{
                     Name = $VBRServer.split('.')[0]
                     Label = Add-NodeIcon -Name "$($VBRServer.split('.')[0])" -IconType 'VBR_Server' -Align 'Center' -RowsOrdered $Rows -ImagesObj $Images -IconDebug $IconDebug -FontSize 18 -FontBold -TableBackgroundColor $BackupServerBGColor -CellBackgroundColor $BackupServerBGColor -FontColor $Fontcolor
-                    Spacer = Add-NodeIcon -Name ' ' -IconType 'VBR_Bid_Arrow' -Align 'Center' -ImagesObj $Images -IconDebug $IconDebug -TableBackgroundColor $BackupServerBGColor -CellBackgroundColor $BackupServerBGColor  -FontColor $Fontcolor
+                    Spacer = Add-NodeIcon -Name ' ' -IconType 'VBR_Bid_Arrow' -Align 'Center' -ImagesObj $Images -IconDebug $IconDebug -TableBackgroundColor $BackupServerBGColor -CellBackgroundColor $BackupServerBGColor -FontColor $Fontcolor
                 }
             }
 

@@ -30,12 +30,14 @@
             "Tape": true,
             "ProtectedGroup": true,
             "vSphereProxy": true,
-            "WanAccelerator": true
+            "WanAccelerator": true,
+            "HACluster": true
         },
         "ExportDiagrams": true,
         "ExportDiagramsFormat": [
             "pdf"
         ],
+        "OnlyExportDiagrams": false,
         "EnableDiagramSignature": false,
         "SignatureAuthorName": "",
         "SignatureCompanyName": "",

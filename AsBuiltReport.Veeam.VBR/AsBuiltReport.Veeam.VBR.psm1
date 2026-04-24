@@ -3,8 +3,15 @@ $Public = @(Get-ChildItem -Path $PSScriptRoot\Src\Public\*.ps1 -ErrorAction Sile
 $Diagram = @(Get-ChildItem -Path $PSScriptRoot\Src\Private\Diagram\*.ps1 -ErrorAction SilentlyContinue)
 $Report = @(Get-ChildItem -Path $PSScriptRoot\Src\Private\Report\*.ps1 -ErrorAction SilentlyContinue)
 
+$ModuleFolders = @($Public + $Diagram + $Report)
 
-foreach ($Module in @($Public + $Diagram + $Report)) {
+if ($PSVersionTable.PSEdition -eq 'Core') {
+    $GUI = @(Get-ChildItem -Path $PSScriptRoot\Src\Private\Gui\*.ps1 -ErrorAction SilentlyContinue)
+    $ModuleFolders += $GUI
+}
+
+
+foreach ($Module in $ModuleFolders) {
     try {
         . $Module.FullName
     } catch {
@@ -15,3 +22,6 @@ foreach ($Module in @($Public + $Diagram + $Report)) {
 Export-ModuleMember -Function $Public.BaseName
 Export-ModuleMember -Function $Diagram.BaseName
 Export-ModuleMember -Function $Report.BaseName
+if ($PSVersionTable.PSEdition -eq 'Core') {
+    Export-ModuleMember -Function $GUI.BaseName
+}

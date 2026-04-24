@@ -21,11 +21,11 @@ function Get-AbrDiagBackupServer {
 
             $BackupServerInfoArray = @()
 
-            if (( -not $DatabaseServerInfo.Name ) -and ( -not $EMServerInfo.Name ) -and ($BackupServerInfo.Name)) {
+            if ((-not $DatabaseServerInfo.Name) -and (-not $EMServerInfo.Name) -and ($BackupServerInfo.Name)) {
                 Write-PScriboMessage 'Collecting Backup Server Information.'
 
                 $BackupServerInfoArray += $BackupServerInfo.Label
-            } elseif (($DatabaseServerInfo.Name -ne $BackupServerInfo.Name) -and ($EMServerInfo.Name -ne $BackupServerInfo.Name )) {
+            } elseif (($DatabaseServerInfo.Name -ne $BackupServerInfo.Name) -and ($EMServerInfo.Name -ne $BackupServerInfo.Name)) {
                 Write-PScriboMessage 'Collecting Backup Server, Database Server and Enterprise Manager Information.'
 
                 $BackupServerInfoArray += $EMServerInfo.Label
@@ -44,7 +44,7 @@ function Get-AbrDiagBackupServer {
 
                 $BackupServerInfoArray += $BackupServerInfo.Label
             } elseif (($EMServerInfo.Name -eq $BackupServerInfo.Name) -and ($DatabaseServerInfo.Name -ne $BackupServerInfo.Name)) {
-                Write-PScriboMessage 'Enterprise Maneger server colocated with Backup Server: Collecting Backup Server and Enterprise Manager Information.'
+                Write-PScriboMessage 'Enterprise Manager server colocated with Backup Server: Collecting Backup Server and Enterprise Manager Information.'
 
                 $BackupServerInfoArray += $BackupServerInfo.Label
                 $BackupServerInfoArray += $BackupServerInfo.Spacer
@@ -60,7 +60,6 @@ function Get-AbrDiagBackupServer {
                 $BackupServerInfoArray += $BackupServerInfo.Label
             }
 
-
             if ($BackupServerInfoArray) {
 
                 $columnSize = $BackupServerInfoArray.Count
@@ -72,7 +71,6 @@ function Get-AbrDiagBackupServer {
             } else {
                 throw 'No Backup Server Information Found.'
             }
-
         } catch {
             Write-PScriboMessage $_.Exception.Message
         }
