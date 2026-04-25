@@ -188,8 +188,18 @@ function Get-AbrVbrDiagrammer {
             # Set default theme styles
             if (-not $Options.DiagramTheme) {
                 $DiagramTheme = 'White'
+                $DiagramFontColor = 'DarkGreen'
             } else {
                 $DiagramTheme = $Options.DiagramTheme
+                if ($DiagramTheme -eq 'Black') {
+                    $DiagramFontColor = 'White'
+                } elseif ($DiagramTheme -eq 'White') {
+                    $DiagramFontColor = 'DarkGreen'
+                } elseif ($DiagramTheme -eq 'Neon') {
+                    $DiagramFontColor = 'gold'
+                } else {
+                    $DiagramFontColor = 'DarkGreen'
+                }
             }
             $DiagramTypeHash = @{
                 'Backup-Infrastructure' = 'Infrastructure'
@@ -219,7 +229,7 @@ function Get-AbrVbrDiagrammer {
                 'Target' = $System
                 'Direction' = $Direction
                 'WaterMarkText' = $Options.DiagramWaterMark
-                'WaterMarkColor' = 'DarkGreen'
+                'WaterMarkColor' = $DiagramFontColor
                 'DiagramTheme' = $DiagramTheme
                 'ColumnSize' = switch ([string]::IsNullOrEmpty($Options.DiagramColumnSize)) {
                     $true { 3 }

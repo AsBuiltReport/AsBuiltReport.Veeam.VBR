@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Update module version to `v1.0.2`
 - Update AsBuiltReport.Diagram module to `v1.0.7`
+- Update diagram theme handling and font color logic in Get-AbrVbrDiagrammer function
 
 ### :bug: Fixed
 
