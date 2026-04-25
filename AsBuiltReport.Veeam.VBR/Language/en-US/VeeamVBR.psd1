@@ -63,6 +63,7 @@
     InfoLevelJobsEntraID = Entra ID Jobs InfoLevel set at {0}.
     InfoLevelJobsNutanix = Nutanix Jobs InfoLevel set at {0}.
     InfoLevelJobsBackupCopy = Backup Copy Jobs InfoLevel set at {0}.
+    InfoLevelJobsCDP = CDP Policy Jobs InfoLevel set at {0}.
     LegendEnabled = Enabled
     LegendDisabled = Disabled
     ISEErrorMessage = You cannot run this script inside the PowerShell ISE. Please execute it from the PowerShell Command Window.
@@ -261,6 +262,78 @@
         VirtualLab = Virtual Lab
         NotApplicable = Not applicable
         NA = --
+'@
+
+    GetAbrVbrCDPPolicy = ConvertFrom-StringData @'
+        Heading = CDP Policies
+        Paragraph = The following section lists all Continuous Data Protection (CDP) policies configured in Veeam Backup & Replication, along with their current state and last result.
+        TableHeading = CDP Policies
+        Name = Name
+        PolicyState = Policy State
+        Running = Running
+        InitialSync = Initial Sync
+        Disabled = Disabled
+        Unknown = Unknown
+        LatestResult = Latest Result
+        NextRun = Next Run
+        NA = --
+'@
+
+    GetAbrVbrCDPPolicyConf = ConvertFrom-StringData @'
+        Heading = CDP Policy Configuration
+        Paragraph = The following section provides detailed configuration information for each Continuous Data Protection (CDP) policy, including protected VMs and retention settings.
+        CommonInfoSection = Common Information
+        CommonInfoTable = Common Information
+        NetworkMappingSection = Network Mapping
+        NetworkMappingTable = Network Mapping
+        ReIPRuleSection = Re-IP Rules
+        ReIPRuleTable = Re-IP Rules
+        SourceVMsSection = Protected Virtual Machines
+        SourceVMsTable = Protected Virtual Machines
+        GuestProcessingSection = Guest Processing
+        GuestProcessingTable = Guest Processing
+        RPOSection = Retention & RPO Settings
+        RPOTable = Retention & RPO Settings
+        Name = Name
+        Id = Id
+        PolicyState = Policy State
+        Running = Running
+        InitialSync = Initial Sync
+        Disabled = Disabled
+        Unknown = Unknown
+        LastResult = Latest Result
+        LastState = Last State
+        NextRun = Next Run
+        Suffix = Replica Suffix
+        CompressionLevel = Compression Level
+        Description = Description
+        SourceNetwork = Source Network
+        TargetNetwork = Target Network
+        SourceIP = Source IP
+        SourceMask = Source Mask
+        TargetIP = Target IP
+        TargetMask = Target Mask
+        TargetGateway = Gateway
+        DNS = DNS
+        VMName = VM Name
+        Location = Location
+        AppProcessingEnabled = Application Processing
+        GuestOSCredentials = Guest OS Credentials
+        GuestInteractionProxy = Guest Interaction Proxy
+        Automatic = Automatic
+        RPOFrequency = RPO Frequency
+        ShortTermRetention = Short-term Retention
+        LongTermRetentionFrequency = Long-term Retention Frequency
+        LongTermRetentionPoints = Long-term Retention Points
+        RPOWarningEnabled = RPO Warning Enabled
+        RPOWarningThreshold = RPO Warning Threshold
+        RPOErrorEnabled = RPO Error Enabled
+        RPOErrorThreshold = RPO Error Threshold
+        NA = --
+        HealthCheck = Health Check:
+        BestPractice = Best Practice:
+        DescriptionBestPracticeText = It is recommended to provide a meaningful description for each CDP policy to improve visibility and management of the backup infrastructure.
+        RPOBestPracticeText = Veeam best practices recommend enabling RPO warning and error thresholds so that breached recovery objectives are surfaced immediately in the job status.
 '@
 
     GetAbrVbrMalwareDetectionOption = ConvertFrom-StringData @'

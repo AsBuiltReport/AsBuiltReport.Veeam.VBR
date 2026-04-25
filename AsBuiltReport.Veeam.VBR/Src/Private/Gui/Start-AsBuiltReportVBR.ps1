@@ -608,7 +608,7 @@ function Start-AsBuiltReportVBR {
                     }
                     Jobs = [ordered]@{
                         Agent = $LvlJobs; Backup = $LvlJobs; BackupCopy = $LvlJobs
-                        EntraID = $LvlJobs; FileShare = $LvlJobs; Nutanix = $LvlJobs
+                        CDP = $LvlJobs; EntraID = $LvlJobs; FileShare = $LvlJobs; Nutanix = $LvlJobs
                         Surebackup = $LvlJobs; Replication = $LvlReplication; Restores = 0; Tape = $LvlTape
                     }
                 }
@@ -1223,7 +1223,7 @@ function Start-AsBuiltReportVBR {
                 }
                 Jobs = [ordered]@{
                     Agent = $LvlJobs; Backup = $LvlJobs; BackupCopy = $LvlJobs
-                    EntraID = $LvlJobs; FileShare = $LvlJobs; Nutanix = $LvlJobs
+                    CDP = $LvlJobs; EntraID = $LvlJobs; FileShare = $LvlJobs; Nutanix = $LvlJobs
                     Surebackup = $LvlJobs; Replication = $LvlReplication; Restores = 0; Tape = $LvlTape
                 }
             }
