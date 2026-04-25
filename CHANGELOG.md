@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ##### This project is community maintained and has no sponsorship from Veeam, its employees or any of its affiliates.
 
+## [1.0.2] - Unreleased
+
+### :toolbox: Added
+
+### :arrows_clockwise: Changed
+
+- Update module version to `v1.0.2`
+- Update AsBuiltReport.Diagram module to `v1.0.7`
+
+### :bug: Fixed
+
+- Fix issue with diagram signature not properly appying theme color when the signature is enabled
+
 ## [1.0.1] - 2026-04-23
 
 ### :toolbox: Added
