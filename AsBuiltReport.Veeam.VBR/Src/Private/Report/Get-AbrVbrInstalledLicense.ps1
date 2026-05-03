@@ -32,247 +32,270 @@ function Get-AbrVbrInstalledLicense {
                 Paragraph $LocalizedData.Paragraph
                 BlankLine
                 $OutObj = @()
+                try {
+                    foreach ($License in $VbrLicenses) {
+
+                        $inObj = [ordered] @{
+                            $LocalizedData.LicensedTo = $License.LicensedTo
+                            $LocalizedData.Edition = $License.Edition
+                            $LocalizedData.Type = $License.Type
+                            $LocalizedData.Status = $License.Status
+                            $LocalizedData.ExpirationDate = switch ($License.ExpirationDate) {
+                                '' { $LocalizedData.Dash; break }
+                                `$Null { $LocalizedData.Dash; break }
+                                default { $License.ExpirationDate.ToLongDateString() }
+                            }
+                            $LocalizedData.SupportId = $License.SupportId
+                            $LocalizedData.SupportExpirationDate = switch ($License.SupportExpirationDate) {
+                                '' { $LocalizedData.Dash; break }
+                                `$Null { $LocalizedData.Dash; break }
+                                default { $License.SupportExpirationDate.ToLongDateString() }
+                            }
+                            $LocalizedData.AutoUpdateEnabled = $License.AutoUpdateEnabled
+                            $LocalizedData.FreeAgentInstance = $License.FreeAgentInstanceConsumptionEnabled
+                            $LocalizedData.CloudConnect = $License.CloudConnect
+                        }
+                        $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
+                    }
+                } catch {
+                    Write-PScriboMessage -IsWarning "Installed License Information $($License.LicensedTo) Section: $($_.Exception.Message)"
+                }
+
+                if ($HealthCheck.Infrastructure.Status) {
+                    $OutObj | Where-Object { $_.$($LocalizedData.Status) -eq 'Expired' } | Set-Style -Style Critical -Property ($LocalizedData.Status)
+                    $OutObj | Where-Object { $_.$($LocalizedData.Type) -eq 'Evaluation' } | Set-Style -Style Warning -Property ($LocalizedData.Type)
+                }
+
+                $TableParams = @{
+                    Name = "$($LocalizedData.TableLicenses) - $VeeamBackupServer"
+                    List = $true
+                    ColumnWidths = 40, 60
+                }
+                if ($Report.ShowTableCaptions) {
+                    $TableParams['Caption'] = "- $($TableParams.Name)"
+                }
+                $OutObj | Table @TableParams
+                #---------------------------------------------------------------------------------------------#
+                #                                  Instance Section                                           #
+                #---------------------------------------------------------------------------------------------#
+                try {
+                    $Licenses = $VbrLicenses | Select-Object -ExpandProperty InstanceLicenseSummary
+                    if ($Licenses.LicensedInstancesNumber -gt 0) {
+                        $OutObj = @()
                         try {
-                            foreach ($License in $VbrLicenses) {
+                            foreach ($License in $Licenses) {
 
                                 $inObj = [ordered] @{
-                                    $LocalizedData.LicensedTo = $License.LicensedTo
-                                    $LocalizedData.Edition = $License.Edition
-                                    $LocalizedData.Type = $License.Type
-                                    $LocalizedData.Status = $License.Status
-                                    $LocalizedData.ExpirationDate = switch ($License.ExpirationDate) {
-                                        '' { $LocalizedData.Dash; break }
-                                        `$Null { $LocalizedData.Dash; break }
-                                        default { $License.ExpirationDate.ToLongDateString() }
-                                    }
-                                    $LocalizedData.SupportId = $License.SupportId
-                                    $LocalizedData.SupportExpirationDate = switch ($License.SupportExpirationDate) {
-                                        '' { $LocalizedData.Dash; break }
-                                        `$Null { $LocalizedData.Dash; break }
-                                        default { $License.SupportExpirationDate.ToLongDateString() }
-                                    }
-                                    $LocalizedData.AutoUpdateEnabled = $License.AutoUpdateEnabled
-                                    $LocalizedData.FreeAgentInstance = $License.FreeAgentInstanceConsumptionEnabled
-                                    $LocalizedData.CloudConnect = $License.CloudConnect
+                                    $LocalizedData.InstancesCapacity = $License.LicensedInstancesNumber
+                                    $LocalizedData.UsedInstances = $License.UsedInstancesNumber
+                                    $LocalizedData.NewInstances = $License.NewInstancesNumber
+                                    $LocalizedData.RentalInstances = $License.RentalInstancesNumber
                                 }
                                 $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                             }
                         } catch {
-                            Write-PScriboMessage -IsWarning "Installed License Information $($License.LicensedTo) Section: $($_.Exception.Message)"
-                        }
-
-                        if ($HealthCheck.Infrastructure.Status) {
-                            $OutObj | Where-Object { $_.$($LocalizedData.Status) -eq 'Expired' } | Set-Style -Style Critical -Property ($LocalizedData.Status)
-                            $OutObj | Where-Object { $_.$($LocalizedData.Type) -eq 'Evaluation' } | Set-Style -Style Warning -Property ($LocalizedData.Type)
+                            Write-PScriboMessage -IsWarning "Instance $($License.LicensedTo) Section: $($_.Exception.Message)"
                         }
 
                         $TableParams = @{
-                            Name = "$($LocalizedData.TableLicenses) - $VeeamBackupServer"
-                            List = $true
-                            ColumnWidths = 40, 60
+                            Name = "$($LocalizedData.TableInstanceUsage) - $VeeamBackupServer"
+                            List = $false
+                            ColumnWidths = 25, 25, 25, 25
                         }
                         if ($Report.ShowTableCaptions) {
                             $TableParams['Caption'] = "- $($TableParams.Name)"
                         }
-                        $OutObj | Table @TableParams
-                        #---------------------------------------------------------------------------------------------#
-                        #                                  Instance Section                                           #
-                        #---------------------------------------------------------------------------------------------#
                         try {
-                            $Licenses = $VbrLicenses | Select-Object -ExpandProperty InstanceLicenseSummary
-                            if ($Licenses.LicensedInstancesNumber -gt 0) {
-                                $OutObj = @()
+                            $sampleData = $inObj.GetEnumerator() | Select-Object @{ Name = 'Category'; Expression = { $_.key } }, @{ Name = 'Value'; Expression = { $_.value } } | Sort-Object -Property 'Category'
+
+                            $chartLabels = [string[]]$sampleData.Category
+                            $chartValues = [double[]]$sampleData.Value
+
+                            $statusCustomPalette = @('#DFF0D0', '#FFF3C4', '#FECDD1', '#ADACAF')
+
+                            $chartFileItem = New-PieChart -Title ' ' -Values $chartValues -Labels $chartLabels -EnableCustomColorPalette -CustomColorPalette $statusCustomPalette -Width 600 -Height 400 -Format base64 -EnableLegend -LegendOrientation Vertical -LegendAlignment UpperRight -TitleFontBold -TitleFontSize 16
+
+                        } catch {
+                            Write-PScriboMessage -IsWarning "Instance License Usage chart section: $($_.Exception.Message)"
+                        }
+                        if ($OutObj) {
+                            Section -Style NOTOCHeading5 -ExcludeFromTOC $LocalizedData.InstanceUsageHeading {
+                                if ($chartFileItem -and ($inObj.Values | Measure-Object -Sum).Sum -ne 0) {
+                                    Image -Text $LocalizedData.ChartAltInstanceUsage -Align 'Center' -Percent 100 -Base64 $chartFileItem
+                                }
+                                BlankLine
+                                $OutObj | Table @TableParams
+                                #---------------------------------------------------------------------------------------------#
+                                #                                  Per Instance Section                                       #
+                                #---------------------------------------------------------------------------------------------#
                                 try {
-                                    foreach ($License in $Licenses) {
+                                    $Licenses = ($VbrLicenses | Select-Object -ExpandProperty InstanceLicenseSummary).Object
+                                    if ($Licenses) {
+                                        Section -Style NOTOCHeading5 -ExcludeFromTOC $LocalizedData.PerInstanceHeading {
+                                            $OutObj = @()
+                                            try {
+                                                foreach ($License in $Licenses) {
 
-                                        $inObj = [ordered] @{
-                                            $LocalizedData.InstancesCapacity = $License.LicensedInstancesNumber
-                                            $LocalizedData.UsedInstances = $License.UsedInstancesNumber
-                                            $LocalizedData.NewInstances = $License.NewInstancesNumber
-                                            $LocalizedData.RentalInstances = $License.RentalInstancesNumber
-                                        }
-                                        $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
-                                    }
-                                } catch {
-                                    Write-PScriboMessage -IsWarning "Instance $($License.LicensedTo) Section: $($_.Exception.Message)"
-                                }
-
-                                $TableParams = @{
-                                    Name = "$($LocalizedData.TableInstanceUsage) - $VeeamBackupServer"
-                                    List = $false
-                                    ColumnWidths = 25, 25, 25, 25
-                                }
-                                if ($Report.ShowTableCaptions) {
-                                    $TableParams['Caption'] = "- $($TableParams.Name)"
-                                }
-                                try {
-                                    $sampleData = $inObj.GetEnumerator() | Select-Object @{ Name = 'Category'; Expression = { $_.key } }, @{ Name = 'Value'; Expression = { $_.value } } | Sort-Object -Property 'Category'
-
-                                    $chartLabels = [string[]]$sampleData.Category
-                                    $chartValues = [double[]]$sampleData.Value
-
-                                    $statusCustomPalette = @('#DFF0D0', '#FFF3C4', '#FECDD1', '#ADACAF')
-
-                                    $chartFileItem = New-PieChart -Title ' ' -Values $chartValues -Labels $chartLabels -EnableCustomColorPalette -CustomColorPalette $statusCustomPalette -Width 600 -Height 400 -Format base64 -EnableLegend -LegendOrientation Vertical -LegendAlignment UpperRight -TitleFontBold -TitleFontSize 16
-
-                                } catch {
-                                    Write-PScriboMessage -IsWarning "Instance License Usage chart section: $($_.Exception.Message)"
-                                }
-                                if ($OutObj) {
-                                    Section -Style NOTOCHeading5 -ExcludeFromTOC $LocalizedData.InstanceUsageHeading {
-                                        if ($chartFileItem -and ($inObj.Values | Measure-Object -Sum).Sum -ne 0) {
-                                            Image -Text $LocalizedData.ChartAltInstanceUsage -Align 'Center' -Percent 100 -Base64 $chartFileItem
-                                        }
-                                        BlankLine
-                                        $OutObj | Table @TableParams
-                                        #---------------------------------------------------------------------------------------------#
-                                        #                                  Per Instance Section                                       #
-                                        #---------------------------------------------------------------------------------------------#
-                                        try {
-                                            $Licenses = ($VbrLicenses | Select-Object -ExpandProperty InstanceLicenseSummary).Object
-                                            if ($Licenses) {
-                                                Section -Style NOTOCHeading5 -ExcludeFromTOC $LocalizedData.PerInstanceHeading {
-                                                    $OutObj = @()
-                                                    try {
-                                                        foreach ($License in $Licenses) {
-
-                                                            $inObj = [ordered] @{
-                                                                $LocalizedData.Type = $License.Type
-                                                                $LocalizedData.Count = $License.Count
-                                                                $LocalizedData.Multiplier = $License.Multiplier
-                                                                $LocalizedData.UsedInstances = $License.UsedInstancesNumber
-                                                            }
-                                                            $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
-                                                        }
-                                                    } catch {
-                                                        Write-PScriboMessage -IsWarning "Per Instance Type $($License.LicensedTo) Section: $($_.Exception.Message)"
+                                                    $inObj = [ordered] @{
+                                                        $LocalizedData.Type = $License.Type
+                                                        $LocalizedData.Count = $License.Count
+                                                        $LocalizedData.Multiplier = $License.Multiplier
+                                                        $LocalizedData.UsedInstances = $License.UsedInstancesNumber
                                                     }
-
-                                                    $TableParams = @{
-                                                        Name = "$($LocalizedData.TablePerInstance) - $VeeamBackupServer"
-                                                        List = $false
-                                                        ColumnWidths = 25, 25, 25, 25
-                                                    }
-                                                    if ($Report.ShowTableCaptions) {
-                                                        $TableParams['Caption'] = "- $($TableParams.Name)"
-                                                    }
-                                                    $OutObj | Table @TableParams
+                                                    $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                                                 }
+                                            } catch {
+                                                Write-PScriboMessage -IsWarning "Per Instance Type $($License.LicensedTo) Section: $($_.Exception.Message)"
                                             }
-                                        } catch {
-                                            Write-PScriboMessage -IsWarning "Instance License Usage Section: $($_.Exception.Message)"
+
+                                            $TableParams = @{
+                                                Name = "$($LocalizedData.TablePerInstance) - $VeeamBackupServer"
+                                                List = $false
+                                                ColumnWidths = 25, 25, 25, 25
+                                            }
+                                            if ($Report.ShowTableCaptions) {
+                                                $TableParams['Caption'] = "- $($TableParams.Name)"
+                                            }
+                                            try {
+                                                $sampleData = $OutObj
+
+                                                $chartLabels = [string[]]$sampleData.$($LocalizedData.Type)
+                                                if ($chartLabels) {
+                                                    $chartLabels += 'Total'
+                                                }
+                                                $chartValues = [double[]]$sampleData.$($LocalizedData.UsedInstances)
+                                                if ($chartValues) {
+                                                    $chartValues += $VbrLicenses.InstanceLicenseSummary.LicensedInstancesNumber - ($chartValues | Measure-Object -Sum).Sum
+                                                }
+
+                                                $statusCustomPalette = @('#DFF0D0', '#FFF3C4', '#FECDD1', '#ADACAF', '#C5E1A5', '#B3E5FC', '#F8BBD0', '#E1BEE7', '#D1C4E9', '#C8E6C9')
+
+                                                $chartFileItem = New-SingleStackedBarChart -Title ' ' -Values $chartValues -AreaOrientation Horizontal -Label 'Type' -EnableCustomColorPalette -CustomColorPalette $statusCustomPalette -Width 600 -Height 200 -Format base64 -EnableLegend -LegendOrientation Horizontal -LegendAlignment UpperCenter -TitleFontBold -TitleFontSize 16 -LegendCategories $chartLabels
+
+                                            } catch {
+                                                Write-PScriboMessage -IsWarning "Instance License Usage chart section: $($_.Exception.Message)"
+                                            }
+                                            if ($chartFileItem -and ($chartValues | Measure-Object -Sum).Sum -ne 0) {
+                                                Image -Text $LocalizedData.ChartAltInstanceUsage -Align 'Center' -Percent 100 -Base64 $chartFileItem
+                                            }
+                                            $OutObj | Table @TableParams
+
                                         }
                                     }
+                                } catch {
+                                    Write-PScriboMessage -IsWarning "Instance License Usage Section: $($_.Exception.Message)"
                                 }
                             }
-                        } catch {
-                            Write-PScriboMessage -IsWarning "Instance License Section: $($_.Exception.Message)"
                         }
-                        #---------------------------------------------------------------------------------------------#
-                        #                                  CPU Socket License Section                                 #
-                        #---------------------------------------------------------------------------------------------#
+                    }
+                } catch {
+                    Write-PScriboMessage -IsWarning "Instance License Section: $($_.Exception.Message)"
+                }
+                #---------------------------------------------------------------------------------------------#
+                #                                  CPU Socket License Section                                 #
+                #---------------------------------------------------------------------------------------------#
+                try {
+                    $Licenses = $VbrLicenses | Select-Object -ExpandProperty SocketLicenseSummary
+                    if ($Licenses.LicensedSocketsNumber -gt 0) {
+                        $OutObj = @()
                         try {
-                            $Licenses = $VbrLicenses | Select-Object -ExpandProperty SocketLicenseSummary
-                            if ($Licenses.LicensedSocketsNumber -gt 0) {
-                                $OutObj = @()
-                                try {
-                                    foreach ($License in $Licenses) {
+                            foreach ($License in $Licenses) {
 
-                                        $inObj = [ordered] @{
-                                            $LocalizedData.LicensedSockets = $License.LicensedSocketsNumber
-                                            $LocalizedData.UsedSocketsLicenses = $License.UsedSocketsNumber
-                                            $LocalizedData.RemainingSocketsLicenses = $License.RemainingSocketsNumber
-                                        }
-                                        $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
-                                    }
-                                } catch {
-                                    Write-PScriboMessage -IsWarning "CPU Socket License Section: $($_.Exception.Message)"
+                                $inObj = [ordered] @{
+                                    $LocalizedData.LicensedSockets = $License.LicensedSocketsNumber
+                                    $LocalizedData.UsedSocketsLicenses = $License.UsedSocketsNumber
+                                    $LocalizedData.RemainingSocketsLicenses = $License.RemainingSocketsNumber
                                 }
-
-                                $TableParams = @{
-                                    Name = "$($LocalizedData.TableCPUSocket) - $VeeamBackupServer"
-                                    List = $false
-                                    ColumnWidths = 33, 33, 34
-                                }
-                                if ($Report.ShowTableCaptions) {
-                                    $TableParams['Caption'] = "- $($TableParams.Name)"
-                                }
-                                try {
-                                    $sampleData = $inObj.GetEnumerator() | Select-Object @{ Name = 'Category'; Expression = { $_.key } }, @{ Name = 'Value'; Expression = { $_.value } } | Sort-Object -Property 'Category'
-
-                                    $chartLabels = [string[]]$sampleData.Category
-                                    $chartValues = [double[]]$sampleData.Value
-
-                                    $statusCustomPalette = @('#DFF0D0', '#FFF3C4', '#FECDD1', '#ADACAF')
-
-                                    $chartFileItem = New-PieChart -Title ' ' -Values $chartValues -Labels $chartLabels -EnableCustomColorPalette -CustomColorPalette $statusCustomPalette -Width 600 -Height 400 -Format base64 -EnableLegend -LegendOrientation Vertical -LegendAlignment UpperRight -TitleFontBold -TitleFontSize 16
-                                } catch {
-                                    Write-PScriboMessage -IsWarning "CPU Socket Usage chart section: $($_.Exception.Message)"
-                                }
-                                if ($OutObj) {
-                                    Section -Style NOTOCHeading5 -ExcludeFromTOC $LocalizedData.CPUSocketHeading {
-                                        if ($chartFileItem -and ($inObj.Values | Measure-Object -Sum).Sum -ne 0) {
-                                            Image -Text $LocalizedData.ChartAltCPUSocket -Align 'Center' -Percent 100 -Base64 $chartFileItem
-                                        }
-                                        $OutObj | Table @TableParams
-                                    }
-                                }
+                                $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                             }
                         } catch {
                             Write-PScriboMessage -IsWarning "CPU Socket License Section: $($_.Exception.Message)"
                         }
-                        #---------------------------------------------------------------------------------------------#
-                        #                                  Capacity License Section                                   #
-                        #---------------------------------------------------------------------------------------------#
+
+                        $TableParams = @{
+                            Name = "$($LocalizedData.TableCPUSocket) - $VeeamBackupServer"
+                            List = $false
+                            ColumnWidths = 33, 33, 34
+                        }
+                        if ($Report.ShowTableCaptions) {
+                            $TableParams['Caption'] = "- $($TableParams.Name)"
+                        }
                         try {
-                            $Licenses = $VbrLicenses | Select-Object -ExpandProperty CapacityLicenseSummary
-                            if ($Licenses.LicensedCapacityTb -gt 0) {
-                                $OutObj = @()
-                                try {
-                                    foreach ($License in $Licenses) {
+                            $sampleData = $inObj.GetEnumerator() | Select-Object @{ Name = 'Category'; Expression = { $_.key } }, @{ Name = 'Value'; Expression = { $_.value } } | Sort-Object -Property 'Category'
 
-                                        $inObj = [ordered] @{
-                                            $LocalizedData.LicensedCapacityTb = $License.LicensedCapacityTb
-                                            $LocalizedData.UsedCapacityTb = $License.UsedCapacityTb
-                                        }
-                                        $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
-                                    }
-                                } catch {
-                                    Write-PScriboMessage -IsWarning "Capacity License Section: $($_.Exception.Message)"
-                                }
+                            $chartLabels = [string[]]$sampleData.Category
+                            $chartValues = [double[]]$sampleData.Value
 
-                                $TableParams = @{
-                                    Name = "$($LocalizedData.TableCapacity) - $VeeamBackupServer"
-                                    List = $false
-                                    ColumnWidths = 50, 50
-                                }
-                                if ($Report.ShowTableCaptions) {
-                                    $TableParams['Caption'] = "- $($TableParams.Name)"
-                                }
-                                try {
-                                    $sampleData = $inObj.GetEnumerator() | Select-Object @{ Name = 'Category'; Expression = { $_.key } }, @{ Name = 'Value'; Expression = { $_.value } } | Sort-Object -Property 'Category'
+                            $statusCustomPalette = @('#DFF0D0', '#FFF3C4', '#FECDD1', '#ADACAF')
 
-                                    $chartLabels = [string[]]$sampleData.Category
-                                    $chartValues = [double[]]$sampleData.Value
-
-                                    $statusCustomPalette = @('#DFF0D0', '#FFF3C4', '#FECDD1', '#ADACAF')
-
-                                    $chartFileItem = New-PieChart -Title ' ' -Values $chartValues -Labels $chartLabels -EnableCustomColorPalette -CustomColorPalette $statusCustomPalette -Width 600 -Height 400 -Format base64 -EnableLegend -LegendOrientation Vertical -LegendAlignment UpperRight -TitleFontBold -TitleFontSize 16
-                                } catch {
-                                    Write-PScriboMessage -IsWarning "Capacity License Usage chart section: $($_.Exception.Message)"
+                            $chartFileItem = New-PieChart -Title ' ' -Values $chartValues -Labels $chartLabels -EnableCustomColorPalette -CustomColorPalette $statusCustomPalette -Width 600 -Height 400 -Format base64 -EnableLegend -LegendOrientation Vertical -LegendAlignment UpperRight -TitleFontBold -TitleFontSize 16
+                        } catch {
+                            Write-PScriboMessage -IsWarning "CPU Socket Usage chart section: $($_.Exception.Message)"
+                        }
+                        if ($OutObj) {
+                            Section -Style NOTOCHeading5 -ExcludeFromTOC $LocalizedData.CPUSocketHeading {
+                                if ($chartFileItem -and ($inObj.Values | Measure-Object -Sum).Sum -ne 0) {
+                                    Image -Text $LocalizedData.ChartAltCPUSocket -Align 'Center' -Percent 100 -Base64 $chartFileItem
                                 }
-                                if ($OutObj) {
-                                    Section -Style NOTOCHeading5 -ExcludeFromTOC $LocalizedData.CapacityHeading {
-                                        if ($chartFileItem -and ($inObj.Values | Measure-Object -Sum).Sum -ne 0) {
-                                            Image -Text $LocalizedData.ChartAltCapacity -Align 'Center' -Percent 100 -Base64 $chartFileItem
-                                        }
-                                        $OutObj | Table @TableParams
-                                    }
+                                $OutObj | Table @TableParams
+                            }
+                        }
+                    }
+                } catch {
+                    Write-PScriboMessage -IsWarning "CPU Socket License Section: $($_.Exception.Message)"
+                }
+                #---------------------------------------------------------------------------------------------#
+                #                                  Capacity License Section                                   #
+                #---------------------------------------------------------------------------------------------#
+                try {
+                    $Licenses = $VbrLicenses | Select-Object -ExpandProperty CapacityLicenseSummary
+                    if ($Licenses.LicensedCapacityTb -gt 0) {
+                        $OutObj = @()
+                        try {
+                            foreach ($License in $Licenses) {
+
+                                $inObj = [ordered] @{
+                                    $LocalizedData.LicensedCapacityTb = $License.LicensedCapacityTb
+                                    $LocalizedData.UsedCapacityTb = $License.UsedCapacityTb
                                 }
+                                $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
                             }
                         } catch {
                             Write-PScriboMessage -IsWarning "Capacity License Section: $($_.Exception.Message)"
                         }
+
+                        $TableParams = @{
+                            Name = "$($LocalizedData.TableCapacity) - $VeeamBackupServer"
+                            List = $false
+                            ColumnWidths = 50, 50
+                        }
+                        if ($Report.ShowTableCaptions) {
+                            $TableParams['Caption'] = "- $($TableParams.Name)"
+                        }
+                        try {
+                            $sampleData = $inObj.GetEnumerator() | Select-Object @{ Name = 'Category'; Expression = { $_.key } }, @{ Name = 'Value'; Expression = { $_.value } } | Sort-Object -Property 'Category'
+
+                            $chartLabels = [string[]]$sampleData.Category
+                            $chartValues = [double[]]$sampleData.Value
+
+                            $statusCustomPalette = @('#DFF0D0', '#FFF3C4', '#FECDD1', '#ADACAF')
+
+                            $chartFileItem = New-PieChart -Title ' ' -Values $chartValues -Labels $chartLabels -EnableCustomColorPalette -CustomColorPalette $statusCustomPalette -Width 600 -Height 400 -Format base64 -EnableLegend -LegendOrientation Vertical -LegendAlignment UpperRight -TitleFontBold -TitleFontSize 16
+                        } catch {
+                            Write-PScriboMessage -IsWarning "Capacity License Usage chart section: $($_.Exception.Message)"
+                        }
+                        if ($OutObj) {
+                            Section -Style NOTOCHeading5 -ExcludeFromTOC $LocalizedData.CapacityHeading {
+                                if ($chartFileItem -and ($inObj.Values | Measure-Object -Sum).Sum -ne 0) {
+                                    Image -Text $LocalizedData.ChartAltCapacity -Align 'Center' -Percent 100 -Base64 $chartFileItem
+                                }
+                                $OutObj | Table @TableParams
+                            }
+                        }
+                    }
+                } catch {
+                    Write-PScriboMessage -IsWarning "Capacity License Section: $($_.Exception.Message)"
+                }
             }
         }
     }
