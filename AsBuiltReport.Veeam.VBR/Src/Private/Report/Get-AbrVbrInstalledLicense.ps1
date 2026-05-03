@@ -179,7 +179,6 @@ function Get-AbrVbrInstalledLicense {
                                                 Image -Text $LocalizedData.ChartAltInstanceUsage -Align 'Center' -Percent 100 -Base64 $chartFileItem
                                             }
                                             $OutObj | Table @TableParams
-
                                         }
                                     }
                                 } catch {
