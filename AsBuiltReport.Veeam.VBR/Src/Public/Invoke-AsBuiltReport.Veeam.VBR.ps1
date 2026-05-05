@@ -121,7 +121,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                             try {
                                 $Graph = Get-AbrVbrDiagrammer -DiagramType 'Backup-Infrastructure' -DiagramOutput base64
                             } catch {
-                                Write-PScriboMessage -IsWarning "Backup Infrastructure Diagram: $($_.Exception.Message)"
+                                Write-PScriboMessage -IsWarning "Backup Infrastructure Diagram generation: $($_.Exception.Message)"
                             }
                             if ($Graph) {
                                 $BestAspectRatio = Get-BestImageAspectRatio -GraphObj $Graph -MaxWidth 600 -MaxHeight 600
@@ -240,7 +240,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                                 try {
                                     $Graph = Get-AbrVbrDiagrammer -DiagramType 'Backup-to-Tape' -DiagramOutput base64
                                 } catch {
-                                    Write-PScriboMessage -IsWarning "Tape Infrastructure Diagram: $($_.Exception.Message)"
+                                    Write-PScriboMessage -IsWarning "Tape Infrastructure Diagram generation: $($_.Exception.Message)"
                                 }
                                 if ($Graph) {
                                     $BestAspectRatio = Get-BestImageAspectRatio -GraphObj $Graph -MaxWidth 600 -MaxHeight 600
@@ -285,7 +285,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                                     try {
                                         $Graph = Get-AbrVbrDiagrammer -DiagramType 'Backup-to-ProtectedGroup' -DiagramOutput base64
                                     } catch {
-                                        Write-PScriboMessage -IsWarning "Physical Infrastructure Diagram: $($_.Exception.Message)"
+                                        Write-PScriboMessage -IsWarning "Physical Infrastructure Diagram generation: $($_.Exception.Message)"
                                     }
                                     if ($Graph) {
                                         $BestAspectRatio = Get-BestImageAspectRatio -GraphObj $Graph -MaxWidth 600 -MaxHeight 600
@@ -369,7 +369,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                                     try {
                                         $Graph = Get-AbrVbrDiagrammer -DiagramType 'Backup-to-CloudConnect' -DiagramOutput base64
                                     } catch {
-                                        Write-PScriboMessage -IsWarning "Cloud Connect Infrastructure Diagram: $($_.Exception.Message)"
+                                        Write-PScriboMessage -IsWarning "Cloud Connect Infrastructure Diagram generation: $($_.Exception.Message)"
                                     }
                                     if ($Graph) {
                                         $BestAspectRatio = Get-BestImageAspectRatio -GraphObj $Graph -MaxWidth 600 -MaxHeight 600

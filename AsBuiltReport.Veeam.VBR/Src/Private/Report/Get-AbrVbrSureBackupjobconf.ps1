@@ -166,7 +166,7 @@ function Get-AbrVbrSureBackupjobconf {
                                                 $TableParams['Caption'] = "- $($TableParams.Name)"
                                             }
                                             $OutObj | Table @TableParams
-                                            if (($InfoLevel.Jobs.Surebackup -ge 2) -and $SBkjob.LinkToJobs) {
+                                            if (($InfoLevel.Jobs.SureBackup -ge 2) -and $SBkjob.LinkToJobs) {
                                                 try {
                                                     Section -Style NOTOCHeading6 -ExcludeFromTOC $LocalizedData.VerificationOptionsSection {
                                                         $OutObj = @()
