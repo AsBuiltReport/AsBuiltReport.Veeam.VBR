@@ -113,6 +113,8 @@ function Get-AbrVbrIOControlSetting {
             Write-PScriboMessage -IsWarning "Storage Latency Control Section: $($_.Exception.Message)"
         }
     }
-    end {}
+    end {
+        Show-AbrDebugExecutionTime -End -TitleMessage 'Storage latency control settings'
+    }
 
 }

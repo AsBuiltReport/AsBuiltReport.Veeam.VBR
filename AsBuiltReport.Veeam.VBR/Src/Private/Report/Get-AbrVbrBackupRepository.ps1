@@ -167,13 +167,13 @@ function Get-AbrVbrBackupRepository {
                                                 }
 
                                                 if ($BackupRepo.Type -in @('GoogleCloudStorage')) {
-                                                    $inObj.Add($LocalizedData.RegionId, ($BackupRepos.GoogleCloudOptions.RegionId))
-                                                    $inObj.Add($LocalizedData.RegionType, ($BackupRepos.GoogleCloudOptions.RegionType))
-                                                    $inObj.Add($LocalizedData.BucketName, ($BackupRepos.GoogleCloudOptions.BucketName))
-                                                    $inObj.Add($LocalizedData.FolderName, ($BackupRepos.GoogleCloudOptions.FolderName))
-                                                    $inObj.Add($LocalizedData.StorageClass, ($BackupRepos.GoogleCloudOptions.StorageClass))
-                                                    $inObj.Add($LocalizedData.EnableNearlineStorageClass, ($BackupRepos.GoogleCloudOptions.EnableNearlineStorageClass))
-                                                    $inObj.Add($LocalizedData.EnableColdlineStorageClass, ($BackupRepos.GoogleCloudOptions.EnableColdlineStorageClass))
+                                                    $inObj.Add($LocalizedData.RegionId, ($BackupRepo.GoogleCloudOptions.RegionId))
+                                                    $inObj.Add($LocalizedData.RegionType, ($BackupRepo.GoogleCloudOptions.RegionType))
+                                                    $inObj.Add($LocalizedData.BucketName, ($BackupRepo.GoogleCloudOptions.BucketName))
+                                                    $inObj.Add($LocalizedData.FolderName, ($BackupRepo.GoogleCloudOptions.FolderName))
+                                                    $inObj.Add($LocalizedData.StorageClass, ($BackupRepo.GoogleCloudOptions.StorageClass))
+                                                    $inObj.Add($LocalizedData.EnableNearlineStorageClass, ($BackupRepo.GoogleCloudOptions.EnableNearlineStorageClass))
+                                                    $inObj.Add($LocalizedData.EnableColdlineStorageClass, ($BackupRepo.GoogleCloudOptions.EnableColdlineStorageClass))
                                                     $inObj.Remove($LocalizedData.Path)
                                                 }
 

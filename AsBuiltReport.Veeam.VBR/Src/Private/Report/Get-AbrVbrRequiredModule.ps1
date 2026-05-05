@@ -80,7 +80,7 @@ function Get-AbrVbrRequiredModule {
         Write-PScriboMessage 'Identifying Veeam Powershell module version.'
         if ($Module = Get-Module -ListAvailable -Name Veeam.Backup.PowerShell) {
             try {
-                $script:VbrVersion = $Module.Version.ToString()
+                $script:VbrVersion = $Module.Version
                 Write-PScriboMessage "Using Veeam Powershell module version $($VbrVersion)."
             } catch {
                 Write-PScriboMessage -IsWarning 'Failed to get Version from Module'

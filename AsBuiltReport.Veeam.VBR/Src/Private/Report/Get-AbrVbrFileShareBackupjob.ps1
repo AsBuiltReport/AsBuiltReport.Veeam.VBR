@@ -28,7 +28,7 @@ function Get-AbrVbrFileShareBackupjob {
     process {
         try {
             if ($FSBkjobs = Get-VBRJob -WarningAction SilentlyContinue | Where-Object { $_.TypeToString -like 'File Backup' -or $_.TypeToString -like 'Object Storage Backup' }) {
-                if ($VbrVersion -lt 12.1) {
+                if ($VbrVersion -lt [version]'12.1') {
                     $BSName = $reportTranslate.GetAbrVbrFileShareBackupjob.FileShareBackupJobs
                 } else {
                     $BSName = $reportTranslate.GetAbrVbrFileShareBackupjob.UnstructuredDataBackupJobs

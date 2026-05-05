@@ -136,7 +136,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                     }
                     if ($InfoLevel.Infrastructure.BackupServer -ge 1) {
                         Get-AbrVbrInfrastructureSummary
-                        if ($VbrVersion -ge 12) {
+                        if ($VbrVersion.Major -ge 12) {
                             Get-AbrVbrSecurityCompliance
                         }
                         Get-AbrVbrBackupServerInfo
@@ -153,17 +153,17 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                             BlankLine
                             Get-AbrVbrConfigurationBackupSetting
                             Get-AbrVbrEmailNotificationSetting
-                            if ($VbrVersion -ge 12.1) {
+                            if ($VbrVersion -ge [version]'12.1') {
                                 Get-AbrVbrEventForwarding
                             }
                             Get-AbrVbrGlobalNotificationSetting
                             Get-AbrVbrHistorySetting
                             Get-AbrVbrIOControlSetting
                             Get-AbrVbrBackupServerCertificate
-                            if ($VbrVersion -ge 12) {
+                            if ($VbrVersion.Major -ge 12) {
                                 Get-AbrVbrNetworkTrafficRule
                             }
-                            if ($VbrVersion -ge 12.1) {
+                            if ($VbrVersion -ge [version]'12.1') {
                                 Get-AbrVbrMalwareDetectionOption
                                 Get-AbrVbrGlobalExclusion
                             }
@@ -172,7 +172,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
 
                     Get-AbrVbrUserRoleAssignment
                     Get-AbrVbrCredential
-                    if ($VbrVersion -ge 12.1) {
+                    if ($VbrVersion -ge [version]'12.1') {
                         Get-AbrVbrKMSInfo
                     }
                     Get-AbrVbrLocation
@@ -302,14 +302,14 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                         }
                         Write-PScriboMessage ($reportTranslate.InvokeAsBuiltReportVeeamVBR.InfoLevelInventoryFileShare -f $InfoLevel.Inventory.FileShare)
                         if ($InfoLevel.Inventory.FileShare -ge 1) {
-                            if ($VbrVersion -lt 12.1) {
+                            if ($VbrVersion -lt [version]'12.1') {
                                 Get-AbrVbrFileSharesInfo
                             } else {
                                 Get-AbrVbrUnstructuredDataInfo
                             }
                         }
                         Write-PScriboMessage ($reportTranslate.InvokeAsBuiltReportVeeamVBR.InfoLevelInventoryEntraID -f $InfoLevel.Inventory.EntraID)
-                        if (($InfoLevel.Inventory.EntraID -ge 1) -and ($VbrVersion -ge 12.3)) {
+                        if (($InfoLevel.Inventory.EntraID -ge 1) -and ($VbrVersion -ge [version]'12.3')) {
                             Get-AbrVbrEntraIDTenant
                         }
                     }
@@ -459,17 +459,17 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                             Get-AbrVbrFileShareBackupjobConf
                         }
                         Write-PScriboMessage ($reportTranslate.InvokeAsBuiltReportVeeamVBR.InfoLevelJobsEntraID -f $InfoLevel.Jobs.EntraID)
-                        if ($InfoLevel.Jobs.EntraID -ge 1 -and ($VbrVersion -ge 12.3)) {
+                        if ($InfoLevel.Jobs.EntraID -ge 1 -and ($VbrVersion -ge [version]'12.3')) {
                             Get-AbrVbrEntraIDBackupjob
                             Get-AbrVbrEntraIDBackupjobConf
                         }
                         Write-PScriboMessage ($reportTranslate.InvokeAsBuiltReportVeeamVBR.InfoLevelJobsNutanix -f $InfoLevel.Jobs.Nutanix)
-                        if ($InfoLevel.Jobs.Nutanix -ge 1 -and ($VbrVersion -ge 12)) {
+                        if ($InfoLevel.Jobs.Nutanix -ge 1 -and ($VbrVersion.Major -ge 12)) {
                             Get-AbrVbrBackupjobNutanix
                             Get-AbrVbrBackupjobNutanixConf
                         }
                         Write-PScriboMessage ($reportTranslate.InvokeAsBuiltReportVeeamVBR.InfoLevelJobsBackupCopy -f $InfoLevel.Jobs.BackupCopy)
-                        if ($InfoLevel.Jobs.BackupCopy -ge 1 -and ($VbrVersion -ge 12)) {
+                        if ($InfoLevel.Jobs.BackupCopy -ge 1 -and ($VbrVersion.Major -ge 12)) {
                             Get-AbrVbrBackupCopyjob
                             Get-AbrVbrBackupCopyjobConf
                         }

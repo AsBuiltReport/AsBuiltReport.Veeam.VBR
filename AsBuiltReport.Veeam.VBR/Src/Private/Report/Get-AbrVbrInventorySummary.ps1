@@ -39,7 +39,7 @@ function Get-AbrVbrInventorySummary {
                 } catch {
                     Write-PScriboMessage -IsWarning "Physical Infrastructure Inventory Summary Cmdlet: $($_.Exception.Message)"
                 }
-                if ($VbrVersion -lt 12.1) {
+                if ($VbrVersion -lt [version]'12.1') {
                     $Shares = Get-VBRNASServer -WarningAction SilentlyContinue
                 } else {
                     $FileServers = Get-VBRUnstructuredServer | Where-Object { $_.Type -eq 'FileServer' }
@@ -55,7 +55,7 @@ function Get-AbrVbrInventorySummary {
                     $LocalizedData.ProtectionGroups = ($ProtectionGroups | Measure-Object).Count
                 }
 
-                if ($VbrVersion -lt 12.1) {
+                if ($VbrVersion -lt [version]'12.1') {
                     $inObj.add($LocalizedData.FileShares, ($Shares | Measure-Object).Count)
                 } else {
                     $inObj.add($LocalizedData.FileServer, ($FileServers | Measure-Object).Count)
