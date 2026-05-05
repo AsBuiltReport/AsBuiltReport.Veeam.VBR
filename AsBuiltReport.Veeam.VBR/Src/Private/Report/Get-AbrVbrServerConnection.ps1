@@ -22,7 +22,7 @@ function Get-AbrVbrServerConnection {
     begin {
         Write-PScriboMessage "Establishing initial connection to Backup Server: $($System)."
         switch ($VbrVersion) {
-            { $_ -ge 13 } {
+            { $_.Major -ge 13 } {
                 $Port = 443
             }
             default {
@@ -41,7 +41,7 @@ function Get-AbrVbrServerConnection {
             Write-PScriboMessage 'No existing veeam server connection found'
             try {
                 Write-PScriboMessage "Connecting to $($System) with $($Credential.USERNAME) credentials"
-                if ($VbrVersion -ge 13) {
+                if ($VbrVersion.Major -ge 13) {
                     Connect-VBRServer -Server $System -User $Credential.UserName -Password (ConvertFrom-SecureString -SecureString $Credential.Password -AsPlainText) -Port $Port -ForceAcceptTlsCertificate
                 } else {
                     Connect-VBRServer -Server $System -Credential $Credential -Port $Port
@@ -55,7 +55,7 @@ function Get-AbrVbrServerConnection {
             Disconnect-VBRServer
             try {
                 Write-PScriboMessage "Trying to open a new connection to $($System)"
-                if ($VbrVersion -ge 13) {
+                if ($VbrVersion.Major -ge 13) {
                     Connect-VBRServer -Server $System -Credential $Credential -Port $Port -ForceAcceptTlsCertificate
                 } else {
                     Connect-VBRServer -Server $System -Credential $Credential -Port $Port

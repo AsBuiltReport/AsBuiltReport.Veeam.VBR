@@ -91,10 +91,10 @@ function Get-AbrVbrInfrastructureSummary {
 
         } catch {
             Write-PScriboMessage -IsWarning "Infrastructure Summary Section: $($_.Exception.Message)"
-            Show-AbrDebugExecutionTime -End -TitleMessage 'Infrastructure Summary'
-
         }
     }
-    end {}
+    end {
+        Show-AbrDebugExecutionTime -End -TitleMessage 'Infrastructure Summary'
+    }
 
 }

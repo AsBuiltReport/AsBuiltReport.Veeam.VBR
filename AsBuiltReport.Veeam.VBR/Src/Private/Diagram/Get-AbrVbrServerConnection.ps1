@@ -44,7 +44,7 @@ function Get-AbrServerConnection {
         Write-PScriboMessage 'Establishing initial connection to Backup Server.'
 
         $Port = switch ($VbrVersion) {
-            { $_ -ge 13 } { 443 }
+            { $_.Major -ge 13 } { 443 }
             default { $Port }
         }
     }
@@ -64,7 +64,7 @@ function Get-AbrServerConnection {
             Write-PScriboMessage "Connecting to $System with provided credentials."
             try {
                 switch ($VbrVersion) {
-                    { $_ -ge 13 } {
+                    { $_.Major -ge 13 } {
                         Connect-VBRServer -Server $System -User $Credential.UserName -Password (ConvertFrom-SecureString -SecureString $Credential.Password -AsPlainText) -Port $Port -ForceAcceptTlsCertificate
                     }
                     default {

@@ -358,20 +358,18 @@ function Get-AbrVbrBackupProxy {
                                                                     }
                                                                 }
                                                             }
-                                                            if ($PssSession) {
-                                                                # Remove used PSSession
-                                                                Write-PScriboMessage "Clearing PowerShell Session $($PssSession.Id)"
-                                                                Remove-PSSession -Session $PssSession
-                                                            }
-
-                                                            if ($CimSession) {
-                                                                # Remove used CIMSession
-                                                                Write-PScriboMessage "Clearing CIM Session $($CimSession.Id)"
-                                                                Remove-CimSession -CimSession $CimSession
-                                                            }
                                                         }
                                                     } catch {
                                                         Write-PScriboMessage -IsWarning "VMware Backup Proxies Section: $($_.Exception.Message)"
+                                                    } finally {
+                                                        if ($PssSession) {
+                                                            Write-PScriboMessage "Clearing PowerShell Session $($PssSession.Id)"
+                                                            Remove-PSSession -Session $PssSession
+                                                        }
+                                                        if ($CimSession) {
+                                                            Write-PScriboMessage "Clearing CIM Session $($CimSession.Id)"
+                                                            Remove-CimSession -CimSession $CimSession
+                                                        }
                                                     }
                                                 } else {
                                                     Write-PScriboMessage -IsWarning "VMware Backup Proxies Section: Unable to connect to $($BackupProxies.Host.Name) throuth WinRM, removing server from Hardware Inventory section"
@@ -816,20 +814,18 @@ function Get-AbrVbrBackupProxy {
                                                                         }
                                                                     }
                                                                 }
-                                                                if ($PssSession) {
-                                                                    # Remove used PSSession
-                                                                    Write-PScriboMessage "Clearing PowerShell Session $($PssSession.Id)"
-                                                                    Remove-PSSession -Session $PssSession
-                                                                }
-
-                                                                if ($CimSession) {
-                                                                    # Remove used CIMSession
-                                                                    Write-PScriboMessage "Clearing CIM Session $($CimSession.Id)"
-                                                                    Remove-CimSession -CimSession $CimSession
-                                                                }
                                                             }
                                                         } catch {
                                                             Write-PScriboMessage -IsWarning "Hyper-V Backup Proxies Hardware & Software Inventory Section: $($_.Exception.Message)"
+                                                        } finally {
+                                                            if ($PssSession) {
+                                                                Write-PScriboMessage "Clearing PowerShell Session $($PssSession.Id)"
+                                                                Remove-PSSession -Session $PssSession
+                                                            }
+                                                            if ($CimSession) {
+                                                                Write-PScriboMessage "Clearing CIM Session $($CimSession.Id)"
+                                                                Remove-CimSession -CimSession $CimSession
+                                                            }
                                                         }
                                                     } else {
                                                         Write-PScriboMessage -IsWarning "Hyper-V Backup Proxies Section: Unable to connect to $($BackupProxies.Host.Name) throuth WinRM, removing server from Hardware Inventory section"
