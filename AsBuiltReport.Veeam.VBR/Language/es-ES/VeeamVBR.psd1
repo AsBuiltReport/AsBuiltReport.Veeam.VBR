@@ -63,6 +63,7 @@
     InfoLevelJobsEntraID = Nivel de información de trabajos de Entra ID establecido en {0}.
     InfoLevelJobsNutanix = Nivel de información de trabajos de Nutanix establecido en {0}.
     InfoLevelJobsBackupCopy = Nivel de información de trabajos de copia de seguridad establecido en {0}.
+    InfoLevelJobsCDP = Nivel de información de trabajos de política CDP establecido en {0}.
     LegendEnabled = Habilitado
     LegendDisabled = Deshabilitado
     ISEErrorMessage = No puede ejecutar este script dentro de PowerShell ISE. Por favor ejecútelo desde la ventana de comandos de PowerShell.
@@ -261,6 +262,78 @@
         VirtualLab = Laboratorio virtual
         NotApplicable = No aplicable
         NA = --
+'@
+
+    GetAbrVbrCDPPolicy = ConvertFrom-StringData @'
+        Heading = Políticas CDP
+        Paragraph = La siguiente sección enumera todas las políticas de Protección Continua de Datos (CDP) configuradas en Veeam Backup & Replication, junto con su estado actual y resultado más reciente.
+        TableHeading = Políticas CDP
+        Name = Nombre
+        PolicyState = Estado de política
+        Running = En ejecución
+        InitialSync = Sincronización inicial
+        Disabled = Deshabilitado
+        Unknown = Desconocido
+        LatestResult = Resultado más reciente
+        NextRun = Próxima ejecución
+        NA = --
+'@
+
+    GetAbrVbrCDPPolicyConf = ConvertFrom-StringData @'
+        Heading = Configuración de Políticas CDP
+        Paragraph = La siguiente sección proporciona información de configuración detallada para cada política de Protección Continua de Datos (CDP), incluidas las máquinas virtuales protegidas y la configuración de retención.
+        CommonInfoSection = Información común
+        CommonInfoTable = Información común
+        NetworkMappingSection = Mapeo de red
+        NetworkMappingTable = Mapeo de red
+        ReIPRuleSection = Reglas de Re-IP
+        ReIPRuleTable = Reglas de Re-IP
+        SourceVMsSection = Máquinas virtuales protegidas
+        SourceVMsTable = Máquinas virtuales protegidas
+        GuestProcessingSection = Procesamiento de invitado
+        GuestProcessingTable = Procesamiento de invitado
+        RPOSection = Configuración de retención y RPO
+        RPOTable = Configuración de retención y RPO
+        Name = Nombre
+        Id = Id
+        PolicyState = Estado de política
+        Running = En ejecución
+        InitialSync = Sincronización inicial
+        Disabled = Deshabilitado
+        Unknown = Desconocido
+        LastResult = Resultado más reciente
+        LastState = Último estado
+        NextRun = Próxima ejecución
+        Suffix = Sufijo de réplica
+        CompressionLevel = Nivel de compresión
+        Description = Descripción
+        SourceNetwork = Red de origen
+        TargetNetwork = Red de destino
+        SourceIP = IP de origen
+        SourceMask = Máscara de origen
+        TargetIP = IP de destino
+        TargetMask = Máscara de destino
+        TargetGateway = Puerta de enlace
+        DNS = DNS
+        VMName = Nombre de VM
+        Location = Ubicación
+        AppProcessingEnabled = Procesamiento de aplicación
+        GuestOSCredentials = Credenciales del SO invitado
+        GuestInteractionProxy = Proxy de interacción con invitado
+        Automatic = Automático
+        RPOFrequency = Frecuencia de RPO
+        ShortTermRetention = Retención a corto plazo
+        LongTermRetentionFrequency = Frecuencia de retención a largo plazo
+        LongTermRetentionPoints = Puntos de retención a largo plazo
+        RPOWarningEnabled = Advertencia de RPO habilitada
+        RPOWarningThreshold = Umbral de advertencia de RPO
+        RPOErrorEnabled = Error de RPO habilitado
+        RPOErrorThreshold = Umbral de error de RPO
+        NA = --
+        HealthCheck = Verificación de estado:
+        BestPractice = Mejor práctica:
+        DescriptionBestPracticeText = Se recomienda proporcionar una descripción significativa para cada política CDP para mejorar la visibilidad y la gestión de la infraestructura de respaldo.
+        RPOBestPracticeText = Las mejores prácticas de Veeam recomiendan habilitar los umbrales de advertencia y error de RPO para que los objetivos de recuperación incumplidos se detecten de inmediato en el estado del trabajo.
 '@
 
     GetAbrVbrMalwareDetectionOption = ConvertFrom-StringData @'

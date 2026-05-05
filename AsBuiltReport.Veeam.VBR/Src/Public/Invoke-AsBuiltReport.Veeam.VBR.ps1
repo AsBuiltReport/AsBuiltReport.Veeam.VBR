@@ -421,7 +421,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
             #                                  Backup Jobs Section                                        #
             #---------------------------------------------------------------------------------------------#
             if ($InfoLevel.Jobs.PSObject.Properties.Value -ne 0) {
-                if (((Get-VBRJob -WarningAction SilentlyContinue).count -gt 0) -or ((Get-VBRTapeJob).count -gt 0) -or ((Get-VBRSureBackupJob).count -gt 0)) {
+                if (((Get-VBRJob -WarningAction SilentlyContinue).count -gt 0) -or ((Get-VBRTapeJob).count -gt 0) -or ((Get-VBRSureBackupJob).count -gt 0) -or ((Get-Command 'Get-VBRCDPPolicy' -ErrorAction SilentlyContinue) -and (Get-VBRCDPPolicy -ErrorAction SilentlyContinue).count -gt 0)) {
                     Section -Style Heading2 $reportTranslate.InvokeAsBuiltReportVeeamVBR.Jobs {
                         Paragraph ($reportTranslate.InvokeAsBuiltReportVeeamVBR.JobsParagraph -f $VeeamBackupServer)
                         BlankLine
@@ -472,6 +472,11 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                         if ($InfoLevel.Jobs.BackupCopy -ge 1 -and ($VbrVersion -ge 12)) {
                             Get-AbrVbrBackupCopyjob
                             Get-AbrVbrBackupCopyjobConf
+                        }
+                        Write-PScriboMessage ($reportTranslate.InvokeAsBuiltReportVeeamVBR.InfoLevelJobsCDP -f $InfoLevel.Jobs.CDP)
+                        if ($InfoLevel.Jobs.CDP -ge 1 -and (Get-Command 'Get-VBRCDPPolicy' -ErrorAction SilentlyContinue)) {
+                            Get-AbrVbrCDPPolicy
+                            Get-AbrVbrCDPPolicyConf
                         }
                     }
                 }

@@ -96,6 +96,7 @@
             "Agent": 1,
             "Backup": 1,
             "BackupCopy": 1,
+            "CDP": 1,
             "EntraID": 1,
             "FileShare": 1,
             "Nutanix": 1,

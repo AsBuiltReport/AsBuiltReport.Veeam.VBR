@@ -83,6 +83,9 @@ function Get-AbrIconType {
         'VirtualLab' { 'VBR_Virtual_Lab' }
         'ApplicationGroups' { 'VBR_Application_Groups' }
         'ExtendableRepository' { 'VBR_SOBR_Repo' }
+        'DataCloudVault' { 'VBR_Data_Cloud_Vault' }
+        'DataCloudArchive' { 'VBR_Data_Cloud_Archive' }
+        'DataCloud' { 'VBR_Data_Cloud_Archive' }
         default { 'VBR_No_Icon' }
     }
 

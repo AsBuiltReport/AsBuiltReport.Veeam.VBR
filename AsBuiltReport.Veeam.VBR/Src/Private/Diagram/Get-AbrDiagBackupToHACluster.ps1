@@ -97,7 +97,7 @@ function Get-AbrDiagBackupToHACluster {
 
                         Add-NodeEdge -From NetworkInfrastructure -To HAClusterServers -EdgeColor $Edgecolor -EdgeStyle solid -LabelDistance 1 -EdgeThickness 2 -Arrowhead box -Arrowtail box -EdgeLength 2
 
-                        Add-NodeIcon -Name BackupConsole -LabelName 'Backup<BR/>Console' -IconType 'VBR_Webconsole' -Align 'Center' -ImagesObj $Images -IconDebug $IconDebug -FontSize 18 -FontBold -TableBackgroundColor $MainGraphBGColor -FontColor $Fontcolor -TableLayout Vertical -IconPath $IconPath -NodeObject
+                        Add-NodeIcon -Name BackupConsole -LabelName 'Backup<BR/>Console' -IconType 'VBR_Webconsole' -Align 'Center' -ImagesObj $Images -IconDebug $IconDebug -FontSize 18 -FontBold -TableBackgroundColor $MainGraphBGColor -FontColor $Fontcolor -TableLayout Vertical -IconPath $IconPath -NodeObject -CellBackgroundColor $MainGraphBGColor
 
                         Add-NodeSpacer -Name Spacer1 -ShapeWidth 2 -ShapeHeight 2 -IconDebug $IconDebug
 
