@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add support for CDP Policy Jobs
 - Add Per Instance Type License Usage chart to the Installed Licenses section of the report
+- Add new icon types for Data Cloud and Data Cloud Vault in Get-AbrIconType function
+- Add VeeamDataCloud and VeeamDataCloudVault icon images
 
 ### :arrows_clockwise: Changed
 
