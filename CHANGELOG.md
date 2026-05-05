@@ -24,7 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### :bug: Fixed
 
-- Fix issue with diagram signature not properly appying theme color when the signature is enabled
+- Fix issue with diagram signature not properly applying theme color when the signature is enabled
 
 ## [1.0.1] - 2026-04-23
 
