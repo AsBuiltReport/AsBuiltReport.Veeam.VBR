@@ -1,5 +1,5 @@
 
-function Collect-AbrVbrLogs {
+function Get-AbrVbrLog {
     <#
     .SYNOPSIS
         Collects diagnostic information for AsBuiltReport.Veeam.VBR troubleshooting.
@@ -16,11 +16,11 @@ function Collect-AbrVbrLogs {
     .PARAMETER PassThru
         Returns the diagnostic object to the pipeline in addition to writing the file.
     .EXAMPLE
-        Collect-AbrVbrLogs
+        Get-AbrVbrLog
 
         Saves a diagnostic JSON to the system temp folder.
     .EXAMPLE
-        Collect-AbrVbrLogs -OutputFolderPath 'C:\Logs' -IncludeErrorDetails -PassThru
+        Get-AbrVbrLog -OutputFolderPath 'C:\Logs' -IncludeErrorDetails -PassThru
 
         Saves a full diagnostic JSON (with stack traces) to C:\Logs and returns the
         object to the pipeline.
@@ -48,7 +48,7 @@ function Collect-AbrVbrLogs {
     )
 
     begin {
-        Write-Verbose "Collect-AbrVbrLogs: Starting diagnostic collection."
+        Write-Verbose 'Collect-AbrVbrLogs: Starting diagnostic collection.'
         $TimeStamp = Get-Date -Format 'yyyyMMdd_HHmmss'
         $FileName = "AbrVbrDiagnostics_$TimeStamp.json"
         $OutputFile = Join-Path -Path $OutputFolderPath -ChildPath $FileName
@@ -63,19 +63,19 @@ function Collect-AbrVbrLogs {
         # --- PowerShell session info --------------------------------------------
         try {
             $Diag['PowerShellSession'] = [ordered] @{
-                PSVersion        = $PSVersionTable.PSVersion.ToString()
-                PSEdition        = $PSVersionTable.PSEdition
-                BuildVersion     = $PSVersionTable.BuildVersion.ToString()
-                CLRVersion       = if ($PSVersionTable.CLRVersion) { $PSVersionTable.CLRVersion.ToString() } else { 'N/A' }
+                PSVersion = $PSVersionTable.PSVersion.ToString()
+                PSEdition = $PSVersionTable.PSEdition
+                BuildVersion = $PSVersionTable.BuildVersion.ToString()
+                CLRVersion = if ($PSVersionTable.CLRVersion) { $PSVersionTable.CLRVersion.ToString() } else { 'N/A' }
                 WSManStackVersion = if ($PSVersionTable.WSManStackVersion) { $PSVersionTable.WSManStackVersion.ToString() } else { 'N/A' }
-                OS               = $PSVersionTable.OS
-                Platform         = $PSVersionTable.Platform
-                ExecutionPolicy  = (Get-ExecutionPolicy -Scope Process).ToString()
+                OS = $PSVersionTable.OS
+                Platform = $PSVersionTable.Platform
+                ExecutionPolicy = (Get-ExecutionPolicy -Scope Process).ToString()
                 CurrentPrincipal = [System.Security.Principal.WindowsIdentity]::GetCurrent().Name
-                IsAdministrator  = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
-                HostName         = $Host.Name
-                HostVersion      = $Host.Version.ToString()
-                PID              = $PID
+                IsAdministrator = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+                HostName = $Host.Name
+                HostVersion = $Host.Version.ToString()
+                PID = $PID
             }
         } catch {
             $Diag['PowerShellSession'] = "Error collecting PowerShell session info: $($_.Exception.Message)"
@@ -87,20 +87,20 @@ function Collect-AbrVbrLogs {
             $CS = Get-CimInstance -ClassName Win32_ComputerSystem -ErrorAction Stop
             $CPU = Get-CimInstance -ClassName Win32_Processor -ErrorAction Stop | Select-Object -First 1
             $Diag['Machine'] = [ordered] @{
-                ComputerName     = $env:COMPUTERNAME
-                Domain           = $CS.Domain
-                Manufacturer     = $CS.Manufacturer
-                Model            = $CS.Model
-                TotalMemoryGB    = [math]::Round($CS.TotalPhysicalMemory / 1GB, 2)
-                OSCaption        = $OS.Caption
-                OSVersion        = $OS.Version
-                OSBuildNumber    = $OS.BuildNumber
-                OSArchitecture   = $OS.OSArchitecture
+                ComputerName = $env:COMPUTERNAME
+                Domain = $CS.Domain
+                Manufacturer = $CS.Manufacturer
+                Model = $CS.Model
+                TotalMemoryGB = [math]::Round($CS.TotalPhysicalMemory / 1GB, 2)
+                OSCaption = $OS.Caption
+                OSVersion = $OS.Version
+                OSBuildNumber = $OS.BuildNumber
+                OSArchitecture = $OS.OSArchitecture
                 OSLastBootUpTime = $OS.LastBootUpTime.ToString('o')
-                CPUName          = $CPU.Name
-                CPUCores         = $CPU.NumberOfCores
-                CPULogicalProc   = $CPU.NumberOfLogicalProcessors
-                TimeZone         = (Get-TimeZone).DisplayName
+                CPUName = $CPU.Name
+                CPUCores = $CPU.NumberOfCores
+                CPULogicalProc = $CPU.NumberOfLogicalProcessors
+                TimeZone = (Get-TimeZone).DisplayName
             }
         } catch {
             $Diag['Machine'] = "Error collecting machine info: $($_.Exception.Message)"
@@ -119,21 +119,21 @@ function Collect-AbrVbrLogs {
             )
             $ModuleInfo = foreach ($ModName in $RelevantModuleNames) {
                 $Mods = Get-Module -ListAvailable -Name $ModName -ErrorAction SilentlyContinue |
-                    Sort-Object -Property Version -Descending
+                Sort-Object -Property Version -Descending
                 if ($Mods) {
                     foreach ($Mod in $Mods) {
                         [ordered] @{
-                            Name        = $Mod.Name
-                            Version     = $Mod.Version.ToString()
-                            Path        = $Mod.ModuleBase
+                            Name = $Mod.Name
+                            Version = $Mod.Version.ToString()
+                            Path = $Mod.ModuleBase
                             Description = $Mod.Description
                         }
                     }
                 } else {
                     [ordered] @{
-                        Name        = $ModName
-                        Version     = 'Not installed'
-                        Path        = $null
+                        Name = $ModName
+                        Version = 'Not installed'
+                        Path = $null
                         Description = $null
                     }
                 }
@@ -148,9 +148,9 @@ function Collect-AbrVbrLogs {
             $Diag['LoadedModules'] = @(
                 Get-Module | Sort-Object -Property Name | ForEach-Object {
                     [ordered] @{
-                        Name    = $_.Name
+                        Name = $_.Name
                         Version = $_.Version.ToString()
-                        Path    = $_.ModuleBase
+                        Path = $_.ModuleBase
                     }
                 }
             )
@@ -179,7 +179,7 @@ function Collect-AbrVbrLogs {
             $VBRServer = [Veeam.Backup.Core.CBackupServerInfo]::GetCurrentBackupServerInfo()
             $Diag['VeeamServer'] = [ordered] @{
                 ServerName = $VBRServer.DnsName
-                Version    = $VBRServer.ProductVersion.ToString()
+                Version = $VBRServer.ProductVersion.ToString()
             }
         } catch {
             # Fallback: use Connect-VBRServer state if the class is unavailable
@@ -205,14 +205,14 @@ function Collect-AbrVbrLogs {
                 $Err = $Error[$i]
                 if ($null -eq $Err) { continue }
                 $ErrObj = [ordered] @{
-                    Index       = $i
-                    Message     = $Err.Exception.Message
-                    Type        = $Err.Exception.GetType().FullName
-                    Category    = $Err.CategoryInfo.Category.ToString()
-                    TargetName  = $Err.CategoryInfo.TargetName
-                    ScriptName  = $Err.InvocationInfo.ScriptName
-                    LineNumber  = $Err.InvocationInfo.ScriptLineNumber
-                    Line        = $Err.InvocationInfo.Line -replace '\s+', ' '
+                    Index = $i
+                    Message = $Err.Exception.Message
+                    Type = $Err.Exception.GetType().FullName
+                    Category = $Err.CategoryInfo.Category.ToString()
+                    TargetName = $Err.CategoryInfo.TargetName
+                    ScriptName = $Err.InvocationInfo.ScriptName
+                    LineNumber = $Err.InvocationInfo.ScriptLineNumber
+                    Line = $Err.InvocationInfo.Line -replace '\s+', ' '
                     CommandName = $Err.InvocationInfo.MyCommand.Name
                 }
                 if ($IncludeErrorDetails) {
@@ -222,10 +222,10 @@ function Collect-AbrVbrLogs {
                 $ErrObj
             }
             $Diag['ErrorLog'] = [ordered] @{
-                TotalErrors    = $Error.Count
+                TotalErrors = $Error.Count
                 CapturedErrors = $MaxErrors
-                FullDetails    = $IncludeErrorDetails.IsPresent
-                Errors         = @($ErrorCollection)
+                FullDetails = $IncludeErrorDetails.IsPresent
+                Errors = @($ErrorCollection)
             }
         } catch {
             $Diag['ErrorLog'] = "Error collecting `$Error log: $($_.Exception.Message)"
@@ -248,7 +248,7 @@ function Collect-AbrVbrLogs {
         # --- Write output file --------------------------------------------------
         $DiagObject = [pscustomobject] $Diag
         try {
-            $DiagObject | ConvertTo-Json -Depth 10 | Set-Content -Path $OutputFile -Encoding UTF8 -Force
+            $DiagObject | ConvertTo-Json | Set-Content -Path $OutputFile -Encoding UTF8 -Force
             Write-Host "  [Collect-AbrVbrLogs] Diagnostic bundle saved to: $OutputFile" -ForegroundColor Green
         } catch {
             Write-Warning "Collect-AbrVbrLogs: Failed to write diagnostic file '$OutputFile': $($_.Exception.Message)"
@@ -260,6 +260,6 @@ function Collect-AbrVbrLogs {
     }
 
     end {
-        Write-Verbose "Collect-AbrVbrLogs: Diagnostic collection complete."
+        Write-Verbose 'Collect-AbrVbrLogs: Diagnostic collection complete.'
     }
 }
