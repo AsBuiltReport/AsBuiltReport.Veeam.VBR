@@ -304,6 +304,15 @@ PS C:\> $Creds = Get-Credential
 PS C:\> Export-AsBuiltReportVBRDiagram -Target veeam-vbr.pharmax.local -Credential $Creds -Format png -OutputFolderPath 'C:\Users\Jon\Documents' -DiagramType 'Backup-Infrastructure'
 ```
 
+### Log Collection
+
+The `Get-AbrVbrLog` cmdlet can be used to collect AsBuiltReport.Veeam.VBR logs for troubleshooting purposes. This cmdlet collects the logs and diagnostic information from the powershell host running the report and saves them to a specified output folder.
+
+```powershell
+# Collect powershell host logs and diagnostic information. Save logs to 'C:\Users\Jon\Desktop\'.
+PS C:\> Get-AbrVbrLog -OutputFolderPath 'C:\Users\Jon\Desktop\' -IncludeErrorDetails
+```
+
 ## :x: Known Issues
 
 - Many of Veeam's features depend on the Standard+ license, so the Community edition is not supported.
