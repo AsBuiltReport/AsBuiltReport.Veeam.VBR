@@ -74,7 +74,7 @@ body:
         Please attach any logs to help explain the problem. You can collect the logs by running the following command:
         Get-AbrVbrLog -OutputFolderPath 'C:\Users\YourUserName\Desktop\' -IncludeErrorDetails
       placeholder: |-
-        Drag and drop logs here.
+        Get-AbrVbrLog -OutputFolderPath 'C:\Users\YourUserName\Desktop\' -IncludeErrorDetails
   - type: checkboxes
     id: checklist
     attributes:
