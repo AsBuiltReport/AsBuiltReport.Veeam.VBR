@@ -48,7 +48,7 @@ function Get-AbrVbrLog {
     )
 
     begin {
-        Write-Verbose 'Collect-AbrVbrLogs: Starting diagnostic collection.'
+        Write-Verbose 'Get-AbrVbrLog: Starting diagnostic collection.'
         $TimeStamp = Get-Date -Format 'yyyyMMdd_HHmmss'
         $FileName = "AbrVbrDiagnostics_$TimeStamp.json"
         $OutputFile = Join-Path -Path $OutputFolderPath -ChildPath $FileName
@@ -65,7 +65,6 @@ function Get-AbrVbrLog {
             $Diag['PowerShellSession'] = [ordered] @{
                 PSVersion = $PSVersionTable.PSVersion.ToString()
                 PSEdition = $PSVersionTable.PSEdition
-                BuildVersion = $PSVersionTable.BuildVersion.ToString()
                 CLRVersion = if ($PSVersionTable.CLRVersion) { $PSVersionTable.CLRVersion.ToString() } else { 'N/A' }
                 WSManStackVersion = if ($PSVersionTable.WSManStackVersion) { $PSVersionTable.WSManStackVersion.ToString() } else { 'N/A' }
                 OS = $PSVersionTable.OS
@@ -158,58 +157,21 @@ function Get-AbrVbrLog {
             $Diag['LoadedModules'] = "Error collecting loaded modules: $($_.Exception.Message)"
         }
 
-        # --- AsBuiltReport.Veeam.VBR runtime config (script-scope vars) --------
-        try {
-            $RuntimeConfig = [ordered] @{}
-            foreach ($VarName in @('InfoLevel', 'HealthCheck', 'Options', 'Report')) {
-                $ScopeVar = Get-Variable -Name $VarName -Scope Script -ErrorAction SilentlyContinue
-                if ($ScopeVar) {
-                    $RuntimeConfig[$VarName] = $ScopeVar.Value
-                } else {
-                    $RuntimeConfig[$VarName] = '<not set>'
-                }
-            }
-            $Diag['VBRReportConfig'] = $RuntimeConfig
-        } catch {
-            $Diag['VBRReportConfig'] = "Error collecting VBR report config: $($_.Exception.Message)"
-        }
-
-        # --- Veeam VBR connection state -----------------------------------------
-        try {
-            $VBRServer = [Veeam.Backup.Core.CBackupServerInfo]::GetCurrentBackupServerInfo()
-            $Diag['VeeamServer'] = [ordered] @{
-                ServerName = $VBRServer.DnsName
-                Version = $VBRServer.ProductVersion.ToString()
-            }
-        } catch {
-            # Fallback: use Connect-VBRServer state if the class is unavailable
-            try {
-                $ConnState = [Veeam.Backup.Connection.VBRConnection]::Current
-                if ($ConnState) {
-                    $Diag['VeeamServer'] = [ordered] @{
-                        ServerName = $ConnState.BackupServerName
-                        IsConnected = $ConnState.IsConnected
-                    }
-                } else {
-                    $Diag['VeeamServer'] = 'No active VBR connection detected.'
-                }
-            } catch {
-                $Diag['VeeamServer'] = 'Veeam assemblies not loaded or no connection: ' + $_.Exception.Message
-            }
-        }
-
         # --- $Error variable collection -----------------------------------------
         try {
-            $MaxErrors = if ($IncludeErrorDetails) { $Error.Count } else { [math]::Min(25, $Error.Count) }
+            $MaxErrors = if ($IncludeErrorDetails) { $global:Error.Count } else { [math]::Min(25, $global:Error.Count) }
             $ErrorCollection = for ($i = 0; $i -lt $MaxErrors; $i++) {
-                $Err = $Error[$i]
+                $Err = $global:Error[$i]
                 if ($null -eq $Err) { continue }
                 $ErrObj = [ordered] @{
                     Index = $i
                     Message = $Err.Exception.Message
+                    FullyQualifiedErrorId = $Err.FullyQualifiedErrorId
                     Type = $Err.Exception.GetType().FullName
                     Category = $Err.CategoryInfo.Category.ToString()
+                    CategoryReason = $Err.CategoryInfo.Reason
                     TargetName = $Err.CategoryInfo.TargetName
+                    ErrorDetails = if ($Err.ErrorDetails) { $Err.ErrorDetails.Message } else { $null }
                     ScriptName = $Err.InvocationInfo.ScriptName
                     LineNumber = $Err.InvocationInfo.ScriptLineNumber
                     Line = $Err.InvocationInfo.Line -replace '\s+', ' '
@@ -217,12 +179,19 @@ function Get-AbrVbrLog {
                 }
                 if ($IncludeErrorDetails) {
                     $ErrObj['StackTrace'] = $Err.Exception.StackTrace
-                    $ErrObj['InnerException'] = if ($Err.Exception.InnerException) { $Err.Exception.InnerException.Message } else { $null }
+                    # Build full inner exception chain
+                    $InnerChain = [System.Collections.Generic.List[string]]::new()
+                    $Inner = $Err.Exception.InnerException
+                    while ($null -ne $Inner) {
+                        $InnerChain.Add("[$($Inner.GetType().FullName)] $($Inner.Message)")
+                        $Inner = $Inner.InnerException
+                    }
+                    $ErrObj['InnerExceptions'] = if ($InnerChain.Count -gt 0) { $InnerChain.ToArray() } else { $null }
                 }
                 $ErrObj
             }
             $Diag['ErrorLog'] = [ordered] @{
-                TotalErrors = $Error.Count
+                TotalErrors = $global:Error.Count
                 CapturedErrors = $MaxErrors
                 FullDetails = $IncludeErrorDetails.IsPresent
                 Errors = @($ErrorCollection)
@@ -248,10 +217,10 @@ function Get-AbrVbrLog {
         # --- Write output file --------------------------------------------------
         $DiagObject = [pscustomobject] $Diag
         try {
-            $DiagObject | ConvertTo-Json | Set-Content -Path $OutputFile -Encoding UTF8 -Force
-            Write-Host "  [Collect-AbrVbrLogs] Diagnostic bundle saved to: $OutputFile" -ForegroundColor Green
+            $DiagObject | ConvertTo-Json -Depth 10 | Set-Content -Path $OutputFile -Encoding UTF8 -Force
+            Write-Host "  [Get-AbrVbrLog] Diagnostic bundle saved to: $OutputFile" -ForegroundColor Green
         } catch {
-            Write-Warning "Collect-AbrVbrLogs: Failed to write diagnostic file '$OutputFile': $($_.Exception.Message)"
+            Write-Warning "Get-AbrVbrLog: Failed to write diagnostic file '$OutputFile': $($_.Exception.Message)"
         }
 
         if ($PassThru) {
@@ -260,6 +229,6 @@ function Get-AbrVbrLog {
     }
 
     end {
-        Write-Verbose 'Collect-AbrVbrLogs: Diagnostic collection complete.'
+        Write-Verbose 'Get-AbrVbrLog: Diagnostic collection complete.'
     }
 }
