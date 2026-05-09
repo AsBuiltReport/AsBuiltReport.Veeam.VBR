@@ -4,9 +4,10 @@ function Get-AbrVbrLog {
     .SYNOPSIS
         Collects diagnostic information for AsBuiltReport.Veeam.VBR troubleshooting.
     .DESCRIPTION
-        Gathers environment, module, PowerShell session, Veeam connectivity, and error
-        information from the current session and the machine running the report. Output
-        is written to a structured JSON file and, optionally, to the console.
+        Gathers environment, module, PowerShell session, and error information from
+        the current session and the machine running the report. Output is written to
+        a structured JSON file, and a status message is written to the host when the
+        collection completes successfully.
     .PARAMETER OutputFolderPath
         Directory where the diagnostic bundle (JSON file) is saved.
         Defaults to the system temporary folder.
@@ -32,7 +33,6 @@ function Get-AbrVbrLog {
         https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR
     #>
 
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseApprovedVerbs', '', Scope = 'Function')]
     [CmdletBinding()]
     [OutputType([PSCustomObject])]
     param (
