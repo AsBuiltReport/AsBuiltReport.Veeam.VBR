@@ -52,6 +52,22 @@ function Get-AbrVbrLog {
         $TimeStamp = Get-Date -Format 'yyyyMMdd_HHmmss'
         $FileName = "AbrVbrDiagnostics_$TimeStamp.json"
         $OutputFile = Join-Path -Path $OutputFolderPath -ChildPath $FileName
+
+        # Compute platform once; used throughout process block.
+        # PS 5.1 (Desktop) lacks $PSVersionTable.Platform, so fall back to env/API.
+        $IsWindowsPlatform = if ($PSVersionTable.ContainsKey('Platform') -and $PSVersionTable.Platform) {
+            $PSVersionTable.Platform -eq 'Win32NT'
+        } else {
+            ($env:OS -eq 'Windows_NT') -or ([System.Environment]::OSVersion.Platform -eq [System.PlatformID]::Win32NT)
+        }
+
+        $Platform = if ($PSVersionTable.ContainsKey('Platform') -and $PSVersionTable.Platform) {
+            $PSVersionTable.Platform
+        } elseif ($IsWindowsPlatform) {
+            'Win32NT'
+        } else {
+            [System.Environment]::OSVersion.Platform.ToString()
+        }
     }
 
     process {
@@ -62,20 +78,6 @@ function Get-AbrVbrLog {
 
         # --- PowerShell session info --------------------------------------------
         try {
-            $IsWindowsPlatform = if ($PSVersionTable.ContainsKey('Platform') -and $PSVersionTable.Platform) {
-                $PSVersionTable.Platform -eq 'Win32NT'
-            } else {
-                ($env:OS -eq 'Windows_NT') -or ([System.Environment]::OSVersion.Platform -eq [System.PlatformID]::Win32NT)
-            }
-
-            $Platform = if ($PSVersionTable.ContainsKey('Platform') -and $PSVersionTable.Platform) {
-                $PSVersionTable.Platform
-            } elseif ($IsWindowsPlatform) {
-                'Win32NT'
-            } else {
-                [System.Environment]::OSVersion.Platform.ToString()
-            }
-
             $Diag['PowerShellSession'] = [ordered] @{
                 PSVersion = $PSVersionTable.PSVersion.ToString()
                 PSEdition = $PSVersionTable.PSEdition
@@ -104,7 +106,7 @@ function Get-AbrVbrLog {
         }
 
         # --- Machine / OS info --------------------------------------------------
-        if ($PSVersionTable.Platform -eq 'Win32NT') {
+        if ($IsWindowsPlatform) {
             try {
                 $OS = Get-CimInstance -ClassName Win32_OperatingSystem -ErrorAction Stop
                 $CS = Get-CimInstance -ClassName Win32_ComputerSystem -ErrorAction Stop
@@ -281,7 +283,7 @@ function Get-AbrVbrLog {
 
         # --- Environment variables (safe subset) --------------------------------
         try {
-            $SafeEnvVars = if ($PSVersionTable.Platform -eq 'Win32NT') {
+            $SafeEnvVars = if ($IsWindowsPlatform) {
                 @('COMPUTERNAME', 'USERNAME', 'USERDOMAIN', 'USERDNSDOMAIN',
                     'OS', 'PROCESSOR_ARCHITECTURE', 'NUMBER_OF_PROCESSORS',
                     'TEMP', 'TMP', 'APPDATA', 'LOCALAPPDATA', 'PSModulePath')
