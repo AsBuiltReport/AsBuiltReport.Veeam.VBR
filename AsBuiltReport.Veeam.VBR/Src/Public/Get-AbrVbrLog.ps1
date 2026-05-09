@@ -70,8 +70,8 @@ function Get-AbrVbrLog {
                 OS = $PSVersionTable.OS
                 Platform = $PSVersionTable.Platform
                 ExecutionPolicy = (Get-ExecutionPolicy -Scope Process).ToString()
-                CurrentPrincipal = [System.Security.Principal.WindowsIdentity]::GetCurrent().Name
-                IsAdministrator = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+                CurrentPrincipal = if ($PSVersionTable.Platform -eq 'Win32NT') { [Security.Principal.WindowsIdentity]::GetCurrent().Name } else { 'N/A' }
+                IsAdministrator = if ($PSVersionTable.Platform -eq 'Win32NT') { ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator) } else { 'N/A' }
                 HostName = $Host.Name
                 HostVersion = $Host.Version.ToString()
                 PID = $PID
@@ -81,28 +81,32 @@ function Get-AbrVbrLog {
         }
 
         # --- Machine / OS info --------------------------------------------------
-        try {
-            $OS = Get-CimInstance -ClassName Win32_OperatingSystem -ErrorAction Stop
-            $CS = Get-CimInstance -ClassName Win32_ComputerSystem -ErrorAction Stop
-            $CPU = Get-CimInstance -ClassName Win32_Processor -ErrorAction Stop | Select-Object -First 1
-            $Diag['Machine'] = [ordered] @{
-                ComputerName = $env:COMPUTERNAME
-                Domain = $CS.Domain
-                Manufacturer = $CS.Manufacturer
-                Model = $CS.Model
-                TotalMemoryGB = [math]::Round($CS.TotalPhysicalMemory / 1GB, 2)
-                OSCaption = $OS.Caption
-                OSVersion = $OS.Version
-                OSBuildNumber = $OS.BuildNumber
-                OSArchitecture = $OS.OSArchitecture
-                OSLastBootUpTime = $OS.LastBootUpTime.ToString('o')
-                CPUName = $CPU.Name
-                CPUCores = $CPU.NumberOfCores
-                CPULogicalProc = $CPU.NumberOfLogicalProcessors
-                TimeZone = (Get-TimeZone).DisplayName
+        if ($PSVersionTable.Platform -eq 'Win32NT') {
+            try {
+                $OS = Get-CimInstance -ClassName Win32_OperatingSystem -ErrorAction Stop
+                $CS = Get-CimInstance -ClassName Win32_ComputerSystem -ErrorAction Stop
+                $CPU = Get-CimInstance -ClassName Win32_Processor -ErrorAction Stop | Select-Object -First 1
+                $Diag['Machine'] = [ordered] @{
+                    ComputerName = $env:COMPUTERNAME
+                    Domain = $CS.Domain
+                    Manufacturer = $CS.Manufacturer
+                    Model = $CS.Model
+                    TotalMemoryGB = [math]::Round($CS.TotalPhysicalMemory / 1GB, 2)
+                    OSCaption = $OS.Caption
+                    OSVersion = $OS.Version
+                    OSBuildNumber = $OS.BuildNumber
+                    OSArchitecture = $OS.OSArchitecture
+                    OSLastBootUpTime = $OS.LastBootUpTime.ToString('o')
+                    CPUName = $CPU.Name
+                    CPUCores = $CPU.NumberOfCores
+                    CPULogicalProc = $CPU.NumberOfLogicalProcessors
+                    TimeZone = (Get-TimeZone).DisplayName
+                }
+            } catch {
+                $Diag['Machine'] = "Error collecting machine info: $($_.Exception.Message)"
             }
-        } catch {
-            $Diag['Machine'] = "Error collecting machine info: $($_.Exception.Message)"
+        } else {
+            $Diag['Machine'] = "Non-Windows platform detected: $($PSVersionTable.Platform). Machine info collection skipped."
         }
 
         # --- Relevant installed modules -----------------------------------------
