@@ -294,7 +294,7 @@ PS C:\> Start-AsBuiltReportVBR
 
 ![alt text](Samples/Sample-Gui.png)
 
-## Export Diagrams
+## :chart_with_upwards_trend: Export Diagrams
 
 The `Export-AsBuiltReportVBRDiagram` cmdlet can be used to export the infrastructure diagrams separately from the report generation process. This allows users to generate and export the diagrams in different formats (PDF, PNG, SVG) without having to generate the entire report.
 
@@ -304,7 +304,7 @@ PS C:\> $Creds = Get-Credential
 PS C:\> Export-AsBuiltReportVBRDiagram -Target veeam-vbr.pharmax.local -Credential $Creds -Format png -OutputFolderPath 'C:\Users\Jon\Documents' -DiagramType 'Backup-Infrastructure'
 ```
 
-### Log Collection
+### :memo: Log Collection
 
 The `Get-AbrVbrLog` cmdlet can be used to collect AsBuiltReport.Veeam.VBR logs for troubleshooting purposes. This cmdlet collects the logs and diagnostic information from the powershell host running the report and saves them to a specified output folder.
 
