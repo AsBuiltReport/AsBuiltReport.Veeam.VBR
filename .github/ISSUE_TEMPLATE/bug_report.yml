@@ -59,14 +59,6 @@ body:
     validations:
       required: true
   - type: textarea
-    id: expected-behaviour
-    attributes:
-      label: Expected behaviour
-      description: >-
-        Please provide a clear and concise description of what you expected to happen.
-    validations:
-      required: true
-  - type: textarea
     id: screenshots
     attributes:
       label: Screenshots
@@ -75,34 +67,14 @@ body:
       placeholder: |-
         Drag and drop screenshots here.
   - type: textarea
-    id: operating-system
+    id: logs
     attributes:
-      label: Operating System
-      description: Please provide information about the operating system are you using.
-      placeholder: macOS Big Sur, Windows 10, Ubuntu 20.04 LTS
-    validations:
-      required: true
-  - type: textarea
-    id: powershell-version
-    attributes:
-      label: PowerShell Version
-      description: Please provide information about the PowerShell version you are using. Please provide the output from the following PowerShell command `$PSVersionTable`.
-      placeholder: $PSVersionTable
-    validations:
-      required: true
-  - type: textarea
-    id: powershell-modules
-    attributes:
-      label: PowerShell Modules
-      description: Please provide information about the PowerShell modules are you using. Please provide the output from the following PowerShell command `Get-Module -ListAvailable @("AsBuiltReport.Core";"AsBuiltReport.Veeam.VBR";"PScribo") | Select Name, Version`
-      placeholder: Get-Module -ListAvailable @("AsBuiltReport.Core";"AsBuiltReport.Veeam.VBR";"PScribo") | Select Name, Version
-    validations:
-      required: true
-  - type: textarea
-    id: additional-context
-    attributes:
-      label: Additional Context
-      description: This field is optional. You may provide additional context for the bug you wish to report. You may wish to include links to any related [issues](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues) or other relevant information.
+      label: Logs
+      description: >-
+        Please attach any logs to help explain the problem. You can collect the logs by running the following command:
+        Get-AbrVbrLog -OutputFolderPath 'C:\Users\YourUserName\Desktop\' -IncludeErrorDetails
+      placeholder: |-
+        Drag and drop logs here.
   - type: checkboxes
     id: checklist
     attributes:
