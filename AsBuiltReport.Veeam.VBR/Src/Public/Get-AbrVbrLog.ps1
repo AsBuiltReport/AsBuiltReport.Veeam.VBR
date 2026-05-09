@@ -62,21 +62,35 @@ function Get-AbrVbrLog {
 
         # --- PowerShell session info --------------------------------------------
         try {
+            $IsWindowsPlatform = if ($PSVersionTable.ContainsKey('Platform') -and $PSVersionTable.Platform) {
+                $PSVersionTable.Platform -eq 'Win32NT'
+            } else {
+                ($env:OS -eq 'Windows_NT') -or ([System.Environment]::OSVersion.Platform -eq [System.PlatformID]::Win32NT)
+            }
+
+            $Platform = if ($PSVersionTable.ContainsKey('Platform') -and $PSVersionTable.Platform) {
+                $PSVersionTable.Platform
+            } elseif ($IsWindowsPlatform) {
+                'Win32NT'
+            } else {
+                [System.Environment]::OSVersion.Platform.ToString()
+            }
+
             $Diag['PowerShellSession'] = [ordered] @{
                 PSVersion = $PSVersionTable.PSVersion.ToString()
                 PSEdition = $PSVersionTable.PSEdition
                 CLRVersion = if ($PSVersionTable.CLRVersion) { $PSVersionTable.CLRVersion.ToString() } else { 'N/A' }
                 WSManStackVersion = if ($PSVersionTable.WSManStackVersion) { $PSVersionTable.WSManStackVersion.ToString() } else { 'N/A' }
                 OS = $PSVersionTable.OS
-                Platform = $PSVersionTable.Platform
+                Platform = $Platform
                 ExecutionPolicy = (Get-ExecutionPolicy -Scope Process).ToString()
-                CurrentPrincipal = if ($PSVersionTable.Platform -eq 'Win32NT') {
+                CurrentPrincipal = if ($IsWindowsPlatform) {
                     [Security.Principal.WindowsIdentity]::GetCurrent().Name
                 } else {
                     $EnvUser = [System.Environment]::GetEnvironmentVariable('USER')
                     if ($EnvUser) { $EnvUser } else { [System.Environment]::GetEnvironmentVariable('LOGNAME') }
                 }
-                IsAdministrator = if ($PSVersionTable.Platform -eq 'Win32NT') {
+                IsAdministrator = if ($IsWindowsPlatform) {
                     ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
                 } else {
                     try { (& id -u).Trim() -eq '0' } catch { 'N/A' }
