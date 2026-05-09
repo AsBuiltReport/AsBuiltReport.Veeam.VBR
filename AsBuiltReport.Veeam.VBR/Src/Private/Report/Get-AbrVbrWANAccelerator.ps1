@@ -55,7 +55,7 @@ function Get-AbrVbrWANAccelerator {
                                     $LocalizedData.IsPublic = $WANAccel.GetType().IsPublic
                                     $LocalizedData.ManagementPort = & {
                                         switch ($VbrVersion) {
-                                            { $_ -ge 13 } { try { "$($WANAccel.GetMgmtConnSpec().Endpoints.Port)\TCP" } catch { Out-Null } }
+                                            { $_.Major -ge 13 } { try { "$($WANAccel.GetMgmtConnSpec().Endpoints.Port)\TCP" } catch { Out-Null } }
                                             default { try { "$($WANAccel.GetWaMgmtPort())\TCP" } catch { Out-Null } }
                                         }
                                     }

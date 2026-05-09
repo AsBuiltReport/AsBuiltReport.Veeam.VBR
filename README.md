@@ -301,7 +301,7 @@ The `Export-AsBuiltReportVBRDiagram` cmdlet can be used to export the infrastruc
 ```powershell
 # Export the infrastructure diagram for Backup Server veeam-vbr.pharmax.local in PNG format
 PS C:\> $Creds = Get-Credential
-PS C:\> Export-AsBuiltReportVBRDiagram -Target veeam-vbr.pharmax.local -Credential $Creds -Format PNG -OutputFolderPath 'C:\Users\Jon\Documents' -DiagramType 'Backup-Infrastructure'
+PS C:\> Export-AsBuiltReportVBRDiagram -Target veeam-vbr.pharmax.local -Credential $Creds -Format png -OutputFolderPath 'C:\Users\Jon\Documents' -DiagramType 'Backup-Infrastructure'
 ```
 
 ## :x: Known Issues

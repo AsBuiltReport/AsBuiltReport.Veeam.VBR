@@ -82,7 +82,7 @@ function Get-AbrVbrUserRoleAssignment {
                         BlankLine
                     }
                 }
-                if ($VbrVersion -ge 12) {
+                if ($VbrVersion.Major -ge 12) {
                     try {
                         Section -ExcludeFromTOC -Style NOTOCHeading4 $LocalizedData.SettingsSubHeading {
                             BlankLine
@@ -91,13 +91,13 @@ function Get-AbrVbrUserRoleAssignment {
                                 try { $MFAGlobalSetting = [Veeam.Backup.Core.SBackupOptions]::get_GlobalMFA() } catch { Out-Null }
                                 try {
                                     $AutoTerminateSession = switch ($VbrVersion) {
-                                        { $_ -ge 13 } { [Veeam.Backup.Core.SBackupOptions]::GetAutomaticallyTerminateSession() }
+                                        { $_.Major -ge 13 } { [Veeam.Backup.Core.SBackupOptions]::GetAutomaticallyTerminateSession() }
                                         default { [Veeam.Backup.Core.SBackupOptions]::get_AutoTerminateSession() }
                                     }
                                 } catch { Out-Null }
                                 try {
                                     $AutoTerminateSessionMin = switch ($VbrVersion) {
-                                        { $_ -ge 13 } { [Veeam.Backup.Core.SBackupOptions]::GetAutomaticallyTerminateSessionTimeoutMinutes() }
+                                        { $_.Major -ge 13 } { [Veeam.Backup.Core.SBackupOptions]::GetAutomaticallyTerminateSessionTimeoutMinutes() }
                                         default { [Veeam.Backup.Core.SBackupOptions]::get_AutoTerminateSessionMinutes() }
                                     }
                                 } catch { Out-Null }

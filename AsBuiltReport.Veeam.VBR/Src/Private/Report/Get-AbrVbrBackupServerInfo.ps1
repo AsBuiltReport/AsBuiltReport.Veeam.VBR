@@ -29,10 +29,10 @@ function Get-AbrVbrBackupServerInfo {
     process {
         try {
             $script:BackupServers = switch ($VbrVersion) {
-                { $_ -lt 13 } { Get-VBRServer -Type Local }
+                { $_.Major -lt 13 } { Get-VBRServer -Type Local }
                 default { Get-VBRServer | Where-Object { $_.Description -eq 'Backup server' } }
             }
-            if (($VbrVersion -gt 13) -and (Get-VBRServer | Where-Object { $_.Description -eq 'Backup server' -and $_.Type -eq 'Linux' } )) {
+            if (($VbrVersion.Major -gt 13) -and (Get-VBRServer | Where-Object { $_.Description -eq 'Backup server' -and $_.Type -eq 'Linux' } )) {
                 $VeeamVersion = @{
                     DisplayVersion = $VbrVersion
                 }
@@ -646,7 +646,7 @@ function Get-AbrVbrBackupServerInfo {
                                 } catch {
                                     Write-PScriboMessage -IsWarning "HA Cluster Nodes Section: $($_.Exception.Message)"
                                 }
-                                if ($Options.EnableDiagrams -and ($VbrVersion -ge 12.1)) {
+                                if ($Options.EnableDiagrams -and ($VbrVersion -ge [version]'12.1')) {
                                     try {
                                         $HAClusterCheck = try { Get-VBRHighAvailabilityCluster -WarningAction SilentlyContinue } catch { Out-Null }
                                         if ($HAClusterCheck) {

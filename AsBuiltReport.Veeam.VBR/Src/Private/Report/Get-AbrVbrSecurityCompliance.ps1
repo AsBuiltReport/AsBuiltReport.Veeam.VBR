@@ -36,7 +36,7 @@ function Get-AbrVbrSecurityCompliance {
                     Start-Sleep -Seconds 15
                     # Capture scanner results
                     $SecurityCompliances = switch ($VbrVersion) {
-                        { $_ -ge 13 } {
+                        { $_.Major -ge 13 } {
                             Get-VBRSecurityComplianceAnalyzerResults -ErrorAction SilentlyContinue -WarningAction SilentlyContinue -InformationAction SilentlyContinue
                         }
                         default {

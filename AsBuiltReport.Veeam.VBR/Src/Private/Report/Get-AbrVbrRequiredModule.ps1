@@ -41,30 +41,18 @@ function Get-AbrVbrRequiredModule {
                     }
                     'Win32NT' {
                         $script:ClientOSVersion = 'Win32NT'
-                        if (Test-Path 'C:\Program Files\Veeam\Backup and Replication\Console\' ) {
-                            $MyModulePath = 'C:\Program Files\Veeam\Backup and Replication\Console\'
-                            $env:PSModulePath = $env:PSModulePath + "$([System.IO.Path]::PathSeparator)$MyModulePath"
-                        } elseif (Test-Path 'D:\Program Files\Veeam\Backup and Replication\Console\' ) {
-                            $MyModulePath = 'D:\Program Files\Veeam\Backup and Replication\Console\'
-                            $env:PSModulePath = $env:PSModulePath + "$([System.IO.Path]::PathSeparator)$MyModulePath"
-                        } elseif (Test-Path 'E:\Program Files\Veeam\Backup and Replication\Console\' ) {
-                            $MyModulePath = 'E:\Program Files\Veeam\Backup and Replication\Console\'
-                            $env:PSModulePath = $env:PSModulePath + "$([System.IO.Path]::PathSeparator)$MyModulePath"
+                        $VeeamConsolePath = Join-Path $env:ProgramFiles 'Veeam\Backup and Replication\Console\'
+                        if (Test-Path $VeeamConsolePath) {
+                            $env:PSModulePath = $env:PSModulePath + "$([System.IO.Path]::PathSeparator)$VeeamConsolePath"
                         }
                     }
                 }
             }
             'Desktop' {
                 $script:ClientOSVersion = 'Win32NT'
-                if (Test-Path 'C:\Program Files\Veeam\Backup and Replication\Console\' ) {
-                    $MyModulePath = 'C:\Program Files\Veeam\Backup and Replication\Console\'
-                    $env:PSModulePath = $env:PSModulePath + "$([System.IO.Path]::PathSeparator)$MyModulePath"
-                } elseif (Test-Path 'D:\Program Files\Veeam\Backup and Replication\Console\' ) {
-                    $MyModulePath = 'D:\Program Files\Veeam\Backup and Replication\Console\'
-                    $env:PSModulePath = $env:PSModulePath + "$([System.IO.Path]::PathSeparator)$MyModulePath"
-                } elseif (Test-Path 'E:\Program Files\Veeam\Backup and Replication\Console\' ) {
-                    $MyModulePath = 'E:\Program Files\Veeam\Backup and Replication\Console\'
-                    $env:PSModulePath = $env:PSModulePath + "$([System.IO.Path]::PathSeparator)$MyModulePath"
+                $VeeamConsolePath = Join-Path $env:ProgramFiles 'Veeam\Backup and Replication\Console\'
+                if (Test-Path $VeeamConsolePath) {
+                    $env:PSModulePath = $env:PSModulePath + "$([System.IO.Path]::PathSeparator)$VeeamConsolePath"
                 }
             }
         }
@@ -80,13 +68,13 @@ function Get-AbrVbrRequiredModule {
         Write-PScriboMessage 'Identifying Veeam Powershell module version.'
         if ($Module = Get-Module -ListAvailable -Name Veeam.Backup.PowerShell) {
             try {
-                $script:VbrVersion = $Module.Version.ToString()
+                $script:VbrVersion = $Module.Version
                 Write-PScriboMessage "Using Veeam Powershell module version $($VbrVersion)."
             } catch {
                 Write-PScriboMessage -IsWarning 'Failed to get Version from Module'
             }
         }
-        # Check if the required version of VMware PowerCLI is installed
+        # Check if the required version of Veeam.Backup.PowerShell is installed
         $RequiredModule = Get-Module -ListAvailable -Name $Name
         $ModuleVersion = '{0}.{1}' -f $RequiredModule.Version.Major, $RequiredModule.Version.Minor
 

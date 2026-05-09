@@ -20,7 +20,7 @@ function Get-AbrBackupServerInformation {
     )
     process {
         try {
-            if (($VbrVersion -gt 13) -and (-not (Get-VBRServer | Where-Object { $_.Description -eq 'Backup server' -and $_.Type -eq 'Linux' })) -and $ClientOSVersion -eq 'Win32NT') {
+            if (($VbrVersion.Major -gt 13) -and (-not (Get-VBRServer | Where-Object { $_.Description -eq 'Backup server' -and $_.Type -eq 'Linux' })) -and $ClientOSVersion -eq 'Win32NT') {
                 if (-not $IsLocalServer) {
                     if (Test-WSMan -Credential $Credential -Authentication Negotiate -ComputerName $VBRServer -ErrorAction SilentlyContinue) {
                         $PssSession = try { New-PSSession $VBRServer -Credential $Credential -Authentication Negotiate -ErrorAction Stop -Name 'PSSBackupServerDiagram' } catch {

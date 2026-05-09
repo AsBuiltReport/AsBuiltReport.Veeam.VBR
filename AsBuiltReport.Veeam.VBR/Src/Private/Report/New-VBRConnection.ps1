@@ -23,7 +23,10 @@ function New-VBRConnection {
 
         [Parameter(Mandatory = $true, ParameterSetName = 'Credential')]
         [ValidateNotNullOrEmpty()]
-        [Management.Automation.PSCredential]$Credential
+        [Management.Automation.PSCredential]$Credential,
+
+        [Parameter(Mandatory = $false)]
+        [switch]$SkipCertificateCheck
 
     )
 
@@ -47,7 +50,16 @@ function New-VBRConnection {
 
     # Send an authentication request to obtain a session token
     try {
-        $response = Invoke-RestMethod -Uri $apiUrl -Headers $headers -Method Post -Body $body -SkipCertificateCheck
+        $invokeParams = @{
+            Uri     = $apiUrl
+            Headers = $headers
+            Method  = 'Post'
+            Body    = $body
+        }
+        if ($SkipCertificateCheck) {
+            $invokeParams['SkipCertificateCheck'] = $true
+        }
+        $response = Invoke-RestMethod @invokeParams
 
         if (($response.access_token) -or ($response.StatusCode -eq 200) ) {
             Write-Output 'Successfully authenticated.'
@@ -63,5 +75,9 @@ function New-VBRConnection {
         }
     } catch {
         Write-Output "An error occurred: $($_.Exception.Message)"
+    } finally {
+        # Clear the plaintext password from memory
+        $Pass = $null
+        $body['password'] = $null
     }
 }

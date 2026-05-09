@@ -552,9 +552,9 @@ function New-AbrVeeamDiagram {
                 if ($Signature) {
                     Write-PScriboMessage 'Generating diagram signature'
                     if ($CustomSignatureLogo) {
-                        $Signature = (Add-HtmlSignatureTable -ImagesObj $Images -Rows "Author: $($AuthorName)", "Company: $($CompanyName)" -TableBorder 2 -TableBorderColor $Edgecolor -CellBorder 0 -Align 'left' -Logo $CustomSignatureLogo -IconDebug $IconDebug)
+                        $Signature = (Add-HtmlSignatureTable -ImagesObj $Images -Rows "Author: $($AuthorName)", "Company: $($CompanyName)" -TableBorder 2 -TableBorderColor $Edgecolor -CellBorder 0 -Align 'left' -Logo $CustomSignatureLogo -IconDebug $IconDebug -TableBackgroundColor $MainGraphBGColor -CellBackgroundColor $MainGraphBGColor -FontColor $FontColor)
                     } else {
-                        $Signature = (Add-HtmlSignatureTable -ImagesObj $Images -Rows "Author: $($AuthorName)", "Company: $($CompanyName)" -TableBorder 2 -TableBorderColor $Edgecolor -CellBorder 0 -Align 'left' -Logo 'VBR_LOGO_Footer' -IconDebug $IconDebug)
+                        $Signature = (Add-HtmlSignatureTable -ImagesObj $Images -Rows "Author: $($AuthorName)", "Company: $($CompanyName)" -TableBorder 2 -TableBorderColor $Edgecolor -CellBorder 0 -Align 'left' -Logo 'VBR_LOGO_Footer' -IconDebug $IconDebug -TableBackgroundColor $MainGraphBGColor -CellBackgroundColor $MainGraphBGColor -FontColor $FontColor)
                     }
                 } else {
                     Write-PScriboMessage 'No diagram signature specified'

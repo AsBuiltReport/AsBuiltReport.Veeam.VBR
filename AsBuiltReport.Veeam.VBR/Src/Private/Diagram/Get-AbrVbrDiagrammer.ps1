@@ -110,6 +110,8 @@ function Get-AbrVbrDiagrammer {
                     'VBR_Cloud_Sub_Tenant' = 'New_User_group.png'
                     'VBR_GrayArrow' = 'GrayArrow.png'
                     'VBR_Webconsole' = 'Webconsole.png'
+                    'VBR_Data_Cloud_Vault' = 'VeeamDataCloudVault.png'
+                    'VBR_Data_Cloud_Archive' = 'VeeamDataCloud.png'
                 }
             } else {
                 $script:Images = @{
@@ -183,13 +185,25 @@ function Get-AbrVbrDiagrammer {
                     'VBR_Cloud_Sub_Tenant' = 'SubTenant.png'
                     'VBR_GrayArrow' = 'GrayArrow.png'
                     'VBR_Webconsole' = 'Webconsole.png'
+                    'VBR_Data_Cloud_Vault' = 'New_S3-compatible.png'
+                    'VBR_Data_Cloud_Archive' = 'New_S3-compatible.png'
                 }
             }
             # Set default theme styles
             if (-not $Options.DiagramTheme) {
                 $DiagramTheme = 'White'
+                $DiagramFontColor = 'DarkGreen'
             } else {
                 $DiagramTheme = $Options.DiagramTheme
+                if ($DiagramTheme -eq 'Black') {
+                    $DiagramFontColor = 'White'
+                } elseif ($DiagramTheme -eq 'White') {
+                    $DiagramFontColor = 'DarkGreen'
+                } elseif ($DiagramTheme -eq 'Neon') {
+                    $DiagramFontColor = 'gold'
+                } else {
+                    $DiagramFontColor = 'DarkGreen'
+                }
             }
             $DiagramTypeHash = @{
                 'Backup-Infrastructure' = 'Infrastructure'
@@ -219,7 +233,7 @@ function Get-AbrVbrDiagrammer {
                 'Target' = $System
                 'Direction' = $Direction
                 'WaterMarkText' = $Options.DiagramWaterMark
-                'WaterMarkColor' = 'DarkGreen'
+                'WaterMarkColor' = $DiagramFontColor
                 'DiagramTheme' = $DiagramTheme
                 'ColumnSize' = switch ([string]::IsNullOrEmpty($Options.DiagramColumnSize)) {
                     $true { 3 }

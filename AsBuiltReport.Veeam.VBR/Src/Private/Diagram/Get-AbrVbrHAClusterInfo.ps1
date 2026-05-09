@@ -21,7 +21,7 @@ function Get-AbrHAClusterInfo {
         try {
             Write-PScriboMessage "Collecting HA Cluster Node information from $($VBRServer)."
 
-            $HACluster = try {Get-VBRHighAvailabilityCluster -WarningAction SilentlyContinue} catch {Out-Null}
+            $HACluster = try { Get-VBRHighAvailabilityCluster -WarningAction SilentlyContinue } catch { Out-Null }
 
             if ($HACluster) {
                 $HAClusterNodeInfo = @()
@@ -41,7 +41,7 @@ function Get-AbrHAClusterInfo {
 
                     $HAClusterNodeInfo += [PSCustomObject]@{
                         Name = $Node.Hostname
-                        Label = Add-NodeIcon -Name "$($Node.Hostname)" -IconType 'VBR_Server' -Align 'Center' -RowsOrdered $Rows -ImagesObj $Images -IconDebug $IconDebug -FontSize 18 -FontBold -TableBackgroundColor $MainGraphBGColor -FontColor $Fontcolor
+                        Label = Add-NodeIcon -Name "$($Node.Hostname)" -IconType 'VBR_Server' -Align 'Center' -RowsOrdered $Rows -ImagesObj $Images -IconDebug $IconDebug -FontSize 18 -FontBold -TableBackgroundColor $MainGraphBGColor -FontColor $Fontcolor -CellBackgroundColor $MainGraphBGColor
                         Spacer = Add-NodeImage -Name 'Database Snapshots' -ImagesObj $Images -IconType 'VBR_Bid_Arrow' -IconDebug $IconDebug -TableBackgroundColor $MainGraphBGColor -IconPath $IconPath
                         Role = $Node.Role
                     }
@@ -52,9 +52,9 @@ function Get-AbrHAClusterInfo {
                     'Cluster IP' = $HACluster.ClusterEndpoint
                 }
 
-                $DNSNode = Add-NodeIcon -Name 'DNS Server' -IconType 'VBR_Tape_Drive' -Align 'Center' -ImagesObj $Images -IconDebug $IconDebug -FontSize 18 -FontBold -TableBackgroundColor $MainGraphBGColor -FontColor $Fontcolor -TableLayout Vertical
+                $DNSNode = Add-NodeIcon -Name 'DNS Server' -IconType 'VBR_Tape_Drive' -Align 'Center' -ImagesObj $Images -IconDebug $IconDebug -FontSize 18 -FontBold -TableBackgroundColor $MainGraphBGColor -FontColor $Fontcolor -TableLayout Vertical -CellBackgroundColor $MainGraphBGColor
 
-                $EndpointNode = Add-NodeIcon -Name $HACluster.ClusterDnsName.ToUpper().split('.')[0] -IconType 'VBR_AGENT_CSV_Logo' -Align 'Left' -ImagesObj $Images -IconDebug $IconDebug -FontSize 18 -FontBold -TableBackgroundColor $MainGraphBGColor -FontColor $Fontcolor -TableLayout Horizontal -AditionalInfo $EndPointTable -IconPath $IconPath
+                $EndpointNode = Add-NodeIcon -Name $HACluster.ClusterDnsName.ToUpper().split('.')[0] -IconType 'VBR_AGENT_CSV_Logo' -Align 'Left' -ImagesObj $Images -IconDebug $IconDebug -FontSize 18 -FontBold -TableBackgroundColor $MainGraphBGColor -FontColor $Fontcolor -TableLayout Horizontal -AditionalInfo $EndPointTable -IconPath $IconPath -CellBackgroundColor $MainGraphBGColor
 
 
                 return [PSCustomObject]@{

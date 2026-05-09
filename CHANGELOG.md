@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ##### This project is community maintained and has no sponsorship from Veeam, its employees or any of its affiliates.
 
+## [1.0.2] - 2026-05-08
+
+### :toolbox: Added
+
+- Add support for CDP Policy Jobs
+- Add Per Instance Type License Usage chart to the Installed Licenses section of the report
+- Add new icon types for Data Cloud and Data Cloud Vault in Get-AbrIconType function
+- Add VeeamDataCloud and VeeamDataCloudVault icon images
+- Add Get-AbrVbrLog function to retrieve and format log information for the report
+
+### :arrows_clockwise: Changed
+
+- Update module version to `v1.0.2`
+- Update AsBuiltReport.Diagram module to `v1.0.7`
+- Update diagram theme handling and font color logic in Get-AbrVbrDiagrammer function
+
+### :bug: Fixed
+
+- Fix issue with diagram signature not properly applying theme color when the signature is enabled
+
 ## [1.0.1] - 2026-04-23
 
 ### :toolbox: Added

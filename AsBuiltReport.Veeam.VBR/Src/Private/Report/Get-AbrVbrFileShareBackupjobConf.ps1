@@ -28,7 +28,7 @@ function Get-AbrVbrFileShareBackupjobConf {
 
     process {
         if ($Bkjobs = Get-VBRJob -WarningAction SilentlyContinue | Where-Object { $_.TypeToString -like 'File Backup' -or $_.TypeToString -like 'Object Storage Backup' } | Sort-Object -Property Name) {
-            if ($VbrVersion -lt 12.1) {
+            if ($VbrVersion -lt [version]'12.1') {
                 $BSName = $LocalizedData.HeadingFileShare
             } else {
                 $BSName = $LocalizedData.HeadingUnstructuredData
@@ -189,7 +189,7 @@ function Get-AbrVbrFileShareBackupjobConf {
                                         'Specified' { "$($LocalizedData.FileWithExtensionOnly): $($Bkjob.Options.NasBackupRetentionPolicy.IncludedFileExtensions)" }
                                     }
 
-                                    if ($Bkjob.Options.NasBackupRetentionPolicy.LongTermEnabled -and ($VbrVersion -lt 12.1)) {
+                                    if ($Bkjob.Options.NasBackupRetentionPolicy.LongTermEnabled -and ($VbrVersion -lt [version]'12.1')) {
                                         $inObj.add($LocalizedData.KeepPreviousFileVersions, "$($Bkjob.Options.NasBackupRetentionPolicy.LongTermRetention) $($Bkjob.Options.NasBackupRetentionPolicy.LongTermRetentionUnit)")
                                         $inObj.add($LocalizedData.ArchiveRepository, (Get-VBRNASBackupJob -WarningAction SilentlyContinue | Where-Object { $_.id -eq $BKjob.id }).LongTermBackupRepository.Name)
                                         $inObj.add($LocalizedData.FileToArchive, $FiletoArchive)
@@ -207,7 +207,7 @@ function Get-AbrVbrFileShareBackupjobConf {
                                     }
                                     $OutObj | Table @TableParams
                                     if ($InfoLevel.Jobs.FileShare -ge 2) {
-                                        if ($VbrVersion -lt 12.1) {
+                                        if ($VbrVersion -lt [version]'12.1') {
                                             $FLVersion = $LocalizedData.FileVersion
                                         } else {
                                             $FLVersion = $LocalizedData.ObjectVersion
