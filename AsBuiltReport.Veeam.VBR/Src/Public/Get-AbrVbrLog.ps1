@@ -70,8 +70,17 @@ function Get-AbrVbrLog {
                 OS = $PSVersionTable.OS
                 Platform = $PSVersionTable.Platform
                 ExecutionPolicy = (Get-ExecutionPolicy -Scope Process).ToString()
-                CurrentPrincipal = if ($PSVersionTable.Platform -eq 'Win32NT') { [Security.Principal.WindowsIdentity]::GetCurrent().Name } else { 'N/A' }
-                IsAdministrator = if ($PSVersionTable.Platform -eq 'Win32NT') { ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator) } else { 'N/A' }
+                CurrentPrincipal = if ($PSVersionTable.Platform -eq 'Win32NT') {
+                    [Security.Principal.WindowsIdentity]::GetCurrent().Name
+                } else {
+                    $EnvUser = [System.Environment]::GetEnvironmentVariable('USER')
+                    if ($EnvUser) { $EnvUser } else { [System.Environment]::GetEnvironmentVariable('LOGNAME') }
+                }
+                IsAdministrator = if ($PSVersionTable.Platform -eq 'Win32NT') {
+                    ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+                } else {
+                    try { (& id -u).Trim() -eq '0' } catch { 'N/A' }
+                }
                 HostName = $Host.Name
                 HostVersion = $Host.Version.ToString()
                 PID = $PID
@@ -106,7 +115,59 @@ function Get-AbrVbrLog {
                 $Diag['Machine'] = "Error collecting machine info: $($_.Exception.Message)"
             }
         } else {
-            $Diag['Machine'] = "Non-Windows platform detected: $($PSVersionTable.Platform). Machine info collection skipped."
+            # Unix (Linux / macOS)
+            try {
+                $KernelName = try { (& uname -s).Trim() } catch { 'N/A' }
+                $KernelRelease = try { (& uname -r).Trim() } catch { 'N/A' }
+                $Architecture = try { (& uname -m).Trim() } catch { 'N/A' }
+                $HostName = [System.Net.Dns]::GetHostName()
+                $EnvUser = [System.Environment]::GetEnvironmentVariable('USER')
+                $CurrentUser = if ($EnvUser) { $EnvUser } else { [System.Environment]::GetEnvironmentVariable('LOGNAME') }
+                $IsRoot = try { (& id -u).Trim() -eq '0' } catch { 'N/A' }
+
+                if ($KernelName -eq 'Linux') {
+                    $OSDescription = try {
+                        $Release = Get-Content '/etc/os-release' -ErrorAction Stop
+                        ($Release | Where-Object { $_ -match '^PRETTY_NAME=' } | Select-Object -First 1) -replace '^PRETTY_NAME=|"', ''
+                    } catch { 'N/A' }
+
+                    $MemInfo = Get-Content '/proc/meminfo' -ErrorAction SilentlyContinue
+                    $MemKB = ($MemInfo | Where-Object { $_ -match '^MemTotal:' } | Select-Object -First 1) -replace '\D', ''
+                    $MemGB = if ($MemKB) { [math]::Round([long]$MemKB / 1MB, 2) } else { 'N/A' }
+
+                    $CpuInfo = Get-Content '/proc/cpuinfo' -ErrorAction SilentlyContinue
+                    $CpuName = ($CpuInfo | Where-Object { $_ -match '^model name' } | Select-Object -First 1) -replace '^model name\s*:\s*', ''
+                    $CpuCores = ($CpuInfo | Where-Object { $_ -match '^cpu cores' } | Select-Object -First 1) -replace '\D', ''
+                    $CpuLogical = ($CpuInfo | Where-Object { $_ -match '^processor' }).Count
+                } elseif ($KernelName -eq 'Darwin') {
+                    $OSDescription = try { "$(& sw_vers -productName) $(& sw_vers -productVersion)".Trim() } catch { 'N/A' }
+                    $MemBytes = try { [long](& sysctl -n hw.memsize) } catch { $null }
+                    $MemGB = if ($null -ne $MemBytes) { [math]::Round($MemBytes / 1GB, 2) } else { 'N/A' }
+                    $CpuName = try { (& sysctl -n machdep.cpu.brand_string).Trim() } catch { 'N/A' }
+                    $CpuCores = try { (& sysctl -n hw.physicalcpu).Trim() } catch { 'N/A' }
+                    $CpuLogical = try { (& sysctl -n hw.logicalcpu).Trim() } catch { 'N/A' }
+                } else {
+                    $OSDescription = "Unknown Unix ($KernelName)"
+                    $MemGB = $CpuName = $CpuCores = $CpuLogical = 'N/A'
+                }
+
+                $Diag['Machine'] = [ordered] @{
+                    ComputerName = $HostName
+                    CurrentUser = $CurrentUser
+                    IsRoot = $IsRoot
+                    KernelName = $KernelName
+                    KernelRelease = $KernelRelease
+                    OSDescription = $OSDescription
+                    Architecture = $Architecture
+                    TotalMemoryGB = $MemGB
+                    CPUName = if ($CpuName) { $CpuName }    else { 'N/A' }
+                    CPUCores = if ($CpuCores) { $CpuCores }   else { 'N/A' }
+                    CPULogicalProc = if ($CpuLogical) { $CpuLogical } else { 'N/A' }
+                    TimeZone = (Get-TimeZone).DisplayName
+                }
+            } catch {
+                $Diag['Machine'] = "Error collecting machine info: $($_.Exception.Message)"
+            }
         }
 
         # --- Relevant installed modules -----------------------------------------
@@ -206,9 +267,14 @@ function Get-AbrVbrLog {
 
         # --- Environment variables (safe subset) --------------------------------
         try {
-            $SafeEnvVars = @('COMPUTERNAME', 'USERNAME', 'USERDOMAIN', 'USERDNSDOMAIN',
-                'OS', 'PROCESSOR_ARCHITECTURE', 'NUMBER_OF_PROCESSORS',
-                'TEMP', 'TMP', 'APPDATA', 'LOCALAPPDATA', 'PSModulePath')
+            $SafeEnvVars = if ($PSVersionTable.Platform -eq 'Win32NT') {
+                @('COMPUTERNAME', 'USERNAME', 'USERDOMAIN', 'USERDNSDOMAIN',
+                    'OS', 'PROCESSOR_ARCHITECTURE', 'NUMBER_OF_PROCESSORS',
+                    'TEMP', 'TMP', 'APPDATA', 'LOCALAPPDATA', 'PSModulePath')
+            } else {
+                @('USER', 'LOGNAME', 'HOME', 'SHELL', 'HOSTNAME', 'TMPDIR', 'TEMP', 'TMP',
+                    'XDG_DATA_HOME', 'XDG_CONFIG_HOME', 'PSModulePath')
+            }
             $EnvInfo = [ordered] @{}
             foreach ($VarName in $SafeEnvVars) {
                 $EnvInfo[$VarName] = [System.Environment]::GetEnvironmentVariable($VarName)
