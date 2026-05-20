@@ -98,7 +98,7 @@ function Get-AbrVbrBackupRepository {
 
                             $statusCustomPalette = @('#DFF0D0', '#FFF3C4', '#FECDD1', '#ADACAF')
 
-                            $chartFileItem = New-StackedBarChart -Title $LocalizedData.ChartTitle -Values $chartValues -Labels $chartLabels -LegendCategories $chartCategories -EnableCustomColorPalette -CustomColorPalette $statusCustomPalette -Width 600 -Height 600 -Format base64 -TitleFontBold -TitleFontSize 16 -AreaOrientation Horizontal -LabelXAxis $LocalizedData.ChartXAxis -LabelYAxis $LocalizedData.ChartYAxis -EnableLegend -LegendAlignment UpperCenter -AxesMarginsTop 0.2
+                            $chartFileItem = New-StackedBarChart -Title $LocalizedData.ChartTitle -Values $chartValues -Labels $chartLabels -LegendCategories $chartCategories -EnableCustomColorPalette -CustomColorPalette $statusCustomPalette -Width 600 -Height 600 -Format base64 -TitleFontBold -TitleFontSize 16 -AreaOrientation Horizontal -LabelXAxis $LocalizedData.ChartXAxis -LabelYAxis $LocalizedData.ChartYAxis -EnableLegend -LegendAlignment UpperCenter -AxesMarginsTop 0.2 -LegendOrientation Horizontal
                         } catch {
                             Write-PScriboMessage -IsWarning "Backup Repository graph Section: $($_.Exception.Message)"
                         }

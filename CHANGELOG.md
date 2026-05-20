@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ##### This project is community maintained and has no sponsorship from Veeam, its employees or any of its affiliates.
 
+## [1.0.3] - Unreleased
+
+### :arrows_clockwise: Changed
+
+- Update Backup Repository diagram to display Legend information and improve the layout of the diagram
+
 ## [1.0.2] - 2026-05-08
 
 ### :toolbox: Added
