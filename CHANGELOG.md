@@ -11,7 +11,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### :arrows_clockwise: Changed
 
-- Update Backup Repository diagram to display Legend information and improve the layout of the diagram
+- Update Backup Repository chart to display Legend information and improve the layout of the chart
+- Bump AsBuiltReport.Chart module to v0.3.2
+
+### :bug: Fixed
+
+- Fix issue with the VMware/HyperV Infrastructure information not being properly displayed in the Infrastructure diagram
 
 ## [1.0.2] - 2026-05-08
 

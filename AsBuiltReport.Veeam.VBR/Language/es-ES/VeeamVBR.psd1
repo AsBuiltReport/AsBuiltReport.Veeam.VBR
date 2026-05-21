@@ -74,6 +74,7 @@
     ModuleUpdateCmd =       - Ejecute 'Update-Module -Name {0} -Force' para instalar la última versión.
     IPAddressError = Por favor use el FQDN en lugar de una dirección IP para conectarse al servidor de respaldo: {0}
     ExportDiagramsEnabled = Opción ExportDiagrams habilitada: Exportando diagramas:
+    Collecting = - Recopilando información de Veeam Backup & Replication...
 '@
 
     GetAbrVbrHistorySetting = ConvertFrom-StringData @'
