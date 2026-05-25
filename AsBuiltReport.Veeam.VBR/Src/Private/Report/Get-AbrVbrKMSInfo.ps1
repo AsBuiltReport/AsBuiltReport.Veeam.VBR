@@ -32,30 +32,30 @@ function Get-AbrVbrKMSInfo {
                 Section -Style Heading3 $LocalizedData.Heading {
                     Paragraph $LocalizedData.Paragraph
                     BlankLine
-                    $OutObj = @()
                     foreach ($KMSServer in $KMSServers) {
-                        try {
-
-                            $inObj = [ordered] @{
-                                $LocalizedData.Name = $KMSServer.Name
-                                $LocalizedData.CACertificate = $KMSServer.CACertificate
-                                $LocalizedData.ClientCertificate = $KMSServer.ClientCertificate
-                                $LocalizedData.Port = "TCP/$($KMSServer.Port)"
-                                $LocalizedData.Description = $KMSServer.Description
+                        Section -ExcludeFromTOC -Style NOTOCHeading3 $KMSServer.Name {
+                            $OutObj = @()
+                            try {
+                                $inObj = [ordered] @{
+                                    $LocalizedData.CACertificate = $KMSServer.CACertificate
+                                    $LocalizedData.ClientCertificate = $KMSServer.ClientCertificate
+                                    $LocalizedData.Port = "TCP/$($KMSServer.Port)"
+                                    $LocalizedData.Description = $KMSServer.Description
+                                }
+                                $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
+                            } catch {
+                                Write-PScriboMessage -IsWarning "Key Management Server $($KMSServer.Name) Section: $($_.Exception.Message)"
                             }
-                            $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
-                        } catch {
-                            Write-PScriboMessage -IsWarning "Key Management Server $($KMSServer.Name) Section: $($_.Exception.Message)"
+                            $TableParams = @{
+                                Name = "$($LocalizedData.TableHeading) - $($KMSServer.Name)"
+                                List = $true
+                                ColumnWidths = 40, 60
+                            }
+                            if ($Report.ShowTableCaptions) {
+                                $TableParams['Caption'] = "- $($TableParams.Name)"
+                            }
+                            $OutObj | Table @TableParams
                         }
-                        $TableParams = @{
-                            Name = "$($LocalizedData.TableHeading) - $($KMSServer.Name)"
-                            List = $true
-                            ColumnWidths = 40, 60
-                        }
-                        if ($Report.ShowTableCaptions) {
-                            $TableParams['Caption'] = "- $($TableParams.Name)"
-                        }
-                        $OutObj | Table @TableParams
                     }
                 }
             }
