@@ -81,11 +81,15 @@ function Get-AbrVbrVirtualInfrastructure {
                                             $OutObj = @()
                                             foreach ($InventObj in $InventObjs) {
                                                 try {
-
+                                                    $Result = try { Find-VBRViEntity -Name $InventObj.Name } catch { Out-Null }
                                                     $inObj = [ordered] @{
                                                         $LocalizedData.Name = $InventObj.Name
                                                         $LocalizedData.Version = ($InventObj).Info.Info
-                                                        $LocalizedData.ConnectedVcenter = try { (Find-VBRViEntity -Name $InventObj.Name).Path.split('\')[0] } catch { Out-Null }
+                                                        $LocalizedData.ConnectedVcenter = switch ($Result) {
+                                                            $true { 'None' }
+                                                            $false { $Result.Path.split('\')[0] }
+                                                            default { 'Unknown' }
+                                                        }
                                                     }
 
                                                     $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
