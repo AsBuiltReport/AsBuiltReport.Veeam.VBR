@@ -56,19 +56,20 @@ function Get-AbrVbrRequiredModule {
                 }
             }
         }
-        if ($Modules = Get-Module -ListAvailable -Name Veeam.Backup.PowerShell) {
+        $VeeamModule = Get-Module -ListAvailable -Name 'Veeam.Backup.PowerShell'
+        if ($VeeamModule) {
             try {
                 Write-PScriboMessage 'Trying to import Veeam B&R modules.'
-                $Modules | Import-Module -DisableNameChecking -Global -WarningAction SilentlyContinue
+                $VeeamModule | Import-Module -DisableNameChecking -Global -WarningAction SilentlyContinue
             } catch {
                 Write-PScriboMessage -IsWarning 'Failed to load Veeam Modules'
             }
         }
 
         Write-PScriboMessage 'Identifying Veeam Powershell module version.'
-        if ($Module = Get-Module -ListAvailable -Name Veeam.Backup.PowerShell) {
+        if ($VeeamModule) {
             try {
-                $script:VbrVersion = $Module.Version
+                $script:VbrVersion = $VeeamModule.Version
                 Write-PScriboMessage "Using Veeam Powershell module version $($VbrVersion)."
             } catch {
                 Write-PScriboMessage -IsWarning 'Failed to get Version from Module'
@@ -77,6 +78,9 @@ function Get-AbrVbrRequiredModule {
         # Check if the required version of Veeam.Backup.PowerShell is installed
         $RequiredModule = Get-Module -ListAvailable -Name $Name
         $ModuleVersion = '{0}.{1}' -f $RequiredModule.Version.Major, $RequiredModule.Version.Minor
+        if (-not $VbrVersion) {
+            $script:VbrVersion = $RequiredModule.Version
+        }
 
         if ($ModuleVersion -eq '.') {
             if ($ClientOSVersion -eq 'Unix') {
