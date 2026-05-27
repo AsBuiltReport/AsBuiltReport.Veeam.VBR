@@ -84,7 +84,9 @@ function Get-AbrBackupServerInformation {
                 $Roles = if ($VeeamDBInfo -eq $VBRServer) { 'Backup and Database' } else { 'Backup Server' }
                 $DBType = $VeeamInfo.DBFlavor.SqlActiveConfiguration
 
-                $HACluster = try { Get-VBRHighAvailabilityCluster -WarningAction SilentlyContinue } catch { Out-Null }
+                if ($VbrVersion.Major -ge 13) {
+                    $HACluster = try { Get-VBRHighAvailabilityCluster -WarningAction SilentlyContinue } catch { Out-Null }
+                }
 
                 $Rows = [ordered] @{
                     IP = Get-AbrNodeIP -Hostname $VBRServer
