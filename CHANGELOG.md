@@ -13,6 +13,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Update Backup Repository chart to display Legend information and improve the layout of the chart
 - Bump AsBuiltReport.Chart module to v0.3.2
+- Implement version check for High Availability cluster retrieval in backup server functions
+- Refactor Get-AbrVbrRequiredModule function to improve Veeam module handling and version retrieval
+- Enhance Veeam Virtual Infrastructure retrieval by improving connected vCenter handling and error management
 
 ### :bug: Fixed
 
