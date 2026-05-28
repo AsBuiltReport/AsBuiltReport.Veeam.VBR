@@ -6,7 +6,7 @@ function Get-AbrHAClusterInfo {
     .DESCRIPTION
         Build a diagram of the configuration of Veeam VBR in PDF/PNG/SVG formats using Psgraph.
     .NOTES
-        Version:        1.0.1
+        Version:        1.0.3
         Author:         Jonathan Colon
         Twitter:        @jcolonfzenpr
         Github:         rebelinux
@@ -21,7 +21,9 @@ function Get-AbrHAClusterInfo {
         try {
             Write-PScriboMessage "Collecting HA Cluster Node information from $($VBRServer)."
 
-            $HACluster = try { Get-VBRHighAvailabilityCluster -WarningAction SilentlyContinue } catch { Out-Null }
+            if ($VbrVersion.Major -ge 13) {
+                $HACluster = try { Get-VBRHighAvailabilityCluster -WarningAction SilentlyContinue } catch { Out-Null }
+            }
 
             if ($HACluster) {
                 $HAClusterNodeInfo = @()

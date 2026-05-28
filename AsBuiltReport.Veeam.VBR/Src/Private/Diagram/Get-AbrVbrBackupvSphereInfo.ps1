@@ -31,9 +31,9 @@ function Get-AbrBackupvSphereInfo {
 
                         $Rows = @{
                             IP = Get-AbrNodeIP -Hostname $HyObj.Info.DnsName
-                            Version = switch ([string]::IsNullOrEmpty($HyObj.Info.ViVersion)) {
+                            Version = switch ([string]::IsNullOrEmpty($HyObj.Info.Info)) {
                                 $true { 'Unknown' }
-                                default { $HyObj.Info.ViVersion }
+                                default { try { $HyObj.info.Info.split(' ')[3] } catch { 'Unknown' } }
                             }
                         }
 
@@ -51,9 +51,9 @@ function Get-AbrBackupvSphereInfo {
                                         EsxiHost = foreach ($Esxi in $ESXis | Where-Object { $_.path -match $Cluster.Name }) {
                                             $Rows = @{
                                                 IP = Get-AbrNodeIP -Hostname $Esxi.Info.DnsName
-                                                Version = switch ([string]::IsNullOrEmpty($Esxi.Info.ViVersion)) {
+                                                Version = switch ([string]::IsNullOrEmpty($Esxi.Info.Info)) {
                                                     $true { 'Unknown' }
-                                                    default { $Esxi.Info.ViVersion }
+                                                    default { try { $Esxi.Info.Info.split(' ')[2] } catch { 'Unknown' } }
                                                 }
                                             }
                                             [PSCustomObject]@{

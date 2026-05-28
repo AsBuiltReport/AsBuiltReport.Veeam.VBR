@@ -578,7 +578,9 @@ function Get-AbrVbrBackupServerInfo {
                     #---------------------------------------------------------------------------------------------#
                     try {
                         Write-PScriboMessage $LocalizedData.CollectingHA
-                        $HACluster = try { Get-VBRHighAvailabilityCluster -WarningAction SilentlyContinue } catch { Out-Null }
+                        if ($VbrVersion.Major -ge 13) {
+                            $HACluster = try { Get-VBRHighAvailabilityCluster -WarningAction SilentlyContinue } catch { Out-Null }
+                        }
                         if ($HACluster) {
                             Section -Style Heading4 $LocalizedData.HAHeading {
                                 $OutObj = @()
@@ -648,7 +650,9 @@ function Get-AbrVbrBackupServerInfo {
                                 }
                                 if ($Options.EnableDiagrams -and ($VbrVersion -ge [version]'12.1')) {
                                     try {
-                                        $HAClusterCheck = try { Get-VBRHighAvailabilityCluster -WarningAction SilentlyContinue } catch { Out-Null }
+                                        if ($VbrVersion.Major -ge 13) {
+                                            $HACluster = try { Get-VBRHighAvailabilityCluster -WarningAction SilentlyContinue } catch { Out-Null }
+                                        }
                                         if ($HAClusterCheck) {
                                             try {
                                                 $Graph = Get-AbrVbrDiagrammer -DiagramType 'Backup-to-HACluster' -DiagramOutput base64

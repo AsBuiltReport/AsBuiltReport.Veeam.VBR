@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ##### This project is community maintained and has no sponsorship from Veeam, its employees or any of its affiliates.
 
+## [1.0.3] - Unreleased
+
+### :arrows_clockwise: Changed
+
+- Update Backup Repository chart to display Legend information and improve the layout of the chart
+- Bump AsBuiltReport.Chart module to v0.3.2
+- Implement version check for High Availability cluster retrieval in backup server functions
+- Refactor Get-AbrVbrRequiredModule function to improve Veeam module handling and version retrieval
+- Enhance Veeam Virtual Infrastructure retrieval by improving connected vCenter handling and error management
+
+### :bug: Fixed
+
+- Fix issue with the VMware/HyperV Infrastructure information not being properly displayed in the Infrastructure diagram
+- Fix Get-AbrVbrKMSInfo function to streamline KMS server data handling and improve error messaging
+
 ## [1.0.2] - 2026-05-08
 
 ### :toolbox: Added

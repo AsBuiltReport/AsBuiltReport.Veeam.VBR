@@ -20,7 +20,7 @@ function Get-AbrBackupHyperVClusterInfo {
 
     )
     process {
-        Write-PScriboMessage "Collecting HyperV HyperVisor information from $($VBRServer)."
+        Write-PScriboMessage "Collecting HyperV Cluster HyperVisor information from $($VBRServer)."
         try {
             $HyObjs = Get-VBRServer | Where-Object { $_.Type -eq 'HvCluster' }
             $HyObjsInfo = @()
