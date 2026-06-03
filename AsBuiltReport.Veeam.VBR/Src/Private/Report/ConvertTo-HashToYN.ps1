@@ -6,7 +6,7 @@ function ConvertTo-HashToYN {
 
     .NOTES
         Version:        0.2.0
-        Author:         Jonathan Colon
+        Author:         AsBuiltReport Organization
 
     .EXAMPLE
 

@@ -21,7 +21,7 @@ function Get-AbrTapeLibraryInfo {
     .NOTES
         This function requires the Veeam Backup & Replication PowerShell module to be installed and imported.
         Ensure that you have the necessary permissions to access the VBR server and retrieve Tape Library information.
-        Author: Jonathan Colon
+        Author: AsBuiltReport
         Date: 2024-12-31
         Version: 1.0
     #>

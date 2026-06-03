@@ -42,7 +42,7 @@ function Get-AbrRoleType {
 
     .NOTES
         Version: 0.6.5
-        Author: Jonathan Colon
+        Author: AsBuiltReport
 
     .EXAMPLE
         PS C:\> Get-AbrRoleType -String 'LinuxLocal'

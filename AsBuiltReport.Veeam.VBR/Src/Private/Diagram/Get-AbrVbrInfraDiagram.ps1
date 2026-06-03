@@ -7,8 +7,8 @@ function Get-AbrInfraDiagram {
     .NOTES
         Version:        1.0.0
         Author(s):      Jonathan Colon
-        Twitter:        @jcolonfzenpr
-        GitHub:         rebelinux
+        Twitter:        @asbuiltreport
+        Github:         asbuiltreport
         Credits:        Kevin Marquette (@KevinMarquette) - PSGraph module
                         Prateek Singh (@PrateekKumarSingh) - AzViz module
     .LINK

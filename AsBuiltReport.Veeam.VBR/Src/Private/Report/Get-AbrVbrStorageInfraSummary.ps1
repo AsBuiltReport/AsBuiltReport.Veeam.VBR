@@ -7,9 +7,9 @@ function Get-AbrVbrStorageInfraSummary {
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
         Version:        0.8.20
-        Author:         Jonathan Colon
-        Twitter:        @jcolonfzenpr
-        Github:         rebelinux
+        Author:         AsBuiltReport Organization
+        Twitter:        @asbuiltreport
+        Github:         asbuiltreport
         Credits:        Iain Brighton (@iainbrighton) - PScribo module
 
     .LINK

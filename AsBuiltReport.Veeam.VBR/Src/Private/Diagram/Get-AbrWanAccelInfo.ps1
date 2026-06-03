@@ -21,7 +21,7 @@ function Get-AbrWanAccelInfo {
     .NOTES
         This function requires the Veeam Backup & Replication PowerShell module to be installed and imported.
         Ensure that you have the necessary permissions to access the Veeam Backup & Replication server.
-        Author: Jonathan Colon
+        Author: AsBuiltReport
         Date: 2024-12-30
         Version: 1.0
     #>

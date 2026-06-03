@@ -25,7 +25,7 @@ function Get-AbrNASProxyInfo {
 
     .NOTES
     This function uses the Get-AbrNASProxyServer cmdlet to retrieve the NAS proxy server information and the Get-AbrIconType function to determine the icon type.
-    Author: Jonathan Colon
+    Author: AsBuiltReport
     Date: 2024-12-30
     Version: 1.0
     #>

@@ -14,9 +14,9 @@ function Get-AbrServerConnection {
 
     .NOTES
         Version:        1.0.0
-        Author:         Jonathan Colon
-        Twitter:        @jcolonfzenpr
-        GitHub:         rebelinux
+        Author:         AsBuiltReport Organization
+        Twitter:        @asbuiltreport
+        Github:         asbuiltreport
         Credits:        Iain Brighton (@iainbrighton) - PScribo module
 
     .LINK
