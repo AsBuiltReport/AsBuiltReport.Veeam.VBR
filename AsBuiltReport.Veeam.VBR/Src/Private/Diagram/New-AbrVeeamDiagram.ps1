@@ -124,7 +124,7 @@ function New-AbrVeeamDiagram {
         For best results, ensure all image assets meet the recommended size guidelines.
 
     .NOTES
-        Version:        1.0.0
+        Version:        1.0.3
         Author(s):      Jonathan Colon
         Twitter:        @asbuiltreport
         Github:         asbuiltreport

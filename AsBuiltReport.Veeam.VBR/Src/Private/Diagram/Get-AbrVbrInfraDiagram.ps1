@@ -5,7 +5,7 @@ function Get-AbrInfraDiagram {
     .DESCRIPTION
         This script creates a visual representation of the Veeam Backup & Replication infrastructure configuration. The output can be generated in PDF, SVG, DOT, or PNG formats. It leverages the PSGraph module for PowerShell and Graphviz for rendering the diagrams.
     .NOTES
-        Version:        1.0.0
+        Version:        1.0.3
         Author(s):      Jonathan Colon
         Twitter:        @asbuiltreport
         Github:         asbuiltreport

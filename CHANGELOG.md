@@ -27,6 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Fix issue with the VMware/HyperV Infrastructure information not being properly displayed in the Infrastructure diagram
 - Fix Get-AbrVbrKMSInfo function to streamline KMS server data handling and improve error messaging
+- Fix version check condition in Get-AbrVbrBackupServerInfo.ps1
 
 ## [1.0.2] - 2026-05-08
 
