@@ -19,7 +19,7 @@ function Get-AbrObjectRepoInfo {
         Retrieves information about all configured object repositories.
 
     .NOTES
-        Author: Jonathan Colon
+        Author: AsBuiltReport
         Date: 2024-12-30
         Version: 1.0
     #>
