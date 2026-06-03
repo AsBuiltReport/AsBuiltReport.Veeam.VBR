@@ -6,7 +6,7 @@ function Get-AbrVbrBackupServerInfo {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        1.0.1
+        Version:        1.0.3
         Author:         AsBuiltReport Organization
         Twitter:        @asbuiltreport
         Github:         asbuiltreport
@@ -32,7 +32,7 @@ function Get-AbrVbrBackupServerInfo {
                 { $_.Major -lt 13 } { Get-VBRServer -Type Local }
                 default { Get-VBRServer | Where-Object { $_.Description -eq 'Backup server' } }
             }
-            if (($VbrVersion.Major -gt 13) -and (Get-VBRServer | Where-Object { $_.Description -eq 'Backup server' -and $_.Type -eq 'Linux' } )) {
+            if (($VbrVersion.Major -ge 13) -and (Get-VBRServer | Where-Object { $_.Description -eq 'Backup server' -and $_.Type -eq 'Linux' } )) {
                 $VeeamVersion = @{
                     DisplayVersion = $VbrVersion
                 }
