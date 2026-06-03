@@ -132,7 +132,7 @@ function New-AbrVeeamDiagram {
                         Prateek Singh (@PrateekKumarSingh) - AzViz module
 
     .LINK
-        https://github.com/rebelinux/Veeam.Diagrammer
+        https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR
         https://github.com/KevinMarquette/PSGraph
         https://github.com/PrateekKumarSingh/AzViz
     #>

@@ -10,7 +10,7 @@ function Get-AbrBackupServerInformation {
         Twitter:        @asbuiltreport
         Github:         asbuiltreport
     .LINK
-        https://github.com/rebelinux/Veeam.Diagrammer
+        https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR
     #>
     [CmdletBinding()]
 

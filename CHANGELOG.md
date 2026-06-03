@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Update README.md to clarify PowerShell version requirements for Veeam v12 environments
 - Refactor Release.yml to enable Bluesky posting for new releases
 - Update author information across multiple PowerShell scripts to reflect AsBuiltReport Organization
+- Update repository links in PowerShell scripts to reflect AsBuiltReport organization
 
 ### :bug: Fixed
 

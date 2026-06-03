@@ -20,7 +20,7 @@ function Get-AbrServerConnection {
         Credits:        Iain Brighton (@iainbrighton) - PScribo module
 
     .LINK
-        https://github.com/rebelinux/Veeam.Diagrammer
+        https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR
 
     .EXAMPLE
         PS> Get-AbrServerConnection -Port 9392
