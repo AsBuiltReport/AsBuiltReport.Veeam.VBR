@@ -21,7 +21,7 @@ function Get-AbrVirtualLabInfo {
     .NOTES
         This function requires the Veeam Backup & Replication PowerShell module to be installed and configured.
         The function uses the Get-AbrVirtualLab cmdlet to retrieve Virtual Lab information.
-        Author: Jonathan Colon
+        Author: AsBuiltReport
         Date: 2024-12-31
         Version: 1.0
     #>

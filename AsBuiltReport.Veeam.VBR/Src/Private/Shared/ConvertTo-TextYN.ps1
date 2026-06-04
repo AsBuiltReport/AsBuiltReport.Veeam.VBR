@@ -38,7 +38,7 @@ function ConvertTo-TextYN {
         Maybe
 
     .LINK
-        https://github.com/rebelinux/Veeam.Diagrammer
+        https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR
     #>
     [OutputType([String])]
     param (

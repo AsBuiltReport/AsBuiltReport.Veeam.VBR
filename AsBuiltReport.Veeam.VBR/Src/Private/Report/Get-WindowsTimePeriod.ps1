@@ -5,7 +5,7 @@ function Get-WindowsTimePeriod {
     .DESCRIPTION
     .NOTES
         Version:        0.1.0
-        Author:         Jonathan Colon
+        Author:         AsBuiltReport Organization
     .EXAMPLE
     .LINK
     #>

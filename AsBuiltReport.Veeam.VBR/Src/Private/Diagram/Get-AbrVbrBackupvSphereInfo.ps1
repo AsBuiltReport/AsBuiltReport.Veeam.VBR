@@ -5,12 +5,12 @@ function Get-AbrBackupvSphereInfo {
     .DESCRIPTION
         Build a diagram of the configuration of Veeam VBR in PDF/PNG/SVG formats using Psgraph.
     .NOTES
-        Version:        1.0.0
-        Author:         Jonathan Colon
-        Twitter:        @jcolonfzenpr
-        Github:         rebelinux
+        Version:        1.0.3
+        Author:         AsBuiltReport Organization
+        Twitter:        @asbuiltreport
+        Github:         asbuiltreport
     .LINK
-        https://github.com/rebelinux/Veeam.Diagrammer
+        https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR
     #>
     [CmdletBinding()]
     [OutputType([System.Object[]])]
@@ -31,9 +31,9 @@ function Get-AbrBackupvSphereInfo {
 
                         $Rows = @{
                             IP = Get-AbrNodeIP -Hostname $HyObj.Info.DnsName
-                            Version = switch ([string]::IsNullOrEmpty($HyObj.Info.ViVersion)) {
+                            Version = switch ([string]::IsNullOrEmpty($HyObj.Info.Info)) {
                                 $true { 'Unknown' }
-                                default { $HyObj.Info.ViVersion }
+                                default { try { $HyObj.info.Info.split(' ')[3] } catch { 'Unknown' } }
                             }
                         }
 
@@ -51,9 +51,9 @@ function Get-AbrBackupvSphereInfo {
                                         EsxiHost = foreach ($Esxi in $ESXis | Where-Object { $_.path -match $Cluster.Name }) {
                                             $Rows = @{
                                                 IP = Get-AbrNodeIP -Hostname $Esxi.Info.DnsName
-                                                Version = switch ([string]::IsNullOrEmpty($Esxi.Info.ViVersion)) {
+                                                Version = switch ([string]::IsNullOrEmpty($Esxi.Info.Info)) {
                                                     $true { 'Unknown' }
-                                                    default { $Esxi.Info.ViVersion }
+                                                    default { try { $Esxi.Info.Info.split(' ')[2] } catch { 'Unknown' } }
                                                 }
                                             }
                                             [PSCustomObject]@{

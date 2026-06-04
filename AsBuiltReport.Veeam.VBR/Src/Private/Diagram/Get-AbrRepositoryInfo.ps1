@@ -15,7 +15,7 @@ function Get-AbrRepositoryInfo {
 
     .NOTES
         This function requires the Veeam Backup & Replication PowerShell module to be installed and configured.
-        Author: Jonathan Colon
+        Author: AsBuiltReport
         Date: 2024-12-30
         Version: 1.0
     .EXAMPLE

@@ -6,10 +6,10 @@ function Get-AbrVbrKMSInfo {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        1.0.0
-        Author:         Jonathan Colon
-        Twitter:        @jcolonfzenpr
-        Github:         rebelinux
+        Version:        1.0.3
+        Author:         AsBuiltReport Organization
+        Twitter:        @asbuiltreport
+        Github:         asbuiltreport
         Credits:        Iain Brighton (@iainbrighton) - PScribo module
 
     .LINK
@@ -32,30 +32,30 @@ function Get-AbrVbrKMSInfo {
                 Section -Style Heading3 $LocalizedData.Heading {
                     Paragraph $LocalizedData.Paragraph
                     BlankLine
-                    $OutObj = @()
                     foreach ($KMSServer in $KMSServers) {
-                        try {
-
-                            $inObj = [ordered] @{
-                                $LocalizedData.Name = $KMSServer.Name
-                                $LocalizedData.CACertificate = $KMSServer.CACertificate
-                                $LocalizedData.ClientCertificate = $KMSServer.ClientCertificate
-                                $LocalizedData.Port = "TCP/$($KMSServer.Port)"
-                                $LocalizedData.Description = $KMSServer.Description
+                        Section -ExcludeFromTOC -Style NOTOCHeading3 $KMSServer.Name {
+                            $OutObj = @()
+                            try {
+                                $inObj = [ordered] @{
+                                    $LocalizedData.CACertificate = $KMSServer.CACertificate
+                                    $LocalizedData.ClientCertificate = $KMSServer.ClientCertificate
+                                    $LocalizedData.Port = "TCP/$($KMSServer.Port)"
+                                    $LocalizedData.Description = $KMSServer.Description
+                                }
+                                $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
+                            } catch {
+                                Write-PScriboMessage -IsWarning "Key Management Server $($KMSServer.Name) Section: $($_.Exception.Message)"
                             }
-                            $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
-                        } catch {
-                            Write-PScriboMessage -IsWarning "Key Management Server $($KMSServer.Name) Section: $($_.Exception.Message)"
+                            $TableParams = @{
+                                Name = "$($LocalizedData.TableHeading) - $($KMSServer.Name)"
+                                List = $true
+                                ColumnWidths = 40, 60
+                            }
+                            if ($Report.ShowTableCaptions) {
+                                $TableParams['Caption'] = "- $($TableParams.Name)"
+                            }
+                            $OutObj | Table @TableParams
                         }
-                        $TableParams = @{
-                            Name = "$($LocalizedData.TableHeading) - $($KMSServer.Name)"
-                            List = $true
-                            ColumnWidths = 40, 60
-                        }
-                        if ($Report.ShowTableCaptions) {
-                            $TableParams['Caption'] = "- $($TableParams.Name)"
-                        }
-                        $OutObj | Table @TableParams
                     }
                 }
             }

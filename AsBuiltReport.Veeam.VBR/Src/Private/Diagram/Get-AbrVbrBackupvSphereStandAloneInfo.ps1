@@ -5,12 +5,12 @@ function Get-AbrBackupvSphereStandAloneInfo {
     .DESCRIPTION
         Build a diagram of the configuration of Veeam VBR in PDF/PNG/SVG formats using Psgraph.
     .NOTES
-        Version:        1.0.0
-        Author:         Jonathan Colon
-        Twitter:        @jcolonfzenpr
-        Github:         rebelinux
+        Version:        1.0.3
+        Author:         AsBuiltReport Organization
+        Twitter:        @asbuiltreport
+        Github:         asbuiltreport
     .LINK
-        https://github.com/rebelinux/Veeam.Diagrammer
+        https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR
     #>
     [CmdletBinding()]
     [OutputType([System.Object[]])]
@@ -29,9 +29,9 @@ function Get-AbrBackupvSphereStandAloneInfo {
                     try {
                         $Rows = @{
                             IP = Get-AbrNodeIP -Hostname $ViObj.Info.DnsName
-                            Version = switch ([string]::IsNullOrEmpty($ViObj.Info.ViVersion)) {
+                            Version = switch ([string]::IsNullOrEmpty($ViObj.Info.Info)) {
                                 $true { 'Unknown' }
-                                $false { $ViObj.Info.ViVersion }
+                                $false { try { $ViObj.Info.Info.split(' ')[2] } catch { 'Unknown' } }
                                 default { 'Unknown' }
                             }
                         }

@@ -6,11 +6,11 @@ function Get-AbrBackupServerInformation {
         Build a diagram of the configuration of Veeam VBR in PDF/PNG/SVG formats using Psgraph.
     .NOTES
         Version:        1.0.1
-        Author:         Jonathan Colon
-        Twitter:        @jcolonfzenpr
-        Github:         rebelinux
+        Author:         AsBuiltReport Organization
+        Twitter:        @asbuiltreport
+        Github:         asbuiltreport
     .LINK
-        https://github.com/rebelinux/Veeam.Diagrammer
+        https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR
     #>
     [CmdletBinding()]
 
@@ -84,7 +84,9 @@ function Get-AbrBackupServerInformation {
                 $Roles = if ($VeeamDBInfo -eq $VBRServer) { 'Backup and Database' } else { 'Backup Server' }
                 $DBType = $VeeamInfo.DBFlavor.SqlActiveConfiguration
 
-                $HACluster = try { Get-VBRHighAvailabilityCluster -WarningAction SilentlyContinue } catch { Out-Null }
+                if ($VbrVersion.Major -ge 13) {
+                    $HACluster = try { Get-VBRHighAvailabilityCluster -WarningAction SilentlyContinue } catch { Out-Null }
+                }
 
                 $Rows = [ordered] @{
                     IP = Get-AbrNodeIP -Hostname $VBRServer

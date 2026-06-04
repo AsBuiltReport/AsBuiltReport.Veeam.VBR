@@ -5,12 +5,12 @@ function Get-AbrBackupHyperVStandAloneInfo {
     .DESCRIPTION
         Build a diagram of the configuration of Veeam VBR in PDF/PNG/SVG formats using Psgraph.
     .NOTES
-        Version:        1.0.0
-        Author:         Jonathan Colon
-        Twitter:        @jcolonfzenpr
-        Github:         rebelinux
+        Version:        1.0.3
+        Author:         AsBuiltReport Organization
+        Twitter:        @asbuiltreport
+        Github:         asbuiltreport
     .LINK
-        https://github.com/rebelinux/Veeam.Diagrammer
+        https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR
     #>
     [CmdletBinding()]
     [OutputType([System.Object[]])]
@@ -20,7 +20,7 @@ function Get-AbrBackupHyperVStandAloneInfo {
 
     )
     process {
-        Write-PScriboMessage "Collecting HyperV HyperVisor information from $($VBRServer)."
+        Write-PScriboMessage "Collecting HyperV Standalone HyperVisor information from $($VBRServer)."
         try {
             $HyObjs = Get-VBRServer | Where-Object { $_.Type -eq 'HvServer' -and $_.Parentid -eq '00000000-0000-0000-0000-000000000000' }
             $HyObjsInfo = @()
@@ -31,7 +31,7 @@ function Get-AbrBackupHyperVStandAloneInfo {
                             IP = Get-AbrNodeIP -Hostname $HyObj.Info.DnsName
                             Version = switch ([string]::IsNullOrEmpty($HyObj.Info.Info)) {
                                 $true { 'Unknown' }
-                                $false { $HyObj.Info.Info.Split('()')[1].split('build:')[0] }
+                                $false { try { $HyObj.Info.Info.Split('(')[1].split('build:')[0] } catch { 'Unknown' } }
                                 default { 'Unknown' }
                             }
                         }

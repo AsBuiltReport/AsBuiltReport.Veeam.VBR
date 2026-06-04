@@ -124,15 +124,15 @@ function New-AbrVeeamDiagram {
         For best results, ensure all image assets meet the recommended size guidelines.
 
     .NOTES
-        Version:        1.0.0
+        Version:        1.0.3
         Author(s):      Jonathan Colon
-        Twitter:        @jcolonfzenpr
-        Github:         rebelinux
+        Twitter:        @asbuiltreport
+        Github:         asbuiltreport
         Credits:        Kevin Marquette (@KevinMarquette) - PSGraph module
                         Prateek Singh (@PrateekKumarSingh) - AzViz module
 
     .LINK
-        https://github.com/rebelinux/Veeam.Diagrammer
+        https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR
         https://github.com/KevinMarquette/PSGraph
         https://github.com/PrateekKumarSingh/AzViz
     #>

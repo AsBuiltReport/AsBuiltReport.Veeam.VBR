@@ -79,12 +79,12 @@ The Veeam VBR As Built Report is only supported on PowerShell 5.1 when generatin
 
 PowerShell 5.1/7 and the following PowerShell modules are required to generate a Veeam VBR As Built report:
 
-- [AsBuiltReport.Core Module](https://github.com/AsBuiltReport/AsBuiltReport.Core)
-- [AsBuiltReport.Chart Module](https://github.com/AsBuiltReport/AsBuiltReport.Chart)
-- [AsBuiltReport.Diagram Module](https://github.com/AsBuiltReport/AsBuiltReport.Diagram)
-- [PScribo Module](https://github.com/iainbrighton/PScribo)
-- [PSGraph Module](https://github.com/KevinMarquette/PSGraph)
-- [Veeam.Backup.PowerShell Module](https://helpcenter.veeam.com/docs/backup/powershell/getting_started.html?ver=110)
+- [AsBuiltReport.Core](https://github.com/AsBuiltReport/AsBuiltReport.Core)
+- [AsBuiltReport.Chart](https://github.com/AsBuiltReport/AsBuiltReport.Chart)
+- [AsBuiltReport.Diagram](https://github.com/AsBuiltReport/AsBuiltReport.Diagram)
+- [PScribo](https://github.com/iainbrighton/PScribo)
+- [PSGraph](https://github.com/KevinMarquette/PSGraph)
+- [Veeam.Backup.PowerShell](https://helpcenter.veeam.com/docs/backup/powershell/getting_started.html?ver=110)
 
 ### :closed_lock_with_key: Required Privileges
 
@@ -294,7 +294,7 @@ PS C:\> Start-AsBuiltReportVBR
 
 ![alt text](Samples/Sample-Gui.png)
 
-## Export Diagrams
+## :chart_with_upwards_trend: Export Diagrams
 
 The `Export-AsBuiltReportVBRDiagram` cmdlet can be used to export the infrastructure diagrams separately from the report generation process. This allows users to generate and export the diagrams in different formats (PDF, PNG, SVG) without having to generate the entire report.
 
@@ -304,8 +304,18 @@ PS C:\> $Creds = Get-Credential
 PS C:\> Export-AsBuiltReportVBRDiagram -Target veeam-vbr.pharmax.local -Credential $Creds -Format png -OutputFolderPath 'C:\Users\Jon\Documents' -DiagramType 'Backup-Infrastructure'
 ```
 
+### :memo: Log Collection
+
+The `Get-AbrVbrLog` cmdlet can be used to collect AsBuiltReport.Veeam.VBR logs for troubleshooting purposes. This cmdlet collects the logs and diagnostic information from the powershell host running the report and saves them to a specified output folder.
+
+```powershell
+# Collect powershell host logs and diagnostic information. Save logs to 'C:\Users\Jon\Desktop\'.
+PS C:\> Get-AbrVbrLog -OutputFolderPath 'C:\Users\Jon\Desktop\' -IncludeErrorDetails
+```
+
 ## :x: Known Issues
 
+- To run the report against a Veeam Backup & Replication v12 environment, the report must be installed using PowerShell 5.1. PowerShell 7 is not supported for v12 environments.
 - Many of Veeam's features depend on the Standard+ license, so the Community edition is not supported.
 - If the Veeam Backup Server is not joined to an Active Directory domain (WorkGroup Auth), the PSDefaultAuthentication option must be set to Negotiate. Otherwise, some report sections will be missing.
 - This project uses the PScribo module to generate the report. If you have the EvotecIT PSWriteWord module installed, uninstall it, as it contains conflicting cmdlet names that will prevent the report from generating correctly.

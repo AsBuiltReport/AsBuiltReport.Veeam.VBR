@@ -20,7 +20,7 @@ function Get-AbrSOBRInfo {
 
     .NOTES
         This function requires the Veeam Backup & Replication PowerShell module to be installed and connected to a Veeam Backup & Replication server.
-        Author: Jonathan Colon
+        Author: AsBuiltReport
         Date: 2024-12-30
         Version: 1.0
     #>

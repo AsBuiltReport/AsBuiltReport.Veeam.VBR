@@ -19,7 +19,7 @@ function Get-AbrProxyInfo {
     Collects and returns information about Veeam Backup & Replication proxies from the VBR server.
 
     .NOTES
-    Author: Jonathan Colon
+    Author: AsBuiltReport
     Date: 2024-12-30
     Version: 1.0
     #>

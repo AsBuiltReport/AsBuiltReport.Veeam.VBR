@@ -27,8 +27,8 @@ function Get-AbrVbrLog {
         object to the pipeline.
     .NOTES
         Version:        0.1.0
-        Author:         Jonathan Colon
-        Github:         rebelinux
+        Author:         AsBuiltReport Organization
+        Github:         asbuiltreport
     .LINK
         https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR
     #>

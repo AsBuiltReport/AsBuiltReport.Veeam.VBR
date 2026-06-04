@@ -7,9 +7,9 @@ function Get-AbrVbrVirtualInfrastructure {
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
         Version:        0.8.26
-        Author:         Jonathan Colon
-        Twitter:        @jcolonfzenpr
-        Github:         rebelinux
+        Author:         AsBuiltReport Organization
+        Twitter:        @asbuiltreport
+        Github:         asbuiltreport
         Credits:        Iain Brighton (@iainbrighton) - PScribo module
 
     .LINK
@@ -81,11 +81,15 @@ function Get-AbrVbrVirtualInfrastructure {
                                             $OutObj = @()
                                             foreach ($InventObj in $InventObjs) {
                                                 try {
-
+                                                    $Result = try { Find-VBRViEntity -Name $InventObj.Name } catch { Out-Null }
                                                     $inObj = [ordered] @{
                                                         $LocalizedData.Name = $InventObj.Name
                                                         $LocalizedData.Version = ($InventObj).Info.Info
-                                                        $LocalizedData.ConnectedVcenter = try { (Find-VBRViEntity -Name $InventObj.Name).Path.split('\')[0] } catch { Out-Null }
+                                                        $LocalizedData.ConnectedVcenter = switch ($Result) {
+                                                            $true { 'None' }
+                                                            $false { $Result.Path.split('\')[0] }
+                                                            default { 'Unknown' }
+                                                        }
                                                     }
 
                                                     $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
