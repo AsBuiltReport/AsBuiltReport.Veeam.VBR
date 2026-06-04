@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ##### This project is community maintained and has no sponsorship from Veeam, its employees or any of its affiliates.
 
-## [1.0.3] - Unreleased
+## [1.0.3] - 2026-06-03
 
 ### :arrows_clockwise: Changed
 
@@ -18,7 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Implement version check for High Availability cluster retrieval in backup server functions
 - Refactor Get-AbrVbrRequiredModule function to improve Veeam module handling and version retrieval
 - Enhance Veeam Virtual Infrastructure by improving connected vCenter handling and error management
-- Update README.md to clarify PowerShell version requirements for Veeam v12 environments
+- Update README.md to clarify PowerShell version requirements for Veeam VBR `v12` environments
 - Refactor Release.yml to enable Bluesky posting for new releases
 - Update author information across multiple PowerShell scripts to reflect AsBuiltReport Organization
 - Update repository links in PowerShell scripts to reflect AsBuiltReport organization
