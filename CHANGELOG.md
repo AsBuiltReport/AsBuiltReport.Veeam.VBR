@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Refactor Release.yml to enable Bluesky posting for new releases
 - Update author information across multiple PowerShell scripts to reflect AsBuiltReport Organization
 - Update repository links in PowerShell scripts to reflect AsBuiltReport organization
+- Validated the report in `v13.0.2.29`
 
 ### :bug: Fixed
 
