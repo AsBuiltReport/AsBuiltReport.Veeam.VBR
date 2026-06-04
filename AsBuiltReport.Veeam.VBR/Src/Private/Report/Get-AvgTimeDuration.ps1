@@ -5,7 +5,7 @@ function Get-AvgTimeDuration {
     .DESCRIPTION
     .NOTES
         Version:        0.1.0
-        Author:         Jonathan Colon
+        Author:         AsBuiltReport Organization
     .EXAMPLE
         Get-AvgTimeDuration -$InputObject $Variable -StartTime $StartObjct -EndTime $EndObject
     .LINK

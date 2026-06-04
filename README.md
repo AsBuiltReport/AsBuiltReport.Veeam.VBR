@@ -315,7 +315,8 @@ PS C:\> Get-AbrVbrLog -OutputFolderPath 'C:\Users\Jon\Desktop\' -IncludeErrorDet
 
 ## :x: Known Issues
 
-- Many of Veeam's features depend on the Standard+ license, so the Community edition is not supported.
+- To run the report against a Veeam Backup & Replication v12 environment, the report must be installed using PowerShell 5.1. PowerShell 7 is not supported for v12 environments.
+Many of Veeam's features depend on the Standard+ license, so the Community edition is not supported.
 - If the Veeam Backup Server is not joined to an Active Directory domain (WorkGroup Auth), the PSDefaultAuthentication option must be set to Negotiate. Otherwise, some report sections will be missing.
 - This project uses the PScribo module to generate the report. If you have the EvotecIT PSWriteWord module installed, uninstall it, as it contains conflicting cmdlet names that will prevent the report from generating correctly.
 

@@ -6,10 +6,10 @@ function Get-AbrVbrTapeVault {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        1.0.0
-        Author:         Jonathan Colon
-        Twitter:        @jcolonfzenpr
-        Github:         rebelinux
+        Version:        1.0.3
+        Author:         AsBuiltReport Organization
+        Twitter:        @asbuiltreport
+        Github:         asbuiltreport
         Credits:        Iain Brighton (@iainbrighton) - PScribo module
 
     .LINK

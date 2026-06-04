@@ -27,7 +27,7 @@ function Get-AbrApplicationGroupsInfo {
     This function uses the Get-AbrApplicationGroup cmdlet to retrieve the Application Groups and
     the Get-AbrIconType function to determine the icon type.
 
-    Author: Jonathan Colon
+    Author: AsBuiltReport Organization
     Date: 2024-12-31
     Version: 1.0
     #>

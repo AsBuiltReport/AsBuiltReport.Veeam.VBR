@@ -16,7 +16,7 @@ function Get-AbrArchObjectRepoInfo {
     Returns objects containing information about the archive object repositories.
 
     .NOTES
-    Author: Jonathan Colon
+    Author: AsBuiltReport Organization
     Date: 2024-12-30
     Version: 1.0
     #>

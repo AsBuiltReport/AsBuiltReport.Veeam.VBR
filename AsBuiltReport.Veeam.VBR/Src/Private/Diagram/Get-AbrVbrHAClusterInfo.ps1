@@ -7,11 +7,11 @@ function Get-AbrHAClusterInfo {
         Build a diagram of the configuration of Veeam VBR in PDF/PNG/SVG formats using Psgraph.
     .NOTES
         Version:        1.0.3
-        Author:         Jonathan Colon
-        Twitter:        @jcolonfzenpr
-        Github:         rebelinux
+        Author:         AsBuiltReport Organization
+        Twitter:        @asbuiltreport
+        Github:         asbuiltreport
     .LINK
-        https://github.com/rebelinux/Veeam.Diagrammer
+        https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR
     #>
     [CmdletBinding()]
 

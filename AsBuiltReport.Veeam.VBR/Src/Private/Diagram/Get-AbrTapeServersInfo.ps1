@@ -21,7 +21,7 @@ function Get-AbrTapeServersInfo {
         Retrieves and displays information about all Tape Servers from the Veeam Backup & Replication server.
 
     .NOTES
-        Author: Jonathan Colon
+        Author: AsBuiltReport
         Date: 2024-12-31
         Version: 1.0
     #>

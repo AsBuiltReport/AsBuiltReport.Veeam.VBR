@@ -19,7 +19,7 @@ function Get-AbrSANInfo {
 
     .NOTES
         This function uses the Get-NetAppHost and Get-AbrIsilonHost cmdlets to retrieve SAN host information. It processes the data to include additional information and icon types for each host.
-        Author: Jonathan Colon
+        Author: AsBuiltReport
         Date: 2024-12-30
         Version: 1.0
     #>

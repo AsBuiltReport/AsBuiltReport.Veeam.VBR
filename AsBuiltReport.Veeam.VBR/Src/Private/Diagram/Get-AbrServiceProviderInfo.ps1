@@ -20,7 +20,7 @@ function Get-AbrServiceProviderInfo {
 
     .NOTES
         This function requires the Veeam Backup & Replication PowerShell module to be installed and imported.
-        Author: Jonathan Colon
+        Author: AsBuiltReport
         Date: 2024-12-31
         Version: 1.0
     #>
