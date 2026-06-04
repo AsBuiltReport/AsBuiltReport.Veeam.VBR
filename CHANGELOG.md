@@ -17,7 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Bump AsBuiltReport.Chart module to `v0.3.2`
 - Implement version check for High Availability cluster retrieval in backup server functions
 - Refactor Get-AbrVbrRequiredModule function to improve Veeam module handling and version retrieval
-- Enhance Veeam Virtual Infrastructure retrieval by improving connected vCenter handling and error management
+- Enhance Veeam Virtual Infrastructure by improving connected vCenter handling and error management
 - Update README.md to clarify PowerShell version requirements for Veeam v12 environments
 - Refactor Release.yml to enable Bluesky posting for new releases
 - Update author information across multiple PowerShell scripts to reflect AsBuiltReport Organization
@@ -27,7 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Fix issue with the VMware/HyperV Infrastructure information not being properly displayed in the Infrastructure diagram
 - Fix Get-AbrVbrKMSInfo function to streamline KMS server data handling and improve error messaging
-- Fix version check condition in Get-AbrVbrBackupServerInfo.ps1
+- Fix version check condition in Get-AbrVbrBackupServerInfo to properly handle Windows/Linux appliance versions
 
 ## [1.0.2] - 2026-05-08
 
