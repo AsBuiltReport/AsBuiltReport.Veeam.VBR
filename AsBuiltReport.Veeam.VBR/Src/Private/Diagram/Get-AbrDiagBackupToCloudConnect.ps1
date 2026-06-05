@@ -5,7 +5,7 @@ function Get-AbrDiagBackupToCloudConnect {
     .DESCRIPTION
         Build a diagram of the configuration of Veeam VBR in PDF/PNG/SVG formats using Psgraph.
     .NOTES
-        Version:        1.0.3
+        Version:        1.0.4
         Author:         AsBuiltReport Organization
         Twitter:        @asbuiltreport
         Github:         asbuiltreport
@@ -35,7 +35,7 @@ function Get-AbrDiagBackupToCloudConnect {
                 $CGServerNodeColumnSize = $CGServerInfo.Name.Count
             }
             try {
-                $CGServerNode = Add-HtmlNodeTable -Name 'CGServerNode' -ImagesObj $Images -inputObject $CGServerInfo.Name -Align 'Center' -iconType 'VBR_Cloud_Connect_Gateway' -ColumnSize $CGServerNodeColumnSize -IconDebug $IconDebug -MultiIcon -AditionalInfo $CGServerInfo.AditionalInfo -Subgraph -SubgraphIconType 'VBR_Service_Providers_Server' -SubgraphLabel 'Gateway Servers' -SubgraphLabelPos 'top' -SubgraphTableStyle 'dashed,rounded' -TableBorderColor $TableBorderColor -TableBorder '1' -SubgraphLabelFontSize 22 -FontSize 18 -FontColor $Fontcolor -SubgraphFontBold -TableBackgroundColor $MainGraphBGColor -CellBackgroundColor $MainGraphBGColor
+                $CGServerNode = Add-HtmlNodeTable -Name 'CGServerNode' -ImagesObj $Images -inputObject $CGServerInfo.Name -Align 'Center' -iconType 'VBR_Cloud_Connect_Gateway' -ColumnSize $CGServerNodeColumnSize -IconDebug $IconDebug -MultiIcon -AditionalInfo $CGServerInfo.AditionalInfo -Subgraph -SubgraphIconType 'VBR_Service_Providers_Server' -SubgraphLabel 'Gateway Servers' -SubgraphLabelPos 'top' -SubgraphTableStyle 'dashed,rounded' -TableBorderColor $TableBorderColor -TableBorder '1' -SubgraphLabelFontSize 22 -FontSize 18 -FontColor $Fontcolor -SubgraphFontBold -TableBackgroundColor $MainGraphBGColor -CellBackgroundColor $MainGraphBGColor -SubgraphLabelFontColor $Fontcolor
 
                 $CloudConnectInfraArray += $CGServerNode
             } catch {
@@ -53,9 +53,9 @@ function Get-AbrDiagBackupToCloudConnect {
                             } else {
                                 $CGPoolInfocolumnSize = 5
                             }
-                            Add-HtmlTable -Name 'CGPoolNode' -ImagesObj $Images -Rows $CGPool.CloudGateways.Name.split('.')[0] -ALIGN 'Center' -ColumnSize $CGPoolInfocolumnSize -IconDebug $IconDebug -Subgraph -SubgraphIconType 'VBR_Cloud_Connect_Gateway' -SubgraphLabel $CGPool.Name -SubgraphLabelPos 'top' -FontColor $Fontcolor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -NoFontBold -FontSize 18 -SubgraphFontBold -TableBackgroundColor $MainGraphBGColor
+                            Add-HtmlTable -Name 'CGPoolNode' -ImagesObj $Images -Rows $CGPool.CloudGateways.Name.split('.')[0] -ALIGN 'Center' -ColumnSize $CGPoolInfocolumnSize -IconDebug $IconDebug -Subgraph -SubgraphIconType 'VBR_Cloud_Connect_Gateway' -SubgraphLabel $CGPool.Name -SubgraphLabelPos 'top' -FontColor $Fontcolor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -NoFontBold -FontSize 18 -SubgraphFontBold -TableBackgroundColor $MainGraphBGColor -SubgraphTableStyle 'dashed,rounded'
                         } else {
-                            Add-HtmlTable -Name 'CGPoolNode' -ImagesObj $Images -Rows 'No Cloud Gateway Server' -ALIGN 'Center' -ColumnSize 1 -IconDebug $IconDebug -Subgraph -SubgraphIconType 'VBR_Cloud_Connect_Gateway' -SubgraphLabel $CGPool.Name -SubgraphLabelPos 'top' -FontColor $Fontcolor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -NoFontBold -FontSize 18 -SubgraphFontBold -TableBackgroundColor $MainGraphBGColor
+                            Add-HtmlTable -Name 'CGPoolNode' -ImagesObj $Images -Rows 'No Cloud Gateway Server' -ALIGN 'Center' -ColumnSize 1 -IconDebug $IconDebug -Subgraph -SubgraphIconType 'VBR_Cloud_Connect_Gateway' -SubgraphLabel $CGPool.Name -SubgraphLabelPos 'top' -FontColor $Fontcolor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -NoFontBold -FontSize 18 -SubgraphFontBold -TableBackgroundColor $MainGraphBGColor -SubgraphTableStyle 'dashed,rounded'
                         }
                     }
                 } catch {
@@ -90,7 +90,7 @@ function Get-AbrDiagBackupToCloudConnect {
                     $CCBSInfocolumnSize = 5
                 }
                 try {
-                    $CCBSNode = Add-HtmlNodeTable -Name 'CCBSNode' -ImagesObj $Images -inputObject $CCBSInfo.Name -Align 'Center' -iconType $CCBSInfo.IconType -ColumnSize $CCBSInfocolumnSize -IconDebug $IconDebug -MultiIcon -AditionalInfo $CCBSInfo.AditionalInfo -Subgraph -SubgraphIconType 'VBR_Repository' -SubgraphLabel 'Backup Storage' -SubgraphLabelPos 'top' -SubgraphTableStyle 'dashed,rounded' -TableBorderColor $TableBorderColor -TableBorder '1' -SubgraphLabelFontSize 22 -FontSize 18 -FontColor $Fontcolor -SubgraphFontBold -TableBackgroundColor $MainGraphBGColor -CellBackgroundColor $MainGraphBGColor
+                    $CCBSNode = Add-HtmlNodeTable -Name 'CCBSNode' -ImagesObj $Images -inputObject $CCBSInfo.Name -Align 'Center' -iconType $CCBSInfo.IconType -ColumnSize $CCBSInfocolumnSize -IconDebug $IconDebug -MultiIcon -AditionalInfo $CCBSInfo.AditionalInfo -Subgraph -SubgraphIconType 'VBR_Repository' -SubgraphLabel 'Backup Storage' -SubgraphLabelPos 'top' -SubgraphTableStyle 'dashed,rounded' -TableBorderColor $TableBorderColor -TableBorder '1' -SubgraphLabelFontSize 22 -FontSize 18 -FontColor $Fontcolor -SubgraphFontBold -TableBackgroundColor $MainGraphBGColor -CellBackgroundColor $MainGraphBGColor -SubgraphLabelFontColor $Fontcolor
 
                     $CloudConnectInfraArray += $CCBSNode
                 } catch {
@@ -107,7 +107,7 @@ function Get-AbrDiagBackupToCloudConnect {
                     $CCRRInfocolumnSize = 5
                 }
                 try {
-                    $CCRRNode = Add-HtmlNodeTable -Name 'CCRRNode' -ImagesObj $Images -inputObject $CCRRInfo.Name -Align 'Center' -iconType 'VBR_Hardware_Resources' -ColumnSize $CCRRInfocolumnSize -IconDebug $IconDebug -MultiIcon -AditionalInfo $CCRRInfo.AditionalInfo -Subgraph -SubgraphIconType 'VBR_Hardware_Resources' -SubgraphLabel 'Replica Resources' -SubgraphLabelPos 'top' -SubgraphTableStyle 'dashed,rounded' -TableBorderColor $TableBorderColor -TableBorder '1' -SubgraphLabelFontSize 22 -FontSize 18 -FontColor $Fontcolor -SubgraphFontBold -TableBackgroundColor $MainGraphBGColor -CellBackgroundColor $MainGraphBGColor
+                    $CCRRNode = Add-HtmlNodeTable -Name 'CCRRNode' -ImagesObj $Images -inputObject $CCRRInfo.Name -Align 'Center' -iconType 'VBR_Hardware_Resources' -ColumnSize $CCRRInfocolumnSize -IconDebug $IconDebug -MultiIcon -AditionalInfo $CCRRInfo.AditionalInfo -Subgraph -SubgraphIconType 'VBR_Hardware_Resources' -SubgraphLabel 'Replica Resources' -SubgraphLabelPos 'top' -SubgraphTableStyle 'dashed,rounded' -TableBorderColor $TableBorderColor -TableBorder '1' -SubgraphLabelFontSize 22 -FontSize 18 -FontColor $Fontcolor -SubgraphFontBold -TableBackgroundColor $MainGraphBGColor -CellBackgroundColor $MainGraphBGColor -SubgraphLabelFontColor $Fontcolor
 
                     $CloudConnectInfraArray += $CCRRNode
                 } catch {
@@ -124,7 +124,7 @@ function Get-AbrDiagBackupToCloudConnect {
                     $CCVCDRRInfocolumnSize = 5
                 }
                 try {
-                    $CCVCDRRNode = Add-HtmlNodeTable -Name 'CCVCDRRNode' -ImagesObj $Images -inputObject $CCVCDRRInfo.Name -Align 'Center' -iconType 'VBR_Cloud_Connect_vCD' -ColumnSize $CCVCDRRInfocolumnSize -IconDebug $IconDebug -MultiIcon -AditionalInfo $CCVCDRRInfo.AditionalInfo -Subgraph -SubgraphIconType 'VBR_Cloud_Connect_Server' -SubgraphLabel 'Replica Org vDCs' -SubgraphLabelPos 'top' -SubgraphTableStyle 'dashed,rounded' -TableBorderColor $TableBorderColor -TableBorder '1' -SubgraphLabelFontSize 22 -FontSize 18 -FontColor $Fontcolor -SubgraphFontBold -TableBackgroundColor $MainGraphBGColor -CellBackgroundColor $MainGraphBGColor
+                    $CCVCDRRNode = Add-HtmlNodeTable -Name 'CCVCDRRNode' -ImagesObj $Images -inputObject $CCVCDRRInfo.Name -Align 'Center' -iconType 'VBR_Cloud_Connect_vCD' -ColumnSize $CCVCDRRInfocolumnSize -IconDebug $IconDebug -MultiIcon -AditionalInfo $CCVCDRRInfo.AditionalInfo -Subgraph -SubgraphIconType 'VBR_Cloud_Connect_Server' -SubgraphLabel 'Replica Org vDCs' -SubgraphLabelPos 'top' -SubgraphTableStyle 'dashed,rounded' -TableBorderColor $TableBorderColor -TableBorder '1' -SubgraphLabelFontSize 22 -FontSize 18 -FontColor $Fontcolor -SubgraphFontBold -TableBackgroundColor $MainGraphBGColor -CellBackgroundColor $MainGraphBGColor -SubgraphLabelFontColor $Fontcolor
 
                     $CloudConnectInfraArray += $CCVCDRRNode
                 } catch {
