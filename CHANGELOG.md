@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ##### This project is community maintained and has no sponsorship from Veeam, its employees or any of its affiliates.
 
+## [1.0.4] - Unreleased
+
+### :arrows_clockwise: Changed
+
+- Update module version to `v1.0.4`
+
+### :bug: Fixed
+
+- Fix Cloud Connect Tenant diagrams not being generated
+
 ## [1.0.3] - 2026-06-03
 
 ### :arrows_clockwise: Changed

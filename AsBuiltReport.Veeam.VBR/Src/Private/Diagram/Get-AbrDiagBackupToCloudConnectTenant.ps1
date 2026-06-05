@@ -5,7 +5,7 @@ function Get-AbrDiagBackupToCloudConnectTenant {
     .DESCRIPTION
         Build a diagram of the configuration of Veeam VBR in PDF/PNG/SVG formats using Psgraph.
     .NOTES
-        Version:        1.0.3
+        Version:        1.0.4
         Author:         AsBuiltReport Organization
         Twitter:        @asbuiltreport
         Github:         asbuiltreport
@@ -65,7 +65,7 @@ function Get-AbrDiagBackupToCloudConnectTenant {
                     $CGServerNodeColumnSize = $CGServerInfo.Name.Count
                 }
                 try {
-                    $CGServerNode = Add-HtmlNodeTable -Name 'CGServerNode' -ImagesObj $Images -inputObject $CGServerInfo.Name -Align 'Center' -iconType 'VBR_Cloud_Connect_Gateway' -ColumnSize $CGServerNodeColumnSize -IconDebug $IconDebug -MultiIcon -AditionalInfo $CGServerInfo.AditionalInfo -Subgraph -SubgraphIconType 'VBR_Service_Providers_Server' -SubgraphLabel 'Gateway Servers' -SubgraphLabelPos 'top' -SubgraphTableStyle 'dashed,rounded' -TableBorderColor $TableBorderColor -TableBorder '1' -SubgraphLabelFontSize 22 -FontSize 18 -SubgraphFontBold -TableBackgroundColor $MainGraphBGColor -CellBackgroundColor $MainGraphBGColor
+                    $CGServerNode = Add-HtmlNodeTable -Name 'CGServerNode' -ImagesObj $Images -inputObject $CGServerInfo.Name -Align 'Center' -iconType 'VBR_Cloud_Connect_Gateway' -ColumnSize $CGServerNodeColumnSize -IconDebug $IconDebug -MultiIcon -AditionalInfo $CGServerInfo.AditionalInfo -Subgraph -SubgraphIconType 'VBR_Service_Providers_Server' -SubgraphLabel 'Gateway Servers' -SubgraphLabelPos 'top' -SubgraphTableStyle 'dashed,rounded' -TableBorderColor $TableBorderColor -TableBorder '1' -SubgraphLabelFontSize 22 -FontSize 18 -SubgraphFontBold -TableBackgroundColor $MainGraphBGColor -CellBackgroundColor $MainGraphBGColor -FontColor $Fontcolor -SubgraphLabelFontColor $Fontcolor
 
                     if ($CGServerNode) {
                         Node 'TenantGateway' -Attributes @{
@@ -170,7 +170,7 @@ function Get-AbrDiagBackupToCloudConnectTenant {
                         $BackupRepositorycolumnSize = 5
                     }
                     try {
-                        $CCBackupRepositoryNode = Add-HtmlNodeTable -Name 'CCBackupRepositoryNode' -ImagesObj $Images -inputObject $CCBackupStorageInfo.Repositories.Name -Align 'Center' -iconType $CCBackupStorageInfo.Repositories.IconType -ColumnSize $BackupRepositorycolumnSize -IconDebug $IconDebug -MultiIcon -AditionalInfo $CCBackupStorageInfo.Repositories.AditionalInfo -Subgraph -SubgraphIconType 'VBR_Repository' -SubgraphLabel 'Backup Repositories' -SubgraphLabelPos 'top' -SubgraphTableStyle 'dashed,rounded' -TableBorderColor $TableBorderColor -TableBorder '1' -SubgraphLabelFontSize 22 -FontSize 18 -SubgraphFontBold -TableBackgroundColor $MainGraphBGColor -CellBackgroundColor $MainGraphBGColor
+                        $CCBackupRepositoryNode = Add-HtmlNodeTable -Name 'CCBackupRepositoryNode' -ImagesObj $Images -inputObject $CCBackupStorageInfo.Repositories.Name -Align 'Center' -iconType $CCBackupStorageInfo.Repositories.IconType -ColumnSize $BackupRepositorycolumnSize -IconDebug $IconDebug -MultiIcon -AditionalInfo $CCBackupStorageInfo.Repositories.AditionalInfo -Subgraph -SubgraphIconType 'VBR_Repository' -SubgraphLabel 'Backup Repositories' -SubgraphLabelPos 'top' -SubgraphTableStyle 'dashed,rounded' -TableBorderColor $TableBorderColor -TableBorder '1' -SubgraphLabelFontSize 22 -FontSize 18 -SubgraphFontBold -TableBackgroundColor $MainGraphBGColor -CellBackgroundColor $MainGraphBGColor -FontColor $Fontcolor -SubgraphLabelFontColor $Fontcolor
 
                         if ($CCBackupRepositoryNode) {
                             $CloudConnectTenantBSArray += $CCBackupRepositoryNode
@@ -188,7 +188,7 @@ function Get-AbrDiagBackupToCloudConnectTenant {
                             $CCBSWancolumnSize = 5
                         }
                         try {
-                            $CCCloudWanAcceleratorNode = Add-HtmlNodeTable -Name 'CCCloudWanAcceleratorNode' -ImagesObj $Images -inputObject $CCBackupStorageInfo.WanAccelerator.Name -Align 'Center' -iconType $CCBackupStorageInfo.WanAccelerator.IconType -ColumnSize $CCBSWancolumnSize -IconDebug $IconDebug -MultiIcon -AditionalInfo $CCBackupStorageInfo.WanAccelerator.AditionalInfo -Subgraph -SubgraphIconType 'VBR_Wan_Accel' -SubgraphLabel 'Wan Accelerators' -SubgraphLabelPos 'top' -SubgraphTableStyle 'dashed,rounded' -TableBorderColor $TableBorderColor -TableBorder '1' -SubgraphLabelFontSize 22 -FontSize 18 -SubgraphFontBold -TableBackgroundColor $MainGraphBGColor -CellBackgroundColor $MainGraphBGColor
+                            $CCCloudWanAcceleratorNode = Add-HtmlNodeTable -Name 'CCCloudWanAcceleratorNode' -ImagesObj $Images -inputObject $CCBackupStorageInfo.WanAccelerator.Name -Align 'Center' -iconType $CCBackupStorageInfo.WanAccelerator.IconType -ColumnSize $CCBSWancolumnSize -IconDebug $IconDebug -MultiIcon -AditionalInfo $CCBackupStorageInfo.WanAccelerator.AditionalInfo -Subgraph -SubgraphIconType 'VBR_Wan_Accel' -SubgraphLabel 'Wan Accelerators' -SubgraphLabelPos 'top' -SubgraphTableStyle 'dashed,rounded' -TableBorderColor $TableBorderColor -TableBorder '1' -SubgraphLabelFontSize 22 -FontSize 18 -SubgraphFontBold -TableBackgroundColor $MainGraphBGColor -CellBackgroundColor $MainGraphBGColor -FontColor $Fontcolor -SubgraphLabelFontColor $Fontcolor
 
                             if ($CCCloudWanAcceleratorNode) {
                                 $CloudConnectTenantBSArray += $CCCloudWanAcceleratorNode
@@ -236,7 +236,7 @@ function Get-AbrDiagBackupToCloudConnectTenant {
                             $CCRRNetExtcolumnSize = 5
                         }
                         try {
-                            $CCCloudSubTenantNode = Add-HtmlNodeTable -Name 'CCCloudSubTenantNode' -ImagesObj $Images -inputObject $CCBackupStorageInfo.SubTenant.Name -Align 'Center' -iconType $CCBackupStorageInfo.SubTenant.IconType -ColumnSize $CCRRNetExtcolumnSize -IconDebug $IconDebug -MultiIcon -AditionalInfo $CCBackupStorageInfo.SubTenant.AditionalInfo -SubgraphTableStyle 'dashed,rounded' -TableBorderColor $TableBorderColor -TableBorder '1' -SubgraphLabelFontSize 22 -FontSize 18 -SubgraphFontBold -TableBackgroundColor $MainGraphBGColor -CellBackgroundColor $MainGraphBGColor
+                            $CCCloudSubTenantNode = Add-HtmlNodeTable -Name 'CCCloudSubTenantNode' -ImagesObj $Images -inputObject $CCBackupStorageInfo.SubTenant.Name -Align 'Center' -iconType $CCBackupStorageInfo.SubTenant.IconType -ColumnSize $CCRRNetExtcolumnSize -IconDebug $IconDebug -MultiIcon -AditionalInfo $CCBackupStorageInfo.SubTenant.AditionalInfo -SubgraphTableStyle 'dashed,rounded' -TableBorderColor $TableBorderColor -TableBorder '1' -SubgraphLabelFontSize 22 -FontSize 18 -SubgraphFontBold -TableBackgroundColor $MainGraphBGColor -CellBackgroundColor $MainGraphBGColor -FontColor $Fontcolor -SubgraphLabelFontColor $Fontcolor
 
                             if ($CCCloudSubTenantNode) {
                                 $CloudConnectTenantRRSubTenantArray += $CCCloudSubTenantNode
@@ -320,7 +320,7 @@ function Get-AbrDiagBackupToCloudConnectTenant {
                             }
 
                             if ($CCReplicaResourcesInfo.Host) {
-                                $CCRRHostNode = Add-HtmlNodeTable -Name 'CCRRHostNode' -ImagesObj $Images -inputObject $CCReplicaResourcesInfo.Host.Name -Align 'Center' -iconType $CCReplicaResourcesInfo.Host.IconType -ColumnSize $CCReplicaResourcesInfocolumnSize -IconDebug $IconDebug -MultiIcon -AditionalInfo $CCReplicaResourcesInfo.Host.AditionalInfo -Subgraph -SubgraphIconType 'VBR_Cloud_Connect_VM' -SubgraphLabel 'Host or Cluster' -SubgraphLabelPos 'top' -SubgraphTableStyle 'dashed,rounded' -TableBorderColor $TableBorderColor -TableBorder '1' -SubgraphLabelFontSize 22 -FontSize 18 -SubgraphFontBold -TableBackgroundColor $MainGraphBGColor -CellBackgroundColor $MainGraphBGColor
+                                $CCRRHostNode = Add-HtmlNodeTable -Name 'CCRRHostNode' -ImagesObj $Images -inputObject $CCReplicaResourcesInfo.Host.Name -Align 'Center' -iconType $CCReplicaResourcesInfo.Host.IconType -ColumnSize $CCReplicaResourcesInfocolumnSize -IconDebug $IconDebug -MultiIcon -AditionalInfo $CCReplicaResourcesInfo.Host.AditionalInfo -Subgraph -SubgraphIconType 'VBR_Cloud_Connect_VM' -SubgraphLabel 'Host or Cluster' -SubgraphLabelPos 'top' -SubgraphTableStyle 'dashed,rounded' -TableBorderColor $TableBorderColor -TableBorder '1' -SubgraphLabelFontSize 22 -FontSize 18 -SubgraphFontBold -TableBackgroundColor $MainGraphBGColor -CellBackgroundColor $MainGraphBGColor -FontColor $Fontcolor -SubgraphLabelFontColor $Fontcolor
 
                                 $CloudConnectTenantRRArray += $CCRRHostNode
                             }
@@ -339,7 +339,7 @@ function Get-AbrDiagBackupToCloudConnectTenant {
                             }
 
                             if ($CCReplicaResourcesInfo.Storage) {
-                                $CCRRStorageNode = Add-HtmlNodeTable -Name 'CCRRStorageNode' -ImagesObj $Images -inputObject $CCReplicaResourcesInfo.Storage.Name -Align 'Center' -iconType 'VBR_Cloud_Repository' -ColumnSize $CCReplicaResourcesInfocolumnSize -IconDebug $IconDebug -MultiIcon -AditionalInfo $CCReplicaResourcesInfo.Storage.AditionalInfo -Subgraph -SubgraphIconType 'VBR_Cloud_Repository' -SubgraphLabel 'Storage' -SubgraphLabelPos 'top' -SubgraphTableStyle 'dashed,rounded' -TableBorderColor $TableBorderColor -TableBorder '1' -SubgraphLabelFontSize 22 -FontSize 18 -SubgraphFontBold -TableBackgroundColor $MainGraphBGColor -CellBackgroundColor $MainGraphBGColor
+                                $CCRRStorageNode = Add-HtmlNodeTable -Name 'CCRRStorageNode' -ImagesObj $Images -inputObject $CCReplicaResourcesInfo.Storage.Name -Align 'Center' -iconType 'VBR_Cloud_Repository' -ColumnSize $CCReplicaResourcesInfocolumnSize -IconDebug $IconDebug -MultiIcon -AditionalInfo $CCReplicaResourcesInfo.Storage.AditionalInfo -Subgraph -SubgraphIconType 'VBR_Cloud_Repository' -SubgraphLabel 'Storage' -SubgraphLabelPos 'top' -SubgraphTableStyle 'dashed,rounded' -TableBorderColor $TableBorderColor -TableBorder '1' -SubgraphLabelFontSize 22 -FontSize 18 -SubgraphFontBold -TableBackgroundColor $MainGraphBGColor -CellBackgroundColor $MainGraphBGColor -FontColor $Fontcolor -SubgraphLabelFontColor $Fontcolor
 
                                 $CloudConnectTenantRRArray += $CCRRStorageNode
                             }
@@ -357,7 +357,7 @@ function Get-AbrDiagBackupToCloudConnectTenant {
                                 $CCRRWancolumnSize = 5
                             }
                             try {
-                                $CCCloudWanAcceleratorNode = Add-HtmlNodeTable -Name 'CCCloudWanAcceleratorNode' -ImagesObj $Images -inputObject $CCReplicaResourcesInfo.WanAcceleration.Name -Align 'Center' -iconType $CCReplicaResourcesInfo.WanAcceleration.IconType -ColumnSize $CCRRWancolumnSize -IconDebug $IconDebug -MultiIcon -AditionalInfo $CCReplicaResourcesInfo.WanAcceleration.AditionalInfo -Subgraph -SubgraphIconType 'VBR_Wan_Accel' -SubgraphLabel 'Wan Accelerators' -SubgraphLabelPos 'top' -SubgraphTableStyle 'dashed,rounded' -TableBorderColor $TableBorderColor -TableBorder '1' -SubgraphLabelFontSize 22 -FontSize 18 -SubgraphFontBold -TableBackgroundColor $MainGraphBGColor -CellBackgroundColor $MainGraphBGColor
+                                $CCCloudWanAcceleratorNode = Add-HtmlNodeTable -Name 'CCCloudWanAcceleratorNode' -ImagesObj $Images -inputObject $CCReplicaResourcesInfo.WanAcceleration.Name -Align 'Center' -iconType $CCReplicaResourcesInfo.WanAcceleration.IconType -ColumnSize $CCRRWancolumnSize -IconDebug $IconDebug -MultiIcon -AditionalInfo $CCReplicaResourcesInfo.WanAcceleration.AditionalInfo -Subgraph -SubgraphIconType 'VBR_Wan_Accel' -SubgraphLabel 'Wan Accelerators' -SubgraphLabelPos 'top' -SubgraphTableStyle 'dashed,rounded' -TableBorderColor $TableBorderColor -TableBorder '1' -SubgraphLabelFontSize 22 -FontSize 18 -SubgraphFontBold -TableBackgroundColor $MainGraphBGColor -CellBackgroundColor $MainGraphBGColor -FontColor $Fontcolor -SubgraphLabelFontColor $Fontcolor
 
                                 if ($CCCloudWanAcceleratorNode) {
                                     $CloudConnectTenantRRArray += $CCCloudWanAcceleratorNode
@@ -407,7 +407,7 @@ function Get-AbrDiagBackupToCloudConnectTenant {
                                 $CCRRNetExtcolumnSize = 5
                             }
                             try {
-                                $CCCloudNetworkExtensionsNode = Add-HtmlNodeTable -Name 'CCCloudNetworkExtensionsNode' -ImagesObj $Images -inputObject $CCReplicaResourcesInfo.NetworkExtensions.Name -Align 'Center' -iconType $CCReplicaResourcesInfo.NetworkExtensions.IconType -ColumnSize $CCRRNetExtcolumnSize -IconDebug $IconDebug -MultiIcon -AditionalInfo $CCReplicaResourcesInfo.NetworkExtensions.AditionalInfo -SubgraphTableStyle 'dashed,rounded' -TableBorderColor $TableBorderColor -TableBorder '1' -SubgraphLabelFontSize 22 -FontSize 18 -SubgraphFontBold -TableBackgroundColor $MainGraphBGColor -CellBackgroundColor $MainGraphBGColor
+                                $CCCloudNetworkExtensionsNode = Add-HtmlNodeTable -Name 'CCCloudNetworkExtensionsNode' -ImagesObj $Images -inputObject $CCReplicaResourcesInfo.NetworkExtensions.Name -Align 'Center' -iconType $CCReplicaResourcesInfo.NetworkExtensions.IconType -ColumnSize $CCRRNetExtcolumnSize -IconDebug $IconDebug -MultiIcon -AditionalInfo $CCReplicaResourcesInfo.NetworkExtensions.AditionalInfo -SubgraphTableStyle 'dashed,rounded' -TableBorderColor $TableBorderColor -TableBorder '1' -SubgraphLabelFontSize 22 -FontSize 18 -SubgraphFontBold -TableBackgroundColor $MainGraphBGColor -CellBackgroundColor $MainGraphBGColor -FontColor $Fontcolor -SubgraphLabelFontColor $Fontcolor
 
                                 if ($CCCloudNetworkExtensionsNode) {
                                     $CloudConnectTenantRRNetworkExtensionArray += $CCCloudNetworkExtensionsNode
@@ -491,7 +491,7 @@ function Get-AbrDiagBackupToCloudConnectTenant {
                             $CCvCDRRWancolumnSize = 5
                         }
                         try {
-                            $CCCloudvCDWanAcceleratorNode = Add-HtmlNodeTable -Name 'CCCloudvCDWanAcceleratorNode' -ImagesObj $Images -inputObject $CCvCDReplicaResourcesInfo.WanAcceleration.Name -Align 'Center' -iconType $CCvCDReplicaResourcesInfo.WanAcceleration.IconType -ColumnSize $CCvCDRRWancolumnSize -IconDebug $IconDebug -MultiIcon -AditionalInfo $CCvCDReplicaResourcesInfo.WanAcceleration.AditionalInfo -Subgraph -SubgraphIconType 'VBR_Wan_Accel' -SubgraphLabel 'Wan Accelerators' -SubgraphLabelPos 'top' -SubgraphTableStyle 'dashed,rounded' -TableBorderColor $TableBorderColor -TableBorder '1' -SubgraphLabelFontSize 22 -FontSize 18 -SubgraphFontBold -TableBackgroundColor $MainGraphBGColor -CellBackgroundColor $MainGraphBGColor
+                            $CCCloudvCDWanAcceleratorNode = Add-HtmlNodeTable -Name 'CCCloudvCDWanAcceleratorNode' -ImagesObj $Images -inputObject $CCvCDReplicaResourcesInfo.WanAcceleration.Name -Align 'Center' -iconType $CCvCDReplicaResourcesInfo.WanAcceleration.IconType -ColumnSize $CCvCDRRWancolumnSize -IconDebug $IconDebug -MultiIcon -AditionalInfo $CCvCDReplicaResourcesInfo.WanAcceleration.AditionalInfo -Subgraph -SubgraphIconType 'VBR_Wan_Accel' -SubgraphLabel 'Wan Accelerators' -SubgraphLabelPos 'top' -SubgraphTableStyle 'dashed,rounded' -TableBorderColor $TableBorderColor -TableBorder '1' -SubgraphLabelFontSize 22 -FontSize 18 -SubgraphFontBold -TableBackgroundColor $MainGraphBGColor -CellBackgroundColor $MainGraphBGColor -FontColor $Fontcolor -SubgraphLabelFontColor $Fontcolor
 
                             if ($CCCloudvCDWanAcceleratorNode) {
                                 $CloudConnectTenantvCDRRArray += $CCCloudvCDWanAcceleratorNode
@@ -542,7 +542,7 @@ function Get-AbrDiagBackupToCloudConnectTenant {
                             $CCvCDRRNetExtcolumnSize = 5
                         }
                         try {
-                            $CCCloudvCDNetworkExtensionsNode = Add-HtmlNodeTable -Name 'CCCloudvCDNetworkExtensionsNode' -ImagesObj $Images -inputObject $CCvCDReplicaResourcesInfo.NetworkExtensions.Name -Align 'Center' -iconType $CCvCDReplicaResourcesInfo.NetworkExtensions.IconType -ColumnSize $CCvCDRRNetExtcolumnSize -IconDebug $IconDebug -MultiIcon -AditionalInfo $CCvCDReplicaResourcesInfo.NetworkExtensions.AditionalInfo -SubgraphTableStyle 'dashed,rounded' -TableBorderColor $TableBorderColor -TableBorder '1' -SubgraphLabelFontSize 22 -FontSize 18 -SubgraphFontBold -TableBackgroundColor $MainGraphBGColor -CellBackgroundColor $MainGraphBGColor
+                            $CCCloudvCDNetworkExtensionsNode = Add-HtmlNodeTable -Name 'CCCloudvCDNetworkExtensionsNode' -ImagesObj $Images -inputObject $CCvCDReplicaResourcesInfo.NetworkExtensions.Name -Align 'Center' -iconType $CCvCDReplicaResourcesInfo.NetworkExtensions.IconType -ColumnSize $CCvCDRRNetExtcolumnSize -IconDebug $IconDebug -MultiIcon -AditionalInfo $CCvCDReplicaResourcesInfo.NetworkExtensions.AditionalInfo -SubgraphTableStyle 'dashed,rounded' -TableBorderColor $TableBorderColor -TableBorder '1' -SubgraphLabelFontSize 22 -FontSize 18 -SubgraphFontBold -TableBackgroundColor $MainGraphBGColor -CellBackgroundColor $MainGraphBGColor -FontColor $Fontcolor -SubgraphLabelFontColor $Fontcolor
 
                             if ($CCCloudvCDNetworkExtensionsNode) {
                                 $CloudConnectTenantvCDRRNetworkExtensionArray += $CCCloudvCDNetworkExtensionsNode
