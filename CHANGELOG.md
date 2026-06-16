@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### :bug: Fixed
 
 - Fix Cloud Connect Tenant diagrams not being generated
+- Bump AsBuiltReport.Chart module to `v0.3.3`
 
 ## [1.0.3] - 2026-06-03
 
