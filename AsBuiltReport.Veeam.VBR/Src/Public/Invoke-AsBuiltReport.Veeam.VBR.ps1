@@ -28,8 +28,13 @@ function Invoke-AsBuiltReport.Veeam.VBR {
         [PSCredential] $Credential
     )
 
-    #Requires -RunAsAdministrator
+    $IsAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
 
+    if (-not $IsAdmin) {
+        Write-Error -Message $reportTranslate.InvokeAsBuiltReportMicrosoftAD.RunAsAdministrator
+        break
+    }
+    
     if ($psISE) {
         Write-Error -Message $reportTranslate.InvokeAsBuiltReportVeeamVBR.ISEErrorMessage
         break
