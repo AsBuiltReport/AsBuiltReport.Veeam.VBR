@@ -48,6 +48,13 @@ function Get-AbrVbrLog {
     )
 
     begin {
+        $IsAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+
+        if (-not $IsAdmin) {
+            Write-Error -Message $reportTranslate.InvokeAsBuiltReportMicrosoftAD.RunAsAdministrator
+            break
+        }
+        
         Write-Verbose 'Get-AbrVbrLog: Starting diagnostic collection.'
         $TimeStamp = Get-Date -Format 'yyyyMMdd_HHmmss'
         $FileName = "AbrVbrDiagnostics_$TimeStamp.json"
