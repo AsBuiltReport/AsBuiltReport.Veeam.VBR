@@ -90,6 +90,9 @@ PowerShell 5.1/7 and the following PowerShell modules are required to generate a
 
 Only users with the Veeam Backup Administrator role can generate a Veeam VBR As Built Report.
 
+> [!WARNING]
+> The report must be run in a console with administrator privileges (“Run as Administrator”).
+
 ## :package: Module Installation
 
 ### PowerShell

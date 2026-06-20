@@ -15,11 +15,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Bump AsBuiltReport.Diagram module to `v1.0.8`
 - Bump AsBuiltReport.Chart module to `v0.3.3`
 - Update github actions to latest releases
-- Validate if the report is generated from an priviledge PWSH console
+- Validate if the report is generated from a privileged PWSH console
 
 ### :bug: Fixed
 
-- Resolve the issue where Cloud Connect tenant diagrams are not generated
+- Resolve an issue where Cloud Connect tenant diagrams are not generated
 
 ## [1.0.3] - 2026-06-03
 
