@@ -5,7 +5,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        1.0.3
+        Version:        1.0.4
         Author:         AsBuiltReport Organization
         Twitter:        @asbuiltreport
         Github:         asbuiltreport
@@ -28,14 +28,19 @@ function Invoke-AsBuiltReport.Veeam.VBR {
         [PSCredential] $Credential
     )
 
-    #Requires -RunAsAdministrator
+    $IsAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+
+    if (-not $IsAdmin) {
+        Write-Error -Message $reportTranslate.InvokeAsBuiltReportVeeamVBR.RunAsAdministrator
+        break
+    }
 
     if ($psISE) {
         Write-Error -Message $reportTranslate.InvokeAsBuiltReportVeeamVBR.ISEErrorMessage
         break
     }
 
-    Get-AbrVbrRequiredModule -Name 'Veeam.Backup.PowerShell' -Version '1.0'
+    Get-AbrVbrRequiredModule -Name 'Veeam.Backup.PowerShell' -Version '13.1'
 
 
     # Import Report Configuration
@@ -538,5 +543,4 @@ function Invoke-AsBuiltReport.Veeam.VBR {
             }
         }
     }
-    #endregion foreach loop
 }
