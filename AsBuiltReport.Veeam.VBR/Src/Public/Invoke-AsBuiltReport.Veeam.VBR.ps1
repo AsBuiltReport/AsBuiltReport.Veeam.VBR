@@ -542,5 +542,5 @@ function Invoke-AsBuiltReport.Veeam.VBR {
                 Write-Host ' '
             }
         }
-    }
+    } #endregion foreach loop
 }

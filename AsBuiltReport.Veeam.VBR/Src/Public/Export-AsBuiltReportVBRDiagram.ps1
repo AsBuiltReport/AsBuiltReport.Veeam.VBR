@@ -220,6 +220,13 @@ function Export-AsBuiltReportVBRDiagram {
     )
 
     begin {
+        $IsAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+
+        if (-not $IsAdmin) {
+            Write-Error -Message $reportTranslate.InvokeAsBuiltReportMicrosoftAD.RunAsAdministrator
+            break
+        }
+        
         Get-AbrVbrRequiredModule -Name 'Veeam.Backup.PowerShell' -Version '1.0'
 
         if ($Signature -and ([string]::IsNullOrEmpty($AuthorName) -or [string]::IsNullOrEmpty($CompanyName))) {
