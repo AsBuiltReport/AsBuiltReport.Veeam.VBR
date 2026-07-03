@@ -75,6 +75,7 @@
     IPAddressError = Por favor use el FQDN en lugar de una dirección IP para conectarse al servidor de respaldo: {0}
     ExportDiagramsEnabled = Opción ExportDiagrams habilitada: Exportando diagramas:
     Collecting = - Recopilando información de Veeam Backup & Replication...
+    RunAsAdministrator = Por favor corre el reporte en una consola de PWSH con privilegios de Administrador 'Run As Administrator'.
 '@
 
     GetAbrVbrHistorySetting = ConvertFrom-StringData @'

@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ##### This project is community maintained and has no sponsorship from Veeam, its employees or any of its affiliates.
 
+## [1.0.4] - 2026-07-03
+
+### :arrows_clockwise: Changed
+
+- Update module version to `v1.0.4`
+- Bump AsBuiltReport.Diagram module to `v1.0.8`
+- Bump AsBuiltReport.Chart module to `v0.3.4`
+- Update github actions to latest releases
+- Validate if the report is generated from a privileged PWSH console
+
+### :bug: Fixed
+
+- Resolve an issue where Cloud Connect tenant diagrams are not generated
+
 ## [1.0.3] - 2026-06-03
 
 ### :arrows_clockwise: Changed

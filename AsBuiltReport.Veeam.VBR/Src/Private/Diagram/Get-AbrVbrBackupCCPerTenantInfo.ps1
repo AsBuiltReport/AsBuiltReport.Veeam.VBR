@@ -5,7 +5,7 @@ function Get-AbrBackupCCPerTenantInfo {
     .DESCRIPTION
         Build a diagram of the configuration of Veeam VBR in PDF/PNG/SVG formats using Psgraph.
     .NOTES
-        Version:        1.0.3
+        Version:        1.0.4
         Author:         AsBuiltReport Organization
         Twitter:        @asbuiltreport
         Github:         asbuiltreport
@@ -57,7 +57,7 @@ function Get-AbrBackupCCPerTenantInfo {
                     Label = Add-NodeIcon -Name "$((Remove-SpecialCharacter -String $CloudObject.Name.split('.')[0] -SpecialChars '\').toUpper())" -IconType 'VBR_Cloud_Connect_Gateway' -Align 'Center' -AditionalInfo $AditionalInfo -ImagesObj $Images -IconDebug $IconDebug -FontSize 18 -FontBold -TableBackgroundColor $MainGraphBGColor -CellBackgroundColor $MainGraphBGColor -FontColor $Fontcolor
                     Id = $CloudObject.Id
                     CloudGatewaySelectionType = $CloudObject.GatewaySelectionType
-                    CloudGatewayPools = Get-VbrBackupCGPoolInfo | Where-Object { $_.Name -eq $CloudObject.GatewayPool }
+                    CloudGatewayPools = Get-AbrBackupCGPoolInfo | Where-Object { $_.Name -eq $CloudObject.GatewayPool }
                     CloudGatewayServers = & {
                         $CloudGatewayPoolServers = (Get-VBRCloudGatewayPool).CloudGateways.Name
                         $CloudGatewayServersNotInPool = Get-VBRCloudGateway | Where-Object { $_.Name -notin $CloudGatewayPoolServers }
@@ -91,7 +91,7 @@ function Get-AbrBackupCCPerTenantInfo {
                                     }
                                     SubTenant = & {
                                         $Guid = $_.Id.Guid
-                                        Get-CloudSubTenant -Tenant $CloudObject | Where-Object { $_.Resources.ParentId.Guid -eq $Guid } | ForEach-Object {
+                                        Get-VBRCloudSubTenant -Tenant $CloudObject | Where-Object { $_.Resources.ParentId.Guid -eq $Guid } | ForEach-Object {
                                             $AditionalInfo = [PSCustomObject]@{
                                                 'Type' = $_.Type
                                                 'Repository Name' = $_.Resources.RepositoryFriendlyName
