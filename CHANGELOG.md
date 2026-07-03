@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Update module version to `v1.0.4`
 - Bump AsBuiltReport.Diagram module to `v1.0.8`
-- Bump AsBuiltReport.Chart module to `v0.3.3`
+- Bump AsBuiltReport.Chart module to `v0.3.4`
 - Update github actions to latest releases
 - Validate if the report is generated from a privileged PWSH console
 
