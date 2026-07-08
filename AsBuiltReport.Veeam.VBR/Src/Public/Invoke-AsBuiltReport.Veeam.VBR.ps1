@@ -40,7 +40,7 @@ function Invoke-AsBuiltReport.Veeam.VBR {
         break
     }
 
-    Get-AbrVbrRequiredModule -Name 'Veeam.Backup.PowerShell' -Version '13.1'
+    Get-AbrVbrRequiredModule -Name 'Veeam.Backup.PowerShell' -Version '1.0'
 
 
     # Import Report Configuration
