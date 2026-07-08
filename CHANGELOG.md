@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ##### This project is community maintained and has no sponsorship from Veeam, its employees or any of its affiliates.
 
+## [1.0.5] - 2026-07-08
+
+### :arrows_clockwise: Changed
+
+- Update module version to `v1.0.5`
+
+### :bug: Fixed
+
+- Fix critical issue preventing report execution. Closes #262
+
 ## [1.0.4] - 2026-07-03
 
 ### :arrows_clockwise: Changed
