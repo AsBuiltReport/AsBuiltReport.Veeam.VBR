@@ -6,7 +6,7 @@ function Get-AbrVbrBackupjobNutanixConf {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        1.0.3
+        Version:        1.0.6
         Author:         AsBuiltReport Organization
         Twitter:        @asbuiltreport
         Github:         asbuiltreport
@@ -28,7 +28,7 @@ function Get-AbrVbrBackupjobNutanixConf {
 
     process {
         try {
-            if ($Bkjobs = [Veeam.Backup.Core.CBackupJob]::GetAll() | Where-Object { $_.TypeToString -like '*Nutanix*' } | Sort-Object -Property 'Name') {
+            if ($Bkjobs = Get-VBRJob -WarningAction SilentlyContinue | Where-Object { $_.TypeToString -like '*Nutanix*' } | Sort-Object -Property Name) {
                 Section -Style Heading3 $LocalizedData.Heading {
                     Paragraph $LocalizedData.Paragraph
                     BlankLine
@@ -239,11 +239,11 @@ function Get-AbrVbrBackupjobNutanixConf {
                                         }
                                     }
                                 }
-                                if ($Bkjob.GetAhvOijs()) {
+                                if ($Bkjob.GetViOijs()) {
                                     Section -Style NOTOCHeading5 -ExcludeFromTOC $LocalizedData.VirtualMachines {
                                         $OutObj = @()
                                         try {
-                                            foreach ($OBJ in ($Bkjob.GetAhvOijs() | Where-Object { $_.Type -eq 'Include' -or $_.Type -eq 'Exclude' } )) {
+                                            foreach ($OBJ in ($Bkjob.GetViOijs() | Where-Object { $_.Type -eq 'Include' -or $_.Type -eq 'Exclude' } )) {
 
                                                 $inObj = [ordered] @{
                                                     $LocalizedData.Name = $OBJ.Name
@@ -660,10 +660,10 @@ function Get-AbrVbrBackupjobNutanixConf {
                                                     $LocalizedData.Name = $VSSObj.Name
                                                     $LocalizedData.Enabled = $VSSObj.VssOptions.Enabled
                                                     $LocalizedData.ResourceType = & {
-                                                        if (($Bkjob.GetAhvOijs() | Where-Object { $_.Name -eq $VSSObj.Name -and ($_.Type -eq 'Include' -or $_.Type -eq 'VssChild') }).TypeDisplayName) {
-                                                            ($Bkjob.GetAhvOijs() | Where-Object { $_.Name -eq $VSSObj.Name -and ($_.Type -eq 'Include' -or $_.Type -eq 'VssChild') }).TypeDisplayName
-                                                        } elseif (($Bkjob.GetAhvOijs() | Where-Object { $_.Name -eq $VSSObj.Name -and ($_.Type -eq 'Include' -or $_.Type -eq 'VssChild') }).Object) {
-                                                            ($Bkjob.GetAhvOijs() | Where-Object { $_.Name -eq $VSSObj.Name -and ($_.Type -eq 'Include' -or $_.Type -eq 'VssChild') }).Object.Type
+                                                        if (($Bkjob.GetViOijs() | Where-Object { $_.Name -eq $VSSObj.Name -and ($_.Type -eq 'Include' -or $_.Type -eq 'VssChild') }).TypeDisplayName) {
+                                                            ($Bkjob.GetViOijs() | Where-Object { $_.Name -eq $VSSObj.Name -and ($_.Type -eq 'Include' -or $_.Type -eq 'VssChild') }).TypeDisplayName
+                                                        } elseif (($Bkjob.GetViOijs() | Where-Object { $_.Name -eq $VSSObj.Name -and ($_.Type -eq 'Include' -or $_.Type -eq 'VssChild') }).Object) {
+                                                            ($Bkjob.GetViOijs() | Where-Object { $_.Name -eq $VSSObj.Name -and ($_.Type -eq 'Include' -or $_.Type -eq 'VssChild') }).Object.Type
                                                         }
                                                     }
                                                     $LocalizedData.IgnoreErrors = $VSSObj.VssOptions.IgnoreErrors
