@@ -6,7 +6,7 @@ function Get-AbrVbrBackupjobNutanix {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        1.0.3
+        Version:        1.0.6
         Author:         AsBuiltReport Organization
         Twitter:        @asbuiltreport
         Github:         asbuiltreport
@@ -28,7 +28,7 @@ function Get-AbrVbrBackupjobNutanix {
 
     process {
         try {
-            if ($Bkjobs = [Veeam.Backup.Core.CBackupJob]::GetAll() | Where-Object { $_.TypeToString -like '*Nutanix*' } | Sort-Object -Property 'Name') {
+            if ($Bkjobs = Get-VBRJob -WarningAction SilentlyContinue | Where-Object { $_.TypeToString -like '*Nutanix*' } | Sort-Object -Property Name) {
                 Section -Style Heading3 $LocalizedData.Heading {
                     Paragraph $LocalizedData.Paragraph
                     BlankLine

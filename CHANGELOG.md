@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ##### This project is community maintained and has no sponsorship from Veeam, its employees or any of its affiliates.
 
+## [1.0.6] - 2026-07-15
+
+### :arrows_clockwise: Changed
+
+- Update module version to `v1.0.6`
+
+### :bug: Fixed
+
+- Nutanix Backup Job configuration data is not being properly collected
+
 ## [1.0.5] - 2026-07-08
 
 ### :arrows_clockwise: Changed
@@ -15,7 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### :bug: Fixed
 
-- Fix critical issue preventing report execution. Closes #262
+- Fix critical issue preventing report execution. Closes [262](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/262)
 
 ## [1.0.4] - 2026-07-03
 
