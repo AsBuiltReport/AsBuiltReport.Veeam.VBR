@@ -25,7 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### :bug: Fixed
 
-- Fix critical issue preventing report execution. Closes #262
+- Fix critical issue preventing report execution. Closes [262](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/262)
 
 ## [1.0.4] - 2026-07-03
 
