@@ -2053,6 +2053,7 @@
         Paragraph = La siguiente sección proporciona un resumen de todos los proxies de copia de seguridad configurados de Veeam, incluido su tipo, estado y configuración de tareas concurrentes máximas.
         VMwareHeading = Proxies de copia de seguridad de VMware
         HyperVHeading = Proxies de copia de seguridad de Hyper-V
+        NASHeading = NAS Backup Proxies
         HardwareSoftwareHeading = Inventario de hardware y software
         LocalDisksHeading = Discos locales
         SanDisksHeading = Discos SAN

@@ -2051,6 +2051,7 @@
         Paragraph = The following section provides a summary of all configured Veeam Backup Proxies, including their type, status, and maximum concurrent task settings.
         VMwareHeading = VMware Backup Proxies
         HyperVHeading = Hyper-V Backup Proxies
+        NASHeading = NAS Backup Proxies
         HardwareSoftwareHeading = Hardware & Software Inventory
         LocalDisksHeading = Local Disks
         SanDisksHeading = SAN Disks
