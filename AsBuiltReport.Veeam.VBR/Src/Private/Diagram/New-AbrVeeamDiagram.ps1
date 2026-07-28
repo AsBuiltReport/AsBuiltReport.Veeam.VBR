@@ -669,7 +669,7 @@ function New-AbrVeeamDiagram {
             #Export Diagram
             foreach ($OutputFormat in $Format) {
 
-                $OutputDiagram = Export-AbrDiagram -GraphObj ($diGraph | Select-String -Pattern '"([A-Z])\w+"\s\[label="";style="invis";shape="point";]' -NotMatch) -ErrorDebug $EnableErrorDebug -Format $OutputFormat -Filename $Filename -OutputFolderPath $OutputFolderPath -WaterMarkText $WaterMarkText -WaterMarkColor $WaterMarkColor -IconPath $IconPath -Verbose:$Verbose
+                $OutputDiagram = Export-AbrDiagram -GraphObj ($diGraph | Select-String -Pattern '(?s)"?\w+"?\s+\[\s*label="";\s*shape="point";\s*style="invis";\s*\]' -NotMatch) -ErrorDebug $EnableErrorDebug -Format $OutputFormat -Filename $Filename -OutputFolderPath $OutputFolderPath -WaterMarkText $WaterMarkText -WaterMarkColor $WaterMarkColor -IconPath $IconPath -Verbose:$Verbose
 
                 if ($OutputDiagram) {
                     if ($OutputFormat -eq 'Base64') {
