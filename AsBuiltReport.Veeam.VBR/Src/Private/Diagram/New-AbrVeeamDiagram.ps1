@@ -124,7 +124,7 @@ function New-AbrVeeamDiagram {
         For best results, ensure all image assets meet the recommended size guidelines.
 
     .NOTES
-        Version:        1.0.3
+        Version:        1.0.7
         Author(s):      Jonathan Colon
         Twitter:        @asbuiltreport
         Github:         asbuiltreport
@@ -566,7 +566,7 @@ function New-AbrVeeamDiagram {
 
                         if ($DiagramType -eq 'Backup-to-HyperV-Proxy') {
                             Get-AbrDiagBackupServer
-                            $BackuptoHyperVProxy = Get-AbrDiagBackupToHvProxy | Select-String -Pattern '"([A-Z])\w+"\s\[label="";style="invis";shape="point";]' -NotMatch
+                            $BackuptoHyperVProxy = Get-AbrDiagBackupToHvProxy | Select-String -Pattern '(?s)"?\w+"?\s+\[\s*label="";\s*shape="point";\s*style="invis";\s*\]' -NotMatch
                             if ($BackuptoHyperVProxy) {
                                 $BackuptoHyperVProxy
                             } else {
@@ -574,7 +574,7 @@ function New-AbrVeeamDiagram {
                             }
                         } elseif ($DiagramType -eq 'Backup-to-vSphere-Proxy') {
                             Get-AbrDiagBackupServer
-                            $BackuptovSphereProxy = Get-AbrDiagBackupToViProxy | Select-String -Pattern '"([A-Z])\w+"\s\[label="";style="invis";shape="point";]' -NotMatch
+                            $BackuptovSphereProxy = Get-AbrDiagBackupToViProxy | Select-String -Pattern '(?s)"?\w+"?\s+\[\s*label="";\s*shape="point";\s*style="invis";\s*\]' -NotMatch
                             if ($BackuptovSphereProxy) {
                                 $BackuptovSphereProxy
                             } else {
@@ -582,7 +582,7 @@ function New-AbrVeeamDiagram {
                             }
                         } elseif ($DiagramType -eq 'Backup-to-File-Proxy') {
                             Get-AbrDiagBackupServer
-                            $BackuptoFileProxy = Get-AbrDiagBackupToFileProxy | Select-String -Pattern '"([A-Z])\w+"\s\[label="";style="invis";shape="point";]' -NotMatch
+                            $BackuptoFileProxy = Get-AbrDiagBackupToFileProxy | Select-String -Pattern '(?s)"?\w+"?\s+\[\s*label="";\s*shape="point";\s*style="invis";\s*\]' -NotMatch
                             if ($BackuptoFileProxy) {
                                 $BackuptoFileProxy
                             } else {
@@ -590,7 +590,7 @@ function New-AbrVeeamDiagram {
                             }
                         } elseif ($DiagramType -eq 'Backup-to-WanAccelerator') {
                             Get-AbrDiagBackupServer
-                            $BackuptoWanAccelerator = Get-AbrDiagBackupToWanAccel | Select-String -Pattern '"([A-Z])\w+"\s\[label="";style="invis";shape="point";]' -NotMatch
+                            $BackuptoWanAccelerator = Get-AbrDiagBackupToWanAccel | Select-String -Pattern '(?s)"?\w+"?\s+\[\s*label="";\s*shape="point";\s*style="invis";\s*\]' -NotMatch
                             if ($BackuptoWanAccelerator) {
                                 $BackuptoWanAccelerator
                             } else {
@@ -598,7 +598,7 @@ function New-AbrVeeamDiagram {
                             }
                         } elseif ($DiagramType -eq 'Backup-to-Repository') {
                             Get-AbrDiagBackupServer
-                            $BackuptoRepository = Get-AbrDiagBackupToRepo | Select-String -Pattern '"([A-Z])\w+"\s\[label="";style="invis";shape="point";]' -NotMatch
+                            $BackuptoRepository = Get-AbrDiagBackupToRepo | Select-String -Pattern '(?s)"?\w+"?\s+\[\s*label="";\s*shape="point";\s*style="invis";\s*\]' -NotMatch
                             if ($BackuptoRepository) {
                                 $BackuptoRepository
                             } else {
@@ -606,7 +606,7 @@ function New-AbrVeeamDiagram {
                             }
                         } elseif ($DiagramType -eq 'Backup-to-ProtectedGroup') {
                             Get-AbrDiagBackupServer
-                            $BackuptoProtectedGroup = Get-AbrDiagBackupToProtectedGroup | Select-String -Pattern '"([A-Z])\w+"\s\[label="";style="invis";shape="point";]' -NotMatch
+                            $BackuptoProtectedGroup = Get-AbrDiagBackupToProtectedGroup | Select-String -Pattern '(?s)"?\w+"?\s+\[\s*label="";\s*shape="point";\s*style="invis";\s*\]' -NotMatch
                             if ($BackuptoProtectedGroup) {
                                 $BackuptoProtectedGroup
                             } else {
@@ -614,7 +614,7 @@ function New-AbrVeeamDiagram {
                             }
                         } elseif ($DiagramType -eq 'Backup-to-Tape') {
                             Get-AbrDiagBackupServer
-                            $BackupToTape = Get-AbrDiagBackupToTape | Select-String -Pattern '"([A-Z])\w+"\s\[label="";style="invis";shape="point";]' -NotMatch
+                            $BackupToTape = Get-AbrDiagBackupToTape | Select-String -Pattern '(?s)"?\w+"?\s+\[\s*label="";\s*shape="point";\s*style="invis";\s*\]' -NotMatch
                             if ($BackupToTape) {
                                 $BackupToTape
                             } else {
@@ -622,7 +622,7 @@ function New-AbrVeeamDiagram {
                             }
                         } elseif ($DiagramType -eq 'Backup-to-Sobr') {
                             Get-AbrDiagBackupServer
-                            $BackuptoSobr = Get-AbrDiagBackupToSobr | Select-String -Pattern '"([A-Z])\w+"\s\[label="";style="invis";shape="point";]' -NotMatch
+                            $BackuptoSobr = Get-AbrDiagBackupToSobr | Select-String -Pattern '(?s)"?\w+"?\s+\[\s*label="";\s*shape="point";\s*style="invis";\s*\]' -NotMatch
                             if ($BackuptoSobr) {
                                 $BackuptoSobr
                             } else {
@@ -630,7 +630,7 @@ function New-AbrVeeamDiagram {
                             }
                         } elseif ($DiagramType -eq 'Backup-Infrastructure') {
                             Get-AbrDiagBackupServer
-                            $BackupInfra = Get-AbrInfraDiagram | Select-String -Pattern '"([A-Z])\w+"\s\[label="";style="invis";shape="point";]' -NotMatch
+                            $BackupInfra = Get-AbrInfraDiagram | Select-String -Pattern '(?s)"?\w+"?\s+\[\s*label="";\s*shape="point";\s*style="invis";\s*\]' -NotMatch
                             if ($BackupInfra) {
                                 $BackupInfra
                             } else {
@@ -638,21 +638,21 @@ function New-AbrVeeamDiagram {
                             }
                         } elseif ($DiagramType -eq 'Backup-to-CloudConnect') {
                             Get-AbrDiagBackupServer
-                            $BackuptoCloudConnect = Get-AbrDiagBackupToCloudConnect | Select-String -Pattern '"([A-Z])\w+"\s\[label="";style="invis";shape="point";]' -NotMatch
+                            $BackuptoCloudConnect = Get-AbrDiagBackupToCloudConnect | Select-String -Pattern '(?s)"?\w+"?\s+\[\s*label="";\s*shape="point";\s*style="invis";\s*\]' -NotMatch
                             if ($BackuptoCloudConnect) {
                                 $BackuptoCloudConnect
                             } else {
                                 throw 'No Cloud Connect infrastructure available to diagram'
                             }
                         } elseif ($DiagramType -eq 'Backup-to-CloudConnect-Tenant') {
-                            $BackuptoCloudConnectTenant = Get-AbrDiagBackupToCloudConnectTenant | Select-String -Pattern '"([A-Z])\w+"\s\[label="";style="invis";shape="point";]' -NotMatch
+                            $BackuptoCloudConnectTenant = Get-AbrDiagBackupToCloudConnectTenant | Select-String -Pattern '(?s)"?\w+"?\s+\[\s*label="";\s*shape="point";\s*style="invis";\s*\]' -NotMatch
                             if ($BackuptoCloudConnectTenant) {
                                 $BackuptoCloudConnectTenant
                             } else {
                                 throw 'No Cloud Connect Tenant infrastructure available to diagram'
                             }
                         } elseif ($DiagramType -eq 'Backup-to-HACluster') {
-                            $BackuptoHACluster = Get-AbrDiagBackupToHACluster | Select-String -Pattern '"([A-Z])\w+"\s\[label="";style="invis";shape="point";]' -NotMatch
+                            $BackuptoHACluster = Get-AbrDiagBackupToHACluster | Select-String -Pattern '(?s)"?\w+"?\s+\[\s*label="";\s*shape="point";\s*style="invis";\s*\]' -NotMatch
                             if ($BackuptoHACluster) {
                                 $BackuptoHACluster
                             } else {
