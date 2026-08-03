@@ -566,7 +566,7 @@ function New-AbrVeeamDiagram {
 
                         if ($DiagramType -eq 'Backup-to-HyperV-Proxy') {
                             Get-AbrDiagBackupServer
-                            $BackuptoHyperVProxy = Get-AbrDiagBackupToHvProxy | Select-String -Pattern '(?s)"?\w+"?\s+\[\s*label="";\s*shape="point";\s*style="invis";\s*\]' -NotMatch
+                            $BackuptoHyperVProxy = Get-AbrDiagBackupToHvProxy
                             if ($BackuptoHyperVProxy) {
                                 $BackuptoHyperVProxy
                             } else {
@@ -574,7 +574,7 @@ function New-AbrVeeamDiagram {
                             }
                         } elseif ($DiagramType -eq 'Backup-to-vSphere-Proxy') {
                             Get-AbrDiagBackupServer
-                            $BackuptovSphereProxy = Get-AbrDiagBackupToViProxy | Select-String -Pattern '(?s)"?\w+"?\s+\[\s*label="";\s*shape="point";\s*style="invis";\s*\]' -NotMatch
+                            $BackuptovSphereProxy = Get-AbrDiagBackupToViProxy
                             if ($BackuptovSphereProxy) {
                                 $BackuptovSphereProxy
                             } else {
@@ -582,7 +582,7 @@ function New-AbrVeeamDiagram {
                             }
                         } elseif ($DiagramType -eq 'Backup-to-File-Proxy') {
                             Get-AbrDiagBackupServer
-                            $BackuptoFileProxy = Get-AbrDiagBackupToFileProxy | Select-String -Pattern '(?s)"?\w+"?\s+\[\s*label="";\s*shape="point";\s*style="invis";\s*\]' -NotMatch
+                            $BackuptoFileProxy = Get-AbrDiagBackupToFileProxy
                             if ($BackuptoFileProxy) {
                                 $BackuptoFileProxy
                             } else {
@@ -590,7 +590,7 @@ function New-AbrVeeamDiagram {
                             }
                         } elseif ($DiagramType -eq 'Backup-to-WanAccelerator') {
                             Get-AbrDiagBackupServer
-                            $BackuptoWanAccelerator = Get-AbrDiagBackupToWanAccel | Select-String -Pattern '(?s)"?\w+"?\s+\[\s*label="";\s*shape="point";\s*style="invis";\s*\]' -NotMatch
+                            $BackuptoWanAccelerator = Get-AbrDiagBackupToWanAccel
                             if ($BackuptoWanAccelerator) {
                                 $BackuptoWanAccelerator
                             } else {
@@ -598,7 +598,7 @@ function New-AbrVeeamDiagram {
                             }
                         } elseif ($DiagramType -eq 'Backup-to-Repository') {
                             Get-AbrDiagBackupServer
-                            $BackuptoRepository = Get-AbrDiagBackupToRepo | Select-String -Pattern '(?s)"?\w+"?\s+\[\s*label="";\s*shape="point";\s*style="invis";\s*\]' -NotMatch
+                            $BackuptoRepository = Get-AbrDiagBackupToRepo
                             if ($BackuptoRepository) {
                                 $BackuptoRepository
                             } else {
@@ -606,7 +606,7 @@ function New-AbrVeeamDiagram {
                             }
                         } elseif ($DiagramType -eq 'Backup-to-ProtectedGroup') {
                             Get-AbrDiagBackupServer
-                            $BackuptoProtectedGroup = Get-AbrDiagBackupToProtectedGroup | Select-String -Pattern '(?s)"?\w+"?\s+\[\s*label="";\s*shape="point";\s*style="invis";\s*\]' -NotMatch
+                            $BackuptoProtectedGroup = Get-AbrDiagBackupToProtectedGroup
                             if ($BackuptoProtectedGroup) {
                                 $BackuptoProtectedGroup
                             } else {
@@ -614,7 +614,7 @@ function New-AbrVeeamDiagram {
                             }
                         } elseif ($DiagramType -eq 'Backup-to-Tape') {
                             Get-AbrDiagBackupServer
-                            $BackupToTape = Get-AbrDiagBackupToTape | Select-String -Pattern '(?s)"?\w+"?\s+\[\s*label="";\s*shape="point";\s*style="invis";\s*\]' -NotMatch
+                            $BackupToTape = Get-AbrDiagBackupToTape
                             if ($BackupToTape) {
                                 $BackupToTape
                             } else {
@@ -622,7 +622,7 @@ function New-AbrVeeamDiagram {
                             }
                         } elseif ($DiagramType -eq 'Backup-to-Sobr') {
                             Get-AbrDiagBackupServer
-                            $BackuptoSobr = Get-AbrDiagBackupToSobr | Select-String -Pattern '(?s)"?\w+"?\s+\[\s*label="";\s*shape="point";\s*style="invis";\s*\]' -NotMatch
+                            $BackuptoSobr = Get-AbrDiagBackupToSobr
                             if ($BackuptoSobr) {
                                 $BackuptoSobr
                             } else {
@@ -630,7 +630,7 @@ function New-AbrVeeamDiagram {
                             }
                         } elseif ($DiagramType -eq 'Backup-Infrastructure') {
                             Get-AbrDiagBackupServer
-                            $BackupInfra = Get-AbrInfraDiagram | Select-String -Pattern '(?s)"?\w+"?\s+\[\s*label="";\s*shape="point";\s*style="invis";\s*\]' -NotMatch
+                            $BackupInfra = Get-AbrInfraDiagram
                             if ($BackupInfra) {
                                 $BackupInfra
                             } else {
@@ -638,21 +638,21 @@ function New-AbrVeeamDiagram {
                             }
                         } elseif ($DiagramType -eq 'Backup-to-CloudConnect') {
                             Get-AbrDiagBackupServer
-                            $BackuptoCloudConnect = Get-AbrDiagBackupToCloudConnect | Select-String -Pattern '(?s)"?\w+"?\s+\[\s*label="";\s*shape="point";\s*style="invis";\s*\]' -NotMatch
+                            $BackuptoCloudConnect = Get-AbrDiagBackupToCloudConnect
                             if ($BackuptoCloudConnect) {
                                 $BackuptoCloudConnect
                             } else {
                                 throw 'No Cloud Connect infrastructure available to diagram'
                             }
                         } elseif ($DiagramType -eq 'Backup-to-CloudConnect-Tenant') {
-                            $BackuptoCloudConnectTenant = Get-AbrDiagBackupToCloudConnectTenant | Select-String -Pattern '(?s)"?\w+"?\s+\[\s*label="";\s*shape="point";\s*style="invis";\s*\]' -NotMatch
+                            $BackuptoCloudConnectTenant = Get-AbrDiagBackupToCloudConnectTenant
                             if ($BackuptoCloudConnectTenant) {
                                 $BackuptoCloudConnectTenant
                             } else {
                                 throw 'No Cloud Connect Tenant infrastructure available to diagram'
                             }
                         } elseif ($DiagramType -eq 'Backup-to-HACluster') {
-                            $BackuptoHACluster = Get-AbrDiagBackupToHACluster | Select-String -Pattern '(?s)"?\w+"?\s+\[\s*label="";\s*shape="point";\s*style="invis";\s*\]' -NotMatch
+                            $BackuptoHACluster = Get-AbrDiagBackupToHACluster
                             if ($BackuptoHACluster) {
                                 $BackuptoHACluster
                             } else {
@@ -669,7 +669,9 @@ function New-AbrVeeamDiagram {
             #Export Diagram
             foreach ($OutputFormat in $Format) {
 
-                $OutputDiagram = Export-AbrDiagram -GraphObj ($diGraph | Select-String -Pattern '(?s)"?\w+"?\s+\[\s*label="";\s*shape="point";\s*style="invis";\s*\]' -NotMatch) -ErrorDebug $EnableErrorDebug -Format $OutputFormat -Filename $Filename -OutputFolderPath $OutputFolderPath -WaterMarkText $WaterMarkText -WaterMarkColor $WaterMarkColor -IconPath $IconPath -Verbose:$Verbose
+                $filterPattern = $diGraph | Select-String -Pattern '(?s)"?\w+"?\s+\[\s*label="";\s*shape="point";\s*style="invis";\s*\]', '(?s)"?\w+"?\s+\[\s*label="";\s*style="invis";\s*shape="point";\s*\]', '(?s)"?\w+"?\s+\[\s*shape="point";\s*label="";\s*style="invis";\s*\]', '(?s)"?\w+"?\s+\[\s*shape="point";\s*style="invis";\s*label="";\s*\]', '(?s)"?\w+"?\s+\[\s*style="invis";\s*label="";\s*shape="point";\s*\]', '(?s)"?\w+"?\s+\[\s*style="invis";\s*shape="point";\s*label="";\s*\]' -NotMatch
+
+                $OutputDiagram = Export-AbrDiagram -GraphObj $filterPattern -ErrorDebug $EnableErrorDebug -Format $OutputFormat -Filename $Filename -OutputFolderPath $OutputFolderPath -WaterMarkText $WaterMarkText -WaterMarkColor $WaterMarkColor -IconPath $IconPath -Verbose:$Verbose
 
                 if ($OutputDiagram) {
                     if ($OutputFormat -eq 'Base64') {
