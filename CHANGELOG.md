@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Fix [#273](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/273)
 - Fix [#268](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/268)
+- Fix [#275](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/275)
 - Fix diagram regex to properly filter PSGraph hidden node bug
 
 ## [1.0.6] - 2026-07-15

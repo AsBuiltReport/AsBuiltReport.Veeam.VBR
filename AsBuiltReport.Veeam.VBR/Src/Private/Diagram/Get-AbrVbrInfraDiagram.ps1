@@ -129,9 +129,17 @@ function Get-AbrInfraDiagram {
                         Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                     }
                 }
+                if ($CDPProxies = Get-AbrCDPProxyInfo) {
+                    try {
+                        $ProxiesCdp = Add-HtmlNodeTable -Name 'ProxiesCdp' -ImagesObj $Images -inputObject (($CDPProxies).Name | ForEach-Object { $_.split('.')[0] }) -Align 'Center' -iconType 'VBR_Proxy_Server' -ColumnSize 3 -IconDebug $IconDebug -MultiIcon -AditionalInfo ($CDPProxies.AditionalInfo) -Subgraph -SubgraphIconType 'VBR_NAS' -SubgraphLabel 'CDP Proxies' -SubgraphLabelPos 'top' -SubgraphTableStyle 'dashed,rounded' -FontColor $FontColor -SubgraphLabelFontColor $FontColor -TableBorderColor $Edgecolor -TableBorder '1' -SubgraphLabelFontSize 22 -FontSize 18 -SubgraphFontBold -TableBackgroundColor $MainGraphBGColor -CellBackgroundColor $MainGraphBGColor
+                    } catch {
+                        Write-PScriboMessage 'Error: Unable to create ProxiesCdp Objects. Disabling the section'
+                        Write-PScriboMessage "Error Message: $($_.Exception.Message)"
+                    }
+                }
             }
 
-            if ($Proxies -and ($ProxiesVi -or $ProxiesHv -or $ProxiesNas)) {
+            if ($Proxies -and ($ProxiesVi -or $ProxiesHv -or $ProxiesNas -or $ProxiesCdp)) {
 
                 $ProxyNodesArray = @()
 
@@ -143,6 +151,9 @@ function Get-AbrInfraDiagram {
                 }
                 if ($NASProxies) {
                     $ProxyNodesArray += $ProxiesNas
+                }
+                if ($CDPProxies) {
+                    $ProxyNodesArray += $ProxiesCdp
                 }
 
                 try {
