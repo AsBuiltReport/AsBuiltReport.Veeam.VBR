@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ##### This project is community maintained and has no sponsorship from Veeam, its employees or any of its affiliates.
 
+## [1.0.7] - Unreleased
+
+### :arrows_clockwise: Changed
+
+- Update module version to `v1.0.7`
+- Update AsBuiltReport.Diagram module to `v1.0.10`
+
+### :bug: Fixed
+
+- Fix [#273](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/273)
+- Fix [#268](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/268)
+- Fix [#275](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/275)
+- Fix diagram regex to properly filter PSGraph hidden node bug
+
 ## [1.0.6] - 2026-07-15
 
 ### :arrows_clockwise: Changed

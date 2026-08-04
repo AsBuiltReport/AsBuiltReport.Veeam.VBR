@@ -2051,6 +2051,8 @@
         Paragraph = The following section provides a summary of all configured Veeam Backup Proxies, including their type, status, and maximum concurrent task settings.
         VMwareHeading = VMware Backup Proxies
         HyperVHeading = Hyper-V Backup Proxies
+        NASHeading = NAS Backup Proxies
+        CDPHeading = CDP Backup Proxies
         HardwareSoftwareHeading = Hardware & Software Inventory
         LocalDisksHeading = Local Disks
         SanDisksHeading = SAN Disks
@@ -2125,6 +2127,10 @@
         IPv4Gateway = IPv4 Gateway
         DisplayName = Display Name
         ShortName = Short Name
+        CacheSize = Cache Size
+        CachePath = Cache Path
+        SourceProxyTrafficPort = Source Port
+        TargetProxyTrafficPort = Target Port
 '@
 
     GetAbrVbrScaleOutRepository = ConvertFrom-StringData @'

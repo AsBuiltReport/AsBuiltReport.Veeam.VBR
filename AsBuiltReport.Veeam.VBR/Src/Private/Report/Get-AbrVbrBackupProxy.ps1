@@ -6,7 +6,7 @@ function Get-AbrVbrBackupProxy {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        1.0.3
+        Version:        1.0.6
         Author:         AsBuiltReport Organization
         Twitter:        @asbuiltreport
         Github:         asbuiltreport
@@ -934,6 +934,106 @@ function Get-AbrVbrBackupProxy {
                         }
                     } catch {
                         Write-PScriboMessage -IsWarning "Hyper-V Backup Proxies Section: $($_.Exception.Message)"
+                    }
+                    #---------------------------------------------------------------------------------------------#
+                    #                       NAS / File Proxy information Section                               #
+                    #---------------------------------------------------------------------------------------------#
+                    try {
+                        if ($BackupProxies = Get-VBRComputerFileProxyServer | Sort-Object -Property Name) {
+                            Section -Style Heading4 $LocalizedData.NASHeading {
+                                $OutObj = @()
+                                if ($InfoLevel.Infrastructure.Proxy -eq 1) {
+                                    Write-PScriboMessage "Backup Proxy InfoLevel set at $($InfoLevel.Infrastructure.Proxy)."
+                                    Write-PScriboMessage 'Collecting Summary Information.'
+                                    foreach ($BackupProxy in $BackupProxies) {
+                                        try {
+
+                                            $inObj = [ordered] @{
+                                                $LocalizedData.Name = $BackupProxy.Server.Name
+                                                $LocalizedData.Type = $BackupProxy.Server.Type
+                                                $LocalizedData.MaxTasksCount = $BackupProxy.ConcurrentTaskNumber
+                                                $LocalizedData.Status = switch (($BackupProxy.Server).IsUnavailable) {
+                                                    'False' { $LocalizedData.Available }
+                                                    'True' { $LocalizedData.Unavailable }
+                                                    default { ($BackupProxy.Server).IsUnavailable }
+                                                }
+                                            }
+                                            $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
+                                        } catch {
+                                            Write-PScriboMessage -IsWarning "NAS / File Backup Proxies $($BackupProxy.Server.Name) Section: $($_.Exception.Message)"
+                                        }
+                                    }
+
+                                    if ($HealthCheck.Infrastructure.Proxy) {
+                                        $OutObj | Where-Object { $_."$($LocalizedData.Status)" -eq $LocalizedData.Unavailable } | Set-Style -Style Warning -Property $LocalizedData.Status
+                                    }
+
+                                    $TableParams = @{
+                                        Name = "$($LocalizedData.TableHeading) - $VeeamBackupServer"
+                                        List = $false
+                                        ColumnWidths = 40, 20, 20, 20
+                                    }
+
+                                    if ($Report.ShowTableCaptions) {
+                                        $TableParams['Caption'] = "- $($TableParams.Name)"
+                                    }
+                                    $OutObj | Table @TableParams
+                                }
+                            }
+                        }
+                    } catch {
+                        Write-PScriboMessage -IsWarning "NAS / File Backup Proxies Section: $($_.Exception.Message)"
+                    }
+                    #---------------------------------------------------------------------------------------------#
+                    #                       CDP Proxy information Section                               #
+                    #---------------------------------------------------------------------------------------------#
+                    try {
+                        if ($BackupProxies = Get-VBRCDPProxy | Sort-Object -Property Name) {
+                            Section -Style Heading4 $LocalizedData.CDPHeading {
+                                $OutObj = @()
+                                if ($InfoLevel.Infrastructure.Proxy -eq 1) {
+                                    Write-PScriboMessage "Backup Proxy InfoLevel set at $($InfoLevel.Infrastructure.Proxy)."
+                                    Write-PScriboMessage 'Collecting Summary Information.'
+                                    foreach ($BackupProxy in $BackupProxies) {
+                                        try {
+
+                                            $inObj = [ordered] @{
+                                                $LocalizedData.Name = $BackupProxy.Name
+                                                $LocalizedData.CacheSize = "$($BackupProxy.CacheSize) $($BackupProxy.CacheSizeUnit)"
+                                                $LocalizedData.CachePath = $BackupProxy.CachePath
+                                                $LocalizedData.SourceProxyTrafficPort = $BackupProxy.SourceProxyTrafficPort
+                                                $LocalizedData.TargetProxyTrafficPort = $BackupProxy.TargetProxyTrafficPort
+                                                $LocalizedData.Status = switch ($BackupProxy.IsEnabled) {
+                                                    'False' { $LocalizedData.Unavailable }
+                                                    'True' { $LocalizedData.Available }
+                                                    default { $BackupProxy.IsEnabled }
+                                                }
+                                            }
+                                            $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)
+                                        } catch {
+                                            Write-PScriboMessage -IsWarning "CDP Backup Proxies $($BackupProxy.Name) Section: $($_.Exception.Message)"
+                                        }
+                                    }
+
+                                    if ($HealthCheck.Infrastructure.Proxy) {
+                                        $OutObj | Where-Object { $_."$($LocalizedData.Status)" -eq $LocalizedData.Unavailable } | Set-Style -Style Warning -Property $LocalizedData.Status
+                                    }
+
+                                    $TableParams = @{
+                                        Name = "$($LocalizedData.TableHeading) - $VeeamBackupServer"
+                                        List = $false
+                                        ColumnWidths = 25, 15, 15, 15, 15, 15
+                                    }
+
+                                    if ($Report.ShowTableCaptions) {
+                                        $TableParams['Caption'] = "- $($TableParams.Name)"
+                                    }
+                                    $OutObj | Table @TableParams
+                                }
+                            }
+                        }
+                    } catch {
+                        Write-PScriboMessage -IsWarning "CDP Backup Proxies Section: $($_.Exception.Message)"
                     }
                 }
             }

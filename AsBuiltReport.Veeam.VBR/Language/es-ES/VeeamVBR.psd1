@@ -2053,6 +2053,8 @@
         Paragraph = La siguiente sección proporciona un resumen de todos los proxies de copia de seguridad configurados de Veeam, incluido su tipo, estado y configuración de tareas concurrentes máximas.
         VMwareHeading = Proxies de copia de seguridad de VMware
         HyperVHeading = Proxies de copia de seguridad de Hyper-V
+        NASHeading = NAS Proxies Backup
+        CDPHeading = CDP Proxies de Backup
         HardwareSoftwareHeading = Inventario de hardware y software
         LocalDisksHeading = Discos locales
         SanDisksHeading = Discos SAN
@@ -2127,6 +2129,10 @@
         IPv4Gateway = Puerta de enlace IPv4
         DisplayName = Nombre para mostrar
         ShortName = Nombre corto
+        CacheSize = Cache Size
+        CachePath = Cache Path
+        SourceProxyTrafficPort = Source Port
+        TargetProxyTrafficPort = Target Port
 '@
 
     GetAbrVbrScaleOutRepository = ConvertFrom-StringData @'
