@@ -5,7 +5,7 @@ function Get-AbrInfraDiagram {
     .DESCRIPTION
         This script creates a visual representation of the Veeam Backup & Replication infrastructure configuration. The output can be generated in PDF, SVG, DOT, or PNG formats. It leverages the PSGraph module for PowerShell and Graphviz for rendering the diagrams.
     .NOTES
-        Version:        1.0.3
+        Version:        1.0.7
         Author(s):      Jonathan Colon
         Twitter:        @asbuiltreport
         Github:         asbuiltreport
@@ -105,7 +105,7 @@ function Get-AbrInfraDiagram {
 
                 try {
                     if (($Proxies | Where-Object { $_.AditionalInfo.Type -eq 'vSphere' }).Name) {
-                        $ProxiesVi = Add-HtmlNodeTable -Name 'ProxiesVi' -ImagesObj $Images -inputObject (($Proxies | Where-Object { $_.AditionalInfo.Type -eq 'vSphere' }) | ForEach-Object { $_.Name.split('.')[0] }) -Align 'Center' -iconType 'VBR_Proxy_Server' -ColumnSize 3 -IconDebug $IconDebug -MultiIcon -AditionalInfo ($Proxies.AditionalInfo | Where-Object { $_.Type -eq 'vSphere' }) -Subgraph -SubgraphIconType 'VBR_vSphere' -SubgraphLabel 'VMware Proxies' -SubgraphLabelPos 'top' -FontColor $FontColor -SubgraphLabelFontColor $FontColor -SubgraphTableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -SubgraphLabelFontSize 22 -FontSize 18 -SubgraphFontBold -TableBackgroundColor $MainGraphBGColor -CellBackgroundColor $MainGraphBGColor
+                        $ProxiesVi = Add-HtmlNodeTable -Name 'ProxiesVi' -ImagesObj $Images -inputObject (($Proxies | Where-Object { $_.AditionalInfo.Type -eq 'vSphere' }) | ForEach-Object { $_.Name }) -Align 'Center' -iconType 'VBR_Proxy_Server' -ColumnSize 3 -IconDebug $IconDebug -MultiIcon -AditionalInfo ($Proxies.AditionalInfo | Where-Object { $_.Type -eq 'vSphere' }) -Subgraph -SubgraphIconType 'VBR_vSphere' -SubgraphLabel 'VMware Proxies' -SubgraphLabelPos 'top' -FontColor $FontColor -SubgraphLabelFontColor $FontColor -SubgraphTableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -SubgraphLabelFontSize 22 -FontSize 18 -SubgraphFontBold -TableBackgroundColor $MainGraphBGColor -CellBackgroundColor $MainGraphBGColor
                     }
                 } catch {
                     Write-PScriboMessage 'Error: Unable to create ProxiesVSphere Objects. Disabling the section'
@@ -114,7 +114,7 @@ function Get-AbrInfraDiagram {
 
                 try {
                     if (($Proxies | Where-Object { $_.AditionalInfo.Type -eq 'Off host' -or $_.AditionalInfo.Type -eq 'On host' }).Name) {
-                        $ProxiesHv = Add-HtmlNodeTable -Name 'ProxiesHv' -ImagesObj $Images -inputObject (($Proxies | Where-Object { $_.AditionalInfo.Type -eq 'Off host' -or $_.AditionalInfo.Type -eq 'On host' }).Name | ForEach-Object { $_.split('.')[0] }) -Align 'Center' -iconType 'VBR_Proxy_Server' -ColumnSize 3 -IconDebug $IconDebug -MultiIcon -AditionalInfo ($Proxies.AditionalInfo | Where-Object { $_.Type -eq 'Off host' -or $_.Type -eq 'On host' }) -Subgraph -SubgraphIconType 'VBR_HyperV' -SubgraphLabel 'Hyper-V Proxies' -SubgraphLabelPos 'top' -SubgraphTableStyle 'dashed,rounded' -FontColor $FontColor -SubgraphLabelFontColor $FontColor -TableBorderColor $Edgecolor -TableBorder '1' -SubgraphLabelFontSize 22 -FontSize 18 -SubgraphFontBold -TableBackgroundColor $MainGraphBGColor -CellBackgroundColor $MainGraphBGColor
+                        $ProxiesHv = Add-HtmlNodeTable -Name 'ProxiesHv' -ImagesObj $Images -inputObject (($Proxies | Where-Object { $_.AditionalInfo.Type -eq 'Off host' -or $_.AditionalInfo.Type -eq 'On host' }).Name | ForEach-Object { $_ }) -Align 'Center' -iconType 'VBR_Proxy_Server' -ColumnSize 3 -IconDebug $IconDebug -MultiIcon -AditionalInfo ($Proxies.AditionalInfo | Where-Object { $_.Type -eq 'Off host' -or $_.Type -eq 'On host' }) -Subgraph -SubgraphIconType 'VBR_HyperV' -SubgraphLabel 'Hyper-V Proxies' -SubgraphLabelPos 'top' -SubgraphTableStyle 'dashed,rounded' -FontColor $FontColor -SubgraphLabelFontColor $FontColor -TableBorderColor $Edgecolor -TableBorder '1' -SubgraphLabelFontSize 22 -FontSize 18 -SubgraphFontBold -TableBackgroundColor $MainGraphBGColor -CellBackgroundColor $MainGraphBGColor
                     }
                 } catch {
                     Write-PScriboMessage 'Error: Unable to create ProxiesHyperV Objects. Disabling the section'
@@ -123,15 +123,23 @@ function Get-AbrInfraDiagram {
 
                 if ($NASProxies = Get-AbrNASProxyInfo) {
                     try {
-                        $ProxiesNas = Add-HtmlNodeTable -Name 'ProxiesNas' -ImagesObj $Images -inputObject (($NASProxies).Name | ForEach-Object { $_.split('.')[0] }) -Align 'Center' -iconType 'VBR_Proxy_Server' -ColumnSize 3 -IconDebug $IconDebug -MultiIcon -AditionalInfo ($NASProxies.AditionalInfo) -Subgraph -SubgraphIconType 'VBR_NAS' -SubgraphLabel 'NAS Proxies' -SubgraphLabelPos 'top' -SubgraphTableStyle 'dashed,rounded' -FontColor $FontColor -SubgraphLabelFontColor $FontColor -TableBorderColor $Edgecolor -TableBorder '1' -SubgraphLabelFontSize 22 -FontSize 18 -SubgraphFontBold -TableBackgroundColor $MainGraphBGColor -CellBackgroundColor $MainGraphBGColor
+                        $ProxiesNas = Add-HtmlNodeTable -Name 'ProxiesNas' -ImagesObj $Images -inputObject (($NASProxies).Name | ForEach-Object { $_ }) -Align 'Center' -iconType 'VBR_Proxy_Server' -ColumnSize 3 -IconDebug $IconDebug -MultiIcon -AditionalInfo ($NASProxies.AditionalInfo) -Subgraph -SubgraphIconType 'VBR_NAS' -SubgraphLabel 'NAS Proxies' -SubgraphLabelPos 'top' -SubgraphTableStyle 'dashed,rounded' -FontColor $FontColor -SubgraphLabelFontColor $FontColor -TableBorderColor $Edgecolor -TableBorder '1' -SubgraphLabelFontSize 22 -FontSize 18 -SubgraphFontBold -TableBackgroundColor $MainGraphBGColor -CellBackgroundColor $MainGraphBGColor
                     } catch {
                         Write-PScriboMessage 'Error: Unable to create ProxiesNas Objects. Disabling the section'
                         Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                     }
                 }
+                if ($CDPProxies = Get-AbrCDPProxyInfo) {
+                    try {
+                        $ProxiesCdp = Add-HtmlNodeTable -Name 'ProxiesCdp' -ImagesObj $Images -inputObject (($CDPProxies).Name | ForEach-Object { $_ }) -Align 'Center' -iconType 'VBR_Proxy_Server' -ColumnSize 3 -IconDebug $IconDebug -MultiIcon -AditionalInfo ($CDPProxies.AditionalInfo) -Subgraph -SubgraphIconType 'VBR_NAS' -SubgraphLabel 'CDP Proxies' -SubgraphLabelPos 'top' -SubgraphTableStyle 'dashed,rounded' -FontColor $FontColor -SubgraphLabelFontColor $FontColor -TableBorderColor $Edgecolor -TableBorder '1' -SubgraphLabelFontSize 22 -FontSize 18 -SubgraphFontBold -TableBackgroundColor $MainGraphBGColor -CellBackgroundColor $MainGraphBGColor
+                    } catch {
+                        Write-PScriboMessage 'Error: Unable to create ProxiesCdp Objects. Disabling the section'
+                        Write-PScriboMessage "Error Message: $($_.Exception.Message)"
+                    }
+                }
             }
 
-            if ($Proxies -and ($ProxiesVi -or $ProxiesHv -or $ProxiesNas)) {
+            if ($Proxies -and ($ProxiesVi -or $ProxiesHv -or $ProxiesNas -or $ProxiesCdp)) {
 
                 $ProxyNodesArray = @()
 
@@ -143,6 +151,9 @@ function Get-AbrInfraDiagram {
                 }
                 if ($NASProxies) {
                     $ProxyNodesArray += $ProxiesNas
+                }
+                if ($CDPProxies) {
+                    $ProxyNodesArray += $ProxiesCdp
                 }
 
                 try {
@@ -234,7 +245,7 @@ function Get-AbrInfraDiagram {
                     }
 
                     try {
-                        [array]$ViStandAloneNodes = (Add-HtmlNodeTable -Name 'ViStandAloneNodes' -ImagesObj $Images -inputObject ($vSphereServerObj | ForEach-Object { $_.Name.split('.')[0] }) -Align 'Center' -iconType 'VBR_ESXi_Server' -ColumnSize $columnSize -IconDebug $IconDebug -MultiIcon -AditionalInfo $vSphereServerObj.AditionalInfo -Subgraph -SubgraphLabel ' ' -SubgraphLabelPos 'top' -SubgraphTableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -FontBold -FontColor $FontColor -SubgraphLabelFontColor $FontColor -FontSize 22 -TableBackgroundColor $MainGraphBGColor -CellBackgroundColor $MainGraphBGColor)
+                        [array]$ViStandAloneNodes = (Add-HtmlNodeTable -Name 'ViStandAloneNodes' -ImagesObj $Images -inputObject ($vSphereServerObj | ForEach-Object { $_.Name }) -Align 'Center' -iconType 'VBR_ESXi_Server' -ColumnSize $columnSize -IconDebug $IconDebug -MultiIcon -AditionalInfo $vSphereServerObj.AditionalInfo -Subgraph -SubgraphLabel ' ' -SubgraphLabelPos 'top' -SubgraphTableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -FontBold -FontColor $FontColor -SubgraphLabelFontColor $FontColor -FontSize 22 -TableBackgroundColor $MainGraphBGColor -CellBackgroundColor $MainGraphBGColor)
                     } catch {
                         Write-PScriboMessage 'Error: Unable to create vSphere StandAlone Table. Disabling the section'
                         Write-PScriboMessage "Error Message: $($_.Exception.Message)"
@@ -310,7 +321,7 @@ function Get-AbrInfraDiagram {
 
                     try {
 
-                        $HvStandAloneNodes = (Add-HtmlNodeTable -Name 'HvStandAloneNodes' -ImagesObj $Images -inputObject ($HyperVServerObj | ForEach-Object { $_.Name.split('.')[0] }) -Align 'Center' -iconType 'VBR_HyperV_Server' -ColumnSize $columnSize -IconDebug $IconDebug -MultiIcon -AditionalInfo $HyperVServerObj.AditionalInfo -Subgraph -SubgraphLabel ' ' -SubgraphLabelPos 'top' -SubgraphTableStyle 'dashed,rounded' -FontColor $Fontcolor -TableBorderColor $Edgecolor -TableBorder '1' -FontBold -TableBackgroundColor $MainGraphBGColor -CellBackgroundColor $MainGraphBGColor -SubgraphLabelFontColor $Fontcolor)
+                        $HvStandAloneNodes = (Add-HtmlNodeTable -Name 'HvStandAloneNodes' -ImagesObj $Images -inputObject ($HyperVServerObj | ForEach-Object { $_.Name }) -Align 'Center' -iconType 'VBR_HyperV_Server' -ColumnSize $columnSize -IconDebug $IconDebug -MultiIcon -AditionalInfo $HyperVServerObj.AditionalInfo -Subgraph -SubgraphLabel ' ' -SubgraphLabelPos 'top' -SubgraphTableStyle 'dashed,rounded' -FontColor $Fontcolor -TableBorderColor $Edgecolor -TableBorder '1' -FontBold -TableBackgroundColor $MainGraphBGColor -CellBackgroundColor $MainGraphBGColor -SubgraphLabelFontColor $Fontcolor)
                     } catch {
                         Write-PScriboMessage 'Error: Unable to create Hyper-V StandAlone Hosts Table. Disabling the section'
                         Write-PScriboMessage "Error Message: $($_.Exception.Message)"
@@ -483,7 +494,7 @@ function Get-AbrInfraDiagram {
                     $columnSize = 5
                 }
                 try {
-                    $WanAccelsNode = Node WanAccelServer @{Label = (Add-HtmlNodeTable -Name 'WanAccelServer' -ImagesObj $Images -inputObject ($WanAccels | ForEach-Object { $_.Name.split('.')[0] }) -Align 'Center' -iconType 'VBR_Wan_Accel' -ColumnSize $columnSize -IconDebug $IconDebug -MultiIcon -AditionalInfo $WanAccels.AditionalInfo -Subgraph -SubgraphLabel 'Wan Accelerators' -SubgraphLabelPos 'top' -SubgraphIconType 'VBR_Wan_Accel' -SubgraphTableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -SubgraphLabelFontSize 22 -FontSize 18 -SubgraphFontBold -TableBackgroundColor $MainGraphBGColor -CellBackgroundColor $MainGraphBGColor -FontColor $Fontcolor -SubgraphLabelFontColor $Fontcolor); shape = 'plain'; fontname = 'Segoe Ui' }
+                    $WanAccelsNode = Node WanAccelServer @{Label = (Add-HtmlNodeTable -Name 'WanAccelServer' -ImagesObj $Images -inputObject ($WanAccels | ForEach-Object { $_.Name }) -Align 'Center' -iconType 'VBR_Wan_Accel' -ColumnSize $columnSize -IconDebug $IconDebug -MultiIcon -AditionalInfo $WanAccels.AditionalInfo -Subgraph -SubgraphLabel 'Wan Accelerators' -SubgraphLabelPos 'top' -SubgraphIconType 'VBR_Wan_Accel' -SubgraphTableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -SubgraphLabelFontSize 22 -FontSize 18 -SubgraphFontBold -TableBackgroundColor $MainGraphBGColor -CellBackgroundColor $MainGraphBGColor -FontColor $Fontcolor -SubgraphLabelFontColor $Fontcolor); shape = 'plain'; fontname = 'Segoe Ui' }
                 } catch {
                     Write-PScriboMessage 'Error: Unable to create WanAccelerators Objects. Disabling the section'
                     Write-PScriboMessage "Error Message: $($_.Exception.Message)"
@@ -644,7 +655,7 @@ function Get-AbrInfraDiagram {
                                 } else {
                                     $columnSize = 5
                                 }
-                                Add-HtmlTable -Name 'CGPoolNode' -ImagesObj $Images -Rows $CGPool.CloudGateways.Name.split('.')[0] -ALIGN 'Center' -ColumnSize $columnSize -IconDebug $IconDebug -Subgraph -SubgraphIconType 'VBR_Cloud_Connect_Gateway' -SubgraphLabel $CGPool.Name -SubgraphLabelPos 'top' -FontColor $FontColor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder 0 -NoFontBold -FontSize 18 -SubgraphFontBold -TableBackgroundColor $MainGraphBGColor
+                                Add-HtmlTable -Name 'CGPoolNode' -ImagesObj $Images -Rows $CGPool.CloudGateways.Name -ALIGN 'Center' -ColumnSize $columnSize -IconDebug $IconDebug -Subgraph -SubgraphIconType 'VBR_Cloud_Connect_Gateway' -SubgraphLabel $CGPool.Name -SubgraphLabelPos 'top' -FontColor $FontColor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder 0 -NoFontBold -FontSize 18 -SubgraphFontBold -TableBackgroundColor $MainGraphBGColor
                             } else {
                                 Add-HtmlTable -Name 'CGPoolNode' -ImagesObj $Images -Rows 'No Cloud Gateway Server' -ALIGN 'Center' -ColumnSize 1 -IconDebug $IconDebug -Subgraph -SubgraphIconType 'VBR_Cloud_Connect_Gateway' -SubgraphLabel $CGPool.Name -SubgraphLabelPos 'top' -FontColor $FontColor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder 0 -NoFontBold -FontSize 18 -SubgraphFontBold -TableBackgroundColor $MainGraphBGColor
                             }

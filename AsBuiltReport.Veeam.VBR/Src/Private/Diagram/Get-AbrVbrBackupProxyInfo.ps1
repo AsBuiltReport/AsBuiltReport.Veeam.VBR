@@ -5,7 +5,7 @@ function Get-AbrBackupProxyInfo {
     .DESCRIPTION
         Build a diagram of the configuration of Veeam VBR in PDF/PNG/SVG formats using Psgraph.
     .NOTES
-        Version:        1.0.3
+        Version:        1.0.10
         Author:         AsBuiltReport Organization
         Twitter:        @asbuiltreport
         Github:         asbuiltreport
@@ -19,7 +19,7 @@ function Get-AbrBackupProxyInfo {
     param
     (
         # Backup Proxy Type
-        [ValidateSet('vmware', 'hyperv', 'nas')]
+        [ValidateSet('vmware', 'hyperv', 'nas', 'cdp')]
         [string] $Type
 
     )
@@ -30,7 +30,7 @@ function Get-AbrBackupProxyInfo {
                 'vmware' { Get-VBRViProxy }
                 'hyperv' { Get-VBRHvProxy }
                 'nas' { Get-VBRNASProxyServer }
-
+                'cdp' { Get-VBRCDPProxy }
             }
             $BackupProxies = $BPType
             $BackupProxyInfo = @()
@@ -41,6 +41,7 @@ function Get-AbrBackupProxyInfo {
                         'vmware' { $BackupProxy.Host.Name }
                         'hyperv' { $BackupProxy.Host.Name }
                         'nas' { $BackupProxy.Server.Name }
+                        'cdp' { $BackupProxy.Name }
                     }
 
                     $Status = switch ($Type) {
@@ -62,6 +63,12 @@ function Get-AbrBackupProxyInfo {
                                 $true { 'Enabled' }
                             }
                         }
+                        'cdp' {
+                            switch ($BackupProxy.IsEnabled) {
+                                $false { 'Disabled' }
+                                $true { 'Enabled' }
+                            }
+                        }
                     }
 
                     $BPRows = [ordered]@{
@@ -76,11 +83,13 @@ function Get-AbrBackupProxyInfo {
                                 }
                             }
                             'nas' { 'File Backup' }
+                            'cdp' { 'CDP Backup' }
                         }
                         Concurrent_Tasks = switch ($Type) {
                             'vmware' { $BackupProxy.MaxTasksCount }
                             'hyperv' { $BackupProxy.MaxTasksCount }
                             'nas' { $BackupProxy.ConcurrentTaskNumber }
+                            'cdp' { 1 }
                         }
                     }
 
@@ -88,6 +97,7 @@ function Get-AbrBackupProxyInfo {
                         'vmware' { 'VBR_Proxy_Server' }
                         'hyperv' { 'VBR_Proxy_Server' }
                         'nas' { 'VBR_AGENT_Server' }
+                        'cdp' { 'VBR_Proxy_Server' }
                     }
 
                     $TempBackupProxyInfo = [PSCustomObject]@{

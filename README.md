@@ -234,6 +234,7 @@ The table below outlines the default and maximum **InfoLevel** settings for each
 | Agent       |        1        |        2        |
 | Backup      |        1        |        2        |
 | BackupCopy  |        1        |        2        |
+| CDP         |        1        |        2        |
 | EntraID     |        1        |        2        |
 | FileShare   |        1        |        2        |
 | Nutanix     |        1        |        2        |
