@@ -6,7 +6,7 @@ function Get-AbrVbrObjectRepository {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        1.0.3
+        Version:        1.0.8
         Author:         AsBuiltReport Organization
         Twitter:        @asbuiltreport
         Github:         asbuiltreport
@@ -62,7 +62,7 @@ function Get-AbrVbrObjectRepository {
                                     $LocalizedData.GatewayServer = switch ($ObjectRepo.GatewayServer.Name) {
                                         '' { $LocalizedData.Dash; break }
                                         $Null { $LocalizedData.Dash; break }
-                                        default { $ObjectRepo.GatewayServer.Name.split('.')[0] }
+                                        default { if (Get-ValidateIP $ObjectRepo.GatewayServer.Name) { $ObjectRepo.GatewayServer.Name } else { $ObjectRepo.GatewayServer.Name.split('.')[0] } }
                                     }
                                 }
 
@@ -196,7 +196,7 @@ function Get-AbrVbrObjectRepository {
                                             $LocalizedData.GatewayServer = switch ($ObjectRepoArchive.GatewayServer.Name) {
                                                 '' { $LocalizedData.AutoSelected; break }
                                                 $Null { $LocalizedData.AutoSelected; break }
-                                                default { $ObjectRepoArchive.GatewayServer.Name.split('.')[0] }
+                                                default { if (Get-ValidateIP $ObjectRepoArchive.GatewayServer.Name) { $ObjectRepoArchive.GatewayServer.Name } else { $ObjectRepoArchive.GatewayServer.Name.split('.')[0] } }
                                             }
                                             $LocalizedData.GatewayServerEnabled = $ObjectRepoArchive.UseGatewayServer
                                             $LocalizedData.ImmutabilityEnabled = $ObjectRepoArchive.BackupImmutabilityEnabled

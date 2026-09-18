@@ -5,7 +5,7 @@ function Get-AbrDiagBackupToWanAccel {
     .DESCRIPTION
         Build a diagram of the configuration of Veeam VBR in PDF/PNG/SVG formats using Psgraph.
     .NOTES
-        Version:        1.0.3
+        Version:        1.0.8
         Author:         AsBuiltReport Organization
         Twitter:        @asbuiltreport
         Github:         asbuiltreport
@@ -36,9 +36,9 @@ function Get-AbrDiagBackupToWanAccel {
                         $WanAccelColumnSize = $WanAccel.Name.Count
                     }
 
-                    Node WanAccelServer @{Label = (Add-HtmlNodeTable -Name 'WanAccelServer' -ImagesObj $Images -inputObject ($WanAccel | ForEach-Object { $_.Name.split('.')[0] }) -Align 'Center' -iconType 'VBR_Wan_Accel' -ColumnSize $WanAccelColumnSize -IconDebug $IconDebug -MultiIcon -AditionalInfo ($WanAccel.AditionalInfo ) -Subgraph -SubgraphIconType 'VBR_Wan_Accel' -SubgraphLabel 'Wan Accelerators' -SubgraphLabelPos 'top' -SubgraphTableStyle 'dashed,rounded' -FontColor $FontColor -TableBorderColor $Edgecolor -TableBorder '1' -FontSize 18 -SubgraphLabelFontColor $Fontcolor -SubgraphLabelFontSize 22 -SubgraphFontBold -FontBold -TableBackgroundColor $MainGraphBGColor -CellBackgroundColor $MainGraphBGColor); shape = 'plain'; fontsize = 14; fontname = 'Segoe Ui' }
+                    Add-HtmlNodeTable -Name 'WanAccelServer' -ImagesObj $Images -inputObject ($WanAccel | ForEach-Object { if (Get-ValidateIP $_.Name) { $_.Name } else { $_.Name.split('.')[0] } }) -Align 'Center' -iconType 'VBR_Wan_Accel' -ColumnSize $WanAccelColumnSize -IconDebug $IconDebug -MultiIcon -AditionalInfo ($WanAccel.AditionalInfo ) -Subgraph -SubgraphIconType 'VBR_Wan_Accel' -SubgraphLabel 'Wan Accelerators' -SubgraphLabelPos 'top' -SubgraphTableStyle 'dashed,rounded' -FontColor $FontColor -TableBorderColor $Edgecolor -TableBorder '1' -FontSize 18 -SubgraphLabelFontColor $Fontcolor -SubgraphLabelFontSize 22 -SubgraphFontBold -FontBold -TableBackgroundColor $MainGraphBGColor -CellBackgroundColor $MainGraphBGColor -NodeObject
 
-                    Edge BackupServers -To WanAccelServer @{minlen = 3 }
+                    Add-NodeEdge -From BackupServers -To WanAccelServer -EdgeColor $Edgecolor -EdgeStyle dashed -EdgeThickness 3 -EdgeLength 3
 
                 }
 

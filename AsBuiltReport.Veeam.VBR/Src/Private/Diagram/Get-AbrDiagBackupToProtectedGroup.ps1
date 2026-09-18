@@ -5,7 +5,7 @@ function Get-AbrDiagBackupToProtectedGroup {
     .DESCRIPTION
         Build a diagram of the configuration of Veeam VBR in PDF/PNG/SVG formats using Psgraph.
     .NOTES
-        Version:        1.0.3
+        Version:        1.0.8
         Author:         AsBuiltReport Organization
         Twitter:        @asbuiltreport
         Github:         asbuiltreport
@@ -43,9 +43,9 @@ function Get-AbrDiagBackupToProtectedGroup {
                                 $FileBackupProxyColumnSize = $FileBackupProxy.Name.Count
                             }
 
-                            Node FileProxies @{Label = (Add-HtmlNodeTable -Name 'FileProxies' -ImagesObj $Images -inputObject ($FileBackupProxy | ForEach-Object { $_.Name.split('.')[0] }) -Align 'Center' -iconType 'VBR_Proxy_Server' -ColumnSize $FileBackupProxyColumnSize -IconDebug $IconDebug -MultiIcon -AditionalInfo $FileBackupProxy.AditionalInfo -Subgraph -SubgraphIconType 'VBR_Proxy' -SubgraphLabel 'File Backup Proxies' -SubgraphLabelPos 'top' -SubgraphTableStyle 'dashed,rounded' -FontColor $FontColor -TableBorderColor $Edgecolor -TableBorder '1' -SubgraphLabelFontSize 24 -FontSize 18 -SubgraphFontBold -SubgraphLabelFontColor $FontColor -TableBackgroundColor $MainGraphBGColor -CellBackgroundColor $MainGraphBGColor); shape = 'plain'; fontsize = 14; fontname = 'Segoe Ui' }
+                            Add-HtmlNodeTable -Name 'FileProxies' -ImagesObj $Images -inputObject ($FileBackupProxy | ForEach-Object { if (Get-ValidateIP $_.Name) { $_.Name } else { $_.Name.split('.')[0] } }) -Align 'Center' -iconType 'VBR_Proxy_Server' -ColumnSize $FileBackupProxyColumnSize -IconDebug $IconDebug -MultiIcon -AditionalInfo $FileBackupProxy.AditionalInfo -Subgraph -SubgraphIconType 'VBR_Proxy' -SubgraphLabel 'File Backup Proxies' -SubgraphLabelPos 'top' -SubgraphTableStyle 'dashed,rounded' -FontColor $FontColor -TableBorderColor $Edgecolor -TableBorder '1' -SubgraphLabelFontSize 24 -FontSize 18 -SubgraphFontBold -SubgraphLabelFontColor $FontColor -TableBackgroundColor $MainGraphBGColor -CellBackgroundColor $MainGraphBGColor -NodeObject
 
-                            Edge BackupServers -To FileProxies @{minlen = 3 }
+                            Add-NodeEdge -From BackupServers -To FileProxies -EdgeColor $Edgecolor -EdgeStyle dashed -EdgeThickness 3 -EdgeLength 3
 
                         }
                     }
@@ -236,14 +236,14 @@ function Get-AbrDiagBackupToProtectedGroup {
                         }
                         if ($Dir -eq 'LR') {
                             try {
-                                $ComputerAgentSubGraph = Node -Name 'ComputerAgentsSubgraph' -Attributes @{Label = (Add-HtmlSubGraph -Name 'ComputerAgentsSubgraph' -ImagesObj $Images -TableArray $ComputerAgentsArray -Align 'Center' -IconDebug $IconDebug -Label 'Protected Groups' -LabelPos 'top' -FontColor $Fontcolor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -ColumnSize $ComputerAgentsArrayColumnSize -FontSize 26 -SubgraphFontBold -TableBackgroundColor $MainGraphBGColor); shape = 'plain'; fillColor = 'transparent'; fontsize = 14; fontname = 'Segoe Ui' }
+                                $ComputerAgentSubGraph = Add-HtmlSubGraph -Name 'ComputerAgentsSubgraph' -ImagesObj $Images -TableArray $ComputerAgentsArray -Align 'Center' -IconDebug $IconDebug -Label 'Protected Groups' -LabelPos 'top' -FontColor $Fontcolor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -ColumnSize $ComputerAgentsArrayColumnSize -FontSize 26 -SubgraphFontBold -TableBackgroundColor $MainGraphBGColor -NodeObject
                             } catch {
                                 Write-PScriboMessage 'Error: Unable to create ComputerAgentsSubgraph Objects. Disabling the section'
                                 Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                             }
                         } else {
                             try {
-                                $ComputerAgentSubGraph = Node -Name 'ComputerAgentsSubgraph' -Attributes @{Label = (Add-HtmlSubGraph -Name 'ComputerAgentsSubgraph' -ImagesObj $Images -TableArray $ComputerAgentsArray -Align 'Center' -IconDebug $IconDebug -Label 'Protected Groups' -LabelPos 'top' -FontColor $Fontcolor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -ColumnSize $ComputerAgentsArrayColumnSize -FontSize 26 -FontBold -TableBackgroundColor $MainGraphBGColor); shape = 'plain'; fillColor = 'transparent'; fontsize = 14; fontname = 'Segoe Ui' }
+                                $ComputerAgentSubGraph = Add-HtmlSubGraph -Name 'ComputerAgentsSubgraph' -ImagesObj $Images -TableArray $ComputerAgentsArray -Align 'Center' -IconDebug $IconDebug -Label 'Protected Groups' -LabelPos 'top' -FontColor $Fontcolor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -ColumnSize $ComputerAgentsArrayColumnSize -FontSize 26 -FontBold -TableBackgroundColor $MainGraphBGColor -NodeObject
                             } catch {
                                 Write-PScriboMessage 'Error: Unable to create ComputerAgentsSubgraph Objects. Disabling the section'
                                 Write-PScriboMessage "Error Message: $($_.Exception.Message)"
@@ -253,7 +253,7 @@ function Get-AbrDiagBackupToProtectedGroup {
 
                     if ($ComputerAgentSubGraph) {
                         $ComputerAgentSubGraph
-                        Edge -From FileProxies -To ComputerAgentsSubgraph @{minlen = 3 }
+                        Add-NodeEdge -From FileProxies -To ComputerAgentsSubgraph -EdgeColor $Edgecolor -EdgeStyle dashed -EdgeThickness 3 -EdgeLength 3
                     }
                 }
             }

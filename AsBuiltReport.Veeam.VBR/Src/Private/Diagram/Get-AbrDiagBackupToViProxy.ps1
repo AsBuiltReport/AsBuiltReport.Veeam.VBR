@@ -5,7 +5,7 @@ function Get-AbrDiagBackupToViProxy {
     .DESCRIPTION
         Build a diagram of the configuration of Veeam VBR in PDF/PNG/SVG formats using Psgraph.
     .NOTES
-        Version:        1.0.3
+        Version:        1.0.8
         Author:         AsBuiltReport Organization
         Twitter:        @asbuiltreport
         Github:         asbuiltreport
@@ -36,9 +36,9 @@ function Get-AbrDiagBackupToViProxy {
                         $VMwareBackupProxyColumnSize = $VMwareBackupProxy.Name.Count
                     }
 
-                    Node ViProxies @{Label = (Add-HtmlNodeTable -Name 'ViProxies' -ImagesObj $Images -inputObject ($VMwareBackupProxy | ForEach-Object { $_.Name.split('.')[0] }) -Align 'Center' -iconType 'VBR_Proxy_Server' -ColumnSize $VMwareBackupProxyColumnSize -IconDebug $IconDebug -MultiIcon -AditionalInfo $VMwareBackupProxy.AditionalInfo -Subgraph -SubgraphIconType 'VBR_Proxy' -SubgraphLabel 'VMware Backup Proxies' -SubgraphLabelFontColor $Fontcolor -SubgraphLabelFontSize 26 -SubgraphLabelPos 'top' -SubgraphTableStyle 'dashed,rounded' -FontColor $FontColor -TableBorderColor $Edgecolor -TableBorder '1' -FontSize 18 -SubgraphFontBold -TableBackgroundColor $MainGraphBGColor -CellBackgroundColor $MainGraphBGColor ); shape = 'plain'; fontsize = 14; fontname = 'Segoe Ui' }
+                    Add-HtmlNodeTable -Name 'ViProxies' -ImagesObj $Images -inputObject ($VMwareBackupProxy | ForEach-Object { if (Get-ValidateIP $_.Name) { $_.Name } else { if (Get-ValidateIP $_.Name) { $_.Name } else { $_.Name.split('.')[0] } } }) -Align 'Center' -iconType 'VBR_Proxy_Server' -ColumnSize $VMwareBackupProxyColumnSize -IconDebug $IconDebug -MultiIcon -AditionalInfo $VMwareBackupProxy.AditionalInfo -Subgraph -SubgraphIconType 'VBR_Proxy' -SubgraphLabel 'VMware Backup Proxies' -SubgraphLabelFontColor $Fontcolor -SubgraphLabelFontSize 26 -SubgraphLabelPos 'top' -SubgraphTableStyle 'dashed,rounded' -FontColor $FontColor -TableBorderColor $Edgecolor -TableBorder '1' -FontSize 18 -SubgraphFontBold -TableBackgroundColor $MainGraphBGColor -CellBackgroundColor $MainGraphBGColor -NodeObject
 
-                    Edge BackupServers -To ViProxies @{minlen = 2 }
+                    Add-NodeEdge -From BackupServers -To ViProxies -EdgeColor $Edgecolor -EdgeStyle dashed -EdgeThickness 3 -EdgeLength 2
                 }
 
                 # vSphere Graphviz Cluster
@@ -60,7 +60,7 @@ function Get-AbrDiagBackupToViProxy {
                                     $ViClustersChildsNodesColumnSize = $ViCluster.EsxiHost.Name.Count
                                 }
                                 if ($ViCluster.EsxiHost.Name) {
-                                    Add-HtmlTable -Name 'ViClustersChildsNodes' -ImagesObj $Images -Rows $ViCluster.EsxiHost.Name -ALIGN 'Center' -ColumnSize $ViClustersChildsNodesColumnSize -IconDebug $IconDebug -Subgraph -SubgraphIconType 'VBR_ESXi_Server' -SubgraphLabel $ViCluster.Name -SubgraphLabelPos 'top' -FontColor $FontColor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder 0 -NoFontBold -FontSize 18 -SubgraphFontBold -SubgraphFontColor $FontColor -TableBackgroundColor $MainGraphBGColor
+                                    Add-HtmlTable -Name 'ViClustersChildsNodes' -ImagesObj $Images -Rows ($ViCluster.EsxiHost.Name | ForEach-Object { if (Get-ValidateIP $_) { $_ } else { $_.split('.')[0] } }) -ALIGN 'Center' -ColumnSize $ViClustersChildsNodesColumnSize -IconDebug $IconDebug -Subgraph -SubgraphIconType 'VBR_ESXi_Server' -SubgraphLabel $ViCluster.Name -SubgraphLabelPos 'top' -FontColor $FontColor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder 0 -NoFontBold -FontSize 18 -SubgraphFontBold -SubgraphFontColor $FontColor -TableBackgroundColor $MainGraphBGColor
                                 } else {
                                     Add-HtmlTable -Name 'ViClustersChildsNodes' -ImagesObj $Images -Rows 'No Esxi Host' -ALIGN 'Center' -ColumnSize $ViClustersChildsNodesColumnSize -IconDebug $IconDebug -Subgraph -SubgraphIconType 'VBR_ESXi_Server' -SubgraphLabel $ViCluster.Name -SubgraphLabelPos 'top' -FontColor $FontColor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder 0 -NoFontBold -FontSize 18 -SubgraphFontBold -SubgraphFontColor $FontColor -TableBackgroundColor $MainGraphBGColor
                                 }
@@ -123,7 +123,7 @@ function Get-AbrDiagBackupToViProxy {
                     }
 
                     try {
-                        [array]$ViStandAloneNodes = Add-HtmlNodeTable -Name 'ViStandAloneNodes' -ImagesObj $Images -inputObject ($vSphereServerObj | ForEach-Object { $_.Name.split('.')[0] }) -Align 'Center' -iconType 'VBR_ESXi_Server' -ColumnSize $vSphereServerObjColumnSize -IconDebug $IconDebug -MultiIcon -AditionalInfo $vSphereServerObj.AditionalInfo -Subgraph -SubgraphLabel 'Host' -SubgraphLabelPos 'top' -SubgraphTableStyle 'dashed,rounded' -FontColor $Fontcolor -TableBorderColor $Edgecolor -TableBorder '1' -SubgraphFontBold -TableBackgroundColor $MainGraphBGColor -CellBackgroundColor $MainGraphBGColor -SubgraphLabelFontColor $Fontcolor
+                        [array]$ViStandAloneNodes = Add-HtmlNodeTable -Name 'ViStandAloneNodes' -ImagesObj $Images -inputObject ($vSphereServerObj | ForEach-Object { $_.Name }) -Align 'Center' -iconType 'VBR_ESXi_Server' -ColumnSize $vSphereServerObjColumnSize -IconDebug $IconDebug -MultiIcon -AditionalInfo $vSphereServerObj.AditionalInfo -Subgraph -SubgraphLabel 'Host' -SubgraphLabelPos 'top' -SubgraphTableStyle 'dashed,rounded' -FontColor $Fontcolor -TableBorderColor $Edgecolor -TableBorder '1' -SubgraphFontBold -TableBackgroundColor $MainGraphBGColor -CellBackgroundColor $MainGraphBGColor -SubgraphLabelFontColor $Fontcolor
                     } catch {
                         Write-PScriboMessage 'Error: Unable to create vSphere StandAlone Table. Disabling the section'
                         Write-PScriboMessage "Error Message: $($_.Exception.Message)"
@@ -143,14 +143,14 @@ function Get-AbrDiagBackupToViProxy {
 
                     if ($Dir -eq 'LR') {
                         try {
-                            $ViClustersSubgraphNode = Node -Name 'ViCluster' -Attributes @{Label = (Add-HtmlSubGraph -Name 'ViCluster' -ImagesObj $Images -TableArray $VivCenterNodesAll -Align 'Center' -IconDebug $IconDebug -IconType 'VBR_vSphere' -Label 'VMware vSphere Infrastructure' -LabelPos 'top' -FontColor $Fontcolor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -ColumnSize 1 -FontSize 26 -FontBold -TableBackgroundColor $MainGraphBGColor); shape = 'plain'; fillColor = 'transparent'; fontsize = 14; fontname = 'Segoe Ui' }
+                            $ViClustersSubgraphNode = Add-HtmlSubGraph -Name 'ViCluster' -ImagesObj $Images -TableArray $VivCenterNodesAll -Align 'Center' -IconDebug $IconDebug -IconType 'VBR_vSphere' -Label 'VMware vSphere Infrastructure' -LabelPos 'top' -FontColor $Fontcolor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -ColumnSize 1 -FontSize 26 -FontBold -TableBackgroundColor $MainGraphBGColor -NodeObject
                         } catch {
                             Write-PScriboMessage 'Error: Unable to create ViCluster Objects. Disabling the section'
                             Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                         }
                     } else {
                         try {
-                            $ViClustersSubgraphNode = Node -Name 'ViCluster' -Attributes @{Label = (Add-HtmlSubGraph -Name 'ViCluster' -ImagesObj $Images -TableArray $VivCenterNodesAll -Align 'Center' -IconDebug $IconDebug -IconType 'VBR_vSphere' -Label 'VMware vSphere Infrastructure' -LabelPos 'top' -FontColor $Fontcolor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -ColumnSize 1 -FontSize 26 -FontBold -TableBackgroundColor $MainGraphBGColor); shape = 'plain'; fillColor = 'transparent'; fontsize = 14; fontname = 'Segoe Ui' }
+                            $ViClustersSubgraphNode = Add-HtmlSubGraph -Name 'ViCluster' -ImagesObj $Images -TableArray $VivCenterNodesAll -Align 'Center' -IconDebug $IconDebug -IconType 'VBR_vSphere' -Label 'VMware vSphere Infrastructure' -LabelPos 'top' -FontColor $Fontcolor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -ColumnSize 1 -FontSize 26 -FontBold -TableBackgroundColor $MainGraphBGColor -NodeObject
                         } catch {
                             Write-PScriboMessage 'Error: Unable to create ViCluster Objects. Disabling the section'
                             Write-PScriboMessage "Error Message: $($_.Exception.Message)"
@@ -159,7 +159,7 @@ function Get-AbrDiagBackupToViProxy {
 
                     if ($ViClustersSubgraphNode) {
                         $ViClustersSubgraphNode
-                        Edge ViProxies -To ViCluster @{minlen = 2 }
+                        Add-NodeEdge -From ViProxies -To ViCluster -EdgeColor $Edgecolor -EdgeStyle dashed -EdgeThickness 3 -EdgeLength 2
                     }
                 }
             }

@@ -141,7 +141,7 @@ Use PScribo primitives inside `Section` blocks:
 - `Image` — diagrams/charts
 - `Section -Style Heading2/Heading3/Heading4` — nested sections
 
-Charts are generated via `AsBuiltReport.Chart` (`New-BarChart`, `New-StackedBarChart`) and diagrams via `AsBuiltReport.Diagram` + custom `New-AbrVeeamDiagram`.
+Charts are generated via `AsBuiltReport.Chart` (`New-BarChart`, `New-StackedBarChart`) and diagrams via `New-AbrDiagram` from `AsBuiltReport.Diagram`.
 
 ## Diagram Conventions
 
@@ -151,10 +151,9 @@ Diagrams use **PSGraph** (PowerShell wrapper for Graphviz). The rendering pipeli
 
 ```
 Invoke-AsBuiltReport.Veeam.VBR.ps1
-  → Get-AbrVbrDiagrammer.ps1          (wrapper; resolves options → params)
-    → New-AbrVeeamDiagram.ps1          (orchestrator; builds Graph block, calls diagram functions)
-      → Get-AbrDiag*.ps1              (emit Node/Edge/SubGraph primitives inline)
-      → Export-AbrDiagram.ps1         (Graphviz render → PNG/SVG/PDF/Base64)
+  → Get-AbrVbrDiagrammer.ps1          (resolves options and VBR diagram content)
+    → Get-AbrDiag*.ps1                (emit Node/Edge/SubGraph primitives inline)
+    → New-AbrDiagram                  (builds and renders Graphviz output)
 ```
 
 ### File Naming & Location
@@ -165,7 +164,7 @@ All diagram code lives in `Src/Private/Diagram/`. Three sub-categories of files 
 |---|---|---|
 | `Get-AbrDiag*.ps1` | Emit nodes/edges for one diagram type | `Get-AbrDiagBackupToRepo.ps1` |
 | `Get-Abr*Info.ps1` | Collect Veeam data for diagrams | `Get-AbrBackupRepoInfo.ps1` |
-| Everything else | Helpers / orchestration | `New-AbrVeeamDiagram.ps1`, `Images.ps1` |
+| Everything else | Helpers / orchestration | `Get-AbrVbrDiagrammer.ps1`, `Images.ps1` |
 
 Diagram data-collection functions (`Get-Abr*Info.ps1`) are **separate** from report data functions. Do not reuse report `Get-AbrVbr*` functions inside diagram code.
 
@@ -174,20 +173,13 @@ Diagram data-collection functions (`Get-Abr*Info.ps1`) are **separate** from rep
 PSGraph maps directly to Graphviz DOT. The four primitives used throughout:
 
 ```powershell
-# Root container — called once in New-AbrVeeamDiagram.ps1
-Graph -Name VeeamVBR -Attributes $MainGraphAttributes {
-
-    Node @{ shape = 'none'; style = 'filled'; fillColor = 'transparent'; fontsize = 14 }  # defaults
-    Edge @{ style = 'dashed'; dir = 'both'; arrowtail = 'dot'; penwidth = 1.5 }           # defaults
-
-    SubGraph MainGraph -Attributes @{ Label = ...; labelloc = 't' } {
-        Get-AbrDiagBackupServer        # emits Node definitions inline
-        Get-AbrDiagBackupToRepo        # emits Node + Edge definitions inline
-    }
-}
+# `New-AbrDiagram` supplies the root Graph, defaults, title, and signature.
+# `Get-AbrVbrDiagrammer` passes VBR-specific primitives as -InputObject.
+Get-AbrDiagBackupServer                # emits Node definitions inline
+Get-AbrDiagBackupToRepo                # emits Node + Edge definitions inline
 ```
 
-`Get-AbrDiag*` functions output PSGraph primitives **directly to the pipeline** — they do not return values. They are called inside a `Graph { }` or `SubGraph { }` block.
+`Get-AbrDiag*` functions output PSGraph primitives **directly to the pipeline**. `Get-AbrVbrDiagrammer` collects those primitives and passes them to `New-AbrDiagram`.
 
 ### Node Labels: `Add-HtmlNodeTable` and `Add-HtmlSubGraph`
 
@@ -232,7 +224,7 @@ Icon names are resolved through `Get-AbrIconType` (maps Veeam object type string
 
 ### Diagram Types
 
-There are 11 named diagram types (the `ValidateSet` in `New-AbrVeeamDiagram`):
+There are 12 named diagram types (the `ValidateSet` in `Get-AbrVbrDiagrammer`):
 
 ```
 Backup-Infrastructure          # always generated when EnableDiagrams = true
@@ -246,13 +238,14 @@ Backup-to-Tape                 # only if tape servers + libraries exist
 Backup-to-ProtectedGroup
 Backup-to-CloudConnect
 Backup-to-CloudConnect-Tenant
+Backup-to-HACluster
 ```
 
-Each type maps to a specific `Get-AbrDiag*.ps1` function (or set of functions) called inside `New-AbrVeeamDiagram`.
+Each type maps to a specific `Get-AbrDiag*.ps1` function (or set of functions) called inside `Get-AbrVbrDiagrammer`.
 
 ### Themes
 
-Three themes (`$Options.DiagramTheme`): `White` (default), `Black`, `Neon`. Theme controls `$NodeFontcolor`, `$Edgecolor`, `$EdgeLineWidth`, and subgraph fill colors. All theme variables are set in `New-AbrVeeamDiagram.ps1` before the `Graph { }` block.
+Three themes (`$Options.DiagramTheme`): `White` (default), `Black`, `Neon`. `Get-AbrVbrDiagrammer` applies VBR-specific theme state before collecting primitives, and passes rendering colors to `New-AbrDiagram`.
 
 ### Embedding Diagrams in the Report
 
@@ -273,7 +266,7 @@ Section -Style Heading2 'Backup Infrastructure Diagram' {
 
 1. Add a `Get-Abr*Info.ps1` data-collection function if new Veeam data is needed.
 2. Create `Get-AbrDiagBackupTo<Type>.ps1` — emit `Node`/`Edge`/`SubGraph` primitives inside the function body (no `return`).
-3. Add the new type string to the `ValidateSet` in `New-AbrVeeamDiagram.ps1` and add a matching `if` branch that calls your function inside the `Graph { }` block.
+3. Add the new type string to the `ValidateSet` in `Get-AbrVbrDiagrammer.ps1` and add a matching branch that calls the diagram function before invoking `New-AbrDiagram`.
 4. Add conditional invocation in `Invoke-AsBuiltReport.Veeam.VBR.ps1` (guarded by relevant `$Options.EnableDiagrams` and data-existence checks).
 
 ## Adding a New Report Section

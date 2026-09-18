@@ -120,7 +120,7 @@ function Get-AbrBackupServerInformation {
                 $Rows = [PSCustomObject]$Rows
 
                 $script:BackupServerInfo = [PSCustomObject]@{
-                    Name = $VBRServer.split('.')[0]
+                    Name = if (Get-ValidateIP $VBRServer) { "$($VBRServer.toUpper())" } else { "$($VBRServer.toUpper().split('.')[0])" }
                     Label = Add-NodeIcon -Name "$($VBRServer.split('.')[0])" -IconType 'VBR_Server' -Align 'Center' -RowsOrdered $Rows -ImagesObj $Images -IconDebug $IconDebug -FontSize 18 -FontBold -TableBackgroundColor $BackupServerBGColor -CellBackgroundColor $BackupServerBGColor -FontColor $Fontcolor
                     Spacer = Add-NodeIcon -Name ' ' -IconType 'VBR_Bid_Arrow' -Align 'Center' -ImagesObj $Images -IconDebug $IconDebug -TableBackgroundColor $BackupServerBGColor -CellBackgroundColor $BackupServerBGColor -FontColor $Fontcolor
                 }
@@ -152,7 +152,7 @@ function Get-AbrBackupServerInformation {
                 $DBIconType = if ($VeeamInfo.DBFlavor.SqlActiveConfiguration -eq 'PostgreSql') { 'VBR_Server_DB_PG' } else { 'VBR_Server_DB' }
 
                 $script:DatabaseServerInfo = [PSCustomObject]@{
-                    Name = $DatabaseServer.split('.')[0]
+                    Name = if (Get-ValidateIP $DatabaseServer) { "$($DatabaseServer.toUpper())" } else { "$($DatabaseServer.toUpper().split('.')[0])" }
                     Label = Add-NodeIcon -Name "$($DatabaseServer.split('.')[0])" -IconType $DBIconType -Align 'Center' -RowsOrdered $Rows -ImagesObj $Images -IconDebug $IconDebug -FontSize 18 -FontBold -TableBackgroundColor $BackupServerBGColor -CellBackgroundColor $BackupServerBGColor -FontColor $Fontcolor
                     DBPort = $DBPort
                 }
@@ -168,7 +168,7 @@ function Get-AbrBackupServerInformation {
                 }
 
                 $script:EMServerInfo = [PSCustomObject]@{
-                    Name = $EMServer.ServerName.split('.')[0]
+                    Name = if (Get-ValidateIP $EMServer.ServerName) { "$($EMServer.ServerName.toUpper())" } else { "$($EMServer.ServerName.toUpper().split('.')[0])" }
                     Label = Add-NodeIcon -Name "$($EMServer.ServerName.split('.')[0])" -IconType 'VBR_Server_EM' -Align 'Center' -Rows $Rows -ImagesObj $Images -IconDebug $IconDebug -FontSize 18 -FontBold -TableBackgroundColor $BackupServerBGColor -CellBackgroundColor $BackupServerBGColor -FontColor $Fontcolor
                 }
             }

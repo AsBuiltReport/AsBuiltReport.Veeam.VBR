@@ -5,7 +5,7 @@ function Get-AbrDiagBackupToSobr {
     .DESCRIPTION
         Build a diagram of the configuration of Veeam VBR in PDF/PNG/SVG formats using Psgraph.
     .NOTES
-        Version:        1.0.3
+        Version:        1.0.8
         Author:         AsBuiltReport Organization
         Twitter:        @asbuiltreport
         Github:         asbuiltreport
@@ -131,7 +131,7 @@ function Get-AbrDiagBackupToSobr {
                             $SOBRCSubGraphColumnSize = $SOBRArray.Count
                         }
                         try {
-                            $SOBRSubgraph = Node -Name SOBRRepo -Attributes @{Label = (Add-HtmlSubGraph -Name 'SOBRRepo' -ImagesObj $Images -TableArray $SOBRArray -Align 'Center' -IconDebug $IconDebug -Label 'SOBR Repositories' -LabelPos 'top' -FontColor $Fontcolor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -ColumnSize $SOBRCSubGraphColumnSize -FontSize 22 -FontBold -TableBackgroundColor $MainGraphBGColor); shape = 'plain'; fillColor = 'transparent'; fontsize = 14; fontname = 'Segoe Ui' }
+                            $SOBRSubgraph = Add-HtmlSubGraph -Name 'SOBRRepo' -ImagesObj $Images -TableArray $SOBRArray -Align 'Center' -IconDebug $IconDebug -Label 'SOBR Repositories' -LabelPos 'top' -FontColor $Fontcolor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -ColumnSize $SOBRCSubGraphColumnSize -FontSize 22 -FontBold -TableBackgroundColor $MainGraphBGColor -NodeObject
                         } catch {
                             Write-PScriboMessage 'Error: Unable to create SubGraph Objects. Disabling the section'
                             Write-PScriboMessage "Error Message: $($_.Exception.Message)"
@@ -145,7 +145,7 @@ function Get-AbrDiagBackupToSobr {
                             $SOBRCSubGraphColumnSize = $SOBRArray.Count
                         }
                         try {
-                            $SOBRSubgraph = Node -Name SOBRRepo -Attributes @{Label = (Add-HtmlSubGraph -Name 'SOBRRepo' -ImagesObj $Images -TableArray $SOBRArray -Align 'Center' -IconDebug $IconDebug -Label 'SOBR Repositories' -LabelPos 'top' -FontColor $Fontcolor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -ColumnSize $SOBRCSubGraphColumnSize -FontSize 22 -FontBold -TableBackgroundColor $MainGraphBGColor); shape = 'plain'; fillColor = 'transparent'; fontsize = 14; fontname = 'Segoe Ui' }
+                            $SOBRSubgraph = Add-HtmlSubGraph -Name 'SOBRRepo' -ImagesObj $Images -TableArray $SOBRArray -Align 'Center' -IconDebug $IconDebug -Label 'SOBR Repositories' -LabelPos 'top' -FontColor $Fontcolor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -ColumnSize $SOBRCSubGraphColumnSize -FontSize 22 -FontBold -TableBackgroundColor $MainGraphBGColor -NodeObject
                         } catch {
                             Write-PScriboMessage 'Error: Unable to create SubGraph Objects. Disabling the section'
                             Write-PScriboMessage "Error Message: $($_.Exception.Message)"
@@ -156,7 +156,7 @@ function Get-AbrDiagBackupToSobr {
                         $SOBRSubgraph
                     }
 
-                    Edge -From BackupServers -To SOBRRepo @{minlen = 3 }
+                    Add-NodeEdge -From BackupServers -To SOBRRepo -EdgeColor $Edgecolor -EdgeStyle dashed -EdgeThickness 3 -EdgeLength 3
 
                 }
             }

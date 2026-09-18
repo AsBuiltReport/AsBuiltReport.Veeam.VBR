@@ -5,7 +5,7 @@ function Get-AbrBackupProxyInfo {
     .DESCRIPTION
         Build a diagram of the configuration of Veeam VBR in PDF/PNG/SVG formats using Psgraph.
     .NOTES
-        Version:        1.0.10
+        Version:        1.0.8
         Author:         AsBuiltReport Organization
         Twitter:        @asbuiltreport
         Github:         asbuiltreport
@@ -101,7 +101,7 @@ function Get-AbrBackupProxyInfo {
                     }
 
                     $TempBackupProxyInfo = [PSCustomObject]@{
-                        Name = "$($Hostname.toUpper().split('.')[0])"
+                        Name = if (Get-ValidateIP $Hostname) { "$($Hostname.toUpper())" } else { "$($Hostname.toUpper().split('.')[0])" }
                         Label = Add-NodeIcon -Name "$($Hostname.toUpper().split('.')[0])" -IconType $IconType -Align 'Center' -Rows $BPRows -ImagesObj $Images -IconDebug $IconDebug -FontSize 18 -FontBold -TableBackgroundColor $MainGraphBGColor -CellBackgroundColor $MainGraphBGColor -FontColor $Fontcolor -TableBorderColor $Edgecolor -TableBorder '1'
                         AditionalInfo = $BPRows
                     }

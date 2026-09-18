@@ -40,7 +40,7 @@ function Get-AbrBackupTapeDrivesInfo {
 
 
                     $TempBackupTapeDriveInfo = [PSCustomObject]@{
-                        Name = $TapeDrive.Name
+                        Name = if (Get-ValidateIP $TapeDrive.Name) { "$($TapeDrive.Name.toUpper())" } else { "$($TapeDrive.Name.toUpper().split('.')[0])" }
                         Label = Add-NodeIcon -Name "$((Remove-SpecialCharacter -String ("Drive $($TapeDrive.Address + 1)").split('.')[0] -SpecialChars '\').toUpper())" -IconType 'VBR_Tape_Drive' -Align 'Center' -Rows $Rows -ImagesObj $Images -IconDebug $IconDebug -FontSize 18 -FontBold -TableBackgroundColor $MainGraphBGColor -CellBackgroundColor $MainGraphBGColor -FontColor $Fontcolor
                         LibraryId = $TapeDrive.LibraryId
                         Id = $TapeDrive.Id

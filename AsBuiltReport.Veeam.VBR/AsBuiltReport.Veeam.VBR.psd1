@@ -12,7 +12,7 @@
     RootModule = 'AsBuiltReport.Veeam.VBR.psm1'
 
     # Version number of this module.
-    ModuleVersion = '1.0.7'
+    ModuleVersion = '1.0.8'
 
     # Supported PSEditions
     CompatiblePSEditions = @('Desktop', 'Core')
@@ -63,7 +63,7 @@
         }
         @{
             ModuleName = 'AsBuiltReport.Diagram';
-            ModuleVersion = '1.0.10'
+            ModuleVersion = '1.0.12'
         }
     )
 

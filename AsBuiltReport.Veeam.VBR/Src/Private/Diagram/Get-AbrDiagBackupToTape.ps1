@@ -5,7 +5,7 @@ function Get-AbrDiagBackupToTape {
     .DESCRIPTION
         Build a diagram of the configuration of Veeam VBR in PDF/PNG/SVG formats using Psgraph.
     .NOTES
-        Version:        1.0.3
+        Version:        1.0.8
         Author:         AsBuiltReport Organization
         Twitter:        @asbuiltreport
         Github:         asbuiltreport
@@ -127,14 +127,14 @@ function Get-AbrDiagBackupToTape {
                         } else {
                             $TapeServerColumnSize = $TapeArray.Count
                         }
-                        $TapeSubgraph = Node -Name Tape -Attributes @{Label = (Add-HtmlSubGraph -Name 'TapeSubgraph' -ImagesObj $Images -TableArray $TapeArray -Align 'Center' -IconDebug $IconDebug -Label 'Tape Servers' -LabelPos 'top' -FontColor $Fontcolor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -ColumnSize $TapeServerColumnSize -FontSize 26 -FontBold -TableBackgroundColor $MainGraphBGColor); shape = 'plain'; fillColor = 'transparent'; fontsize = 14; fontname = 'Segoe Ui' }
+                        $TapeSubgraph = Add-HtmlSubGraph -Name 'Tape' -ImagesObj $Images -TableArray $TapeArray -Align 'Center' -IconDebug $IconDebug -Label 'Tape Servers' -LabelPos 'top' -FontColor $Fontcolor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -ColumnSize $TapeServerColumnSize -FontSize 26 -FontBold -TableBackgroundColor $MainGraphBGColor -NodeObject
                     } catch {
                         Write-PScriboMessage 'Error: Unable to create Tape SubGraph Objects. Disabling the section'
                         Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                     }
                     if ($TapeSubgraph) {
                         $TapeSubgraph
-                        Edge -From BackupServers -To Tape @{minlen = 3 }
+                        Add-NodeEdge -From BackupServers -To Tape -EdgeColor $Edgecolor -EdgeStyle dashed -EdgeThickness 3 -EdgeLength 3
                     }
                 }
             }
