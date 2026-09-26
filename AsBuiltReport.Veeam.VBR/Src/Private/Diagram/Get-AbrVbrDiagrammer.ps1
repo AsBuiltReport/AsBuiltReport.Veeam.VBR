@@ -319,6 +319,7 @@ function Get-AbrVbrDiagrammer {
                     }
 
                     $script:NewIcons = $NewIcons
+                    $IsLocalServer = [bool]$Options.IsLocalServer
                     if ($Options.EnableDiagramDebug) {
                         $script:EdgeDebug = @{style = 'filled'; color = 'red' }
                         $script:SubGraphDebug = @{style = 'dashed'; color = 'red' }
