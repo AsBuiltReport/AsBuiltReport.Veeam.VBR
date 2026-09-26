@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ##### This project is community maintained and has no sponsorship from Veeam, its employees or any of its affiliates.
 
-## [1.0.8] - Unreleased
+## [1.0.8] - 2026-09-25
 
 ### :arrows_clockwise: Fixed
 
@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### :bug: Fixed
 
 - Fix [#280](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/280)
+- Fix [#282](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/282)
 
 ## [1.0.7] - 2026-09-14
 
