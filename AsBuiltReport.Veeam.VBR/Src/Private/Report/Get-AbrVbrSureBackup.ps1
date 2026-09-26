@@ -6,7 +6,7 @@ function Get-AbrVbrSureBackup {
     .DESCRIPTION
         Documents the configuration of Veeam VBR in Word/HTML/Text formats using PScribo.
     .NOTES
-        Version:        1.0.3
+        Version:        1.0.8
         Author:         AsBuiltReport Organization
         Twitter:        @asbuiltreport
         Github:         asbuiltreport
@@ -127,7 +127,7 @@ function Get-AbrVbrSureBackup {
                                         $inObj = [ordered] @{
                                             $LocalizedData.Name = $SureBackupVL.Name
                                             $LocalizedData.Platform = $SureBackupVL.Platform
-                                            $LocalizedData.PhysicalHost = $SureBackupVL.Server.Name.split('.')[0]
+                                            $LocalizedData.PhysicalHost = if (Get-ValidateIP $SureBackupVL.Server.Name) { $SureBackupVL.Server.Name } else { $SureBackupVL.Server.Name.split('.')[0] }
                                             $LocalizedData.PhysicalHostVersion = $SureBackupVL.Server.Info.Info
                                         }
                                         $OutObj += [pscustomobject](ConvertTo-HashToYN $inObj)

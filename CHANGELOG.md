@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ##### This project is community maintained and has no sponsorship from Veeam, its employees or any of its affiliates.
 
+## [1.0.8] - 2026-09-25
+
+### :arrows_clockwise: Fixed
+
+- Update module version to `v1.0.8`
+- Update AsBuiltReport.Diagram module to `v1.0.12`
+- Fix bug in the vSphereProxy diagram where standalone vSphere/Hyper-V hosts were not displayed correctly when using an IP instead of the FQDN as the host name
+- Refactor Get-AbrVbrDiagrammer function to improve diagram generation logic and remove New-AbrVeeamDiagram script
+- Migrate diagram code to use the AsBuiltReport.Diagram cmdlets
+
+### :bug: Fixed
+
+- Fix [#280](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/280)
+- Fix [#282](https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/issues/282)
+
 ## [1.0.7] - 2026-09-14
 
 ### :arrows_clockwise: Changed

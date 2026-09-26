@@ -5,7 +5,7 @@ function Get-AbrInfraDiagram {
     .DESCRIPTION
         This script creates a visual representation of the Veeam Backup & Replication infrastructure configuration. The output can be generated in PDF, SVG, DOT, or PNG formats. It leverages the PSGraph module for PowerShell and Graphviz for rendering the diagrams.
     .NOTES
-        Version:        1.0.7
+        Version:        1.0.8
         Author(s):      Jonathan Colon
         Twitter:        @asbuiltreport
         Github:         asbuiltreport
@@ -90,7 +90,7 @@ function Get-AbrInfraDiagram {
             # EntraID Graphviz Cluster
             if ($EntraID = Get-AbrBackupEntraIDInfo) {
                 try {
-                    $EntraIDNode = Node EntraID @{Label = (Add-HtmlNodeTable -Name 'EntraIDNode' -ImagesObj $Images -inputObject $EntraID.Name -Align 'Center' -iconType 'VBR_Microsoft_Entra_ID' -ColumnSize 2 -IconDebug $IconDebug -MultiIcon -AditionalInfo $EntraID.AditionalInfo -Subgraph -SubgraphLabel 'Entra ID Tenants' -SubgraphFontBold -SubgraphLabelPos 'top' -SubgraphIconType 'VBR_Microsoft_Entra_ID' -SubgraphTableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -SubgraphLabelFontColor $FontColor -SubgraphLabelFontSize 22 -FontSize 18 -TableBackgroundColor $MainGraphBGColor -CellBackgroundColor $MainGraphBGColor -FontColor $Fontcolor); shape = 'plain'; fontname = 'Segoe Ui' }
+                    $EntraIDNode = Add-HtmlNodeTable -Name 'EntraID' -ImagesObj $Images -inputObject $EntraID.Name -Align 'Center' -iconType 'VBR_Microsoft_Entra_ID' -ColumnSize 2 -IconDebug $IconDebug -MultiIcon -AditionalInfo $EntraID.AditionalInfo -Subgraph -SubgraphLabel 'Entra ID Tenants' -SubgraphFontBold -SubgraphLabelPos 'top' -SubgraphIconType 'VBR_Microsoft_Entra_ID' -SubgraphTableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -SubgraphLabelFontColor $FontColor -SubgraphLabelFontSize 22 -FontSize 18 -TableBackgroundColor $MainGraphBGColor -CellBackgroundColor $MainGraphBGColor -FontColor $Fontcolor -NodeObject
                 } catch {
                     Write-PScriboMessage 'Error: Unable to create EntraID Objects. Disabling the section'
                     Write-PScriboMessage "Error Message: $($_.Exception.Message)"
@@ -157,7 +157,7 @@ function Get-AbrInfraDiagram {
                 }
 
                 try {
-                    $ProxiesSubgraphNode = Node -Name 'Proxies' -Attributes @{Label = (Add-HtmlSubGraph -Name 'Proxies' -ImagesObj $Images -TableArray $ProxyNodesArray -Align 'Center' -IconDebug $IconDebug -IconType 'VBR_Proxy' -Label 'Backup Proxies' -LabelPos 'top' -FontColor $Fontcolor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -ColumnSize 3 -FontSize 24 -FontBold -TableBackgroundColor $MainGraphBGColor); shape = 'plain'; fillColor = 'transparent'; fontsize = 14; fontname = 'Segoe Ui' }
+                    $ProxiesSubgraphNode = Add-HtmlSubGraph -Name 'Proxies' -ImagesObj $Images -TableArray $ProxyNodesArray -Align 'Center' -IconDebug $IconDebug -IconType 'VBR_Proxy' -Label 'Backup Proxies' -LabelPos 'top' -FontColor $Fontcolor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -ColumnSize 3 -FontSize 24 -FontBold -TableBackgroundColor $MainGraphBGColor -NodeObject
                 } catch {
                     Write-PScriboMessage 'Error: Unable to create Proxies SubGraph Objects. Disabling the section'
                     Write-PScriboMessage "Error Message: $($_.Exception.Message)"
@@ -357,9 +357,9 @@ function Get-AbrInfraDiagram {
                 }
 
                 try {
-                    $VirtualNodesArraySubgraphNode = Node -Name 'VirtualInfra' -Attributes @{Label = (Add-HtmlSubGraph -Name 'VirtualInfra' -ImagesObj $Images -TableArray $VirtualNodesArray -Align 'Center' -IconDebug $IconDebug -IconType 'VBR_Proxy' -Label 'Virtual Infrastructure' -LabelPos 'top' -FontColor $Fontcolor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -ColumnSize 1 -FontSize 26 -FontBold -TableBackgroundColor $MainGraphBGColor); shape = 'plain'; fillColor = 'transparent'; fontsize = 14; fontname = 'Segoe Ui' }
+                    $VirtualNodesArraySubgraphNode = Add-HtmlSubGraph -Name 'VirtualInfra' -ImagesObj $Images -TableArray $VirtualNodesArray -Align 'Center' -IconDebug $IconDebug -IconType 'VBR_Proxy' -Label 'Virtual Infrastructure' -LabelPos 'top' -FontColor $Fontcolor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -ColumnSize 1 -FontSize 26 -FontBold -TableBackgroundColor $MainGraphBGColor -NodeObject
                 } catch {
-                    Write-PScriboMessage 'Error: Unable to create SureBackup SubGraph Objects. Disabling the section'
+                    Write-PScriboMessage 'Error: Unable to create Virtual Infrastructure SubGraph Objects. Disabling the section'
                     Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                 }
 
@@ -421,7 +421,7 @@ function Get-AbrInfraDiagram {
 
             if ($OnpremStorageArray) {
                 try {
-                    $OnpremStorageSubgraphNode = Node -Name 'Repositories' -Attributes @{Label = (Add-HtmlSubGraph -Name 'Repositories' -ImagesObj $Images -TableArray $OnpremStorageArray -Align 'Center' -IconDebug $IconDebug -IconType 'VBR_Proxy' -Label 'On-Premises Storage Infrastructure' -LabelPos 'top' -FontColor $FontColor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -ColumnSize 1 -FontSize 26 -FontBold -TableBackgroundColor $MainGraphBGColor); shape = 'plain'; fillColor = 'transparent'; fontsize = 14; fontname = 'Segoe Ui' }
+                    $OnpremStorageSubgraphNode = Add-HtmlSubGraph -Name 'Repositories' -ImagesObj $Images -TableArray $OnpremStorageArray -Align 'Center' -IconDebug $IconDebug -IconType 'VBR_Proxy' -Label 'On-Premises Storage Infrastructure' -LabelPos 'top' -FontColor $FontColor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -ColumnSize 1 -FontSize 26 -FontBold -TableBackgroundColor $MainGraphBGColor -NodeObject
                 } catch {
                     Write-PScriboMessage 'Error: Unable to create OnPremStorage SubGraph Objects. Disabling the section'
                     Write-PScriboMessage "Error Message: $($_.Exception.Message)"
@@ -444,7 +444,7 @@ function Get-AbrInfraDiagram {
                 try {
                     $ObjectRepositoriesNode = Add-HtmlNodeTable -Name 'ObjectRepositoriesNode' -ImagesObj $Images -inputObject $ObjectRepositoriesInfo.Name -Align 'Center' -iconType $ObjectRepositoriesInfo.Icontype -ColumnSize $columnSize -IconDebug $IconDebug -MultiIcon -AditionalInfo $ObjectRepositoriesInfo.AditionalInfo -Subgraph -SubgraphIconType 'VBR_vSphere' -SubgraphLabel 'Object Repositories' -SubgraphLabelPos 'top' -SubgraphTableStyle 'dashed,rounded' -SubgraphLabelFontColor $FontColor -FontColor $FontColor -TableBorderColor $Edgecolor -TableBorder '1' -SubgraphLabelFontSize 22 -FontSize 18 -SubgraphFontBold -TableBackgroundColor $MainGraphBGColor -CellBackgroundColor $MainGraphBGColor
                 } catch {
-                    Write-PScriboMessage 'Error: Unable to create ObjectRepositories Objects. Disabling the section'
+                    Write-PScriboMessage 'Error: Unable to create Object Repositories SubGraph Objects. Disabling the section'
                     Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                 }
             }
@@ -459,7 +459,7 @@ function Get-AbrInfraDiagram {
                 try {
                     $ArchObjRepositoriesNode = Add-HtmlNodeTable -Name 'ArchObjRepositoriesNode' -ImagesObj $Images -inputObject $ArchObjRepositoriesInfo.Name -Align 'Center' -iconType $ArchObjRepositoriesInfo.Icontype -ColumnSize $columnSize -IconDebug $IconDebug -MultiIcon -AditionalInfo $ArchObjRepositoriesInfo.AditionalInfo -Subgraph -SubgraphIconType 'VBR_vSphere' -SubgraphLabel 'Archives Object Repositories' -SubgraphLabelPos 'top' -SubgraphTableStyle 'dashed,rounded' -SubgraphLabelFontColor $FontColor -FontColor $FontColor -TableBorderColor $Edgecolor -TableBorder '1' -SubgraphLabelFontSize 22 -FontSize 18 -SubgraphFontBold -TableBackgroundColor $MainGraphBGColor -CellBackgroundColor $MainGraphBGColor
                 } catch {
-                    Write-PScriboMessage 'Error: Unable to create ArchiveObjectRepositories Objects. Disabling the section'
+                    Write-PScriboMessage 'Error: Unable to create Archive Object Repositories SubGraph Objects. Disabling the section'
                     Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                 }
             }
@@ -475,9 +475,9 @@ function Get-AbrInfraDiagram {
                 }
 
                 try {
-                    $ObjStorageSubgraphNode = Node -Name 'ObjectRepos' -Attributes @{Label = (Add-HtmlSubGraph -Name 'ObjectRepos' -ImagesObj $Images -TableArray $ObjStorageNodeArray -Align 'Center' -IconDebug $IconDebug -IconType 'VBR_Object' -Label 'Object Storage' -LabelPos 'top' -FontColor $Fontcolor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -ColumnSize 1 -FontSize 26 -FontBold -TableBackgroundColor $MainGraphBGColor); shape = 'plain'; fillColor = 'transparent'; fontsize = 14; fontname = 'Segoe Ui' }
+                    $ObjStorageSubgraphNode = Add-HtmlSubGraph -Name 'ObjectRepos' -ImagesObj $Images -TableArray $ObjStorageNodeArray -Align 'Center' -IconDebug $IconDebug -IconType 'VBR_Object' -Label 'Object Storage' -LabelPos 'top' -FontColor $Fontcolor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -ColumnSize 1 -FontSize 26 -FontBold -TableBackgroundColor $MainGraphBGColor -NodeObject
                 } catch {
-                    Write-PScriboMessage 'Error: Unable to create SureBackup SubGraph Objects. Disabling the section'
+                    Write-PScriboMessage 'Error: Unable to create Object Storage SubGraph Objects. Disabling the section'
                     Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                 }
 
@@ -494,7 +494,7 @@ function Get-AbrInfraDiagram {
                     $columnSize = 5
                 }
                 try {
-                    $WanAccelsNode = Node WanAccelServer @{Label = (Add-HtmlNodeTable -Name 'WanAccelServer' -ImagesObj $Images -inputObject ($WanAccels | ForEach-Object { $_.Name }) -Align 'Center' -iconType 'VBR_Wan_Accel' -ColumnSize $columnSize -IconDebug $IconDebug -MultiIcon -AditionalInfo $WanAccels.AditionalInfo -Subgraph -SubgraphLabel 'Wan Accelerators' -SubgraphLabelPos 'top' -SubgraphIconType 'VBR_Wan_Accel' -SubgraphTableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -SubgraphLabelFontSize 22 -FontSize 18 -SubgraphFontBold -TableBackgroundColor $MainGraphBGColor -CellBackgroundColor $MainGraphBGColor -FontColor $Fontcolor -SubgraphLabelFontColor $Fontcolor); shape = 'plain'; fontname = 'Segoe Ui' }
+                    $WanAccelsNode = Add-HtmlNodeTable -Name 'WanAccelServer' -ImagesObj $Images -inputObject ($WanAccels | ForEach-Object { $_.Name }) -Align 'Center' -iconType 'VBR_Wan_Accel' -ColumnSize $columnSize -IconDebug $IconDebug -MultiIcon -AditionalInfo $WanAccels.AditionalInfo -Subgraph -SubgraphLabel 'Wan Accelerators' -SubgraphLabelPos 'top' -SubgraphIconType 'VBR_Wan_Accel' -SubgraphTableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -SubgraphLabelFontSize 22 -FontSize 18 -SubgraphFontBold -TableBackgroundColor $MainGraphBGColor -CellBackgroundColor $MainGraphBGColor -FontColor $Fontcolor -SubgraphLabelFontColor $Fontcolor -NodeObject
                 } catch {
                     Write-PScriboMessage 'Error: Unable to create WanAccelerators Objects. Disabling the section'
                     Write-PScriboMessage "Error Message: $($_.Exception.Message)"
@@ -553,7 +553,7 @@ function Get-AbrInfraDiagram {
             }
             if ($TapeServerInfo -and $TapeServerNode) {
                 try {
-                    $TapeServerSubGraph = Node -Name 'TapeInfra' -Attributes @{Label = (Add-HtmlSubGraph -Name 'TapeInfra' -ImagesObj $Images -TableArray $TapeInfraArray -Align 'Center' -IconDebug $IconDebug -IconType 'VBR_Tape' -Label 'Tape Infrastructure' -LabelPos 'top' -FontColor $Fontcolor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -ColumnSize 1 -FontSize 24 -FontBold -TableBackgroundColor $MainGraphBGColor); shape = 'plain'; fillColor = 'transparent'; fontsize = 14; fontname = 'Segoe Ui' }
+                    $TapeServerSubGraph = Add-HtmlSubGraph -Name 'TapeInfra' -ImagesObj $Images -TableArray $TapeInfraArray -Align 'Center' -IconDebug $IconDebug -IconType 'VBR_Tape' -Label 'Tape Infrastructure' -LabelPos 'top' -FontColor $Fontcolor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -ColumnSize 1 -FontSize 24 -FontBold -TableBackgroundColor $MainGraphBGColor -NodeObject
                 } catch {
                     Write-PScriboMessage 'Error: Unable to create TapeInfra SubGraph Objects. Disabling the section'
                     Write-PScriboMessage "Error Message: $($_.Exception.Message)"
@@ -576,7 +576,7 @@ function Get-AbrInfraDiagram {
             if ($ServiceProviderInfo -and $ServiceProviderNode) {
 
                 try {
-                    $ServiceProviderSubgraphNode = Node -Name ServiceProviders -Attributes @{Label = (Add-HtmlSubGraph -Name 'ServiceProviders' -ImagesObj $Images -TableArray $ServiceProviderNode -Align 'Center' -IconDebug $IconDebug -IconType 'VBR_Service_Providers' -Label 'Service Providers' -LabelPos 'top' -FontColor $Fontcolor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -ColumnSize 2 -FontSize 22 -FontBold -TableBackgroundColor $MainGraphBGColor); shape = 'plain'; fillColor = 'transparent'; fontsize = 14; fontname = 'Segoe Ui' }
+                    $ServiceProviderSubgraphNode = Add-HtmlSubGraph -Name 'ServiceProviders' -ImagesObj $Images -TableArray $ServiceProviderNode -Align 'Center' -IconDebug $IconDebug -IconType 'VBR_Service_Providers' -Label 'Service Providers' -LabelPos 'top' -FontColor $Fontcolor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -ColumnSize 2 -FontSize 22 -FontBold -TableBackgroundColor $MainGraphBGColor -NodeObject
                 } catch {
                     Write-PScriboMessage 'Error: Unable to create ServiceProviders SubGraph Objects. Disabling the section'
                     Write-PScriboMessage "Error Message: $($_.Exception.Message)"
@@ -631,7 +631,7 @@ function Get-AbrInfraDiagram {
                 }
 
                 try {
-                    $SureBackupSubgraphNode = Node -Name 'SureBackup' -Attributes @{Label = (Add-HtmlSubGraph -Name 'SureBackup' -ImagesObj $Images -TableArray $SureBackupSubgraphNodeArray -Align 'Center' -IconDebug $IconDebug -IconType 'VBR_SureBackup' -Label 'SureBackup' -LabelPos 'top' -FontColor $Fontcolor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -ColumnSize 1 -FontSize 22 -FontBold -TableBackgroundColor $MainGraphBGColor); shape = 'plain'; fillColor = 'transparent'; fontsize = 14; fontname = 'Segoe Ui' }
+                    $SureBackupSubgraphNode = Add-HtmlSubGraph -Name 'SureBackup' -ImagesObj $Images -TableArray $SureBackupSubgraphNodeArray -Align 'Center' -IconDebug $IconDebug -IconType 'VBR_SureBackup' -Label 'SureBackup' -LabelPos 'top' -FontColor $Fontcolor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -ColumnSize 1 -FontSize 22 -FontBold -TableBackgroundColor $MainGraphBGColor -NodeObject
                 } catch {
                     Write-PScriboMessage 'Error: Unable to create SureBackup SubGraph Objects. Disabling the section'
                     Write-PScriboMessage "Error Message: $($_.Exception.Message)"
@@ -745,7 +745,7 @@ function Get-AbrInfraDiagram {
             }
             if ($CGServerInfo -and $CGServerNode) {
                 try {
-                    $CGServerSubGraph = Node -Name 'CloudConnectInfra' -Attributes @{Label = (Add-HtmlSubGraph -Name 'CloudConnectInfra' -ImagesObj $Images -TableArray $CloudConnectInfraArray -Align 'Center' -IconDebug $IconDebug -IconType 'VBR_Cloud_Connect' -Label 'Cloud Connect Infrastructure' -LabelPos 'top' -FontColor $Fontcolor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -ColumnSize 1 -FontSize 24 -FontBold -TableBackgroundColor $MainGraphBGColor); shape = 'plain'; fillColor = 'transparent'; fontsize = 14; fontname = 'Segoe Ui' }
+                    $CGServerSubGraph = Add-HtmlSubGraph -Name 'CloudConnectInfra' -ImagesObj $Images -TableArray $CloudConnectInfraArray -Align 'Center' -IconDebug $IconDebug -IconType 'VBR_Cloud_Connect' -Label 'Cloud Connect Infrastructure' -LabelPos 'top' -FontColor $Fontcolor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -ColumnSize 1 -FontSize 24 -FontBold -TableBackgroundColor $MainGraphBGColor -NodeObject
                 } catch {
                     Write-PScriboMessage 'Error: Unable to create CloudConnectInfra SubGraph Objects. Disabling the section'
                     Write-PScriboMessage "Error Message: $($_.Exception.Message)"
@@ -819,10 +819,9 @@ function Get-AbrInfraDiagram {
             Rank $NodeStartEnd, $Node
 
             #---------------------------------------------------------------------------------------------#
-            #                             Graphviz Edge Section                                           #
-            #                   Edges are Graphviz elements use to interconnect Nodes                     #
-            #                 Edges can have attribues like Shape, Size, Styles etc..                     #
-            #              PSgraph: https://psgraph.readthedocs.io/en/latest/Command-Edge/                #
+            #                            Add-NodeEdge Section                                              #
+            #                   Edges define relationships between nodes                                   #
+            # https://github.com/AsBuiltReport/AsBuiltReport.Diagram/blob/dev/AsBuiltReport.Diagram/Src/Private/Add-NodeEdge.ps1 #
             #                      Graphviz: https://graphviz.org/docs/edges/                             #
             #---------------------------------------------------------------------------------------------#
 
@@ -830,21 +829,23 @@ function Get-AbrInfraDiagram {
             $LastPointMinLen = 30
             # Connect the Dummy Node in a straight line
             # VBRStartPoint --- VBRServerPointSpace --- VBRProxyPoint --- VBRProxyPointSpace --- VBRRepoPoint --- VBREndPointSpace
-            Edge -From VBRStartPoint -To VBRServerPointSpace @{minlen = 25; arrowtail = 'none'; arrowhead = 'none'; style = 'filled' }
-            Edge -From VBRServerPointSpace -To VBRProxyPoint @{minlen = 25; arrowtail = 'none'; arrowhead = 'none'; style = 'filled' }
+            Add-NodeEdge -From VBRStartPoint -To VBRServerPointSpace -Arrowtail none -Arrowhead none -EdgeLength 25 -EdgeThickness 3 -EdgeColor $Edgecolor -GraphvizAttributes @{ style = 'filled' }
+            Add-NodeEdge -From VBRServerPointSpace -To VBRProxyPoint -Arrowtail none -Arrowhead none -EdgeLength 25 -EdgeThickness 3 -EdgeColor $Edgecolor -GraphvizAttributes @{ style = 'filled' }
             if ($ProxiesVi -and $ProxiesHv -and $ProxiesNas ) {
-                Edge -From VBRProxyPoint -To VBRProxyPointSpace @{minlen = 20; arrowtail = 'none'; arrowhead = 'none'; style = 'filled' }
+                Add-NodeEdge -From VBRProxyPoint -To VBRProxyPointSpace -Arrowtail none -Arrowhead none -EdgeLength 20 -EdgeThickness 3 -EdgeColor $Edgecolor -GraphvizAttributes @{ style = 'filled' }
             } else {
-                Edge -From VBRProxyPoint -To VBRProxyPointSpace @{minlen = 18; arrowtail = 'none'; arrowhead = 'none'; style = 'filled' }
+                Add-NodeEdge -From VBRProxyPoint -To VBRProxyPointSpace -Arrowtail none -Arrowhead none -EdgeLength 18 -EdgeThickness 3 -EdgeColor $Edgecolor -GraphvizAttributes @{ style = 'filled' }
             }
-            Edge -From VBRProxyPointSpace -To VBRRepoPoint @{minlen = 20; arrowtail = 'none'; arrowhead = 'none'; style = 'filled' }
-            Edge -From VBRRepoPoint -To VBRRepoPointSpace @{minlen = 20; arrowtail = 'none'; arrowhead = 'none'; style = 'filled' }
+            Add-NodeEdge -From VBRProxyPointSpace -To VBRRepoPoint -Arrowtail none -Arrowhead none -EdgeLength 20 -EdgeThickness 3 -EdgeColor $Edgecolor -GraphvizAttributes @{ style = 'filled' }
+            Add-NodeEdge -From VBRRepoPoint -To VBRRepoPointSpace -Arrowtail none -Arrowhead none -EdgeLength 20 -EdgeThickness 3 -EdgeColor $Edgecolor -GraphvizAttributes @{ style = 'filled' }
 
             # Connect the available Points
             $index = 0
             foreach ($Element in $NodeEdge) {
                 $index++
-                Edge -From $Element -To $NodeEdge[$index] @{minlen = 18; arrowtail = 'none'; arrowhead = 'none'; style = 'filled' }
+                if ($NodeEdge[$index]) {
+                    Add-NodeEdge -From $Element -To $NodeEdge[$index] -Arrowtail none -Arrowhead none -EdgeLength 18 -EdgeStyle solid -EdgeThickness 3 -EdgeColor $Edgecolor
+                }
             }
 
             ####################################################################################
@@ -854,58 +855,58 @@ function Get-AbrInfraDiagram {
             ####################################################################################
 
             # Connect Veeam Backup server to the Dummy line
-            Edge -From BackupServers -To VBRServerPointSpace @{minlen = 2; arrowtail = 'dot'; arrowhead = 'none'; style = 'dashed' }
+            Add-NodeEdge -From BackupServers -To VBRServerPointSpace -EdgeStyle dashed -Arrowtail dot -Arrowhead none -EdgeLength 2 -EdgeThickness 3 -EdgeColor $Edgecolor
 
             if ($HAClusterInfo) {
-                Edge -From VBRServerPointSpace -To HAClusterServers @{minlen = 1; arrowtail = 'none'; arrowhead = 'dot'; style = 'dashed' }
+                Add-NodeEdge -From VBRServerPointSpace -To HAClusterServers -EdgeStyle dashed -Arrowtail none -Arrowhead dot -EdgeLength 1 -EdgeThickness 3 -EdgeColor $Edgecolor
             }
 
             # Connect Microsoft Entra ID Node to the Dummy line
             if ($EntraIDNode) {
-                Edge -From EntraID -To VBRProxyPoint @{minlen = 2; arrowtail = 'dot'; arrowhead = 'none'; style = 'dashed' }
+                Add-NodeEdge -From EntraID -To VBRProxyPoint -EdgeStyle dashed -Arrowtail dot -Arrowhead none -EdgeLength 2 -EdgeThickness 3 -EdgeColor $Edgecolor
             }
 
             # Connect Veeam Proxies Server to the Dummy line
             if ($ProxiesSubgraphNode) {
-                Edge -From VBRProxyPoint -To Proxies @{minlen = 1; arrowtail = 'none'; arrowhead = 'dot'; style = 'dashed' }
+                Add-NodeEdge -From VBRProxyPoint -To Proxies -EdgeStyle dashed -Arrowtail none -Arrowhead dot -EdgeLength 1 -EdgeThickness 3 -EdgeColor $Edgecolor
             }
 
             # Connect vCenter Servers Cluster to the Dummy line
             if ($ViClustersSubgraphNode -or $HvClustersSubgraphNode) {
-                Edge -From Proxies -To VirtualInfra @{minlen = 1; arrowtail = 'dot'; arrowhead = 'dot'; style = 'dashed' }
+                Add-NodeEdge -From Proxies -To VirtualInfra -EdgeStyle dashed -Arrowtail dot -Arrowhead dot -EdgeLength 1 -EdgeThickness 3 -EdgeColor $Edgecolor
             }
 
             # Connect Veeam Repository to the Dummy line
-            Edge -From VBRRepoPoint -To Repositories @{minlen = 1; arrowtail = 'none'; arrowhead = 'dot'; style = 'dashed' }
+            Add-NodeEdge -From VBRRepoPoint -To Repositories -EdgeStyle dashed -Arrowtail none -Arrowhead dot -EdgeLength 1 -EdgeThickness 3 -EdgeColor $Edgecolor
 
             # Connect Veeam Object Repository to the Dummy line
             if ($ObjStorageSubgraphNode) {
-                Edge -To VBRRepoPoint -From ObjectRepos @{minlen = 2; arrowtail = 'dot'; arrowhead = 'none'; style = 'dashed' }
+                Add-NodeEdge -From ObjectRepos -To VBRRepoPoint -EdgeStyle dashed -Arrowtail dot -Arrowhead none -EdgeLength 2 -EdgeThickness 3 -EdgeColor $Edgecolor
             }
 
             # Connect Veeam Wan Accelerator to the Dummy line
             if ($WanAccels -and $WanAccelsNode) {
-                Edge -From WanAccelServer -To VBRWanAccelPoint @{minlen = 2; arrowtail = 'dot'; arrowhead = 'none'; style = 'dashed' }
+                Add-NodeEdge -From WanAccelServer -To VBRWanAccelPoint -EdgeStyle dashed -Arrowtail dot -Arrowhead none -EdgeLength 2 -EdgeThickness 3 -EdgeColor $Edgecolor
             }
 
             # Connect Veeam Tape Infra to VBRTapePoint Dummy line
             if ($TapeServerInfo -and $TapeServerNode) {
-                Edge -From VBRTapePoint -To TapeInfra @{minlen = 1; arrowtail = 'none'; arrowhead = 'dot'; style = 'dashed' }
+                Add-NodeEdge -From VBRTapePoint -To TapeInfra -EdgeStyle dashed -Arrowtail none -Arrowhead dot -EdgeLength 1 -EdgeThickness 3 -EdgeColor $Edgecolor
             }
 
             # Connect Veeam ServiceProvider Infra to VBRServiceProviderPoint Dummy line
             if ($ServiceProviderSubgraphNode) {
-                Edge -From ServiceProviders -To VBRServiceProviderPoint @{minlen = 2; arrowtail = 'dot'; arrowhead = 'none'; style = 'dashed' }
+                Add-NodeEdge -From ServiceProviders -To VBRServiceProviderPoint -EdgeStyle dashed -Arrowtail dot -Arrowhead none -EdgeLength 2 -EdgeThickness 3 -EdgeColor $Edgecolor
             }
 
             # Connect Veeam Object Repository to the Dummy line
             if ($SureBackupSubgraphNode) {
-                Edge -From SureBackup -To VBRSureBackupPoint @{minlen = 2; arrowtail = 'dot'; arrowhead = 'none'; style = 'dashed' }
+                Add-NodeEdge -From SureBackup -To VBRSureBackupPoint -EdgeStyle dashed -Arrowtail dot -Arrowhead none -EdgeLength 2 -EdgeThickness 3 -EdgeColor $Edgecolor
             }
 
             # Connect Veeam Cloud Connect object to the Dummy line
             if ($CGServerSubGraph) {
-                Edge -From VBRCloudConnectPoint -To CloudConnectInfra @{minlen = 1; arrowtail = 'dot'; arrowhead = 'none'; style = 'dashed' }
+                Add-NodeEdge -From VBRCloudConnectPoint -To CloudConnectInfra -EdgeStyle dashed -Arrowtail dot -Arrowhead none -EdgeLength 1 -EdgeThickness 3 -EdgeColor $Edgecolor
             }
 
             ####################################################################################
@@ -915,7 +916,7 @@ function Get-AbrInfraDiagram {
             ####################################################################################
 
             if ($LastPoint) {
-                Edge -From $LastPoint -To VBREndPointSpace @{minlen = $LastPointMinLen; arrowtail = 'none'; arrowhead = 'none'; style = 'filled' }
+                Add-NodeEdge -From $LastPoint -To VBREndPointSpace -Arrowtail none -Arrowhead none -EdgeLength $LastPointMinLen -EdgeThickness 3 -EdgeColor $Edgecolor -GraphvizAttributes @{ style = 'filled' }
             }
         }
     }

@@ -5,7 +5,7 @@ function Get-AbrDiagBackupToFileProxy {
     .DESCRIPTION
         Build a diagram of the configuration of Veeam VBR in PDF/PNG/SVG formats using Psgraph.
     .NOTES
-        Version:        1.0.3
+        Version:        1.0.8
         Author:         AsBuiltReport Organization
         Twitter:        @asbuiltreport
         Github:         asbuiltreport
@@ -36,9 +36,9 @@ function Get-AbrDiagBackupToFileProxy {
                         $FileBackupProxyColumnSize = $FileBackupProxy.Name.Count
                     }
 
-                    Node FileProxies @{Label = (Add-HtmlNodeTable -Name 'FileProxies' -ImagesObj $Images -inputObject ($FileBackupProxy | ForEach-Object { $_.Name.split('.')[0] }) -Align 'Center' -iconType 'VBR_Proxy_Server' -ColumnSize $FileBackupProxyColumnSize -IconDebug $IconDebug -MultiIcon -AditionalInfo $FileBackupProxy.AditionalInfo -Subgraph -SubgraphIconType 'VBR_Proxy' -SubgraphLabel 'File Backup Proxies' -SubgraphLabelPos 'top' -SubgraphTableStyle 'dashed,rounded' -FontColor $Fontcolor -TableBackgroundColor $MainGraphBGColor -CellBackgroundColor $MainGraphBGColor -TableBorderColor $Edgecolor -TableBorder '1' -FontSize 18 -SubgraphLabelFontSize 26 -SubgraphFontBold -SubgraphLabelFontColor $Fontcolor); shape = 'plain'; fontsize = 14; fontname = 'Segoe Ui' }
+                    Add-HtmlNodeTable -Name 'FileProxies' -ImagesObj $Images -inputObject ($FileBackupProxy | ForEach-Object { if (Get-ValidateIP $_.Name) { $_.Name } else { $_.Name.split('.')[0] } }) -Align 'Center' -iconType 'VBR_Proxy_Server' -ColumnSize $FileBackupProxyColumnSize -IconDebug $IconDebug -MultiIcon -AditionalInfo $FileBackupProxy.AditionalInfo -Subgraph -SubgraphIconType 'VBR_Proxy' -SubgraphLabel 'File Backup Proxies' -SubgraphLabelPos 'top' -SubgraphTableStyle 'dashed,rounded' -FontColor $Fontcolor -TableBackgroundColor $MainGraphBGColor -CellBackgroundColor $MainGraphBGColor -TableBorderColor $Edgecolor -TableBorder '1' -FontSize 18 -SubgraphLabelFontSize 26 -SubgraphFontBold -SubgraphLabelFontColor $Fontcolor -NodeObject
 
-                    Edge -From BackupServers -To FileProxies @{minlen = 3 }
+                    Add-NodeEdge -From BackupServers -To FileProxies -EdgeColor $Edgecolor -EdgeStyle dashed -EdgeThickness 3 -EdgeLength 3
 
                 }
             }

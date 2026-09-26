@@ -37,7 +37,7 @@ function Get-AbrTapeServersInfo {
                 }
 
                 [PSCustomObject] @{
-                    Name = $_.Name.split('.')[0]
+                    Name = if (Get-ValidateIP $_.Name) { $_.Name } else { $_.Name.split('.')[0] }
                     AditionalInfo = $inobj
                 }
             }

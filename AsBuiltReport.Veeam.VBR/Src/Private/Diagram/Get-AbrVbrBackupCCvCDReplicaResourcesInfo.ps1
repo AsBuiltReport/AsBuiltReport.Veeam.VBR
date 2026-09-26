@@ -59,7 +59,7 @@ function Get-AbrBackupCCvCDReplicaResourcesInfo {
                         WanAcceleration = & {
                             if ($CloudObject.WANAccelarationEnabled) {
                                 if ($CloudObject.WANAccelerator.Name) {
-                                    $WANName = $CloudObject.WANAccelerator.Name.split('.')[0]
+                                    $WANName = if (Get-ValidateIP $CloudObject.WANAccelerator.Name) { "$($CloudObject.WANAccelerator.Name.toUpper())" } else { "$($CloudObject.WANAccelerator.Name.toUpper().split('.')[0])" }
                                     Get-AbrBackupWanAccelInfo | Where-Object { $_.Name -eq $WANName }
                                 }
                             }

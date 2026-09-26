@@ -6,7 +6,7 @@ function Get-AbrDiagBackupToHACluster {
     .DESCRIPTION
         Build a diagram of the configuration of Veeam VBR in PDF/PNG/SVG formats using Psgraph.
     .NOTES
-        Version:        1.0.1
+        Version:        1.0.8
         Author:         AsBuiltReport Organization
         Twitter:        @asbuiltreport
         Github:         asbuiltreport
@@ -95,13 +95,13 @@ function Get-AbrDiagBackupToHACluster {
                             Write-PScriboMessage "Error Message: $($_.Exception.Message)"
                         }
 
-                        Add-NodeEdge -From NetworkInfrastructure -To HAClusterServers -EdgeColor $Edgecolor -EdgeStyle solid -LabelDistance 1 -EdgeThickness 2 -Arrowhead box -Arrowtail box -EdgeLength 2
+                        Add-NodeEdge -From NetworkInfrastructure -To HAClusterServers -EdgeColor $Edgecolor -EdgeStyle solid -LabelDistance 1 -EdgeThickness 3 -Arrowhead box -Arrowtail box -EdgeLength 2
 
                         Add-NodeIcon -Name BackupConsole -LabelName 'Backup<BR/>Console' -IconType 'VBR_Webconsole' -Align 'Center' -ImagesObj $Images -IconDebug $IconDebug -FontSize 18 -FontBold -TableBackgroundColor $MainGraphBGColor -FontColor $Fontcolor -TableLayout Vertical -IconPath $IconPath -NodeObject -CellBackgroundColor $MainGraphBGColor
 
                         Add-NodeSpacer -Name Spacer1 -ShapeWidth 2 -ShapeHeight 2 -IconDebug $IconDebug
 
-                        Add-NodeEdge -From BackupConsole -To NetworkInfrastructure -EdgeColor 'blue' -EdgeStyle dashed -EdgeThickness 2 -Arrowhead normal -Arrowtail normal -EdgeLength 4
+                        Add-NodeEdge -From BackupConsole -To NetworkInfrastructure -EdgeColor 'blue' -EdgeStyle dashed -EdgeThickness 3 -Arrowhead normal -Arrowtail normal -EdgeLength 4
 
                         Add-NodeEdge -From Spacer1 -To HAClusterServers -EdgeColor $MainGraphBGColor -EdgeStyle solid -EdgeThickness 1 -Arrowhead normal -Arrowtail normal -EdgeLength 2
 

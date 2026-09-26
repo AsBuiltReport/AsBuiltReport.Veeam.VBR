@@ -38,15 +38,7 @@ function Get-AbrDiagBackupToCloudConnectTenant {
                 }
                 if ($TenantInfo) {
                     $TenantInfo
-                    Edge -From 'TenantInfo' -To 'TenantGateway' -Attributes @{
-                        color = $Edgecolor;
-                        style = 'dashed';
-                        fontname = 'Segoe Ui';
-                        fontsize = 14;
-                        arrowtail = 'dot';
-                        arrowhead = 'dot';
-                        minlen = 5;
-                    }
+                    Add-NodeEdge -From 'TenantInfo' -To 'TenantGateway' -EdgeColor $Edgecolor -EdgeStyle dashed -EdgeLabelFontSize 14 -Arrowtail dot -Arrowhead dot -EdgeLength 5 -GraphvizAttributes @{ fontname = 'Segoe Ui' }
                 }
 
             } catch {
@@ -76,14 +68,7 @@ function Get-AbrDiagBackupToCloudConnectTenant {
                             fontname = 'Segoe Ui'
                         }
 
-                        Edge -From 'TenantGateway' -To 'TenantGatewayConnector' -Attributes @{
-                            color = $Edgecolor;
-                            style = 'dashed';
-                            fontname = 'Segoe Ui';
-                            fontsize = 14
-                            arrowtail = 'dot';
-                            arrowhead = 'none';
-                        }
+                        Add-NodeEdge -From 'TenantGateway' -To 'TenantGatewayConnector' -EdgeColor $Edgecolor -EdgeStyle dashed -EdgeLabelFontSize 14 -Arrowtail dot -Arrowhead none -GraphvizAttributes @{ fontname = 'Segoe Ui' }
                     }
                 } catch {
                     Write-PScriboMessage 'Error: Unable to create CloudGateway Server Objects. Disabling the section'
@@ -132,14 +117,7 @@ function Get-AbrDiagBackupToCloudConnectTenant {
                                 fontname = 'Segoe Ui'
                             }
 
-                            Edge -From 'TenantGateway' -To 'TenantGatewayConnector' -Attributes @{
-                                color = $Edgecolor;
-                                style = 'dashed';
-                                fontname = 'Segoe Ui';
-                                fontsize = 14
-                                arrowtail = 'dot';
-                                arrowhead = 'none';
-                            }
+                            Add-NodeEdge -From 'TenantGateway' -To 'TenantGatewayConnector' -EdgeColor $Edgecolor -EdgeStyle dashed -EdgeLabelFontSize 14 -Arrowtail dot -Arrowhead none -GraphvizAttributes @{ fontname = 'Segoe Ui' }
                         }
                     }
                 } catch {
@@ -282,15 +260,7 @@ function Get-AbrDiagBackupToCloudConnectTenant {
                         fontname = 'Segoe Ui'
                     }
 
-                    Edge -From 'TenantBackupStorage' -To 'TenantBackupStorageSubTenant' -Attributes @{
-                        color = $Edgecolor;
-                        style = 'dashed';
-                        fontname = 'Segoe Ui';
-                        fontsize = 14
-                        arrowtail = 'dot';
-                        arrowhead = 'dot';
-                        minlen = 2;
-                    }
+                    Add-NodeEdge -From 'TenantBackupStorage' -To 'TenantBackupStorageSubTenant' -EdgeColor $Edgecolor -EdgeStyle dashed -EdgeLabelFontSize 14 -Arrowtail dot -Arrowhead dot -EdgeLength 2 -GraphvizAttributes @{ fontname = 'Segoe Ui' }
                 }
 
             }
@@ -455,15 +425,7 @@ function Get-AbrDiagBackupToCloudConnectTenant {
                         fontname = 'Segoe Ui'
                     }
 
-                    Edge -From 'TenantReplicaResources' -To 'TenantReplicaResourcesNetworkExtension' -Attributes @{
-                        color = $Edgecolor;
-                        style = 'dashed';
-                        fontname = 'Segoe Ui';
-                        fontsize = 14
-                        arrowtail = 'dot';
-                        arrowhead = 'dot';
-                        minlen = 3;
-                    }
+                    Add-NodeEdge -From 'TenantReplicaResources' -To 'TenantReplicaResourcesNetworkExtension' -EdgeColor $Edgecolor -EdgeStyle dashed -EdgeLabelFontSize 14 -Arrowtail dot -Arrowhead dot -EdgeLength 3 -GraphvizAttributes @{ fontname = 'Segoe Ui' }
                 }
             }
 
@@ -589,15 +551,7 @@ function Get-AbrDiagBackupToCloudConnectTenant {
                         fontname = 'Segoe Ui'
                     }
 
-                    Edge -From 'TenantReplicaResources' -To 'TenantReplicaResourcesNetworkExtension' -Attributes @{
-                        color = $Edgecolor;
-                        style = 'dashed';
-                        fontname = 'Segoe Ui';
-                        fontsize = 14
-                        arrowtail = 'dot';
-                        arrowhead = 'dot';
-                        minlen = 3;
-                    }
+                    Add-NodeEdge -From 'TenantReplicaResources' -To 'TenantReplicaResourcesNetworkExtension' -EdgeColor $Edgecolor -EdgeStyle dashed -EdgeLabelFontSize 14 -Arrowtail dot -Arrowhead dot -EdgeLength 3 -GraphvizAttributes @{ fontname = 'Segoe Ui' }
                 }
             }
 
@@ -607,46 +561,18 @@ function Get-AbrDiagBackupToCloudConnectTenant {
                 # Create Edge Connector Nodes
                 Add-InvertedTShapeLine -InvertedTStart 'TenantBackupStorageConnector' -InvertedTStartLineLength 5 -InvertedTMiddleTop 'TenantGatewayConnector' -InvertedTEndLineLength 5 -LineColor $Edgecolor -LineStyle 'dashed' -IconDebug $IconDebug -LineWidth $EdgeLineWidth -InvertedTEnd 'TenantReplicaResourcesConnector'
 
-                Edge -From 'TenantReplicaResourcesConnector' -To 'TenantReplicaResources' -Attributes @{
-                    color = $Edgecolor;
-                    style = 'dashed';
-                    fontname = 'Segoe Ui';
-                    fontsize = 14
-                    arrowtail = 'none';
-                    arrowhead = 'dot';
-                }
-                Edge -From 'TenantBackupStorage' -To 'TenantBackupStorageConnector' -Attributes @{
-                    color = $Edgecolor;
-                    style = 'dashed';
-                    fontname = 'Segoe Ui';
-                    fontsize = 14
-                    arrowtail = 'dot';
-                    arrowhead = 'none';
-                }
+                Add-NodeEdge -From 'TenantReplicaResourcesConnector' -To 'TenantReplicaResources' -EdgeColor $Edgecolor -EdgeStyle dashed -EdgeLabelFontSize 14 -Arrowtail none -Arrowhead dot -GraphvizAttributes @{ fontname = 'Segoe Ui' }
+                Add-NodeEdge -From 'TenantBackupStorage' -To 'TenantBackupStorageConnector' -EdgeColor $Edgecolor -EdgeStyle dashed -EdgeLabelFontSize 14 -Arrowtail dot -Arrowhead none -GraphvizAttributes @{ fontname = 'Segoe Ui' }
             } elseif ($CloudResourcesSubgraphNode -or $CloudvCDResourcesSubgraphNode) {
                 # Create Edge Connector Nodes
                 Add-VerticalLine -VStart 'TenantGatewayConnector' -VEnd 'TenantReplicaResourcesConnector' -LineColor $Edgecolor -LineStyle 'dashed' -IconDebug $IconDebug -LineWidth $EdgeLineWidth
 
-                Edge -From 'TenantReplicaResourcesConnector' -To 'TenantReplicaResources' -Attributes @{
-                    color = $Edgecolor;
-                    style = 'dashed';
-                    fontname = 'Segoe Ui';
-                    fontsize = 14
-                    arrowtail = 'none';
-                    arrowhead = 'dot';
-                }
+                Add-NodeEdge -From 'TenantReplicaResourcesConnector' -To 'TenantReplicaResources' -EdgeColor $Edgecolor -EdgeStyle dashed -EdgeLabelFontSize 14 -Arrowtail none -Arrowhead dot -GraphvizAttributes @{ fontname = 'Segoe Ui' }
             } elseif ($CloudRepoSubgraph) {
                 # Create Edge Connector Nodes
                 Add-VerticalLine -VStart 'TenantGatewayConnector' -VEnd 'TenantBackupStorageConnector' -LineColor $Edgecolor -LineStyle 'dashed' -IconDebug $IconDebug -LineWidth $EdgeLineWidth
 
-                Edge -From 'TenantBackupStorageConnector' -To 'TenantBackupStorage' -Attributes @{
-                    color = $Edgecolor;
-                    style = 'dashed';
-                    fontname = 'Segoe Ui';
-                    fontsize = 14
-                    arrowtail = 'none';
-                    arrowhead = 'dot';
-                }
+                Add-NodeEdge -From 'TenantBackupStorageConnector' -To 'TenantBackupStorage' -EdgeColor $Edgecolor -EdgeStyle dashed -EdgeLabelFontSize 14 -Arrowtail none -Arrowhead dot -GraphvizAttributes @{ fontname = 'Segoe Ui' }
             }
         }
     }

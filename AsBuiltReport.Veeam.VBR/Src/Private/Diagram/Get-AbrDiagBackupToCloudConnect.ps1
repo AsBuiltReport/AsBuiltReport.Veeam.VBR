@@ -5,7 +5,7 @@ function Get-AbrDiagBackupToCloudConnect {
     .DESCRIPTION
         Build a diagram of the configuration of Veeam VBR in PDF/PNG/SVG formats using Psgraph.
     .NOTES
-        Version:        1.0.4
+        Version:        1.0.8
         Author:         AsBuiltReport Organization
         Twitter:        @asbuiltreport
         Github:         asbuiltreport
@@ -142,7 +142,7 @@ function Get-AbrDiagBackupToCloudConnect {
                 $CGServerSubGraphcolumnSize = 4
             }
             try {
-                $CGServerSubGraph = Node -Name 'CloudConnectInfra' -Attributes @{Label = (Add-HtmlSubGraph -Name 'CGServerSubGraph' -ImagesObj $Images -TableArray $CloudConnectInfraArray -Align 'Center' -IconDebug $IconDebug -IconType 'VBR_Cloud_Connect' -Label 'Cloud Connect Infrastructure' -LabelPos 'top' -FontColor $Fontcolor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -ColumnSize $CGServerSubGraphcolumnSize -FontSize 24 -FontBold -TableBackgroundColor $MainGraphBGColor); shape = 'plain'; fillColor = 'transparent'; fontsize = 14; fontname = 'Segoe Ui' }
+                $CGServerSubGraph = Add-HtmlSubGraph -Name 'CloudConnectInfra' -ImagesObj $Images -TableArray $CloudConnectInfraArray -Align 'Center' -IconDebug $IconDebug -IconType 'VBR_Cloud_Connect' -Label 'Cloud Connect Infrastructure' -LabelPos 'top' -FontColor $Fontcolor -TableStyle 'dashed,rounded' -TableBorderColor $Edgecolor -TableBorder '1' -ColumnSize $CGServerSubGraphcolumnSize -FontSize 24 -FontBold -TableBackgroundColor $MainGraphBGColor -NodeObject
             } catch {
                 Write-PScriboMessage 'Error: Unable to create CloudConnectInfra SubGraph Objects. Disabling the section'
                 Write-PScriboMessage "Error Message: $($_.Exception.Message)"
@@ -150,7 +150,7 @@ function Get-AbrDiagBackupToCloudConnect {
 
             if ($CGServerSubGraph) {
                 $CGServerSubGraph
-                Edge BackupServers -To CloudConnectInfra @{minlen = 3; }
+                Add-NodeEdge -From BackupServers -To CloudConnectInfra -EdgeColor $Edgecolor -EdgeStyle dashed -EdgeThickness 3 -EdgeLength 3
             }
         }
     }
