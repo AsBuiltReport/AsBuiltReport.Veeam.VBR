@@ -79,7 +79,7 @@ function Get-AbrBackupCCPerTenantInfo {
                                     WanAccelerationEnabled = $_.WanAccelerationEnabled
                                     WanAccelerator = & {
                                         if ($_.WanAccelerator.Name) {
-                                            $WANName = $_.WanAccelerator.Name.split('.')[0]
+                                            $WANName = if (Get-ValidateIP $_.WanAccelerator.Name) { "$($_.WanAccelerator.Name.toUpper())" } else { "$($_.WanAccelerator.Name.toUpper().split('.')[0])" }
                                             Get-AbrBackupWanAccelInfo | Where-Object { $_.Name -eq $WANName }
                                         }
                                     }
@@ -141,7 +141,7 @@ function Get-AbrBackupCCPerTenantInfo {
                                                     WanAcceleration = & {
                                                         if ($_.WanAccelerationEnabled) {
                                                             if ($_.WanAccelerator.Name) {
-                                                                $WANName = $_.WanAccelerator.Name.split('.')[0]
+                                                                $WANName = if (Get-ValidateIP $_.WanAccelerator.Name) { "$($_.WanAccelerator.Name.toUpper())" } else { "$($_.WanAccelerator.Name.toUpper().split('.')[0])" }
                                                                 Get-AbrBackupWanAccelInfo | Where-Object { $_.Name -eq $WANName }
                                                             }
                                                         }
@@ -217,7 +217,7 @@ function Get-AbrBackupCCPerTenantInfo {
                                                     WanAcceleration = & {
                                                         if ($_.WANAccelarationEnabled) {
                                                             if ($_.WANAccelerator.Name) {
-                                                                $WANName = $_.WANAccelerator.Name.split('.')[0]
+                                                                $WANName = if (Get-ValidateIP $_.WANAccelerator.Name) { "$($_.WANAccelerator.Name.toUpper())" } else { "$($_.WANAccelerator.Name.toUpper().split('.')[0])" }
 
                                                                 Get-AbrBackupWanAccelInfo | Where-Object { $_.Name -eq $WANName }
                                                             }
