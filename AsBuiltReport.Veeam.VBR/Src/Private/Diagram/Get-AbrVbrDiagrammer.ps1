@@ -326,7 +326,6 @@ function Get-AbrVbrDiagrammer {
                         $script:SubGraphDebug = @{style = 'dashed'; color = 'red' }
                         $script:NodeDebug = @{color = 'black'; style = 'red'; shape = 'plain' }
                         $script:NodeDebugEdge = @{color = 'black'; style = 'red'; shape = 'plain' }
-                    }
                     } else {
                         $script:SubGraphDebug = @{style = 'invis'; color = 'gray' }
                         $script:NodeDebug = @{color = 'transparent'; style = 'transparent'; shape = 'point' }
