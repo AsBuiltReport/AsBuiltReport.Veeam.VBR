@@ -321,10 +321,12 @@ function Get-AbrVbrDiagrammer {
                     $script:NewIcons = $NewIcons
                     $IsLocalServer = [bool]$Options.IsLocalServer
                     if ($Options.EnableDiagramDebug) {
+                        $IconDebug = $true
                         $script:EdgeDebug = @{style = 'filled'; color = 'red' }
                         $script:SubGraphDebug = @{style = 'dashed'; color = 'red' }
                         $script:NodeDebug = @{color = 'black'; style = 'red'; shape = 'plain' }
                         $script:NodeDebugEdge = @{color = 'black'; style = 'red'; shape = 'plain' }
+                    }
                     } else {
                         $script:SubGraphDebug = @{style = 'invis'; color = 'gray' }
                         $script:NodeDebug = @{color = 'transparent'; style = 'transparent'; shape = 'point' }
