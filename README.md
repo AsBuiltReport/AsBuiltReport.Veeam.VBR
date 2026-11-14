@@ -1,14 +1,14 @@
 <p align="center">
-    <a href="https://www.asbuiltreport.com/" alt="AsBuiltReport"></a>
-            <img src='https://avatars.githubusercontent.com/u/42958564' width="8%" height="8%" /></a>
+    <a href="https://www.asbuiltreport.com/">
+        <img src="https://raw.githubusercontent.com/AsBuiltReport/.github/main/assets/repo-banners/AsBuiltReport.Veeam.VBR.png" alt="AsBuiltReport.Veeam.VBR" width="880"></a>
 </p>
 <p align="center">
     <a href="https://www.powershellgallery.com/packages/AsBuiltReport.Veeam.VBR/" alt="PowerShell Gallery Version">
-        <img src="https://img.shields.io/powershellgallery/v/AsBuiltReport.Veeam.VBR.svg" /></a>
+        <img src="https://img.shields.io/powershellgallery/v/AsBuiltReport.Veeam.VBR.svg?color=1F5FD0" /></a>
     <a href="https://www.powershellgallery.com/packages/AsBuiltReport.Veeam.VBR/" alt="PS Gallery Downloads">
-        <img src="https://img.shields.io/powershellgallery/dt/AsBuiltReport.Veeam.VBR.svg" /></a>
+        <img src="https://img.shields.io/powershellgallery/dt/AsBuiltReport.Veeam.VBR.svg?color=012456" /></a>
     <a href="https://www.powershellgallery.com/packages/AsBuiltReport.Veeam.VBR/" alt="PS Platform">
-        <img src="https://img.shields.io/powershellgallery/p/AsBuiltReport.Veeam.VBR.svg" /></a>
+        <img src="https://img.shields.io/powershellgallery/p/AsBuiltReport.Veeam.VBR.svg?color=FFD02B" /></a>
 </p>
 <p align="center">
     <a href="https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/graphs/commit-activity" alt="GitHub Last Commit">
@@ -16,18 +16,12 @@
     <a href="https://raw.githubusercontent.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/master/LICENSE" alt="GitHub License">
         <img src="https://img.shields.io/github/license/AsBuiltReport/AsBuiltReport.Veeam.VBR.svg" /></a>
     <a href="https://github.com/AsBuiltReport/AsBuiltReport.Veeam.VBR/graphs/contributors" alt="GitHub Contributors">
-        <img src="https://img.shields.io/github/contributors/AsBuiltReport/AsBuiltReport.Veeam.VBR.svg"/></a>
-</p>
-<p align="center">
-    <a href="https://twitter.com/AsBuiltReport" alt="Twitter">
-            <img src="https://img.shields.io/twitter/follow/AsBuiltReport.svg?style=social"/></a>
+        <img src="https://img.shields.io/github/contributors/AsBuiltReport/AsBuiltReport.Veeam.VBR.svg?color=012456"/></a>
 </p>
 
 #### Community Maintained Project
 
 This project is maintained by the community and is not sponsored by Veeam, its employees, or any affiliates.
-
-# Veeam VBR As Built Report
 
 Veeam VBR As Built Report is a PowerShell module that works in conjunction with [AsBuiltReport.Core](https://github.com/AsBuiltReport/AsBuiltReport.Core).
 
@@ -35,7 +29,7 @@ Veeam VBR As Built Report is a PowerShell module that works in conjunction with 
 
 For more detailed information about this project, please visit the AsBuiltReport [website](https://www.asbuiltreport.com).
 
-# :books: Sample Reports
+# <img src="https://raw.githubusercontent.com/AsBuiltReport/.github/main/assets/section-icons/sample-reports.svg" alt="" width="28" height="28" align="top"> Sample Reports
 
 ## Sample Report - Veeam Style with EnableHealthCheck
 
@@ -47,18 +41,18 @@ Sample Veeam VBR As Built Report Diagram file: [Sample Diagram](Samples/AsBuiltR
 
 ![Sample Diagram](Samples/AsBuiltReport.Veeam.VBR.png)
 
-# :beginner: Getting Started
+# <img src="https://raw.githubusercontent.com/AsBuiltReport/.github/main/assets/section-icons/getting-started.svg" alt="" width="28" height="28" align="top"> Getting Started
 
 Below are the instructions on how to install, configure, and generate a Veeam VBR As Built report.
 
-## :floppy_disk: Supported Versions
+## <img src="https://raw.githubusercontent.com/AsBuiltReport/.github/main/assets/section-icons/supported-versions.svg" alt="" width="24" height="24" align="top"> Supported Versions
 
 The Veeam VBR As Built Report supports the following Veeam Backup & Replication versions:
 
 - Veeam Backup & Replication v12+ (Standard, Enterprise & Enterprise Plus Edition)
 - Veeam Backup & Replication v13+ (Windows and Linux Appliance)
 
-## :no_entry_sign: Unsupported Versions
+## <img src="https://raw.githubusercontent.com/AsBuiltReport/.github/main/assets/section-icons/unsupported-versions.svg" alt="" width="24" height="24" align="top"> Unsupported Versions
 
 - Veeam Backup & Replication v11 and earlier are no longer supported. Compatibility with these versions is not guaranteed, and any issues related to versions prior to v12 will not be addressed.
 - Community Edition is not supported
@@ -75,7 +69,7 @@ This report is compatible with the following PowerShell versions:
 
 The Veeam VBR As Built Report is only supported on PowerShell 5.1 when generating a report for Veeam Backup & Replication v12. For Veeam Backup & Replication v13, the report can be generated using PowerShell 7.
 
-## :wrench: System Requirements
+## <img src="https://raw.githubusercontent.com/AsBuiltReport/.github/main/assets/section-icons/system-requirements.svg" alt="" width="24" height="24" align="top"> System Requirements
 
 PowerShell 5.1/7 and the following PowerShell modules are required to generate a Veeam VBR As Built report:
 
@@ -86,14 +80,14 @@ PowerShell 5.1/7 and the following PowerShell modules are required to generate a
 - [PSGraph](https://github.com/KevinMarquette/PSGraph)
 - [Veeam.Backup.PowerShell](https://helpcenter.veeam.com/docs/backup/powershell/getting_started.html?ver=110)
 
-### :closed_lock_with_key: Required Privileges
+### <img src="https://raw.githubusercontent.com/AsBuiltReport/.github/main/assets/section-icons/required-privileges.svg" alt="" width="20" height="20" align="top"> Required Privileges
 
 Only users with the Veeam Backup Administrator role can generate a Veeam VBR As Built Report.
 
 > [!WARNING]
 > The report must be run in a console with administrator privileges (“Run as Administrator”).
 
-## :package: Module Installation
+## <img src="https://raw.githubusercontent.com/AsBuiltReport/.github/main/assets/section-icons/module-installation.svg" alt="" width="24" height="24" align="top"> Module Installation
 
 ### PowerShell
 
@@ -118,7 +112,7 @@ If you cannot use the PowerShell Gallery, you can install the module manually. E
 
 _Note: You can install the module to other paths by adding a new entry to the environment variable PSModulePath._
 
-## :pencil2: Configuration
+## <img src="https://raw.githubusercontent.com/AsBuiltReport/.github/main/assets/section-icons/configuration.svg" alt="" width="24" height="24" align="top"> Configuration
 
 The Veeam VBR As Built Report uses a JSON file to configure report information, options, detail, and health checks.
 
@@ -266,7 +260,7 @@ The table below outlines the default and maximum **InfoLevel** settings for each
 
 The **Healthcheck** schema is used to toggle health checks on or off.
 
-## :computer: Pwsh 5.1/7 Console Examples
+## <img src="https://raw.githubusercontent.com/AsBuiltReport/.github/main/assets/section-icons/examples.svg" alt="" width="24" height="24" align="top"> Pwsh 5.1/7 Console Examples
 
 Below are a few examples of running the AsBuiltReport script against a Veeam Backup Server. Refer to the `README.md` file in the main AsBuiltReport project repository for more examples.
 
@@ -285,7 +279,7 @@ PS C:\> New-AsBuiltReport -Report Veeam.VBR -Target veeam-vbr.pharmax.local -Cre
 PS C:\> New-AsBuiltReport -Report Veeam.VBR -Target veeam-vbr.pharmax.local -Username 'Domain\veeam_admin' -Password 'P@ssw0rd' -Format Html,Word -OutputFolderPath 'C:\Users\Jon\Documents' -SendEmail
 ```
 
-## :computer: Pwsh 7 GUI Examples
+## <img src="https://raw.githubusercontent.com/AsBuiltReport/.github/main/assets/section-icons/examples.svg" alt="" width="24" height="24" align="top"> Pwsh 7 GUI Examples
 
 The Veeam VBR As Built Report GUI can be used to generate reports without using the console. The GUI provides the same functionality as the console, but with a user-friendly interface. To launch the GUI, run the following command in a PowerShell terminal window:
 
@@ -298,7 +292,7 @@ PS C:\> Start-AsBuiltReportVBR
 
 ![alt text](Samples/Sample-Gui.png)
 
-## :chart_with_upwards_trend: Export Diagrams
+## <img src="https://raw.githubusercontent.com/AsBuiltReport/.github/main/assets/section-icons/export-diagrams.svg" alt="" width="24" height="24" align="top"> Export Diagrams
 
 The `Export-AsBuiltReportVBRDiagram` cmdlet can be used to export the infrastructure diagrams separately from the report generation process. This allows users to generate and export the diagrams in different formats (PDF, PNG, SVG) without having to generate the entire report.
 
@@ -308,7 +302,7 @@ PS C:\> $Creds = Get-Credential
 PS C:\> Export-AsBuiltReportVBRDiagram -Target veeam-vbr.pharmax.local -Credential $Creds -Format png -OutputFolderPath 'C:\Users\Jon\Documents' -DiagramType 'Backup-Infrastructure'
 ```
 
-### :memo: Log Collection
+### <img src="https://raw.githubusercontent.com/AsBuiltReport/.github/main/assets/section-icons/log-collection.svg" alt="" width="20" height="20" align="top"> Log Collection
 
 The `Get-AbrVbrLog` cmdlet can be used to collect AsBuiltReport.Veeam.VBR logs for troubleshooting purposes. This cmdlet collects the logs and diagnostic information from the powershell host running the report and saves them to a specified output folder.
 
@@ -317,7 +311,7 @@ The `Get-AbrVbrLog` cmdlet can be used to collect AsBuiltReport.Veeam.VBR logs f
 PS C:\> Get-AbrVbrLog -OutputFolderPath 'C:\Users\Jon\Desktop\' -IncludeErrorDetails
 ```
 
-## :x: Known Issues
+## <img src="https://raw.githubusercontent.com/AsBuiltReport/.github/main/assets/section-icons/known-issues.svg" alt="" width="24" height="24" align="top"> Known Issues
 
 - To run the report against a Veeam Backup & Replication v12 environment, the report must be installed using PowerShell 5.1. PowerShell 7 is not supported for v12 environments.
 - Many of Veeam's features depend on the Standard+ license, so the Community edition is not supported.
